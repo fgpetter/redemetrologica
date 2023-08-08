@@ -19,6 +19,9 @@ Auth::routes();
 
 Route::get('index/{locale}',[App\Http\Controllers\HomeController::class, 'lang']);
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
+Route::get('home', function(){
+  return view('site');
+});
 
 
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
