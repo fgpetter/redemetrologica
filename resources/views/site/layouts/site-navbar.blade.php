@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+<nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top border-bottom">
     <div class="container-fluid">
         <div>
             <a class="navbar-brand m-5 ps-5" href="#">

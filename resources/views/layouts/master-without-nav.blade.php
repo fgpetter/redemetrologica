@@ -12,8 +12,13 @@
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}">
-
+    {{-- font wansome --}}
+    <script src="https://kit.fontawesome.com/02f4ca9b8a.js" crossorigin="anonymous"></script>
+<hr style="padding-top: 150px;">
     @include('layouts.head-css')
+
+   
+
 </head>
 
 @yield('body')
