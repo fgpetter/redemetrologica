@@ -2,6 +2,7 @@
 @extends('site.layouts.site-navbar')
 
 
+
 <!-- {{-- banner inicial --}} -->
 <div class="card text-bg-dark">
     <img src="{{ asset('build\images\site\BANNER-HOME-TOPO.png') }}" class="card-img" alt="...">
@@ -67,7 +68,7 @@
 
 
 </div>
-<!-- {{-- cads iniciais --}} -->
+<!-- {{-- cards iniciais --}} -->
 
 <!-- {{-- bem vindo --}} -->
 <div class="d-flex justify-content-center m-5">
@@ -186,9 +187,6 @@
 </div>
 
 
-
-<!-- card carrousel -->
-
 <div id="carouselNoticiasControls" class="carousel carousel-dark slide" data-bs-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
@@ -197,7 +195,7 @@
                     <img src="{{ asset('build\images\site\Novo-Projeto-1-320x175.jpg') }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <p class=" bold h5">Inmetro alerta: cuidado com os...</p>
-                        <p class="opacity-50">ago 1st, 2023</p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> ago 1st, 2023</p>
                         <p class="opacity-50">Recebemos informações sobre pessoas mal-intencionadas que estão utilizando uniformes, crachás e documentos falsificados, alegando serem fiscais do Instituto.</p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -206,7 +204,7 @@
                     <img src="{{ asset('build\images\site\pexels-diego-romero-17515220-1-320x175.jpg') }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <p class=" bold h5">Anvisa atualiza norma que disciplina...</p>
-                        <p class="opacity-50">jul 26th, 2023</p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> jul 26th, 2023</p>
                         <p class="opacity-50"> A Diretoria Colegiada (Dicol) da Anvisa aprovou, nesta quarta-feira (3/5), uma nova norma que trata dos requisitos técnico-sanitários  para o funcionamento.</p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -215,7 +213,7 @@
                     <img src="{{ asset('build\images\site\metrologia-3-320x175.jpg') }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <p class=" bold h5"> O que é biotecnologia e...</p>
-                        <p class="opacity-50">jul 25<span>th</span>, 2023</p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> jul 25<span>th</span>, 2023</p>
                         <p class="opacity-50">A agricultura tem um grande desafio:&nbsp;alimentar um planeta em constante crescimento. Segundo a Organização das Nações Unidas (ONU)... </p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -224,7 +222,7 @@
                     <img src="{{ asset('build\images\site\METROLOGIA-1-320x175.jpeg') }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <p class=" bold h5">Em três meses, operação do...</p>
-                        <p class="opacity-50">jul 21<span>st</span>, 2023</p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> jul 21<span>st</span>, 2023</p>
                         <p class="opacity-50"> Durante 13 semanas, fiscais do Instituto Nacional de Metrologia, Qualidade e Tecnologia (Inmetro) foram às ruas em todo. </p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -239,7 +237,7 @@
                     <img src="{{ asset('build\images\site\CONFIRA-OS-PROXIMOS-32-320x175.jpg') }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <p class=" bold h5"> CONHEÇA OS BENEFÍCIOS DOS TREINAMENTOS...</p>
-                        <p class="opacity-50">ago 22<span>nd</span>, 2023</p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> ago 22<span>nd</span>, 2023</p>
                         <p class="opacity-50">Foco nos desafios internos: Ao realizar o treinamento na própria empresa, os colaboradores têm a oportunidade de abordar. </p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -248,7 +246,7 @@
                     <img src="{{ asset('build\images\site\medications-1851178_1280-320x175.jpg') }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <p class=" bold h5">Anvisa cria a Câmara Técnica...</p>
-                        <p class="opacity-50">ago 16<span>th</span>, 2023 </p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> ago 16<span>th</span>, 2023 </p>
                         <p class="opacity-50"> Foi&nbsp;publicada nesta segunda-feira (14/8) a&nbsp;Portaria n. 875, de 10 de agosto de 2023, que cria a Câmara Técnica.</p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -257,7 +255,7 @@
                     <img src="{{ asset('build\images\site\cyber-security-3374252_1280-320x175.jpg') }}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <p class=" bold h5">Lei Geral de Proteção de...</p>
-                        <p class="opacity-50">ago 10<span>th</span>, 2023 </p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> ago 10<span>th</span>, 2023 </p>
                         <p class="opacity-50"> Fundamentos O tema proteção de dados pessoais, na LGPD, tem como fundamentos&nbsp;(art. 2º, LGPD): respeito à privacidade, ao. </p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -266,7 +264,7 @@
                     <img src="{{ asset('build\images\site\Jornal-da-Metrologia.jpg') }}" class="card-img-top mb-5 pb-2" alt="...">
                     <div class="card-body">
                         <p class=" bold h5">Jornal da Metrologia – Edição...</p>
-                        <p class="opacity-50">ago 1<span>st</span>, 2023 /p>
+                        <p class="opacity-50"><i class="bi bi-calendar-event"></i> ago 1<span>st</span>, 2023 /p>
                         <p class="opacity-50"> Boletim Eletrônico - Agosto </p>
                         <a href="" class=" text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                     </div>
@@ -284,13 +282,13 @@
         <span class="visually-hidden">Next</span>
     </button>
 </div>
-<!-- card carrousel -->
+
 <!-- noticias -->
 
 <!-- galera de fotos -->
 <div class="d-flex justify-content-between m-5">
-    <p>NOTÍCIAS</p>
-    <p>NOTÍCIAS</p>
+    <p>GALERIA</p>
+    <p>GALERIA FOTOS</p>
 </div>
 
 
@@ -299,83 +297,81 @@
         <div class="carousel-item active">
             <div class=" container-sm d-flex  justify-content-around">
 
-                <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/PESSOAS-FOTOS.jpg') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-0 mb-3 border text-start">
-                            <p class="border">teste</p>
-                            <p class="border">teste</p>
-                            <a href="" class="border">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Técnicas-de-Coleta-e-Preservação-370x225.png') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-10 translate-middle-x mb-3">
-                            <p class="a">teste</p>
-                            <p class="a">teste</p>
-                            <a href="" class="a">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Técnicas-de-Coleta-e-Preservação-370x225.png') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">Técnicas de Coleta e</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Sistema-de-Gestão-da-Qualidade-para-Laboratórios-370x225.png') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-10 translate-middle-x mb-3">
-                            <p class="a">teste</p>
-                            <p class="a">teste</p>
-                            <a href="" class="a">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Sistema-de-Gestão-da-Qualidade-para-Laboratórios-370x225.png') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">Sistema de Gestão da</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_FMEA-Análise-de-Modo-e-Efeitos-de-Falha-Potencial-370x225.png') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-10 translate-middle-x mb-3">
-                            <p class="a">teste</p>
-                            <p class="a">teste</p>
-                            <a href="" class="a">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_FMEA-Análise-de-Modo-e-Efeitos-de-Falha-Potencial-370x225.png') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">FMEA – Análise</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
-
-
+                <div class="  " style="width: 18rem; height: 13rem;">
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_CEP-Controle-Estatístico-de-Processo-O-uso-das-Cartas-de-Controle-370x225.png') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">CEP – Controle</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016</p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="carousel-item">
             <div class="container-sm d-flex   justify-content-around">
 
                 <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_CEP-Controle-Estatístico-de-Processo-O-uso-das-Cartas-de-Controle-370x225.png') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-10 translate-middle-x mb-3">
-                            <p class="a">teste</p>
-                            <p class="a">teste</p>
-                            <a href="" class="a">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/PESSOAS-FOTOS.jpg') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">Curso de Lead Assesso</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> dezembro 11<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2020 </p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/PESSOAS-FOTOS.jpg') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-10 translate-middle-x mb-3">
-                            <p class="a">teste</p>
-                            <p class="a">teste</p>
-                            <a href="" class="a">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Técnicas-de-Coleta-e-Preservação-370x225.png') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">Técnicas de Coleta e</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016</p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Técnicas-de-Coleta-e-Preservação-370x225.png') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-10 translate-middle-x mb-3">
-                            <p class="a">teste</p>
-                            <p class="a">teste</p>
-                            <a href="" class="a">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Sistema-de-Gestão-da-Qualidade-para-Laboratórios-370x225.png') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">Sistema de Gestão da</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="  " style="width: 18rem; height: 13rem;">
-                    <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Sistema-de-Gestão-da-Qualidade-para-Laboratórios-370x225.png') }}'); height:100%; width:100%;">
-                        <div class="position-absolute bottom-0 start-10 translate-middle-x mb-3">
-                            <p class="a">teste</p>
-                            <p class="a">teste</p>
-                            <a href="" class="a">Visualizar<i class="fa-solid fa-circle-chevron-right"></i></a>
+                    <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_FMEA-Análise-de-Modo-e-Efeitos-de-Falha-Potencial-370x225.png') }}');">
+                        <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                            <p class="text-center h3 text-white">FMEA – Análise</p>
+                            <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                            <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -396,3 +392,104 @@
 <!-- galera de fotos -->
 
 <hr>
+
+<!-- testes -->
+<div class="container">
+    <div class="container-fluid">
+        <div class="glide">
+            <div class="glide__track" data-glide-el="track">
+                <ul class="glide__slides">
+                    <li class="glide__slide">
+
+                        <div class="  " style="width: 18rem; height: 13rem;">
+                            <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Técnicas-de-Coleta-e-Preservação-370x225.png') }}');">
+                                <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                                    <p class="text-center h3 text-white">Técnicas de Coleta e</p>
+                                    <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                                    <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="glide__slide">
+
+                        <div class="  " style="width: 18rem; height: 13rem;">
+                            <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Sistema-de-Gestão-da-Qualidade-para-Laboratórios-370x225.png') }}');">
+                                <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                                    <p class="text-center h3 text-white">Sistema de Gestão da</p>
+                                    <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                                    <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="glide__slide">
+
+                        <div class="  " style="width: 18rem; height: 13rem;">
+                            <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_FMEA-Análise-de-Modo-e-Efeitos-de-Falha-Potencial-370x225.png') }}');">
+                                <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                                    <p class="text-center h3 text-white">FMEA – Análise</p>
+                                    <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
+                                    <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="glide__slide">
+
+                        <div class="  " style="width: 18rem; height: 13rem;">
+                            <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_CEP-Controle-Estatístico-de-Processo-O-uso-das-Cartas-de-Controle-370x225.png') }}');">
+                                <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                                    <p class="text-center h3 text-white">CEP – Controle</p>
+                                    <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016</p>
+                                    <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="glide__slide">
+                        <div class="  " style="width: 18rem; height: 13rem;">
+                            <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/PESSOAS-FOTOS.jpg') }}');">
+                                <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
+                                    <p class="text-center h3 text-white">Curso de Lead Assesso</p>
+                                    <p class="text-end "><i class="bi bi-calendar2-event"></i> dezembro 11<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2020 </p>
+                                    <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div class="glide__arrows m-5 p-5" data-glide-el="controls">
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">prev</button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- GlideJS -->
+<script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"> </script>
+<script>
+    const config = {
+        type: "carousel",
+        startAt: 0,
+        scrollLock: true,
+        perView: 4,
+        breakpoints: {
+            1024: {
+                perView: 2
+            },
+            600: {
+                perView: 1
+            }
+        }
+
+    };
+    new Glide('.glide', config).mount()
+</script>
+
+<!-- testes -->

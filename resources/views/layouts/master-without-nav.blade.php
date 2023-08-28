@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-layout="vertical" data-sidebar="dark" data-sidebar-size="lg" data-preloader="disable" data-theme="default" data-bs-theme="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-layout="vertical" data-sidebar="dark"
+    data-sidebar-size="lg" data-preloader="disable" data-theme="default" data-bs-theme="light">
 
 <head>
 
@@ -14,10 +15,16 @@
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}">
     {{-- font wansome --}}
     <script src="https://kit.fontawesome.com/02f4ca9b8a.js" crossorigin="anonymous"></script>
-<hr style="padding-top: 150px;">
+    <hr style="padding-top: 150px;">
+    {{-- Glider.js --}}
+    <!-- Required Core Stylesheet -->
+    <link rel="stylesheet" href=" https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css">
+    <!-- Optional Theme Stylesheet -->
+    <link rel="stylesheet" href=" https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.theme.min.css">
+
     @include('layouts.head-css')
 
-   
+
 
 </head>
 

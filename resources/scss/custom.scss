@@ -5,13 +5,28 @@ Website: https://themesbrand.com/
 Contact: support@themesbrand.com
 File: Custom Css File teste
 */
+.bg-image{
+  background-size: cover;
+  height:100%;
+   width:100%;
+}
+.card-galeriaf {
+  background-color: rgba(44, 95, 116, 0.92);
+  width: 100%;
+  height: 65%;
+ 
+}
 
-.teste {
-    border-radius: 0;
+.card-galeriaf:hover {
+  height: 100%;
+  transition: height 0.3s ease-in-out; 
 }
-.teste2 {
-    border-radius: 0;
+
+.card-galeriaf a {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out; 
 }
-.teste3 {
-    border-radius: 0;
+
+.card-galeriaf:hover a {
+  opacity: 1; 
 }
