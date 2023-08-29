@@ -87,7 +87,7 @@
 
 
     <div class="col-6">
-        <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img" alt="..." height="100%" width="100%">
+        <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img" alt="...">
     </div>
 
 </div>
@@ -462,10 +462,9 @@
                 </ul>
             </div>
 
-            <div class="glide__arrows" data-glide-el="controls">
-                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
-                    << /button>
-                        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">></button>
+            <div class="glide__arrows m-5 p-5" data-glide-el="controls">
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">prev</button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">next</button>
             </div>
         </div>
     </div>
