@@ -87,7 +87,7 @@
 
 
     <div class="col-6">
-        <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img" alt="...">
+        <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img" alt="..." height="100%" width="100%">
     </div>
 
 </div>
@@ -411,7 +411,7 @@
                             </div>
                         </div>
                     </li>
-                    <li class="glide__slide">
+                    <li class="glide__slide justify-content-center">
 
                         <div class="  " style="width: 18rem; height: 13rem;">
                             <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Sistema-de-Gestão-da-Qualidade-para-Laboratórios-370x225.png') }}');">
@@ -423,7 +423,7 @@
                             </div>
                         </div>
                     </li>
-                    <li class="glide__slide">
+                    <li class="glide__slide justify-content-center">
 
                         <div class="  " style="width: 18rem; height: 13rem;">
                             <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_FMEA-Análise-de-Modo-e-Efeitos-de-Falha-Potencial-370x225.png') }}');">
@@ -435,7 +435,7 @@
                             </div>
                         </div>
                     </li>
-                    <li class="glide__slide">
+                    <li class="glide__slide justify-content-center">
 
                         <div class="  " style="width: 18rem; height: 13rem;">
                             <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_CEP-Controle-Estatístico-de-Processo-O-uso-das-Cartas-de-Controle-370x225.png') }}');">
@@ -447,7 +447,7 @@
                             </div>
                         </div>
                     </li>
-                    <li class="glide__slide">
+                    <li class="glide__slide justify-content-center">
                         <div class="  " style="width: 18rem; height: 13rem;">
                             <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/PESSOAS-FOTOS.jpg') }}');">
                                 <div class="card-galeriaf d-grid align-self-end align-items-end p-3">
@@ -462,9 +462,10 @@
                 </ul>
             </div>
 
-            <div class="glide__arrows m-5 p-5" data-glide-el="controls">
-                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">prev</button>
-                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">next</button>
+            <div class="glide__arrows" data-glide-el="controls">
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
+                    << /button>
+                        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">></button>
             </div>
         </div>
     </div>
@@ -476,18 +477,28 @@
 <script>
     const config = {
         type: "carousel",
-        startAt: 0,
-        scrollLock: true,
+        startAt: 2,
+        gap: 10,
         perView: 4,
+        focusAt: 0,
+        peek: {
+            before: 2,
+            after: 2
+        },
         breakpoints: {
-            1024: {
+            1200: {
+                perView: 4
+            },
+            992: {
+                perView: 3
+            },
+            768: {
                 perView: 2
             },
-            600: {
+            576: {
                 perView: 1
             }
         }
-
     };
     new Glide('.glide', config).mount()
 </script>
