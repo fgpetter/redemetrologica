@@ -1,9 +1,9 @@
  <div class="container">
 
-     <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top border-bottom">
+     <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom  fixed-top">
          <div class="container-fluid">
              <div>
-                 <a class="navbar-brand m-5 ps-5" href="#">
+                 <a class="navbar-brand  ps-5" href="#">
                      <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS"
                          width="238" height="115">
                  </a>

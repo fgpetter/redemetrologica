@@ -1,78 +1,150 @@
 @extends('layouts.master-without-nav')
-@extends('site.layouts.site-navbar')
 
+<!-- navbar -->
+<div class="container" id="Navbar">
 
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom ">
+        <div class="container-fluid">
+            <div>
+                <a class="navbar-brand  ps-5" href="#">
+                    <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" width="238" height="115">
+                </a>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse  m-5 pe-5 	text--bs-primary-text-emphasis" id="navbarSupportedContent">
+                    <ul class="navbar-nav nav-underline h5">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Notícias</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Associe-se</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Cursos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Interlaboratoriais</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Laboratórios
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Avaliação de Laboratórios</a></li>
+                                <li><a class="dropdown-item" href="#">Laboratórios Reconhecidos</a></li>
+                                <li><a class="dropdown-item" href="#">Bônus Metrologia</a></li>
+                                <li><a class="dropdown-item" href="#">Downloads</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Fale Conosco</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- navbar -->
 
 <!-- {{-- banner inicial --}} -->
+<!-- <div class="container-fluid">
+    <div class="row">
+        <div class="col">
+
+            <div class="bg-image  text-white d-grid card-img" style="background-image: url('{{ asset('build/images/site/BANNER-HOME-TOPO.png') }}');">
+                <div class="align-self-center text-center">
+                    <p class="text-warning h1">REDE METROLÓGICA RS</p>
+                    <p class="h2 text-white">Certificada ABNT NBR ISO 9001 pela DNV</p>
+                    <p class="h2 text-white">Acreditada ABNT NBR ISO/IEC 17043 pela Cgcre - PEP 0002</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
 <div class="card text-bg-dark">
     <img src="{{ asset('build\images\site\BANNER-HOME-TOPO.png') }}" class="card-img" alt="...">
     <div class="card-img-overlay d-flex justify-content-center">
-        <div class="align-self-center">
-            <p class="card-title text-warning h1">REDE METROLÓGICA RS</p>
-            <p class="card-text">Certificada ABNT NBR ISO 9001 pela DNV</p>
-            <p class="card-text">Acreditada ABNT NBR ISO/IEC 17043 pela Cgcre - PEP 0002</p>
+        <div class="align-self-center text-center">
+            <h1 class="text-warning ">REDE METROLÓGICA RS</h1>
+            <h2 class="h2 text-white">Certificada ABNT NBR ISO 9001 pela DNV</h2>
+            <h2 class="h2 text-white">Acreditada ABNT NBR ISO/IEC 17043 pela Cgcre - PEP 0002</h2>
         </div>
     </div>
 </div>
 <!-- {{-- banner inicial --}} -->
 
-
 <!-- {{-- cards iniciais --}} -->
-<div class="d-flex justfy-content-center " style="margin-top: -150px;">
+<div class="container-fluid">
 
-    <div class="card text-bg-dark m-5">
-        <img src="{{ asset('build\images\site\DESTAQUES-HOME-REDE-600-x-600-px.png') }}" class="card-img" alt="...">
-        <div class="card-img-overlay d-flex justify-content-center">
-            <div class="align-self-center">
-                <h1 class="card-title">A Rede</h1>
+    <div class="row" style="margin-top: 0;">
+
+        <div class="card  col-sm-6 col-md">
+            <img src="{{ asset('build\images\site\DESTAQUES-HOME-REDE-600-x-600-px.png') }}" class="card-img" alt="...">
+            <div class="card-img-overlay d-flex justify-content-center">
+                <div class="align-self-center">
+                    <h1 class="h4 text-white">A Rede</h1>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="div a"></div>
-    <div class="card text-bg-dark m-5">
-        <img src="{{ asset('build\images\site\DESTAQUES-HOME-ASSOCIE-SE-600-x-600-px.png') }}" class="card-img" alt="...">
-        <div class="card-img-overlay d-flex justify-content-center">
-            <div class="align-self-center">
-                <h1 class="card-title">Associe-se</h1>
+        <!-- teste bg-image
+    <div class="card  col-sm-6 col-md">
+        <div class="bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/DESTAQUES-HOME-REDE-600-x-600-px.png') }}');">
+            <div class="d-grid align-items-center p-3">
+                <p class="text-center h2 text-white">A Rede</p>
             </div>
         </div>
-    </div>
+    </div> -->
 
-    <div class="card text-bg-dark m-5">
-        <img src="{{ asset('build\images\site\DESTAQUES-HOME-CURSOS-600-x-600-px.png') }}" class="card-img" alt="...">
-        <div class="card-img-overlay d-flex justify-content-center">
-            <div class="align-self-center">
-                <h1 class="card-title">Cursos e Eventos</h1>
+        <div class="card  col-sm-6 col-md">
+            <img src="{{ asset('build\images\site\DESTAQUES-HOME-ASSOCIE-SE-600-x-600-px.png') }}" class="card-img" alt="...">
+            <div class="card-img-overlay d-flex justify-content-center">
+                <div class="align-self-center">
+                    <h1 class="h4 text-white">Associe-se</h1>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="card text-bg-dark m-5">
-        <img src="{{ asset('build\images\site\HOME-DESTAQUES-PEP-600-x-600-px (1).png') }}" class="card-img" alt="...">
-        <div class="card-img-overlay d-flex justify-content-center">
-            <div class="align-self-center">
-                <h1 class="card-title">Ensaios de Proficiência</h1>
+        <div class="card  col-sm-6 col-md">
+            <img src="{{ asset('build\images\site\DESTAQUES-HOME-CURSOS-600-x-600-px.png') }}" class="card-img" alt="...">
+            <div class="card-img-overlay d-flex justify-content-center">
+                <div class="align-self-center">
+                    <h1 class="h4 text-white">Cursos e Eventos</h1>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="card text-bg-dark m-5">
-        <img src="{{ asset('build\images\site\DESTAQUES-HOME-LABORATÓRIO-600-x-600-px.png') }}" class="card-img" alt="...">
-        <div class="card-img-overlay d-flex justify-content-center">
-            <div class="align-self-center">
-                <h1 class="card-title">Laboratórios</h1>
+        <div class="card  col-sm-6 col-md">
+            <img src="{{ asset('build\images\site\HOME-DESTAQUES-PEP-600-x-600-px (1).png') }}" class="card-img" alt="...">
+            <div class="card-img-overlay d-flex justify-content-center">
+                <div class="align-self-center">
+                    <h1 class="h4 text-white">Ensaios de Proficiência</h1>
+                </div>
             </div>
         </div>
+
+        <div class="card  col-sm-6 col-md">
+            <img src="{{ asset('build\images\site\DESTAQUES-HOME-LABORATÓRIO-600-x-600-px.png') }}" class="card-img" alt="...">
+            <div class="card-img-overlay d-flex justify-content-center">
+                <div class="align-self-center">
+                    <h1 class="h4 text-white">Laboratórios</h1>
+                </div>
+            </div>
+        </div>
+
+
     </div>
-
-
 </div>
+
 <!-- {{-- cards iniciais --}} -->
 
 <!-- {{-- bem vindo --}} -->
-<div class="d-flex justify-content-center m-5">
-    <div class="col-6">
+<div class="row m-5">
+    <div class="col-12 col-md-6">
         <div class="text-center">
             <h1>BEM-VINDO À REDE METROLÓGICA RS</h1>
             <p>Somos uma associação técnica, de cunho técnico-científico, sem fins lucrativos e atuamos como
@@ -81,33 +153,34 @@
 
                 Pioneira entre as demais Redes estaduais existentes no país, desde 1992 articulamos parcerias
                 indispensáveis para viabilizar a execução de suas metas.</p>
-            <button type="button" class="btn btn-primary">Saiba Mais</button>
+            <button type="button" class=" mb-3 btn btn-primary">Saiba Mais</button>
         </div>
     </div>
 
 
-    <div class="col-6">
-        <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img" alt="...">
+    <div class="col-12 col-md-6">
+        <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img img-fluid rounded " alt="...">
     </div>
 
 </div>
 <!-- {{-- bem vindo --}} -->
 
 <!-- {{-- pq associar --}} -->
-<div class="d-flex justify-content-between m-5">
-    <p>ASSOCIADO</p>
-    <p>POR QUE SER UM ASSOCIADO</p>
-</div>
+<div class="container titulo text-center">
+    <h1 class=" ">POR QUE SER UM ASSOCIADO</h1>
 
+
+    <h1 class="titulo__sombra">ASSOCIADO</h1>
+</div>
 <div class="container-fluid align-items-center p-5 m-5">
     <div class="row align-items-start h5">
-        <div class="col">
+        <div class="col-12 col-lg-6">
             <p> <i class="fa-solid fa-circle-check"></i> Valores diferenciados nas inscrições de eventos, treinamentos abertos e in company</p>
             <p> <i class="fa-solid fa-circle-check"></i> Valores diferenciados nas inscrições em Programa de Ensaios de Proficiência (PEP).</p>
             <p> <i class="fa-solid fa-circle-check"></i> Poder divulgar sua condição de membro da RMRS conforme regras vigentes.</p>
             <p> <i class="fa-solid fa-circle-check"></i> Para laboratórios reconhecidos, divulgação do escopo de serviços no site da Rede Metrológica RS e disponibilização do Bônus Metrologia para seus clientes.</p>
         </div>
-        <div class="col">
+        <div class="col-12 col-lg-6">
             <p> <i class="fa-solid fa-circle-check"></i> Espaço para publicação de matérias sobre metrologia e qualidade.</p>
             <p> <i class="fa-solid fa-circle-check"></i> Atendimento de dúvidas técnicas.</p>
             <p> <i class="fa-solid fa-circle-check"></i> Maior credibilidade junto a clientes por seguir critérios de qualidade.</p>
@@ -124,9 +197,9 @@
 
 <div class="container">
     <div class="row mb-5">
-        <div class="col">
+        <div class="col-12 col-lg-6 mb-5 pb-4">
 
-            <div class="d-flex justify-content-center">
+            <div class="text-center">
                 <p class="h2 text-bold">CURSOS</p>
             </div>
             <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-BANNER-CURSOS.jpg') }}');height:100%; width:100%;">
@@ -137,9 +210,9 @@
             </div>
 
         </div>
-        <div class="col">
+        <div class="col-12 col-lg-6 mb-5 pb-4">
 
-            <div class="d-flex justify-content-center">
+            <div class="text-center">
                 <p class="h2 text-bold">AVALIAÇÃO LABORATÓRIOS</p>
             </div>
             <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/LAB-SOLICITAR-RECONHECIMENTO-1349-x-443.png') }}');height:100%; width:100%;">
@@ -150,11 +223,10 @@
             </div>
 
         </div>
-    </div>
-    <div class="row mb-5">
-        <div class="col">
 
-            <div class="d-flex justify-content-center">
+        <div class="col-12 col-lg-6 mb-5 pb-4">
+
+            <div class="text-center">
                 <p class="h2 text-bold">PROGRAMAS DE ENSAIOS DE PROFICIÊNCIA</p>
             </div>
             <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-BANNER-PEPS-1349-x-443_200722062833.jpg') }}');height:100%; width:100%;">
@@ -165,8 +237,9 @@
             </div>
 
         </div>
-        <div class="col">
-            <div class="d-flex justify-content-center">
+        <div class="col-12 col-lg-6 mb-5 pb-4">
+
+            <div class="text-center">
                 <p class="h2 text-bold">LABORATÓRIOS RECONHECIDOS</p>
             </div>
             <div class="bg-image p-5 text-center mb-5 text-white position-relative" style="background-size: cover; background-image: url('{{ asset('build/images/site/LAB-RECONHECIDO-1349-x-443.png') }}'); height:100%; width:100%;">
@@ -174,6 +247,7 @@
                     <button type="button" class="btn btn-warning btn-lg">Ver mais</button>
                 </div>
             </div>
+
         </div>
 
     </div>
@@ -391,6 +465,10 @@
 
 <!-- galera de fotos -->
 
+
+
+
+
 <hr>
 
 <!-- testes -->
@@ -470,6 +548,20 @@
     </div>
 </div>
 
+<!-- colar navbar -->
+<script>
+    var offset = document.getElementById('Navbar').offsetTop;
+    var navbar = document.getElementById('Navbar');
+
+    window.addEventListener('scroll', function() {
+        if (offset <= window.scrollY) {
+            navbar.classList.add('fixar');
+        } else {
+            navbar.classList.remove('fixar');
+        }
+    });
+</script>
+<!-- colar navbar -->
 
 <!-- GlideJS -->
 <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"> </script>
