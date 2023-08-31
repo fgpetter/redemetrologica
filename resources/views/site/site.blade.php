@@ -1,53 +1,55 @@
 @extends('layouts.master-without-nav')
 
 <!-- navbar -->
-<div class="container" id="Navbar">
+<header id="header">
+    <div class="container" id="Navbar">
 
-    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom ">
-        <div class="container-fluid">
-            <div>
-                <a class="navbar-brand  ps-5" href="#">
-                    <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" width="238" height="115">
-                </a>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse  m-5 pe-5 	text--bs-primary-text-emphasis" id="navbarSupportedContent">
-                    <ul class="navbar-nav nav-underline h5">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Notícias</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Associe-se</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Cursos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Interlaboratoriais</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Laboratórios
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Avaliação de Laboratórios</a></li>
-                                <li><a class="dropdown-item" href="#">Laboratórios Reconhecidos</a></li>
-                                <li><a class="dropdown-item" href="#">Bônus Metrologia</a></li>
-                                <li><a class="dropdown-item" href="#">Downloads</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Fale Conosco</a>
-                        </li>
-                    </ul>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom ">
+            <div class="container-fluid">
+                <div>
+                    <a class="navbar-brand  ps-5" href="#">
+                        <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" width="238" height="115">
+                    </a>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse  m-5 pe-5 	text--bs-primary-text-emphasis" id="navbarSupportedContent">
+                        <ul class="navbar-nav nav-underline h5">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Notícias</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Associe-se</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Cursos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Interlaboratoriais</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Laboratórios
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Avaliação de Laboratórios</a></li>
+                                    <li><a class="dropdown-item" href="#">Laboratórios Reconhecidos</a></li>
+                                    <li><a class="dropdown-item" href="#">Bônus Metrologia</a></li>
+                                    <li><a class="dropdown-item" href="#">Downloads</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Fale Conosco</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
-</div>
+        </nav>
+    </div>
+</header>
 <!-- navbar -->
 
 <!-- {{-- banner inicial --}} -->
@@ -166,14 +168,17 @@
 <!-- {{-- bem vindo --}} -->
 
 <!-- {{-- pq associar --}} -->
-<div class="container titulo text-center">
-    <h1 class=" ">POR QUE SER UM ASSOCIADO</h1>
-
-
-    <h1 class="titulo__sombra">ASSOCIADO</h1>
+<div class="container-fluid   text-center row">
+    <div class="col-12 titulo d-flex align-items-center justify-content-center ">
+        <h1 class=" ">POR QUE SER UM ASSOCIADO</h1>
+    </div>
+    <div class="col-12 titulo__sombra ">
+        <p class="">ASSOCIADO</p>
+    </div>
 </div>
-<div class="container-fluid align-items-center p-5 m-5">
-    <div class="row align-items-start h5">
+
+<div class="container-fluid align-items-center ps-5 pe-5 ms-5 me-5 mb-5 ">
+    <div class=" row align-items-start h5">
         <div class="col-12 col-lg-6">
             <p> <i class="fa-solid fa-circle-check"></i> Valores diferenciados nas inscrições de eventos, treinamentos abertos e in company</p>
             <p> <i class="fa-solid fa-circle-check"></i> Valores diferenciados nas inscrições em Programa de Ensaios de Proficiência (PEP).</p>
@@ -255,9 +260,13 @@
 <!-- destaques -->
 
 <!-- noticias -->
-<div class="d-flex justify-content-between m-5">
-    <p>NOTÍCIAS</p>
-    <p>NOTÍCIAS</p>
+<div class="container-fluid   text-center row">
+    <div class="col-12 titulo d-flex align-items-center justify-content-center ">
+        <h1 class=" ">NOTÍCIAS</h1>
+    </div>
+    <div class="col-12 titulo__sombra ">
+        <p class="">NOTÍCIAS</p>
+    </div>
 </div>
 
 
@@ -360,9 +369,13 @@
 <!-- noticias -->
 
 <!-- galera de fotos -->
-<div class="d-flex justify-content-between m-5">
-    <p>GALERIA</p>
-    <p>GALERIA FOTOS</p>
+<div class="container-fluid   text-center row">
+    <div class="col-12 titulo d-flex align-items-center justify-content-center ">
+        <h1 class=" ">GALERIA FOTOS</h1>
+    </div>
+    <div class="col-12 titulo__sombra ">
+        <p class="">GALERIA</p>
+    </div>
 </div>
 
 
@@ -463,16 +476,89 @@
     </button>
 </div>
 
-<!-- galera de fotos -->
+<!-- galeria de fotos -->
+<!-- footer -->
+<footer class=" mt-5 pt5 bg-image  text-white d-grid" style="background-image: url('{{ asset('build/images/site/banner-footer.png') }}');">
+
+    <div class="container m-5 p-5">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-3 col-xs-12">
+                <div class="">
+                    <img src="{{ asset('build\images\site\LOGO_REDE_BRANCO.png') }}" class="card-img" alt="..." width="166.6" height="80.5">
+                    Associação Rede de Metrologia e Ensaios do RS
+                    CNPJ 97.130.207/0001-12
+                    Certificada ISO 9001 pela DNV
+                    Acreditada ISO/IEC 17043 pela CGCRE<br>
+                    <p>Soluções em Metrologia para Qualidade e Sustentabilidade
+                        <br>
+                        <br>
+                        <a href="https://redemetrologica.com.br/politica-de-privacidade/">Política de Privacidade</a>
+                        <br>
+                        <a href="https://redemetrologica.com.br/politica-de-cookies/">Política de Cookies</a>
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-3 col-xs-12">
+                <h5 class="">Contato</h5>
+                <div class="">
+                    <ul class="contact">
+                        <li><i class="zmdi zmdi-phone"></i><a title="Telefone" href="tel:+55 51 2200-3988 ">+55 51 2200-3988 </a></li>
+                        <li><i class="zmdi zmdi-email"></i><a title="E-mail" href="mailto:contato@redemetrologica.com.br" target="_blank" rel="noopener"> contato@redemetrologica.com.br</a></li>
+                    </ul>
+                    <i class="zmdi zmdi-pin zmdi-hc-fw"></i>Santa Catarina, nº 40 - Salas 801/802 <br>
+                    Porto Algre - RS <br>
+                    Bairro Santa Maria Goretti <br>
+                    Cep 91030-330
 
 
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                <div class=""></div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                <h5 class="">Acesso Rápido</h5>
+                <div class="">
+                    <ul class="">
+                        <li class=""><a href="https://redemetrologica.com.br/noticias-2/">Notícias</a></li>
+                        <li class=""><a href="https://redemetrologica.com.br/associe-se-2/">Associe-se</a></li>
+                        <li class=""><a href="https://redemetrologica.com.br/cursos/">Cursos</a></li>
+                        <li class=""><a href="https://redemetrologica.com.br/interlaboratoriais/">Interlaboratoriais</a></li>
+                        <li class=""><a href="#">Laboratórios</a>
+                            <ul class="">
+                                <li class=""><a href="https://redemetrologica.com.br/laboratorios-avaliacao/">Avaliação de Laboratórios</a></li>
+                                <li class=""><a href="https://redemetrologica.com.br/laboratorios-reconhecidos/">Laboratórios Reconhecidos</a></li>
+                                <li class=""><a href="https://redemetrologica.com.br/bonus-metrologia/">Bônus Metrologia</a></li>
+                                <li class=""><a href="https://redemetrologica.com.br/downloads/">Downloads</a></li>
+                            </ul>
+                        </li>
+                        <li class=""><a href="https://redemetrologica.com.br/fale-conosco/">Fale Conosco</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                Rede Metrológica RS © </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <ul class="">
+                    <li><a href="https://www.facebook.com/Rede-Metrol%C3%B3gica-RS-788822964529119/"><span class="zmdi zmdi-facebook-box"></span></a></li>
+                    <li><a href="https://www.instagram.com/redemetrologicars01/"><span class="zmdi zmdi-instagram"></span></a></li>
+                    <li><a href="https://www.linkedin.com/company/redemetrologicars/"><span class="zmdi zmdi-linkedin"></span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-<hr>
+</footer>
+<!-- footer -->
 
 <!-- testes -->
-<div class="container">
+<!-- <div class="container">
     <div class="container-fluid">
         <div class="glide">
             <div class="glide__track" data-glide-el="track">
@@ -546,20 +632,14 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!-- colar navbar -->
 <script>
-    var offset = document.getElementById('Navbar').offsetTop;
-    var navbar = document.getElementById('Navbar');
-
-    window.addEventListener('scroll', function() {
-        if (offset <= window.scrollY) {
-            navbar.classList.add('fixar');
-        } else {
-            navbar.classList.remove('fixar');
-        }
-    });
+    window.addEventListener("scroll", function() {
+        let header = document.querySelector('#header')
+        header.classList.toggle('rolagem', window.scrollY > 0)
+    })
 </script>
 <!-- colar navbar -->
 

@@ -6,6 +6,23 @@ Contact: support@themesbrand.com
 File: Custom Css File teste
 */
 
+
+header{
+  width: 100%;
+  padding: 40px 4%;
+  background-color: #f3f6f9;
+  transition: .5s;
+}
+
+.rolagem{
+  background-color: #f3f6f9;
+  padding: 20px 4%;
+  // position: fixed;
+  // top: 0;
+  // left: 0;
+}
+
+
 .bg-image{
   background-size: cover;
   height:100%;
@@ -38,12 +55,32 @@ File: Custom Css File teste
 }
 
 
-.titulo h1{
-margin-top: 0;
+.titulo{
+height: 120 ;
+margin: 0;
+margin-bottom: -75;
 }
 .titulo__sombra {
-margin-top: -0;
 padding: 0;
-opacity: 25%;
+margin:0;
+margin-top: -100;
+opacity: 5%;
 font-size: 120px;
+font-weight: 600;
+}
+
+@media (max-width: 576px ) {
+  .titulo{
+    height: 120 ;
+    margin: 0;
+    margin-bottom: -5;
+    }
+    .titulo__sombra {
+    padding: 0;
+    margin:0;
+    margin-top: -100;
+    opacity: 5%;
+    font-size: 50;
+    font-weight: 600;
+    }
 }
