@@ -27,6 +27,7 @@ header{
   background-size: cover;
   height:100%;
    width:100%;
+   background-repeat: repeat;
 }
 .card-galeriaf {
   background-color: rgba(44, 95, 116, 0.92);
@@ -83,4 +84,17 @@ font-weight: 600;
     font-size: 50;
     font-weight: 600;
     }
+}
+
+.footer__rodape {
+  background-color: #305c74;
+  width: 100%;
+  height: auto;
+}
+
+
+.footer__rodape ul li{
+  display: inline-block;
+  margin: 0 10px;
+ font-size: 30;
 }
