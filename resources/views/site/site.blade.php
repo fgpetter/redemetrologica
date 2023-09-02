@@ -1,59 +1,48 @@
 @extends('layouts.master-without-nav')
 
-
-
-<body>
+@section('content')
 
     <!-- navbar -->
-    <header class="border-bottom SiteHeader" id="header">
-        <div class="container" id="Navbar">
-
-            <nav class="navbar navbar-expand-lg bg-body-tertiary  ">
-                <div class="container-fluid">
-                    <div>
-                        <a class="navbar-brand  ps-5" href="#">
-                            <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" width="238" height="115">
+        <nav class="navbar navbar-expand-lg bg-white sticky-top py-3">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" height="95">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav nav-underline h5">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Notícias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Associe-se</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Cursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Interlaboratoriais</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Laboratórios
                         </a>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse  m-5 pe-5 	text--bs-primary-text-emphasis" id="navbarSupportedContent">
-                            <ul class="navbar-nav nav-underline h5">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Notícias</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Associe-se</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Cursos</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Interlaboratoriais</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Laboratórios
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">Avaliação de Laboratórios</a></li>
-                                        <li><a class="dropdown-item" href="#">Laboratórios Reconhecidos</a></li>
-                                        <li><a class="dropdown-item" href="#">Bônus Metrologia</a></li>
-                                        <li><a class="dropdown-item" href="#">Downloads</a></li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Fale Conosco</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Avaliação de Laboratórios</a></li>
+                            <li><a class="dropdown-item" href="#">Laboratórios Reconhecidos</a></li>
+                            <li><a class="dropdown-item" href="#">Bônus Metrologia</a></li>
+                            <li><a class="dropdown-item" href="#">Downloads</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Fale Conosco</a>
+                    </li>
+                </ul>
                 </div>
-            </nav>
-        </div>
-    </header>
+            </div>
+        </nav>
     <!-- navbar -->
 
     <!-- {{-- banner inicial --}} -->
@@ -92,11 +81,11 @@
     </div>
 </div>
 </div> -->
-    <div class="container-fluid">
+    <div class="container">
 
-        <div class="row" style="margin-top: 0;">
+        <div class="row my-5" style="margin-top: 0;">
 
-            <div class="card  col-sm-6 col-md">
+            <div class="card bg-transparent border-0 shadow-none col-sm-6 col-md">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-REDE-600-x-600-px.png') }}" class="card-img" alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
                     <div class="align-self-center">
@@ -106,7 +95,7 @@
             </div>
 
 
-            <div class="card  col-sm-6 col-md">
+            <div class="card bg-transparent border-0 shadow-none col-sm-6 col-md">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-ASSOCIE-SE-600-x-600-px.png') }}" class="card-img" alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
                     <div class="align-self-center">
@@ -115,7 +104,7 @@
                 </div>
             </div>
 
-            <div class="card  col-sm-6 col-md">
+            <div class="card bg-transparent border-0 shadow-none col-sm-6 col-md">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-CURSOS-600-x-600-px.png') }}" class="card-img" alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
                     <div class="align-self-center">
@@ -124,7 +113,7 @@
                 </div>
             </div>
 
-            <div class="card  col-sm-6 col-md">
+            <div class="card bg-transparent border-0 shadow-none col-sm-6 col-md">
                 <img src="{{ asset('build\images\site\HOME-DESTAQUES-PEP-600-x-600-px (1).png') }}" class="card-img" alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
                     <div class="align-self-center">
@@ -133,7 +122,7 @@
                 </div>
             </div>
 
-            <div class="card  col-sm-6 col-md">
+            <div class="card bg-transparent border-0 shadow-none col-sm-6 col-md">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-LABORATÓRIO-600-x-600-px.png') }}" class="card-img" alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
                     <div class="align-self-center">
@@ -149,30 +138,32 @@
     <!-- {{-- cards iniciais --}} -->
 
     <!-- {{-- bem vindo --}} -->
-    <div class="row m-5">
-        <div class="col-12 col-md-6">
-            <div class="text-center">
-                <h1>BEM-VINDO À REDE METROLÓGICA RS</h1>
-                <p>Somos uma associação técnica, de cunho técnico-científico, sem fins lucrativos e atuamos como
-                    articuladora na prestação de serviços qualificados de metrologia para o aprimoramento tecnológico das
-                    empresas.
-
-                    Pioneira entre as demais Redes estaduais existentes no país, desde 1992 articulamos parcerias
-                    indispensáveis para viabilizar a execução de suas metas.</p>
-                <button type="button" class=" mb-3 btn btn-primary">Saiba Mais</button>
+    <div class="container">
+        <div class="row my-5 d-flex align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="text-center px-3">
+                    <h1>BEM-VINDO À REDE METROLÓGICA RS</h1>
+                    <p>Somos uma associação técnica, de cunho técnico-científico, sem fins lucrativos e atuamos como
+                        articuladora na prestação de serviços qualificados de metrologia para o aprimoramento tecnológico das
+                        empresas.
+    
+                        Pioneira entre as demais Redes estaduais existentes no país, desde 1992 articulamos parcerias
+                        indispensáveis para viabilizar a execução de suas metas.</p>
+                    <button type="button" class=" mb-3 btn btn-primary">Saiba Mais</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img img-fluid rounded " alt="...">
             </div>
         </div>
-
-
-        <div class="col-12 col-md-6">
-            <img src="{{ asset('build\images\site\HOME-BEM-VINDO-700-x-462.png') }}" class="card-img img-fluid rounded " alt="...">
-        </div>
-
     </div>
+
+
+
     <!-- {{-- bem vindo --}} -->
 
     <!-- {{-- pq associar --}} -->
-    <div class="container-fluid   text-center row">
+    <div class="container-fluid text-center row py-5">
         <div class="col-12 SiteTitulo d-flex align-items-center justify-content-center ">
             <h1 class=" ">POR QUE SER UM ASSOCIADO</h1>
         </div>
@@ -181,8 +172,8 @@
         </div>
     </div>
 
-    <div class="container-fluid align-items-center ps-5 pe-5 ms-5 me-5 mb-5 ">
-        <div class=" row align-items-start h5">
+    <div class="container my-5">
+        <div class="row m-auto h5">
             <div class="col-12 col-lg-6">
                 <p> <i class="fa-solid fa-circle-check"></i> Valores diferenciados nas inscrições de eventos, treinamentos abertos e in company</p>
                 <p> <i class="fa-solid fa-circle-check"></i> Valores diferenciados nas inscrições em Programa de Ensaios de Proficiência (PEP).</p>
@@ -196,7 +187,7 @@
                 <p> <i class="fa-solid fa-circle-check"></i> Receber via e-mail divulgação de PEPs, cursos e eventos realizados pela Rede Metrológica RS.</p>
             </div>
         </div>
-        <div class="d-flex justify-content-center ">
+        <div class="d-flex justify-content-center mt-3">
             <button type="button" class="btn btn-warning btn-lg">Quero ser Associado</button>
         </div>
     </div>
@@ -204,7 +195,7 @@
 
     <!-- destaques -->
 
-    <div class="container">
+    <div class="container my-5">
         <div class="row mb-5">
             <div class="col-12 col-lg-6 mb-5 pb-4">
 
@@ -264,7 +255,7 @@
     <!-- destaques -->
 
     <!-- noticias -->
-    <div class="container-fluid   text-center row">
+    <div class="container-fluid text-center row py-5">
         <div class="col-12 SiteTitulo d-flex align-items-center justify-content-center ">
             <h1 class=" ">NOTÍCIAS</h1>
         </div>
@@ -1148,24 +1139,25 @@
             <div class="d-flex justify-content-center">
                 <div class="container m-5 p-5">
                     <div class="row">
-                        <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-sm-4 col-xs-12">
                             <div class="">
-                                <img src="{{ asset('build\images\site\LOGO_REDE_BRANCO.png') }}" class="card-img" alt="..." width="166.6" height="80.5">
-                                Associação Rede de Metrologia e Ensaios do RS
-                                CNPJ 97.130.207/0001-12
-                                Certificada ISO 9001 pela DNV
-                                Acreditada ISO/IEC 17043 pela CGCRE<br>
-                                <p>Soluções em Metrologia para Qualidade e Sustentabilidade
+                                <img src="{{ asset('build\images\site\LOGO_REDE_BRANCO.png') }}" class="card-img w-max-350 SiteFooter__imagem">
+                                <div class="mt-3">
+                                    Associação Rede de Metrologia e Ensaios do RS<br>
+                                    CNPJ 97.130.207/0001-12<br>
+                                    Certificada ISO 9001 pela DNV<br>
+                                    Acreditada ISO/IEC 17043 pela CGCRE<br>
+                                    Soluções em Metrologia para <br>
+                                    Qualidade e Sustentabilidade
                                     <br>
                                     <br>
                                     <a class="text-white" href="https://redemetrologica.com.br/politica-de-privacidade/">Política de Privacidade</a>
                                     <br>
                                     <a class="text-white" href="https://redemetrologica.com.br/politica-de-cookies/">Política de Cookies</a>
-                                </p>
-
+                                </div>
                             </div>
                         </div>
-                        <div class="col-lg-2 col-md-6col-sm-6 col-xs-12">
+                        <div class="col-sm-4 col-xs-12">
                             <h5 class="text-white">Contato</h5>
                             <div class="">
                                 <ul class="list-unstyled">
@@ -1180,10 +1172,7 @@
 
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <div class=""></div>
-                        </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-sm-4 col-xs-12">
                             <h5 class="text-white">Acesso Rápido</h5>
                             <div class="">
                                 <ul class="list-unstyled">
@@ -1227,85 +1216,6 @@
     </footer>
     <!-- footer -->
 
-    <!-- testes -->
-    <div class="container">
-        <div class="container-fluid">
-            <div class="glide">
-                <div class="glide__track" data-glide-el="track">
-                    <ul class="glide__slides">
-                        <li class="glide__slide">
-
-                            <div class="  " style="width: 18rem; height: 13rem;">
-                                <div class="SiteCards__bgimage  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Técnicas-de-Coleta-e-Preservação-370x225.png') }}');">
-                                    <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
-                                        <p class="text-center h3 text-white">Técnicas de Coleta e</p>
-                                        <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
-                                        <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="glide__slide justify-content-center">
-
-                            <div class="  " style="width: 18rem; height: 13rem;">
-                                <div class="SiteCards__bgimage  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_Sistema-de-Gestão-da-Qualidade-para-Laboratórios-370x225.png') }}');">
-                                    <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
-                                        <p class="text-center h3 text-white">Sistema de Gestão da</p>
-                                        <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
-                                        <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="glide__slide justify-content-center">
-
-                            <div class="  " style="width: 18rem; height: 13rem;">
-                                <div class="SiteCards__bgimage  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_FMEA-Análise-de-Modo-e-Efeitos-de-Falha-Potencial-370x225.png') }}');">
-                                    <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
-                                        <p class="text-center h3 text-white">FMEA – Análise</p>
-                                        <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016 </p>
-                                        <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="glide__slide justify-content-center">
-
-                            <div class="  " style="width: 18rem; height: 13rem;">
-                                <div class="SiteCards__bgimage  text-white d-grid" style="background-image: url('{{ asset('build/images/site/HOME-CURSOS-1920-X-1080px_CEP-Controle-Estatístico-de-Processo-O-uso-das-Cartas-de-Controle-370x225.png') }}');">
-                                    <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
-                                        <p class="text-center h3 text-white">CEP – Controle</p>
-                                        <p class="text-end "><i class="bi bi-calendar2-event"></i> setembro 12<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2016</p>
-                                        <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="glide__slide justify-content-center">
-                            <div class="  " style="width: 18rem; height: 13rem;">
-                                <div class="SiteCards__bgimage  text-white d-grid" style="background-image: url('{{ asset('build/images/site/PESSOAS-FOTOS.jpg') }}');">
-                                    <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
-                                        <p class="text-center h3 text-white">Curso de Lead Assesso</p>
-                                        <p class="text-end "><i class="bi bi-calendar2-event"></i> dezembro 11<span style="font-family: &quot;Archivo Black&quot;;">th</span>, 2020 </p>
-                                        <a href="" class="text-start text-white bold">Visualizar <i class="fa-solid fa-circle-chevron-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-
-                    </ul>
-                </div>
-
-                <div class="glide__arrows m-5 p-5" data-glide-el="controls">
-                    <button class="glide__arrow glide__arrow--left" data-glide-dir="<">prev</button>
-                    <button class="glide__arrow glide__arrow--right" data-glide-dir=">">next</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- testes -->
-
-</body>
 
 <!-- colar navbar -->
 <script>
@@ -1315,34 +1225,4 @@
     })
 </script>
 <!-- colar navbar -->
-
-<!-- GlideJS -->
-<script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"> </script>
-<script>
-    const config = {
-        type: "carousel",
-        startAt: 2,
-        gap: 10,
-        perView: 4,
-        focusAt: 0,
-        peek: {
-            before: 2,
-            after: 2
-        },
-        breakpoints: {
-            1200: {
-                perView: 4
-            },
-            992: {
-                perView: 3
-            },
-            768: {
-                perView: 2
-            },
-            576: {
-                perView: 1
-            }
-        }
-    };
-    new Glide('.glide', config).mount()
-</script>
+@endsection
