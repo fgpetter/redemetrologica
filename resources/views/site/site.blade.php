@@ -3,7 +3,7 @@
 @section('content')
 
 <!-- navbar -->
-<nav class="navbar navbar-expand-lg bg-white sticky-top py-3">
+<nav class="navbar navbar-expand-lg sticky-top py-3 SiteHeader border-bottom">
     <div class="container">
         <a class="navbar-brand" href="#">
             <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" height="95">
@@ -1183,12 +1183,13 @@
 <!-- footer -->
 
 
-<!-- colar navbar -->
+<!-- efeito navbar -->
 <script>
     window.addEventListener("scroll", function() {
-        let header = document.querySelector('#header')
-        header.classList.toggle('SiteHeader--rolagem', window.scrollY > 0)
+        let header = document.querySelector('.SiteHeader')
+        header.classList.toggle('SiteHeader--efeito', window.scrollY > 0)
     })
 </script>
-<!-- colar navbar -->
+<!-- efeito navbar -->
+
 @endsection

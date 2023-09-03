@@ -16,19 +16,15 @@ body {
   }
 
 .SiteHeader{
-  width: 100%;
-  padding: 40px 4%;
-  background-color: #f3f6f9;
-  transition: .8s;
-  z-index: 9999;
+  // width: 100%;
+  // padding: 40px 4%;
+  background-color: #f7f7f7;
+   transition: .8s;
+  // z-index: 9999;
 }
 
-.SiteHeader--rolagem{
+.SiteHeader--efeito{
   background-color: #f3f6f9;
-  padding: 12px 4%;
-  position: fixed;
-  top: 0;
-  left: 0;
 } 
 
 
