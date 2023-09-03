@@ -17,11 +17,6 @@
     {{-- font wansome --}}
     <script src="https://kit.fontawesome.com/02f4ca9b8a.js" crossorigin="anonymous"></script>
 
-    {{-- Glide.js --}}
-    <!-- Required Core Stylesheet -->
-    <link rel="stylesheet" href=" https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css">
-    <!-- Optional Theme Stylesheet -->
-    <link rel="stylesheet" href=" https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.theme.min.css">
 
     @include('layouts.head-css')
 

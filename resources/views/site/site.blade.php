@@ -1182,7 +1182,6 @@
 </footer>
 <!-- footer -->
 
-
 <!-- efeito navbar -->
 <script>
     window.addEventListener("scroll", function() {
