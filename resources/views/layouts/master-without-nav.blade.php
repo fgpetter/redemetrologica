@@ -23,8 +23,11 @@
 
 
 </head>
+@include('site.layouts.site-navbar')
 
 @yield('content')
+
+@include('site.layouts.site-footer')
 
 @include('layouts.vendor-scripts')
 </body>

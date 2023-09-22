@@ -8,12 +8,7 @@ File: Custom Css File teste
 
 
 // CLASSES DO SITE
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "cv11", "salt", "ss01", "ss03", "cv01", "cv02", "cv03", "cv04", "cv05", "cv06", "cv09", "cv10";
-  }
+
 
 .SiteHeader{
   // width: 100%;
@@ -27,6 +22,25 @@ body {
   background-color: #f3f6f9;
 } 
 
+
+
+
+.SiteCardsINI--efeito{
+  transition: box-shadow 0.3s ease-in-out;
+  }
+.SiteCardsINI--efeito:hover{
+  box-shadow: -5px 5px 30px rgba(0, 0, 0, 0.287);
+  }
+
+.SiteCardsINI--efeito h1{
+  color: white;
+  transition: box-shadow 0.3s ease-in-out;
+  }
+
+.SiteCardsINI--efeito:hover h1{
+color: #fff000;
+transition: color 0.3s ease-in-out; 
+}
 
 .SiteCards__bgimage{
   background-size: cover;
@@ -58,12 +72,10 @@ body {
 .SiteTitulo{
 height: 120 ;
 margin: 0;
-margin-bottom: -75;
 }
 .SiteTitulo--sombra {
 padding: 0;
 margin:0;
-margin-top: -100;
 opacity: 5%;
 font-size: 120px;
 font-weight: 600;
@@ -73,15 +85,16 @@ font-weight: 600;
   .SiteTitulo{
     height: 120 ;
     margin: 0;
-    margin-bottom: -5;
     }
     .SiteTitulo--sombra {
     padding: 0;
     margin:0;
-    margin-top: -100;
     opacity: 5%;
-    font-size: 50;
+    font-size: 70px;
     font-weight: 600;
+    }
+    .SiteBanner--text {
+      font-size: 1px;
     }
 }
 
