@@ -23,13 +23,16 @@
 
 
 </head>
-@include('site.layouts.site-navbar')
 
-@yield('content')
+<body>
 
-@include('site.layouts.site-footer')
+    @include('site.layouts.site-navbar')
 
-@include('layouts.vendor-scripts')
+    @yield('content')
+
+    @include('site.layouts.site-footer')
+
+    @include('layouts.vendor-scripts')
 </body>
 
 </html>

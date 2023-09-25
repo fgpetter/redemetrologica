@@ -1,4 +1,3 @@
-<!-- footer -->
 <footer class="">
     <div class=" mt-5 pt5 mb-5 pb-5 SiteCards__bgimage  text-white position relative"
         style="background-image: url('{{ asset('build/images/site/banner-footer.png') }}');">
@@ -23,7 +22,8 @@
                                     Privacidade</a>
                                 <br>
                                 <a class="text-white"
-                                    href="https://redemetrologica.com.br/politica-de-cookies/">Política de Cookies</a>
+                                    href="https://redemetrologica.com.br/politica-de-cookies/">Política de
+                                    Cookies</a>
                             </div>
                         </div>
                     </div>
@@ -61,7 +61,8 @@
                                 <li class=""><a class="text-white" href="#">Laboratórios</a>
                                     <ul class=" list-unstyled " list-unstyled"">
                                         <li class=""><a class="text-white"
-                                                href="https://redemetrologica.com.br/laboratorios-avaliacao/"> Avaliação
+                                                href="https://redemetrologica.com.br/laboratorios-avaliacao/">
+                                                Avaliação
                                                 de Laboratórios</a></li>
                                         <li class=""><a class="text-white"
                                                 href="https://redemetrologica.com.br/laboratorios-reconhecidos/">
@@ -70,11 +71,13 @@
                                                 href="https://redemetrologica.com.br/bonus-metrologia/"> Bônus
                                                 Metrologia</a></li>
                                         <li class=""><a class="text-white"
-                                                href="https://redemetrologica.com.br/downloads/"> Downloads</a></li>
+                                                href="https://redemetrologica.com.br/downloads/"> Downloads</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class=""><a class="text-white"
-                                        href="https://redemetrologica.com.br/fale-conosco/">Fale Conosco</a></li>
+                                        href="https://redemetrologica.com.br/fale-conosco/">Fale Conosco</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -106,5 +109,3 @@
 
     </div>
 </footer>
-
-<!-- footer -->

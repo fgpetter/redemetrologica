@@ -1,4 +1,3 @@
-<!-- navbar -->
 <nav class="navbar navbar-expand-lg sticky-top py-3 SiteHeader border-bottom">
     <div class="container">
         <a class="navbar-brand" href="home">
@@ -28,8 +27,10 @@
                         Laboratórios
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="laboratorios-avaliacao">Avaliação de Laboratórios</a></li>
-                        <li><a class="dropdown-item" href="laboratorios-reconhecidos">Laboratórios Reconhecidos</a></li>
+                        <li><a class="dropdown-item" href="laboratorios-avaliacao">Avaliação de Laboratórios</a>
+                        </li>
+                        <li><a class="dropdown-item" href="laboratorios-reconhecidos">Laboratórios
+                                Reconhecidos</a></li>
                         <li><a class="dropdown-item" href="bonus-metrologia">Bônus Metrologia</a></li>
                         <li><a class="dropdown-item" href="downloads">Downloads</a></li>
                     </ul>

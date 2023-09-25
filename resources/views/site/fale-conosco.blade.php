@@ -1,4 +1,8 @@
-@extends('layouts.master-without-nav')
-@section('content')
-    <h1>fale conosco</h1>
-@endsection
+<x-layout-site>
+
+    <x-slot name="content">
+        <h1>fale conosco</h1>
+
+    </x-slot>
+
+</x-layout-site>

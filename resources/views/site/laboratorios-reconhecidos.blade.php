@@ -1,5 +1,7 @@
-@extends('layouts.master-without-nav')
+<x-layout-site>
 
-@section('content')
-    <h1> laboratorios-reconhecidos </h1>
-@endsection
+    <x-slot name="content">
+        <h1>laboratorios-reconhecidos</h1>
+    </x-slot>
+
+</x-layout-site>
