@@ -22,7 +22,14 @@ File: Custom Css File teste
   background-color: #f3f6f9;
 } 
 
-
+.SiteBanner--titulo {
+  font-size: 3rem;
+  color: #fff000;
+  text-shadow: 1px -1px 0px #ffffff, 1px 0px 0px #ffffff;
+}
+.SiteBanner--text {
+  font-size: 1rem;
+}
 
 
 .SiteCardsINI--efeito{
@@ -93,9 +100,15 @@ font-weight: 600;
     font-size: 70px;
     font-weight: 600;
     }
-    .SiteBanner--text {
-      font-size: 1px;
+    .SiteBanner--titulo {
+      font-size: 1.5rem;
+      color: #fff000;
     }
+    .SiteBanner--text {
+      font-size: 0.5rem;
+    }
+    
+
 }
 
 .SiteFooter__rodape {
@@ -117,4 +130,12 @@ font-weight: 600;
   width: unset;
 }
 
+@media (max-width: 768px) {
+  .SiteFooter__imagem{
+    max-width: 350px;
+    height: 75px;
+    width: unset;
+
+}
+}
 // CLASSES DO SITE

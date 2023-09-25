@@ -165,7 +165,7 @@
             <div
                 class="d-flex justify-content-center align-items-center SiteFooter__rodape position-absolute bottom-0 ">
                 <div class="container m-1">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div
                             class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center d-flex justify-content-center align-items-center ">
                             <h2 class=" text-white"> Rede Metrológica RS © </h2>
