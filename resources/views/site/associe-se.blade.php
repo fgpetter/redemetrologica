@@ -5,17 +5,28 @@
         {{-- banner inicial --}}
         <div class="card text-bg-dark">
             <img src="{{ asset('build\images\site\banner-associe-se.png') }}" class="card-img" alt="...">
+            <div class="container card-img-overlay d-flex row justify-content-around">
+                <div class="row align-items-end mx-5 mb-5">
 
+                    <div class="col-12 col-md-6 ">
+                        <div class=" container  d-flex justify-content-center ">
 
-            <div class=" container card-img-overlay d-flex justify-content-start  mx-5">
+                            <div class="align-self-end text-start    ">
+                                <p class="SiteBanner--titulo"><strong>Associe-se</strong></p>
+                                <button type="button" class="btn btn-warning">VANTAGENS</button>
+                                <button type="button" class="btn btn-warning">VALORES</button>
+                            </div>
 
-                <div class="align-self-end text-start   mx-5 ">
-                    <p class="SiteBanner--titulo"><strong>Associe-se</strong></p>
-                    <button type="button" class="btn btn-warning">VANTAGENS</button>
-                    <button type="button" class="btn btn-warning">VALORES</button>
+                        </div>
+
+                    </div>
+                    <div class="col-12 col-md-6">
+
+                    </div>
+
                 </div>
-
             </div>
+
         </div>
         {{-- banner inicial --}}
 
@@ -168,8 +179,34 @@
                 <p>Confira os critérios para laboratórios da mesma entidade.</p>
             </div>
         </div>
-
         {{-- associe-se --}}
+
+        {{-- vaalores --}}
+
+        <div class="row d-flex justify-content-center text-center align-items-center SiteValores--bg">
+            <div class="col my-5">
+                <div class="border">
+                    <h1>R$100</h1>
+                    <p>Lorem, ipsum.</p>
+                </div>
+            </div>
+            <div class="col my-5">
+                <div class="border">
+                    <h1>R$100</h1>
+                    <p>Lorem, ipsum.</p>
+                </div>
+            </div>
+            <div class="col my-5">
+                <div class="border">
+                    <h1>R$100</h1>
+                    <p>Lorem, ipsum.</p>
+                </div>
+            </div>
+
+        </div>
+
+
+        {{-- vaalores --}}
 
 
     </x-slot>
