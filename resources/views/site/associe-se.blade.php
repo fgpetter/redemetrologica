@@ -87,7 +87,6 @@
         </div>
         {{-- cards --}}
 
-
         {{-- avaliações --}}
         <div class="container">
             <div class="row">
