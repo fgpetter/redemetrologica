@@ -130,6 +130,12 @@ font-weight: 600;
   width: unset;
 }
 
+.SiteMaxW35{
+  max-width: 5rem;
+  height: 5rem;
+  width: unset;
+}
+
 @media (max-width: 768px) {
   .SiteFooter__imagem{
     max-width: 350px;

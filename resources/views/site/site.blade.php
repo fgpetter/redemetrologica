@@ -1032,15 +1032,10 @@
                                     </div>
                                 </div>
                             </div>
-
-
-
                         </div>
                     </div>
                     <div class="carousel-item">
                         <div class="container-sm d-flex   justify-content-around">
-
-
                             <div class="  " style="width: 18rem; height: 13rem;">
                                 <div class="SiteCards__bgimage  text-white d-grid"
                                     style="background-image: url('{{ asset('build/images/site/PESSOAS-FOTOS.jpg') }}');">
