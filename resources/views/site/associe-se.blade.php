@@ -181,32 +181,66 @@
         </div>
         {{-- associe-se --}}
 
-        {{-- vaalores --}}
-
+        {{-- valores --}}
         <div class="row d-flex justify-content-center text-center align-items-center SiteValores--bg">
-            <div class="col my-5">
-                <div class="border">
-                    <h1>R$100</h1>
-                    <p>Lorem, ipsum.</p>
+            <div class="col-md-4 my-5">
+                <div class=" border">
+                    <h1>R$<strong>100,00</strong> Ano</h1>
+                    <h3>Lorem, ipsum.</h3>
                 </div>
             </div>
-            <div class="col my-5">
+            <div class="col-md-4 my-5">
                 <div class="border">
-                    <h1>R$100</h1>
-                    <p>Lorem, ipsum.</p>
+                    <h1>R$<strong>100,00</strong> Ano</h1>
+                    <h3>Lorem, ipsum.</h3>
                 </div>
             </div>
-            <div class="col my-5">
+            <div class="col-md-4 my-5">
                 <div class="border">
-                    <h1>R$100</h1>
-                    <p>Lorem, ipsum.</p>
+                    <h1>R$<strong>100,00</strong> Ano</h1>
+                    <h3>Lorem, ipsum.</h3>
+                </div>
+            </div>
+
+
+
+        </div>
+        {{-- valores --}}
+
+        {{-- BannerFinal --}}
+        <div class="card text-bg-dark">
+            <img src="{{ asset('build\images\site\associe-se.png') }}" class="card-img" alt="...">
+            <div class="container card-img-overlay d-flex  justify-content-center">
+                <div class="row align-items-center">
+
+                    <div class="col">
+
+
+                        <div class="row text-center mb-3   ">
+                            <h3 class="text-white"><strong>PARA MAIS INFORMAÇÕES OU PARA SE
+                                    ASSOCIAR</strong></h3>
+                        </div>
+                        <div class="row justify-content-center text-center">
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-warning">Formulário</button>
+                            </div>
+                            <div class="col-md-4">
+                                <p>ou</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p>Ligue(51) 2200-3988
+                                    Email avaliacao@redemetrologica.com.b</p>
+
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
 
         </div>
-
-
-        {{-- vaalores --}}
+        {{-- BannerFinal --}}
 
 
     </x-slot>
