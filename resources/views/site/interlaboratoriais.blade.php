@@ -5,22 +5,10 @@
         <div class="card text-bg-dark">
             <img src="{{ asset('build\images\site\PEP-BANNER-DE-TOPO-1920-x-575-px_B.png') }}" class="card-img"
                 alt="...">
-            <div class="container card-img-overlay d-flex row justify-content-around">
-                <div class="row align-items-center mx-5 mb-5">
 
-                    <div class="col ">
-                        <div class=" container  d-flex justify-content-center ">
-
-                            <div class="align-self-center text-center    ">
-                                <p class="SiteBanner--interlab"><strong>INTERLABORATORIAIS</strong></p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
+            <div class="card-img-overlay d-flex justify-content-center">
+                <div class="align-self-center text-center ">
+                    <p class="SiteBanner--interlab"><strong>INTERLABORATORIAIS</strong></p>
                 </div>
             </div>
 
