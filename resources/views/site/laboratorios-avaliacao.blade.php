@@ -52,10 +52,7 @@
                     <button type="button" class="btn btn-warning btn-lg">SOLICITAR</button>
                 </div>
             </div>
-
         </div>
-
-
 
         <div class="container">
             <div class="row">
@@ -137,6 +134,56 @@
                                 é reconhecido.</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="SiteCards__bgimage p-5 text-center mb-5 text-white "
+            style="background-size: cover; background-image: url('{{ asset('build/images/site/lab-reconhecido-02.png') }}');height:100%; width:100%;">
+            <div class="container d-flex  justify-content-center">
+                <div class="row align-items-center">
+
+                    <div class="col">
+
+
+                        <div class="row text-center mb-3   ">
+                            <h3 class="text-white"><strong>PARA MAIS INFORMAÇÕES OU PARA SE
+                                    ASSOCIAR</strong></h3>
+                        </div>
+                        <div class="row justify-content-center text-center">
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-warning">Formulário</button>
+                            </div>
+                            <div class="col-md-4">
+                                <p>ou</p>
+                            </div>
+                            <div class="col-md-4 text-nowrap">
+                                <p>Ligue(51) 2200-3988<br> Email avaliacao@redemetrologica.com.br</p>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="container my-5">
+            <div class="row text-center">
+                <div class="col">
+                    <h1 class=" mb-0"><b>Para Download de Procedimentos dessa área Clique Aqui</b></h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="SiteCards__bgimage p-5 text-center mb-5 text-white "
+            style="background-size: cover; background-image: url('{{ asset('build/images/site/lab-reconhecido-01.png') }}');height:100%; width:100%;">
+            <div class="container">
+                <h1 class="text-white"><b>LABORATÓRIOS RECONHECIDOS</b></h1>
+                <div class="my-2">
+                    <button type="button" class="btn btn-warning btn-lg">CONFIRA</button>
                 </div>
             </div>
         </div>
