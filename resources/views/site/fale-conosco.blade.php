@@ -39,7 +39,7 @@
 
         <div class="container my-5">
             <div class="row">
-                <div class="col">
+                <div class="col-lg-6">
                     <input class="form-control mb-3" type="text" placeholder="Seu nome"
                         aria-label="default input example">
                     <input class="form-control my-3" type="text" placeholder="E-mail*"
@@ -50,7 +50,7 @@
                             contato com o DPO no endereço físico ou através do e-mail
                             lgpd@redemetrologica.com.br</strong></p>
                 </div>
-                <div class="col">
+                <div class="col-lg-6">
                     {{-- <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label> --}}
                     <textarea class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Mensagem*"></textarea>
                     <p>Selecione as área(s) que deseja fazer contato</p>
