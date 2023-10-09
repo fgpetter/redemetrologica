@@ -1,7 +1,6 @@
 <x-layout-site>
 
     <x-slot name="content">
-        {{-- img_loca --}}
         <div class="container my-5 ">
             <div class="row justify-content-center align-items-center text-center my-5">
                 <div class="col-md-6  ">
@@ -26,7 +25,6 @@
                 </div>
             </div>
         </div>
-        {{-- img_loca --}}
 
         <div class="container my-5">
             <div class="row justify-content-center align-items-center text-center">
