@@ -18,17 +18,15 @@
     <script src="https://kit.fontawesome.com/02f4ca9b8a.js" crossorigin="anonymous"></script>
 
 
-    @include('layouts.head-css')
+    @include('site.layouts.head-css')
 
 
 
 </head>
 
 <body>
-    <x-nav/>
-    @if (isset($content))
-        {{ $content }}
-    @endif
+    <x-site.nav />
+    @yield('content')
 
     <footer class="">
         <div class=" mt-5 pt5 mb-5 pb-5 SiteCards__bgimage  text-white position relative"
@@ -135,8 +133,7 @@
                                             class="bi bi-facebook"></i></a></li>
                                 <li><a class="text-white" href="https://www.instagram.com/redemetrologicars01/"><i
                                             class="bi bi-instagram"></i></a></li>
-                                <li><a class="text-white"
-                                        href="https://www.linkedin.com/company/redemetrologicars/"><i
+                                <li><a class="text-white" href="https://www.linkedin.com/company/redemetrologicars/"><i
                                             class="bi bi-linkedin"></i></span></a></li>
                             </ul>
                         </div>
@@ -147,7 +144,7 @@
         </div>
     </footer>
 
-    @include('layouts.vendor-scripts')
+    @include('site.layouts.vendor-scripts')
 </body>
 
 </html>
