@@ -17,6 +17,7 @@
     {{-- font wansome --}}
     <script src="https://kit.fontawesome.com/02f4ca9b8a.js" crossorigin="anonymous"></script>
 
+    @vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/scss/custom.scss'])
 
     @include('site.layouts.head-css')
 
