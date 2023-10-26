@@ -36,7 +36,7 @@ class HomeController extends Controller
 
     public function root()
     {
-        return view('index');
+        return view('site.pages.site');
     }
 
     /*Language Translation*/
@@ -81,7 +81,6 @@ class HomeController extends Controller
             Session::flash('message', 'Something went wrong!');
             Session::flash('alert-class', 'alert-danger');
             return redirect()->back();
-
         }
     }
 

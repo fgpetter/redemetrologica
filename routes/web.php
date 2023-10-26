@@ -50,6 +50,14 @@ Route::get('fale-conosco', function () {
   return view('site.pages.fale-conosco');
 });
 
+Route::get('slug-da-noticia', function () {
+  return view('site.pages.slug-da-noticia');
+});
+
+Route::get('slug-da-galeria', function () {
+  return view('site.pages.slug-da-galeria');
+});
+
 
 
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
