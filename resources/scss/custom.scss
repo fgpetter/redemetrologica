@@ -3,5 +3,197 @@ Template Name: Steex - Admin & Dashboard Template
 Author: Themesbrand
 Website: https://themesbrand.com/
 Contact: support@themesbrand.com
-File: Custom Css File
+File: Custom Css File teste
 */
+
+
+// CLASSES DO SITE
+
+
+.SiteHeader{
+  // width: 100%;
+  // padding: 40px 4%;
+  background-color: #f7f7f7;
+   transition: .8s;
+  // z-index: 9999;
+}
+
+.SiteHeader--efeito{
+  background-color: #f3f6f9;
+} 
+
+.SiteBanner--titulo {
+  font-size: 3rem;
+  color: #fff000;
+  text-shadow: 1px -1px 0px #ffffff, 1px 0px 0px #ffffff;
+}
+.SiteBanner--interlab {
+  font-size: 3rem;
+  color: #08492d;
+  text-shadow: 1px -1px 0px #ffffff, 1px 0px 0px #ffffff;
+}
+.SiteBanner--text {
+  font-size: 1rem;
+}
+
+
+.SiteCardsINI--efeito{
+  transition: box-shadow 0.3s ease-in-out;
+  }
+.SiteCardsINI--efeito:hover{
+  box-shadow: -5px 5px 30px rgba(0, 0, 0, 0.287);
+  }
+
+.SiteCardsINI--efeito h1{
+  color: white;
+  transition: box-shadow 0.3s ease-in-out;
+  }
+
+.SiteCardsINI--efeito:hover h1{
+color: #fff000;
+transition: color 0.3s ease-in-out; 
+}
+
+.SiteCards__bgimage{
+  background-size: cover;
+  height:100%;
+   width:100%;
+}
+.SiteCards--efeito {
+  background-color: rgba(44, 95, 116, 0.92);
+  width: 100%;
+  height: 65%;
+ 
+}
+
+.SiteCards--efeito:hover {
+  height: 100%;
+  transition: height 0.3s ease-in-out; 
+}
+
+.SiteCards--efeito a {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out; 
+}
+
+.SiteCards--efeito:hover a {
+  opacity: 1; 
+}
+
+
+.SiteTitulo{
+height: 120 ;
+margin: 0;
+}
+.SiteTitulo--sombra {
+padding: 0;
+margin:0;
+opacity: 5%;
+font-size: 120px;
+font-weight: 600;
+}
+
+@media (max-width: 576px ) {
+  .SiteTitulo{
+    height: 120 ;
+    margin: 0;
+    }
+    .SiteTitulo--sombra {
+    padding: 0;
+    margin:0;
+    opacity: 5%;
+    font-size: 70px;
+    font-weight: 600;
+    }
+    .SiteBanner--titulo {
+      font-size: 1.5rem;
+      color: #fff000;
+    }
+    .SiteBanner--interlab {
+      font-size: 1.5rem;
+      color: #08492d;
+    }
+    
+    .SiteBanner--text {
+      font-size: 0.5rem;
+    }
+    
+
+}
+
+.SiteFooter__rodape {
+  background-color: #305c74;
+  width: 100%;
+  height: auto;
+}
+
+
+.SiteFooter__rodape ul li{
+  display: inline-block;
+  margin: 0 10px;
+ font-size: 30;
+}
+
+.SiteFooter__imagem{
+  max-width: 350px;
+  height: 125px;
+  width: unset;
+}
+
+.SiteMaxW35{
+  max-width: 5rem;
+  height: 5rem;
+  width: unset;
+}
+
+@media (max-width: 768px) {
+  .SiteFooter__imagem{
+    max-width: 350px;
+    height: 75px;
+    width: unset;
+
+}
+}
+
+.SiteValores--bg {
+background-color: #eceff1;
+box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
+}
+
+.SiteIMG__efeito--R {
+  position: relative;
+}
+
+.SiteIMG__efeito--Atop {
+  position: absolute;
+  top: -40px;
+  right: -7%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 35px 0px, rgba(0, 0, 0, 0.2) 0px 0px 35px 0px;
+}
+
+.SiteIMG__efeito--Abotton {
+  position: absolute;
+  left: -7%;
+  bottom: -40px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 35px 0px, rgba(0, 0, 0, 0.2) 0px 0px 35px 0px;
+}
+
+.SiteCards__titulo {
+  height: 100px; 
+}
+
+
+.SiteMapbox{
+  // position: relative;
+  width: 100%;
+  height: 500px;
+  background: #fff;
+}
+
+.SiteMapbox iframe{
+  width: 100%;
+  height: 100%;
+}
+
+
+// CLASSES DO SITE

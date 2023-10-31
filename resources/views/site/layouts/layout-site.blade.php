@@ -17,22 +17,21 @@
     {{-- font wansome --}}
     <script src="https://kit.fontawesome.com/02f4ca9b8a.js" crossorigin="anonymous"></script>
 
+    @vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/scss/custom.scss'])
 
-    @include('layouts.head-css')
+    @include('site.layouts.head-css')
 
 
 
 </head>
 
 <body>
-
-    @include('site.layouts.site-navbar')
-
+    <x-site.nav />
     @yield('content')
 
-    @include('site.layouts.site-footer')
+    <x-site.footer />
 
-    @include('layouts.vendor-scripts')
+    @include('site.layouts.vendor-scripts')
 </body>
 
 </html>
