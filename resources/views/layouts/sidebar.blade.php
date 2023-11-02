@@ -29,6 +29,71 @@
                 </div>
                 <ul class="navbar-nav" id="navbar-nav">
 
+                    {{-- Usuarios --}}
+                    <li class="nav-item">
+                        <a class="nav-link menu-link collapsed" href="#sidebarUsers" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarUsers">
+                            <i class="ph-user-circle"></i> <span>USUÁRIOS</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarUsers">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('user-list') }}" class="nav-link" role="button" data-key="t-signin">Listar</a>
+                                </li>
+                                {{-- <li class="nav-item">
+                                    <a href="auth-signup" class="nav-link" role="button" data-key="t-signup">@lang('translation.signup')</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="auth-pass-reset" class="nav-link" role="button" data-key="t-password-reset">
+                                        @lang('translation.password-reset')
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="auth-pass-change" class="nav-link" role="button" data-key="t-password-create">
+                                        @lang('translation.password-create')
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="auth-lockscreen" class="nav-link" role="button" data-key="t-lock-screen">
+                                        @lang('translation.lock-screen')
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="auth-logout" class="nav-link" role="button" data-key="t-logout"> @lang('translation.logout') </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="auth-success-msg" class="nav-link" role="button" data-key="t-success-message">@lang('translation.success-message') </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="auth-twostep" class="nav-link" role="button" data-key="t-two-step-verification"> @lang('translation.two-step-verification') </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#sidebarErrors" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarErrors" data-key="t-errors"> @lang('translation.errors')</a>
+                                    <div class="collapse menu-dropdown" id="sidebarErrors">
+                                        <ul class="nav nav-sm flex-column">
+                                            <li class="nav-item">
+                                                <a href="auth-404" class="nav-link" data-key="t-404-error">@lang('translation.404')</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="auth-500" class="nav-link" data-key="t-500"> @lang('translation.500') </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="auth-503" class="nav-link" data-key="t-503">@lang('translation.503')</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="auth-offline" class="nav-link" data-key="t-offline-page"> @lang('translation.offline-page')</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li> --}}
+                            </ul>
+                        </div>
+                    </li>
+
+
                     <li class="menu-title"><span>@lang('translation.menu')</span></li>
                     <li class="nav-item">
                         <a class="nav-link menu-link collapsed" href="#sidebarDashboards"  role="button" aria-expanded="false" aria-controls="sidebarDashboards">
