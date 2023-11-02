@@ -23,14 +23,14 @@
                                           <p class="card-text align-self-end"><small class="text-muted">Ver
                                                   mais</small> <i class="bi bi-arrow-right-circle-fill"></i></p>
                                       </div>
-                                  </div>
-                                  <div class="  d-flex justify-content-end ">
-                                      <p class="card-text mx-1 "><small class="text-muted">Share</small>
-                                          <i class="bi bi-facebook"></i>
-                                      </p>
-                                      <p class="card-text "><small class="text-muted">Tweet</small>
-                                          <i class="bi bi-twitter"></i>
-                                      </p>
+                                      <div class="d-flex justify-content-end position-absolute bottom-0 end-0 pe-3">
+                                          <p class="card-text mx-1 "><small class="text-muted">Share</small>
+                                              <i class="bi bi-facebook"></i>
+                                          </p>
+                                          <p class="card-text "><small class="text-muted">Tweet</small>
+                                              <i class="bi bi-twitter"></i>
+                                          </p>
+                                      </div>
                                   </div>
                               </div>
                           </div>
@@ -52,15 +52,15 @@
                                           <p class="card-text align-self-end"><small class="text-muted">Ver
                                                   mais</small> <i class="bi bi-arrow-right-circle-fill"></i></p>
                                       </div>
-                                  </div>
-                                  <div class="  d-flex justify-content-end ">
-                                      <p class="card-text mx-1 "><small class="text-muted">Share</small>
-                                          <i class="bi bi-facebook"></i>
-                                      </p>
-                                      <p class="card-text "><small class="text-muted">Tweet</small>
-                                          <i class="bi bi-twitter"></i>
-                                      </p>
-                                  </div>
+                                      <div class="d-flex justify-content-end position-absolute bottom-0 end-0 pe-3">
+                                          <p class="card-text mx-1 "><small class="text-muted">Share</small>
+                                              <i class="bi bi-facebook"></i>
+                                          </p>
+                                          <p class="card-text "><small class="text-muted">Tweet</small>
+                                              <i class="bi bi-twitter"></i>
+                                          </p>
+                                      </div>
+                                    </div>
                               </div>
                           </div>
                       </div>
@@ -83,14 +83,14 @@
                                                   mais</small> <i class="bi bi-arrow-right-circle-fill"></i>
                                           </p>
                                       </div>
-                                  </div>
-                                  <div class="  d-flex justify-content-end">
-                                      <p class="card-text mx-1 "><small class="text-muted">Share</small>
-                                          <i class="bi bi-facebook"></i>
-                                      </p>
-                                      <p class="card-text "><small class="text-muted">Tweet</small>
-                                          <i class="bi bi-twitter"></i>
-                                      </p>
+                                      <div class="d-flex justify-content-end position-absolute bottom-0 end-0 pe-3">
+                                          <p class="card-text mx-1 "><small class="text-muted">Share</small>
+                                              <i class="bi bi-facebook"></i>
+                                          </p>
+                                          <p class="card-text "><small class="text-muted">Tweet</small>
+                                              <i class="bi bi-twitter"></i>
+                                          </p>
+                                      </div>
                                   </div>
                               </div>
                           </div>
