@@ -4,18 +4,18 @@
         <div class="navbar-brand-box">
             <a href="index" class="logo logo-dark">
                 <span class="logo-sm">
-                    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
+                    <img src="{{ URL::asset('build/images/favicon.png') }}" alt="" height="32">
                 </span>
                 <span class="logo-lg">
-                    <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="" height="22">
+                    <img src="{{ URL::asset('build/images/site/LOGO_REDE_BRANCO.png') }}" alt="" height="32">
                 </span>
             </a>
             <a href="index" class="logo logo-light">
                 <span class="logo-sm">
-                    <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
+                    <img src="{{ URL::asset('build/images/favicon.png') }}" alt="" height="32">
                 </span>
                 <span class="logo-lg">
-                    <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="22">
+                    <img src="{{ URL::asset('build/images/site/LOGO_REDE_BRANCO.png') }}" alt="" height="32">
                 </span>
             </a>
             <button type="button" class="btn btn-sm p-0 fs-3xl header-item float-end btn-vertical-sm-hover" id="vertical-hover">
