@@ -61,6 +61,12 @@ Route::get('slug-da-galeria', function () {
 Route::get('sobre', function () {
   return view('site.pages.sobre');
 });
+Route::get('slug-interlaboratoriais', function () {
+  return view('site.pages.slug-interlaboratoriais');
+});
+Route::get('slug-cursos', function () {
+  return view('site.pages.slug-cursos');
+});
 
 
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
