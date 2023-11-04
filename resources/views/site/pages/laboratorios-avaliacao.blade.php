@@ -4,16 +4,7 @@
         <div class="row justify-content-center align-items-center text-center my-5">
             <div class="col-md-6  ">
 
-                <img class="SiteIMG__efeito--R relativo rounded" src="{{ asset('build\images\site\lab-topo-01.jpg') }}"
-                    alt="" width="100%">
-                <div class="SiteIMG__efeito--Atop">
-                    <img class="rounded"src="{{ asset('build\images\site\LAB-TOPO-2-330-x-210-px.png') }}" alt=""
-                        height="210">
-                </div>
-                <div class="SiteIMG__efeito--Abotton ">
-                    <img class="rounded"src="{{ asset('build\images\site\LAB-TOPO-3-330-x-210-px.png') }}" alt=""
-                        height="210">
-                </div>
+                <img src="{{ asset('build\images\site\capa_avaliacao_lab.png') }}" class="img-fluid" alt="...">
 
             </div>
             <div class="col-md-6">

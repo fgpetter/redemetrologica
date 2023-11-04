@@ -15,7 +15,6 @@ File: Custom Css File teste
   // padding: 40px 4%;
   background-color: #f7f7f7;
    transition: .8s;
-  // z-index: 9999;
 }
 
 .SiteHeader--efeito{
@@ -184,7 +183,7 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
 
 
 .SiteMapbox{
-  // position: relative;
+  
   width: 100%;
   height: 500px;
   background: #fff;
@@ -195,5 +194,10 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
   height: 100%;
 }
 
+.SiteMarginy--negativo5 {
+  margin-top: -20rem;
+ 
+  
+};
 
 // CLASSES DO SITE
