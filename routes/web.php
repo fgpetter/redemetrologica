@@ -21,15 +21,9 @@ Route::view('downloads', 'site.pages.downloads');
 Route::view('fale-conosco', 'site.pages.fale-conosco');
 Route::view('slug-da-noticia', 'site.pages.slug-da-noticia');
 Route::view('slug-da-galeria', 'site.pages.slug-da-galeria');
-Route::get('sobre', function () {
-  return view('site.pages.sobre');
-});
-Route::get('slug-interlaboratoriais', function () {
-  return view('site.pages.slug-interlaboratoriais');
-});
-Route::get('slug-cursos', function () {
-  return view('site.pages.slug-cursos');
-});
+Route::view('sobre', 'site.pages.sobre');
+Route::view('slug-interlaboratoriais', 'site.pages.slug-interlaboratoriais');
+Route::view('slug-cursos', 'site.pages.slug-cursos');
 
 /* Rotas do template */
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
