@@ -37,7 +37,7 @@
                         <div class="collapse menu-dropdown" id="sidebarUsers">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('user-list') }}" class="nav-link" role="button" data-key="t-signin">Listar</a>
+                                    <a href="{{ route('user-index') }}" class="nav-link" role="button" data-key="t-signin">Listar</a>
                                 </li>
                                 {{-- <li class="nav-item">
                                     <a href="auth-signup" class="nav-link" role="button" data-key="t-signup">@lang('translation.signup')</a>

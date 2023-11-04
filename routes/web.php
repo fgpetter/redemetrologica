@@ -4,18 +4,6 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
@@ -39,7 +27,12 @@ Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 /* Rotas do painel */
 Route::group(['prefix' => 'painel'],function () {
-  Route::view('user-list', 'users.user-list')->name('user-list');
-  Route::view('user/{id}', 'users.user-edit')->name('user');
-  Route::post('user-create', [UserController::class, 'create'] )->name('user-create');
+
+  Route::group(['prefix' => 'user'],function () {
+    Route::get('index', [UserController::class, 'index'])->name('user-index');
+    Route::get('edit/{user}', [UserController::class, 'view'])->name('user-edit');
+    Route::post('create', [UserController::class, 'create'] )->name('user-create');
+    Route::post('update/{user}', [UserController::class, 'update'] )->name('user-update');
+    Route::post('delete/{user}', [UserController::class, 'delete'] )->name('user-delete');
+  });
 });
