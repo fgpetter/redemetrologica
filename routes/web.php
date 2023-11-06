@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -41,11 +42,21 @@ Route::group(['prefix' => 'painel'],function () {
   });
 
   Route::group(['prefix' => 'post'], function(){
-    Route::get('index', [PostController::class, 'index'])->name('post-index'); // tela de lista
+    Route::get('noticias', [PostController::class, 'index'])->name('noticia-index'); // tela de lista
+    Route::get('galeria', [PostController::class, 'index'])->name('galeria-index'); // tela de lista
     Route::post('create', [PostController::class, 'create'] )->name('post-create'); // tela de cadastro
     Route::get('edit/{post:slug}', [PostController::class, 'edit'])->name('post-edit'); // tela de edicao
     Route::post('update/{post:slug}', [PostController::class, 'update'] )->name('post-update'); // salvar
     Route::post('delete/{post:slug}', [PostController::class, 'delete'] )->name('post-delete');
+  });
+
+  Route::group(['prefix' => 'pessoa'], function(){
+    Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
+    Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
+    Route::get('edit/{pessoa}', [PessoaController::class, 'edit'])->name('pessoa-edit');
+    Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
+    Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
+
   });
 
 });
