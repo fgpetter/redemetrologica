@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,15 @@ Route::group(['prefix' => 'painel'],function () {
     Route::get('edit/{user}', [UserController::class, 'view'])->name('user-edit');
     Route::post('create', [UserController::class, 'create'] )->name('user-create');
     Route::post('update/{user}', [UserController::class, 'update'] )->name('user-update');
-    Route::post('delete/{user}', [UserController::class, 'delete'] )->name('user-delete');
+    Route::post('delete/{slug}', [UserController::class, 'delete'] )->name('user-delete');
   });
+
+  Route::group(['prefix' => 'post'], function(){
+    Route::get('index', [PostController::class, 'index'])->name('post-index'); // tela de lista
+    Route::post('create', [PostController::class, 'create'] )->name('post-create'); // tela de cadastro
+    Route::get('edit/{post:slug}', [PostController::class, 'edit'])->name('post-edit'); // tela de edicao
+    Route::post('update/{post:slug}', [PostController::class, 'update'] )->name('post-update'); // salvar
+    Route::post('delete/{post:slug}', [PostController::class, 'delete'] )->name('post-delete');
+  });
+
 });
