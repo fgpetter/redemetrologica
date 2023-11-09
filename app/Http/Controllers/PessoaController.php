@@ -56,13 +56,13 @@ class PessoaController extends Controller
   /**
    * Tela de edição de usuário
    *
-   * @param User $user
+   * @param Pessoa $pessoa
    * @return View
    **/
-  // public function view(User $user): View
-  // {
-  //   return view('users.user-update', ['user' => $user]);
-  // }
+  public function insert(Pessoa $pessoa): View
+  {
+    return view('pessoas.insert', ['pessoa' => $pessoa]);
+  }
 
   /**
    * Edita dados de usuário

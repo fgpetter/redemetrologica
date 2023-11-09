@@ -50,8 +50,10 @@ Route::group(['prefix' => 'painel'],function () {
     Route::post('delete/{post:slug}', [PostController::class, 'delete'] )->name('post-delete');
   });
 
+  /* Pessoas */
   Route::group(['prefix' => 'pessoa'], function(){
     Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
+    Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
     Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
     Route::get('edit/{pessoa}', [PessoaController::class, 'edit'])->name('pessoa-edit');
     Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');

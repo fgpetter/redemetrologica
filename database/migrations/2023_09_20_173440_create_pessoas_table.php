@@ -18,12 +18,13 @@ return new class extends Migration
             $table->string('cpf_cnpj');
             $table->enum('tipo_pessoa', ['PF', 'PJ']);
             $table->string('rg_ie');
-            $table->string('insc_municipal');
-            $table->integer('celular')->nullable();
+            $table->string('insc_municipal')->nullable();
+            $table->integer('telefone')->nullable();
             $table->string('email')->nullable();
-            $table->string('codigo_contabil');
-            $table->integer('contato_cobranca')->nullable();
-            $table->integer('alterado_por');
+            $table->string('codigo_contabil')->nullable();
+            $table->integer('alterado_por')->nullable();
+            $table->integer('end_padrao')->nullable();
+            $table->integer('end_cobranca')->nullable();
             $table->timestamps();
         });
     }
