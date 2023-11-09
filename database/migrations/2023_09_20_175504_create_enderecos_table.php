@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('enderecos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('unidade_id')->constrained();
+            $table->integer('unidade_id')->nullable();
             $table->foreignId('pessoa_id')->constrained();
             $table->string('rua');
             $table->string('numero');
+            $table->string('complemento');
             $table->string('bairro');
             $table->string('cep');
             $table->string('cidade');

@@ -58,6 +58,16 @@ Route::group(['prefix' => 'painel'],function () {
     Route::get('edit/{pessoa}', [PessoaController::class, 'edit'])->name('pessoa-edit');
     Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
     Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
+  });
+
+  /* Endereços */
+  Route::group(['prefix' => 'endereco'], function(){
+    Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
+    Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
+    Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
+    Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
+    Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
+  });
 
   });
 

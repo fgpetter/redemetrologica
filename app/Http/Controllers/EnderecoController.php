@@ -1,0 +1,105 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Pessoa;
+use App\Models\Endereco;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+
+
+class PessoaController extends Controller
+{
+
+  /**
+   * Adiciona usuários na base
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  // public function create(Request $request): RedirectResponse
+  // {
+  //   $request->validate([
+  //     'nome' => ['required', 'string', 'max:255'],
+  //     'email' => ['unique:users','required', 'string', 'email'],
+  //   ],[
+  //     'nome.required' => 'Preencha o campo nome',
+  //     'email.required' => 'Preencha o campo email',
+  //     'email.email' => 'Não é um email válido',
+  //     'email.unique' => 'Esse email já está em uso',
+  //   ]
+  //   );
+
+  //   $user = User::create([
+  //     'name' => $request->get('nome'),
+  //     'email' => $request->get('email'),
+  //     'password' => Hash::make('Password')
+  //   ]);
+
+  //   if(!$user){
+  //     return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+  //   }
+
+  //   return redirect()->route('user-edit', ['user' => $user]);
+  // }
+
+  /**
+   * Tela de edição de usuário
+   *
+   * @param Pessoa $pessoa
+   * @return View
+   **/
+  public function insert(Pessoa $pessoa): View
+  {
+    return view('pessoas.insert', ['pessoa' => $pessoa]);
+  }
+
+  /**
+   * Edita dados de usuário
+   *
+   * @param Request $request
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  // public function update(Request $request, User $user): RedirectResponse
+  // {
+  //   $request->validate([
+  //     'nome' => ['required', 'string', 'max:255'],
+  //     'email' => ['unique:users,email,'.$user->id,'required', 'string', 'email'],
+  //     ],[
+  //     'nome.required' => 'Preencha o campo nome',
+  //     'email.required' => 'Preencha o campo email',
+  //     'email.email' => 'Não é um email válido',
+  //     'email.unique' => 'Esse email já está em uso',
+  //     ]
+  //   );
+
+  //   $user->update([
+  //     'name' => $request->get('nome'),
+  //     'email' => $request->get('email'),
+  //     'password' => Hash::make('Password')
+  //   ]);
+
+  //   if(!$user){
+  //     return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+  //   }
+
+  //   return redirect()->route('user-index')->with('update-success', 'Usuário atualizado');
+  // }
+
+  /**
+   * Remove usuário
+   *
+   * @param Request $request
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  // public function delete(Request $request, User $user): RedirectResponse
+  // {
+  //   $user->delete();
+
+  //   return redirect()->route('user-index')->with('update-success', 'Usuário removido');;
+  // }
+
+}
