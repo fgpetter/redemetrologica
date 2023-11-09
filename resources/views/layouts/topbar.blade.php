@@ -6,19 +6,19 @@
                 <div class="navbar-brand-box horizontal-logo">
                     <a href="index" class="logo logo-dark">
                         <span class="logo-sm">
-                            <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
+                            {{-- <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22"> --}}
                         </span>
                         <span class="logo-lg">
-                            <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="" height="22">
+                            {{-- <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="" height="22"> --}}
                         </span>
                     </a>
 
                     <a href="index" class="logo logo-light">
                         <span class="logo-sm">
-                            <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
+                            {{-- <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22"> --}}
                         </span>
                         <span class="logo-lg">
-                            <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="22">
+                            {{-- <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="22"> --}}
                         </span>
                     </a>
                 </div>
@@ -533,7 +533,7 @@
                                 <div class="text-reset notification-item d-block dropdown-item position-relative unread-message">
                                     <div class="d-flex">
                                         <div class="position-relative me-3 flex-shrink-0">
-                                            <img src="build/images/users/32/avatar-2.jpg" class="rounded-circle avatar-xs" alt="user-pic">
+                                            {{-- <img src="build/images/users/32/avatar-2.jpg" class="rounded-circle avatar-xs" alt="user-pic"> --}}
                                             <span class="active-badge position-absolute start-100 translate-middle p-1 bg-success rounded-circle">
                                                 <span class="visually-hidden">New alerts</span>
                                             </span>
@@ -589,7 +589,7 @@
                                     <div class="d-flex">
 
                                         <div class="position-relative me-3 flex-shrink-0">
-                                            <img src="build/images/users/32/avatar-8.jpg" class="rounded-circle avatar-xs" alt="user-pic">
+                                            {{-- <img src="build/images/users/32/avatar-8.jpg" class="rounded-circle avatar-xs" alt="user-pic"> --}}
                                             <span class="active-badge position-absolute start-100 translate-middle p-1 bg-warning rounded-circle">
                                                 <span class="visually-hidden">New alerts</span>
                                             </span>
