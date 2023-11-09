@@ -69,6 +69,13 @@ Route::group(['prefix' => 'painel'],function () {
     Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
   });
 
+  /* Unidades */
+  Route::group(['prefix' => 'unidade'], function(){
+    Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
+    Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
+    Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
+    Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
+    Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
   });
 
 });
