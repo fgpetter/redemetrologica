@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('avaliadores', function (Blueprint $table) {
             $table->id();
+            $table->integer('uid');
             $table->foreignId('pessoa_id')->constrained();
             $table->string('curriculo')->nullable();
             $table->boolean('exp_min_comprovada');
