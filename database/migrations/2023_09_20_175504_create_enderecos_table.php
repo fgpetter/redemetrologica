@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('enderecos', function (Blueprint $table) {
             $table->id();
+            $table->integer('uid');
             $table->integer('unidade_id')->nullable();
-            $table->foreignId('pessoa_id')->constrained();
-            $table->string('rua');
-            $table->string('numero');
-            $table->string('complemento');
-            $table->string('bairro');
-            $table->string('cep');
-            $table->string('cidade');
-            $table->string('uf', 2);
+            $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
+            $table->string('endereco')->nullable();
+            $table->string('complemento')->nullable();
+            $table->string('bairro')->nullable();
+            $table->string('cep')->nullable();
+            $table->string('cidade')->nullable();
+            $table->string('uf', 2)->nullable();
             $table->timestamps();
         });
     }

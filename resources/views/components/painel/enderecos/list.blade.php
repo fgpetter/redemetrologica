@@ -7,8 +7,8 @@
     <ul class="list-group list-group-flush">
       @forelse ($pessoa->enderecos as $endereco)
         <li ondblclick="alert('abre edicao')" class="list-group-item d-flex justify-content-between align-items-center">
-          {{$endereco->rua}}, {{$endereco->numero}}, {{$endereco->complemento}}, {{$endereco->bairro}} 
-          <br> {{$endereco->cidade}} / {{$endereco->uf}} 
+          {{$endereco->endereco}}, {{$endereco->complemento}}<br>{{$endereco->bairro}}, 
+           {{$endereco->cidade}} / {{$endereco->uf}} 
           <br> CEP: {{$endereco->cep}}
           <div class="">
             @if ($pessoa->end_padrao == $endereco->id)
