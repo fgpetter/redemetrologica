@@ -11,10 +11,26 @@ class Pessoa extends Model
     use HasFactory;
 
     /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [];
+
+
+    /**
      * Lista os endereços de uma pessoa.
      */
     public function enderecos(): HasMany
     {
         return $this->hasMany(Endereco::class);
+    }
+
+    /**
+     * Lista os endereços de uma pessoa.
+     */
+    public function unidades(): HasMany
+    {
+        return $this->hasMany(Unidade::class)->with('endereco');
     }
 }

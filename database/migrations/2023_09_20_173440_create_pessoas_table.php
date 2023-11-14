@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('pessoas', function (Blueprint $table) {
             $table->id();
+            $table->integer('uid');
             $table->string('nome_razao');
             $table->string('nome_fantasia')->nullable();
             $table->string('cpf_cnpj');
             $table->enum('tipo_pessoa', ['PF', 'PJ']);
-            $table->string('rg_ie');
+            $table->string('rg_ie')->nullable();
             $table->string('insc_municipal')->nullable();
             $table->integer('telefone')->nullable();
             $table->string('email')->nullable();
