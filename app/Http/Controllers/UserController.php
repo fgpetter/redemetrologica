@@ -32,15 +32,16 @@ class UserController extends Controller
     $request->validate([
       'nome' => ['required', 'string', 'max:255'],
       'email' => ['unique:users','required', 'string', 'email'],
-    ],[
+    ],
+    [
       'nome.required' => 'Preencha o campo nome',
       'email.required' => 'Preencha o campo email',
       'email.email' => 'Não é um email válido',
       'email.unique' => 'Esse email já está em uso',
-    ]
-    );
+    ]);
 
     $user = User::create([
+      'uid' => substr(hrtime(true), -9, 9),
       'name' => $request->get('nome'),
       'email' => $request->get('email'),
       'password' => Hash::make('Password')
