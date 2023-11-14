@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -55,28 +56,25 @@ Route::group(['prefix' => 'painel'],function () {
   /* Pessoas */
   Route::group(['prefix' => 'pessoa'], function(){
     Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
-    Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
+    Route::get('insert/{pessoa:uid?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
     Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
-    Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
-    Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
+    Route::post('update/{pessoa:uid}', [PessoaController::class, 'update'] )->name('pessoa-update');
+    Route::post('delete/{pessoa:uid}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
   });
 
   /* Endereços */
-  Route::group(['prefix' => 'endereco'], function(){
-    Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
-    Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
-    Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
-    Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
-    Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
-  });
+  // Route::group(['prefix' => 'endereco'], function(){
+  //   Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
+  //   Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
+  //   Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
+  //   Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
+  //   Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
+  // });
 
   /* Unidades */
   Route::group(['prefix' => 'unidade'], function(){
-    Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
-    Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
-    Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
-    Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
-    Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
+    Route::post('create', [UnidadeController::class, 'create'] )->name('unidade-create');
+    Route::post('update/{unidade:uid}', [UnidadeController::class, 'update'] )->name('unidade-update');
+    Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'] )->name('unidade-delete');
   });
-
 });
