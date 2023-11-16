@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Contracts\Validation\Rule;
 
 class PostController extends Controller
 {
@@ -40,29 +41,34 @@ class PostController extends Controller
      **/
     public function create(Request $request): RedirectResponse
     {
-        // $request->validate(
-        //     [
-        //         'nome_razao' => ['required', 'string', 'max:255'],
-        //         'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
-        //         'tipo_pessoa' => ['required', 'string', 'max:2'],
-        //     ],
-        //     [
-        //         'nome_razao.required' => 'Preencha o campo nome ou razão social',
-        //         'cpf_cnpj.required' => 'Preencha o campo documento',
-        //     ]
-        // );
+        $request->validate(
+            [
+                'titulo' => ['required', 'string', 'max:255'],
+                'conteudo' => ['required', 'string'],
+                //'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
+                'data_publicacao'=> ['required', 'date'], 
+            ],
+            [
+                'titulo.required' => 'Preencha o campo titulo',
+                'titulo.string' => 'O campo titulo tem caracteres inválidos',
+                'titulo.max' => 'O campo titulo aceita até 250 caracteres',
+            ]
+        );
+
+        // Upload de imagem
+        // $imageName = time().'.'.$request->image->extension();
+        // $request->image->move(public_path('images'), $imageName);
+        //'thumb' => '/site/imagens/'.$imageName,
+        // vamos usar esse https://image.intervention.io/v2/api/resize para tratar imagem
 
         $posts = Post::create([
-
-            'id' => $request->get('id'),
             'titulo' => $request->get('titulo'),
-            'slug' => $request->get('slug'),
+            'slug' => Str::slug($request->get('titulo'), '-'),
             'conteudo' => $request->get('conteudo'),
             'thumb' => $request->get('thumb'),
-            'rascunho' => $request->get('rascunho'),
+            'rascunho' => $request->get('rascunho') ?? 0,
             'tipo' => $request->get('tipo'),
             'data_publicacao' => $request->get('data_publicacao')
-
         ]);
 
         if (!$posts) {
@@ -94,39 +100,37 @@ class PostController extends Controller
      * @param Post $posts
      * @return RedirectResponse
      **/
-    public function update(Request $request, Post $posts): RedirectResponse
+    public function update(Request $request, Post $post): RedirectResponse
     {
         // $request->validate(
         //     [
 
 
-        //         'slug' => ['unique:posts,slug,' . $posts->slug, 'required', 'string', 'slug'],
+        //         'slug' => ['unique:post,slug,' . $post->slug, 'required', 'string', 'slug'],
         //     ],
         //     [
 
         //         'slug.required' => 'Preencha o campo slug'
         //     ]
         // );
-        $posts->update([
-            'id' => $request->get('id'),
+        $post->update([
             'titulo' => $request->get('titulo'),
-            'slug' => $request->get('slug'),
+            'slug' => Str::slug($request->get('titulo'), '-'),
             'conteudo' => $request->get('conteudo'),
             'thumb' => $request->get('thumb'),
-            'rascunho' => $request->get('rascunho'),
+            'rascunho' => $request->get('rascunho') ?? 0,
             'tipo' => $request->get('tipo'),
             'data_publicacao' => $request->get('data_publicacao')
         ]);
 
-
-        if (!$posts) {
+        if (!$post) {
             return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
         }
-        // dd($posts);
 
-        if ($posts->tipo == 'noticia') {
+        if ($post->tipo == 'noticia') {
             return redirect()->route('noticia-index')->with('update-success', 'Noticia atualizada');
         }
+
         return redirect()->route('galeria-index')->with('update-success', 'Galeria atualizada');
     }
 

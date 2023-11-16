@@ -16,7 +16,7 @@ class Post extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['id', 'titulo', 'slug', 'conteudo', 'thumb', 'rascunho', 'tipo', 'data_publicacao'];
+    protected $fillable = ['titulo', 'slug', 'conteudo', 'thumb', 'rascunho', 'tipo', 'data_publicacao'];
 
     // /**
     //  * Carrega categorias

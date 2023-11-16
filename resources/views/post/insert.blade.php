@@ -1,12 +1,8 @@
 @extends('layouts.master')
-@section('title')
-    Editar Post
-@endsection
+@section('title') Editar Post @endsection
 @section('content')
     @component('components.breadcrumb')
-        @slot('li_1')
-            Post
-        @endslot
+        @slot('li_1') Post @endslot
         @slot('title')
             @isset($posts->id)
                 Editar Post
