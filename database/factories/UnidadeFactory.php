@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Unidade>
  */
-class UserFactory extends Factory
+class UnidadeFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,12 +19,13 @@ class UserFactory extends Factory
     {
         return [
             'uid' => substr(hrtime(true), -9, 9),
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
-            'pessoa_id' => fake()->randomNumber(1),
+            'nome' => fake()->company(),
+            'pessoa_id' => fake()->randomElement([2, 6, 8]),
+            'endereco_id' => fake()->numberBetween(1,9),
+            'fone' => '51'.fake()->randomNumber(9),
+            'nome_responsavel' => fake()->name(),
+            'email' => fake()->safeEmail(),
+            'responsavel_tecnico' => fake()->name(),
         ];
     }
 

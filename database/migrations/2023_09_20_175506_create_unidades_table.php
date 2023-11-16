@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('unidades', function (Blueprint $table) {
             $table->id();
+            $table->integer('uid');
             $table->string('nome');
             $table->foreignId('pessoa_id')->constrained()->onDelete('cascade');
-            $table->integer('fone');
-            $table->string('nome_resposavel')->nullable();
-            $table->string('email');
-            $table->string('cod_laboratorio');
+            $table->foreignId('endereco_id')->constrained()->onDelet('cascade');
+            $table->integer('fone')->nullable();
+            $table->string('nome_responsavel')->nullable();
+            $table->string('email')->nullable();
+            $table->string('cod_laboratorio')->nullable();
             $table->string('responsavel_tecnico')->nullable();
             $table->integer('laboratorio_associado')->nullable();
             $table->timestamps();

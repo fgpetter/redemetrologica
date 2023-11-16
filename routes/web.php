@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -31,32 +32,49 @@ Route::view('slug-cursos', 'site.pages.slug-cursos');
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
 /* Rotas do painel */
-Route::group(['prefix' => 'painel'],function () {
+Route::group(['prefix' => 'painel'], function () {
 
-  Route::group(['prefix' => 'user'],function () {
+  /* Usuários */
+  Route::group(['prefix' => 'user'], function () {
     Route::get('index', [UserController::class, 'index'])->name('user-index');
     Route::get('edit/{user}', [UserController::class, 'view'])->name('user-edit');
-    Route::post('create', [UserController::class, 'create'] )->name('user-create');
-    Route::post('update/{user}', [UserController::class, 'update'] )->name('user-update');
-    Route::post('delete/{slug}', [UserController::class, 'delete'] )->name('user-delete');
+    Route::post('create', [UserController::class, 'create'])->name('user-create');
+    Route::post('update/{user}', [UserController::class, 'update'])->name('user-update');
+    Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete');
   });
 
-  Route::group(['prefix' => 'post'], function(){
-    Route::get('noticias', [PostController::class, 'index'])->name('noticia-index'); // tela de lista
-    Route::get('galeria', [PostController::class, 'index'])->name('galeria-index'); // tela de lista
-    Route::post('create', [PostController::class, 'create'] )->name('post-create'); // tela de cadastro
-    Route::get('edit/{post:slug}', [PostController::class, 'edit'])->name('post-edit'); // tela de edicao
-    Route::post('update/{post:slug}', [PostController::class, 'update'] )->name('post-update'); // salvar
-    Route::post('delete/{post:slug}', [PostController::class, 'delete'] )->name('post-delete');
+  /* Noticias e Galeria */
+  Route::group(['prefix' => 'post'], function () {
+    Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
+    Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
+    Route::get('insert/{post:slug?}', [PostController::class, 'insert'])->name('post-insert'); // tela de edicao
+    Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
+    Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
+    Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
   });
 
-  Route::group(['prefix' => 'pessoa'], function(){
+  /* Pessoas */
+  Route::group(['prefix' => 'pessoa'], function () {
     Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
-    Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
-    Route::get('edit/{pessoa}', [PessoaController::class, 'edit'])->name('pessoa-edit');
-    Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
-    Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
-
+    Route::get('insert/{pessoa:uid?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
+    Route::post('create', [PessoaController::class, 'create'])->name('pessoa-create');
+    Route::post('update/{pessoa:uid}', [PessoaController::class, 'update'])->name('pessoa-update');
+    Route::post('delete/{pessoa:uid}', [PessoaController::class, 'delete'])->name('pessoa-delete');
   });
 
+  /* Endereços */
+  // Route::group(['prefix' => 'endereco'], function(){
+  //   Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
+  //   Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
+  //   Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
+  //   Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
+  //   Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
+  // });
+
+  /* Unidades */
+  Route::group(['prefix' => 'unidade'], function () {
+    Route::post('create', [UnidadeController::class, 'create'])->name('unidade-create');
+    Route::post('update/{unidade:uid}', [UnidadeController::class, 'update'])->name('unidade-update');
+    Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'])->name('unidade-delete');
+  });
 });

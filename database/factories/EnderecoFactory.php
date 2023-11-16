@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Endereco>
  */
-class UserFactory extends Factory
+class EnderecoFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,12 +19,13 @@ class UserFactory extends Factory
     {
         return [
             'uid' => substr(hrtime(true), -9, 9),
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
-            'pessoa_id' => fake()->randomNumber(1),
+            'pessoa_id' => fake()->randomElement([2, 6, 8]),
+            'endereco' => fake()->streetAddress(),
+            'complemento' => fake()->secondaryAddress(),
+            'bairro' => fake()->words(2, true),
+            'cep' => fake()->postcode(),
+            'cidade' => fake()->city(),
+            'uf' => fake()->stateAbbr(),
         ];
     }
 

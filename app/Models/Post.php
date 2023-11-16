@@ -10,20 +10,20 @@ class Post extends Model
 {
 
     use HasFactory;
-    
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [ 'titulo', 'slug', 'conteudo', 'thumb', 'rascunho','tipo' ];
+    protected $fillable = ['titulo', 'slug', 'conteudo', 'thumb', 'rascunho', 'tipo', 'data_publicacao'];
 
-    /**
-     * Carrega categorias
-     * @return BelongsToMany
-     */
-    public function categorias() : BelongsToMany
-    {
-        return $this->belongsToMany(Category::class);
-    }
+    // /**
+    //  * Carrega categorias
+    //  * @return BelongsToMany
+    //  */
+    // public function categorias() : BelongsToMany
+    // {
+    //     return $this->belongsToMany(Category::class);
+    // }
 }

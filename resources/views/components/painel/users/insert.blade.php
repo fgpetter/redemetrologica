@@ -6,7 +6,7 @@
     </div>
   @endif
   <div class="card-body">
-    <form method="POST" action="{{ isset($user) ? route('user-update', $user->id) : route('user-create') }}">
+    <form method="POST" action="{{ isset($user) ? route('user-update', $user->id) : route('user-create') }}" >
       @csrf
       <div class="row gy-3">
         <div class="col-12">
