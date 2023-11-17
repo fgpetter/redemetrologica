@@ -13,7 +13,7 @@
                     @csrf
                     <div class="row gy-3">
                         {{-- <input type="hidden" name="X" value="X"> --}}
-                        
+
                         <div class="col-12">
                             <label class="form-label">Titulo
                                 <small class="text-danger-emphasis opacity-75">(Obrigatório) </small>
@@ -47,8 +47,8 @@
                         <div class="col-12">
                             <label class="form-label">Tipo</label>
                             <select class="form-select" name="tipo" aria-label="Default select example">
-                                <option value="noticia" @selected($post->tipo == "noticia") >Noticia</option>
-                                <option value="galeria" @selected($post->tipo == "galeria") >Galeria</option>
+                                <option value="noticia" @selected($post->tipo == 'noticia')>Noticia</option>
+                                <option value="galeria" @selected($post->tipo == 'galeria')>Galeria</option>
                             </select>
                         </div>
 
@@ -56,8 +56,8 @@
 
                             <div class="col-7">
                                 <label for="data-publicacao">Selecione uma data para publicação</label>
-                                <input class="form-control" type="date" id="data-publicacao" name="data_publicacao" 
-                                    value="{{ old('data_publicacao') ?? ($post->data_publicacao ?? null) }}"/>
+                                <input class="form-control" type="date" id="data_publicacao" name="data_publicacao"
+                                    value="{{ old('data_publicacao') ? old('data_publicacao') : ($post->data_publicacao ? \Carbon\Carbon::parse($post->data_publicacao)->format('Y-m-d') : '') }}" />
                                 @error('data_publicacao')
                                     <div class="text-warning">{{ $message }}</div>
                                 @enderror
@@ -65,16 +65,18 @@
 
                             <div class="col-5">
                                 <div class="form-check">
-                                    <input class="form-check-input" name="rascunho" type="checkbox" value="1" @checked($post->rascunho)>
+                                    <input class="form-check-input" name="rascunho" type="checkbox" value="1"
+                                        @checked($post->rascunho)>
                                     <label class="form-check-label" for="flexCheckDefault">Rascunho</label>
                                 </div>
                             </div>
-                            
+
                         </div>
 
                     </div>
                     <div class="col-12 mt-3">
-                        <button type="submit" class="btn btn-primary px-4">{{ $post->slug ? 'Atualizar' : 'Salvar' }}</button>
+                        <button type="submit"
+                            class="btn btn-primary px-4">{{ $post->slug ? 'Atualizar' : 'Salvar' }}</button>
                     </div>
                 </form>
             </div>

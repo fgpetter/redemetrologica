@@ -15,7 +15,6 @@ return new class extends Migration
             $table->foreignId('category_id');
             $table->foreignId('post_id');
         });
-
     }
 
     /**
@@ -23,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('categories_posts');
     }
 };

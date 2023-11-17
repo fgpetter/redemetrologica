@@ -46,12 +46,16 @@ class PostController extends Controller
                 'titulo' => ['required', 'string', 'max:255'],
                 'conteudo' => ['required', 'string'],
                 //'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
-                'data_publicacao'=> ['required', 'date'], 
+                'data_publicacao' => ['required', 'date'],
             ],
             [
                 'titulo.required' => 'Preencha o campo titulo',
                 'titulo.string' => 'O campo titulo tem caracteres inválidos',
                 'titulo.max' => 'O campo titulo aceita até 250 caracteres',
+                'conteudo.required' => 'Preencha o campo conteudo',
+                'conteudo.string' => 'O campo conteudo tem caracteres inválidos',
+                'data_publicacao.required' => 'Preencha o campo Data de publicação',
+                'data_publicacao.date' => 'Data de publicação invalida',
             ]
         );
 
@@ -90,6 +94,7 @@ class PostController extends Controller
      **/
     public function insert(Post $post): View
     {
+        dd($post);
         return view('post.insert', ['post' => $post]);
     }
 
@@ -102,17 +107,25 @@ class PostController extends Controller
      **/
     public function update(Request $request, Post $post): RedirectResponse
     {
-        // $request->validate(
-        //     [
 
+        $request->validate(
+            [
+                'titulo' => ['required', 'string', 'max:255'],
+                'conteudo' => ['required', 'string'],
+                //'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
+                'data_publicacao' => ['required', 'date'],
+            ],
+            [
+                'titulo.required' => 'Preencha o campo titulo',
+                'titulo.string' => 'O campo titulo tem caracteres inválidos',
+                'titulo.max' => 'O campo titulo aceita até 250 caracteres',
+                'conteudo.required' => 'Preencha o campo conteudo',
+                'conteudo.string' => 'O campo conteudo tem caracteres inválidos',
+                'data_publicacao.required' => 'Preencha o campo Data de publicação',
+                'data_publicacao.date' => 'Data de publicação invalida',
 
-        //         'slug' => ['unique:post,slug,' . $post->slug, 'required', 'string', 'slug'],
-        //     ],
-        //     [
-
-        //         'slug.required' => 'Preencha o campo slug'
-        //     ]
-        // );
+            ]
+        );
         $post->update([
             'titulo' => $request->get('titulo'),
             'slug' => Str::slug($request->get('titulo'), '-'),
