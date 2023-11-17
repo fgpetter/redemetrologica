@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('thumb')->nullable();
             $table->boolean('rascunho')->default(false);
             $table->enum('tipo', ['noticia', 'galeria']);
-            $table->timestamp('data_publicacao');
+            $table->date('data_publicacao');
             $table->timestamps();
         });
     }

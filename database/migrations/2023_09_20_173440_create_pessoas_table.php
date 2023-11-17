@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('tipo_pessoa', ['PF', 'PJ']);
             $table->string('rg_ie')->nullable();
             $table->string('insc_municipal')->nullable();
-            $table->integer('telefone')->nullable();
+            $table->string('telefone')->nullable();
             $table->string('email')->nullable();
             $table->string('codigo_contabil')->nullable();
             $table->integer('alterado_por')->nullable();
