@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nome');
             $table->foreignId('pessoa_id')->constrained()->onDelete('cascade');
             $table->foreignId('endereco_id')->constrained()->onDelete('cascade');
-            $table->integer('fone')->nullable();
+            $table->string('telefone')->nullable();
             $table->string('nome_responsavel')->nullable();
             $table->string('email')->nullable();
             $table->string('cod_laboratorio')->nullable();
