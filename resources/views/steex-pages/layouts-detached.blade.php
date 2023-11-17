@@ -5,10 +5,4 @@
 @slot('li_1') Layouts @endslot
 @slot('title') Detached @endslot
 @endcomponent
-
-
-
-@endsection
-@section('script')
-<script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection
