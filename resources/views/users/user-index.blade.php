@@ -7,11 +7,11 @@
 @endcomponent
 
 <div class="row">
-  <div class="col-xl-7">
-    <x-painel.users.list :users="$users"/>
+  <div class="col-12">
+    <x-painel.users.insert-list />
   </div>
-  <div class="col-xl-5">
-    <x-painel.users.insert />
+  <div class="col-12">
+    <x-painel.users.list :users="$users"/>
   </div>
 </div>
 
