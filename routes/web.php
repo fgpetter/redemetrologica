@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\PessoaController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\UnidadeController;
-use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PessoaController;
+use App\Http\Controllers\UnidadeController;
+use App\Http\Controllers\EnderecoController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -63,13 +64,11 @@ Route::group(['prefix' => 'painel'],function () {
   });
 
   /* Endereços */
-  // Route::group(['prefix' => 'endereco'], function(){
-  //   Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
-  //   Route::get('insert/{pessoa?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
-  //   Route::post('create', [PessoaController::class, 'create'] )->name('pessoa-create');
-  //   Route::post('update/{pessoa}', [PessoaController::class, 'update'] )->name('pessoa-update');
-  //   Route::post('delete/{pessoa}', [PessoaController::class, 'delete'] )->name('pessoa-delete');
-  // });
+  Route::group(['prefix' => 'endereco'], function(){
+    Route::post('create', [EnderecoController::class, 'create'] )->name('endereco-create');
+    Route::post('update/{endereco:uid}', [EnderecoController::class, 'update'] )->name('endereco-update');
+    Route::post('delete/{endereco:uid}', [EnderecoController::class, 'delete'] )->name('endereco-delete');
+  });
 
   /* Unidades */
   Route::group(['prefix' => 'unidade'], function(){

@@ -1,3 +1,6 @@
+@if (session('endereco-success')) <div class="alert alert-success"> {{ session('endereco-success') }} </div> @endif
+@if (session('endereco-error')) <div class="alert alert-danger"> {{ session('endereco-error') }} </div> @endif
+
 <div class="card">
   <div class="card-header d-flex justify-content-between">
     <h4 class="card-title mb-0">Endereços</h4>
@@ -7,9 +10,9 @@
     <ul class="list-group list-group-flush">
       @forelse ($pessoa->enderecos as $endereco)
         <li ondblclick="alert('abre edicao')" class="list-group-item d-flex justify-content-between align-items-center">
-          {{$endereco->endereco}}, {{$endereco->complemento}}<br>{{$endereco->bairro}}, 
-           {{$endereco->cidade}} / {{$endereco->uf}} 
-          <br> CEP: {{$endereco->cep}}
+          {{$endereco->endereco}}, {{$endereco->complemento}} <br>
+          {{$endereco->bairro}}, {{$endereco->cidade}} <br>
+          {{$endereco->uf}} - CEP: {{$endereco->cep}}
           <div class="">
             @if ($pessoa->end_padrao == $endereco->id)
               <span class="badge bg-primary align-top mt-1">Padrão</span>
@@ -22,9 +25,9 @@
                   data-bs-toggle="tooltip" title="Detalhes e edição"></i>
               </a>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
-                <li><a class="dropdown-item" href="{{--route('endereco-insert', ['endereco' => $endereco->id])--}}">Editar</a></li>
+                <li><a class="dropdown-item" href="">Editar</a></li>
                 <li>
-                  <form method="POST" action="{{-- route('endereco-delete', $endereco->id) --}}">
+                  <form method="POST" action="{{ route('endereco-delete', $endereco->uid) }}">
                     @csrf
                     <button class="dropdown-item" type="submit">Deletar</button>
                   </form>

@@ -12,12 +12,6 @@ if(document.querySelector("#input-cpf")){
   })
 }
 
-if(document.querySelector("#input-cep")){
-  IMask(document.querySelector("#input-cep"), {
-    mask: '00000-000'
-  })
-}
-
 if(document.querySelector("#telefone")){
   IMask(document.querySelector("#telefone"), {
     mask: '(00) 0 0000-0000'
@@ -45,5 +39,11 @@ document.querySelectorAll('.telefone').forEach(el => {
       {mask: '(00) 0000-0000'},
       {mask: '(00) 0 0000-0000'}
     ]
+  })
+});
+
+document.querySelectorAll('.input-cep').forEach(el => {
+  IMask(el, {
+    mask: '00000-000'
   })
 });

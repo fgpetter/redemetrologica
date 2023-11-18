@@ -69,6 +69,14 @@ class PessoaController extends Controller
 
     ]);
 
+    if(!$pessoa){
+      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+    }
+
+    $pessoa->update([
+      'end_padrao' => $endereco->id
+    ]);
+
     return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('succes', 'Pessoa cadastrada com sucesso');
   }
 
