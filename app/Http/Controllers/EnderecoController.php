@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pessoa;
 use App\Models\Endereco;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-
+use Illuminate\Support\Facades\Validator;
 
 class EnderecoController extends Controller
 {
@@ -20,20 +18,26 @@ class EnderecoController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $request->validate([
+    $validator = Validator::make($request->all(),[
       'pessoa' => ['required', 'integer'],
       'cep' => ['required', 'string'],
       'endereco' => ['required', 'string'],
       'cidade' => ['required', 'string'],
-      'estado' => ['required', 'string'],
+      'uf' => ['required', 'string'],
       ],[
         'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
-        'estado.required' => 'Preencha o estado',
+        'uf.required' => 'Preencha o uf',
       ]
     );
+
+    if ($validator->fails()) {
+      return redirect()->back()
+        ->with('endereco-error', 'Dados de endereço não são válidos')
+        ->withErrors($validator);
+    }
 
     $endereco = Endereco::create([
       'uid' => substr(hrtime(true), -9, 9),
@@ -48,10 +52,10 @@ class EnderecoController extends Controller
     ]);
 
     if(!$endereco){
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->withInput($request->input())->with('endereco-error', 'Ocorreu um erro!');
     }
 
-    return redirect()->back()->with('succes', 'Pessoa cadastrada com sucesso');
+    return redirect()->back()->with('endereco-success', 'Endereço cadastrado com sucesso');
   }
 
 
@@ -64,22 +68,24 @@ class EnderecoController extends Controller
    **/
   public function update(Request $request, Endereco $endereco): RedirectResponse
   {
-
-    $request->validate([
-      'pessoa' => ['required', 'integer'],
+    $validator = Validator::make($request->all(),[
       'cep' => ['required', 'string'],
       'endereco' => ['required', 'string'],
       'cidade' => ['required', 'string'],
-      'estado' => ['required', 'string'],
+      'uf' => ['required', 'string'],
       ],[
-        'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
-        'estado.required' => 'Preencha o estado',
+        'uf.required' => 'Preencha o estado',
       ]
     );
 
+    if ($validator->fails()) {
+      return redirect()->back()
+        ->with('endereco-error', 'Dados de endereço não são válidos')
+        ->withErrors($validator);
+    } 
 
     $endereco->update([
       'endereco' => $request->get('endereco'),
@@ -90,7 +96,7 @@ class EnderecoController extends Controller
       'uf' => $request->get('uf')
     ]);
 
-    return redirect()->back()->with('endereco-success', 'Usuário atualizado');
+    return redirect()->back()->with('endereco-success', 'Endereço atualizado');
   }
 
 
