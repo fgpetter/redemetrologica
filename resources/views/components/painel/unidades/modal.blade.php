@@ -20,9 +20,9 @@
           <div class="row g-3">
             <div class="col-12">
               <div>
-                <label class="form-label">Nome</label>
+                <label class="form-label">Nome <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
                 <input type="text" class="form-control" name="nome"
-                  value="{{old('nome') ?? $unidade->nome ?? ''}}">
+                  value="{{old('nome') ?? $unidade->nome ?? ''}}" required>
               </div>
             </div>
 
@@ -31,7 +31,7 @@
                 <label class="form-label">Telefone</label>
                 <input type="text" class="form-control telefone" 
                   pattern="^\(\d{2}\)\s(9\s)?\d{4}-\d{4}$" title="Telefone inválido" 
-                  name="telefone" value="{{old('telefone') ?? $unidade->fone ?? ''}}">
+                  name="telefone" value="{{old('telefone') ?? $unidade->telefone ?? ''}}">
               </div>
             </div>
             
@@ -53,7 +53,7 @@
             
             <div class="col-6">
               <div>
-                <label class="form-label">Responsável <small class="text-muted"> (opcional) </small> </label>
+                <label class="form-label">Responsável </label>
                 <input type="text" class="form-control" name="nome_responsavel"
                   value="{{old('nome_responsavel') ?? $unidade->nome_responsavel ?? ''}}">
               </div>

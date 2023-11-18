@@ -7,10 +7,10 @@
         <strong> Email: </strong> {{$unidade->email}} <br>
         <strong> Código do laboratório: </strong> {{$unidade->cod_laboratorio}} <br>
         <strong> Responsável técnico: </strong> {{$unidade->responsavel_tecnico}} <br>
-        <strong> Fone: </strong> <input type="text" value="{{$unidade->fone}}" class="form-control-plaintext pt-0 d-inline w-75 telefone"><br>
-        <strong> Endereço: </strong> {{$unidade->endereco->rua}}, {{$unidade->endereco->numero}}, <br> 
-          {{$unidade->endereco->complemento}}, {{$unidade->endereco->bairro}} <br>
-          {{$unidade->endereco->cidade}} / {{$unidade->endereco->uf}} CEP: {{$unidade->endereco->cep}}
+        <strong> Fone: </strong> <input type="text" value="{{$unidade->telefone}}" class="form-control-plaintext pt-0 d-inline w-75 telefone"><br>
+        <strong> Endereço: </strong> {{$unidade->endereco->endereco}}, {{$unidade->endereco->complemento}} <br>
+          {{$unidade->endereco->bairro}}, {{$unidade->endereco->cidade}} <br>
+          {{$unidade->endereco->uf}} - CEP: {{$unidade->endereco->cep}}
       </p>
     </div>
     <div>
