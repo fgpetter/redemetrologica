@@ -5,6 +5,16 @@
   </div>
 @endif
 
+@if (session('unidade-error')) 
+  <div class="alert alert-danger alert-dismissible fade show"> 
+    {{ session('unidade-error') }}
+    @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+    @endforeach
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+@endif
+
 <div class="card">
   <div class="card-header d-flex justify-content-between">
     <h4 class="card-title mb-0">Unidades</h4>

@@ -6,7 +6,7 @@ use App\Models\Endereco;
 use App\Models\Unidade;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-
+use Illuminate\Support\Facades\Validator;
 
 class UnidadeController extends Controller
 {
@@ -19,21 +19,29 @@ class UnidadeController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $request->validate([
+    $validator = Validator::make($request->all(),[
       'nome' => ['required', 'string', 'max:255'],
       'pessoa' => ['required', 'integer'],
       'cep' => ['required', 'string'],
       'endereco' => ['required', 'string'],
       'cidade' => ['required', 'string'],
-      'estado' => ['required', 'string'],
+      'uf' => ['required', 'string'],
       ],[
         'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
-        'estado.required' => 'Preencha o estado',
+        'uf.required' => 'Preencha o estado',
       ]
     );
+
+    if ($validator->fails()) {
+      return redirect()->back()
+        ->withInput($request->input())
+        ->with('unidade-error', 'Dados informados não são válidos')
+        ->withErrors($validator);
+    }
+
 
     $endereco = Endereco::create([
       'uid' => substr(hrtime(true), -9, 9),
