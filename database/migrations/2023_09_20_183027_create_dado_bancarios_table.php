@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('dados_bancarios', function (Blueprint $table) {
             $table->id();
             $table->integer('uid');
+            $table->foreignId('funcionario_id')->constrained()->onDelete('cascade');
             $table->string('nome_conta');
             $table->string('nome_banco');
             $table->string('cod_banco');

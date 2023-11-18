@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('funcionarios', function (Blueprint $table) {
             $table->id();
             $table->integer('uid');
-            $table->foreignId('pessoa_id')->constrained();
+            $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
             $table->string('cargo')->nullable();
             $table->string('setor')->nullable();
-            $table->foreignId('dados_bancarios_id')->constrained();
             $table->text('observacoes')->nullable();
             $table->date('admissao');
             $table->date('demissao')->nullable();

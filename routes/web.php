@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\EnderecoController;
+use App\Http\Controllers\FuncionarioController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -76,4 +77,14 @@ Route::group(['prefix' => 'painel'],function () {
     Route::post('update/{unidade:uid}', [UnidadeController::class, 'update'] )->name('unidade-update');
     Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'] )->name('unidade-delete');
   });
+
+    /* Funcionarios */
+    Route::group(['prefix' => 'funcionario'], function(){
+      Route::get('index', [FuncionarioController::class, 'index'])->name('funcionario-index');
+      Route::get('insert/{funcionario:uid?}', [FuncionarioController::class, 'insert'])->name('funcionario-insert');
+      Route::post('create', [FuncionarioController::class, 'create'] )->name('funcionario-create');
+      Route::post('update/{funcionario:uid}', [FuncionarioController::class, 'update'] )->name('funcionario-update');
+      Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'] )->name('funcionario-delete');
+    });
+
 });

@@ -108,7 +108,7 @@
                   <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/pessoa/index') ? 'active' : '' }}" role="button" data-key="t-signin">Listar</a>
                 </li>
                 <li class="nav-item">
-                  <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/funcionarios/index') ? 'active' : '' }}" role="button" data-key="t-signin">Funcionários</a>
+                  <a href="{{ route('funcionario-index') }}" class="nav-link {{ request()->is('painel/funcionarios/index') ? 'active' : '' }}" role="button" data-key="t-signin">Funcionários</a>
                 </li>
                 <li class="nav-item">
                   <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/avaliadores/index') ? 'active' : '' }}" role="button" data-key="t-signin">Avaliadores</a>
