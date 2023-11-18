@@ -98,15 +98,22 @@
 
           {{-- Pessoas --}}
           <li class="nav-item">
-            <a class="nav-link menu-link collapsed {{ request()->is('painel/pessa/*') ? 'active' : '' }}" href="#sidebarPessoas" data-bs-toggle="collapse" role="button" 
-              aria-expanded="{{ request()->is('painel/pessa/*') ? 'true' : 'false' }}" aria-controls="sidebarPessoas">
+            <a class="nav-link menu-link collapsed {{ request()->is('painel/pessoa/*') ? 'active' : '' }}" href="#sidebarPessoas" data-bs-toggle="collapse" role="button" 
+              aria-expanded="{{ request()->is('painel/pessoa/*') ? 'true' : 'false' }}" aria-controls="sidebarPessoas">
               <i class="ph-identification-card"></i> <span>PPESSOAS</span>
             </a>
-            <div class="collapse menu-dropdown" id="sidebarPessoas">
+            <div class="collapse menu-dropdown {{ request()->is('painel/pessoa/*') ? 'show' : '' }}" id="sidebarPessoas">
               <ul class="nav nav-sm flex-column">
                 <li class="nav-item">
-                  <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/pessa/index') ? 'active' : '' }}" role="button" data-key="t-signin">Listar</a>
+                  <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/pessoa/index') ? 'active' : '' }}" role="button" data-key="t-signin">Listar</a>
                 </li>
+                <li class="nav-item">
+                  <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/funcionarios/index') ? 'active' : '' }}" role="button" data-key="t-signin">Funcionários</a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/avaliadores/index') ? 'active' : '' }}" role="button" data-key="t-signin">Avaliadores</a>
+                </li>
+
               </ul>
             </div>
           </li>

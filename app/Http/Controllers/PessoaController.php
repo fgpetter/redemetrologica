@@ -19,7 +19,7 @@ class PessoaController extends Controller
   public function index(): View
   {
     $pessoas = Pessoa::all();
-    return view('pessoas.index', ['pessoas' => $pessoas]);
+    return view('painel.pessoas.index', ['pessoas' => $pessoas]);
   }
 
   /**
