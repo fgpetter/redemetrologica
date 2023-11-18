@@ -88,7 +88,7 @@ class PessoaController extends Controller
    **/
   public function insert(Pessoa $pessoa): View
   {
-    return view('pessoas.insert', ['pessoa' => $pessoa]);
+    return view('painel.pessoas.insert', ['pessoa' => $pessoa]);
   }
 
   /**

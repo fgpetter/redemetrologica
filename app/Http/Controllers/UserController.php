@@ -62,7 +62,7 @@ class UserController extends Controller
    **/
   public function view(User $user): View
   {
-    return view('users.user-update', ['user' => $user]);
+    return view('painel.users.user-update', ['user' => $user]);
   }
 
   /**
