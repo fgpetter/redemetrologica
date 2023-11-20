@@ -25,7 +25,31 @@
                             @enderror
                         </div>
 
-                        <div class="col-12">
+                        {{-- teste Ckeditor 5  --}}
+                        <div class="py-12">
+                            <div class="mx-auto sm:px-6 lg:px-8">
+                                <!-- Remova a classe max-w-7xl -->
+                                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                                    <div class="p-6 bg-white border-b border-gray-200">
+                                        <div class="mb-12">
+                                            <label class="block">
+                                                <span class="text-gray-700">Conteudo</span>
+                                                <textarea id="editor" class="block w-full mt-1 rounded-md" name="conteudo" rows="3">{{ old('conteudo') ?? ($post->conteudo ?? null) }}</textarea>
+                                            </label>
+                                            @error('description')
+                                                <div class="text-sm text-red-600">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        {{-- teste Ckeditor 5  --}}
+
+                        {{-- <div class="col-12">
                             <label class="form-label">Conteúdo
                                 <small class="text-danger-emphasis opacity-75">(Obrigatório) </small>
                             </label>
@@ -33,7 +57,7 @@
                             @error('conteudo')
                                 <div class="text-warning">{{ $message }}</div>
                             @enderror
-                        </div>
+                        </div> --}}
 
                         <div class="col-12">
                             <label class="form-label">Imagem</label>
@@ -89,3 +113,11 @@
     </div>
 
 </div>
+<script src="https://cdn.ckeditor.com/ckeditor5/34.2.0/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#editor'))
+        .catch(error => {
+            console.error(error);
+        });
+</script>

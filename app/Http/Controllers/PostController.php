@@ -94,7 +94,7 @@ class PostController extends Controller
      **/
     public function insert(Post $post): View
     {
-        dd($post);
+
         return view('post.insert', ['post' => $post]);
     }
 

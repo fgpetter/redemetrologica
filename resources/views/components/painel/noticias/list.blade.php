@@ -23,6 +23,9 @@
                           <th scope="col">Titulo</th>
                           <th scope="col">Tipo</th>
                           <th scope="col">Data Publicação</th>
+                          <th scope="col">Rascunho</th>
+                          <th scope="col">Visualizar</th>
+
                           <th scope="col"></th>
                       </tr>
                   </thead>
@@ -32,9 +35,12 @@
                               <th scope="row"><a href="{{ route('post-insert', ['post' => $post->slug]) }}"
                                       class="fw-medium"> #{{ $post['id'] }} </a></th>
                               <td>{{ $post['titulo'] }}</td>
-                              <td><input type="text" class="form-control-plaintext table-cpf-cnpj"
-                                      value="{{ $post['tipo'] }}" readonly></td>
-                              <td>{{ $post['datapostagem'] }}</td>
+                              <td>{{ $post['tipo'] }}</td>
+                              <td>{{ $post['data_publicacao'] }}</td>
+                              <td>
+                                  <input type="checkbox" {{ $post['rascunho'] ? 'checked' : '' }} disabled>
+                              </td>
+                              <td> <a href="#">Visualizar</a></td>
                               <td>
                                   <div class="dropdown">
                                       <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
