@@ -25,39 +25,16 @@
                             @enderror
                         </div>
 
-                        {{-- teste Ckeditor 5  --}}
-                        <div class="py-12">
-                            <div class="mx-auto sm:px-6 lg:px-8">
-                                <!-- Remova a classe max-w-7xl -->
-                                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                                    <div class="p-6 bg-white border-b border-gray-200">
-                                        <div class="mb-12">
-                                            <label class="block">
-                                                <span class="text-gray-700">Conteudo</span>
-                                                <textarea id="editor" class="block w-full mt-1 rounded-md" name="conteudo" rows="3">{{ old('conteudo') ?? ($post->conteudo ?? null) }}</textarea>
-                                            </label>
-                                            @error('description')
-                                                <div class="text-sm text-red-600">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                        {{-- teste Ckeditor 5  --}}
-
-                        {{-- <div class="col-12">
-                            <label class="form-label">Conteúdo
+                        {{-- ckeditor --}}
+                        <div class="col-12">
+                            <label class="form-label">Conteudo
                                 <small class="text-danger-emphasis opacity-75">(Obrigatório) </small>
                             </label>
-                            <textarea class="form-control" name="conteudo" rows="3">{{ old('conteudo') ?? ($post->conteudo ?? null) }}</textarea>
-                            @error('conteudo')
-                                <div class="text-warning">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
+                            <textarea id="editor" class="ckeditor-classic" name="conteudo">
+                                {!! old('conteudo') ?? ($post->conteudo ?? null) !!}
+                            </textarea>
+                        </div>
+                        {{-- ckeditor --}}
 
                         <div class="col-12">
                             <label class="form-label">Imagem</label>
@@ -113,10 +90,17 @@
     </div>
 
 </div>
-<script src="https://cdn.ckeditor.com/ckeditor5/34.2.0/classic/ckeditor.js"></script>
+<script src="{{ URL::asset('build/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
+<script src="{{ URL::asset('build/js/pages/form-editor.init.js') }}"></script>
+<script src="{{ URL::asset('build/js/app.js') }}"></script>
+
 <script>
     ClassicEditor
-        .create(document.querySelector('#editor'))
+        .create(document.querySelector('#editor'), {
+            ckfinder: {
+                uploadUrl: '{{ route('image.upload') . '?_token=' . csrf_token() }}',
+            }
+        })
         .catch(error => {
             console.error(error);
         });

@@ -53,6 +53,10 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
   });
 
+  // imageUpload ckeditor
+  Route::post('image-upload', [ImageUploadController::class, 'storeImage'])->name('image.upload');
+
+
   /* Pessoas */
   Route::group(['prefix' => 'pessoa'], function () {
     Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
