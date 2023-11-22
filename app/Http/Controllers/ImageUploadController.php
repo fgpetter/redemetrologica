@@ -16,7 +16,7 @@ class ImageUploadController extends Controller
 
             $request->file('upload')->move(public_path('media'), $fileName);
 
-            $url = asset('media/' . $fileName);
+            $url = asset('media/' . $fileName); //onde salvar a imagem? public?
             return response()->json(['fileName' => $fileName, 'uploaded' => 1, 'url' => $url]);
         }
     }
