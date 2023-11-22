@@ -59,18 +59,20 @@ class PostController extends Controller
         'data_publicacao.date' => 'Data de publicação invalida',
       ]
     );
-
-    // Upload de imagem
-    // $imageName = time().'.'.$request->image->extension();
-    // $request->image->move(public_path('images'), $imageName);
-    //'thumb' => '/site/imagens/'.$imageName,
-    // vamos usar esse https://image.intervention.io/v2/api/resize para tratar imagem
+    if ($request->hasFile('thumb')) {
+        $originName = $request->file('thumb')->getClientOriginalName();
+        $fileName = pathinfo($originName, PATHINFO_FILENAME);
+        $extension = $request->file('thumb')->getClientOriginalExtension();
+        $fileName = $fileName . '_' . time() . '.' . $extension;
+        $request->file('thumb')->move(public_path('post-media'), $fileName);
+        $image = 'post-media/' . $fileName;
+    }
 
     $posts = Post::create([
       'titulo' => $request->get('titulo'),
       'slug' => Str::slug($request->get('titulo'), '-'),
       'conteudo' => $request->get('conteudo'),
-      'thumb' => $request->get('thumb'),
+      'thumb' => $image,
       'rascunho' => $request->get('rascunho') ?? 0,
       'tipo' => $request->get('tipo'),
       'data_publicacao' => $request->get('data_publicacao')
@@ -79,8 +81,6 @@ class PostController extends Controller
     if (!$posts) {
       return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
     }
-
-
 
     if ($posts->tipo == 'noticia') {
       return redirect()->route('noticia-index')->with('update-success', 'Noticia adicionada');

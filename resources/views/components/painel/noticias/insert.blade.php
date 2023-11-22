@@ -8,7 +8,7 @@
     <div class="card-body">
         <div class="tab-content">
             <div class="tab-pane active" id="post" role="tabpanel">
-                <form method="POST"
+                <form method="POST" enctype="multipart/form-data"
                     action="{{ isset($post->slug) ? route('post-update', $post->slug) : route('post-create') }}">
                     @csrf
                     <div class="row gy-3">
@@ -37,8 +37,9 @@
                         {{-- ckeditor --}}
 
                         <div class="col-12">
-                            <label class="form-label">Imagem</label>
-                            <input type="text" class="form-control" name="thumb"
+                            <label class="form-label">Imagem de capa</label>
+                            <input type="file" class="form-control" name="thumb" id="formFile"
+                                accept="image/png, image/jpeg"
                                 value="{{ old('thumb') ?? ($post->thumb ?? null) }}">
                             @error('thumb')
                                 <div class="text-warning">{{ $message }}</div>
