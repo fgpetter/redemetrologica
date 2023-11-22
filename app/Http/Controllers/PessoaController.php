@@ -23,7 +23,7 @@ class PessoaController extends Controller
   }
 
   /**
-   * Adiciona usuários na base
+   * Adiciona pessoa
    *
    * @param Request $request
    * @return RedirectResponse
@@ -34,9 +34,17 @@ class PessoaController extends Controller
       'nome_razao' => ['required', 'string', 'max:255'],
       'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
       'tipo_pessoa' => ['required', 'string', 'max:2'],
+      'cep' => ['required', 'string'],
+      'endereco' => ['required', 'string'],
+      'cidade' => ['required', 'string'],
+      'uf' => ['required', 'string'],
       ],[
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
+        'cep.required' => 'Preencha o campo CEP',
+        'endereco.required' => 'Preencha o campo endereço',
+        'cidade.required' => 'Preencha o campo cidade',
+        'uf.required' => 'Preencha o uf',
       ]
     );
 
@@ -81,7 +89,7 @@ class PessoaController extends Controller
   }
 
   /**
-   * Tela de edição de usuário
+   * Tela de edição de pessoa
    *
    * @param Pessoa $pessoa
    * @return View
@@ -92,37 +100,39 @@ class PessoaController extends Controller
   }
 
   /**
-   * Edita dados de usuário
+   * Edita dados de pessoa
    *
    * @param Request $request
-   * @param User $user
+   * @param Pessoa $pessoa
    * @return RedirectResponse
    **/
-  // public function update(Request $request, User $user): RedirectResponse
-  // {
-  //   $request->validate([
-  //     'nome' => ['required', 'string', 'max:255'],
-  //     'email' => ['unique:users,email,'.$user->id,'required', 'string', 'email'],
-  //     ],[
-  //     'nome.required' => 'Preencha o campo nome',
-  //     'email.required' => 'Preencha o campo email',
-  //     'email.email' => 'Não é um email válido',
-  //     'email.unique' => 'Esse email já está em uso',
-  //     ]
-  //   );
+  public function update(Request $request, Pessoa $pessoa): RedirectResponse
+  {
+    $request->validate([
+      'nome_razao' => ['required', 'string', 'max:255'],
+      'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
+      'tipo_pessoa' => ['required', 'string', 'max:2'],
+      ],[
+        'nome_razao.required' => 'Preencha o campo nome ou razão social',
+        'cpf_cnpj.required' => 'Preencha o campo documento',
+      ]
+    );
 
-  //   $user->update([
-  //     'name' => $request->get('nome'),
-  //     'email' => $request->get('email'),
-  //     'password' => Hash::make('Password')
-  //   ]);
+    $pessoa->update([
+      'tipo_pessoa' => $request->get('tipo_pessoa'),
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')) ,
+      'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
+      'cpf_cnpj' => $request->get('cpf_cnpj'),
+      'rg_ie' => $request->get('rg_ie'),
+      'insc_municipal' => $request->get('insc_municipal'),
+      'telefone' => $request->get('telefone'),
+      'email' => $request->get('email'),
+      'codigo_contabil' => $request->get('codigo_contabil'),
+    ]);
 
-  //   if(!$user){
-  //     return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
-  //   }
+    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('succes', 'Pessoa cadastrada com sucesso');
 
-  //   return redirect()->route('user-index')->with('update-success', 'Usuário atualizado');
-  // }
+  }
 
   /**
    * Remove usuário
@@ -133,7 +143,6 @@ class PessoaController extends Controller
     public function delete(Pessoa $pessoa): RedirectResponse
     {
       $pessoa->delete();
-
       return redirect()->route('pessoa-index')->with('update-success', 'Pessoa removida');
     }
 

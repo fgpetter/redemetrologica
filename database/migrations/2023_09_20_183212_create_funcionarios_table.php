@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('admissao');
             $table->date('demissao')->nullable();
             $table->string('curriculo')->nullable();
+            $table->integer('conta_padrao')->nullable();
             $table->timestamps();
         });
     }

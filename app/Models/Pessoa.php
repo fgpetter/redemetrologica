@@ -33,4 +33,13 @@ class Pessoa extends Model
     {
         return $this->hasMany(Unidade::class)->with('endereco');
     }
+
+    /**
+     * Lista dados bancarios de uma pessoa.
+     */
+    public function dadosBancarios(): HasMany
+    {
+        return $this->hasMany(DadoBancario::class);
+    }
+
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\EnderecoController;
 use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\DadoBancarioController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -78,13 +79,20 @@ Route::group(['prefix' => 'painel'],function () {
     Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'] )->name('unidade-delete');
   });
 
-    /* Funcionarios */
-    Route::group(['prefix' => 'funcionario'], function(){
-      Route::get('index', [FuncionarioController::class, 'index'])->name('funcionario-index');
-      Route::get('insert/{funcionario:uid?}', [FuncionarioController::class, 'insert'])->name('funcionario-insert');
-      Route::post('create', [FuncionarioController::class, 'create'] )->name('funcionario-create');
-      Route::post('update/{funcionario:uid}', [FuncionarioController::class, 'update'] )->name('funcionario-update');
-      Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'] )->name('funcionario-delete');
-    });
+  /* Funcionarios */
+  Route::group(['prefix' => 'funcionario'], function(){
+    Route::get('index', [FuncionarioController::class, 'index'])->name('funcionario-index');
+    Route::get('insert/{funcionario:uid?}', [FuncionarioController::class, 'insert'])->name('funcionario-insert');
+    Route::post('create', [FuncionarioController::class, 'create'] )->name('funcionario-create');
+    Route::post('update/{funcionario:uid}', [FuncionarioController::class, 'update'] )->name('funcionario-update');
+    Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'] )->name('funcionario-delete');
+  });
+
+  /* Dados bancários */
+  Route::group(['prefix' => 'conta'], function(){
+    Route::post('create', [DadoBancarioController::class, 'create'] )->name('conta-create');
+    Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'] )->name('conta-update');
+    Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'] )->name('conta-delete');
+  });
 
 });

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class EnderecoController extends Controller
 {
 
-    /**
+  /**
    * Adiciona endereco
    *
    * @param Request $request
@@ -25,7 +25,6 @@ class EnderecoController extends Controller
       'cidade' => ['required', 'string'],
       'uf' => ['required', 'string'],
       ],[
-        'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
@@ -57,7 +56,6 @@ class EnderecoController extends Controller
 
     return redirect()->back()->with('endereco-success', 'Endereço cadastrado com sucesso');
   }
-
 
   /**
    * Edita dados de endereco
@@ -98,7 +96,6 @@ class EnderecoController extends Controller
 
     return redirect()->back()->with('endereco-success', 'Endereço atualizado');
   }
-
 
   /**
    * Remove endereço

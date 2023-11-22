@@ -83,9 +83,8 @@
             @error('demissao') <div class="text-warning">{{ $message }}</div> @enderror 
           </div>
         </div>
-
         <h6 class="mb-0">Dados de endereço</h6>
-        <x-painel.enderecos.form-endereco/>
+        <x-painel.enderecos.form-endereco :endereco="$funcionario->pessoa->enderecos[0] ?? null"/>
 
         <div class="row mt-3">
           <div class="col">

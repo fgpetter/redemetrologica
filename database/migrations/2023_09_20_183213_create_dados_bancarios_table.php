@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('dados_bancarios', function (Blueprint $table) {
             $table->id();
             $table->integer('uid');
-            $table->foreignId('funcionario_id')->constrained()->onDelete('cascade');
-            $table->string('nome_conta');
+            $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
+            $table->string('nome_conta')->nullable() ;
             $table->string('nome_banco');
             $table->string('cod_banco');
             $table->string('agencia');
             $table->string('conta');
-            $table->boolean('padrao')->default(false);
             $table->timestamps();
         });
     }
