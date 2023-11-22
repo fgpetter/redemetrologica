@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\PessoaController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\UnidadeController;
-use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PessoaController;
+use App\Http\Controllers\UnidadeController;
+use App\Http\Controllers\ImageUploadController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -51,11 +52,8 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
     Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
     Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
+    Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
   });
-
-  // imageUpload ckeditor
-  Route::post('image-upload', [ImageUploadController::class, 'storeImage'])->name('image.upload');
-
 
   /* Pessoas */
   Route::group(['prefix' => 'pessoa'], function () {

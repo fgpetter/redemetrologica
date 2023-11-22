@@ -91,17 +91,15 @@
 
 </div>
 <script src="{{ URL::asset('build/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
-<script src="{{ URL::asset('build/js/pages/form-editor.init.js') }}"></script>
-<script src="{{ URL::asset('build/js/app.js') }}"></script>
-
 <script>
+    
     var ckClassicEditor = document.querySelectorAll(".ckeditor-classic")
     if (ckClassicEditor) {
         Array.from(ckClassicEditor).forEach(function() {
             ClassicEditor
                 .create(document.querySelector('.ckeditor-classic'), {
                     ckfinder: {
-                        uploadUrl: '{{ route('image.upload') . '?_token=' . csrf_token() }}',
+                        uploadUrl: '{{ route('image-upload') . '?_token=' . csrf_token() }}',
                     }
                 })
                 .then(function(editor) {
