@@ -46,7 +46,7 @@ class PostController extends Controller
       [
         'titulo' => ['required', 'string', 'max:255'],
         'conteudo' => ['required', 'string'],
-        //'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
+        'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
         'data_publicacao' => ['required', 'date'],
       ],
       [
