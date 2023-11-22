@@ -91,7 +91,7 @@
 
 </div>
 <script src="{{ URL::asset('build/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
-<script src="{{ URL::asset('build/js/pages/form-editor.init.js') }}"></script>
+{{-- <script src="{{ URL::asset('build/js/pages/form-editor.init.js') }}"></script>  não ta sendo usado --}}
 <script src="{{ URL::asset('build/js/app.js') }}"></script>
 
 <script>
