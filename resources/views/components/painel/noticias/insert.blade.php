@@ -95,13 +95,22 @@
 <script src="{{ URL::asset('build/js/app.js') }}"></script>
 
 <script>
-    ClassicEditor
-        .create(document.querySelector('#editor'), {
-            ckfinder: {
-                uploadUrl: '{{ route('image.upload') . '?_token=' . csrf_token() }}',
-            }
-        })
-        .catch(error => {
-            console.error(error);
+    var ckClassicEditor = document.querySelectorAll(".ckeditor-classic")
+    if (ckClassicEditor) {
+        Array.from(ckClassicEditor).forEach(function() {
+            ClassicEditor
+                .create(document.querySelector('.ckeditor-classic'), {
+                    ckfinder: {
+                        uploadUrl: '{{ route('image.upload') . '?_token=' . csrf_token() }}',
+                    }
+                })
+                .then(function(editor) {
+                    editor.ui.view.editable.element.style.height = '200px';
+
+                })
+                .catch(function(error) {
+                    console.error(error);
+                });
         });
+    }
 </script>
