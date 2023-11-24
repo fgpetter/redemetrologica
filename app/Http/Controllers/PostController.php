@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\PostMedia;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
@@ -20,7 +21,10 @@ class PostController extends Controller
      **/
     public function indexNoticias(): View
     {
-        $posts = Post::where('tipo', 'noticia')->get();
+        $posts = Post::where('tipo', 'noticia')
+            ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
+            ->get();
+
         return view('post.noticia-index', ['posts' => $posts]);
     }
 
@@ -31,7 +35,10 @@ class PostController extends Controller
      **/
     public function indexGaleria(): View
     {
-        $posts = Post::where('tipo', 'galeria')->get();
+        $posts = Post::where('tipo', 'galeria')
+            ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
+            ->get();
+
         return view('post.noticia-index', ['posts' => $posts]);
     }
 
@@ -51,8 +58,15 @@ class PostController extends Controller
             $fileName = $fileName . '_' . time() . '.' . $extension;
 
             $this->PastaTemp = 'Temp' . substr(hrtime(true), -9, 9);
+            // Obtenha a pasta temporária atual da sessão
+            $tempPastas = $request->session()->get('tempPastas', []);
+            // Adicione a nova pasta temporária no array
+            $tempPastas[] = $this->PastaTemp;
+            // Atualize a sessão com o novo array
+            $request->session()->put('tempPastas', $tempPastas);
+            //move o arquivo
             $request->file('upload')->move(public_path($this->PastaTemp), $fileName);
-            $request->session()->put('tempPasta', $this->PastaTemp);
+
 
             $url = asset($this->PastaTemp  . '/' . $fileName);
             return response()->json(['fileName' => $fileName, 'uploaded' => 1, 'url' => $url]);
@@ -92,28 +106,42 @@ class PostController extends Controller
             $request->file('thumb')->move(public_path('post-media'), $fileName);
             $image = 'post-media/' . $fileName;
         }
-        if (session()->get('tempPasta') !== null) {
-            $this->PastaTemp = $request->session()->get('tempPasta');
-            //troca a pasta temporaria pela permanente
-            $conteudo = str_replace($this->PastaTemp, 'post-media', $request->get('conteudo'));
-            //movendo imagem e limpando pasta temporaria
 
-            $tempMediaPath = public_path($this->PastaTemp);
-            $postMediaPath = public_path('post-media');
-
-            $files = File::allFiles($tempMediaPath);
-            foreach ($files as $file) {
-                $destinationPath = $postMediaPath . DIRECTORY_SEPARATOR . $file->getFilename();
-
-                // copia se o arquivo não existir
-                if (!File::exists($destinationPath)) {
-                    File::copy($file->getPathname(), $destinationPath);
-                }
+        if (session()->has('tempPastas')) {
+            $tempPastas = session()->get('tempPastas');
+            $conteudo = $request->get('conteudo');
+            //troca a pasta temporaria pela permanente no $conteudo
+            foreach ($tempPastas as $tempPasta) {
+                $conteudo = str_replace($tempPasta, 'post-media', $conteudo);
             }
-            //deleta pasta temporaria
-            File::deleteDirectory($tempMediaPath);
-            //limpa a session
-            $request->session()->forget('tempPasta');
+
+            foreach ($tempPastas as $tempPasta) {
+                $tempMediaPath = public_path($tempPasta);
+                $postMediaPath = public_path('post-media');
+
+                $files = File::allFiles($tempMediaPath);
+
+                foreach ($files as $file) {
+                    $destinationPath = $postMediaPath . DIRECTORY_SEPARATOR . $file->getFilename();
+
+                    // Copia se o arquivo não existir
+                    if (!File::exists($destinationPath)) {
+                        File::copy($file->getPathname(), $destinationPath);
+
+                        // Adiciona a imagem à tabela de mídia
+                        $postMedia = PostMedia::create([
+                            'slug_post' => Str::slug($request->get('titulo'), '-'),
+                            'caminho_media' => $file->getFilename(),
+                        ]);
+                        $postMedia->save();
+                    }
+                }
+                // Deleta pasta temporaria
+                File::deleteDirectory($tempMediaPath);
+            }
+
+            // Limpa a session
+            session()->forget('tempPastas');
         }
 
 
@@ -191,30 +219,43 @@ class PostController extends Controller
         } else {
             $image = $post->thumb;
         }
-
-        if (session()->get('tempPasta') !== null) {
-            $this->PastaTemp = $request->session()->get('tempPasta');
-            //troca a pasta temporaria pela permanente
-            $conteudo = str_replace($this->PastaTemp, 'post-media', $request->get('conteudo'));
-            //movendo imagem e limpando pasta temporaria
-
-            $tempMediaPath = public_path($this->PastaTemp);
-            $postMediaPath = public_path('post-media');
-
-            $files = File::allFiles($tempMediaPath);
-            foreach ($files as $file) {
-                $destinationPath = $postMediaPath . DIRECTORY_SEPARATOR . $file->getFilename();
-
-                // copia se o arquivo não existir
-                if (!File::exists($destinationPath)) {
-                    File::copy($file->getPathname(), $destinationPath);
-                }
+        if (session()->has('tempPastas')) {
+            $tempPastas = session()->get('tempPastas');
+            $conteudo = $request->get('conteudo');
+            //troca a pasta temporaria pela permanente no $conteudo
+            foreach ($tempPastas as $tempPasta) {
+                $conteudo = str_replace($tempPasta, 'post-media', $conteudo);
             }
-            //deleta pasta temporaria
-            File::deleteDirectory($tempMediaPath);
-            //limpa a session
-            $request->session()->forget('tempPasta');
+
+            foreach ($tempPastas as $tempPasta) {
+                $tempMediaPath = public_path($tempPasta);
+                $postMediaPath = public_path('post-media');
+
+                $files = File::allFiles($tempMediaPath);
+
+                foreach ($files as $file) {
+                    $destinationPath = $postMediaPath . DIRECTORY_SEPARATOR . $file->getFilename();
+
+                    // Copia se o arquivo não existir
+                    if (!File::exists($destinationPath)) {
+                        File::copy($file->getPathname(), $destinationPath);
+
+                        //insere os nomes dos arquivos da $tempMediaPath na $postMedia
+                        $postMedia = PostMedia::create([
+                            'slug_post' => Str::slug($request->get('titulo'), '-'),
+                            'caminho_media' => $file->getFilename(),
+                        ]);
+                        $postMedia->save();
+                    }
+                }
+                // Deleta pasta temporaria
+                File::deleteDirectory($tempMediaPath);
+            }
+
+            // Limpa a session
+            session()->forget('tempPastas');
         }
+
 
         $post->update([
             'titulo' => $request->get('titulo'),
@@ -225,6 +266,29 @@ class PostController extends Controller
             'tipo' => $request->get('tipo'),
             'data_publicacao' => $request->get('data_publicacao')
         ]);
+
+        //     para cada caminho_media na $postMedia com mesmo slug_post
+        //     varrer $conteudo e deletar o arquivo da  $postMediaPath  que não encontrar correspondencia dentro da string
+        //     e em seguida deletar o registro do arquivo na $postMedia
+
+        // todos os caminho_media relacionados a este post
+        $postMediaItems = PostMedia::where('slug_post', $post->slug)->get();
+
+
+
+        foreach ($postMediaItems as $postMediaItem) {
+            // procura se tem dentro do conteudo
+            if (strpos($post->conteudo, $postMediaItem->caminho_media) === false) {
+                // Deleta o arquivo do diretório
+                $fileToDelete = public_path('post-media/' . $postMediaItem->caminho_media);
+                if (File::exists($fileToDelete)) {
+                    File::delete($fileToDelete);
+                }
+
+                // Deleta o registro da tabela post_media
+                $postMediaItem->delete();
+            }
+        }
 
         if (!$post) {
             return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
@@ -244,8 +308,24 @@ class PostController extends Controller
      * @param User $post
      * @return RedirectResponse
      **/
-    public function delete(Request $request, Post $post): RedirectResponse
+    public function delete(Request $request, Post $post, PostMedia $postMedia): RedirectResponse
     {
+        //deleta a thumb
+        if (File::exists(public_path($post->thumb))) {
+            File::delete(public_path($post->thumb));
+        }
+        // todos os caminho_media relacionados a este post
+        $postMediaItems = PostMedia::where('slug_post', $post->slug)->get();
+        foreach ($postMediaItems as $postMediaItem) {
+
+            // Deleta o arquivo do diretório
+            $fileToDelete = public_path('post-media/' . $postMediaItem->caminho_media);
+            if (File::exists($fileToDelete)) {
+                File::delete($fileToDelete);
+            }
+            // Deleta o registro da tabela post_media
+            $postMediaItem->delete();
+        }
         $post->delete();
 
         return redirect()->route('noticia-index')->with('update-success', 'Post removido');;
