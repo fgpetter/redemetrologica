@@ -25,14 +25,17 @@
                         </div>
 
                         {{-- ckeditor --}}
-                        <div class="col-12">
-                            <label class="form-label">Conteudo
-                                <small class="text-danger-emphasis opacity-75">(Obrigatório) </small>
-                            </label>
-                            <textarea id="editor" class="ckeditor-classic" name="conteudo">
-                {!! old('conteudo') ?? ($post->conteudo ?? null) !!}
-              </textarea>
-                        </div>
+                        @if ($post->tipo !== 'galeria')
+                            {{-- mostra só se for noticia --}}
+                            <div class="col-12">
+                                <label class="form-label">Conteudo
+                                    <small class="text-danger-emphasis opacity-75">(Obrigatório) </small>
+                                </label>
+                                <textarea id="editor" class="ckeditor-classic" name="conteudo">
+                                    {!! old('conteudo') ?? ($post->conteudo ?? null) !!}
+                                </textarea>
+                            </div>
+                        @endif
                         {{-- ckeditor --}}
 
                         <div class="col-12">

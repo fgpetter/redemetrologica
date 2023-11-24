@@ -8,7 +8,8 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Validation\Rule;
+
 use Illuminate\Support\Facades\File;
 
 class PostController extends Controller
@@ -76,9 +77,11 @@ class PostController extends Controller
      **/
     public function create(Request $request): RedirectResponse
     {
+        //se for criado como galeria, coloca a palavra galeria como padrão no campo conteudo.
+        $request->merge(['conteudo' => $request->get('tipo') === 'galeria' ? 'galeria' : $request->get('conteudo')]);
         $request->validate(
             [
-                'titulo' => ['required', 'string', 'max:255'],
+                'titulo' => ['required', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($request->post)],
                 'conteudo' => ['required', 'string'],
                 'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
                 'data_publicacao' => ['required', 'date'],
@@ -87,10 +90,12 @@ class PostController extends Controller
                 'titulo.required' => 'Preencha o campo titulo',
                 'titulo.string' => 'O campo titulo tem caracteres inválidos',
                 'titulo.max' => 'O campo titulo aceita até 250 caracteres',
+                'titulo.unique' => 'O título já está em uso.',
                 'conteudo.required' => 'Preencha o campo conteudo',
                 'conteudo.string' => 'O campo conteudo tem caracteres inválidos',
                 'data_publicacao.required' => 'Preencha o campo Data de publicação',
                 'data_publicacao.date' => 'Data de publicação invalida',
+                'thumb.required' => 'Imagem de capa é obrigatória'
             ]
         );
         if ($request->hasFile('thumb')) {
@@ -176,6 +181,8 @@ class PostController extends Controller
      **/
     public function update(Request $request, Post $post): RedirectResponse
     {
+        //se for criado como galeria, coloca a palavra galeria como padrão no campo conteudo.
+        $request->merge(['conteudo' => $request->get('tipo') === 'galeria' ? 'galeria' : $request->get('conteudo')]);
         $request->validate(
             [
                 'titulo' => ['required', 'string', 'max:255'],
