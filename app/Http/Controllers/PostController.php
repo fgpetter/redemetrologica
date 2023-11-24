@@ -27,7 +27,6 @@ class PostController extends Controller
 
         return view('post.noticia-index', ['posts' => $posts]);
     }
-
     /**
      * Gera pagina de listagem de posts de galeria
      *
@@ -38,10 +37,8 @@ class PostController extends Controller
         $posts = Post::where('tipo', 'galeria')
             ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
             ->get();
-
         return view('post.noticia-index', ['posts' => $posts]);
     }
-
     /**
      * Salva imagem do form de conteúdo
      *
@@ -56,13 +53,12 @@ class PostController extends Controller
             $fileName = str_replace(' ', '_', $fileName);
             $extension = $request->file('upload')->getClientOriginalExtension();
             $fileName = $fileName . '_' . time() . '.' . $extension;
-
             $this->PastaTemp = 'Temp' . substr(hrtime(true), -9, 9);
-            // Obtenha a pasta temporária atual da sessão
+            // obtenha a pasta temporária atual da sessão
             $tempPastas = $request->session()->get('tempPastas', []);
-            // Adicione a nova pasta temporária no array
+            // adicione a nova pasta temporária no array
             $tempPastas[] = $this->PastaTemp;
-            // Atualize a sessão com o novo array
+            // atualize a sessão com o novo array
             $request->session()->put('tempPastas', $tempPastas);
             //move o arquivo
             $request->file('upload')->move(public_path($this->PastaTemp), $fileName);
@@ -106,7 +102,6 @@ class PostController extends Controller
             $request->file('thumb')->move(public_path('post-media'), $fileName);
             $image = 'post-media/' . $fileName;
         }
-
         if (session()->has('tempPastas')) {
             $tempPastas = session()->get('tempPastas');
             $conteudo = $request->get('conteudo');
@@ -124,11 +119,11 @@ class PostController extends Controller
                 foreach ($files as $file) {
                     $destinationPath = $postMediaPath . DIRECTORY_SEPARATOR . $file->getFilename();
 
-                    // Copia se o arquivo não existir
+                    // copia se o arquivo não existir
                     if (!File::exists($destinationPath)) {
                         File::copy($file->getPathname(), $destinationPath);
 
-                        // Adiciona a imagem à tabela de mídia
+                        // Adiciona a caminho_media na tabela de postmedia
                         $postMedia = PostMedia::create([
                             'slug_post' => Str::slug($request->get('titulo'), '-'),
                             'caminho_media' => $file->getFilename(),
@@ -136,15 +131,13 @@ class PostController extends Controller
                         $postMedia->save();
                     }
                 }
-                // Deleta pasta temporaria
+                // deleta pasta temporaria
                 File::deleteDirectory($tempMediaPath);
             }
 
-            // Limpa a session
+            // limpa a session
             session()->forget('tempPastas');
         }
-
-
         $posts = Post::create([
             'titulo' => $request->get('titulo'),
             'slug' => Str::slug($request->get('titulo'), '-'),
@@ -154,7 +147,6 @@ class PostController extends Controller
             'tipo' => $request->get('tipo'),
             'data_publicacao' => $request->get('data_publicacao')
         ]);
-
         if (!$posts) {
             return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
         }
@@ -164,7 +156,6 @@ class PostController extends Controller
         }
         return redirect()->route('galeria-index')->with('update-success', 'Galeria adicionada');
     }
-
     /**
      * Tela de edição de post
      *
@@ -176,7 +167,6 @@ class PostController extends Controller
 
         return view('post.insert', ['post' => $post]);
     }
-
     /**
      * Edita dados de post
      *
@@ -186,7 +176,6 @@ class PostController extends Controller
      **/
     public function update(Request $request, Post $post): RedirectResponse
     {
-
         $request->validate(
             [
                 'titulo' => ['required', 'string', 'max:255'],
@@ -226,17 +215,13 @@ class PostController extends Controller
             foreach ($tempPastas as $tempPasta) {
                 $conteudo = str_replace($tempPasta, 'post-media', $conteudo);
             }
-
             foreach ($tempPastas as $tempPasta) {
                 $tempMediaPath = public_path($tempPasta);
                 $postMediaPath = public_path('post-media');
-
                 $files = File::allFiles($tempMediaPath);
-
                 foreach ($files as $file) {
                     $destinationPath = $postMediaPath . DIRECTORY_SEPARATOR . $file->getFilename();
-
-                    // Copia se o arquivo não existir
+                    // copia se o arquivo não existir
                     if (!File::exists($destinationPath)) {
                         File::copy($file->getPathname(), $destinationPath);
 
@@ -248,15 +233,12 @@ class PostController extends Controller
                         $postMedia->save();
                     }
                 }
-                // Deleta pasta temporaria
+                // deleta pasta temporaria
                 File::deleteDirectory($tempMediaPath);
             }
-
-            // Limpa a session
+            // limpa a session
             session()->forget('tempPastas');
         }
-
-
         $post->update([
             'titulo' => $request->get('titulo'),
             'slug' => Str::slug($request->get('titulo'), '-'),
@@ -273,31 +255,24 @@ class PostController extends Controller
 
         // todos os caminho_media relacionados a este post
         $postMediaItems = PostMedia::where('slug_post', $post->slug)->get();
-
-
-
         foreach ($postMediaItems as $postMediaItem) {
             // procura se tem dentro do conteudo
             if (strpos($post->conteudo, $postMediaItem->caminho_media) === false) {
-                // Deleta o arquivo do diretório
+                // deleta o arquivo do diretório
                 $fileToDelete = public_path('post-media/' . $postMediaItem->caminho_media);
                 if (File::exists($fileToDelete)) {
                     File::delete($fileToDelete);
                 }
-
-                // Deleta o registro da tabela post_media
+                // deleta o registro da tabela post_media
                 $postMediaItem->delete();
             }
         }
-
         if (!$post) {
             return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
         }
-
         if ($post->tipo == 'noticia') {
             return redirect()->route('noticia-index')->with('update-success', 'Noticia atualizada');
         }
-
         return redirect()->route('galeria-index')->with('update-success', 'Galeria atualizada');
     }
 
@@ -318,12 +293,12 @@ class PostController extends Controller
         $postMediaItems = PostMedia::where('slug_post', $post->slug)->get();
         foreach ($postMediaItems as $postMediaItem) {
 
-            // Deleta o arquivo do diretório
+            // deleta o arquivo do diretório
             $fileToDelete = public_path('post-media/' . $postMediaItem->caminho_media);
             if (File::exists($fileToDelete)) {
                 File::delete($fileToDelete);
             }
-            // Deleta o registro da tabela post_media
+            // deleta o registro da tabela post_media
             $postMediaItem->delete();
         }
         $post->delete();
