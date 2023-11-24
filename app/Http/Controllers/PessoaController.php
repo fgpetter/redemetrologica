@@ -49,7 +49,7 @@ class PessoaController extends Controller
     );
 
     $pessoa = Pessoa::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'tipo_pessoa' => $request->get('tipo_pessoa'),
       'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')) ,
       'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
@@ -66,7 +66,7 @@ class PessoaController extends Controller
     }
 
     $endereco = Endereco::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
       'endereco' => $request->get('endereco'),
       'complemento' => $request->get('complemento'),

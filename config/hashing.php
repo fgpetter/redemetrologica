@@ -49,4 +49,7 @@ return [
         'time' => 4,
     ],
 
+    'uid' => sprintf("%8x%05x",floor(microtime(true)),(microtime(true)-floor(microtime(true)))*1000000),
+
+
 ];

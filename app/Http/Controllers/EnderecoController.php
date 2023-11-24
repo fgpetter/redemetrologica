@@ -39,7 +39,7 @@ class EnderecoController extends Controller
     }
 
     $endereco = Endereco::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'pessoa_id' => $request->get('pessoa'),
       'endereco' => $request->get('endereco'),
       'complemento' => $request->get('complemento'),

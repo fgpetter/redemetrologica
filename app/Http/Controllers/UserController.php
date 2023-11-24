@@ -41,7 +41,7 @@ class UserController extends Controller
     ]);
 
     $user = User::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'name' => $request->get('nome'),
       'email' => $request->get('email'),
       'password' => Hash::make('Password')

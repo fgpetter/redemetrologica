@@ -20,7 +20,7 @@ class PessoaFactory extends Factory
       $tipo = fake()->randomElement(['PF', 'PJ', 'PJ']);
       $company = fake()->company;
       return [
-          'uid' => substr(hrtime(true), -9, 9),
+          'uid' => config('hashing.uid'),
           'nome_razao' => $tipo == 'PJ' ? $company : fake()->name,
           'tipo_pessoa' => $tipo,
           'nome_fantasia' => $tipo == 'PJ' ? $company : '',

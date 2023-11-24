@@ -18,7 +18,7 @@ class EnderecoFactory extends Factory
     public function definition(): array
     {
         return [
-            'uid' => substr(hrtime(true), -9, 9),
+            'uid' => config('hashing.uid'),
             'pessoa_id' => fake()->randomElement([2, 6, 8]),
             'endereco' => fake()->streetAddress(),
             'complemento' => fake()->secondaryAddress(),

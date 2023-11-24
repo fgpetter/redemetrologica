@@ -18,7 +18,7 @@ class UnidadeFactory extends Factory
     public function definition(): array
     {
         return [
-            'uid' => substr(hrtime(true), -9, 9),
+            'uid' => config('hashing.uid'),
             'nome' => fake()->company(),
             'pessoa_id' => fake()->randomElement([2, 6, 8]),
             'endereco_id' => fake()->numberBetween(1,9),

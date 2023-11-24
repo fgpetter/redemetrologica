@@ -58,7 +58,7 @@ class FuncionarioController extends Controller
     );
 
     $pessoa = Pessoa::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'tipo_pessoa' => 'PF',
       'nome_razao' => ucfirst($request->get('nome_razao')),
       'cpf_cnpj' => $request->get('cpf_cnpj'),
@@ -74,7 +74,7 @@ class FuncionarioController extends Controller
     }
 
     $endereco = Endereco::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
       'endereco' => $request->get('endereco'),
       'complemento' => $request->get('complemento'),
@@ -91,7 +91,7 @@ class FuncionarioController extends Controller
     }
 
     $funcionario = Funcionario::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
       'cargo' => $request->get('cargo'),
       'setor' => $request->get('setor'),

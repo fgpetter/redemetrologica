@@ -44,7 +44,7 @@ class UnidadeController extends Controller
 
 
     $endereco = Endereco::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'pessoa_id' => $request->get('pessoa'),
       'endereco' => $request->get('endereco'),
       'complemento' => $request->get('complemento'),
@@ -55,7 +55,7 @@ class UnidadeController extends Controller
     ]);
 
     $unidade = Unidade::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'pessoa_id' => $request->get('pessoa'),
       'endereco_id' => $endereco->id,
       'nome' => strtoupper($request->get('nome')),

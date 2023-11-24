@@ -40,7 +40,7 @@ class DadoBancarioController extends Controller
     }
 
     $conta = DadoBancario::create([
-      'uid' => substr(hrtime(true), -9, 9),
+      'uid' => config('hashing.uid'),
       'pessoa_id' => $request->get('pessoa_id'),
       'nome_conta' => $request->get('nome_conta'),
       'nome_banco' => $request->get('nome_banco'),
