@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('enderecos', function (Blueprint $table) {
             $table->id();
-            $table->integer('uid');
+            $table->string('uid');
             $table->integer('unidade_id')->nullable();
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
             $table->string('endereco')->nullable();

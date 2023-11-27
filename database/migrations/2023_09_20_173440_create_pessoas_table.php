@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pessoas', function (Blueprint $table) {
             $table->id();
-            $table->integer('uid');
+            $table->string('uid');
             $table->string('nome_razao');
             $table->string('nome_fantasia')->nullable();
             $table->string('cpf_cnpj');
