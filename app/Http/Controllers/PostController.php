@@ -69,6 +69,7 @@ class PostController extends Controller
             return response()->json(['fileName' => $fileName, 'uploaded' => 1, 'url' => $url]);
         }
     }
+
     /**
      * Adiciona posts na base
      *
@@ -81,7 +82,7 @@ class PostController extends Controller
         $request->merge(['conteudo' => $request->get('tipo') === 'galeria' ? 'galeria' : $request->get('conteudo')]);
         $request->validate(
             [
-                'titulo' => ['required', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($request->post)],
+                'titulo' => ['required', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($request->post)], //valida sl
                 'conteudo' => ['required', 'string'],
                 'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
                 'data_publicacao' => ['required', 'date'],
@@ -181,11 +182,11 @@ class PostController extends Controller
      **/
     public function update(Request $request, Post $post): RedirectResponse
     {
-        //se for criado como galeria, coloca a palavra galeria como padrão no campo conteudo.
-        $request->merge(['conteudo' => $request->get('tipo') === 'galeria' ? 'galeria' : $request->get('conteudo')]);
+        // //se for criado como galeria, coloca a palavra galeria como padrão no campo conteudo.
+        // $request->merge(['conteudo' => $request->get('tipo') === 'galeria' ? 'galeria' : $request->get('conteudo')]);
         $request->validate(
             [
-                'titulo' => ['required', 'string', 'max:255'],
+                'titulo' => ['required', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($request->post)], //valida sl
                 'conteudo' => ['required', 'string'],
                 // 'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
                 'data_publicacao' => ['required', 'date'],
@@ -194,12 +195,14 @@ class PostController extends Controller
                 'titulo.required' => 'Preencha o campo titulo',
                 'titulo.string' => 'O campo titulo tem caracteres inválidos',
                 'titulo.max' => 'O campo titulo aceita até 250 caracteres',
+                'titulo.unique' => 'O título já está em uso.',
                 'conteudo.required' => 'Preencha o campo conteudo',
                 'conteudo.string' => 'O campo conteudo tem caracteres inválidos',
                 'data_publicacao.required' => 'Preencha o campo Data de publicação',
                 'data_publicacao.date' => 'Data de publicação invalida',
             ]
         );
+        //thumb
         if ($request->hasFile('thumb')) {
             $originName = $request->file('thumb')->getClientOriginalName();
             $fileName = pathinfo($originName, PATHINFO_FILENAME);

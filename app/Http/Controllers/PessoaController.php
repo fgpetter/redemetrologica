@@ -11,7 +11,7 @@ use Illuminate\Http\RedirectResponse;
 
 class PessoaController extends Controller
 {
-    /**
+  /**
    * Gera pagina de listagem de usuários
    *
    * @return View
@@ -30,11 +30,14 @@ class PessoaController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $request->validate([
-      'nome_razao' => ['required', 'string', 'max:255'],
-      'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
-      'tipo_pessoa' => ['required', 'string', 'max:2'],
-      ],[
+
+    $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:255'],
+        'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
+        'tipo_pessoa' => ['required', 'string', 'max:2'],
+      ],
+      [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
       ]
@@ -43,7 +46,7 @@ class PessoaController extends Controller
     $pessoa = Pessoa::create([
       'uid' => substr(hrtime(true), -9, 9),
       'tipo_pessoa' => $request->get('tipo_pessoa'),
-      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')) ,
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')),
       'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
       'cpf_cnpj' => $request->get('cpf_cnpj'),
       'rg_ie' => $request->get('rg_ie'),
@@ -53,7 +56,7 @@ class PessoaController extends Controller
       'codigo_contabil' => $request->get('codigo_contabil'),
     ]);
 
-    if(!$pessoa){
+    if (!$pessoa) {
       return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
     }
 
@@ -122,11 +125,10 @@ class PessoaController extends Controller
    * @param User $user
    * @return RedirectResponse
    **/
-    public function delete(Pessoa $pessoa): RedirectResponse
-    {
-      $pessoa->delete();
+  public function delete(Pessoa $pessoa): RedirectResponse
+  {
+    $pessoa->delete();
 
-      return redirect()->route('pessoa-index')->with('update-success', 'Pessoa removida');
-    }
-
+    return redirect()->route('pessoa-index')->with('update-success', 'Pessoa removida');
+  }
 }
