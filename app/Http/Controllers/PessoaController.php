@@ -7,20 +7,40 @@ use App\Models\Pessoa;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Yajra\DataTables\Facades\Datatables;
 
 
 class PessoaController extends Controller
 {
+
   /**
-   * Gera pagina de listagem de usuários
+   *Gera pagina de listagem de usuários
    *
-   * @return View
-   **/
-  public function index(): View
+   * @return \Illuminate\Http\Response
+   */
+  public function index(Request $request)
   {
-    $pessoas = Pessoa::all();
-    return view('pessoas.index', ['pessoas' => $pessoas]);
+    if ($request->ajax()) {
+      $data = Pessoa::select('*');
+
+      return Datatables::of($data)
+        ->addIndexColumn()
+        ->addColumn('action', function ($row) {
+          $editUrl = route('pessoa-insert', ['pessoa' => $row->uid]);
+          $actionBtn = '<a href="' . $editUrl . '" class="edit btn btn-success btn-sm">Editar</a> ';
+          $actionBtn .= '<form method="POST" action="' . route('pessoa-delete', $row->uid) . '" style="display: inline;">';
+          $actionBtn .= csrf_field();
+          $actionBtn .= '<button type="submit" class="delete btn btn-danger btn-sm">Delete</button>';
+          $actionBtn .= '</form>';
+          return $actionBtn;
+        })
+        ->rawColumns(['action'])
+        ->make(true);
+    }
+
+    return view('pessoas.index');
   }
+
 
   /**
    * Adiciona usuários na base
