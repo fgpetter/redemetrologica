@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
+use Intervention\Image\Facades\Image;
+
 
 use Illuminate\Support\Facades\File;
 
@@ -48,7 +50,7 @@ class PostController extends Controller
      */
     public function storeImage(Request $request)
     {
-        if ($request->hasFile('upload')) {
+        if ($request->hasFile('upload')) { //imagem de post
             $originName = $request->file('upload')->getClientOriginalName();
             $fileName = pathinfo($originName, PATHINFO_FILENAME);
             $fileName = str_replace(' ', '_', $fileName);
@@ -64,6 +66,15 @@ class PostController extends Controller
             //move o arquivo
             $request->file('upload')->move(public_path($this->PastaTemp), $fileName);
 
+            // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+            $img = Image::make(public_path($this->PastaTemp . '/' . $fileName));
+            if ($img->height() > 750) {
+                $img->resize(null, 750, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+            }
+            $img->encode('jpg', 75);
+            $img->save(public_path($this->PastaTemp . '/' . $fileName));
 
             $url = asset($this->PastaTemp  . '/' . $fileName);
             return response()->json(['fileName' => $fileName, 'uploaded' => 1, 'url' => $url]);
@@ -99,13 +110,24 @@ class PostController extends Controller
                 'thumb.required' => 'Imagem de capa é obrigatória'
             ]
         );
-        if ($request->hasFile('thumb')) {
+        if ($request->hasFile('thumb')) { //thumb
             $originName = $request->file('thumb')->getClientOriginalName();
             $fileName = pathinfo($originName, PATHINFO_FILENAME);
             $fileName = str_replace(' ', '-', $fileName);
             $extension = $request->file('thumb')->getClientOriginalExtension();
             $fileName = $fileName . '_' . time() . '.' . $extension;
             $request->file('thumb')->move(public_path('post-media'), $fileName);
+
+            // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+            $img = Image::make(public_path('post-media/' . $fileName));
+            if ($img->height() > 750) {
+                $img->resize(null, 750, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+            }
+            $img->encode('jpg', 75);
+            $img->save(public_path('post-media/' . $fileName));
+
             $image = 'post-media/' . $fileName;
         }
         if (session()->has('tempPastas')) {
@@ -210,7 +232,19 @@ class PostController extends Controller
             $extension = $request->file('thumb')->getClientOriginalExtension();
             $fileName = $fileName . '_' . time() . '.' . $extension;
             $request->file('thumb')->move(public_path('post-media'), $fileName);
+
+            // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+            $img = Image::make(public_path('post-media/' . $fileName));
+            if ($img->height() > 750) {
+                $img->resize(null, 750, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+            }
+            $img->encode('jpg', 75);
+            $img->save(public_path('post-media/' . $fileName));
+
             $image = 'post-media/' . $fileName;
+
             // deleta arquivo anterior
             if (File::exists(public_path($post->thumb))) {
                 File::delete(public_path($post->thumb));
