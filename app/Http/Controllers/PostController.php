@@ -28,8 +28,9 @@ class PostController extends Controller
             ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
             ->get();
 
-        return view('painel.post.noticia-index', ['posts' => $posts]);
+        return view('painel.post.noticia-index', ['posts' => $posts, 'tipo' => 'noticia']);
     }
+
     /**
      * Gera pagina de listagem de posts de galeria
      *
@@ -40,8 +41,9 @@ class PostController extends Controller
         $posts = Post::where('tipo', 'galeria')
             ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
             ->get();
-        return view('painel.post.noticia-index', ['posts' => $posts]);
+        return view('painel.post.noticia-index', ['posts' => $posts, 'tipo' => 'galeria']);
     }
+
     /**
      * Salva imagem do form de conteúdo
      *
@@ -184,6 +186,7 @@ class PostController extends Controller
         }
         return redirect()->route('galeria-index')->with('update-success', 'Galeria adicionada');
     }
+
     /**
      * Tela de edição de post
      *
@@ -192,9 +195,9 @@ class PostController extends Controller
      **/
     public function insert(Post $post): View
     {
-
         return view('painel.post.insert', ['post' => $post]);
     }
+
     /**
      * Edita dados de post
      *

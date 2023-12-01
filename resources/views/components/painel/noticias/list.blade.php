@@ -35,8 +35,8 @@
                               <th scope="row"><a href="{{ route('post-insert', ['post' => $post->slug]) }}"
                                       class="fw-medium"> #{{ $post['id'] }} </a></th>
                               <td>{{ $post['titulo'] }}</td>
-                              <td>{{ $post['tipo'] }}</td>
-                              <td>{{ $post['data_publicacao'] }}</td>
+                              <td>{{ Str::ucfirst($post['tipo']) }}</td>
+                              <td>{{ Carbon\Carbon::parse($post->data_publicacao)->format('d/m/Y') }}</td>
                               <td>
                                   <input type="checkbox" {{ $post['rascunho'] ? 'checked' : '' }} disabled>
                               </td>
@@ -66,7 +66,7 @@
                           </tr>
                       @empty
                           <tr>
-                              <td colspan="5" class="text-center"> Não há Posts na base. </td>
+                              <td colspan="7" class="text-center"> Não há Posts na base. </td>
                           </tr>
                       @endforelse
                   </tbody>

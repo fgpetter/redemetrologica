@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    Listagem de posts
+    Listagem de {{ $tipo == 'noticia' ? 'notícias' : 'galerias'}}
 @endsection
 @section('content')
     @component('components.breadcrumb')
@@ -8,7 +8,7 @@
             Posts
         @endslot
         @slot('title')
-            Listagem de posts
+            Listagem de {{ $tipo == 'noticia' ? 'notícias' : 'galerias'}}
         @endslot
     @endcomponent
 
@@ -21,6 +21,4 @@
 
 @section('script')
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
-    <script src="{{ URL::asset('build/js/custom.js') }}"></script>
 @endsection
