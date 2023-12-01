@@ -14,15 +14,10 @@ return new class extends Migration
         Schema::create('unidades', function (Blueprint $table) {
             $table->id();
             $table->string('uid');
-            $table->string('nome');
             $table->foreignId('pessoa_id')->constrained()->onDelete('cascade');
-<<<<<<<< HEAD:database/migrations/2023_09_20_175550_create_unidades_table.php
             $table->foreignId('endereco_id')->constrained()->onDelete('cascade');
+            $table->string('nome');
             $table->string('telefone')->nullable();
-========
-            $table->foreignId('endereco_id')->constrained()->onDelet('cascade');
-            $table->integer('fone')->nullable();
->>>>>>>> BranchDoMatheus:database/migrations/2023_09_20_175506_create_unidades_table.php
             $table->string('nome_responsavel')->nullable();
             $table->string('email')->nullable();
             $table->string('cod_laboratorio')->nullable();
