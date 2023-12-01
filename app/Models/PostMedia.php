@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Post extends Model
+class PostMedia extends Model
 {
 
     use HasFactory;
@@ -16,7 +16,7 @@ class Post extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['titulo', 'slug', 'conteudo', 'thumb', 'rascunho', 'tipo', 'data_publicacao'];
+    protected $fillable = ['slug_post', 'caminho_media'];
 
     // /**
     //  * Carrega categorias

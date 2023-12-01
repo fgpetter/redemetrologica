@@ -11,17 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories_posts', function (Blueprint $table) {
-            $table->foreignId('category_id');
-            $table->foreignId('post_id');
+        Schema::create('post_media', function (Blueprint $table) {
+            $table->id();
+            $table->text('slug_post');
+            $table->text('caminho_media')->nullable();
+            $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories_posts');
+        Schema::dropIfExists('post_media');
     }
 };

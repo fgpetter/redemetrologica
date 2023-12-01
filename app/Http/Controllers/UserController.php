@@ -29,16 +29,18 @@ class UserController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $request->validate([
-      'nome' => ['required', 'string', 'max:255'],
-      'email' => ['unique:users','required', 'string', 'email'],
-    ],
-    [
-      'nome.required' => 'Preencha o campo nome',
-      'email.required' => 'Preencha o campo email',
-      'email.email' => 'Não é um email válido',
-      'email.unique' => 'Esse email já está em uso',
-    ]);
+    $request->validate(
+      [
+        'nome' => ['required', 'string', 'max:255'],
+        'email' => ['unique:users', 'required', 'string', 'email'],
+      ],
+      [
+        'nome.required' => 'Preencha o campo nome',
+        'email.required' => 'Preencha o campo email',
+        'email.email' => 'Não é um email válido',
+        'email.unique' => 'Esse email já está em uso',
+      ]
+    );
 
     $user = User::create([
       'uid' => config('hashing.uid'),
@@ -47,7 +49,7 @@ class UserController extends Controller
       'password' => Hash::make('Password')
     ]);
 
-    if(!$user){
+    if (!$user) {
       return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
     }
 
@@ -74,14 +76,16 @@ class UserController extends Controller
    **/
   public function update(Request $request, User $user): RedirectResponse
   {
-    $request->validate([
-      'nome' => ['required', 'string', 'max:255'],
-      'email' => ['unique:users,email,'.$user->id,'required', 'string', 'email'],
-      ],[
-      'nome.required' => 'Preencha o campo nome',
-      'email.required' => 'Preencha o campo email',
-      'email.email' => 'Não é um email válido',
-      'email.unique' => 'Esse email já está em uso',
+    $request->validate(
+      [
+        'nome' => ['required', 'string', 'max:255'],
+        'email' => ['unique:users,email,' . $user->id, 'required', 'string', 'email'],
+      ],
+      [
+        'nome.required' => 'Preencha o campo nome',
+        'email.required' => 'Preencha o campo email',
+        'email.email' => 'Não é um email válido',
+        'email.unique' => 'Esse email já está em uso',
       ]
     );
 
@@ -91,10 +95,10 @@ class UserController extends Controller
       'password' => Hash::make('Password')
     ]);
 
-    if(!$user){
+    if (!$user) {
       return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
     }
-
+    dd($user);
     return redirect()->route('user-index')->with('update-success', 'Usuário atualizado');
   }
 
@@ -111,5 +115,4 @@ class UserController extends Controller
 
     return redirect()->route('user-index')->with('update-success', 'Usuário removido');;
   }
-
 }

@@ -7,20 +7,45 @@ use App\Models\Pessoa;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Yajra\DataTables\Facades\Datatables;
 
 
 class PessoaController extends Controller
 {
-    /**
-   * Gera pagina de listagem de usuários
+
+  /**
+   *Gera pagina de listagem de usuários
    *
-   * @return View
-   **/
-  public function index(): View
+   * @return \Illuminate\Http\Response
+   */
+  public function index(Request $request)
   {
+<<<<<<< HEAD
     $pessoas = Pessoa::all();
     return view('painel.pessoas.index', ['pessoas' => $pessoas]);
+=======
+    if ($request->ajax()) {
+      $data = Pessoa::select('*');
+
+      return Datatables::of($data)
+        ->addIndexColumn()
+        ->addColumn('action', function ($row) {
+          $editUrl = route('pessoa-insert', ['pessoa' => $row->uid]);
+          $actionBtn = '<a href="' . $editUrl . '" class="edit btn btn-success btn-sm">Editar</a> ';
+          $actionBtn .= '<form method="POST" action="' . route('pessoa-delete', $row->uid) . '" style="display: inline;">';
+          $actionBtn .= csrf_field();
+          $actionBtn .= '<button type="submit" class="delete btn btn-danger btn-sm">Delete</button>';
+          $actionBtn .= '</form>';
+          return $actionBtn;
+        })
+        ->rawColumns(['action'])
+        ->make(true);
+    }
+
+    return view('pessoas.index');
+>>>>>>> BranchDoMatheus
   }
+
 
   /**
    * Adiciona pessoa
@@ -30,6 +55,7 @@ class PessoaController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
+<<<<<<< HEAD
     $request->validate([
       'nome_razao' => ['required', 'string', 'max:255'],
       'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
@@ -39,6 +65,16 @@ class PessoaController extends Controller
       'cidade' => ['required', 'string'],
       'uf' => ['required', 'string'],
       ],[
+=======
+
+    $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:255'],
+        'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
+        'tipo_pessoa' => ['required', 'string', 'max:2'],
+      ],
+      [
+>>>>>>> BranchDoMatheus
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
         'cep.required' => 'Preencha o campo CEP',
@@ -51,7 +87,7 @@ class PessoaController extends Controller
     $pessoa = Pessoa::create([
       'uid' => config('hashing.uid'),
       'tipo_pessoa' => $request->get('tipo_pessoa'),
-      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')) ,
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')),
       'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
       'cpf_cnpj' => $request->get('cpf_cnpj'),
       'rg_ie' => $request->get('rg_ie'),
@@ -61,7 +97,7 @@ class PessoaController extends Controller
       'codigo_contabil' => $request->get('codigo_contabil'),
     ]);
 
-    if(!$pessoa){
+    if (!$pessoa) {
       return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
     }
 
@@ -140,6 +176,7 @@ class PessoaController extends Controller
    * @param User $user
    * @return RedirectResponse
    **/
+<<<<<<< HEAD
     public function delete(Pessoa $pessoa): RedirectResponse
     {
       $pessoa->delete();
@@ -147,3 +184,12 @@ class PessoaController extends Controller
     }
 
 }
+=======
+  public function delete(Pessoa $pessoa): RedirectResponse
+  {
+    $pessoa->delete();
+
+    return redirect()->route('pessoa-index')->with('update-success', 'Pessoa removida');
+  }
+}
+>>>>>>> BranchDoMatheus
