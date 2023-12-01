@@ -6,7 +6,6 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
-
 use App\Http\Controllers\EnderecoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
