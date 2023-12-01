@@ -1,5 +1,4 @@
   <div class="card">
-<<<<<<< HEAD
     <div class="card-body">
       <div class="row">
         <div class="col-12 d-flex justify-content-end mb-3">
@@ -39,13 +38,6 @@
                   <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem" 
                       data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
-=======
-      <div class="card-body">
-          <div class="row">
-              <div class="col-12 d-flex justify-content-end mb-3">
-                  <a href="{{ route('pessoa-insert') }}" class="btn btn-sm btn-success">
-                      <i class="ri-add-line align-bottom me-1"></i> Adicionar
->>>>>>> BranchDoMatheus
                   </a>
               </div>
           </div>

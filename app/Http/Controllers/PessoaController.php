@@ -20,30 +20,8 @@ class PessoaController extends Controller
    */
   public function index(Request $request)
   {
-<<<<<<< HEAD
     $pessoas = Pessoa::all();
     return view('painel.pessoas.index', ['pessoas' => $pessoas]);
-=======
-    if ($request->ajax()) {
-      $data = Pessoa::select('*');
-
-      return Datatables::of($data)
-        ->addIndexColumn()
-        ->addColumn('action', function ($row) {
-          $editUrl = route('pessoa-insert', ['pessoa' => $row->uid]);
-          $actionBtn = '<a href="' . $editUrl . '" class="edit btn btn-success btn-sm">Editar</a> ';
-          $actionBtn .= '<form method="POST" action="' . route('pessoa-delete', $row->uid) . '" style="display: inline;">';
-          $actionBtn .= csrf_field();
-          $actionBtn .= '<button type="submit" class="delete btn btn-danger btn-sm">Delete</button>';
-          $actionBtn .= '</form>';
-          return $actionBtn;
-        })
-        ->rawColumns(['action'])
-        ->make(true);
-    }
-
-    return view('pessoas.index');
->>>>>>> BranchDoMatheus
   }
 
 
@@ -55,7 +33,6 @@ class PessoaController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-<<<<<<< HEAD
     $request->validate([
       'nome_razao' => ['required', 'string', 'max:255'],
       'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
@@ -65,16 +42,6 @@ class PessoaController extends Controller
       'cidade' => ['required', 'string'],
       'uf' => ['required', 'string'],
       ],[
-=======
-
-    $request->validate(
-      [
-        'nome_razao' => ['required', 'string', 'max:255'],
-        'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
-        'tipo_pessoa' => ['required', 'string', 'max:2'],
-      ],
-      [
->>>>>>> BranchDoMatheus
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
         'cep.required' => 'Preencha o campo CEP',
@@ -176,7 +143,6 @@ class PessoaController extends Controller
    * @param User $user
    * @return RedirectResponse
    **/
-<<<<<<< HEAD
     public function delete(Pessoa $pessoa): RedirectResponse
     {
       $pessoa->delete();
@@ -184,12 +150,3 @@ class PessoaController extends Controller
     }
 
 }
-=======
-  public function delete(Pessoa $pessoa): RedirectResponse
-  {
-    $pessoa->delete();
-
-    return redirect()->route('pessoa-index')->with('update-success', 'Pessoa removida');
-  }
-}
->>>>>>> BranchDoMatheus
