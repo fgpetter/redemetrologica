@@ -14,8 +14,7 @@
 
     <div class="row">
         <div class="col">
-            <x-painel.pessoas.list />
-            {{-- <x-painel.pessoas.list :pessoas="$pessoas"/> --}}
+            <x-painel.pessoas.list :pessoas="$pessoas"/>
         </div>
     </div>
 @endsection

@@ -20,7 +20,7 @@ class PessoaController extends Controller
    */
   public function index(Request $request)
   {
-    $pessoas = Pessoa::all();
+    $pessoas = Pessoa::orderBy('id', 'desc')->paginate(15);
     return view('painel.pessoas.index', ['pessoas' => $pessoas]);
   }
 
