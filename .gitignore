@@ -9,6 +9,7 @@
 .env
 .env.backup
 .env.production
+composer.lock
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -19,4 +20,3 @@ yarn-error.log
 /.idea
 /.vscode
 public/vendor/log-viewer/*
-composer.lock
