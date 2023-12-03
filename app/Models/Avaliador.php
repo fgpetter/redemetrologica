@@ -10,4 +10,12 @@ class Avaliador extends Model
     use HasFactory;
 
     protected $table = 'avaliadores';
+
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [];
+
 }

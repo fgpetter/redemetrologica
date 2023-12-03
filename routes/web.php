@@ -90,6 +90,15 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'] )->name('funcionario-delete');
   });
 
+  /* Funcionarios */
+  Route::group(['prefix' => 'avaliador'], function(){
+    Route::get('index', [FuncionarioController::class, 'index'])->name('avaliador-index');
+    Route::get('insert/{avaliador:uid?}', [FuncionarioController::class, 'insert'])->name('avaliador-insert');
+    Route::post('create', [FuncionarioController::class, 'create'] )->name('avaliador-create');
+    Route::post('update/{avaliador:uid}', [FuncionarioController::class, 'update'] )->name('avaliador-update');
+    Route::post('delete/{avaliador:uid}', [FuncionarioController::class, 'delete'] )->name('avaliador-delete');
+  });
+
   /* Dados bancários */
   Route::group(['prefix' => 'conta'], function(){
     Route::post('create', [DadoBancarioController::class, 'create'] )->name('conta-create');
