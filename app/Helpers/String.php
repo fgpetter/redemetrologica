@@ -8,14 +8,18 @@
  */
 function sanitizeFileName($file_name): string
 {
-  return str_replace(
-    " ",
-    "_",
-    preg_replace(
-      "/&([a-z])[a-z]+;/i", 
-      "$1", 
-      htmlentities(
-        trim($file_name)
+  return preg_replace(
+    '/[^A-Za-z0-9\-]/',
+    '',
+    str_replace(
+      " ",
+      "-",
+      preg_replace(
+        "/&([a-z])[a-z]+;/i",
+        "$1",
+        htmlentities(
+          trim($file_name)
+        )
       )
     )
   );

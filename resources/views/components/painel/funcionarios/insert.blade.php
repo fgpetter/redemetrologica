@@ -1,7 +1,7 @@
 @if (session('funcionario-error')) <div class="alert alert-danger"> {{ session('error') }} </div> @endif
 <div class="card">
   <div class="card-body">
-    <form method="POST" action="{{ isset($funcionario->id) ? route('funcionario-update', $funcionario->id) : route('funcionario-create') }}">
+    <form method="POST" action="{{ isset($funcionario->uid) ? route('funcionario-update', $funcionario->uid) : route('funcionario-create') }}" enctype="multipart/form-data">
       @csrf
       <div class="row gy-3">
 
@@ -45,9 +45,9 @@
             <label class="form-label">Cargo</label>
             <select class="form-select" name="cargo" aria-label="Default select example">
               <option value="" >Selecione um cargo</option>
-              <option value="analista">Analista</option>
-              <option value="gerente">Gerente</option>
-              <option value="supervisor">Supervisor</option>
+              <option @selected($funcionario->cargo == "analista") value="analista">Analista</option>
+              <option @selected($funcionario->cargo == "gerente") value="gerente">Gerente</option>
+              <option @selected($funcionario->cargo == "supervisor") value="supervisor">Supervisor</option>
             </select>
           </div>
   
@@ -55,32 +55,48 @@
             <label class="form-label">Setor</label>
             <select class="form-select" name="setor" aria-label="Default select example">
               <option value="" >Selecione um setor</option>
-              <option value="rh">RH</option>
-              <option value="financeiro">Financeiro</option>
-              <option value="direcao">Direção</option>
+              <option @selected($funcionario->setor == "rh") value="rh">RH</option>
+              <option @selected($funcionario->setor == "financeiro") value="financeiro">Financeiro</option>
+              <option @selected($funcionario->setor == "direcao") value="direcao">Direção</option>
             </select>
           </div>
         </div>
 
         <div class="row mt-3">
           <div class="col-3">
-            <label class="form-label">Data admissão</label>
+            <label class="form-label">Data admissão<small class="text-danger-emphasis opacity-75"> * </small></label>
             <input type="date" class="form-control" name="admissao" id="admissao" 
-              value="{{ old('admissao') ?? $funcionario->pessoa->admissao ?? null }}" >
+              value="{{ old('admissao') ?? $funcionario->admissao ?? null }}" required>
             @error('admissao') <div class="text-warning">{{ $message }}</div> @enderror 
           </div>
   
           <div class="col-3">
             <label class="form-label">Data demissão</label>
             <input type="date" class="form-control" name="demissao" id="demissao" 
-              value="{{ old('demissao') ?? $funcionario->pessoa->demissao ?? null }}" >
+              value="{{ old('demissao') ?? $funcionario->demissao ?? null }}" >
             @error('demissao') <div class="text-warning">{{ $message }}</div> @enderror 
           </div>
 
           <div class="col-6">
-            <label for="curriculo" class="form-label">Currículo</label>
-            <input class="form-control" name="curriculo" type="file" id="curriculo">
-            @error('demissao') <div class="text-warning">{{ $message }}</div> @enderror 
+            @if ($funcionario->curriculo)
+              <div class="input-group mt-4">
+                <input type="text" class="form-control" readonly value="{{ explode("curriculos/", $funcionario->curriculo)[1] }}" >
+                <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="{{ asset($funcionario->curriculo) }}" target="_blank">Baixar</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="javascript:void(0)" 
+                      onclick="document.getElementById('curriculo-delete').submit();">Remover
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            @else
+              <label for="curriculo" class="form-label">Currículo</label>
+              <input class="form-control" name="curriculo" type="file" id="curriculo" accept=".doc, .pdf, .docx">
+              @error('curriculo') <div class="text-warning">{{ $message }}</div> @enderror
+            @endif
           </div>
         </div>
         <h6 class="mb-0">Dados de endereço</h6>
@@ -102,6 +118,11 @@
     @if($funcionario->id)
       <x-painel.funcionarios.form-delete route="funcionario-delete" id="{{$funcionario->uid}}" />
     @endif
+
+    <form method="POST" id="curriculo-delete" action="{{ route('curriculo-delete', $funcionario->uid) }}">
+      @csrf
+    </form>
+
 
   </div>
   

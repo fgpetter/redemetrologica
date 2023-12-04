@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AvaliadorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
@@ -88,15 +89,16 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('create', [FuncionarioController::class, 'create'] )->name('funcionario-create');
     Route::post('update/{funcionario:uid}', [FuncionarioController::class, 'update'] )->name('funcionario-update');
     Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'] )->name('funcionario-delete');
+    Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'] )->name('curriculo-delete');
   });
 
-  /* Funcionarios */
+  /* Avaliadores */
   Route::group(['prefix' => 'avaliador'], function(){
-    Route::get('index', [FuncionarioController::class, 'index'])->name('avaliador-index');
-    Route::get('insert/{avaliador:uid?}', [FuncionarioController::class, 'insert'])->name('avaliador-insert');
-    Route::post('create', [FuncionarioController::class, 'create'] )->name('avaliador-create');
-    Route::post('update/{avaliador:uid}', [FuncionarioController::class, 'update'] )->name('avaliador-update');
-    Route::post('delete/{avaliador:uid}', [FuncionarioController::class, 'delete'] )->name('avaliador-delete');
+    Route::get('index', [AvaliadorController::class, 'index'])->name('avaliador-index');
+    Route::get('insert/{avaliador:uid?}', [AvaliadorController::class, 'insert'])->name('avaliador-insert');
+    Route::post('create', [AvaliadorController::class, 'create'] )->name('avaliador-create');
+    Route::post('update/{avaliador:uid}', [AvaliadorController::class, 'update'] )->name('avaliador-update');
+    Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'] )->name('avaliador-delete');
   });
 
   /* Dados bancários */

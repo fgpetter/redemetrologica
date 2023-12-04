@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title') Editar Usuário @endsection
+@section('title') Editar Funcionário @endsection
 @section('content')
   @component('components.breadcrumb')
   @slot('li_1') Pessoas @endslot
