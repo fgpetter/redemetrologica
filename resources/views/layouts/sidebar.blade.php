@@ -1,4 +1,4 @@
-  <!-- ========== App Menu ========== -->
+<!-- ========== App Menu ========== -->
   <div class="app-menu navbar-menu">
     <!-- LOGO -->
     <div class="navbar-brand-box">
@@ -98,20 +98,32 @@
 
           {{-- Pessoas --}}
           <li class="nav-item">
-            <a class="nav-link menu-link collapsed {{ request()->is('painel/pessoa/*') ? 'active' : '' }}" href="#sidebarPessoas" data-bs-toggle="collapse" role="button" 
-              aria-expanded="{{ request()->is('painel/pessoa/*') ? 'true' : 'false' }}" aria-controls="sidebarPessoas">
+            <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'active' : '' }}" 
+              href="#sidebarPessoas" data-bs-toggle="collapse" role="button" 
+              aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'true' : 'false' }}" 
+              aria-controls="sidebarPessoas">
               <i class="ph-identification-card"></i> <span>PPESSOAS</span>
             </a>
-            <div class="collapse menu-dropdown {{ request()->is('painel/pessoa/*') ? 'show' : '' }}" id="sidebarPessoas">
+            <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'show' : '' }}" 
+              id="sidebarPessoas">
               <ul class="nav nav-sm flex-column">
                 <li class="nav-item">
-                  <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/pessoa/index') ? 'active' : '' }}" role="button" data-key="t-signin">Listar</a>
+                  <a href="{{ route('pessoa-index') }}" 
+                    class="nav-link {{ request()->is('painel/pessoa/index') ? 'active' : '' }}" 
+                    role="button" data-key="t-signin">Listar
+                  </a>
                 </li>
                 <li class="nav-item">
-                  <a href="{{ route('funcionario-index') }}" class="nav-link {{ request()->is('painel/funcionarios/index') ? 'active' : '' }}" role="button" data-key="t-signin">Funcionários</a>
+                  <a href="{{ route('funcionario-index') }}" 
+                  class="nav-link {{ request()->is('painel/funcionario/index') ? 'active' : '' }}" 
+                  role="button" data-key="t-signin">Funcionários
+                </a>
                 </li>
                 <li class="nav-item">
-                  <a href="{{ route('pessoa-index') }}" class="nav-link {{ request()->is('painel/avaliadores/index') ? 'active' : '' }}" role="button" data-key="t-signin">Avaliadores</a>
+                  <a href="{{ route('avaliador-index') }}" 
+                  class="nav-link {{ request()->is('painel/avaliadores/index') ? 'active' : '' }}" 
+                  role="button" data-key="t-signin">Avaliadores
+                </a>
                 </li>
 
               </ul>

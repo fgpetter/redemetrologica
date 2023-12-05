@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('unidades', function (Blueprint $table) {
             $table->id();
             $table->string('uid');
-            $table->foreignId('pessoa_id')->constrained()->onDelete('cascade');
-            $table->foreignId('endereco_id')->constrained()->onDelete('cascade');
+            $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('endereco_id')->constrained()->cascadeOnDelete();
             $table->string('nome');
             $table->string('telefone')->nullable();
             $table->string('nome_responsavel')->nullable();

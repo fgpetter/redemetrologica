@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pessoa extends Model
 {
@@ -40,6 +41,22 @@ class Pessoa extends Model
     public function dadosBancarios(): HasMany
     {
         return $this->hasMany(DadoBancario::class);
+    }
+
+    /**
+     * Lista retorna quando essa pessoa é um funcionário.
+     */
+    public function funcionario(): HasOne
+    {
+        return $this->hasOne(Funcionario::class);
+    }
+
+    /**
+     * Lista retorna quando essa pessoa é um avaliador.
+     */
+    public function avaliador(): HasOne
+    {
+        return $this->hasOne(Avaliador::class);
     }
 
 }

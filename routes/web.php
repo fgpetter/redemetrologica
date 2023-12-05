@@ -99,6 +99,8 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('create', [AvaliadorController::class, 'create'] )->name('avaliador-create');
     Route::post('update/{avaliador:uid}', [AvaliadorController::class, 'update'] )->name('avaliador-update');
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'] )->name('avaliador-delete');
+    Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'] )->name('avaliador-curriculo-delete');
+
   });
 
   /* Dados bancários */

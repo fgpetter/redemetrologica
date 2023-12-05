@@ -7,8 +7,6 @@ use App\Models\Pessoa;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Yajra\DataTables\Facades\Datatables;
-
 
 class PessoaController extends Controller
 {

@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Avaliador extends Model
 {
@@ -17,5 +18,15 @@ class Avaliador extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * Carrega pessoa
+     * @return BelongsToMany
+     */
+    public function pessoa() : BelongsTo
+    {
+        return $this->belongsTo(Pessoa::class);
+    }
+
 
 }

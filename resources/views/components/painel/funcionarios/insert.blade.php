@@ -117,11 +117,12 @@
     </form>
     @if($funcionario->id)
       <x-painel.funcionarios.form-delete route="funcionario-delete" id="{{$funcionario->uid}}" />
+
+      <form method="POST" id="curriculo-delete" action="{{ route('curriculo-delete', $funcionario->uid) }}">
+        @csrf
+      </form>
     @endif
 
-    <form method="POST" id="curriculo-delete" action="{{ route('curriculo-delete', $funcionario->uid) }}">
-      @csrf
-    </form>
 
 
   </div>

@@ -114,7 +114,7 @@ class FuncionarioController extends Controller
       'admissao' => $request->get('admissao'),
       'demissao' => $request->get('demissao'),
       'observacoes' => $request->get('observacoes'),
-      'curriculo' => $curriculo
+      'curriculo' => $curriculo ?? null
     ]);
 
     if(!$funcionario){
@@ -223,6 +223,12 @@ class FuncionarioController extends Controller
    **/
     public function delete(Funcionario $funcionario): RedirectResponse
     {
+      if (File::exists(public_path($funcionario->curriculo))) {
+        File::delete(public_path($funcionario->curriculo));
+      }
+
+      Pessoa::where('id', $funcionario->pessoa_id)->delete();
+
       $funcionario->delete();
 
       return redirect()->route('funcionario-index')->with('funcionario-success', 'Funcionario removido');

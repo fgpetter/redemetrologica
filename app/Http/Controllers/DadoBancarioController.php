@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Avaliador;
 use App\Models\DadoBancario;
 use App\Models\Funcionario;
 use Illuminate\Http\Request;
@@ -57,6 +58,11 @@ class DadoBancarioController extends Controller
       Funcionario::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
     }
 
+    if($request->get('conta_padrao_avaliador')) {
+      Avaliador::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
+    }
+
+
     return redirect()->back()->with('conta-success', 'Conta cadastrada com sucesso');
   }
 
@@ -103,6 +109,10 @@ class DadoBancarioController extends Controller
 
     if($request->get('conta_padrao')) {
       Funcionario::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
+    }
+
+    if($request->get('conta_padrao_avaliador')) {
+      Avaliador::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
     }
 
     return redirect()->back()->with('conta-success', 'Conta cadastrada com sucesso');
