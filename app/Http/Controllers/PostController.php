@@ -359,7 +359,10 @@ class PostController extends Controller
      **/
     public function ListNoticias(): View
     {
+        $DataAtual = \Carbon\Carbon::now();
         $posts = Post::where('tipo', 'noticia')
+            ->where('data_publicacao', '<=', $DataAtual)
+            ->where('rascunho', 0)
             ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
             ->get();
 
@@ -386,7 +389,10 @@ class PostController extends Controller
      **/
     public function ListGalerias(): View
     {
+        $DataAtual = \Carbon\Carbon::now();
         $posts = Post::where('tipo', 'galeria')
+            ->where('data_publicacao', '<=', $DataAtual)
+            ->where('rascunho', 0)
             ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
             ->get();
         foreach ($posts as $post) {
