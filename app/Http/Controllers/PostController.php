@@ -352,7 +352,49 @@ class PostController extends Controller
 
         return redirect()->route('noticia-index')->with('update-success', 'Post removido');;
     }
+    /**
+     * Gera pagina de listagem de posts de noticias
+     *
+     * @return View
+     **/
+    public function ListNoticias(): View
+    {
+        $posts = Post::where('tipo', 'noticia')
+            ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
+            ->get();
 
+        foreach ($posts as $post) {
+            // Remove todas as tags de imagem
+            $conteudoSemImagens = preg_replace('/<img[^>]+\>/i', '', $post->conteudo);
+            //Remove tags e "nbsp"
+            $textoSemHTML = strip_tags($conteudoSemImagens);
+            $textoSemHTML = str_replace('nbsp', '', $textoSemHTML);
+            // Limita o conteúdo para as primeiras 25 palavras
+            $primeirasDezPalavras = implode(' ', array_slice(str_word_count($textoSemHTML, 2), 0, 25));
+            // Atualiza o conteúdo do post
+            $post->conteudo = $primeirasDezPalavras . "...";
+            // Trata a data
+            $post->data_publicacao = \Carbon\Carbon::parse($post->data_publicacao)->format('d/m/Y');
+        }
+
+        return view('site.pages.noticias', ['posts' => $posts, 'tipo' => 'noticia']);
+    }
+    /**
+     * Gera pagina de listagem de posts de galeria
+     *
+     * @return View
+     **/
+    public function ListGalerias(): View
+    {
+        $posts = Post::where('tipo', 'galeria')
+            ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
+            ->get();
+        foreach ($posts as $post) {
+            // Trata a data
+            $post->data_publicacao = \Carbon\Carbon::parse($post->data_publicacao)->format('d/m/Y');
+        }
+        return view('site.pages.galerias', ['posts' => $posts, 'tipo' => 'galeria']);
+    }
     /**
      * mostra pagina da slug da noticia/galeria
      *
@@ -361,9 +403,6 @@ class PostController extends Controller
     public function show($slug)
     {
         $post = Post::where('slug', $slug)->firstOrFail();
-        return view(
-            'site.pages.slug-da-noticia',
-            ['post' => $post]
-        );
+        return view('site.pages.slug-da-noticia', ['post' => $post]);
     }
 }

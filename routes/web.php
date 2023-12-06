@@ -35,6 +35,8 @@ Route::view('slug-interlaboratoriais', 'site.pages.slug-interlaboratoriais');
 Route::view('slug-cursos', 'site.pages.slug-cursos');
 
 /*Rotas das slugs (noticia e galeria) */
+Route::get('noticias', [PostController::class, 'ListNoticias'])->name('show-list'); //mostra lista de noticias
+Route::get('galerias', [PostController::class, 'ListGalerias'])->name('show-list'); //mostra lista de galerias
 Route::get('noticia/{slug}', [PostController::class, 'show'])->name('noticia-show'); //mostra noticia
 Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-show'); //mostra galeria
 
