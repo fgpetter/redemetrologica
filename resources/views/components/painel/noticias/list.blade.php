@@ -40,7 +40,16 @@
                               <td>
                                   <input type="checkbox" {{ $post['rascunho'] ? 'checked' : '' }} disabled>
                               </td>
-                              <td> <a href="#">Visualizar</a></td>
+                              <td>
+                                  @if ($post->tipo == 'galeria')
+                                      <a href="{{ route('galeria-show', ['slug' => $post->slug]) }}" target="_blank"
+                                          rel="noopener noreferrer">Visualizar</a>
+                                  @else
+                                      <a href="{{ route('noticia-show', ['slug' => $post->slug]) }}" target="_blank"
+                                          rel="noopener noreferrer">Visualizar</a>
+                                  @endif
+                              </td>
+
                               <td>
                                   <div class="dropdown">
                                       <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
