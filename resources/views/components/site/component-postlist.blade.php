@@ -60,7 +60,7 @@
                                               <i class="bi bi-twitter"></i>
                                           </p>
                                       </div>
-                                    </div>
+                                  </div>
                               </div>
                           </div>
                       </div>
@@ -96,7 +96,7 @@
                           </div>
                       </div>
                   </div>
-                  <hr>
+                  {{-- <hr>
                   <div class="container ">
                       <div class=" d-flex justify-content-end">
                           <nav aria-label="Page navigation example" class=" align-items-end">
@@ -117,6 +117,10 @@
                               </ul>
                           </nav>
                       </div>
-                  </div>
+                  </div> --}}
               </div>
-              {{-- noticias --}}
+          </div>
+
+      </div>
+  </div>
+  {{-- noticias --}}

@@ -352,4 +352,18 @@ class PostController extends Controller
 
         return redirect()->route('noticia-index')->with('update-success', 'Post removido');;
     }
+
+    /**
+     * mostra pagina da slug da noticia/galeria
+     *
+     * @return View
+     **/
+    public function show($slug)
+    {
+        $post = Post::where('slug', $slug)->firstOrFail();
+        return view(
+            'site.pages.slug-da-noticia',
+            ['post' => $post]
+        );
+    }
 }

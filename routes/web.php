@@ -19,6 +19,7 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('roo
 /* Rotas estáticas */
 Route::view('home', 'site.pages.site');
 Route::view('noticias', 'site.pages.noticias');
+Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
 Route::view('cursos', 'site.pages.cursos');
 Route::view('interlaboratoriais', 'site.pages.interlaboratoriais');
@@ -32,6 +33,10 @@ Route::view('slug-da-galeria', 'site.pages.slug-da-galeria');
 Route::view('sobre', 'site.pages.sobre');
 Route::view('slug-interlaboratoriais', 'site.pages.slug-interlaboratoriais');
 Route::view('slug-cursos', 'site.pages.slug-cursos');
+
+/*Rotas das slugs (noticia e galeria) */
+Route::get('noticia/{slug}', [PostController::class, 'show'])->name('noticia-show'); //mostra noticia
+Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-show'); //mostra galeria
 
 /* Rotas do template */
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
@@ -69,45 +74,43 @@ Route::group(['prefix' => 'painel'], function () {
   });
 
   /* Endereços */
-  Route::group(['prefix' => 'endereco'], function(){
-    Route::post('create', [EnderecoController::class, 'create'] )->name('endereco-create');
-    Route::post('update/{endereco:uid}', [EnderecoController::class, 'update'] )->name('endereco-update');
-    Route::post('delete/{endereco:uid}', [EnderecoController::class, 'delete'] )->name('endereco-delete');
+  Route::group(['prefix' => 'endereco'], function () {
+    Route::post('create', [EnderecoController::class, 'create'])->name('endereco-create');
+    Route::post('update/{endereco:uid}', [EnderecoController::class, 'update'])->name('endereco-update');
+    Route::post('delete/{endereco:uid}', [EnderecoController::class, 'delete'])->name('endereco-delete');
   });
 
   /* Unidades */
-  Route::group(['prefix' => 'unidade'], function(){
-    Route::post('create', [UnidadeController::class, 'create'] )->name('unidade-create');
-    Route::post('update/{unidade:uid}', [UnidadeController::class, 'update'] )->name('unidade-update');
-    Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'] )->name('unidade-delete');
+  Route::group(['prefix' => 'unidade'], function () {
+    Route::post('create', [UnidadeController::class, 'create'])->name('unidade-create');
+    Route::post('update/{unidade:uid}', [UnidadeController::class, 'update'])->name('unidade-update');
+    Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'])->name('unidade-delete');
   });
 
   /* Funcionarios */
-  Route::group(['prefix' => 'funcionario'], function(){
+  Route::group(['prefix' => 'funcionario'], function () {
     Route::get('index', [FuncionarioController::class, 'index'])->name('funcionario-index');
     Route::get('insert/{funcionario:uid?}', [FuncionarioController::class, 'insert'])->name('funcionario-insert');
-    Route::post('create', [FuncionarioController::class, 'create'] )->name('funcionario-create');
-    Route::post('update/{funcionario:uid}', [FuncionarioController::class, 'update'] )->name('funcionario-update');
-    Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'] )->name('funcionario-delete');
-    Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'] )->name('curriculo-delete');
+    Route::post('create', [FuncionarioController::class, 'create'])->name('funcionario-create');
+    Route::post('update/{funcionario:uid}', [FuncionarioController::class, 'update'])->name('funcionario-update');
+    Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'])->name('funcionario-delete');
+    Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'])->name('curriculo-delete');
   });
 
   /* Avaliadores */
-  Route::group(['prefix' => 'avaliador'], function(){
+  Route::group(['prefix' => 'avaliador'], function () {
     Route::get('index', [AvaliadorController::class, 'index'])->name('avaliador-index');
     Route::get('insert/{avaliador:uid?}', [AvaliadorController::class, 'insert'])->name('avaliador-insert');
-    Route::post('create', [AvaliadorController::class, 'create'] )->name('avaliador-create');
-    Route::post('update/{avaliador:uid}', [AvaliadorController::class, 'update'] )->name('avaliador-update');
-    Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'] )->name('avaliador-delete');
-    Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'] )->name('avaliador-curriculo-delete');
-
+    Route::post('create', [AvaliadorController::class, 'create'])->name('avaliador-create');
+    Route::post('update/{avaliador:uid}', [AvaliadorController::class, 'update'])->name('avaliador-update');
+    Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
+    Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
   });
 
   /* Dados bancários */
-  Route::group(['prefix' => 'conta'], function(){
-    Route::post('create', [DadoBancarioController::class, 'create'] )->name('conta-create');
-    Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'] )->name('conta-update');
-    Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'] )->name('conta-delete');
+  Route::group(['prefix' => 'conta'], function () {
+    Route::post('create', [DadoBancarioController::class, 'create'])->name('conta-create');
+    Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'])->name('conta-update');
+    Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'])->name('conta-delete');
   });
-
 });
