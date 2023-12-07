@@ -144,7 +144,7 @@
                 cientistas, doutores, mestres, metrologistas, instrutores, professores, administradores e avaliadores de
                 laboratórios.</p>
             <div class="my-2">
-                <button type="button" class="btn btn-warning btn-lg">Associe-se</button>
+                <a href="/fale-conosco" type="button" class="btn btn-warning btn-lg">Associe-se</a>
             </div>
         </div>
     </div>

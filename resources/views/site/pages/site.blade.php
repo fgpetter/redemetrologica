@@ -21,7 +21,7 @@
 
         <div class="row my-5" style="margin-top: 0;">
 
-            <div class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
+            <a href="/sobre" class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-REDE-600-x-600-px.png') }}" class="card-img "
                     alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
@@ -29,10 +29,10 @@
                         <h1 class="h4 ">A Rede</h1>
                     </div>
                 </div>
-            </div>
+            </a>
 
 
-            <div class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
+            <a href="/associe-se" class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-ASSOCIE-SE-600-x-600-px.png') }}" class="card-img"
                     alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
@@ -40,9 +40,9 @@
                         <h1 class="h4 ">Associe-se</h1>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
+            <a href="/cursos" class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-CURSOS-600-x-600-px.png') }}" class="card-img"
                     alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
@@ -50,9 +50,9 @@
                         <h1 class="h4 ">Cursos e Eventos</h1>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito ">
+            <a href="/interlaboratoriais" class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito ">
                 <img src="{{ asset('build\images\site\HOME-DESTAQUES-PEP-600-x-600-px (1).png') }}" class="card-img"
                     alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
@@ -60,9 +60,9 @@
                         <h1 class="h4 ">Ensaios de Proficiência</h1>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
+            <a href="laboratorios-reconhecidos" class="card bg-transparent border-0  col-sm-6 col-md SiteCardsINI--efeito">
                 <img src="{{ asset('build\images\site\DESTAQUES-HOME-LABORATÓRIO-600-x-600-px.png') }}" class="card-img"
                     alt="...">
                 <div class="card-img-overlay d-flex justify-content-center">
@@ -70,7 +70,7 @@
                         <h1 class="h4 ">Laboratórios</h1>
                     </div>
                 </div>
-            </div>
+            </a>
 
 
         </div>
@@ -91,7 +91,7 @@
                         Pioneira entre as demais Redes estaduais existentes no país, desde 1992 articulamos
                         parcerias
                         indispensáveis para viabilizar a execução de suas metas.</p>
-                    <button type="button" class=" mb-3 btn btn-primary">Saiba Mais</button>
+                    <a href="/sobre" type="button" class=" mb-3 btn btn-primary">Saiba Mais</a>
                 </div>
             </div>
             <div class="col-12 col-md-6">
@@ -137,7 +137,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
-                <button type="button" class="btn btn-warning btn-lg">Quero ser Associado</button>
+                <a href="/associe-se" type="button" class="btn btn-warning btn-lg">Quero ser Associado</a>
             </div>
         </div>
     </div>
@@ -155,7 +155,7 @@
                     style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-BANNER-CURSOS.jpg') }}');height:100%; width:100%;">
 
                     <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
-                        <button type="button" class="btn btn-warning btn-lg">Ver mais</button>
+                        <a href="/cursos" type="button" class="btn btn-warning btn-lg">Ver mais</a>
                     </div>
                 </div>
 
@@ -169,7 +169,7 @@
                     style="background-size: cover; background-image: url('{{ asset('build/images/site/LAB-SOLICITAR-RECONHECIMENTO-1349-x-443.png') }}');height:100%; width:100%;">
 
                     <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
-                        <button type="button" class="btn btn-warning btn-lg">Ver mais</button>
+                        <a href="/laboratorios-avaliacao" type="button" class="btn btn-warning btn-lg">Ver mais</a>
                     </div>
                 </div>
 
@@ -184,7 +184,7 @@
                     style="background-size: cover; background-image: url('{{ asset('build/images/site/HOME-BANNER-PEPS-1349-x-443_200722062833.jpg') }}');height:100%; width:100%;">
 
                     <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
-                        <button type="button" class="btn btn-warning btn-lg">Ver mais</button>
+                        <a href="/interlaboratoriais" type="button" class="btn btn-warning btn-lg">Ver mais</a>
                     </div>
                 </div>
 
@@ -197,7 +197,7 @@
                 <div class="SiteCards__bgimage p-5 text-center mb-5 text-white position-relative"
                     style="background-size: cover; background-image: url('{{ asset('build/images/site/LAB-RECONHECIDO-1349-x-443.png') }}'); height:100%; width:100%;">
                     <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
-                        <button type="button" class="btn btn-warning btn-lg">Ver mais</button>
+                        <a href="/interlaboratoriais" type="button" class="btn btn-warning btn-lg">Ver mais</a>
                     </div>
                 </div>
 
