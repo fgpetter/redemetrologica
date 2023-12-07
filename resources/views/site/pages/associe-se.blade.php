@@ -214,7 +214,7 @@
                     </div>
                     <div class="row justify-content-center text-center">
                         <div class="col-md-4">
-                            <button type="button" class="btn btn-warning">Formulário</button>
+                            <a href="/fale-conosco" type="button" class="btn btn-warning">Formulário</a>
                         </div>
                         <div class="col-md-4">
                             <p>ou</p>

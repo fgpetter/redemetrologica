@@ -37,7 +37,7 @@
             <h1 class="text-white">O processo de avaliação de laboratórios é realizado com base na norma NBR ISO/IEC
                 17025 ou NBR ISO 15189.</h1>
             <div class="my-2">
-                <button type="button" class="btn btn-warning btn-lg">SOLICITAR</button>
+                <a href="/fale-conosco" type="button" class="btn btn-warning btn-lg">SOLICITAR</a>
             </div>
         </div>
     </div>
@@ -140,7 +140,7 @@
                     </div>
                     <div class="row justify-content-center text-center">
                         <div class="col-md-4">
-                            <button type="button" class="btn btn-warning">Formulário</button>
+                            <a href="/fale-conosco" type="button" class="btn btn-warning">Formulário</a>
                         </div>
                         <div class="col-md-4">
                             <p>ou</p>
@@ -161,7 +161,7 @@
     <div class="container my-5">
         <div class="row text-center">
             <div class="col">
-                <h1 class=" mb-0"><b>Para Download de Procedimentos dessa área Clique Aqui</b></h1>
+                <a href="/downloads" class="h1 mb-0"><b>Para Download de Procedimentos dessa área Clique Aqui</b></a>
             </div>
         </div>
     </div>
@@ -171,7 +171,7 @@
         <div class="container">
             <h1 class="text-white"><b>LABORATÓRIOS RECONHECIDOS</b></h1>
             <div class="my-2">
-                <button type="button" class="btn btn-warning btn-lg">CONFIRA</button>
+                <a href="/laboratorios-reconhecidos" type="button" class="btn btn-warning btn-lg">CONFIRA</a>
             </div>
         </div>
     </div>

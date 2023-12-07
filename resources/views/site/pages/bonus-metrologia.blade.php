@@ -72,7 +72,8 @@
         <div class="container">
             <h1 class="text-white"><b>Encontre um laboratório</b></h1>
             <div class="my-2">
-                <button type="button" class="btn  btn-light btn-lg">Laboratórios reconhecidos</button>
+                <a href="/laboratorios-reconhecidos" type="button" class="btn  btn-light btn-lg">Laboratórios
+                    reconhecidos</a>
             </div>
         </div>
     </div>

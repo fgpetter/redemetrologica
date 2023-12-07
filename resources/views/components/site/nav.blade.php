@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg sticky-top py-3 SiteHeader border-bottom">
     <div class="container">
-        <a class="navbar-brand" href="home">
+        <a class="navbar-brand" href="/home">
             <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" height="95">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"

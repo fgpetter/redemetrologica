@@ -49,34 +49,26 @@
                         <h5 class="text-white">Acesso Rápido</h5>
                         <div class="">
                             <ul class="list-unstyled">
+                                <li class=""><a class="text-white" href="/noticias">Notícias</a></li>
+                                <li class=""><a class="text-white" href="/associe-se">Associe-se</a></li>
+                                <li class=""><a class="text-white" href="/cursos">Cursos</a></li>
                                 <li class=""><a class="text-white"
-                                        href="https://redemetrologica.com.br/noticias-2/">Notícias</a></li>
-                                <li class=""><a class="text-white"
-                                        href="https://redemetrologica.com.br/associe-se-2/">Associe-se</a></li>
-                                <li class=""><a class="text-white"
-                                        href="https://redemetrologica.com.br/cursos/">Cursos</a></li>
-                                <li class=""><a class="text-white"
-                                        href="https://redemetrologica.com.br/interlaboratoriais/">Interlaboratoriais</a>
+                                        href="/interlaboratoriais">Interlaboratoriais</a>
                                 </li>
-                                <li class=""><a class="text-white" href="#">Laboratórios</a>
+                                <li class=""><a class="text-white" href="#">ㅤLaboratórios</a>
                                     <ul class=" list-unstyled " list-unstyled"">
                                         <li class=""><a class="text-white"
-                                                href="https://redemetrologica.com.br/laboratorios-avaliacao/">
-                                                Avaliação
+                                                href="/laboratorios-avaliacao">ㅤㅤAvaliação
                                                 de Laboratórios</a></li>
-                                        <li class=""><a class="text-white"
-                                                href="https://redemetrologica.com.br/laboratorios-reconhecidos/">
+                                        <li class=""><a class="text-white" href="/laboratorios-reconhecidos">ㅤㅤ
                                                 Laboratórios Reconhecidos</a></li>
-                                        <li class=""><a class="text-white"
-                                                href="https://redemetrologica.com.br/bonus-metrologia/"> Bônus
+                                        <li class=""><a class="text-white" href="/bonus-metrologia">ㅤㅤBônus
                                                 Metrologia</a></li>
-                                        <li class=""><a class="text-white"
-                                                href="https://redemetrologica.com.br/downloads/"> Downloads</a>
+                                        <li class=""><a class="text-white" href="/downloads">ㅤㅤDownloads</a>
                                         </li>
                                     </ul>
                                 </li>
-                                <li class=""><a class="text-white"
-                                        href="https://redemetrologica.com.br/fale-conosco/">Fale Conosco</a>
+                                <li class=""><a class="text-white" href="/fale-conosco">Fale Conosco</a>
                                 </li>
                             </ul>
 
