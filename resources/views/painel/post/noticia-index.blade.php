@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="col">
-            <x-painel.noticias.list :posts="$posts" />
+            <x-painel.post.list :posts="$posts" :tipo="$tipo"/>
         </div>
     </div>
 @endsection

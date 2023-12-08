@@ -59,11 +59,13 @@ Route::group(['prefix' => 'painel'], function () {
   Route::group(['prefix' => 'post'], function () {
     Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
     Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
-    Route::get('insert/{post:slug?}', [PostController::class, 'insert'])->name('post-insert'); // tela de edicao
+    Route::get('noticia-insert/{post:slug?}', [PostController::class, 'noticiaInsert'])->name('noticia-insert'); // tela de edicao
+    Route::get('galeria-insert/{post:slug?}', [PostController::class, 'galeriaInsert'])->name('galeria-insert'); // tela de edicao
     Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
     Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
     Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
     Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
+    Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
   });
 
   /* Pessoas */

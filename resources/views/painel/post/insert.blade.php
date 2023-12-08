@@ -1,20 +1,19 @@
 @extends('layouts.master')
-@section('title') Editar Post @endsection
+@section('title') Editar {{ $tipo}} @endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1') Post @endslot
         @slot('title')
             @isset($posts->id)
-                Editar Post
+                Editar {{ $tipo}}
             @else
-                Cadastrar Post
+                Cadastrar {{ $tipo}}
             @endisset
         @endslot
     @endcomponent
     <div class="row">
         <div class="col-xl-6">
-            <x-painel.noticias.insert :post="$post" />
-
+            <x-painel.post.insert :post="$post" :tipo="$tipo" />
         </div>
 
     </div>
