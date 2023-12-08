@@ -74,7 +74,6 @@ class FuncionarioController extends Controller
 
     if(!$pessoa){
       return redirect()->back()
-        ->withInput($request->input())
         ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
@@ -92,7 +91,6 @@ class FuncionarioController extends Controller
 
     if(!$endereco){
       return redirect()->back()
-        ->withInput($request->input())
         ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
@@ -119,7 +117,6 @@ class FuncionarioController extends Controller
 
     if(!$funcionario){
       return redirect()->back()
-      ->withInput($request->input())
       ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 

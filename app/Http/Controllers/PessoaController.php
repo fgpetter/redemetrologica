@@ -63,7 +63,7 @@ class PessoaController extends Controller
     ]);
 
     if (!$pessoa) {
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
     $endereco = Endereco::create([
@@ -79,7 +79,7 @@ class PessoaController extends Controller
     ]);
 
     if(!$pessoa){
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
     $pessoa->update([

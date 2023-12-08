@@ -27,7 +27,7 @@ class UserController extends Controller
    * @param Request $request
    * @return RedirectResponse
    **/
-  public function create(Request $request): RedirectResponse
+  public function create(Request $request)
   {
     $request->validate(
       [
@@ -50,7 +50,7 @@ class UserController extends Controller
     ]);
 
     if (!$user) {
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
     return redirect()->route('user-edit', ['user' => $user]);
@@ -96,7 +96,7 @@ class UserController extends Controller
     ]);
 
     if (!$user) {
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
     dd($user);
     return redirect()->route('user-index')->with('update-success', 'Usuário atualizado');

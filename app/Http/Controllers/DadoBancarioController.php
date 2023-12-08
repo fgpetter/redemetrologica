@@ -35,7 +35,6 @@ class DadoBancarioController extends Controller
 
     if ($validator->fails()) {
       return redirect()->back()
-        ->withInput($request->input())
         ->with('unidade-error', 'Dados informados não são válidos')
         ->withErrors($validator);
     }
@@ -51,7 +50,7 @@ class DadoBancarioController extends Controller
     ]);
 
     if(!$conta){
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
     if($request->get('conta_padrao')) {
@@ -90,7 +89,6 @@ class DadoBancarioController extends Controller
 
     if ($validator->fails()) {
       return redirect()->back()
-        ->withInput($request->input())
         ->with('unidade-error', 'Dados informados não são válidos')
         ->withErrors($validator);
     }
@@ -104,7 +102,7 @@ class DadoBancarioController extends Controller
     ]);
 
     if(!$conta){
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
     if($request->get('conta_padrao')) {

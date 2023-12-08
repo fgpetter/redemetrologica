@@ -37,7 +37,6 @@ class UnidadeController extends Controller
 
     if ($validator->fails()) {
       return redirect()->back()
-        ->withInput($request->input())
         ->with('unidade-error', 'Dados informados não são válidos')
         ->withErrors($validator);
     }
@@ -67,7 +66,7 @@ class UnidadeController extends Controller
     ]);
 
     if(!$unidade){
-      return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
     $endereco->update(['unidade_id' => $unidade->id]);

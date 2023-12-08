@@ -178,7 +178,7 @@ class PostController extends Controller
             'data_publicacao' => $request->get('data_publicacao')
         ]);
         if (!$posts) {
-            return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+            return redirect()->back()->with('error', 'Ocorreu um erro!');
         }
 
         if ($posts->tipo == 'noticia') {
@@ -315,7 +315,7 @@ class PostController extends Controller
             }
         }
         if (!$post) {
-            return redirect()->back()->withInput($request->input())->with('error', 'Ocorreu um erro!');
+            return redirect()->back()->with('error', 'Ocorreu um erro!');
         }
         if ($post->tipo == 'noticia') {
             return redirect()->route('noticia-index')->with('update-success', 'Noticia atualizada');

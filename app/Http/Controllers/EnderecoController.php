@@ -51,7 +51,7 @@ class EnderecoController extends Controller
     ]);
 
     if(!$endereco){
-      return redirect()->back()->withInput($request->input())->with('endereco-error', 'Ocorreu um erro!');
+      return redirect()->back()->with('endereco-error', 'Ocorreu um erro!');
     }
 
     return redirect()->back()->with('endereco-success', 'Endereço cadastrado com sucesso');

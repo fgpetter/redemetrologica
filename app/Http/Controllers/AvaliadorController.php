@@ -71,7 +71,6 @@ class AvaliadorController extends Controller
 
     if(!$pessoa){
       return redirect()->back()
-        ->withInput($request->input())
         ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
@@ -89,7 +88,6 @@ class AvaliadorController extends Controller
 
     if(!$endereco){
       return redirect()->back()
-        ->withInput($request->input())
         ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
@@ -117,7 +115,6 @@ class AvaliadorController extends Controller
 
     if(!$avaliador){
       return redirect()->back()
-      ->withInput($request->input())
       ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
