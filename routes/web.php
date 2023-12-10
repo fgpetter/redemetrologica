@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\AvaliadorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CursoController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\EnderecoController;
+use App\Http\Controllers\AvaliadorController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
 
@@ -55,19 +56,6 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete');
   });
 
-  /* Noticias e Galeria */
-  Route::group(['prefix' => 'post'], function () {
-    Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
-    Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
-    Route::get('noticia-insert/{post:slug?}', [PostController::class, 'noticiaInsert'])->name('noticia-insert'); // tela de edicao
-    Route::get('galeria-insert/{post:slug?}', [PostController::class, 'galeriaInsert'])->name('galeria-insert'); // tela de edicao
-    Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
-    Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
-    Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
-    Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
-    Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
-  });
-
   /* Pessoas */
   Route::group(['prefix' => 'pessoa'], function () {
     Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
@@ -108,7 +96,7 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('create', [AvaliadorController::class, 'create'])->name('avaliador-create');
     Route::post('update/{avaliador:uid}', [AvaliadorController::class, 'update'])->name('avaliador-update');
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
-    Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
+    Route::post('delete-curriculo/{avaliador:uid}', [FuncionarioController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
   });
 
   /* Dados bancários */
@@ -117,4 +105,27 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'])->name('conta-update');
     Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'])->name('conta-delete');
   });
+
+  /* Cursos */
+  Route::group(['prefix' => 'curso'], function () {
+    Route::get('index', [CursoController::class, 'index'])->name('curso-index');
+    Route::get('insert/{curso:uid?}', [CursoController::class, 'insert'])->name('curso-insert');
+    Route::post('create', [CursoController::class, 'create'])->name('curso-create');
+    Route::post('update/{curso:uid}', [CursoController::class, 'update'])->name('curso-update');
+    Route::post('delete/{curso:uid}', [CursoController::class, 'delete'])->name('curso-delete');
+  });
+
+  /* Noticias e Galeria */
+  Route::group(['prefix' => 'post'], function () {
+    Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
+    Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
+    Route::get('noticia-insert/{post:slug?}', [PostController::class, 'noticiaInsert'])->name('noticia-insert'); // tela de edicao
+    Route::get('galeria-insert/{post:slug?}', [PostController::class, 'galeriaInsert'])->name('galeria-insert'); // tela de edicao
+    Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
+    Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
+    Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
+    Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
+    Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
+  });
+  
 });

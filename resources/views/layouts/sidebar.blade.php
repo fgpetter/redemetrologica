@@ -110,7 +110,7 @@
                 <li class="nav-item">
                   <a href="{{ route('pessoa-index') }}" 
                     class="nav-link {{ request()->is('painel/pessoa/index') ? 'active' : '' }}" 
-                    role="button" data-key="t-signin">Listar
+                    role="button" data-key="t-signin">Pessoas
                   </a>
                 </li>
                 <li class="nav-item">
@@ -129,6 +129,33 @@
               </ul>
             </div>
           </li>
+
+          {{-- Cursos --}}
+          <li class="nav-item">
+            <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso']) ? 'active' : '' }}" 
+              href="#sidebarCursos" data-bs-toggle="collapse" role="button" 
+              aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso']) ? 'true' : 'false' }}" 
+              aria-controls="sidebarCursos">
+              <i class="ph-identification-card"></i> <span>CURSOS</span>
+            </a>
+            <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso/index']) ? 'show' : '' }}" 
+              id="sidebarCursos">
+              <ul class="nav nav-sm flex-column">
+                <li class="nav-item">
+                  <a href="{{ route('curso-index') }}" 
+                    class="nav-link {{ request()->is('painel/curso/index') ? 'active' : '' }}" 
+                    role="button" data-key="t-signin">Cursos
+                  </a>
+                </li>
+                <li class="nav-item">
+                </li>
+                <li class="nav-item">
+                </li>
+
+              </ul>
+            </div>
+          </li>
+          
 
           {{-- // SITE // --}}
           <li class="menu-title"><span>SITE</span></li>
