@@ -47,9 +47,9 @@
                       </div>
 
                       <div class="mb-3">
-                        <div class="float-end">
+                        {{-- <div class="float-end">
                           <a href="auth-pass-reset" class="text-muted">Esqueci minha senha</a>
-                        </div>
+                        </div> --}}
                         <label class="form-label" for="password-input">Senha <span class="text-danger">*</span></label>
                         <div class="position-relative auth-pass-inputgroup mb-3">
                           <input type="password" class="form-control password-input pe-5 @error('password') is-invalid @enderror" id="password-input"  name="password"  placeholder="Digite sua senha">

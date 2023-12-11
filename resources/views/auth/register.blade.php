@@ -29,7 +29,9 @@
                     <div class="text-center">
                       <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" style="max-width: 12vw" class="card-img mb-3" alt="Rede Metrológica">
                       <h5 class="fs-3xl">Crie seu cadastro</h5>
-                      <p class="mb-0 mt-3">Já tem uma conta ? <a href="auth-signin" class="fw-semibold text-primary text-decoration-underline"> Faça Login </a> </p>
+                      <p class="mb-0 mt-3">Já tem uma conta ? 
+                        <a href="/login" class="fw-semibold text-primary text-decoration-underline"> Faça Login </a> 
+                      </p>
                     </div>
                     <div class="p-2 mt-3">
                       <form class="needs-validation" novalidate id="signup" method="POST" action="{{ route('register') }}">
@@ -78,7 +80,9 @@
 
   
                         <div class="mb-4">
-                          <p class="mb-0 fs-xs text-muted fst-italic">By registering you agree to the Steex <a href="pages-term-conditions" class="text-primary text-decoration-underline fst-normal fw-medium">Terms of Use</a></p>
+                          <p class="mb-0 fs-xs text-muted fst-italic">Ao se registrar, você declara que leu e concorda com os
+                            <a href="#" class="text-primary text-decoration-underline fst-normal fw-medium">Termos de uso</a>
+                          </p>
                         </div>
   
                         <div id="password-contain" class="p-3 bg-light mb-2 rounded">
@@ -111,13 +115,10 @@
     <!--end container-->
   </section>
 
-
-@section('script')
-
-<script src="{{ URL::asset('build/js/pages/password-addon.init.js') }}"></script>
-<script src="{{ URL::asset('build/js/pages/passowrd-create.init.js') }}"></script>
-
-@endsection
+  @section('script')
+  <script src="{{ URL::asset('build/js/pages/password-addon.init.js') }}"></script>
+  <script src="{{ URL::asset('build/js/pages/passowrd-create.init.js') }}"></script>
+  @endsection
   @include('layouts.vendor-scripts')
 </body>
 
