@@ -25,9 +25,9 @@
           <label class="form-label">Tipo Curso</label>
           <select class="form-select" name="tipo_curso" aria-label="Default select example">
             <option> - </option>
-            <option value="OFICIAL">OFICIAL</option>
-            <option value="SUPLENTE">SUPLENTE</option>
-            <option value="OUTROS">OUTROS</option>
+            <option value="OFICIAL" @selected($curso->tipo_curso == "OFICIAL") >OFICIAL</option>
+            <option value="SUPLENTE" @selected($curso->tipo_curso == "SUPLENTE")>SUPLENTE</option>
+            <option value="OUTROS" @selected($curso->tipo_curso == "OUTROS")>OUTROS</option>
           </select>
           @error('tipo_curso') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
