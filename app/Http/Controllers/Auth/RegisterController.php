@@ -29,7 +29,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = RouteServiceProvider::DASHBOARD;
 
     /**
      * Create a new controller instance.
@@ -53,6 +53,7 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
+            'password_confirmation' => ['required_with:password', 'string', 'min:8','same:password'],
         ]);
     }
 
@@ -65,6 +66,7 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return User::create([
+            'uid' => config('hashing.uid'),
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),

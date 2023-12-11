@@ -457,11 +457,11 @@
                     </div>
                 </div> --}}
 
-                <div class="ms-1 header-item d-none d-sm-flex">
+                {{-- <div class="ms-1 header-item d-none d-sm-flex">
                     <button type="button" class="btn btn-icon btn-topbar btn-ghost-dark rounded-circle" data-toggle="fullscreen">
                         <i class='bi bi-arrows-fullscreen fs-lg'></i>
                     </button>
-                </div>
+                </div> --}}
 
                 {{-- <div class="dropdown topbar-head-dropdown ms-1 header-item">
                     <button type="button" class="btn btn-icon btn-topbar btn-ghost-dark rounded-circle mode-layout" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -474,7 +474,7 @@
                     </div>
                 </div> --}}
 
-                <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
+                {{-- <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
                     <button type="button" class="btn btn-icon btn-topbar btn-ghost-dark rounded-circle" id="page-header-notifications-dropdown" data-bs-toggle="dropdown"  data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                         <i class='bi bi-bell fs-2xl'></i>
                         <span class="position-absolute topbar-badge fs-3xs translate-middle badge rounded-pill bg-danger"><span class="notification-badge">4</span><span class="visually-hidden">unread messages</span></span>
@@ -533,7 +533,7 @@
                                 <div class="text-reset notification-item d-block dropdown-item position-relative unread-message">
                                     <div class="d-flex">
                                         <div class="position-relative me-3 flex-shrink-0">
-                                            {{-- <img src="build/images/users/32/avatar-2.jpg" class="rounded-circle avatar-xs" alt="user-pic"> --}}
+                                            <img src="build/images/users/32/avatar-2.jpg" class="rounded-circle avatar-xs" alt="user-pic">
                                             <span class="active-badge position-absolute start-100 translate-middle p-1 bg-success rounded-circle">
                                                 <span class="visually-hidden">New alerts</span>
                                             </span>
@@ -589,7 +589,7 @@
                                     <div class="d-flex">
 
                                         <div class="position-relative me-3 flex-shrink-0">
-                                            {{-- <img src="build/images/users/32/avatar-8.jpg" class="rounded-circle avatar-xs" alt="user-pic"> --}}
+                                            <img src="build/images/users/32/avatar-8.jpg" class="rounded-circle avatar-xs" alt="user-pic">
                                             <span class="active-badge position-absolute start-100 translate-middle p-1 bg-warning rounded-circle">
                                                 <span class="visually-hidden">New alerts</span>
                                             </span>
@@ -622,29 +622,29 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="dropdown ms-sm-3 header-item topbar-user">
                     <button type="button" class="btn shadow-none" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
                             {{-- <img class="rounded-circle header-profile-user" src="{{ asset('build/images/users/32/avatar-1.jpg') }}" alt="Header Avatar"> --}}
                             <span class="text-start ms-xl-2">
-                                <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">Richard Marshall</span>
-                                <span class="d-none d-xl-block ms-1 fs-sm user-name-sub-text">Founder</span>
+                                <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ auth()->user()->name }}</span>
+                                {{-- <span class="d-none d-xl-block ms-1 fs-sm user-name-sub-text">Founder</span> --}}
                             </span>
                         </span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
-                        <h6 class="dropdown-header">Welcome Richard!</h6>
+                        <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}!</h6>
                         <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle text-muted fs-lg align-middle me-1"></i> <span class="align-middle"> @lang('translation.profile')</span></a>
-                        <a class="dropdown-item" href="#"><i class="mdi mdi-message-text-outline text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Messages</span></a>
+                        {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-message-text-outline text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Messages</span></a>
                         <a class="dropdown-item" href="#"><i class="mdi mdi-calendar-check-outline text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Taskboard</span></a>
-                        <a class="dropdown-item" href="#"><i class="mdi mdi-lifebuoy text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Help</span></a>
+                        <a class="dropdown-item" href="#"><i class="mdi mdi-lifebuoy text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Help</span></a> --}}
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#"><i class="mdi mdi-wallet text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Balance : <b>$8451.36</b></span></a>
+                        {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-wallet text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Balance : <b>$8451.36</b></span></a>
                         <a class="dropdown-item" href="#"><span class="badge bg-success-subtle text-success mt-1 float-end">New</span><i class="mdi mdi-cog-outline text-muted fs-lg align-middle me-1"></i> <span class="align-middle">@lang('translation.settings')</span></a>
-                        <a class="dropdown-item" href="auth-lockscreen"><i class="mdi mdi-lock text-muted fs-lg align-middle me-1"></i> <span class="align-middle">  @lang('translation.lock-screen')</span></a>
+                        <a class="dropdown-item" href="auth-lockscreen"><i class="mdi mdi-lock text-muted fs-lg align-middle me-1"></i> <span class="align-middle">  @lang('translation.lock-screen')</span></a> --}}
                         <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();"><i class="mdi mdi-logout text-muted fs-lg align-middle me-1"></i> <span class="align-middle" data-key="t-logout">@lang('translation.logout')</span></a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf

@@ -12,7 +12,6 @@ use App\Http\Controllers\AvaliadorController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
 
-
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
@@ -42,10 +41,14 @@ Route::get('noticia/{slug}', [PostController::class, 'show'])->name('noticia-sho
 Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-show'); //mostra galeria
 
 /* Rotas do template */
-Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
+// Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
 /* Rotas do painel */
-Route::group(['prefix' => 'painel'], function () {
+Route::prefix('painel')->group(function () {
+
+  Route::get('/', function(){
+    return view('index');
+  });
 
   /* Usuários */
   Route::group(['prefix' => 'user'], function () {
@@ -127,5 +130,6 @@ Route::group(['prefix' => 'painel'], function () {
     Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
     Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
   });
-  
+
 });
+
