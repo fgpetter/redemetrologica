@@ -37,6 +37,7 @@ class UnidadeController extends Controller
 
     if ($validator->fails()) {
       return redirect()->back()
+        ->withInput()
         ->with('unidade-error', 'Dados informados não são válidos')
         ->withErrors($validator);
     }

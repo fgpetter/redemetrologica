@@ -1,4 +1,3 @@
-@if (session('error')) <div class="alert alert-danger"> {{ session('error') }} </div> @endif
 <div class="card">
   @if (!isset($user))
     <div class="card-header">

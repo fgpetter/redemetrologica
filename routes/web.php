@@ -44,7 +44,7 @@ Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-sho
 // Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
 /* Rotas do painel */
-Route::prefix('painel')->group(function () {
+Route::prefix('painel')->middleware('auth')->group(function () {
 
   Route::get('/', function(){
     return view('index');

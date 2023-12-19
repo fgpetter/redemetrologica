@@ -98,7 +98,6 @@ class UserController extends Controller
     if (!$user) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
-    dd($user);
     return redirect()->route('user-index')->with('update-success', 'Usuário atualizado');
   }
 
