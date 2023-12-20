@@ -1,20 +1,20 @@
 @extends('layouts.master')
 @section('title')
-    Listagem de pessoas
+    Listagem de parâmetros
 @endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
-            Pessoas
+            parâmetros
         @endslot
         @slot('title')
-            Listagem de pessoas
+            Listagem de parâmetros
         @endslot
     @endcomponent
 
     <div class="row">
         <div class="col">
-            <x-painel.pessoas.list :pessoas="$pessoas" />
+            <x-painel.parametros.list />
         </div>
     </div>
 @endsection

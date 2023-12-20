@@ -1,20 +1,20 @@
 @extends('layouts.master')
 @section('title')
-    Listagem de pessoas
+    Listagem de tipos de avaliação
 @endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
-            Pessoas
+            tipos de avaliação
         @endslot
         @slot('title')
-            Listagem de pessoas
+            Listagem de tipos de avaliação
         @endslot
     @endcomponent
 
     <div class="row">
         <div class="col">
-            <x-painel.pessoas.list :pessoas="$pessoas" />
+            <x-painel.tipos-avaliacao.list />
         </div>
     </div>
 @endsection

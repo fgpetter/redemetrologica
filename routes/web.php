@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CursoController;
@@ -11,6 +12,10 @@ use App\Http\Controllers\EnderecoController;
 use App\Http\Controllers\AvaliadorController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
+use App\Http\Controllers\AreaAtuacaoController;
+use App\Http\Controllers\ListaMateriaisPadroesController;
+use App\Http\Controllers\ParametrosController;
+use App\Http\Controllers\TiposAvaliacaoController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -46,7 +51,7 @@ Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-sho
 /* Rotas do painel */
 Route::prefix('painel')->middleware('auth')->group(function () {
 
-  Route::get('/', function(){
+  Route::get('/', function () {
     return view('index');
   });
 
@@ -131,5 +136,39 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
   });
 
-});
+  /*Rotas para cadastro de área de atuação*/
+  Route::group(['prefix' => 'area-atuacao'], function () {
+    Route::get('index', [AreaAtuacaoController::class, 'index'])->name('area-atuacao-index');
+    Route::get('insert/{areaAtuacao:uid?}', [AreaAtuacaoController::class, 'insert'])->name('area-atuacao-insert');
+    Route::post('create', [AreaAtuacaoController::class, 'create'])->name('area-atuacao-create');
+    Route::post('update/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'update'])->name('area-atuacao-update');
+    Route::post('delete/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'delete'])->name('area-atuacao-delete');
+  });
 
+  /*Rotas para cadastro de lista de materiais/padrões*/
+  Route::group(['prefix' => 'lista-materiais-padroes'], function () {
+    Route::get('index', [ListaMateriaisPadroesController::class, 'index'])->name('lista-materiais-padroes-index');
+    Route::get('insert/{listaMateriaisPadroes:uid?}', [ListaMateriaisPadroesController::class, 'insert'])->name('lista-materiais-padroes-insert');
+    Route::post('create', [ListaMateriaisPadroesController::class, 'create'])->name('lista-materiais-padroes-create');
+    Route::post('update/{listaMateriaisPadroes:uid}', [ListaMateriaisPadroesController::class, 'update'])->name('lista-materiais-padroes-update');
+    Route::post('delete/{listaMateriaisPadroes:uid}', [ListaMateriaisPadroesController::class, 'delete'])->name('lista-materiais-padroes-delete');
+  });
+
+  /*Rotas para cadastro de parâmetros*/
+  Route::group(['prefix' => 'parametros'], function () {
+    Route::get('index', [ParametrosController::class, 'index'])->name('parametros-index');
+    Route::get('insert/{parametro:uid?}', [ParametrosController::class, 'insert'])->name('parametro-insert');
+    Route::post('create', [ParametrosController::class, 'create'])->name('parametro-create');
+    Route::post('update/{parametro:uid}', [ParametrosController::class, 'update'])->name('parametro-update');
+    Route::post('delete/{parametro:uid}', [ParametrosController::class, 'delete'])->name('parametro-delete');
+  });
+
+  /*Rotas para cadastro de tipos de avaliação*/
+  Route::group(['prefix' => 'tipos-avaliacao'], function () {
+    Route::get('index', [TiposAvaliacaoController::class, 'index'])->name('tipos-avaliacao-index');
+    Route::get('insert/{tipoAvaliacao:uid?}', [TiposAvaliacaoController::class, 'insert'])->name('tipo-avaliacao-insert');
+    Route::post('create', [TiposAvaliacaoController::class, 'create'])->name('tipo-avaliacao-create');
+    Route::post('update/{tipoAvaliacao:uid}', [TiposAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
+    Route::post('delete/{tipoAvaliacao:uid}', [TiposAvaliacaoController::class, 'delete'])->name('tipo-avaliacao-delete');
+  });
+});
