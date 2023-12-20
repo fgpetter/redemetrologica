@@ -91,9 +91,11 @@ class PostController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    dd($request->thumb);
 
-    $request->validate([
+    // limpa a session
+    session()->forget('tempPastas');
+    $request->validate(
+      [
         'titulo' => ['required', 'string', 'max:255'],
         'conteudo' => ['required_if:tipo,noticia', 'string'],
         'thumb' => ['required_if:tipo,galeria', 'image', 'mimes:jpg,png,jpeg'],
@@ -111,18 +113,41 @@ class PostController extends Controller
       ]
     );
 
-    if(Post::where('slug', Str::slug($request->get('titulo'), '-'))){
+
+
+    if (Post::where('slug', Str::slug($request->get('titulo'), '-'))->exists()) {
       return redirect()->back()->withInput()->with('error', 'Outro post com esse título já existe');
     }
 
     if ($request->hasFile('thumb')) { //thumb
-      foreach($request->thumb as $image) {
-        $originName = $request->file('thumb')->getClientOriginalName();
+      $originName = $request->file('thumb')->getClientOriginalName();
+      $fileName = pathinfo($originName, PATHINFO_FILENAME);
+      $fileName = str_replace(' ', '-', $fileName);
+      $extension = $request->file('thumb')->getClientOriginalExtension();
+      $fileName = $fileName . '_' . time() . '.' . $extension;
+      $request->file('thumb')->move(public_path('post-media'), $fileName);
+
+      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+      $img = Image::make(public_path('post-media/' . $fileName));
+      if ($img->height() > 750) {
+        $img->resize(null, 750, function ($constraint) {
+          $constraint->aspectRatio();
+        });
+      }
+      $img->encode('jpg', 75);
+      $img->save(public_path('post-media/' . $fileName));
+
+      $image = 'post-media/' . $fileName;
+    }
+    // fotos galeria
+    if ($request->hasFile('imagens')) {
+      foreach ($request->file('imagens') as $file) {
+        $originName = $file->getClientOriginalName();
         $fileName = pathinfo($originName, PATHINFO_FILENAME);
         $fileName = str_replace(' ', '-', $fileName);
-        $extension = $request->file('thumb')->getClientOriginalExtension();
+        $extension = $file->getClientOriginalExtension();
         $fileName = $fileName . '_' . time() . '.' . $extension;
-        $request->file('thumb')->move(public_path('post-media'), $fileName);
+        $file->move(public_path('post-media'), $fileName);
 
         // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
         $img = Image::make(public_path('post-media/' . $fileName));
@@ -134,9 +159,18 @@ class PostController extends Controller
         $img->encode('jpg', 75);
         $img->save(public_path('post-media/' . $fileName));
 
-        $image = 'post-media/' . $fileName;
+        $imagePath = 'post-media/' . $fileName;
+
+        // Adicione o caminho da imagem na tabela de postmedia
+        $postMedia = PostMedia::create([
+          'slug_post' => Str::slug($request->get('titulo'), '-'),
+          'caminho_media' => $imagePath,
+        ]);
+        $postMedia->save();
       }
     }
+    // fotos galeria
+
     if (session()->has('tempPastas')) {
       $tempPastas = session()->get('tempPastas');
       $conteudo = $request->get('conteudo');
@@ -211,7 +245,10 @@ class PostController extends Controller
    **/
   public function galeriaInsert(Post $post): View
   {
-    return view('painel.post.insert', ['post' => $post, 'tipo' => 'galeria']);
+    // Carrega as informações de PostMedia que correspondem ao slug_post
+    $postMedia = PostMedia::where('slug_post', $post->slug)->get();
+
+    return view('painel.post.insert', ['post' => $post, 'postMedia' => $postMedia, 'tipo' => 'galeria']);
   }
 
 
@@ -243,7 +280,7 @@ class PostController extends Controller
       ]
     );
 
-    if( $request->get('titulo') != $post->titulo && Post::where('slug', Str::slug($request->get('titulo'), '-'))){
+    if ($request->get('titulo') != $post->titulo && Post::where('slug', Str::slug($request->get('titulo'), '-'))) {
       return redirect()->back()->withInput()->with('error', 'Outro post com esse título já existe');
     }
 
@@ -350,14 +387,14 @@ class PostController extends Controller
    **/
   public function thumbDelete(Post $post): RedirectResponse
   {
-      // deleta arquivo anterior
-      if (File::exists(public_path($post->thumb))) {
-          File::delete(public_path($post->thumb));
-      }
+    // deleta arquivo anterior
+    if (File::exists(public_path($post->thumb))) {
+      File::delete(public_path($post->thumb));
+    }
 
-      $post->update(['thumb' => null]);
+    $post->update(['thumb' => null]);
 
-      return redirect()->back()->with('update-success', 'thumb removido');
+    return redirect()->back()->with('update-success', 'thumb removido');
   }
 
   /**
