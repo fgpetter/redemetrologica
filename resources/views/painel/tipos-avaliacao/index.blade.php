@@ -1,20 +1,20 @@
 @extends('layouts.master')
 @section('title')
-    Listagem de áreas de atuação
+    Listagem de tipos de avaliação
 @endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
-            Áreas de atuação
+            tipos de avaliação
         @endslot
         @slot('title')
-            Listagem de áreas de atuação
+            Listagem de tipos de avaliação
         @endslot
     @endcomponent
 
     <div class="row">
         <div class="col">
-            <x-painel.areas-atuacao.list />
+            <x-painel.tipos-avaliacao.list />
         </div>
     </div>
 @endsection

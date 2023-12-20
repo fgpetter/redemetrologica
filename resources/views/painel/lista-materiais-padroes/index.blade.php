@@ -1,20 +1,20 @@
 @extends('layouts.master')
 @section('title')
-    Listagem de áreas de atuação
+    Listagem de materiais padrões
 @endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
-            Áreas de atuação
+            materiais padrões
         @endslot
         @slot('title')
-            Listagem de áreas de atuação
+            Listagem de materiais padrões
         @endslot
     @endcomponent
 
     <div class="row">
         <div class="col">
-            <x-painel.areas-atuacao.list />
+            <x-painel.lista-materiais-padroes.list />
         </div>
     </div>
 @endsection

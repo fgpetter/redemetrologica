@@ -1,20 +1,20 @@
 @extends('layouts.master')
 @section('title')
-    Listagem de áreas de atuação
+    Listagem de parâmetros
 @endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
-            Áreas de atuação
+            parâmetros
         @endslot
         @slot('title')
-            Listagem de áreas de atuação
+            Listagem de parâmetros
         @endslot
     @endcomponent
 
     <div class="row">
         <div class="col">
-            <x-painel.areas-atuacao.list />
+            <x-painel.parametros.list />
         </div>
     </div>
 @endsection
