@@ -91,14 +91,15 @@ class PostController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
+    if (!$request->has('thumb')) {
+      $request->merge(['thumb' => null]);
+    }
 
-    // limpa a session
-    session()->forget('tempPastas');
     $request->validate(
       [
         'titulo' => ['required', 'string', 'max:255'],
         'conteudo' => ['required_if:tipo,noticia', 'string'],
-        'thumb' => ['required_if:tipo,galeria', 'image', 'mimes:jpg,png,jpeg'],
+        'thumb' => ['required',  'sometimes:string', 'sometimes:image', 'sometimes:mimes:jpg,png,jpeg'],
         'data_publicacao' => ['required', 'date'],
       ],
       [
@@ -137,7 +138,7 @@ class PostController extends Controller
       $img->encode('jpg', 75);
       $img->save(public_path('post-media/' . $fileName));
 
-      $image = 'post-media/' . $fileName;
+      $image = $fileName;
     }
     // fotos galeria
     if ($request->hasFile('imagens')) {
@@ -159,14 +160,13 @@ class PostController extends Controller
         $img->encode('jpg', 75);
         $img->save(public_path('post-media/' . $fileName));
 
-        $imagePath = 'post-media/' . $fileName;
+        $imagePath =  $fileName;
 
         // Adicione o caminho da imagem na tabela de postmedia
         $postMedia = PostMedia::create([
           'slug_post' => Str::slug($request->get('titulo'), '-'),
           'caminho_media' => $imagePath,
         ]);
-        $postMedia->save();
       }
     }
     // fotos galeria
@@ -197,6 +197,7 @@ class PostController extends Controller
               'slug_post' => Str::slug($request->get('titulo'), '-'),
               'caminho_media' => $file->getFilename(),
             ]);
+
             $postMedia->save();
           }
         }
@@ -234,7 +235,8 @@ class PostController extends Controller
    **/
   public function noticiaInsert(Post $post): View
   {
-    return view('painel.post.insert', ['post' => $post, 'tipo' => 'noticia']);
+    $postMedia = PostMedia::where('slug_post', $post->slug)->get();
+    return view('painel.post.insert', ['post' => $post, 'postMedia' => $postMedia,  'tipo' => 'noticia']);
   }
 
   /**
@@ -245,9 +247,7 @@ class PostController extends Controller
    **/
   public function galeriaInsert(Post $post): View
   {
-    // Carrega as informações de PostMedia que correspondem ao slug_post
     $postMedia = PostMedia::where('slug_post', $post->slug)->get();
-
     return view('painel.post.insert', ['post' => $post, 'postMedia' => $postMedia, 'tipo' => 'galeria']);
   }
 
@@ -261,11 +261,16 @@ class PostController extends Controller
    **/
   public function update(Request $request, Post $post): RedirectResponse
   {
+    if (!$request->has('thumb')) {
+      $request->merge(['thumb' => null]);
+    }
+
+
     $request->validate(
       [
         'titulo' => ['required', 'string', 'max:255'],
         'conteudo' => ['required_if:tipo,noticia', 'string'],
-        'thumb' => ['required_if:tipo,galeria', 'image', 'mimes:jpg,png,jpeg'],
+        'thumb' => ['required',  'sometimes:string', 'sometimes:image', 'sometimes:mimes:jpg,png,jpeg'],
         'data_publicacao' => ['required', 'date'],
       ],
       [
@@ -280,9 +285,14 @@ class PostController extends Controller
       ]
     );
 
-    if ($request->get('titulo') != $post->titulo && Post::where('slug', Str::slug($request->get('titulo'), '-'))) {
-      return redirect()->back()->withInput()->with('error', 'Outro post com esse título já existe');
+    //verifica no update se o titulo foi alterado para um que já exista na base.
+    if ($post->slug != Str::slug($request->get('titulo'), '-')) {
+      if (Post::where('slug', Str::slug($request->get('titulo'), '-'))->exists()) {
+        return redirect()->back()->withInput()->with('error', 'Outro post com esse título já existe');
+      }
     }
+
+
 
     if ($request->hasFile('thumb')) {
       $originName = $request->file('thumb')->getClientOriginalName();
@@ -302,15 +312,49 @@ class PostController extends Controller
       $img->encode('jpg', 75);
       $img->save(public_path('post-media/' . $fileName));
 
-      $image = 'post-media/' . $fileName;
+      $image = $fileName;
 
       // deleta arquivo anterior
-      if (File::exists(public_path($post->thumb))) {
-        File::delete(public_path($post->thumb));
+      if (File::exists(public_path('post-media/' . $post->thumb))) {
+        File::delete(public_path('post-media/' . $post->thumb));
       }
     } else {
       $image = $post->thumb;
     }
+
+    // fotos galeria
+    if ($request->hasFile('imagens')) {
+      foreach ($request->file('imagens') as $file) {
+        $originName = $file->getClientOriginalName();
+        $fileName = pathinfo($originName, PATHINFO_FILENAME);
+        $fileName = str_replace(' ', '-', $fileName);
+        $extension = $file->getClientOriginalExtension();
+        $fileName = $fileName . '_' . time() . '.' . $extension;
+        $file->move(public_path('post-media'), $fileName);
+
+        // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+        $img = Image::make(public_path('post-media/' . $fileName));
+        if ($img->height() > 750) {
+          $img->resize(null, 750, function ($constraint) {
+            $constraint->aspectRatio();
+          });
+        }
+        $img->encode('jpg', 75);
+        $img->save(public_path('post-media/' . $fileName));
+
+        $imagePath =  $fileName;
+
+
+        // Adicione o caminho da imagem na tabela de postmedia
+        $postMedia = PostMedia::create([
+          'slug_post' => Str::slug($request->get('titulo'), '-'),
+          'caminho_media' => $imagePath,
+
+        ]);
+      }
+    }
+    // fotos galeria
+
     if (session()->has('tempPastas')) {
       $tempPastas = session()->get('tempPastas');
       $conteudo = $request->get('conteudo');
@@ -342,6 +386,7 @@ class PostController extends Controller
       // limpa a session
       session()->forget('tempPastas');
     }
+
     $post->update([
       'titulo' => $request->get('titulo'),
       'slug' => Str::slug($request->get('titulo'), '-'),
@@ -357,19 +402,41 @@ class PostController extends Controller
     //     e em seguida deletar o registro do arquivo na $postMedia
 
     // todos os caminho_media relacionados a este post
-    $postMediaItems = PostMedia::where('slug_post', $post->slug)->get();
-    foreach ($postMediaItems as $postMediaItem) {
-      // procura se tem dentro do conteudo
-      if (strpos($post->conteudo, $postMediaItem->caminho_media) === false) {
-        // deleta o arquivo do diretório
-        $fileToDelete = public_path('post-media/' . $postMediaItem->caminho_media);
-        if (File::exists($fileToDelete)) {
-          File::delete($fileToDelete);
+    if ($post->tipo == 'noticia') {
+      $postMediaItems = PostMedia::where('slug_post', $post->slug)->get();
+      foreach ($postMediaItems as $postMediaItem) {
+        // procura se tem dentro do conteudo
+        if (strpos($post->conteudo, $postMediaItem->caminho_media) === false) {
+          // deleta o arquivo do diretório
+          $fileToDelete = public_path('post-media/' . $postMediaItem->caminho_media);
+          if (File::exists($fileToDelete)) {
+            File::delete($fileToDelete);
+          }
+          // deleta o registro da tabela post_media
+          $postMediaItem->delete();
         }
-        // deleta o registro da tabela post_media
-        $postMediaItem->delete();
       }
     }
+    //deleta fotos que foram descartados no update da galeria e adicionados a listanegra
+    if ($request->has('deleteList')) {
+      $deleteList = explode(',', $request->input('deleteList'));
+      foreach ($deleteList as $id) {
+        // Recupera o registro PostMedia pelo id
+        $postMediaItem = PostMedia::find($id);
+
+        if ($postMediaItem) {
+          // Deleta o arquivo do diretório
+          $fileToDelete = public_path('post-media/' . $postMediaItem->caminho_media);
+          if (File::exists($fileToDelete)) {
+            File::delete($fileToDelete);
+          }
+
+          // Deleta o registro da tabela post_media
+          $postMediaItem->delete();
+        }
+      }
+    }
+
     if (!$post) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
@@ -407,8 +474,8 @@ class PostController extends Controller
   public function delete(Request $request, Post $post, PostMedia $postMedia): RedirectResponse
   {
     //deleta a thumb
-    if (File::exists(public_path($post->thumb))) {
-      File::delete(public_path($post->thumb));
+    if (File::exists(public_path('post-media/' . $post->thumb))) {
+      File::delete(public_path('post-media/' . $post->thumb));
     }
     // todos os caminho_media relacionados a este post
     $postMediaItems = PostMedia::where('slug_post', $post->slug)->get();
@@ -424,7 +491,12 @@ class PostController extends Controller
     }
     $post->delete();
 
-    return redirect()->route('noticia-index')->with('update-success', 'Post removido');;
+
+
+    if ($post->tipo == 'noticia') {
+      return redirect()->route('noticia-index')->with('update-success', 'Noticia adicionada');
+    }
+    return redirect()->route('galeria-index')->with('update-success', 'Galeria adicionada');
   }
 
   /**

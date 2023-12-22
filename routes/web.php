@@ -10,12 +10,13 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\EnderecoController;
 use App\Http\Controllers\AvaliadorController;
+use App\Http\Controllers\PostMediaController;
+use App\Http\Controllers\ParametrosController;
+use App\Http\Controllers\AreaAtuacaoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
-use App\Http\Controllers\AreaAtuacaoController;
-use App\Http\Controllers\ListaMateriaisPadroesController;
-use App\Http\Controllers\ParametrosController;
 use App\Http\Controllers\TiposAvaliacaoController;
+use App\Http\Controllers\ListaMateriaisPadroesController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -134,6 +135,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
     Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
     Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
+
+    Route::delete('post-media/{id}', [PostMediaController::class, 'destroy'])->name('post-media.destroy'); //apaga postMedia
+
+
   });
 
   /*Rotas para cadastro de área de atuação*/
