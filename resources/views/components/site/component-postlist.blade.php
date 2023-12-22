@@ -9,7 +9,7 @@
                         <div class="card mb-3" style="max-width: 940px;">
                             <div class="row g-0">
                                 <div class="col-md-4">
-                                    <img src="{{ asset($post->thumb) }}" class="card-img" alt="...">
+                                    <img src="{{ asset('post-media/' . $post->thumb) }}" class="card-img" alt="...">
                                 </div>
                                 <div class="col-md-8">
                                     <div class="card-body h-100">

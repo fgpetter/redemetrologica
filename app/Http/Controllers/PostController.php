@@ -553,11 +553,13 @@ class PostController extends Controller
   /**
    * mostra pagina da slug da noticia/galeria no site
    *
+   
    * @return View
    **/
   public function show($slug)
   {
+    $postMedia = PostMedia::where('slug_post', $slug)->get();
     $post = Post::where('slug', $slug)->firstOrFail();
-    return view('site.pages.slug-da-noticia', ['post' => $post]);
+    return view('site.pages.slug-da-noticia', ['post' => $post, 'postMedia' => $postMedia]);
   }
 }

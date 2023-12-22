@@ -1,24 +1,30 @@
-<div class="container ">
-    <div class="row  justify-content-center align-items-center">
-        <div class="col-md-10  shadow-lg border-1">
-            {{-- noticia --}}
-            <div class="container  d-flex justify-content-center align-items-center my-3">
-                <img src="{{ asset('post-media/' . $post->thumb) }}" class="img-fluid rounded" alt="...">
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-10 shadow-lg border-1">
+            <!-- imagem principal -->
+            <div class="container d-flex justify-content-center align-items-center my-3">
+                <img id="mainImage" src="{{ asset('post-media/' . $post->thumb) }}" class="img-fluid rounded"
+                    alt="...">
             </div>
             <div class="container">
-                <div class="row d-flex  justify-content-center align-items-center text-center">
-                    <div class="col">
-                        <h1>{{ $post->titulo }}</h1>
-                        @if ($post->tipo == 'noticia')
-                            <div>{!! $post->conteudo !!}</div>
-                        @endif
-
-                    </div>
+                <div class="row">
+                    @foreach ($postMedia as $media)
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card border m-2" style="width: 11rem; height: 11rem"
+                                id="card-{{ $media->id }}">
+                                <div class="card-body"
+                                    style="background-image: url('{{ asset('post-media/' . $media->caminho_media) }}'); background-size: cover; cursor: pointer;"
+                                    onclick="changeImage('{{ asset('post-media/' . $media->caminho_media) }}')">
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <div class="container">
     <div class="row justify-content-center align-items-center">
         <div class="col-md-10">
@@ -48,4 +54,8 @@
         </div>
     </div>
 </div>
-{{-- noticia --}}
+<script>
+    function changeImage(src) {
+        document.getElementById('mainImage').src = src;
+    }
+</script>
