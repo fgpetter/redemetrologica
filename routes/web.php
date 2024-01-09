@@ -23,7 +23,7 @@ Auth::routes();
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
 
 /* Rotas estáticas */
-Route::view('home', 'site.pages.site');
+Route::get('home', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
 Route::view('noticias', 'site.pages.noticias');
 Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
