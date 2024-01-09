@@ -24,7 +24,7 @@
                                     <p class="text-end "><i class="bi bi-calendar2-event"></i>
                                         {{ $galeria->data_publicacao }}<span
                                             style="font-family: &quot;Archivo Black&quot;;"></span> </p>
-                                    <a href="{{ route('noticia-show', ['slug' => $galeria->slug]) }}"
+                                    <a id="invisivel" href="{{ route('noticia-show', ['slug' => $galeria->slug]) }}"
                                         class="text-start text-white bold">Visualizar <i
                                             class="fa-solid fa-circle-chevron-right"></i></a>
                                 </div>

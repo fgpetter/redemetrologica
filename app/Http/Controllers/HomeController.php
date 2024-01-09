@@ -42,6 +42,7 @@ class HomeController extends Controller
             ->where('data_publicacao', '<=', $DataAtual)
             ->where('rascunho', 0)
             ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
+            ->take(4) // Pegar apenas os últimos 4 registros
             ->get();
         foreach ($galerias as $galeria) {
             // Trata a data
@@ -51,6 +52,7 @@ class HomeController extends Controller
             ->where('data_publicacao', '<=', $DataAtual)
             ->where('rascunho', 0)
             ->orderBy('data_publicacao', 'desc') //ordenar por data_publicacao
+            ->take(4) // Pegar apenas os últimos 4 registros
             ->get();
         foreach ($noticias as $noticia) {
             // Remove todas as tags de imagem
@@ -65,8 +67,9 @@ class HomeController extends Controller
             // Trata a data
             $noticia->data_publicacao = \Carbon\Carbon::parse($noticia->data_publicacao)->format('d/m/Y');
         }
-        return view('site.pages.site', ['galerias' => $galerias], ['noticias' => $noticias]);
+        return view('site.pages.site', ['galerias' => $galerias, 'noticias' => $noticias]);
     }
+
 
     /*Language Translation*/
     public function lang($locale)
