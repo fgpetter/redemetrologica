@@ -33,7 +33,7 @@
                             @endif
                         </div>
                     </div>
-                    <div class="col-md-6 ">
+                    {{-- <div class="col-md-6 ">
                         <div class="  d-flex justify-content-end ">
                             <a href="#" class="card-text mx-3 "><small class="text-muted">Share</small>
                                 <i class="bi bi-facebook"></i>
@@ -42,7 +42,7 @@
                                 <i class="bi bi-twitter"></i>
                             </a>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
