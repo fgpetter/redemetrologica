@@ -1,5 +1,5 @@
 <!-- galera de fotos -->
-<div class="container-fluid mt-5 pt-5">
+<div class="container-fluid mt-3 pt-3">
     <div class=" position-relative container-fluid  text-center row  py-5">
         <div class="col-12 SiteTitulo d-flex align-items-center justify-content-center ">
             <h1 class=" ">GALERIA FOTOS</h1>
@@ -9,14 +9,13 @@
         </div>
     </div>
 
-
-
     <div class=" container d-flex  justify-content-around">
+
 
         <div class="row justify-content-around">
             @foreach ($galerias as $galeria)
                 <div class="col-sm-12 col-md-6 col-lg-3 mb-3">
-                    <div class="  " style="width: 18rem; height: 13rem;">
+                    <div class="  " style="width: 19rem; height: 13rem;">
                         <div class="SiteCards__bgimage  text-white d-grid"
                             style="background-image: url('{{ asset('post-media/' . $galeria->thumb) }}');">
                             <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
