@@ -9,32 +9,32 @@
          </div>
      </div>
 
-     <div class="container-fluid pb-5 mb-5" style=" height: 300px">
+     <div class="container pb-5 mb-5">
 
-         <div class="container-sm">
-             <div class="row justify-content-around">
-                 @foreach ($noticias as $noticia)
-                     <div class="col-sm-12 col-md-6 col-lg-3 mb-3">
-                         <div class="card hover-shadow" style="width: 18rem;">
+
+         <div class="row justify-content-around">
+             @foreach ($noticias as $noticia)
+                 <div class="col-sm-12 col-md-6 col-lg-3 mb-3">
+                     <div class="card hover-shadow" style="width: 18rem;">
+                         <a href="{{ route('noticia-show', ['slug' => $noticia->slug]) }}">
+                             <img src="{{ asset('post-media/' . $noticia->thumb) }}" class="card-img-top"
+                                 style="height: 200px; width: 100%; object-fit: cover;" alt="...">
+                         </a>
+                         <div class="card-body">
                              <a href="{{ route('noticia-show', ['slug' => $noticia->slug]) }}">
-                                 <img src="{{ asset('post-media/' . $noticia->thumb) }}" class="card-img-top"
-                                     style="height: 200px; width: 100%; object-fit: cover;" alt="...">
+                                 <p class="bold h5">{{ $noticia->titulo }}</p>
                              </a>
-                             <div class="card-body">
-                                 <a href="{{ route('noticia-show', ['slug' => $noticia->slug]) }}">
-                                     <p class="bold h5">{{ $noticia->titulo }}</p>
-                                 </a>
-                                 <p class="opacity-50"><i class="bi bi-calendar-event"></i>
-                                     {{ $noticia->data_publicacao }}
-                                 </p>
-                                 <p class="opacity-50">{{ $noticia->conteudo }}</p>
-                                 <a href="{{ route('noticia-show', ['slug' => $noticia->slug]) }}"
-                                     class="text-black">Ler Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
-                             </div>
+                             <p class="opacity-50"><i class="bi bi-calendar-event"></i>
+                                 {{ $noticia->data_publicacao }}
+                             </p>
+                             <p class="opacity-50">{{ $noticia->conteudo }}</p>
+                             <a href="{{ route('noticia-show', ['slug' => $noticia->slug]) }}" class="text-black">Ler
+                                 Mais <i class="fa-solid fa-circle-chevron-right"></i></a>
                          </div>
                      </div>
-                 @endforeach
-             </div>
+                 </div>
+             @endforeach
+
          </div>
 
 

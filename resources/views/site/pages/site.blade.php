@@ -207,8 +207,6 @@
     </div>
     <!-- destaques -->
 
-
-
     <x-site.component-listanoticias :noticias="$noticias" :galerias="$galerias" />
 
     <x-site.component-listagalerias :noticias="$noticias" :galerias="$galerias" />
