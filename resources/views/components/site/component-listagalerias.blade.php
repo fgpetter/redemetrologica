@@ -35,7 +35,16 @@
             @endforeach
         </div>
     </div>
-
+    <div class="container">
+        <div class="row justify-content-end align-items-end">
+            <div class="col text-end">
+                <a href="galerias" class="text-secondary small">
+                    <i class="fas fa-arrow-right"></i>
+                    Ver mais
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- galeria de fotos -->
