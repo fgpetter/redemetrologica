@@ -26,37 +26,53 @@
             <div class="row gy-3">
               <input type="hidden" name="tipo_pessoa" value="PF">
               <div class="col-12">
-                <label class="form-label">Nome Completo<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
-                <input type="text" class="form-control" name="nome_razao" 
-                  value="{{ old('nome_razao') ?? $pessoa->nome_razao ?? null }}">
+                <x-forms.input-field 
+                  name="nome_razao" 
+                  required='required'
+                  :value="old('nome_razao') ?? $pessoa->nome_razao ?? null"
+                >
+                  <x-slot:label>
+                    Nome Completo
+                    <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                  </x-slot:label>
+                </x-forms.input-field>
                 @error('nome_razao') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
   
               <div class="col-6">
-                <label class="form-label">CPF<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
-                <input type="text" class="form-control" name="cpf_cnpj" id="input-cpf" 
-                  value="{{ old('cpf_cnpj') ?? $pessoa->cpf_cnpj ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('cpf_cnpj') ?? $pessoa->cpf_cnpj ?? null" 
+                  name="cpf_cnpj" required='required' id="input-cpf"
+                >
+                  <x-slot:label>
+                    CPF
+                    <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                  </x-slot:label>
+                </x-forms.input-field>
                 @error('cpf_cnpj') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
       
               <div class="col-6">
-                <label class="form-label">RG</label>
-                <input type="number" class="form-control" name="rg_ie" 
-                  value="{{ old('rg_ie') ?? $pessoa->rg_ie ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('rg_ie') ?? $pessoa->rg_ie ?? null" 
+                  type="number" name="rg_ie" required='required' label="RG"
+                />
                 @error('rg_ie') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
       
               <div class="col-6">
-                <label class="form-label">Telefone</label>
-                <input type="text" class="form-control" name="telefone" id="telefone" 
-                  value="{{ old('telefone') ?? $pessoa->telefone ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('telefone') ?? $pessoa->telefone ?? null" 
+                  name="telefone" class="telefone" label="Telefone"
+                />
                 @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
   
               <div class="col-6">
-                <label class="form-label">Email</label>
-                <input type="text" class="form-control" name="email" id="email" 
-                  value="{{ old('email') ?? $pessoa->email ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('email') ?? $pessoa->email ?? null" 
+                  type="email" name="email" id="email" label="Email"
+                />
                 @error('email') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
 
@@ -80,58 +96,76 @@
             <div class="row gy-3">
               <input type="hidden" name="tipo_pessoa" value="PJ">
               <div class="col-12">
-                <label class="form-label">Razão Social<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
-                <input type="text" class="form-control" name="nome_razao" 
-                  value="{{ old('nome_razao') ?? $pessoa->nome_razao ?? null }}">
+                <x-forms.input-field 
+                  :value="old('nome_razao') ?? $pessoa->nome_razao ?? null" 
+                  name="nome_razao" required='required' :uppercase="true"
+                >
+                  <x-slot:label>
+                    Razão Social
+                    <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                  </x-slot:label>
+                </x-forms.input-field>
                 @error('nome_razao') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
       
               <div class="col-12">
-                <label class="form-label">Nome Fantasia </label>
-                <input type="text" class="form-control" name="nome_fantasia" 
-                  value="{{ old('nome_fantasia') ?? $pessoa->nome_fantasia ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('nome_fantasia') ?? $pessoa->nome_fantasia ?? null" 
+                  name="nome_fantasia" label="Nome Fantasia" :uppercase="true"
+                />
                 @error('nome_fantasia') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
       
               <div class="col-6">
-                <label class="form-label">CNPJ<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
-                <input type="text" class="form-control" name="cpf_cnpj" id="input-cnpj" 
-                  value="{{ old('cpf_cnpj') ?? $pessoa->cpf_cnpj ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('cpf_cnpj') ?? $pessoa->cpf_cnpj ?? null" 
+                  name="cpf_cnpj" required='required' id="input-cnpj"
+                >
+                  <x-slot:label>
+                    CNPJ
+                    <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                  </x-slot:label>
+                </x-forms.input-field>
                 @error('cpf_cnpj') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
   
               <div class="col-6">
-                <label class="form-label">Inscrição estadual</label>
-                <input type="number" class="form-control" name="rg_ie" 
-                  value="{{ old('rg_ie') ?? $pessoa->rg_ie ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('rg_ie') ?? $pessoa->rg_ie ?? null" 
+                  type="number" name="rg_ie" label="Inscrição estadual"
+                />
                 @error('rg_ie') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
       
               <div class="col-6">
-                <label class="form-label">Inscrição Municipal</label>
-                <input type="number" class="form-control" name="insc_municipal" id="insc_municipal" 
-                  value="{{ old('insc_municipal') ?? $pessoa->insc_municipal ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('insc_municipal') ?? $pessoa->insc_municipal ?? null" 
+                  type="number" name="insc_municipal" label="Inscrição Municipal"
+                />
                 @error('insc_municipal') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
   
               <div class="col-6">
-                <label class="form-label">Telefone</label>
-                <input type="text" class="form-control" name="telefone" id="telefone2" 
-                  value="{{ old('telefone') ?? $pessoa->telefone ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('telefone') ?? $pessoa->telefone ?? null" 
+                  name="telefone" label="Telefone" class="telefone"
+                />
                 @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
   
               <div class="col-6">
-                <label class="form-label">Email</label>
-                <input type="text" class="form-control" name="email" id="email" 
-                  value="{{ old('email') ?? $pessoa->email ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('email') ?? $pessoa->email ?? null" 
+                  type="email" name="email" label="Email"
+                />
                 @error('email') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
   
               <div class="col-6">
-                <label class="form-label">Código Contábil</label>
-                <input type="text" class="form-control" name="codigo_contabil" 
-                  value="{{ old('codigo_contabil') ?? $pessoa->codigo_contabil ?? null }}" >
+                <x-forms.input-field 
+                  :value="old('codigo_contabil') ?? $pessoa->codigo_contabil ?? null" 
+                  type="codigo_contabil" name="codigo_contabil" label="Código Contábil"
+                />
                 @error('codigo_contabil') <div class="text-warning">{{ $message }}</div> @enderror 
               </div>
 
