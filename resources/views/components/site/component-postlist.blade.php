@@ -9,11 +9,16 @@
                         <div class="card mb-3" style="max-width: 940px;">
                             <div class="row g-0">
                                 <div class="col-md-4">
-                                    <img src="{{ asset('post-media/' . $post->thumb) }}" class="card-img" alt="...">
+                                    <a href="{{ route('noticia-show', ['slug' => $post->slug]) }}">
+                                        <img src="{{ asset('post-media/' . $post->thumb) }}" class="card-img"
+                                            alt="...">
+                                    </a>
                                 </div>
                                 <div class="col-md-8">
                                     <div class="card-body h-100">
-                                        <h3 class="card-title">{{ $post->titulo }}</h3>
+                                        <a href="{{ route('noticia-show', ['slug' => $post->slug]) }}">
+                                            <h3 class="card-title">{{ $post->titulo }}</h3>
+                                        </a>
                                         @if ($post->tipo != 'galeria')
                                             <p class="card-text">{!! $post->conteudo !!}</p>
                                         @endif
@@ -24,14 +29,14 @@
                                                 class="card-text align-self-end"><small class="text-muted">Ver
                                                     mais</small> <i class="bi bi-arrow-right-circle-fill"></i></a>
                                         </div>
-                                        <div class="d-flex justify-content-end position-absolute bottom-0 end-0 pe-3">
+                                        {{-- <div class="d-flex justify-content-end position-absolute bottom-0 end-0 pe-3">
                                             <p class="card-text mx-1 "><small class="text-muted">Share</small>
                                                 <i class="bi bi-facebook"></i>
                                             </p>
                                             <p class="card-text "><small class="text-muted">Tweet</small>
                                                 <i class="bi bi-twitter"></i>
                                             </p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             </div>

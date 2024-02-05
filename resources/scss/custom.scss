@@ -70,12 +70,12 @@ transition: color 0.3s ease-in-out;
   transition: height 0.3s ease-in-out; 
 }
 
-.SiteCards--efeito a {
+.SiteCards--efeito a#invisivel {
   opacity: 0;
   transition: opacity 0.3s ease-in-out; 
 }
 
-.SiteCards--efeito:hover a {
+.SiteCards--efeito:hover a#invisivel {
   opacity: 1; 
 }
 
@@ -91,6 +91,8 @@ opacity: 5%;
 font-size: 120px;
 font-weight: 600;
 }
+
+
 
 @media (max-width: 576px ) {
   .SiteTitulo{
