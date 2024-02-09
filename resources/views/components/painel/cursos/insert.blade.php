@@ -1,9 +1,9 @@
 @if (session('error')) <div class="alert alert-danger"> {{ session('error') }} </div> @endif
-@if (session('success')) <div class="alert alert-success"> {{ session('success') }} </div> @endif
+@if (session('curso-success')) <div class="alert alert-success"> {{ session('curso-success') }} </div> @endif
 <div class="card">
   <div class="card-body">
 
-    <form method="POST" action="{{ isset($curso->id) ? route('curso-update', $curso->uid) : route('curso-create') }}">
+    <form method="POST" action="{{ isset($curso->id) ? route('curso-update', $curso->uid) : route('curso-create') }}" enctype="multipart/form-data">
       @csrf
       <div class="row gy-3">
 
@@ -66,6 +66,22 @@
           <label class="form-label">Conteúdo Programático</label>
           <textarea class="form-control" name="conteudo_programatico" id="conteudo_programatico" rows="2">{{ old('conteudo_programatico') ?? $curso->conteudo_programatico ?? null }}</textarea>
           @error('conteudo_programatico') <div class="text-warning">{{ $message }}</div> @enderror 
+        </div>
+
+        <div class="col-12">
+          <label for="folder" class="form-label">Folder
+            <i class="ri-information-fill align-middle" data-bs-toggle="tooltip" data-bs-placement="top" title="Somente imagens e PDF de até 2MB"></i> 
+          </label>
+          <input class="form-control @if ($curso->folder) d-none @endif" name="folder" type="file" id="folder" accept=".jpg,.jpeg,.png,.pdf">
+          @error('folder') <div class="text-warning">{{ $message }}</div> @enderror
+          
+          @if($curso->folder)
+          <div class="col-12">
+            <a href="{{ asset('curso-folder/' . $curso->folder) }}">{{ $curso->folder }}</a>
+            <input class="form-check-input ms-2" type="checkbox" name="deletefolder" id="deletefolder" value="{{$curso->folder}}">
+            <label class="form-check-label">Remover</label>
+          </div>
+          @endif
         </div>
         
         <div class="col-12">

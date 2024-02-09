@@ -6,8 +6,10 @@ use App\Models\Curso;
 use App\Rules\PreventXSS;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rules\File;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\File as FileFacade;
 
 
 class CursoController extends Controller
@@ -31,17 +33,19 @@ class CursoController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $data = $request->validate([
-      'descricao' => ['string', 'max:190'],
-      'tipo_curso' => ['string', 'in:OFICIAL,SUPLENTE,OUTROS'],
-      'carga_horaria' => ['numeric'],
-      'objetivo' => ['string'],
-      'publico_alvo' => ['string'],
-      'pre_requisitos' => ['string'],
-      'exemplos_praticos' => ['string'],
-      'referencias_utilizadas' => ['string'],
-      'conteudo_programatico' => ['string'],
-      'observacoes_internas' => ['string'],
+    $validated = $request->validate([
+      'descricao' => ['nullable', 'string', 'max:190'],
+      'tipo_curso' => ['nullable', 'string', 'in:OFICIAL,SUPLENTE,OUTROS'],
+      'carga_horaria' => ['nullable', 'numeric'],
+      'objetivo' => ['nullable', 'string'],
+      'publico_alvo' => ['nullable', 'string'],
+      'pre_requisitos' => ['nullable', 'string'],
+      'exemplos_praticos' => ['nullable', 'string'],
+      'referencias_utilizadas' => ['nullable', 'string'],
+      'conteudo_programatico' => ['nullable', 'string'],
+      'observacoes_internas' => ['nullable', 'string'],
+      'folder' => ['nullable', File::types(['jpg','jpeg','png','pdf'])->max(2 * 1024)] 
+
       ],[
         'descricao.string' => 'O campo aceita somente texto.',
         'tipo_curso.in' => 'A opção selecionada é inválida',
@@ -52,22 +56,37 @@ class CursoController extends Controller
         'referencias_utilizadas.string' => 'O campo aceita somente texto.',
         'conteudo_programatico.string' => 'O campo aceita somente texto.',
         'observacoes_internas.string' => 'O campo aceita somente texto.',
+        'folder.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'folder.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',  
       ]
     );
+    $validated['uid'] = config('hashing.uid');
 
-    $curso = Curso::create([
-      'uid' => config('hashing.uid'),
-      'descricao' => $data['descricao'],
-      'tipo_curso' => $data['tipo_curso'],
-      'carga_horaria' => $data['carga_horaria'],
-      'objetivo' => $data['objetivo'],
-      'publico_alvo' => $data['publico_alvo'],
-      'pre_requisitos' => $data['pre_requisitos'],
-      'exemplos_praticos' => $data['exemplos_praticos'],
-      'referencias_utilizadas' => $data['referencias_utilizadas'],
-      'conteudo_programatico' => $data['conteudo_programatico'],
-      'observacoes_internas' => $data['observacoes_internas'],
-    ]);
+    if ($request->hasFile('folder')) {
+      $originName = $request->file('folder')->getClientOriginalName();
+      $fileName = pathinfo($originName, PATHINFO_FILENAME);
+      $fileName = str_replace(' ', '-', $fileName);
+      $extension = $request->file('folder')->getClientOriginalExtension();
+      $fileName = $fileName . '_' . time() . '.' . $extension;
+      $request->file('folder')->move(public_path('curso-folder'), $fileName);
+
+      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+      if($extension == 'jpg' || $extension == 'png'){
+        $img = Image::make(public_path('curso-folder/' . $fileName));
+        if ($img->height() > 750) {
+          $img->resize(null, 750, function ($constraint) {
+            $constraint->aspectRatio();
+          });
+        }
+        $img->encode('jpg', 75);
+        $img->save(public_path('curso-folder/' . $fileName));
+      }
+
+      $validated['folder'] = $fileName;
+    }
+
+
+    $curso = Curso::create($validated);
 
     if(!$curso){
       return redirect()->back()
@@ -98,45 +117,73 @@ class CursoController extends Controller
    **/
   public function update(Request $request, Curso $curso): RedirectResponse
   {
-    $data = $request->validate([
-      'descricao' => ['string', 'max:190'],
-      'tipo_curso' => ['string', 'in:OFICIAL,SUPLENTE,OUTROS'],
+    $validated = $request->validate([
+      'descricao' => ['nullable', 'string', 'max:190'],
+      'tipo_curso' => ['nullable', 'string', 'in:OFICIAL,SUPLENTE,OUTROS'],
       'carga_horaria' => ['numeric'],
-      'objetivo' => ['string'],
-      'publico_alvo' => ['string'],
-      'pre_requisitos' => ['string'],
-      'exemplos_praticos' => ['string'],
-      'referencias_utilizadas' => ['string'],
-      'conteudo_programatico' => ['string'],
-      'observacoes_internas' => ['string'],
-      ],[
-        'descricao.string' => 'O campo aceita somente texto.',
-        'tipo_curso.in' => 'A opção selecionada é inválida',
-        'objetivo.string' => 'O campo aceita somente texto.',
-        'publico_alvo.string' => 'O campo aceita somente texto.',
-        'pre_requisitos.string' => 'O campo aceita somente texto.',
-        'exemplos_praticos.string' => 'O campo aceita somente texto.',
-        'referencias_utilizadas.string' => 'O campo aceita somente texto.',
-        'conteudo_programatico.string' => 'O campo aceita somente texto.',
-        'observacoes_internas.string' => 'O campo aceita somente texto.',
+      'objetivo' => ['nullable', 'string'],
+      'publico_alvo' => ['nullable', 'string'],
+      'pre_requisitos' => ['nullable', 'string'],
+      'exemplos_praticos' => ['nullable', 'string'],
+      'referencias_utilizadas' => ['nullable', 'string'],
+      'conteudo_programatico' => ['nullable', 'string'],
+      'observacoes_internas' => ['nullable', 'string'],
+      'folder' => ['nullable', File::types(['jpg','jpeg','png','pdf'])->max(2 * 1024)] 
+    ],[
+      'descricao.string' => 'O campo aceita somente texto.',
+      'tipo_curso.in' => 'A opção selecionada é inválida',
+      'objetivo.string' => 'O campo aceita somente texto.',
+      'publico_alvo.string' => 'O campo aceita somente texto.',
+      'pre_requisitos.string' => 'O campo aceita somente texto.',
+      'exemplos_praticos.string' => 'O campo aceita somente texto.',
+      'referencias_utilizadas.string' => 'O campo aceita somente texto.',
+      'conteudo_programatico.string' => 'O campo aceita somente texto.',
+      'observacoes_internas.string' => 'O campo aceita somente texto.',
+      'folder.types' => 'O tipo de arquivo não é permitido.',
+      'folder.max' => 'O arquivo é muito grande.',
       ]
     );
 
-    $curso->update([
-      'descricao' => $data['descricao'],
-      'tipo_curso' => $data['tipo_curso'],
-      'carga_horaria' => $data['carga_horaria'],
-      'objetivo' => $data['objetivo'],
-      'publico_alvo' => $data['publico_alvo'],
-      'pre_requisitos' => $data['pre_requisitos'],
-      'exemplos_praticos' => $data['exemplos_praticos'],
-      'referencias_utilizadas' => $data['referencias_utilizadas'],
-      'conteudo_programatico' => $data['conteudo_programatico'],
-      'observacoes_internas' => $data['observacoes_internas'],
-    ]);
+    // verifica se o arquivo foi marcado para remoção
+    if ($request->deletefolder){
+      $curso->update([
+        'folder' => null
+      ]);
 
-    return redirect()->route('curso-index')
-      ->with('curso-success', 'Curso cadastrado com sucesso');
+      $fileToDelete = public_path('curso-folder/' . $request->deletefolder);
+      if (FileFacade::exists($fileToDelete)) {
+        FileFacade::delete($fileToDelete);
+      }
+    }
+
+    if ($request->hasFile('folder')) {
+      $originName = $request->file('folder')->getClientOriginalName();
+      $fileName = pathinfo($originName, PATHINFO_FILENAME);
+      $fileName = str_replace(' ', '-', $fileName);
+      $extension = $request->file('folder')->getClientOriginalExtension();
+      $fileName = $fileName . '_' . time() . '.' . $extension;
+      $request->file('folder')->move(public_path('curso-folder'), $fileName);
+
+      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+      if($extension == 'jpg' || $extension == 'png'){
+        $img = Image::make(public_path('curso-folder/' . $fileName));
+        if ($img->height() > 750) {
+          $img->resize(null, 750, function ($constraint) {
+            $constraint->aspectRatio();
+          });
+        }
+        $img->encode('jpg', 75);
+        $img->save(public_path('curso-folder/' . $fileName));
+      }
+
+      $validated['folder'] = $fileName;
+    }
+
+
+    $curso->update($validated);
+
+    return redirect()->back()
+      ->with('curso-success', 'Curso atualizado com sucesso');
 
   }
 
