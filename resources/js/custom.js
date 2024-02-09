@@ -1,4 +1,12 @@
 /**
+ * Init Tooltip
+ */
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+
+
+/**
  * iMasK input
  */
 if(document.querySelector("#input-cnpj")){
@@ -47,3 +55,25 @@ document.querySelectorAll('.input-cep').forEach(el => {
     mask: '00000-000'
   })
 });
+
+window.onload = function(){
+  if (window.jQuery){
+    $('#input-cnpj').mask('00.000.000/0000-00', {reverse: true});
+    $('#input-cpf').mask('000.000.000-00', {reverse: true});
+    $('.money').mask('000.000.000.000.000,00', {reverse: true});
+    $('.cep').mask('00000-000');
+  }
+};
+
+/**
+ * Impede upload de arquivos maiores de 2MB
+ */
+const uploadField = document.getElementById("folder");
+  if (uploadField){
+    uploadField.onchange = function() {
+      if(this.files[0].size > 2200000){
+        alert("Tamanho máximo de arquivo: 2MB");
+        this.value = "";
+      };
+  }
+}
