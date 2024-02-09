@@ -15,8 +15,8 @@ use App\Http\Controllers\ParametrosController;
 use App\Http\Controllers\AreaAtuacaoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
-use App\Http\Controllers\TiposAvaliacaoController;
-use App\Http\Controllers\ListaMateriaisPadroesController;
+use App\Http\Controllers\TipoAvaliacaoController;
+use App\Http\Controllers\MateriaisPadroesController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -152,11 +152,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
   /*Rotas para cadastro de lista de materiais/padrões*/
   Route::group(['prefix' => 'lista-materiais-padroes'], function () {
-    Route::get('index', [ListaMateriaisPadroesController::class, 'index'])->name('lista-materiais-padroes-index');
-    Route::get('insert/{listaMateriaisPadroes:uid?}', [ListaMateriaisPadroesController::class, 'insert'])->name('lista-materiais-padroes-insert');
-    Route::post('create', [ListaMateriaisPadroesController::class, 'create'])->name('lista-materiais-padroes-create');
-    Route::post('update/{listaMateriaisPadroes:uid}', [ListaMateriaisPadroesController::class, 'update'])->name('lista-materiais-padroes-update');
-    Route::post('delete/{listaMateriaisPadroes:uid}', [ListaMateriaisPadroesController::class, 'delete'])->name('lista-materiais-padroes-delete');
+    Route::get('index', [MateriaisPadroesController::class, 'index'])->name('lista-materiais-padroes-index');
+    Route::get('insert/{listaMateriaisPadroes:uid?}', [MateriaisPadroesController::class, 'insert'])->name('lista-materiais-padroes-insert');
+    Route::post('create', [MateriaisPadroesController::class, 'create'])->name('lista-materiais-padroes-create');
+    Route::post('update/{listaMateriaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('lista-materiais-padroes-update');
+    Route::post('delete/{listaMateriaisPadroes:uid}', [MateriaisPadroesController::class, 'delete'])->name('lista-materiais-padroes-delete');
   });
 
   /*Rotas para cadastro de parâmetros*/
@@ -170,10 +170,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
   /*Rotas para cadastro de tipos de avaliação*/
   Route::group(['prefix' => 'tipos-avaliacao'], function () {
-    Route::get('index', [TiposAvaliacaoController::class, 'index'])->name('tipos-avaliacao-index');
-    Route::get('insert/{tipoAvaliacao:uid?}', [TiposAvaliacaoController::class, 'insert'])->name('tipo-avaliacao-insert');
-    Route::post('create', [TiposAvaliacaoController::class, 'create'])->name('tipo-avaliacao-create');
-    Route::post('update/{tipoAvaliacao:uid}', [TiposAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
-    Route::post('delete/{tipoAvaliacao:uid}', [TiposAvaliacaoController::class, 'delete'])->name('tipo-avaliacao-delete');
+    Route::get('index', [TipoAvaliacaoController::class, 'index'])->name('tipos-avaliacao-index');
+    Route::get('insert/{tipoAvaliacao:uid?}', [TipoAvaliacaoController::class, 'insert'])->name('tipo-avaliacao-insert');
+    Route::post('create', [TipoAvaliacaoController::class, 'create'])->name('tipo-avaliacao-create');
+    Route::post('update/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
+    Route::post('delete/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'delete'])->name('tipo-avaliacao-delete');
   });
 });
