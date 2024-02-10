@@ -2,65 +2,76 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Parametro;
 use Illuminate\Http\Request;
 
 class ParametrosController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
+  /**
+   * Display a listing of the resource.
+   */
+  public function index()
+  {
 
-        return view('painel.parametros.index');
-    }
+    return view('painel.parametros.index',['parametros' => Parametro::all() ]);
+  }
 
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+  /**
+   * Store a newly created resource in storage.
+   */
+  public function store(Request $request)
+  {
+    $validated = $request->validate([
+      'descricao' => ['required', 'string'],
+      ],[
+      'descricao.required' => 'Preencha o campo Descrição',
+    
+      ]
+      );
+    
+      $validated['uid'] = config('hashing.uid');
+    
+      $material_padrao = Parametro::create($validated);
+    
+      if(!$material_padrao){
+      return redirect()->back()
+      ->with('parametro-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+      }
+    
+      return redirect()->route('parametros-index')
+      ->with('parametro-success', 'Material Padrão cadastrado com sucesso');
+    
+  }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(Request $request, Parametro $parametro)
+  {
+    $validated = $request->validate([
+      'descricao' => ['required', 'string'],
+      ],[
+      'descricao.required' => 'Preencha o campo Descrição',  
+      ]
+    );  
+  
+    $parametro->update($validated);  
+  
+    return redirect()->route('parametros-index')
+      ->with('parametro-success', 'Material Padrão cadastrado com sucesso');
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+  }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function destroy(Parametro $parametro)
+  {
+    $parametro->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    return redirect()->route('parametros-index')
+    ->with('parametro-success', 'Material Padrão removido com sucesso');
+  }
 }

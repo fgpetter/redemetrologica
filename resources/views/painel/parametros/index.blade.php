@@ -14,12 +14,10 @@
 
     <div class="row">
         <div class="col">
-            <x-painel.parametros.list />
+            <x-painel.parametros.list :parametros="$parametros"/>
         </div>
     </div>
 @endsection
 
 @section('script')
-    <script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
-    <script src="{{ URL::asset('build/js/custom.js') }}"></script>
 @endsection
