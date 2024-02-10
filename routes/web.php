@@ -144,36 +144,32 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /*Rotas para cadastro de área de atuação*/
   Route::group(['prefix' => 'area-atuacao'], function () {
     Route::get('index', [AreaAtuacaoController::class, 'index'])->name('area-atuacao-index');
-    Route::get('insert/{areaAtuacao:uid?}', [AreaAtuacaoController::class, 'insert'])->name('area-atuacao-insert');
-    Route::post('create', [AreaAtuacaoController::class, 'create'])->name('area-atuacao-create');
+    Route::post('store', [AreaAtuacaoController::class, 'store'])->name('area-atuacao-store');
     Route::post('update/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'update'])->name('area-atuacao-update');
-    Route::post('delete/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'delete'])->name('area-atuacao-delete');
+    Route::post('delete/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'destroy'])->name('area-atuacao-delete');
   });
 
   /*Rotas para cadastro de lista de materiais/padrões*/
-  Route::group(['prefix' => 'lista-materiais-padroes'], function () {
-    Route::get('index', [MateriaisPadroesController::class, 'index'])->name('lista-materiais-padroes-index');
-    Route::get('insert/{listaMateriaisPadroes:uid?}', [MateriaisPadroesController::class, 'insert'])->name('lista-materiais-padroes-insert');
-    Route::post('create', [MateriaisPadroesController::class, 'create'])->name('lista-materiais-padroes-create');
-    Route::post('update/{listaMateriaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('lista-materiais-padroes-update');
-    Route::post('delete/{listaMateriaisPadroes:uid}', [MateriaisPadroesController::class, 'delete'])->name('lista-materiais-padroes-delete');
+  Route::group(['prefix' => 'materiais-padroes'], function () {
+    Route::get('index', [MateriaisPadroesController::class, 'index'])->name('materiais-padroes-index');
+    Route::post('store', [MateriaisPadroesController::class, 'store'])->name('materiais-padroes-store');
+    Route::post('update/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('materiais-padroes-update');
+    Route::post('delete/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'destroy'])->name('materiais-padroes-delete');
   });
 
   /*Rotas para cadastro de parâmetros*/
   Route::group(['prefix' => 'parametros'], function () {
     Route::get('index', [ParametrosController::class, 'index'])->name('parametros-index');
-    Route::get('insert/{parametro:uid?}', [ParametrosController::class, 'insert'])->name('parametro-insert');
-    Route::post('create', [ParametrosController::class, 'create'])->name('parametro-create');
+    Route::post('store', [ParametrosController::class, 'store'])->name('parametro-store');
     Route::post('update/{parametro:uid}', [ParametrosController::class, 'update'])->name('parametro-update');
-    Route::post('delete/{parametro:uid}', [ParametrosController::class, 'delete'])->name('parametro-delete');
+    Route::post('delete/{parametro:uid}', [ParametrosController::class, 'destroy'])->name('parametro-delete');
   });
 
   /*Rotas para cadastro de tipos de avaliação*/
   Route::group(['prefix' => 'tipos-avaliacao'], function () {
-    Route::get('index', [TipoAvaliacaoController::class, 'index'])->name('tipos-avaliacao-index');
-    Route::get('insert/{tipoAvaliacao:uid?}', [TipoAvaliacaoController::class, 'insert'])->name('tipo-avaliacao-insert');
-    Route::post('create', [TipoAvaliacaoController::class, 'create'])->name('tipo-avaliacao-create');
+    Route::get('index', [TipoAvaliacaoController::class, 'index'])->name('tipo-avaliacao-index');
+    Route::post('store', [TipoAvaliacaoController::class, 'store'])->name('tipo-avaliacao-store');
     Route::post('update/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
-    Route::post('delete/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'delete'])->name('tipo-avaliacao-delete');
+    Route::post('delete/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'destroy'])->name('tipo-avaliacao-delete');
   });
 });

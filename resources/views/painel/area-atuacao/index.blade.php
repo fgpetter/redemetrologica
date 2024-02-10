@@ -14,12 +14,10 @@
 
     <div class="row">
         <div class="col">
-            <x-painel.areas-atuacao.list />
+            <x-painel.areas-atuacao.list :areas_atuacao="$areas_atuacao"/>
         </div>
     </div>
 @endsection
 
 @section('script')
-    <script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
-    <script src="{{ URL::asset('build/js/custom.js') }}"></script>
 @endsection
