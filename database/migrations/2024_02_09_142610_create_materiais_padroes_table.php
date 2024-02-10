@@ -15,14 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('uid');
             $table->string('descricao');
-            $table->string('cod_fabricante');
-            $table->string('fabricante');
-            $table->string('marca');
+            $table->string('fornecedor')->nullable();
+            $table->string('fabricante')->nullable();
+            $table->string('cod_fabricante')->nullable();
+            $table->string('marca')->nullable();
             $table->enum('tipo', ['CURSOS', 'INTERLAB', 'AMBOS']);
             $table->boolean('padrao');
-            $table->double('valor');
+            $table->decimal('valor')->nullable();
             $table->enum('tipo_despesa', ['FIXO', 'VARIAVEL', 'OUTROS']);
-            $table->text('observacoes');
+            $table->text('observacoes')->nullable();
 
             $table->timestamps();
         });
