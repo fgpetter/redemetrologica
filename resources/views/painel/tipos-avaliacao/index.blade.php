@@ -14,12 +14,10 @@
 
     <div class="row">
         <div class="col">
-            <x-painel.tipos-avaliacao.list />
+            <x-painel.tipos-avaliacao.list :avaliacoes="$avaliacoes"/>
         </div>
     </div>
 @endsection
 
 @section('script')
-    <script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
-    <script src="{{ URL::asset('build/js/custom.js') }}"></script>
 @endsection
