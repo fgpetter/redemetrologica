@@ -19,7 +19,7 @@
         <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
           <tr>
-            <th scope="col" class="d-none d-sm-table-cell" style="width: 1%; white-space: nowrap;">ID</th>
+            <th scope="col" class="d-none d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
             <th scope="col">Nome</th>
             <th scope="col">Experiencia</th>
             <th scope="col">Incerteza</th>

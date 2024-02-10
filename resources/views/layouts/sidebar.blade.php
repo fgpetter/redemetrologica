@@ -171,18 +171,18 @@
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
                                 <a href="{{ route('area-atuacao-index') }}" class="nav-link" role="button"
-                                    data-key="t-area-atuacao">Área de atuação</a>
+                                    data-key="t-area-atuacao">Áreas de atuação</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('lista-materiais-padroes-index') }}" class="nav-link"
-                                    role="button" data-key="t-lista-materiais-padroes">Lista de materiais/padrões</a>
+                                <a href="{{ route('materiais-padroes-index') }}" class="nav-link"
+                                    role="button" data-key="t-materiais-padroes">Materiais Padrões</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('parametros-index') }}" class="nav-link" role="button"
                                     data-key="t-parametros">Parâmetros</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('tipos-avaliacao-index') }}" class="nav-link" role="button"
+                                <a href="{{ route('tipo-avaliacao-index') }}" class="nav-link" role="button"
                                     data-key="t-tipos-avaliacao">Tipos de avaliação</a>
                             </li>
                         </ul>

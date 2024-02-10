@@ -6,6 +6,7 @@
   'required' => null,
   'id' => null,
   'placeholder' => null,
+  'autocomplete' => null,
   'uppercase' => false
 ])
 
