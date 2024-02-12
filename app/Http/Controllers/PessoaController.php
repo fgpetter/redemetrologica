@@ -86,7 +86,7 @@ class PessoaController extends Controller
       'end_padrao' => $endereco->id
     ]);
 
-    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('succes', 'Pessoa cadastrada com sucesso');
+    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('success', 'Pessoa cadastrada com sucesso');
   }
 
   /**
