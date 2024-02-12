@@ -60,7 +60,7 @@
                                         </li>
                                         <li>
                                             <form method="POST"
-                                                action="{{ route('lista-materiais-padroes-delete', $material['uid']) }}">
+                                                action="{{ route('materiais-padroes-delete', $material['uid']) }}">
                                                 @csrf
                                                 <button class="dropdown-item" type="submit">Excluir</button>
                                             </form>

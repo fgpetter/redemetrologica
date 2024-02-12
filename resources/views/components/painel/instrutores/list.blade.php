@@ -77,7 +77,7 @@
                                         </li>
                                         <li>
                                             <form method="POST"
-                                                action="{{ route('lista-materiais-padroes-delete', $instrutor['codigo']) }}">
+                                                action="{{ route('materiais-padroes-delete', $instrutor['codigo']) }}">
                                                 @csrf
                                                 <button class="dropdown-item" type="submit">Excluir</button>
                                             </form>
