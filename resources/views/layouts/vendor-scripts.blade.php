@@ -7,7 +7,6 @@
     const toastListExists = document.querySelector('[toast-list]');
     const dataProviderExists = document.querySelector('[data-provider]');
     const dataChoicesExists = document.querySelector('[data-choices]');
-
     if (toastListExists) {
       console.log('toastListExists')
       const toast = document.createElement('script');

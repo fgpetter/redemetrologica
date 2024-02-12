@@ -31,12 +31,22 @@ class PessoaController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
+    $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
+
     $request->validate([
-      'nome_razao' => ['required', 'string', 'max:255'],
+      'nome_razao' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj'],
+      'nome_fantasia' => ['nullable', 'string', 'max:255'],
       'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
+      'rg_ie' => ['nullable', 'string', 'max:255'],
+      'insc_municipal' => ['nullable', 'string', 'max:255'],
+      'codigo_contabil' => ['nullable', 'string', 'max:255'],
       'tipo_pessoa' => ['required', 'string', 'max:2'],
+      'telefone' => ['nullable', 'string', 'max:255'],
+      'email' => ['nullable', 'string', 'max:255'],
       'cep' => ['required', 'string'],
       'endereco' => ['required', 'string'],
+      'complemento' => ['nullable', 'string'],
+      'bairro' => ['nullable', 'string'],
       'cidade' => ['required', 'string'],
       'uf' => ['required', 'string'],
       ],[
@@ -47,7 +57,7 @@ class PessoaController extends Controller
         'cidade.required' => 'Preencha o campo cidade',
         'uf.required' => 'Preencha o uf',
       ]
-    );
+    );     
 
     $pessoa = Pessoa::create([
       'uid' => config('hashing.uid'),
@@ -111,7 +121,7 @@ class PessoaController extends Controller
   {
     $request->validate([
       'nome_razao' => ['required', 'string', 'max:255'],
-      'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
+      'cpf_cnpj' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj,'.$pessoa->id], // TODO - adicionar validação de CPF/CNPJ
       'tipo_pessoa' => ['required', 'string', 'max:2'],
       ],[
         'nome_razao.required' => 'Preencha o campo nome ou razão social',

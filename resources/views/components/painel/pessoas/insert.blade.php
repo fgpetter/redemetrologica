@@ -94,6 +94,7 @@
           <form method="POST" action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->id) : route('pessoa-create') }}">
             @csrf
             <div class="row gy-3">
+
               <input type="hidden" name="tipo_pessoa" value="PJ">
               <div class="col-12">
                 <x-forms.input-field 

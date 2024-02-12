@@ -7,12 +7,12 @@
   @endcomponent
   <div class="row">
 
-    <div class="col col-xxl-8">
-      <x-painel.avaliadores.insert :avaliador="$avaliador"/>
+    <div class="col col-8">
+      <x-painel.avaliadores.insert :avaliador="$avaliador" :avaliacoes="$avaliacoes"/>
     </div>
     @if ($avaliador->id)
       <div class="col-4">
-        <x-painel.avaliadores.dados-bancarios :avaliador="$avaliador"/>
+        <x-painel.avaliadores.dados-bancarios :avaliador="$avaliador" />      
       </div>
     @endif
 
