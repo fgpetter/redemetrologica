@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CursoController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\EnderecoController;
 use App\Http\Controllers\AvaliadorController;
+use App\Http\Controllers\InstrutorController;
 use App\Http\Controllers\PostMediaController;
 use App\Http\Controllers\ParametrosController;
 use App\Http\Controllers\AreaAtuacaoController;
@@ -17,6 +17,8 @@ use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
+use App\Http\Controllers\agendamentoCursoController;
+
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -107,6 +109,14 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
     Route::post('delete-curriculo/{avaliador:uid}', [FuncionarioController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
   });
+  /* instrutores*/
+  Route::group(['prefix' => 'instrutor'], function () {
+    Route::get('index', [InstrutorController::class, 'index'])->name('instrutor-index');
+    Route::get('insert', [InstrutorController::class, 'insert'])->name('instrutor-insert');
+    Route::post('create', [InstrutorController::class, 'create'])->name('instrutor-create');
+    Route::post('update/{instrutor:uid}', [InstrutorController::class, 'update'])->name('instrutor-update');
+    Route::post('delete/{instrutor:uid}', [InstrutorController::class, 'delete'])->name('instrutor-delete');
+  });
 
   /* Dados bancários */
   Route::group(['prefix' => 'conta'], function () {
@@ -122,6 +132,15 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [CursoController::class, 'create'])->name('curso-create');
     Route::post('update/{curso:uid}', [CursoController::class, 'update'])->name('curso-update');
     Route::post('delete/{curso:uid}', [CursoController::class, 'delete'])->name('curso-delete');
+  });
+
+  /* agendamento-cursos*/
+  Route::group(['prefix' => 'agendamentoCurso'], function () {
+    Route::get('index', [agendamentoCursoController::class, 'index'])->name('agendamentoCurso-index');
+    Route::get('insert', [agendamentoCursoController::class, 'insert'])->name('agendamentoCurso-insert');
+    Route::post('create', [agendamentoCursoController::class, 'create'])->name('agendamentoCurso-create');
+    Route::post('update/{agendamentoCurso:uid}', [agendamentoCursoController::class, 'update'])->name('agendamentoCurso-update');
+    Route::post('delete/{agendamentoCurso:uid}', [agendamentoCursoController::class, 'delete'])->name('agendamentoCurso-delete');
   });
 
   /* Noticias e Galeria */

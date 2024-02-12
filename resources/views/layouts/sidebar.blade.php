@@ -104,13 +104,13 @@
 
                 {{-- Pessoas --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(),['painel/funcionario', 'painel/pessoa', 'painel/avaliador'])? 'active': '' }}"
+                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'active' : '' }}"
                         href="#sidebarPessoas" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ in_array(request()->route()->getPrefix(),['painel/funcionario', 'painel/pessoa', 'painel/avaliador'])? 'true': 'false' }}"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'true' : 'false' }}"
                         aria-controls="sidebarPessoas">
                         <i class="ph-identification-card"></i> <span>PPESSOAS</span>
                     </a>
-                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(),['painel/funcionario', 'painel/pessoa', 'painel/avaliador'])? 'show': '' }}"
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'show' : '' }}"
                         id="sidebarPessoas">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
@@ -131,6 +131,12 @@
                                     role="button" data-key="t-signin">Avaliadores
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('instrutor-index') }}"
+                                    class="nav-link {{ request()->is('painel/instrutores/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Instrutores
+                                </a>
+                            </li>
 
                         </ul>
                     </div>
@@ -138,13 +144,13 @@
 
                 {{-- Cursos --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(),['painel/curso'])? 'active': '' }}"
+                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso']) ? 'active' : '' }}"
                         href="#sidebarCursos" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ in_array(request()->route()->getPrefix(),['painel/curso'])? 'true': 'false' }}"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso']) ? 'true' : 'false' }}"
                         aria-controls="sidebarCursos">
                         <i class="ph-identification-card"></i> <span>CURSOS</span>
                     </a>
-                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(),['painel/curso/index'])? 'show': '' }}"
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso/index', 'painel/agendamento-cursos/index']) ? 'show' : '' }}"
                         id="sidebarCursos">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
@@ -154,13 +160,15 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a href="{{ route('agendamentoCurso-index') }}"
+                                    class="nav-link {{ request()->is('painel/agendamento-cursos/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Agendamento de Cursos
+                                </a>
                             </li>
-                            <li class="nav-item">
-                            </li>
-
                         </ul>
                     </div>
                 </li>
+
                 {{-- CADASTROS ADICIONAIS --}}
                 <li class="nav-item">
                     <a class="nav-link collapsed" href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse"
