@@ -73,7 +73,7 @@ class CursoController extends Controller
       $request->file('folder')->move(public_path('curso-folder'), $fileName);
 
       // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-      if ($extension == 'jpg' || $extension == 'png') {
+      if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
         $img = Image::make(public_path('curso-folder/' . $fileName));
         if ($img->height() > 750) {
           $img->resize(null, 750, function ($constraint) {
