@@ -210,12 +210,14 @@
 
                 {{-- Notícias --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed {{ request()->is('painel/post/noticias') ? 'active' : '' }}"
-                        href="#sidebarNoticia" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ request()->is('painel/post/noticias') ? 'true' : 'false' }}"
-                        aria-controls="sidebarNoticia">
+
+                    <a href="/painel/post/noticias"
+                        class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
+                        role="button" data-key="t-signin">
                         <i class="ph-newspaper"></i> <span>NOTÍCIAS</span>
                     </a>
+
+
                     <div class="collapse menu-dropdown {{ request()->is('painel/post/noticias') ? 'show' : '' }}"
                         id="sidebarNoticia">
                         <ul class="nav nav-sm flex-column">
@@ -230,11 +232,14 @@
                 </li>
                 {{-- Galeria --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed {{ request()->is('painel/post/galeria') ? 'active' : '' }}"
-                        href="#sidebarGaleria" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ request()->is('painel/post/galeria') ? 'true' : 'false' }}"
-                        aria-controls="sidebarGaleria">
-                        <i class="ph-image"></i> <span>GALERIA</span>
+
+
+                    <a href="/painel/post/galeria"
+                        class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
+                        role="button" data-key="t-signin"><i class="ph-image"></i> <span>GALERIA</span></a>
+
+
+
                     </a>
                     <div class="collapse menu-dropdown {{ request()->is('painel/post/galeria') ? 'show' : '' }}"
                         id="sidebarGaleria">
