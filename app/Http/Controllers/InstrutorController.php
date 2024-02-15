@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Instrutor;
 use Illuminate\Http\Request;
 
 class InstrutorController extends Controller
@@ -33,9 +34,9 @@ class InstrutorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function insert()
+    public function insert(Instrutor $instrutor)
     {
-        return view('painel.instrutores.insert');
+        return view('painel.instrutores.insert',  ['instrutor' => $instrutor]);
     }
 
     /**
