@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Curso;
 use App\Models\Instrutor;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 
 class InstrutorController extends Controller
@@ -34,10 +36,16 @@ class InstrutorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function insert(Instrutor $instrutor)
+    public function insert(Instrutor $instrutor): View
     {
-        return view('painel.instrutores.insert',  ['instrutor' => $instrutor]);
+        $cursos = Curso::all();
+        return view('painel.instrutores.insert', ['instrutor' => $instrutor, 'cursos' => $cursos]);
     }
+
+    // public function insert(Instrutor $instrutor)
+    // {
+    //     return view('painel.instrutores.insert',  ['instrutor' => $instrutor]);
+    // }
 
     /**
      * Show the form for editing the specified resource.
