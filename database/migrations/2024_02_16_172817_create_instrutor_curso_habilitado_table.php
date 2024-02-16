@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('instrutor_curso_habilitado', function (Blueprint $table) {
             $table->id();
             $table->string('uid');
-            $table->unsignedBigInteger('instrutor_id');
-            $table->unsignedBigInteger('curso_id');
+            $table->foreignId('instrutor_id')->constrained('instrutores');
+            $table->foreignId('curso_id')->constrained();
             $table->boolean('habilitado')->default(false);
-            $table->string('conhecimento')->default(false);
-            $table->string('experiencia')->default(false);
+            $table->boolean('conhecimento')->default(false);
+            $table->boolean('experiencia')->default(false);
             $table->text('observacoes')->nullable();
             $table->timestamps();
         });
