@@ -12,16 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('instrutor_curso_habilitado', function (Blueprint $table) {
-            $table->uid();
+            $table->id();
+            $table->string('uid');
             $table->unsignedBigInteger('instrutor_id');
             $table->unsignedBigInteger('curso_id');
-            $table->boolean('habilitado');
-            $table->string('conhecimento');
-            $table->string('experiencia');
+            $table->boolean('habilitado')->default(false);
+            $table->string('conhecimento')->default(false);
+            $table->string('experiencia')->default(false);
             $table->text('observacoes')->nullable();
             $table->timestamps();
         });
     }
+
 
 
     /**
