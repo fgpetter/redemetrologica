@@ -46,8 +46,8 @@
         <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
           <tr>
-            <th scope="col" class="d-none d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
-            <th scope="col">Nome</th>
+            <th scope="col" style="width: 5%">ID</th>
+            <th scope="col" style="width: 50%">Nome</th>
             <th scope="col">Experiencia</th>
             <th scope="col">Incerteza</th>
             <th scope="col">ISO</th>
@@ -59,7 +59,7 @@
         <tbody>
           @forelse ($avaliadores as $avaliador)
             <tr>
-              <th scope="row" class="d-none d-sm-table-cell">
+              <th scope="row">
                 <a href="{{ route('avaliador-insert', ['avaliador' => $avaliador->uid]) }}" class="fw-medium">
                    #{{ substr($avaliador->uid, 7) }} 
                   </a>
@@ -96,6 +96,9 @@
           @endforelse
         </tbody>
         </table>
+        <div class="row mt-3">
+          {!! $avaliadores->withQueryString()->links('pagination::bootstrap-5') !!}
+        </div>
       </div>
 
     </div>
