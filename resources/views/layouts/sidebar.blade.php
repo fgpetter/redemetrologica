@@ -160,7 +160,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('agendamentoCurso-index') }}"
+                                <a href="{{ route('agendamento-curso-index') }}"
                                     class="nav-link {{ request()->is('painel/agendamento-cursos/index') ? 'active' : '' }}"
                                     role="button" data-key="t-signin">Agendamento de Cursos
                                 </a>

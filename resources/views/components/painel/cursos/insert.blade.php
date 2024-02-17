@@ -15,10 +15,21 @@
         </div>
 
         <div class="col-6">
-          <label class="form-label">Carga Horária</label>
-          <input type="number" class="form-control" name="carga_horaria"
-            value="{{ old('carga_horaria') ?? $curso->carga_horaria ?? null }}" >
-          @error('carga_horaria') <div class="text-warning">{{ $message }}</div> @enderror 
+          <x-forms.input-select name="carga_horaria" label="Carga Horária">
+            <option @selected($curso->carga_horaria == "0") value="0">0</option>
+            <option @selected($curso->carga_horaria == "2") value="2">2</option>
+            <option @selected($curso->carga_horaria == "4") value="4">4</option>
+            <option @selected($curso->carga_horaria == "6") value="6">6</option>
+            <option @selected($curso->carga_horaria == "8") value="8">8</option>
+            <option @selected($curso->carga_horaria == "12") value="12">12</option>
+            <option @selected($curso->carga_horaria == "16") value="16">16</option>
+            <option @selected($curso->carga_horaria == "20") value="20">20</option>
+            <option @selected($curso->carga_horaria == "24") value="24">24</option>
+            <option @selected($curso->carga_horaria == "32") value="32">32</option>
+            <option @selected($curso->carga_horaria == "36") value="36">36</option>
+            <option @selected($curso->carga_horaria == "40") value="40">40</option>
+          </x-forms.input-select>
+          @error('carga_horaria') <div class="text-warning">{{ $message }}</div>@enderror
         </div>
 
         <div class="col-6">
