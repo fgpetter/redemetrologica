@@ -48,14 +48,6 @@
                 value="{{old('conta') ?? $conta->conta ?? ''}}">
             </div>
 
-            <div class="col-sm-6">
-              <div class="form-check mt-4">
-                <input class="form-check-input" type="checkbox" id="conta_padrao_avaliador" name="conta_padrao_avaliador" value="1" 
-                @checked(isset($conta->id) && $avaliador->conta_padrao == $conta->id)>
-                <label class="form-check-label" for="conta_padrao_avaliador">Conta padrão</label>
-              </div>
-            </div>
-
             <div class="col-lg-12">
               <div class="hstack gap-2 justify-content-end">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Sair</button>
