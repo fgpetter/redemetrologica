@@ -127,7 +127,7 @@
                           </li>
                           <li class="nav-item">
                               <a href="{{ route('avaliador-index') }}"
-                                  class="nav-link {{ request()->is('painel/avaliadores/index') ? 'active' : '' }}"
+                                  class="nav-link {{ request()->is('painel/avaliador/index') ? 'active' : '' }}"
                                   role="button" data-key="t-signin">Avaliadores
                               </a>
                           </li>
@@ -144,13 +144,13 @@
 
               {{-- Cursos --}}
               <li class="nav-item">
-                  <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'active' : '' }}"
+                  <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'active' : '' }}"
                       href="#sidebarCursos" data-bs-toggle="collapse" role="button"
-                      aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'true' : 'false' }}"
+                      aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'true' : 'false' }}"
                       aria-controls="sidebarCursos">
                       <i class="ph-identification-card"></i> <span>CURSOS</span>
                   </a>
-                  <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'show' : '' }}"
+                  <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'show' : '' }}"
                       id="sidebarCursos">
                       <ul class="nav nav-sm flex-column">
                           <li class="nav-item">
@@ -161,7 +161,7 @@
                           </li>
                           <li class="nav-item">
                               <a href="{{ route('agendamento-curso-index') }}"
-                                  class="nav-link {{ request()->is('painel/agendamento-cursos/index') ? 'active' : '' }}"
+                                  class="nav-link {{ request()->is('painel/agendamento-curso/index') ? 'active' : '' }}"
                                   role="button" data-key="t-signin">Agendamento de Cursos
                               </a>
                           </li>
