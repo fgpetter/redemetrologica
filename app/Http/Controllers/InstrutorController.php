@@ -12,7 +12,8 @@ class InstrutorController extends Controller
      */
     public function index()
     {
-        return view('painel.instrutores.index');
+        $instrutores = Instrutor::all();
+        return view('painel.instrutores.index', ['instrutores' => $instrutores]);
     }
 
     /**

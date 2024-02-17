@@ -1,3 +1,6 @@
+@props(
+    ['instrutores' => []]
+)
 <div class="card">
     <div class="card-body">
         <div class="row">
@@ -20,7 +23,6 @@
                     <tr>
                         <th scope="col" class=" d-sm-table-cell" style="width: 1%; white-space: nowrap;">Codigo
                         </th>
-                        <th scope="col">Matricula</th>
                         <th scope="col">Nome</th>
                         <th scope="col">CPF/CNPJ</th>
                         <th scope="col">Data Cadastro</th>
@@ -28,41 +30,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- array de teste --}}
-                    @php
-                        $instrutores = [
-                            [
-                                'codigo' => '1001',
-                                'matricula' => 'MAT123',
-                                'nome' => 'João Silva',
-                                'cpf_cnpj' => '123.456.789-00',
-                                'data_cadastro' => '2024-02-12',
-                            ],
-                            [
-                                'codigo' => '1002',
-                                'matricula' => 'MAT456',
-                                'nome' => 'Maria Santos',
-                                'cpf_cnpj' => '987.654.321-00',
-                                'data_cadastro' => '2024-02-12',
-                            ],
-                            [
-                                'codigo' => '1003',
-                                'matricula' => 'MAT789',
-                                'nome' => 'Pedro Oliveira',
-                                'cpf_cnpj' => '654.321.987-00',
-                                'data_cadastro' => '2024-02-12',
-                            ],
-                        ];
-                    @endphp
-
-                    {{-- array de teste --}}
                     @forelse ($instrutores as $instrutor)
                         <tr>
-                            <th>{{ $instrutor['codigo'] }}</th>
-                            <td class="text-truncate" style="max-width: 50vw">{{ $instrutor['matricula'] }}</td>
-                            <td class="text-truncate" style="max-width: 50vw">{{ $instrutor['nome'] }}</td>
-                            <td class="text-truncate" style="max-width: 50vw">{{ $instrutor['cpf_cnpj'] }}</td>
-                            <td class="text-truncate" style="max-width: 50vw">{{ $instrutor['data_cadastro'] }}</td>
+                            <th>{{ $instrutor->uid }}</th>
+                            <td>{{ $instrutor->pessoa->nome_razao }}</td>
+                            <td>{{ $instrutor->pessoa->cpf_cnpj }}</td>
+                            <td>{{ $instrutor->created_at }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -77,7 +50,7 @@
                                         </li>
                                         <li>
                                             <form method="POST"
-                                                action="{{ route('materiais-padroes-delete', $instrutor['codigo']) }}">
+                                                action="{{ route('instrutor-delete', $instrutor->uid) }}">
                                                 @csrf
                                                 <button class="dropdown-item" type="submit">Excluir</button>
                                             </form>

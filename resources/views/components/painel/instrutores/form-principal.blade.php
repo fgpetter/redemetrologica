@@ -2,7 +2,14 @@
     @csrf
     <div class="row gy-3 mt-3">
 
-        <div class="col-sm-4">
+        <div class="col-sm-8">
+            <x-forms.input-field :value="old('nome') ?? ($instrutor->nome ?? null)" name="nome" label="Nome" placeholder="" />
+            @error('nome')
+            <div class="text-warning">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-sm-2">
             <x-forms.input-select name="situacao" label="Situação">
               <option value="1">ATIVO</option>
               <option value="0">INATIVO</option>
@@ -10,7 +17,7 @@
             @error('situacao')<div class="text-warning">{{ $message }}</div>@enderror
         </div>
 
-        <div class="col-sm-4">
+        <div class="col-sm-2">
             <x-forms.input-select name="tipo_pessoa" label="Tipo Pessoa">
               <option value="PF">PESSOA FÍSICA</option>
               <option value="PJ">PESSOA JURÍDICA</option>
@@ -32,12 +39,7 @@
             <div class="text-warning">{{ $message }}</div>
             @enderror
         </div>
-        <div class="col-sm-6">
-            <x-forms.input-field :value="old('nome') ?? ($instrutor->nome ?? null)" name="nome" label="Nome" placeholder="" />
-            @error('nome')
-            <div class="text-warning">{{ $message }}</div>
-            @enderror
-        </div>
+        
         <div class="col-sm-6">
           @if (isset($instrutor->curriculo) && $instrutor->curriculo )
             <div class="input-group mt-4">
@@ -59,9 +61,10 @@
             @error('curriculo') <div class="text-warning">{{ $message }}</div> @enderror
           @endif
         </div>
-        <h6 class="mb-0 mt-3">Dados de endereço</h6>
+        <h6 class="mb-0 mt-4">Dados de endereço</h6>
           <x-painel.enderecos.form-endereco :endereco="$funcionario->pessoa->enderecos[0] ?? null"/>
 
+        <h6 class="mb-0 mt-4">Dados bancários</h6>
         <div class="col-sm-6">
             <x-forms.input-field :value="old('banco') ?? ($instrutor->banco ?? null)" name="banco" label="Banco" placeholder="" />
             @error('banco')

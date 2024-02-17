@@ -8,11 +8,11 @@
     <div class="row">
 
         <div class="col col-xxl-8">
-            <x-painel.instrutores.insert />
+            <x-painel.instrutores.insert :instrutor="$instrutor"/>
         </div>
         @if ($instrutor->id)
         <div class="col-4">
-            <x-painel.funcionarios.dados-bancarios :instrutor="$instrutor"/>
+            <x-painel.funcionarios.dados-bancarios />
         </div>
         @endif
 
