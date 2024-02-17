@@ -17,7 +17,7 @@ class MateriaisPadroesController extends Controller
    */
   public function index(): View
   {
-    return view('painel.materiais-padroes.index', ['materiais' => MaterialPadrao::all()]);
+    return view('painel.materiais-padroes.index', ['materiais' => MaterialPadrao::paginate(10)]);
   }
 
   /**
@@ -34,10 +34,10 @@ class MateriaisPadroesController extends Controller
         'fabricante' => ['nullable', 'string'],
         'fornecedor' => ['nullable', 'string'],
         'marca' => ['nullable', 'string'],
-        'tipo' => ['required', Rule::in(['CURSOS','INTERLAB','AMBOS'])],
-        'padrao' => ['nullable', Rule::in(['1'])],
+        'tipo' => ['required', Rule::in(['CURSO','INTERLAB','AMBOS'])],
+        'padrao' => ['nullable', 'integer'],
         'valor' => ['nullable', 'string'],
-        'tipo_despesa' => ['nullable', Rule::in(['FIXO','VARIAVEL','OUTROS']) ],
+        'tipo_despesa' => ['required', Rule::in(['FIXO','VARIAVEL','OUTROS']) ],
         'observacoes' => ['nullable', 'string'],
       ],[
         'descricao.required' => 'Preencha o campo Descrição',
@@ -82,10 +82,10 @@ class MateriaisPadroesController extends Controller
       'fabricante' => ['nullable', 'string'],
       'fornecedor' => ['nullable', 'string'],
       'marca' => ['nullable', 'string'],
-      'tipo' => ['required', Rule::in(['CURSOS','INTERLAB','AMBOS'])],
-      'padrao' => ['nullable', Rule::in(['1'])],
+      'tipo' => ['required', Rule::in(['CURSO','INTERLAB','AMBOS'])],
+      'padrao' => ['nullable', 'integer'],
       'valor' => ['nullable', 'string'],
-      'tipo_despesa' => ['nullable', Rule::in(['FIXO','VARIAVEL','OUTROS']) ],
+      'tipo_despesa' => ['required', Rule::in(['FIXO','VARIAVEL','OUTROS']) ],
       'observacoes' => ['nullable', 'string'],
     ],[
       'descricao.required' => 'Preencha o campo Descrição',
@@ -100,11 +100,13 @@ class MateriaisPadroesController extends Controller
       'tipo_despesa.required' =>'Selecione uma opção',
       'tipo_despesa.in' => 'Opção Inválida',
       'observacoes.string' => 'Conteúdo inválido',
+      'padrao.integer' => 'Opção Inválida'
 
     ]
   );
 
   $validated['valor'] = str_replace(',','.', $validated['valor']);
+  $validated['padrao'] = ($request->has('padrao')) ? 1 : 0;
 
   $materiaisPadroes->update($validated);
 

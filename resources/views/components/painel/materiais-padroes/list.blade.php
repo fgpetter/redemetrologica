@@ -25,13 +25,13 @@
       <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
           <tr>
-            <th scope="col" class=" d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID
+            <th scope="col" style="width: 5%">ID
             </th>
-            <th scope="col">Descrição</th>
-            <th scope="col">Fornecedor</th>
+            <th scope="col" style="width:40%">Descrição</th>
+            <th scope="col" style="width:40%">Fornecedor</th>
             <th scope="col">Valor</th>
             <th scope="col">Padrao</th>
-            <th scope="col" class=" d-sm-table-cell" style="width: 5%; white-space: nowrap;"></th>
+            <th scope="col" style="width: 5%"></th>
           </tr>
         </thead>
         <tbody>
@@ -41,9 +41,9 @@
                 data-bs-target="{{ '#materialModal'.$material->uid }}">
                 #{{substr($material->uid, 7)}}
               </a></th>
-              <td class="text-truncate" >{{ $material['descricao'] }}</td>
-              <td class="text-truncate" >{{ $material['fornecedor'] }}</td>
-              <td class="text-truncate" >R$ <input type="text" class="money" value="{{ $material['valor'] }}" style="border: 0; background: transparent"></td>
+              <td>{{ $material->descricao }}</td>
+              <td>{{ $material->fornecedor }}</td>
+              <td>R$ <input type="text" class="money" value="{{ $material['valor'] }}" style="border: 0; background: transparent" size="9"></td>
               <td> @if ($material->padrao) <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif</td>
               <td>
                 <div class="dropdown">
@@ -77,9 +77,9 @@
           @endforelse
         </tbody>
       </table>
-      {{-- <div class="row mt-3">
+      <div class="row mt-3">
         {!! $materiais->withQueryString()->links('pagination::bootstrap-5') !!}
-      </div> --}}
+      </div>
     </div>
     <x-painel.materiais-padroes.modal-materiais-padroes />
   
