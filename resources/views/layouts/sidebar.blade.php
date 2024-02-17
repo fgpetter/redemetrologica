@@ -104,13 +104,13 @@
 
                 {{-- Pessoas --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'active' : '' }}"
+                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor']) ? 'active' : '' }}"
                         href="#sidebarPessoas" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'true' : 'false' }}"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor']) ? 'true' : 'false' }}"
                         aria-controls="sidebarPessoas">
-                        <i class="ph-identification-card"></i> <span>PPESSOAS</span>
+                        <i class="ph-identification-card"></i> <span>PESSOAS</span>
                     </a>
-                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador']) ? 'show' : '' }}"
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/avaliador', 'painel/instrutor']) ? 'show' : '' }}"
                         id="sidebarPessoas">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
@@ -133,7 +133,7 @@
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('instrutor-index') }}"
-                                    class="nav-link {{ request()->is('painel/instrutores/index') ? 'active' : '' }}"
+                                    class="nav-link {{ request()->is('painel/instrutor/index') ? 'active' : '' }}"
                                     role="button" data-key="t-signin">Instrutores
                                 </a>
                             </li>
@@ -144,13 +144,13 @@
 
                 {{-- Cursos --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso']) ? 'active' : '' }}"
+                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'active' : '' }}"
                         href="#sidebarCursos" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso']) ? 'true' : 'false' }}"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'true' : 'false' }}"
                         aria-controls="sidebarCursos">
                         <i class="ph-identification-card"></i> <span>CURSOS</span>
                     </a>
-                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso/index', 'painel/agendamento-cursos/index']) ? 'show' : '' }}"
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'show' : '' }}"
                         id="sidebarCursos">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
@@ -171,27 +171,34 @@
 
                 {{-- CADASTROS ADICIONAIS --}}
                 <li class="nav-item">
-                    <a class="nav-link collapsed" href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse"
-                        role="button" aria-expanded="false" aria-controls="sidebarCadastrosAdicionais">
+                    <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
+                        href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
+                        aria-controls="sidebarCadastrosAdicionais">
                         <i class="ph-list"></i> <span>CADASTROS ADICIONAIS</span>
                     </a>
-                    <div class="collapse menu-dropdown" id="sidebarCadastrosAdicionais">
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
+                        id="sidebarCadastrosAdicionais">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{ route('area-atuacao-index') }}" class="nav-link" role="button"
-                                    data-key="t-area-atuacao">Áreas de atuação</a>
+                                <a href="{{ route('area-atuacao-index') }}"
+                                    class="nav-link {{ request()->is('painel/area-atuacao/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-area-atuacao">Áreas de atuação</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('materiais-padroes-index') }}" class="nav-link"
+                                <a href="{{ route('materiais-padroes-index') }}"
+                                    class="nav-link {{ request()->is('painel/materiais-padroes/index') ? 'active' : '' }}"
                                     role="button" data-key="t-materiais-padroes">Materiais Padrões</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('parametros-index') }}" class="nav-link" role="button"
-                                    data-key="t-parametros">Parâmetros</a>
+                                <a href="{{ route('parametros-index') }}"
+                                    class="nav-link {{ request()->is('painel/parametros/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-parametros">Parâmetros</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('tipo-avaliacao-index') }}" class="nav-link" role="button"
-                                    data-key="t-tipos-avaliacao">Tipos de avaliação</a>
+                                <a href="{{ route('tipo-avaliacao-index') }}"
+                                    class="nav-link {{ request()->is('painel/tipos-avaliacao/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-tipos-avaliacao">Tipos de avaliação</a>
                             </li>
                         </ul>
                     </div>
@@ -203,32 +210,46 @@
 
                 {{-- Notícias --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed" href="#sidebarNoticia" data-bs-toggle="collapse"
-                        role="button" aria-expanded="false" aria-controls="sidebarNoticia">
+
+                    <a href="/painel/post/noticias"
+                        class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
+                        role="button" data-key="t-signin">
                         <i class="ph-newspaper"></i> <span>NOTÍCIAS</span>
                     </a>
-                    <div class="collapse menu-dropdown" id="sidebarNoticia">
+
+
+                    <div class="collapse menu-dropdown {{ request()->is('painel/post/noticias') ? 'show' : '' }}"
+                        id="sidebarNoticia">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{ route('noticia-index') }}" class="nav-link" role="button"
-                                    data-key="t-signin">Listar</a>
+                                <a href="/painel/post/noticias"
+                                    class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Listar</a>
                             </li>
+
                         </ul>
                     </div>
                 </li>
-
                 {{-- Galeria --}}
                 <li class="nav-item">
-                    <a class="nav-link menu-link collapsed" href="#sidebarGaleria" data-bs-toggle="collapse"
-                        role="button" aria-expanded="false" aria-controls="sidebarGaleria">
-                        <i class="ph-image"></i> <span>GALERIA</span>
+
+
+                    <a href="/painel/post/galeria"
+                        class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
+                        role="button" data-key="t-signin"><i class="ph-image"></i> <span>GALERIA</span></a>
+
+
+
                     </a>
-                    <div class="collapse menu-dropdown" id="sidebarGaleria">
+                    <div class="collapse menu-dropdown {{ request()->is('painel/post/galeria') ? 'show' : '' }}"
+                        id="sidebarGaleria">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{ route('galeria-index') }}" class="nav-link" role="button"
-                                    data-key="t-signin">Listar</a>
+                                <a href="/painel/post/galeria"
+                                    class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Listar</a>
                             </li>
+
                         </ul>
                     </div>
                 </li>

@@ -134,6 +134,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [CursoController::class, 'create'])->name('curso-create');
     Route::post('update/{curso:uid}', [CursoController::class, 'update'])->name('curso-update');
     Route::post('delete/{curso:uid}', [CursoController::class, 'delete'])->name('curso-delete');
+    Route::post('delete-folder/{curso:uid}', [CursoController::class, 'folderDelete'])->name('curso-folder-delete');
   });
 
   /* agendamento-cursos*/

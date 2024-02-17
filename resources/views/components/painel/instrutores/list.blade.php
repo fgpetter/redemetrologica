@@ -5,8 +5,9 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12 d-flex justify-content-end mb-3">
-                <a href="{{ route('instrutor-insert') }}" class="btn btn-sm btn-success">
-                    <i class="ri-add-line align-bottom me-1"></i> Adicionar Instrutor
+                <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                    data-bs-target="#cursoshabilitadosModal">
+                    <i class="ri-add-line align-bottom me-1"></i> Adicionar Curso Habilitado
                 </a>
             </div>
         </div>
