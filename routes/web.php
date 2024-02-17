@@ -17,8 +17,7 @@ use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
-use App\Http\Controllers\AgendamentoCursoController;
-
+use App\Http\Controllers\AgendaCursosController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -134,15 +133,16 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [CursoController::class, 'create'])->name('curso-create');
     Route::post('update/{curso:uid}', [CursoController::class, 'update'])->name('curso-update');
     Route::post('delete/{curso:uid}', [CursoController::class, 'delete'])->name('curso-delete');
+    Route::post('delete-folder/{curso:uid}', [CursoController::class, 'folderDelete'])->name('curso-folder-delete');
   });
 
-  /* Agendamento De Cursos*/
-  Route::group(['prefix' => 'agendamento-curso'], function () {
-    Route::get('index', [AgendamentoCursoController::class, 'index'])->name('agendamento-curso-index');
-    Route::get('insert/{agendacurso:uid?}', [AgendamentoCursoController::class, 'insert'])->name('agendamento-curso-insert');
-    Route::post('create', [AgendamentoCursoController::class, 'create'])->name('agendamento-curso-create');
-    Route::post('update/{agendacurso:uid}', [AgendamentoCursoController::class, 'update'])->name('agendamento-curso-update');
-    Route::post('delete/{agendacurso:uid}', [AgendamentoCursoController::class, 'delete'])->name('agendamento-curso-delete');
+  /* agendamento-cursos*/
+  Route::group(['prefix' => 'agendamentoCurso'], function () {
+    Route::get('index', [AgendaCursosController::class, 'index'])->name('agendamentoCurso-index');
+    Route::get('insert', [AgendaCursosController::class, 'insert'])->name('agendamentoCurso-insert');
+    Route::post('create', [AgendaCursosController::class, 'create'])->name('agendamentoCurso-create');
+    Route::post('update/{agendamentoCurso:uid}', [AgendaCursosController::class, 'update'])->name('agendamentoCurso-update');
+    Route::post('delete/{agendamentoCurso:uid}', [AgendaCursosController::class, 'delete'])->name('agendamentoCurso-delete');
   });
 
   /* Noticias e Galeria */

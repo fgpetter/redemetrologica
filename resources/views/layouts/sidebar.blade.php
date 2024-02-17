@@ -167,49 +167,216 @@
                           </li>
                       </ul>
                   </div>
-              </li>
 
-              {{-- CADASTROS ADICIONAIS --}}
-              <li class="nav-item">
-                  <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
-                      href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse" role="button"
-                      aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
-                      aria-controls="sidebarCadastrosAdicionais">
-                      <i class="ph-list"></i> <span>CADASTROS ADICIONAIS</span>
-                  </a>
-                  <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
-                      id="sidebarCadastrosAdicionais">
-                      <ul class="nav nav-sm flex-column">
-                          <li class="nav-item">
-                              <a href="{{ route('area-atuacao-index') }}"
-                                  class="nav-link {{ request()->is('painel/area-atuacao/index') ? 'active' : '' }}"
-                                  role="button" data-key="t-area-atuacao">Áreas de atuação</a>
-                          </li>
-                          <li class="nav-item">
-                              <a href="{{ route('materiais-padroes-index') }}"
-                                  class="nav-link {{ request()->is('painel/materiais-padroes/index') ? 'active' : '' }}"
-                                  role="button" data-key="t-materiais-padroes">Materiais Padrões</a>
-                          </li>
-                          <li class="nav-item">
-                              <a href="{{ route('parametros-index') }}"
-                                  class="nav-link {{ request()->is('painel/parametros/index') ? 'active' : '' }}"
-                                  role="button" data-key="t-parametros">Parâmetros</a>
-                          </li>
-                          <li class="nav-item">
-                              <a href="{{ route('tipo-avaliacao-index') }}"
-                                  class="nav-link {{ request()->is('painel/tipos-avaliacao/index') ? 'active' : '' }}"
-                                  role="button" data-key="t-tipos-avaliacao">Tipos de avaliação</a>
-                          </li>
-                      </ul>
-                  </div>
-              </li>
+                </li> --}}
+                        </ul>
+                    </div>
+                </li>
 
+                {{-- Pessoas --}}
+                <li class="nav-item">
+                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor']) ? 'active' : '' }}"
+                        href="#sidebarPessoas" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor']) ? 'true' : 'false' }}"
+                        aria-controls="sidebarPessoas">
+                        <i class="ph-identification-card"></i> <span>PESSOAS</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/avaliador', 'painel/instrutor']) ? 'show' : '' }}"
+                        id="sidebarPessoas">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('pessoa-index') }}"
+                                    class="nav-link {{ request()->is('painel/pessoa/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Pessoas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('funcionario-index') }}"
+                                    class="nav-link {{ request()->is('painel/funcionario/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Funcionários
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('avaliador-index') }}"
+                                    class="nav-link {{ request()->is('painel/avaliadores/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Avaliadores
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('instrutor-index') }}"
+                                    class="nav-link {{ request()->is('painel/instrutor/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Instrutores
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+
+                {{-- Cursos --}}
+                <li class="nav-item">
+                    <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'active' : '' }}"
+                        href="#sidebarCursos" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'true' : 'false' }}"
+                        aria-controls="sidebarCursos">
+                        <i class="ph-identification-card"></i> <span>CURSOS</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-cursos']) ? 'show' : '' }}"
+                        id="sidebarCursos">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('curso-index') }}"
+                                    class="nav-link {{ request()->is('painel/curso/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Cursos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('agendamentoCurso-index') }}"
+                                    class="nav-link {{ request()->is('painel/agendamento-cursos/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Agendamento de Cursos
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                {{-- CADASTROS ADICIONAIS --}}
+                <li class="nav-item">
+                    <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
+                        href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
+                        aria-controls="sidebarCadastrosAdicionais">
+                        <i class="ph-list"></i> <span>CADASTROS ADICIONAIS</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
+                        id="sidebarCadastrosAdicionais">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('area-atuacao-index') }}"
+                                    class="nav-link {{ request()->is('painel/area-atuacao/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-area-atuacao">Áreas de atuação</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('materiais-padroes-index') }}"
+                                    class="nav-link {{ request()->is('painel/materiais-padroes/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-materiais-padroes">Materiais Padrões</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('parametros-index') }}"
+                                    class="nav-link {{ request()->is('painel/parametros/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-parametros">Parâmetros</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('tipo-avaliacao-index') }}"
+                                    class="nav-link {{ request()->is('painel/tipos-avaliacao/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-tipos-avaliacao">Tipos de avaliação</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
 
               {{-- // SITE // --}}
               <li class="menu-title"><span>SITE</span></li>
 
-              {{-- Notícias --}}
-              <li class="nav-item">
+
+                {{-- Notícias --}}
+                <li class="nav-item">
+
+                    <a href="/painel/post/noticias"
+                        class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
+                        role="button" data-key="t-signin">
+                        <i class="ph-newspaper"></i> <span>NOTÍCIAS</span>
+                    </a>
+
+
+                    <div class="collapse menu-dropdown {{ request()->is('painel/post/noticias') ? 'show' : '' }}"
+                        id="sidebarNoticia">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="/painel/post/noticias"
+                                    class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Listar</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+                {{-- Galeria --}}
+                <li class="nav-item">
+
+
+                    <a href="/painel/post/galeria"
+                        class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
+                        role="button" data-key="t-signin"><i class="ph-image"></i> <span>GALERIA</span></a>
+
+
+
+                    </a>
+                    <div class="collapse menu-dropdown {{ request()->is('painel/post/galeria') ? 'show' : '' }}"
+                        id="sidebarGaleria">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="/painel/post/galeria"
+                                    class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
+                                    role="button" data-key="t-signin">Listar</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+
+
+
+                {{-- <li class="menu-title"><span>@lang('translation.menu')</span></li>
+          <li class="nav-item">
+            <a class="nav-link menu-link collapsed" href="#sidebarDashboards"  role="button" aria-expanded="false" aria-controls="sidebarDashboards">
+              <i class="ph-gauge"></i> <span>@lang('translation.starter')</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link menu-link collapsed" href="#sidebarLayouts" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarLayouts">
+              <i class="ph-layout"></i><span>@lang('translation.layouts')</span> <span class="badge badge-pill bg-danger" data-key="t-hot">Hot</span>
+            </a>
+            <div class="collapse menu-dropdown" id="sidebarLayouts">
+              <ul class="nav nav-sm flex-column">
+                <li class="nav-item">
+                  <a href="layouts-horizontal" target="_blank" class="nav-link" data-key="t-horizontal">@lang('translation.horizontal')</a>
+                </li>
+                <li class="nav-item">
+                  <a href="layouts-detached" target="_blank" class="nav-link" data-key="t-detached">@lang('translation.detached')</a>
+                </li>
+                <li class="nav-item">
+                  <a href="layouts-two-column" target="_blank" class="nav-link" data-key="t-two-column">@lang('translation.two-column')</a>
+                </li>
+                <li class="nav-item">
+                  <a href="layouts-vertical-hovered" target="_blank" class="nav-link" data-key="t-hovered">@lang('translation.hovered')</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">@lang('translation.pages')</span></li>
+
+          <li class="nav-item">
+            <a class="nav-link menu-link collapsed" href="#sidebarAuth" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAuth">
+              <i class="ph-user-circle"></i> <span>@lang('translation.authentication')</span>
+            </a>
+            <div class="collapse menu-dropdown" id="sidebarAuth">
+              <ul class="nav nav-sm flex-column">
+                <li class="nav-item">
+                  <a href="auth-signin" class="nav-link" role="button" data-key="t-signin">@lang('translation.signin') </a>
+                </li>
+                <li class="nav-item">
+                  <a href="auth-signup" class="nav-link" role="button" data-key="t-signup">@lang('translation.signup')</a>
+                </li>
+
+                <li class="nav-item">
+                  <a href="auth-pass-reset" class="nav-link" role="button" data-key="t-password-reset">
+                    @lang('translation.password-reset')
+                  </a>
+                </li>
+
 
                   <a href="/painel/post/noticias"
                       class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"

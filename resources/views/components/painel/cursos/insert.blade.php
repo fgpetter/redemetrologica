@@ -1,6 +1,11 @@
-@if (session('error')) <div class="alert alert-danger"> {{ session('error') }} </div> @endif
-@if (session('curso-success')) <div class="alert alert-success"> {{ session('curso-success') }} </div> @endif
+@if (session('error'))
+    <div class="alert alert-danger"> {{ session('error') }} </div>
+@endif
+@if (session('curso-success'))
+    <div class="alert alert-success"> {{ session('curso-success') }} </div>
+@endif
 <div class="card">
+
   <div class="card-body">
 
     <form method="POST" action="{{ isset($curso->id) ? route('curso-update', $curso->uid) : route('curso-create') }}" enctype="multipart/form-data">
@@ -112,6 +117,6 @@
       <x-painel.cursos.form-delete route="curso-delete" id="{{$curso->uid}}" />
     @endif
 
-  </div>
-  
+  </div>  
+
 </div>

@@ -1,3 +1,8 @@
+@props([
+  'class' => null,
+  'pessoa' => null
+])
+
 @if (session('endereco-success')) <div class="alert alert-success"> {{ session('endereco-success') }} </div> @endif
 @if (session('endereco-error')) 
   <div class="alert alert-danger"> 
@@ -8,12 +13,15 @@
   </div> 
 @endif
 
-<div class="card">
+<div class="card {{$class}}">
   <div class="card-header d-flex justify-content-between">
-    <h4 class="card-title mb-0">Endereços</h4>
-    <a href="#" class="btn btn-sm btn-success" > <i class="ri-add-line align-bottom me-1"></i> Adicionar </a>
+    <h4 class="card-title mb-0">Dados de Endereço</h4>
+    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modal_endereco_cadastro" class="btn btn-sm btn-success">
+      <i class="ri-add-line align-bottom me-1"></i> 
+      Adicionar endereço
+    </a>
   </div><!-- end card header -->
-  <div class="card-body">
+  <div class="card-body px-1">
 
     <ul class="list-group list-group-flush">
       @forelse ($pessoa->enderecos as $endereco)
@@ -49,9 +57,10 @@
           <x-painel.enderecos.modal :endereco="$endereco" :pessoa="$pessoa"/>
         @endif
         @empty
-        <p>Não há endereço cadastrado</p>
+          <p>Não há endereço cadastrado</p>
+      @endforelse
     </ul>
 
-    @endforelse
+    <x-painel.enderecos.modal :pessoa="$pessoa"/>
   </div>
 </div>

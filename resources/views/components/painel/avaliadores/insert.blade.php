@@ -31,7 +31,22 @@
 
       <div class="tab-content">
         <div class="tab-pane active" id="principal" role="tabpanel"> <!-- Dados principais -->
-          <x-painel.avaliadores.dados-principais :avaliador="$avaliador"/>
+          <div class="row">
+            <div class="col-12">
+              <x-painel.avaliadores.dados-principais :avaliador="$avaliador"/>
+            </div>
+            
+            @if($avaliador->uid)
+              <div class="col-12 d-flex justify-content-end">
+                <x-painel.avaliadores.form-delete route="avaliador-delete" id="{{ $avaliador->uid }}" />
+              </div>
+            @endif
+            
+            <div class="col-12 mt-4 px-0">
+              <x-painel.enderecos.list class="shadow-none" :pessoa="$avaliador->pessoa"/>
+            </div>
+
+          </div>
         </div>
         <div class="tab-pane" id="avaliacoes" role="tabpanel">
           <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador"/>
@@ -47,8 +62,6 @@
 
     </form>
     @if ($avaliador->id)
-      <x-painel.avaliadores.form-delete route="avaliador-delete" id="{{ $avaliador->uid }}" />
-
       <form method="POST" id="curriculo-delete"
         action="{{ route('avaliador-curriculo-delete', $avaliador->uid) }}">
         @csrf
