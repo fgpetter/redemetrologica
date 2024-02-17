@@ -13,7 +13,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
 
-class AgendamentoCursoController extends Controller
+class AgendaCursoController extends Controller
 {
   /**
    * Gera tela de lista de cursos agendados
