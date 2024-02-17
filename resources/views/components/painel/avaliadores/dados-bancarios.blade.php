@@ -1,7 +1,7 @@
-@if (session('endereco-success')) <div class="alert alert-success"> {{ session('endereco-success') }} </div> @endif
-@if (session('endereco-error')) 
+@if (session('dados-bancarios-success')) <div class="alert alert-success"> {{ session('dados-bancarios-success') }} </div> @endif
+@if (session('dados-bancarios-error')) 
   <div class="alert alert-danger"> 
-    {{ session('endereco-error') }} 
+    {{ session('dados-bancarios-error') }} 
     @foreach ($errors->all() as $error)
       <li>{{ $error }}</li>
     @endforeach
