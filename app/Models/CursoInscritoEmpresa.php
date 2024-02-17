@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class CursoInscrito extends Model
+class CursoInscritoEmpresa extends Model
 {
     use HasFactory;
 
@@ -33,14 +33,5 @@ class CursoInscrito extends Model
     public function pessoa() : BelongsTo
     {
         return $this->belongsTo(Pessoa::class);
-    }
-
-    /**
-     * Carrega Empresa associado
-     * @return 
-     */
-    public function empresa()
-    {
-        return $this->hasOne(Pessoa::class, 'id', 'empresa_id');
     }
 }

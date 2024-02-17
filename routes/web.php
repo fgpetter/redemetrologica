@@ -19,7 +19,6 @@ use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\AgendaCursosController;
 
-
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');

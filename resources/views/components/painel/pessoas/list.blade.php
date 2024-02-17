@@ -19,11 +19,11 @@
       <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
       <thead>
         <tr>
-          <th scope="col" class="d-none d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
+          <th scope="col" class="d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
           <th scope="col">Nome</th>
           <th scope="col">CPF/CNPJ</th>
           <th scope="col" class="text-wrap">Data de cadastro</th>
-          <th scope="col"></th>
+          <th scope="col" style="width: 5%; white-space: nowrap;"></th>
         </tr>
       </thead>
       <tbody>

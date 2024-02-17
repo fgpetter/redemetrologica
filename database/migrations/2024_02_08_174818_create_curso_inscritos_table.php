@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('uid');
             $table->foreignId('pessoa_id')->constrained();
-            $table->foreignId('curso_id')->constrained();
+            $table->foreignId('agenda_curso_id')->constrained();
             $table->decimal('valor')->nullable();
-            $table->boolean('confirmou');
+            $table->boolean('confirmou')->default('0');
             $table->dateTime('certificado_emitido')->nullable();
+            $table->dateTime('data_inscricao');
             $table->foreignId('pesquisa_id')->nullable();
-            $table->foreignId('nf_id')->nullable();
             $table->timestamps();
         });
     }

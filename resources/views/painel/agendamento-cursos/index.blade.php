@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="col">
-            <x-painel.agendamento-cursos.list />
+            <x-painel.agendamento-cursos.list :agendacursos="$agenda_cursos"/>
         </div>
     </div>
 @endsection
