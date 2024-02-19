@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('uid');
             $table->foreignId('pessoa_id')->constrained();
+            $table->boolean('situacao')->default(true);
             $table->string('curriculo')->nullable();
+            $table->text('observacoes')->nullable();
             $table->timestamps();
         });
     }

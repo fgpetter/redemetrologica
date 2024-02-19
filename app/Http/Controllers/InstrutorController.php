@@ -3,72 +3,172 @@
 namespace App\Http\Controllers;
 
 use App\Models\Curso;
+use App\Models\Pessoa;
 use App\Models\Instrutor;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Validation\Validator;
+use Illuminate\Http\RedirectResponse;
 
 class InstrutorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $instrutores = Instrutor::all();
-        return view('painel.instrutores.index', ['instrutores' => $instrutores]);
+  /**
+   * Display a listing of the resource.
+   */
+  public function index()
+  {
+    $instrutores = Instrutor::all();
+    $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
+    ->whereNotIn('id',function($query) {
+      $query->select('pessoa_id')->from('instrutores');
+    })
+    ->get();
+    return view('painel.instrutores.index', ['instrutores' => $instrutores, 'pessoas' => $pessoas]);
+  }
+
+  /**
+   * Cria um avaliador a partir de uma pessoa
+   * @param Request $request
+   * * @return RedirectResponse
+   */
+  public function create(Request $request): RedirectResponse
+  {
+    $request->validate([
+      'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
+      ],[
+        'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
+        'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
+        'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente'
+      ]
+    );
+    
+    $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
+    
+    // Cria um instrutor vinculado a pessoa
+    $instrutor = Instrutor::create([
+    'uid' => config('hashing.uid'),
+    'pessoa_id' => $pessoa->id,
+    ]);
+  
+    if(!$instrutor){
+    return redirect()->back()
+    ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+  
+    return redirect()->route('instrutor-insert', $instrutor->uid)
+    ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
+    
+  }
+
+  /**
+   * Carrega tela de edição de instrutor.
+   * @param Instrutor $instrutor
+   * @return View
+   */
+  public function insert(Instrutor $instrutor): View
+  {
+    $cursos = Curso::all();
+    return view('painel.instrutores.insert', ['instrutor' => $instrutor, 'cursos' => $cursos]);
+  }
+
+
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(Instrutor $instrutor, Request $request ): RedirectResponse
+  {
+    $request->validate(
+      [
+        'cpf_cnpj' => ['required', 'string'],
+        'rg_ie' => ['required', 'string'],
+        'nome' => ['required', 'string'],
+        'tipo_pessoa' => ['required', 'in:PF,PJ'],
+        'situacao' => ['required', 'integer'],
+        'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'], //5mb
+        'observacoes' => ['nullable', 'string'],
+      ],
+      [
+        'nome.required' => 'O nome não pode ficar em branco',
+        'nome.string' => 'O dado enviado não é válido',
+        'cpf_cnpj.required' => 'O CPF/CNPJ não pode ficar em branco',
+        'cpf_cnpj.string' => 'O dado enviado não é válido',
+        'rg_ie.required' => 'O RG/IE não pode ficar em branco',
+        'rg_ie.string' => 'O dado enviado não é válido',
+        'situacao.required' => 'Selecione uma opção válida',
+        'situacao.integer' => 'Selecione uma opção válida' ,
+        'curriculo.mimes' => 'Arquivo inválido',
+        'curriculo.max' => 'O arquivo é muito grande, tamanho máximo 5mb',
+        'observacoes.string' => 'O dado enviado não é válido',
+        'tipo_pessoa.required' => 'O dado enviado não é válido',
+        'tipo_pessoa.in' => 'O dado enviado não é válido'
+      ]
+    );
+
+    // TODO - Adicionar upload de curriculo
+
+    $instrutor->update([
+      'situacao' => $request->situacao,
+      'curriculo' => $request->curriculo,
+      'observacoes' => $request->observacoes,
+    ]);
+
+    $pessoa = Pessoa::find($instrutor->pessoa_id);
+    $pessoa->update([
+      'nome_razao' => $request->nome,
+      'tipo_pessoa' => $request->tipo_pessoa,
+      'cpf_cnpj' => $request->cpf_cnpj,
+      'rg_ie' => $request->rg_ie,
+    ]);
+
+    return back()->with('instrutor-success', 'Insrtutor atualizado com sucesso');
+
+
+  }
+
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function delete(Instrutor $instrutor)
+  {
+    if (File::exists(public_path($instrutor->curriculo))) {
+      File::delete(public_path($instrutor->curriculo));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    $instrutor->delete();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+    return redirect()->route('instrutor-index')->with('instrutor-success', 'Insrtutor removido');
+  }
 
-    /**
-     * Display the specified resource.
-     */
-    public function insert(Instrutor $instrutor): View
-    {
-        $cursos = Curso::all();
-        return view('painel.instrutores.insert', ['instrutor' => $instrutor, 'cursos' => $cursos]);
-    }
-
-    // public function insert(Instrutor $instrutor)
-    // {
-    //     return view('painel.instrutores.insert',  ['instrutor' => $instrutor]);
+  public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
+  {
+    // $request->validate([
+    //   'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
+    // ],[
+    //   'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
+    //   'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
+    //   'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente'
+    //   ]
+    // );
+    
+    // $cusos = Curso::select('id')->where('uid', $request->curso_uid)->get();
+    // $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
+    
+    // // Cria um instrutor vinculado a pessoa
+    // $instrutor = Instrutor::create([
+    // 'uid' => config('hashing.uid'),
+    // 'pessoa_id' => $pessoa->id,
+    // ]);
+  
+    // if(!$instrutor){
+    // return redirect()->back()
+    // ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     // }
+  
+    // return redirect()->route('instrutor-insert', $instrutor->uid)
+    // ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
+    
+  }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

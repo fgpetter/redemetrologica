@@ -1,40 +1,40 @@
-<form method="POST" action="{{ isset($funcionario->uid) ? route('funcionario-update', $funcionario->uid) : route('funcionario-create') }}" enctype="multipart/form-data">
+@if (session('instrutor-success'))
+  <div class="alert alert-success"> {{ session('instrutor-success') }} </div>
+@endif
+
+<form method="POST" action="{{ isset($instrutor->uid) ? route('instrutor-update', $instrutor->uid) : route('instrutor-create') }}" enctype="multipart/form-data">
     @csrf
     <div class="row gy-3 mt-3">
 
         <div class="col-sm-8">
-            <x-forms.input-field :value="old('nome') ?? ($instrutor->nome ?? null)" name="nome" label="Nome" placeholder="" />
-            @error('nome')
-            <div class="text-warning">{{ $message }}</div>
-            @enderror
+            <x-forms.input-field :value="old('nome') ?? ($instrutor->pessoa->nome_razao ?? null)" name="nome" label="Nome"/>
+            @error('nome') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 
         <div class="col-sm-2">
             <x-forms.input-select name="situacao" label="Situação">
-              <option value="1">ATIVO</option>
-              <option value="0">INATIVO</option>
+              <option @selected($instrutor->situacao == 1) value="1">ATIVO</option>
+              <option @selected($instrutor->situacao == 0) value="0">INATIVO</option>
             </x-forms.input-select>
             @error('situacao')<div class="text-warning">{{ $message }}</div>@enderror
         </div>
 
         <div class="col-sm-2">
             <x-forms.input-select name="tipo_pessoa" label="Tipo Pessoa">
-              <option value="PF">PESSOA FÍSICA</option>
-              <option value="PJ">PESSOA JURÍDICA</option>
+              <option @selected($instrutor->pessoa->tipo_pessoa == 'PF') value="PF">PESSOA FÍSICA</option>
+              <option @selected($instrutor->pessoa->tipo_pessoa == 'PJ') value="PJ">PESSOA JURÍDICA</option>
             </x-forms.input-select>
-            @error('tipo_pessoa')
-            <div class="text-warning">{{ $message }}</div>
-            @enderror
+            @error('tipo_pessoa') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 
         <div class="col-sm-3">
-            <x-forms.input-field :value="old('cnpj_cpf') ?? ($instrutor->cnpj_cpf ?? null)" name="cnpj" label="CNPJ/CPF" placeholder="CNPJ/CPF" />
+            <x-forms.input-field :value="old('cnpj_cpf') ?? ($instrutor->pessoa->cpf_cnpj ?? null)" name="cpf_cnpj" label="CNPJ/CPF" />
             @error('cnpj_cpf')
             <div class="text-warning">{{ $message }}</div>
             @enderror
         </div>
         <div class="col-sm-3">
-            <x-forms.input-field :value="old('rg_IE') ?? ($instrutor->rg_ie ?? null)" name="rg_ie" label="RG/IE" placeholder="RG/IE" />
+            <x-forms.input-field :value="old('rg_ie') ?? ($instrutor->pessoa->rg_ie ?? null)" name="rg_ie" label="RG/IE" />
             @error('rg_ie')
             <div class="text-warning">{{ $message }}</div>
             @enderror
@@ -61,28 +61,6 @@
             @error('curriculo') <div class="text-warning">{{ $message }}</div> @enderror
           @endif
         </div>
-        <h6 class="mb-0 mt-4">Dados de endereço</h6>
-          <x-painel.enderecos.form-endereco :endereco="$funcionario->pessoa->enderecos[0] ?? null"/>
-
-        <h6 class="mb-0 mt-4">Dados bancários</h6>
-        <div class="col-sm-6">
-            <x-forms.input-field :value="old('banco') ?? ($instrutor->banco ?? null)" name="banco" label="Banco" placeholder="" />
-            @error('banco')
-            <div class="text-warning">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="col-sm-6">
-            <x-forms.input-field :value="old('agencia') ?? ($instrutor->agencia ?? null)" name="agencia" label="Agência" placeholder="" />
-            @error('agencia')
-            <div class="text-warning">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="col-sm-6">
-            <x-forms.input-field :value="old('conta') ?? ($instrutor->conta ?? null)" name="conta" label="Conta" placeholder="" />
-            @error('conta')
-            <div class="text-warning">{{ $message }}</div>
-            @enderror
-        </div>
         <div class="col-sm-12">
             <x-forms.input-textarea name="observacoes" label="Observações">
                 {{ old('observacoes') ?? ($instrutor->observacoes ?? null) }}
@@ -95,8 +73,7 @@
     <!-- Btn -->
     <div class="row mt-3">
         <div class="col-sm-12">
-            <button type="submit" class="btn btn-primary px-4"> Cadastrar
-            </button>
+            <button type="submit" class="btn btn-primary px-4"> {{ isset($instrutor->uid) ? 'ATUALIZAR' : 'CADASTRAR' }} </button>
         </div>
     </div>
 </form>
