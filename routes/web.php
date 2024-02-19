@@ -19,6 +19,7 @@ use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\AgendaCursoController;
 use App\Http\Controllers\BancosController;
+use App\Http\Controllers\CentroCustoController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -201,5 +202,13 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('store', [BancosController::class, 'store'])->name('banco-store');
     Route::post('update/{banco:uid}', [BancosController::class, 'update'])->name('banco-update');
     Route::post('delete/{banco:uid}', [BancosController::class, 'destroy'])->name('banco-delete');
+  });
+
+  /*Rotas para cadastro de centro de custo*/
+  Route::group(['prefix' => 'cenro-custo'], function () {
+    Route::get('index', [CentroCustoController::class, 'index'])->name('cenro-custo-index');
+    Route::post('store', [CentroCustoController::class, 'store'])->name('cenro-custo-store');
+    Route::post('update/{cenroCusto:uid}', [CentroCustoController::class, 'update'])->name('cenro-custo-update');
+    Route::post('delete/{cenroCusto:uid}', [CentroCustoController::class, 'destroy'])->name('cenro-custo-delete');
   });
 });
