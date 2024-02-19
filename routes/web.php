@@ -205,10 +205,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /*Rotas para cadastro de centro de custo*/
-  Route::group(['prefix' => 'cenro-custo'], function () {
-    Route::get('index', [CentroCustoController::class, 'index'])->name('cenro-custo-index');
-    Route::post('store', [CentroCustoController::class, 'store'])->name('cenro-custo-store');
-    Route::post('update/{cenroCusto:uid}', [CentroCustoController::class, 'update'])->name('cenro-custo-update');
-    Route::post('delete/{cenroCusto:uid}', [CentroCustoController::class, 'destroy'])->name('cenro-custo-delete');
+  Route::group(['prefix' => 'centro-custo'], function () {
+    Route::get('index', [CentroCustoController::class, 'index'])->name('centro-custo-index');
+    Route::post('store', [CentroCustoController::class, 'store'])->name('centro-custo-store');
+    Route::post('update/{centroCusto:uid}', [CentroCustoController::class, 'update'])->name('centro-custo-update');
+    Route::post('delete/{centroCusto:uid}', [CentroCustoController::class, 'destroy'])->name('centro-custo-delete');
   });
 });

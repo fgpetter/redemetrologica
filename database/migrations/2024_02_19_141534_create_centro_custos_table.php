@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('centro_custos', function (Blueprint $table) {
             $table->id();
+            $table->string('uid');
+            $table->string('descricao');
             $table->timestamps();
         });
     }
