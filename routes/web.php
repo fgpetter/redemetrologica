@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CursoController;
+use App\Http\Controllers\BancosController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\EnderecoController;
@@ -12,14 +13,14 @@ use App\Http\Controllers\AvaliadorController;
 use App\Http\Controllers\InstrutorController;
 use App\Http\Controllers\PostMediaController;
 use App\Http\Controllers\ParametrosController;
+use App\Http\Controllers\AgendaCursoController;
 use App\Http\Controllers\AreaAtuacaoController;
+use App\Http\Controllers\CentroCustoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
-use App\Http\Controllers\AgendaCursoController;
-use App\Http\Controllers\BancosController;
-use App\Http\Controllers\CentroCustoController;
+use App\Http\Controllers\ModalidadePagamentoController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -211,5 +212,13 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('store', [CentroCustoController::class, 'store'])->name('centro-custo-store');
     Route::post('update/{centroCusto:uid}', [CentroCustoController::class, 'update'])->name('centro-custo-update');
     Route::post('delete/{centroCusto:uid}', [CentroCustoController::class, 'destroy'])->name('centro-custo-delete');
+  });
+
+  /*Rotas para cadastro de centro de custo*/
+  Route::group(['prefix' => 'modalidade-pagamento'], function () {
+    Route::get('index', [ModalidadePagamentoController::class, 'index'])->name('modalidade-pagamento-index');
+    Route::post('store', [ModalidadePagamentoController::class, 'store'])->name('modalidade-pagamento-store');
+    Route::post('update/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'update'])->name('modalidade-pagamento-update');
+    Route::post('delete/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'destroy'])->name('modalidade-pagamento-delete');
   });
 });
