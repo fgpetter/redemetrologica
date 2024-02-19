@@ -129,13 +129,13 @@
 
         {{-- CADASTROS ADICIONAIS --}}
         <li class="nav-item">
-          <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
+          <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/bancos', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
             href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse" role="button"
-            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/bancos', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
             aria-controls="sidebarCadastrosAdicionais">
             <i class="ph-list"></i> <span>CADASTROS ADICIONAIS</span>
           </a>
-          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/bancos', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
             id="sidebarCadastrosAdicionais">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
@@ -166,6 +166,16 @@
                 Tipos de avaliação
               </a>
               </li>
+
+              <hr class="border-white me-4 my-2">
+              
+              <li class="nav-item">
+                <a href="{{ route('banco-index') }}"
+                  class="nav-link {{ request()->is('painel/bancos/index') ? 'active' : '' }}"
+                  role="button" data-key="t-bancos">
+                  Bancos
+                </a>
+                </li>
             </ul>
           </div>
         </li>
