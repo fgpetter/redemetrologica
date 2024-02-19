@@ -129,13 +129,13 @@
 
         {{-- CADASTROS ADICIONAIS --}}
         <li class="nav-item">
-          <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
+          <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), [ 'modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
             href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse" role="button"
-            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), [ 'modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
             aria-controls="sidebarCadastrosAdicionais">
             <i class="ph-list"></i> <span>CADASTROS ADICIONAIS</span>
           </a>
-          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), [ 'modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
             id="sidebarCadastrosAdicionais">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
@@ -180,7 +180,14 @@
                 <a href="{{ route('centro-custo-index') }}"
                   class="nav-link {{ request()->is('painel/centro-custo/index') ? 'active' : '' }}"
                   role="button" data-key="t-centro-custo">
-                  Centro de Custo
+                  Centro de custo
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('modalidade-pagamento-index') }}"
+                  class="nav-link {{ request()->is('painel/modalidade-pagamento/index') ? 'active' : '' }}"
+                  role="button" data-key="t-modalidade-pagamento">
+                  Modalidade de pagamento
                 </a>
               </li>
             </ul>
