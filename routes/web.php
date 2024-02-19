@@ -111,10 +111,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
     Route::post('delete-curriculo/{avaliador:uid}', [AvaliadorController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
   });
+
   /* instrutores*/
   Route::group(['prefix' => 'instrutor'], function () {
     Route::get('index', [InstrutorController::class, 'index'])->name('instrutor-index');
-    Route::get('insert{instrutor:uid?}', [InstrutorController::class, 'insert'])->name('instrutor-insert');
+    Route::get('insert/{instrutor:uid?}', [InstrutorController::class, 'insert'])->name('instrutor-insert');
     Route::post('create', [InstrutorController::class, 'create'])->name('instrutor-create');
     Route::post('update/{instrutor:uid}', [InstrutorController::class, 'update'])->name('instrutor-update');
     Route::post('delete/{instrutor:uid}', [InstrutorController::class, 'delete'])->name('instrutor-delete');

@@ -17,17 +17,10 @@
     @endcomponent
     <div class="row">
 
-        <div class="col col-xxl-8">
+        <div class="col col-xxl-12">
 
-            <x-painel.instrutores.insert :cursos="$cursos" />
+            <x-painel.instrutores.insert :instrutor="$instrutor" :cursos="$cursos" />
         </div>
-        @if ($instrutor->id)
-            <div class="col-4">
-                <x-painel.funcionarios.dados-bancarios :instrutor="$instrutor" />
-            </div>
-
-        @endif
-
 
     </div>
 @endsection

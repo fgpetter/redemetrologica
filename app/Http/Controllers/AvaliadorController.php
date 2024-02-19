@@ -179,7 +179,6 @@ class AvaliadorController extends Controller
         File::delete(public_path($avaliador->curriculo));
       }
 
-      Pessoa::where('id', $avaliador->pessoa_id)->delete();
       $avaliador->delete();
 
       return redirect()->route('avaliador-index')->with('avaliador-success', 'Avaliador removido');
