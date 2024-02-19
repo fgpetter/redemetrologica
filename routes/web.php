@@ -18,6 +18,7 @@ use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\AgendaCursoController;
+use App\Http\Controllers\BancosController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -177,7 +178,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('materiais-padroes-update');
     Route::post('delete/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'destroy'])->name('materiais-padroes-delete');
   });
-
+  
   /*Rotas para cadastro de parâmetros*/
   Route::group(['prefix' => 'parametros'], function () {
     Route::get('index', [ParametrosController::class, 'index'])->name('parametros-index');
@@ -192,5 +193,13 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('store', [TipoAvaliacaoController::class, 'store'])->name('tipo-avaliacao-store');
     Route::post('update/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
     Route::post('delete/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'destroy'])->name('tipo-avaliacao-delete');
+  });
+
+  /*Rotas para cadastro de bancos*/
+  Route::group(['prefix' => 'banco'], function () {
+    Route::get('index', [BancosController::class, 'index'])->name('banco-index');
+    Route::post('store', [BancosController::class, 'store'])->name('banco-store');
+    Route::post('update/{banco:uid}', [BancosController::class, 'update'])->name('banco-update');
+    Route::post('delete/{banco:uid}', [BancosController::class, 'destroy'])->name('banco-delete');
   });
 });
