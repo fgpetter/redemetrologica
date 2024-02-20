@@ -21,6 +21,7 @@ use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
+use App\Http\Controllers\PlanoContaController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -220,5 +221,13 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('store', [ModalidadePagamentoController::class, 'store'])->name('modalidade-pagamento-store');
     Route::post('update/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'update'])->name('modalidade-pagamento-update');
     Route::post('delete/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'destroy'])->name('modalidade-pagamento-delete');
+  });
+
+  /*Rotas para cadastro de plano de contas */
+  Route::group(['prefix' => 'plano-conta'], function () {
+    Route::get('index', [PlanoContaController::class, 'index'])->name('plano-conta-index');
+    Route::post('store', [PlanoContaController::class, 'store'])->name('plano-conta-store');
+    Route::post('update/{planoconta:uid}', [PlanoContaController::class, 'update'])->name('plano-conta-update');
+    Route::post('delete/{planoconta:uid}', [PlanoContaController::class, 'destroy'])->name('plano-conta-delete');
   });
 });
