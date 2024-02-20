@@ -26,7 +26,7 @@ class CursoController extends Controller
   }
 
   /**
-   * Adiciona usuários na base
+   * Adiciona curso na base
    *
    * @param Request $request
    * @return RedirectResponse
