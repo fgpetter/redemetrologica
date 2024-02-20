@@ -13,7 +13,7 @@
   @endcomponent
 
   <div class="row">
-    <div class="col">
+    <div class="col-xxl-10">
       <x-painel.materiais-padroes.list :materiais="$materiais" />
     </div>
   </div>

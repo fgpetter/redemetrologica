@@ -21,7 +21,7 @@ class AvaliadorController extends Controller
    **/
   public function index(): View
   {
-    $avaliadores = Avaliador::all();
+    $avaliadores = Avaliador::paginate(10);
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->whereNotIn('id',function($query) {
           $query->select('pessoa_id')->from('avaliadores');
@@ -126,24 +126,12 @@ class AvaliadorController extends Controller
     $request->validate([
       'nome_razao' => ['required', 'string', 'max:255'],
       'cpf_cnpj' => ['required', 'string', 'max:14','min:14'], // TODO - adicionar validação de CPF/CNPJ
-      'cep' => ['required', 'string', 'max:9', 'min:9'],
-      'endereco' => ['required', 'string', 'max:255'],
-      'cidade' => ['required', 'string', 'max:255'],
-      'uf' => ['required', 'string', 'max:2', 'min:2'],
       'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'] //5mb
       ],[
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo CPF',
         'cpf_cnpj.min' => 'CPF inválido',
         'cpf_cnpj.max' => 'CPF inválido',
-        'cep.required' => 'Preencha o campo CEP',
-        'cep.min' => 'CEP inválido',
-        'cep.mmax' => 'CEP inválido',
-        'endereco.required' => 'Preencha o campo endereco',
-        'cidade.required' => 'Preencha o campo cidade',
-        'uf.required' => 'Inválido',
-        'uf.min' => 'Inválido',
-        'uf.max' => 'Inválido',
         'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
         'curriculo.max' => 'Tamanho máximo 5MB'
       ]
@@ -176,15 +164,6 @@ class AvaliadorController extends Controller
       'email' => $request->get('email')
     ]);
 
-    $avaliador->pessoa->enderecos->first()->update([
-      'endereco' => $request->get('endereco'),
-      'complemento' => $request->get('complemento'),
-      'bairro' => $request->get('bairro'),
-      'cep' => $request->get('cep'),
-      'cidade' => $request->get('cidade'),
-      'uf' => $request->get('uf')
-    ]);
-
     return redirect()->back()->with('avaliador-success', 'Avaliador atualizado com sucesso');
   }
 
@@ -200,7 +179,6 @@ class AvaliadorController extends Controller
         File::delete(public_path($avaliador->curriculo));
       }
 
-      Pessoa::where('id', $avaliador->pessoa_id)->delete();
       $avaliador->delete();
 
       return redirect()->route('avaliador-index')->with('avaliador-success', 'Avaliador removido');

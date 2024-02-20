@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    Editar Avaliador
+    Editar Instrutor
 @endsection
 @section('content')
     @component('components.breadcrumb')
@@ -8,20 +8,19 @@
             Pessoas
         @endslot
         @slot('title')
-            {{-- @if ($Instrutor->id)
+            @if ($instrutor->id)
                 Editar Instrutor
             @else
                 Cadastrar Instrutor
-            @endif --}}
-            Cadastrar Instrutor
+            @endif
         @endslot
     @endcomponent
     <div class="row">
 
-        <div class="col col-xxl-8">
-            <x-painel.instrutores.insert />
-        </div>
+        <div class="col col-xxl-12">
 
+            <x-painel.instrutores.insert :instrutor="$instrutor" :cursos="$cursos" />
+        </div>
 
     </div>
 @endsection

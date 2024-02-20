@@ -21,7 +21,7 @@ class Avaliador extends Model
 
     /**
      * Carrega pessoa
-     * @return BelongsToMany
+     * @return BelongsTo
      */
     public function pessoa() : BelongsTo
     {

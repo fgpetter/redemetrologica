@@ -1,7 +1,7 @@
-@if (session('endereco-success')) <div class="alert alert-success"> {{ session('endereco-success') }} </div> @endif
-@if (session('endereco-error')) 
+@if (session('dados-bancarios-success')) <div class="alert alert-success"> {{ session('dados-bancarios-success') }} </div> @endif
+@if (session('dados-bancarios-error')) 
   <div class="alert alert-danger"> 
-    {{ session('endereco-error') }} 
+    {{ session('dados-bancarios-error') }} 
     @foreach ($errors->all() as $error)
       <li>{{ $error }}</li>
     @endforeach
@@ -23,9 +23,6 @@
             <strong>{{$conta->nome_conta}}</strong><br/>
             {{$conta->nome_banco}}, COD: {{$conta->cod_banco}} <br/>
             Agência: {{$conta->agencia}} - CC: {{$conta->conta}}
-            @if ($funcionario->conta_padrao == $conta->id) 
-              <br/> <span class="text-info-emphasis opacity-75">Conta Padrão</span> 
-            @endif
           </div>
           <div>
               <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown" aria-expanded="false">

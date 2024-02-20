@@ -17,9 +17,15 @@
         @endslot
     @endcomponent
     <div class="row">
-
         <div class="col col-xxl-8">
-            <x-painel.agendamento-cursos.insert />
+            <x-painel.agendamento-cursos.insert 
+            :instrutores="$instrutores" 
+            :cursos="$cursos" 
+            :empresas="$empresas" 
+            :agendacurso="$agendacurso"
+            :inscritos="$inscritos"
+            :inscritosempresas="$inscritos_empresas"
+            />
         </div>
 
 
@@ -29,4 +35,6 @@
 @section('script')
     <script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
     <script src="{{ URL::asset('build/js/custom.js') }}"></script>
+    <script src="{{ URL::asset('build/js/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ URL::asset('build/js/jquery.mask.min.js') }}"></script>  
 @endsection

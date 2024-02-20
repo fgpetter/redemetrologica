@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Endereco;
+use App\Models\Pessoa;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
@@ -24,11 +25,13 @@ class EnderecoController extends Controller
       'endereco' => ['required', 'string'],
       'cidade' => ['required', 'string'],
       'uf' => ['required', 'string'],
+      'end_padrao' => ['nullable', 'integer']
       ],[
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
         'uf.required' => 'Preencha o uf',
+        'end_padrao.integer' => 'Dado inválido'
       ]
     );
 
@@ -49,9 +52,13 @@ class EnderecoController extends Controller
       'uf' => $request->get('uf'),
 
     ]);
-
+    
     if(!$endereco){
       return redirect()->back()->with('endereco-error', 'Ocorreu um erro!');
+    }
+
+    if(isset($request->end_padrao)){
+      Pessoa::find($request->pessoa)->update(['end_padrao' => $endereco->id]);
     }
 
     return redirect()->back()->with('endereco-success', 'Endereço cadastrado com sucesso');
@@ -71,11 +78,13 @@ class EnderecoController extends Controller
       'endereco' => ['required', 'string'],
       'cidade' => ['required', 'string'],
       'uf' => ['required', 'string'],
+      'end_padrao' => ['nullable', 'integer']
       ],[
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
         'uf.required' => 'Preencha o estado',
+        'end_padrao.integer' => 'Dado inválido'
       ]
     );
 
@@ -93,6 +102,14 @@ class EnderecoController extends Controller
       'cidade' => $request->get('cidade'),
       'uf' => $request->get('uf')
     ]);
+
+    $pessoa = Pessoa::find($request->pessoa);
+
+    if(isset($request->end_padrao)){
+      $pessoa->update(['end_padrao' => $endereco->id]);
+    } elseif ($pessoa->end_padrao == $endereco->id) {
+      $pessoa->update(['end_padrao' => null]);
+    }
 
     return redirect()->back()->with('endereco-success', 'Endereço atualizado');
   }

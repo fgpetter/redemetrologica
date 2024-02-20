@@ -53,15 +53,6 @@ class DadoBancarioController extends Controller
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
-    if($request->get('conta_padrao')) {
-      Funcionario::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
-    }
-
-    if($request->get('conta_padrao_avaliador')) {
-      Avaliador::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
-    }
-
-
     return redirect()->back()->with('conta-success', 'Conta cadastrada com sucesso');
   }
 
@@ -103,14 +94,6 @@ class DadoBancarioController extends Controller
 
     if(!$conta){
       return redirect()->back()->with('error', 'Ocorreu um erro!');
-    }
-
-    if($request->get('conta_padrao')) {
-      Funcionario::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
-    }
-
-    if($request->get('conta_padrao_avaliador')) {
-      Avaliador::where('pessoa_id', $request->get('pessoa_id'))->first()->update(['conta_padrao' => $conta->id]);
     }
 
     return redirect()->back()->with('conta-success', 'Conta cadastrada com sucesso');

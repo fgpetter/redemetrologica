@@ -22,7 +22,6 @@ return new class extends Migration
             $table->boolean('curso_aud_interna');
             $table->boolean('parecer_psicologico');
             $table->date('data_ingresso');
-            $table->integer('conta_padrao')->nullable();
             $table->timestamps();
         });
     }

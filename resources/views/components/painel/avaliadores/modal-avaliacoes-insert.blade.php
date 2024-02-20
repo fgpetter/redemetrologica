@@ -7,7 +7,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form method="POST" action="{{ isset($avaliacao) ? route('avaliador-create-avaliacao', $avaliador->uid) : route('avaliador-update-avaliacao', $avaliacao->uid) }}">
+          <form method="POST" action="{{ isset($avaliacao) ? route('avaliador-update-avaliacao', $avaliacao->uid) : route('avaliador-create-avaliacao', $avaliador->uid) }}">
             @csrf
             <div class="row gy-3 mb-3">
   

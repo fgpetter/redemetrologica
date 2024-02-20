@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CursoController;
+use App\Http\Controllers\BancosController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\EnderecoController;
@@ -12,13 +13,14 @@ use App\Http\Controllers\AvaliadorController;
 use App\Http\Controllers\InstrutorController;
 use App\Http\Controllers\PostMediaController;
 use App\Http\Controllers\ParametrosController;
+use App\Http\Controllers\AgendaCursoController;
 use App\Http\Controllers\AreaAtuacaoController;
+use App\Http\Controllers\CentroCustoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
-use App\Http\Controllers\agendamentoCursoController;
-
+use App\Http\Controllers\ModalidadePagamentoController;
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -111,10 +113,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
     Route::post('delete-curriculo/{avaliador:uid}', [AvaliadorController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
   });
+
   /* instrutores*/
   Route::group(['prefix' => 'instrutor'], function () {
     Route::get('index', [InstrutorController::class, 'index'])->name('instrutor-index');
-    Route::get('insert', [InstrutorController::class, 'insert'])->name('instrutor-insert');
+    Route::get('insert/{instrutor:uid?}', [InstrutorController::class, 'insert'])->name('instrutor-insert');
     Route::post('create', [InstrutorController::class, 'create'])->name('instrutor-create');
     Route::post('update/{instrutor:uid}', [InstrutorController::class, 'update'])->name('instrutor-update');
     Route::post('delete/{instrutor:uid}', [InstrutorController::class, 'delete'])->name('instrutor-delete');
@@ -138,12 +141,12 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* agendamento-cursos*/
-  Route::group(['prefix' => 'agendamentoCurso'], function () {
-    Route::get('index', [agendamentoCursoController::class, 'index'])->name('agendamentoCurso-index');
-    Route::get('insert', [agendamentoCursoController::class, 'insert'])->name('agendamentoCurso-insert');
-    Route::post('create', [agendamentoCursoController::class, 'create'])->name('agendamentoCurso-create');
-    Route::post('update/{agendamentoCurso:uid}', [agendamentoCursoController::class, 'update'])->name('agendamentoCurso-update');
-    Route::post('delete/{agendamentoCurso:uid}', [agendamentoCursoController::class, 'delete'])->name('agendamentoCurso-delete');
+  Route::group(['prefix' => 'agendamento-curso'], function () {
+    Route::get('index', [AgendaCursoController::class, 'index'])->name('agendamento-curso-index');
+    Route::get('insert/{agendacurso:uid?}', [AgendaCursoController::class, 'insert'])->name('agendamento-curso-insert');
+    Route::post('create', [AgendaCursoController::class, 'create'])->name('agendamento-curso-create');
+    Route::post('update/{agendacurso:uid}', [AgendaCursoController::class, 'update'])->name('agendamento-curso-update');
+    Route::post('delete/{agendacurso:uid}', [AgendaCursoController::class, 'delete'])->name('agendamento-curso-delete');
   });
 
   /* Noticias e Galeria */
@@ -178,7 +181,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('materiais-padroes-update');
     Route::post('delete/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'destroy'])->name('materiais-padroes-delete');
   });
-
+  
   /*Rotas para cadastro de parâmetros*/
   Route::group(['prefix' => 'parametros'], function () {
     Route::get('index', [ParametrosController::class, 'index'])->name('parametros-index');
@@ -193,5 +196,29 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('store', [TipoAvaliacaoController::class, 'store'])->name('tipo-avaliacao-store');
     Route::post('update/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
     Route::post('delete/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'destroy'])->name('tipo-avaliacao-delete');
+  });
+
+  /*Rotas para cadastro de bancos*/
+  Route::group(['prefix' => 'banco'], function () {
+    Route::get('index', [BancosController::class, 'index'])->name('banco-index');
+    Route::post('store', [BancosController::class, 'store'])->name('banco-store');
+    Route::post('update/{banco:uid}', [BancosController::class, 'update'])->name('banco-update');
+    Route::post('delete/{banco:uid}', [BancosController::class, 'destroy'])->name('banco-delete');
+  });
+
+  /*Rotas para cadastro de centro de custo*/
+  Route::group(['prefix' => 'centro-custo'], function () {
+    Route::get('index', [CentroCustoController::class, 'index'])->name('centro-custo-index');
+    Route::post('store', [CentroCustoController::class, 'store'])->name('centro-custo-store');
+    Route::post('update/{centroCusto:uid}', [CentroCustoController::class, 'update'])->name('centro-custo-update');
+    Route::post('delete/{centroCusto:uid}', [CentroCustoController::class, 'destroy'])->name('centro-custo-delete');
+  });
+
+  /*Rotas para cadastro de centro de custo*/
+  Route::group(['prefix' => 'modalidade-pagamento'], function () {
+    Route::get('index', [ModalidadePagamentoController::class, 'index'])->name('modalidade-pagamento-index');
+    Route::post('store', [ModalidadePagamentoController::class, 'store'])->name('modalidade-pagamento-store');
+    Route::post('update/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'update'])->name('modalidade-pagamento-update');
+    Route::post('delete/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'destroy'])->name('modalidade-pagamento-delete');
   });
 });
