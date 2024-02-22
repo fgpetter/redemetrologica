@@ -1,7 +1,18 @@
+@props(['instrutores' => [], 'pessoas' => [], 'cursoshabilitados' => []])
+
 <div class="card">
     <div class="card-body">
         <div class="row">
+            <div class="col-12">
+                <div class="hstack gap-2 flex-wrap mb-3 justify-content-end">
+                    <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                        data-bs-target="#cursoshabilitadosModal">
+                        <i class="ri-add-line align-bottom me-1"></i> Adicionar Material
+                    </a>
+                </div>
 
+
+            </div>
         </div>
 
         @if (session('update-success'))
@@ -14,38 +25,23 @@
             <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
                 <thead>
                     <tr>
-                        <th scope="col" class=" d-sm-table-cell" style="width: 1%; white-space: nowrap;">ID
+                        <th scope="col" class=" d-sm-table-cell" style="width: 1%; white-space: nowrap;">Id
                         </th>
                         <th scope="col">Descrição</th>
+                        <th scope="col">Habilitado</th>
+
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- array de teste --}}
-                    @php
-                        $materiais = [
-                            [
-                                'uid' => '1234567890abcdef',
-                                'descricao' => 'Curso do instrutor 1',
-                                'tipo' => 'Tipo 1',
-                            ],
-                            [
-                                'uid' => '9876543210fedcba',
-                                'descricao' => 'Curso do instrutor 2',
-                                'tipo' => 'Tipo 2',
-                            ],
-                            [
-                                'uid' => '0987654321abcdef',
-                                'descricao' => 'Curso do instrutor 3',
-                                'tipo' => 'Tipo 3',
-                            ],
-                        ];
-                    @endphp
-                    {{-- array de teste --}}
-                    @forelse ($materiais as $material)
+                    @forelse ($cursoshabilitados as $cursohabilitado)
                         <tr>
-                            <th>{{ $material['uid'] }}</th>
-                            <td class="text-truncate" style="max-width: 50vw">{{ $material['descricao'] }}</td>
+                            <th>
+                                #{{ substr($cursohabilitado->uid, 7) }}
+                            </th>
+                            <td>{{ $cursohabilitado->curso->descricao }}</td>
+                            <td>{{ $cursohabilitado->habilitado }}</td>
+
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -55,12 +51,15 @@
                                             title="Detalhes e edição"></i>
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                data-bs-target="#materialModal">Editar</a>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('instrutor-insert', ['instrutor' => $instrutor->uid]) }}">
+                                                Editar
+                                            </a>
                                         </li>
                                         <li>
                                             <form method="POST"
-                                                action="{{ route('materiais-padroes-delete', $material['uid']) }}">
+                                                action="{{ route('instrutor-delete', $instrutor->uid) }}">
                                                 @csrf
                                                 <button class="dropdown-item" type="submit">Excluir</button>
                                             </form>
@@ -71,7 +70,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">Este Instrutor não possui cursos realizados.</td>
+                            <td colspan="4" class="text-center">Não há Instrutores cadastrados.</td>
                         </tr>
                     @endforelse
                 </tbody>

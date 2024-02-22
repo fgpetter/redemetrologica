@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Curso;
 use App\Models\Pessoa;
 use App\Models\Instrutor;
+use App\Models\InstrutorCursoHabilitado;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -20,10 +21,10 @@ class InstrutorController extends Controller
   {
     $instrutores = Instrutor::all();
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
-    ->whereNotIn('id',function($query) {
-      $query->select('pessoa_id')->from('instrutores');
-    })
-    ->get();
+      ->whereNotIn('id', function ($query) {
+        $query->select('pessoa_id')->from('instrutores');
+      })
+      ->get();
     return view('painel.instrutores.index', ['instrutores' => $instrutores, 'pessoas' => $pessoas]);
   }
 
@@ -34,31 +35,32 @@ class InstrutorController extends Controller
    */
   public function create(Request $request): RedirectResponse
   {
-    $request->validate([
-      'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
-      ],[
+    $request->validate(
+      [
+        'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
+      ],
+      [
         'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
         'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
         'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente'
       ]
     );
-    
+
     $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
-    
+
     // Cria um instrutor vinculado a pessoa
     $instrutor = Instrutor::create([
-    'uid' => config('hashing.uid'),
-    'pessoa_id' => $pessoa->id,
+      'uid' => config('hashing.uid'),
+      'pessoa_id' => $pessoa->id,
     ]);
-  
-    if(!$instrutor){
-    return redirect()->back()
-    ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+
+    if (!$instrutor) {
+      return redirect()->back()
+        ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
-  
+
     return redirect()->route('instrutor-insert', $instrutor->uid)
-    ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
-    
+      ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
   }
 
   /**
@@ -76,7 +78,7 @@ class InstrutorController extends Controller
   /**
    * Update the specified resource in storage.
    */
-  public function update(Instrutor $instrutor, Request $request ): RedirectResponse
+  public function update(Instrutor $instrutor, Request $request): RedirectResponse
   {
     $request->validate(
       [
@@ -85,7 +87,7 @@ class InstrutorController extends Controller
         'nome' => ['required', 'string'],
         'tipo_pessoa' => ['required', 'in:PF,PJ'],
         'situacao' => ['required', 'integer'],
-        'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'], //5mb
+        'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], //5mb
         'observacoes' => ['nullable', 'string'],
       ],
       [
@@ -96,7 +98,7 @@ class InstrutorController extends Controller
         'rg_ie.required' => 'O RG/IE não pode ficar em branco',
         'rg_ie.string' => 'O dado enviado não é válido',
         'situacao.required' => 'Selecione uma opção válida',
-        'situacao.integer' => 'Selecione uma opção válida' ,
+        'situacao.integer' => 'Selecione uma opção válida',
         'curriculo.mimes' => 'Arquivo inválido',
         'curriculo.max' => 'O arquivo é muito grande, tamanho máximo 5mb',
         'observacoes.string' => 'O dado enviado não é válido',
@@ -122,8 +124,6 @@ class InstrutorController extends Controller
     ]);
 
     return back()->with('instrutor-success', 'Insrtutor atualizado com sucesso');
-
-
   }
 
   /**
@@ -140,35 +140,45 @@ class InstrutorController extends Controller
     return redirect()->route('instrutor-index')->with('instrutor-success', 'Insrtutor removido');
   }
 
-  public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
+  // public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
+  // {
+  //   $request->validate([
+  //     'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
+  //   ],[
+  //     'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
+  //     'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
+  //     'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente'
+  //     ]
+  //   );
+
+  //   $cusos = Curso::select('id')->where('uid', $request->curso_uid)->get();
+  //   $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
+
+  //   // Cria um instrutor vinculado a pessoa
+  //   $instrutor = Instrutor::create([
+  //   'uid' => config('hashing.uid'),
+  //   'pessoa_id' => $pessoa->id,
+  //   ]);
+
+  //   if(!$instrutor){
+  //   return redirect()->back()
+  //   ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+  //   }
+
+  //   return redirect()->route('instrutor-insert', $instrutor->uid)
+  //   ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
+
+  // }
+
+  /**
+   * Display a listing of the resource.
+   */
+  public function listCursoHabilitado(Instrutor $instrutor): View
   {
-    // $request->validate([
-    //   'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
-    // ],[
-    //   'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
-    //   'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
-    //   'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente'
-    //   ]
-    // );
-    
-    // $cusos = Curso::select('id')->where('uid', $request->curso_uid)->get();
-    // $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
-    
-    // // Cria um instrutor vinculado a pessoa
-    // $instrutor = Instrutor::create([
-    // 'uid' => config('hashing.uid'),
-    // 'pessoa_id' => $pessoa->id,
-    // ]);
-  
-    // if(!$instrutor){
-    // return redirect()->back()
-    // ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-    // }
-  
-    // return redirect()->route('instrutor-insert', $instrutor->uid)
-    // ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
-    
+
+    $cursoshabilitados = InstrutorCursoHabilitado::where('uid', $instrutor->uid)->get();
+
+
+    return view('painel.instrutores.insert', ['instrutor' => $instrutor, 'cursoshabilitados' => $cursoshabilitados]);
   }
-
-
 }
