@@ -122,6 +122,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [InstrutorController::class, 'create'])->name('instrutor-create');
     Route::post('update/{instrutor:uid}', [InstrutorController::class, 'update'])->name('instrutor-update');
     Route::post('delete/{instrutor:uid}', [InstrutorController::class, 'delete'])->name('instrutor-delete');
+
+    Route::post('createcursoshabilitado/{instrutor:uid}', [InstrutorController::class, 'createCursoHabilitado'])->name('instrutor-create-curso-habilitado');
+    Route::post('updatecursoshabilitado/{cursohabilitado:uid}', [InstrutorController::class, 'updateCursoHabilitado'])->name('instrutor-update-curso-habilitado');
+    Route::post('deletecursoshabilitado/{cursohabilitado:uid}', [InstrutorController::class, 'deleteCursoHabilitado'])->name('instrutor-delete-curso-habilitado');
+
   });
 
   /* Dados bancários */
@@ -182,7 +187,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('materiais-padroes-update');
     Route::post('delete/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'destroy'])->name('materiais-padroes-delete');
   });
-  
+
   /*Rotas para cadastro de parâmetros*/
   Route::group(['prefix' => 'parametros'], function () {
     Route::get('index', [ParametrosController::class, 'index'])->name('parametros-index');
