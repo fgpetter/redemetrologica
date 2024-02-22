@@ -187,7 +187,7 @@
                 <a href="{{ route('modalidade-pagamento-index') }}"
                   class="nav-link {{ request()->is('painel/modalidade-pagamento/index') ? 'active' : '' }}"
                   role="button" data-key="t-modalidade-pagamento">
-                  Modalidade de pagamento
+                  Modalidades
                 </a>
               </li>
               <li class="nav-item">
