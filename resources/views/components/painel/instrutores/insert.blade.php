@@ -1,6 +1,7 @@
 @props([
     'instrutor' => null,
     'cursos' => null,
+    'cursoshabilitados' => null
 ])
 
 @if (session('instrutor-error'))
@@ -37,12 +38,8 @@
             </div>
 
             <div class="tab-pane" id="documentos" role="tabpanel"> <!-- Cursos habilitados -->
-                <div class="row gy-3">
-
-                    <x-painel.instrutores.modal-cursos-habilitados :cursos="$cursos" />
-                    {{-- <x-painel.instrutores.list-cursos-habilitados :instrutor="$instrutor"
-                        :cursoshabilitados="$cursoshabilitados" /> --}}
-
+                <div class="row gy-3">                    
+                    <x-painel.instrutores.list-cursos-habilitados :instrutor="$instrutor" :cursoshabilitados="$cursoshabilitados" :cursos="$cursos"/>
                 </div>
             </div>
 

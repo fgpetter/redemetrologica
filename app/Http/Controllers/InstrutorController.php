@@ -70,8 +70,13 @@ class InstrutorController extends Controller
    */
   public function insert(Instrutor $instrutor): View
   {
-    $cursos = Curso::all();
-    return view('painel.instrutores.insert', ['instrutor' => $instrutor, 'cursos' => $cursos]);
+    $data = [
+      'cursos' => Curso::all(),
+      'cursoshabilitados' => InstrutorCursoHabilitado::where('instrutor_id', $instrutor->id)->with('curso')->get(),
+      'instrutor' => $instrutor, 
+    ];
+
+    return view('painel.instrutores.insert', $data);
   }
 
 
@@ -140,45 +145,89 @@ class InstrutorController extends Controller
     return redirect()->route('instrutor-index')->with('instrutor-success', 'Insrtutor removido');
   }
 
-  // public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
-  // {
-  //   $request->validate([
-  //     'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
-  //   ],[
-  //     'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
-  //     'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
-  //     'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente'
-  //     ]
-  //   );
-
-  //   $cusos = Curso::select('id')->where('uid', $request->curso_uid)->get();
-  //   $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
-
-  //   // Cria um instrutor vinculado a pessoa
-  //   $instrutor = Instrutor::create([
-  //   'uid' => config('hashing.uid'),
-  //   'pessoa_id' => $pessoa->id,
-  //   ]);
-
-  //   if(!$instrutor){
-  //   return redirect()->back()
-  //   ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-  //   }
-
-  //   return redirect()->route('instrutor-insert', $instrutor->uid)
-  //   ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
-
-  // }
-
-  /**
-   * Display a listing of the resource.
-   */
-  public function listCursoHabilitado(Instrutor $instrutor): View
+  public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
   {
+    $request->validate([
+      "curso" => ['required', 'numeric', 'exists:cursos,id'],
+      "habilitado" => ['required', 'numeric', 'in:0,1'],
+      "conhecimento" => ['required', 'numeric', 'in:0,1'],
+      "experiencia" => ['required', 'numeric', 'in:0,1'],
+      "analise_observacoes" => ['nullable', 'string'],
+    ],[
+      "curso.required" => 'O dado é inválido',
+      "curso.numeric" => 'O dado é inválido',
+      "curso.exists" => 'O dado é inválido',
+      "habilitado.required" => 'O dado é inválido',
+      "habilitado.numeric" => 'O dado é inválido',
+      "habilitado.in" => 'O dado é inválido',
+      "conhecimento.required" => 'O dado é inválido',
+      "conhecimento.numeric" => 'O dado é inválido',
+      "conhecimento.in" => 'O dado é inválido',
+      "experiencia.required" => 'O dado é inválido',
+      "experiencia.numeric" => 'O dado é inválido',
+      "experiencia.in" => 'O dado é inválido',
+      "analise_observacoes.string" =>'O dado é inválido',
+      ]
+    );
 
-    $cursoshabilitados = InstrutorCursoHabilitado::where('uid', $instrutor->uid)->get();
 
+    $curso_habilitado = InstrutorCursoHabilitado::create([
+      'uid' => config('hashing.uid'),
+      'instrutor_id' => $instrutor->id,
+      'curso_id' => $request->curso,
+      'habilitado' => $request->habilitado,
+      'conhecimento' => $request->conhecimento,
+      'experiencia' => $request->experiencia,
+      'observacoes' => $request->analise_observacoes,
 
-    return view('painel.instrutores.insert', ['instrutor' => $instrutor, 'cursoshabilitados' => $cursoshabilitados]);
+    ]);
+
+    if(!$curso_habilitado){
+      return back()->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+
+    return back()->with('instrutor-success', 'Curso cadastrado com sucesso');
+
   }
+
+  public function updateCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado, Request $request)
+  {
+    $request->validate([
+      "habilitado" => ['required', 'numeric', 'in:0,1'],
+      "conhecimento" => ['required', 'numeric', 'in:0,1'],
+      "experiencia" => ['required', 'numeric', 'in:0,1'],
+      "analise_observacoes" => ['nullable', 'string'],
+    ],[
+      "habilitado.required" => 'O dado é inválido',
+      "habilitado.numeric" => 'O dado é inválido',
+      "habilitado.in" => 'O dado é inválido',
+      "conhecimento.required" => 'O dado é inválido',
+      "conhecimento.numeric" => 'O dado é inválido',
+      "conhecimento.in" => 'O dado é inválido',
+      "experiencia.required" => 'O dado é inválido',
+      "experiencia.numeric" => 'O dado é inválido',
+      "experiencia.in" => 'O dado é inválido',
+      "analise_observacoes.string" =>'O dado é inválido',
+      ]
+    );
+
+    $cursohabilitado->update([
+      'habilitado' => $request->habilitado,
+      'conhecimento' => $request->conhecimento,
+      'experiencia' => $request->experiencia,
+      'observacoes' => $request->analise_observacoes,
+    ]);
+
+    return back()->with('instrutor-success', 'Curso atualizado com sucesso');
+
+  }
+
+  public function deleteCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado)
+  {
+    $cursohabilitado->delete();
+
+    return back()->with('instrutor-success', 'Curso removido com sucesso');
+  }
+
+  
 }

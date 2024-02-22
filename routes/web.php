@@ -121,7 +121,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [InstrutorController::class, 'create'])->name('instrutor-create');
     Route::post('update/{instrutor:uid}', [InstrutorController::class, 'update'])->name('instrutor-update');
     Route::post('delete/{instrutor:uid}', [InstrutorController::class, 'delete'])->name('instrutor-delete');
-    Route::post('listcursoshabilitados/{instrutor:uid}', [InstrutorController::class, 'listCursoHabilitado'])->name('cursoshabilitados-index');
+
+    Route::post('createcursoshabilitado/{instrutor:uid}', [InstrutorController::class, 'createCursoHabilitado'])->name('instrutor-create-curso-habilitado');
+    Route::post('updatecursoshabilitado/{cursohabilitado:uid}', [InstrutorController::class, 'updateCursoHabilitado'])->name('instrutor-update-curso-habilitado');
+    Route::post('deletecursoshabilitado/{cursohabilitado:uid}', [InstrutorController::class, 'deleteCursoHabilitado'])->name('instrutor-delete-curso-habilitado');
+
   });
 
   /* Dados bancários */
