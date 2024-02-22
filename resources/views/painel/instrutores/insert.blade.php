@@ -19,13 +19,11 @@
 
         <div class="col col-xxl-12">
 
-            <x-painel.instrutores.insert :instrutor="$instrutor" :cursos="$cursos" />
+            <x-painel.instrutores.insert :instrutor="$instrutor" :cursos="$cursos" :cursoshabilitados="$cursoshabilitados"/>
         </div>
 
     </div>
 @endsection
 
 @section('script')
-    <script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
-    <script src="{{ URL::asset('build/js/custom.js') }}"></script>
 @endsection

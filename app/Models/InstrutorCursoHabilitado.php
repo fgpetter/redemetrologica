@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class InstrutorCursoHabilitado extends Model
 {
     use HasFactory;
-    protected $table = 'instrutor_curso_habilitado ';
+    protected $table = 'instrutor_curso_habilitado';
 
 
     /**
@@ -17,4 +18,13 @@ class InstrutorCursoHabilitado extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * Carrega pessoa
+     * @return BelongsTo
+     */
+    public function curso(): BelongsTo
+    {
+        return $this->belongsTo(Curso::class);
+    }
 }
