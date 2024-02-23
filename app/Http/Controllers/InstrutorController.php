@@ -132,10 +132,9 @@ class InstrutorController extends Controller
 
     $instrutor->update([
       'situacao' => $request->situacao,
-      'curriculo' => $request->curriculo,
       'observacoes' => $request->observacoes,
-
     ]);
+
 
     $pessoa = Pessoa::find($instrutor->pessoa_id);
     $pessoa->update([

@@ -49,39 +49,9 @@
         </div>
 
 
-        {{-- old --}}
-        <div class="col-sm-6">
-            @if (isset($instrutor->curriculo) && $instrutor->curriculo)
-                <div class="input-group mt-4">
-                    <input type="text" class="form-control" readonly
-                        value="{{ explode('curriculos/', $instrutor->curriculo)[0] }}">
-                    <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false"></button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ asset($instrutor->curriculo) }}"
-                                target="_blank">Baixar</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="javascript:void(0)"
-                                onclick="document.getElementById('curriculo-delete').submit();">Remover
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            @else
-                <label for="curriculo" class="form-label">Currículo</label>
-                <input class="form-control" name="curriculo" type="file" id="curriculo" accept=".doc, .pdf, .docx">
-                @error('curriculo')
-                    <div class="text-warning">{{ $message }}</div>
-                @enderror
-            @endif
-        </div>
-        {{-- old --}}
 
 
-        <div class="col-12">
+        <div class="col-6">
             <label for="curriculo" class="form-label">Currículo</label>
             @if ($instrutor->curriculo)
                 <div class="input-group mt-0">
