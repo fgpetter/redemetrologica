@@ -148,17 +148,7 @@ class CursoController extends Controller
       ]
     );
 
-    // verifica se o arquivo foi marcado para remoção
-    if ($request->deletefolder) {
-      $curso->update([
-        'folder' => null
-      ]);
 
-      $fileToDelete = public_path('curso-folder/' . $request->deletefolder);
-      if (FileFacade::exists($fileToDelete)) {
-        FileFacade::delete($fileToDelete);
-      }
-    }
 
     if ($request->hasFile('folder')) {
       $originName = $request->file('folder')->getClientOriginalName();
