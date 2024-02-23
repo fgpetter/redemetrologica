@@ -151,7 +151,7 @@
                 <div class="col-12">
                     <label for="folder" class="form-label">Folder</label>
                     @if ($curso->folder)
-                        <div class="input-group mt-4">
+                        <div class="input-group mt-0">
                             <input type="text" class="form-control" readonly
                                 value="{{ explode('curso-folder/', $curso->folder)[0] }}">
                             <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown"

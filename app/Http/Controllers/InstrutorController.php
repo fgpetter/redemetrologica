@@ -8,7 +8,9 @@ use App\Models\Instrutor;
 use App\Models\InstrutorCursoHabilitado;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Validation\Rules\File;
+use Illuminate\Support\Facades\File as FileFacade;
+
 use Illuminate\Validation\Validator;
 use Illuminate\Http\RedirectResponse;
 
@@ -48,10 +50,13 @@ class InstrutorController extends Controller
 
     $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
 
+
+
     // Cria um instrutor vinculado a pessoa
     $instrutor = Instrutor::create([
       'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
+
     ]);
 
     if (!$instrutor) {
@@ -73,7 +78,7 @@ class InstrutorController extends Controller
     $data = [
       'cursos' => Curso::all(),
       'cursoshabilitados' => InstrutorCursoHabilitado::where('instrutor_id', $instrutor->id)->with('curso')->get(),
-      'instrutor' => $instrutor, 
+      'instrutor' => $instrutor,
     ];
 
     return view('painel.instrutores.insert', $data);
@@ -112,13 +117,24 @@ class InstrutorController extends Controller
       ]
     );
 
-    // TODO - Adicionar upload de curriculo
+    if ($request->hasFile('curriculo')) {
+      $originName = $request->file('curriculo')->getClientOriginalName();
+      $fileName = pathinfo($originName, PATHINFO_FILENAME);
+      $fileName = str_replace(' ', '-', $fileName);
+      $extension = $request->file('curriculo')->getClientOriginalExtension();
+      $fileName = $fileName . '_' . time() . '.' . $extension;
+      $request->file('curriculo')->move(public_path('curriculos'), $fileName);
+      $instrutor->update([
+        'curriculo' => $fileName,
+      ]);
+    }
+
 
     $instrutor->update([
       'situacao' => $request->situacao,
-      'curriculo' => $request->curriculo,
       'observacoes' => $request->observacoes,
     ]);
+
 
     $pessoa = Pessoa::find($instrutor->pessoa_id);
     $pessoa->update([
@@ -136,8 +152,8 @@ class InstrutorController extends Controller
    */
   public function delete(Instrutor $instrutor)
   {
-    if (File::exists(public_path($instrutor->curriculo))) {
-      File::delete(public_path($instrutor->curriculo));
+    if (FileFacade::exists(public_path('curriculos/' . $instrutor->curriculo))) {
+      FileFacade::delete(public_path('curriculos/' . $instrutor->curriculo));
     }
 
     $instrutor->delete();
@@ -147,26 +163,28 @@ class InstrutorController extends Controller
 
   public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
   {
-    $request->validate([
-      "curso" => ['required', 'numeric', 'exists:cursos,id'],
-      "habilitado" => ['required', 'numeric', 'in:0,1'],
-      "conhecimento" => ['required', 'numeric', 'in:0,1'],
-      "experiencia" => ['required', 'numeric', 'in:0,1'],
-      "analise_observacoes" => ['nullable', 'string'],
-    ],[
-      "curso.required" => 'O dado é inválido',
-      "curso.numeric" => 'O dado é inválido',
-      "curso.exists" => 'O dado é inválido',
-      "habilitado.required" => 'O dado é inválido',
-      "habilitado.numeric" => 'O dado é inválido',
-      "habilitado.in" => 'O dado é inválido',
-      "conhecimento.required" => 'O dado é inválido',
-      "conhecimento.numeric" => 'O dado é inválido',
-      "conhecimento.in" => 'O dado é inválido',
-      "experiencia.required" => 'O dado é inválido',
-      "experiencia.numeric" => 'O dado é inválido',
-      "experiencia.in" => 'O dado é inválido',
-      "analise_observacoes.string" =>'O dado é inválido',
+    $request->validate(
+      [
+        "curso" => ['required', 'numeric', 'exists:cursos,id'],
+        "habilitado" => ['required', 'numeric', 'in:0,1'],
+        "conhecimento" => ['required', 'numeric', 'in:0,1'],
+        "experiencia" => ['required', 'numeric', 'in:0,1'],
+        "analise_observacoes" => ['nullable', 'string'],
+      ],
+      [
+        "curso.required" => 'O dado é inválido',
+        "curso.numeric" => 'O dado é inválido',
+        "curso.exists" => 'O dado é inválido',
+        "habilitado.required" => 'O dado é inválido',
+        "habilitado.numeric" => 'O dado é inválido',
+        "habilitado.in" => 'O dado é inválido',
+        "conhecimento.required" => 'O dado é inválido',
+        "conhecimento.numeric" => 'O dado é inválido',
+        "conhecimento.in" => 'O dado é inválido',
+        "experiencia.required" => 'O dado é inválido',
+        "experiencia.numeric" => 'O dado é inválido',
+        "experiencia.in" => 'O dado é inválido',
+        "analise_observacoes.string" => 'O dado é inválido',
       ]
     );
 
@@ -182,32 +200,33 @@ class InstrutorController extends Controller
 
     ]);
 
-    if(!$curso_habilitado){
+    if (!$curso_habilitado) {
       return back()->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return back()->with('instrutor-success', 'Curso cadastrado com sucesso');
-
   }
 
   public function updateCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado, Request $request)
   {
-    $request->validate([
-      "habilitado" => ['required', 'numeric', 'in:0,1'],
-      "conhecimento" => ['required', 'numeric', 'in:0,1'],
-      "experiencia" => ['required', 'numeric', 'in:0,1'],
-      "analise_observacoes" => ['nullable', 'string'],
-    ],[
-      "habilitado.required" => 'O dado é inválido',
-      "habilitado.numeric" => 'O dado é inválido',
-      "habilitado.in" => 'O dado é inválido',
-      "conhecimento.required" => 'O dado é inválido',
-      "conhecimento.numeric" => 'O dado é inválido',
-      "conhecimento.in" => 'O dado é inválido',
-      "experiencia.required" => 'O dado é inválido',
-      "experiencia.numeric" => 'O dado é inválido',
-      "experiencia.in" => 'O dado é inválido',
-      "analise_observacoes.string" =>'O dado é inválido',
+    $request->validate(
+      [
+        "habilitado" => ['required', 'numeric', 'in:0,1'],
+        "conhecimento" => ['required', 'numeric', 'in:0,1'],
+        "experiencia" => ['required', 'numeric', 'in:0,1'],
+        "analise_observacoes" => ['nullable', 'string'],
+      ],
+      [
+        "habilitado.required" => 'O dado é inválido',
+        "habilitado.numeric" => 'O dado é inválido',
+        "habilitado.in" => 'O dado é inválido',
+        "conhecimento.required" => 'O dado é inválido',
+        "conhecimento.numeric" => 'O dado é inválido',
+        "conhecimento.in" => 'O dado é inválido',
+        "experiencia.required" => 'O dado é inválido',
+        "experiencia.numeric" => 'O dado é inválido',
+        "experiencia.in" => 'O dado é inválido',
+        "analise_observacoes.string" => 'O dado é inválido',
       ]
     );
 
@@ -219,7 +238,6 @@ class InstrutorController extends Controller
     ]);
 
     return back()->with('instrutor-success', 'Curso atualizado com sucesso');
-
   }
 
   public function deleteCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado)
@@ -229,5 +247,22 @@ class InstrutorController extends Controller
     return back()->with('instrutor-success', 'Curso removido com sucesso');
   }
 
-  
+
+  /**
+   * Remove arquivo de curso
+   *
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  public function curriculodelete(Instrutor $instrutor): RedirectResponse
+  {
+
+    if (FileFacade::exists(public_path('curriculos/' . $instrutor->curriculo))) {
+      FileFacade::delete(public_path('curriculos/' . $instrutor->curriculo));
+    }
+
+    $instrutor->update(['curriculo' => null]);
+
+    return redirect()->back()->with('instrutor-success', 'Currículo removido');
+  }
 }
