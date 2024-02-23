@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AgendaCursos;
 use App\Models\Curso;
-use App\Models\CursoInscrito;
-use App\Models\CursoInscritoEmpresa;
-use App\Models\Instrutor;
 use App\Models\Pessoa;
+use App\Models\Instrutor;
+use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use App\Models\CursoInscrito;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\View\View;
+use App\Models\CursoInscritoEmpresa;
+use Illuminate\Http\RedirectResponse;
 
 class AgendaCursoController extends Controller
 {
@@ -44,15 +45,13 @@ class AgendaCursoController extends Controller
       'inscritos_empresas' => CursoInscritoEmpresa::select()->where('agenda_curso_id', $agendacurso->id)->get(),
       'agendacurso' => $agendacurso
     ];
-    
-    foreach($data['inscritos_empresas'] as $key => $empresa){
+
+    foreach ($data['inscritos_empresas'] as $key => $empresa) {
       $participantes = CursoInscrito::select('empresa_id')->where('empresa_id', $empresa->pessoa_id)->count();
       $data['inscritos_empresas'][$key]['participantes'] = $participantes;
-      
-    }    
+    }
 
     return view('painel.agendamento-cursos.insert', $data);
-
   }
 
   /**
@@ -64,32 +63,32 @@ class AgendaCursoController extends Controller
   public function create(Request $request): RedirectResponse
   {
     $validated = $request->validate([
-      'status' => ['required', Rule::in(['AGENDADO','CANCELADO','CONFIRMADO','REALIZADO','PROPOSTA ENVIADA','REAGENDAR'])],
-      'status_proposta' => ['nullable', Rule::in(['PENDENTE','AGUARDANDO APROVACAO','APROVADA','REPROVADA'])],
-      'destaque' => ['nullable','integer'],
-      'tipo_agendamento' => ['required', Rule::in(['ONLINE','EVENTO','IN-COMPANY'])],
+      'status' => ['required', Rule::in(['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR'])],
+      'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
+      'destaque' => ['nullable', 'integer'],
+      'tipo_agendamento' => ['required', Rule::in(['ONLINE', 'EVENTO', 'IN-COMPANY'])],
       'curso_id' => ['required', 'exists:cursos,id'],
       'instrutor_id' => ['required', 'exists:instrutores,id'],
       'pessoa_id' => ['nullable', 'exists:pessoas,id'],
-      'endereco_local' => ['nullable','string'],
-      'data_inicio' => ['required','date'],
-      'data_fim' => ['nullable','date'],
-      'data_limite_pagamento' => ['nullable','date'],
-      'validade_proposta' => ['nullable','date'],
-      'horario' => ['nullable','string'],
-      'inscricoes' => ['nullable','integer'],
-      'site' => ['nullable','integer'],
-      'num_participantes' => ['nullable','integer'],
-      'carga_horaria' => ['nullable','integer'],
-      'investimento' => ['nullable','string'],
-      'investimento_associado' => ['nullable','string'],
-      'observacoes' => ['nullable','string'],
-      'contato' => ['nullable','string'],
-      'contato_email' => ['nullable','string'],
-      'contato_telefone' => ['nullable','string'],
-      'valor_orcamento' => ['nullable','string'],
-      
-      ],[
+      'endereco_local' => ['nullable', 'string'],
+      'data_inicio' => ['required', 'date'],
+      'data_fim' => ['nullable', 'date'],
+      'data_limite_pagamento' => ['nullable', 'date'],
+      'validade_proposta' => ['nullable', 'date'],
+      'horario' => ['nullable', 'string'],
+      'inscricoes' => ['nullable', 'integer'],
+      'site' => ['nullable', 'integer'],
+      'num_participantes' => ['nullable', 'integer'],
+      'carga_horaria' => ['nullable', 'integer'],
+      'investimento' => ['nullable', 'string'],
+      'investimento_associado' => ['nullable', 'string'],
+      'observacoes' => ['nullable', 'string'],
+      'contato' => ['nullable', 'string'],
+      'contato_email' => ['nullable', 'string'],
+      'contato_telefone' => ['nullable', 'string'],
+      'valor_orcamento' => ['nullable', 'string'],
+
+    ], [
       'status.required' => 'Selecione uma opção válida',
       'status.in' => 'Selecione uma opção válida',
       'status_proposta.in' => 'Selecione uma opção válida',
@@ -119,12 +118,12 @@ class AgendaCursoController extends Controller
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
     $validated['uid'] = config('hashing.uid');
-    $validated['investimento'] = str_replace(',','.', $request->investimento);
-    $validated['investimento_associado'] = str_replace(',','.', $request->investimento);
+    $validated['investimento'] = str_replace(',', '.', $request->investimento);
+    $validated['investimento_associado'] = str_replace(',', '.', $request->investimento);
 
     $agenda_curso = AgendaCursos::create($validated);
 
-    if(!$agenda_curso){
+    if (!$agenda_curso) {
       return back()->with('agendamento-error', 'Houve um erro, tente novamente');
     }
 
@@ -142,32 +141,32 @@ class AgendaCursoController extends Controller
   public function update(AgendaCursos $agendacurso, Request $request): RedirectResponse
   {
     $validated = $request->validate([
-      'status' => ['required', Rule::in(['AGENDADO','CANCELADO','CONFIRMADO','REALIZADO','PROPOSTA ENVIADA','REAGENDAR'])],
-      'status_proposta' => ['nullable', Rule::in(['PENDENTE','AGUARDANDO APROVACAO','APROVADA','REPROVADA'])],
-      'destaque' => ['nullable','integer'],
-      'tipo_agendamento' => ['required', Rule::in(['ONLINE','EVENTO','IN-COMPANY'])],
+      'status' => ['required', Rule::in(['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR'])],
+      'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
+      'destaque' => ['nullable', 'integer'],
+      'tipo_agendamento' => ['required', Rule::in(['ONLINE', 'EVENTO', 'IN-COMPANY'])],
       'curso_id' => ['required', 'exists:cursos,id'],
       'instrutor_id' => ['required', 'exists:instrutores,id'],
       'pessoa_id' => ['nullable', 'exists:pessoas,id'],
-      'endereco_local' => ['nullable','string'],
-      'data_inicio' => ['required','date'],
-      'data_fim' => ['nullable','date'],
-      'data_limite_pagamento' => ['nullable','date'],
-      'validade_proposta' => ['nullable','date'],
-      'horario' => ['nullable','string'],
-      'inscricoes' => ['nullable','integer'],
-      'site' => ['nullable','integer'],
-      'num_participantes' => ['nullable','integer'],
-      'carga_horaria' => ['nullable','integer'],
-      'investimento' => ['nullable','string'],
-      'investimento_associado' => ['nullable','string'],
-      'observacoes' => ['nullable','string'],
-      'contato' => ['nullable','string'],
-      'contato_email' => ['nullable','string'],
-      'contato_telefone' => ['nullable','string'],
-      'valor_orcamento' => ['nullable','string'],
-      
-      ],[
+      'endereco_local' => ['nullable', 'string'],
+      'data_inicio' => ['required', 'date'],
+      'data_fim' => ['nullable', 'date'],
+      'data_limite_pagamento' => ['nullable', 'date'],
+      'validade_proposta' => ['nullable', 'date'],
+      'horario' => ['nullable', 'string'],
+      'inscricoes' => ['nullable', 'integer'],
+      'site' => ['nullable', 'integer'],
+      'num_participantes' => ['nullable', 'integer'],
+      'carga_horaria' => ['nullable', 'integer'],
+      'investimento' => ['nullable', 'string'],
+      'investimento_associado' => ['nullable', 'string'],
+      'observacoes' => ['nullable', 'string'],
+      'contato' => ['nullable', 'string'],
+      'contato_email' => ['nullable', 'string'],
+      'contato_telefone' => ['nullable', 'string'],
+      'valor_orcamento' => ['nullable', 'string'],
+
+    ], [
       'status.required' => 'Selecione uma opção válida',
       'status.in' => 'Selecione uma opção válida',
       'status_proposta.in' => 'Selecione uma opção válida',
@@ -196,14 +195,13 @@ class AgendaCursoController extends Controller
       'valor_orcamento.string' => 'O dado enviado não é valido',
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
-    $validated['investimento'] = str_replace(',','.', $request->investimento);
-    $validated['investimento_associado'] = str_replace(',','.', $request->investimento);
+    $validated['investimento'] = str_replace(',', '.', $request->investimento);
+    $validated['investimento_associado'] = str_replace(',', '.', $request->investimento);
 
     $agendacurso->update($validated);
 
     return redirect()->route('agendamento-curso-index')
       ->with('agendamento-success', 'Agendamento atualizado com sucesso');
-
   }
 
   /**
@@ -218,5 +216,27 @@ class AgendaCursoController extends Controller
 
     return redirect()->route('agendamento-curso-index')
       ->with('agendamento-success', 'Agendamento removido com sucesso');
+  }
+
+  /**
+   * Gera pagina de listagem de cursos agendados no site
+   * @return View
+   **/
+  public function listCursosAgendados(): View
+  {
+    $agendacursos = DB::table('agenda_cursos')
+      ->join('cursos', 'agenda_cursos.curso_id', '=', 'cursos.id')
+      ->whereIn('agenda_cursos.status', ['AGENDADO', 'CONFIRMADO'])
+      ->where('agenda_cursos.site',  1)
+      ->whereNotNull('agenda_cursos.data_inicio')
+      ->select(
+        'agenda_cursos.*',
+        'cursos.descricao as descricao',
+        DB::raw("DATE_FORMAT(agenda_cursos.data_inicio, '%d-%m-%Y') as data_inicio")
+      )
+      ->get();
+
+
+    return view('site.pages.cursos', ['agendacursos' => $agendacursos]);
   }
 }

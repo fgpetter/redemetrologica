@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('uid');
             $table->enum('status', ['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR']);
             $table->boolean('destaque')->default(0);
-            $table->enum('tipo_agendamento', ['ONLINE','EVENTO','IN-COMPANY']);
+            $table->enum('tipo_agendamento', ['ONLINE', 'EVENTO', 'IN-COMPANY']);
             $table->foreignId('curso_id');
             $table->foreignIdFor(Instrutor::class);
             $table->foreignId('pessoa_id')->nullable();
@@ -38,7 +38,8 @@ return new class extends Migration
             $table->string('contato_email')->nullable();
             $table->string('contato_telefone')->nullable();
             $table->string('valor_orcamento')->nullable();
-            $table->enum('status_proposta',['PENDENTE','AGUARDANDO APROVACAO','APROVADA','REPROVADA'])->nullable();
+            $table->string('thumb')->nullable();
+            $table->enum('status_proposta', ['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])->nullable();
             $table->timestamps();
         });
     }
