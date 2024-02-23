@@ -1,3 +1,17 @@
+@php
+  $order_name = 'ASC';
+  if(isset($_GET['name']) && $_GET['name'] == 'ASC'){
+    $order_name = 'DESC';
+  }
+  $order_doc = 'ASC';
+  if(isset($_GET['doc']) && $_GET['doc'] == 'ASC'){
+    $order_name = 'DESC';
+  }
+  $order_data = 'ASC';
+  if(isset($_GET['data']) && $_GET['data'] == 'ASC'){
+    $order_data = 'DESC';
+  }
+@endphp
 <div class="card">
   <div class="card-body">
     <div class="row">
@@ -20,9 +34,9 @@
       <thead>
         <tr>
           <th scope="col" class="d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
-          <th scope="col">Nome</th>
-          <th scope="col">CPF/CNPJ</th>
-          <th scope="col" class="text-wrap">Data de cadastro</th>
+          <th scope="col"> <a href="{{ route('pessoa-index', ['name' => $order_name]) }}">Nome</a> </th>
+          <th scope="col"> <a href="{{ route('pessoa-index', ['doc' => $order_doc]) }}">CPF/CNPJ</a> </th>
+          <th scope="col" class="text-wrap"> <a href="{{ route('pessoa-index', ['data' => $order_data]) }}">Data de cadastro</a> </th>
           <th scope="col" style="width: 5%; white-space: nowrap;"></th>
         </tr>
       </thead>

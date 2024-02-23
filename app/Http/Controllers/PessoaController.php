@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Endereco;
 use App\Models\Pessoa;
+use App\Models\Endereco;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Database\Eloquent\Builder;
 
 class PessoaController extends Controller
 {
@@ -18,7 +19,22 @@ class PessoaController extends Controller
    */
   public function index(Request $request)
   {
-    $pessoas = Pessoa::paginate(10);
+    $name = $request->name;
+    $data = $request->data;
+    $doc = $request->doc;
+
+    $pessoas = Pessoa::query()
+      ->when($name, function (Builder $query, $name) {
+        $query->orderBy('nome_razao', $name);
+      })
+      ->when($data, function (Builder $query, $data) {
+        $query->orderBy('created_at', $data);
+      })
+      ->when($doc, function (Builder $query, $doc) {
+        $query->orderBy('cpf_cnpj', $doc);
+      })
+      ->paginate(10);
+      
     return view('painel.pessoas.index', ['pessoas' => $pessoas]);
   }
 
