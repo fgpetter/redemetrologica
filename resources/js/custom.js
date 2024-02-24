@@ -77,3 +77,15 @@ const uploadField = document.getElementById("folder");
       };
   }
 }
+
+
+function search(e, url, tipo){
+  if(e.keyCode === 13){
+      e.preventDefault();
+      if(e.target.value != undefined){
+        append = url.includes('?') ? '&' : '?'
+        window.location.href = url+append+tipo+'='+e.target.value
+      }
+      
+  }
+}

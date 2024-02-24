@@ -22,6 +22,8 @@ class PessoaController extends Controller
     $name = $request->name;
     $data = $request->data;
     $doc = $request->doc;
+    $busca_nome = $request->buscanome;
+    $busca_doc = $request->buscadodoc;
 
     $pessoas = Pessoa::query()
       ->when($name, function (Builder $query, $name) {
@@ -32,6 +34,12 @@ class PessoaController extends Controller
       })
       ->when($doc, function (Builder $query, $doc) {
         $query->orderBy('cpf_cnpj', $doc);
+      })
+      ->when($busca_nome, function (Builder $query, $busca_nome) {
+        $query->where('nome_razao', 'LIKE', "%$busca_nome%");
+      })
+      ->when($busca_doc, function (Builder $query, $busca_doc) {
+        $query->where('cpf_cnpj', 'LIKE', "%$busca_doc%");
       })
       ->paginate(10);
       
