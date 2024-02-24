@@ -25,6 +25,7 @@ return new class extends Migration
             $table->text('observacoes_internas')->nullable();
             $table->enum('tipo_curso', ['OFICIAL','SUPLENTE','OUTROS']);
             $table->string('folder')->nullable();
+            $table->string('thumb')->nullable();
             $table->timestamps();
         });
     }

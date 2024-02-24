@@ -1,4 +1,7 @@
 @extends('site.layouts.layout-site')
+@section('title')
+    Cursos
+@endsection
 @section('content')
     {{-- carousel --}}
     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
@@ -45,12 +48,14 @@
         @foreach ($agendacursos as $agendacurso)
             <div class="col-3 mt-4" style="width:  18rem; height:  13rem;">
                 <div class="SiteCards__bgimage text-white d-grid"
-                    style="background-image: url('{{ $agendacurso->thumb ? asset($agendacurso->thumb) : asset('build/images/site/cursos-placeholder.jpg') }}');">
+                    style="background-image: url('{{ $agendacurso->curso->thumb ? asset($agendacurso->curso->thumb) : asset('build/images/site/cursos-placeholder.jpg') }}');">
                     <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
-                        <p class="text-center h3 text-white">{{ $agendacurso->descricao }}</p>
-                        <p class="text-end">{{ $agendacurso->data_inicio }} </p>
-                        <a href="" class="text-start text-white bold">Visualizar <i
-                                class="fa-solid fa-circle-chevron-right"></i></a>
+                        <p class="text-center h6 text-white">{{ Str::limit($agendacurso->curso->descricao, 80) }}</p>
+                        <p class="text-end">{{ Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }} </p>
+                        <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}" class="text-start text-white bold">
+                            Visualizar 
+                            <i class="fa-solid fa-circle-chevron-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>

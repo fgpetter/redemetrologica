@@ -54,7 +54,7 @@ Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-sho
 
 /*Rotas das slugs de cursos agendados */
 Route::get('cursos', [AgendaCursoController::class, 'listCursosAgendados'])->name('cursos-agendados-list');
-Route::get('cursos/{slug}', [AgendaCursoController::class, 'CursoAgendadoshow'])->name('curso-agendados-show');
+Route::get('cursos/{agendacurso:uid}', [AgendaCursoController::class, 'showCursoAgendado'])->name('curso-agendados-show');
 
 
 

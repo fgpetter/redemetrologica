@@ -224,19 +224,20 @@ class AgendaCursoController extends Controller
    **/
   public function listCursosAgendados(): View
   {
-    $agendacursos = DB::table('agenda_cursos')
-      ->join('cursos', 'agenda_cursos.curso_id', '=', 'cursos.id')
-      ->whereIn('agenda_cursos.status', ['AGENDADO', 'CONFIRMADO'])
-      ->where('agenda_cursos.site',  1)
-      ->whereNotNull('agenda_cursos.data_inicio')
-      ->select(
-        'agenda_cursos.*',
-        'cursos.descricao as descricao',
-        DB::raw("DATE_FORMAT(agenda_cursos.data_inicio, '%d-%m-%Y') as data_inicio")
-      )
+    $agendacursos = AgendaCursos::select()
+      ->whereIn('status', ['AGENDADO', 'CONFIRMADO'])
+      ->whereNotIn('tipo_agendamento', ['IN-COMPANY'])
+      ->where('site', 1)
+      ->whereNotNull('data_inicio')
+      ->with('curso')
       ->get();
-
 
     return view('site.pages.cursos', ['agendacursos' => $agendacursos]);
   }
+
+  public function showCursoAgendado(AgendaCursos $agendacurso): View
+  {
+    dd($agendacurso);
+  }
+
 }
