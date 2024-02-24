@@ -25,7 +25,7 @@ class PessoaController extends Controller
     $busca_nome = $request->buscanome;
     $busca_doc = $request->buscadoc;
 
-    $pessoas = Pessoa::query()
+    $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'created_at')
       ->when($name, function (Builder $query, $name) {
         $query->orderBy('nome_razao', $name);
       })

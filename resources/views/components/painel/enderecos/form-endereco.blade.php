@@ -2,7 +2,6 @@
   'pessoa' => null,
   'endereco' => null
 ])
-
 <div class="col-4">
   <label for="cep" class="form-label">CEP<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
   <input type="text" class="form-control input-cep" name="cep"
@@ -47,7 +46,7 @@
   <label for=""> &nbsp; </label>
   <div class="form-check mt-2 bg-light rounded" style="padding: 0.65rem 1.8rem 0.65rem;">
     <input class="form-check-input" name="end_padrao" value="1" id="end_padrao" type="checkbox"
-    @checked(isset($endereco->id) && $pessoa->end_padrao == $endereco->id) >
+    @checked(isset($pessoa->end_padrao) && $pessoa->end_padrao == $endereco->id) >
     <label class="form-check-label" for="end_padrao">
       Endereço Padrão
     </label>
