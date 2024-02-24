@@ -82,9 +82,10 @@ const uploadField = document.getElementById("folder");
 function search(e, url, tipo){
   if(e.keyCode === 13){
       e.preventDefault();
+      url = url.split('?')[0] // remove parametros
       if(e.target.value != undefined){
-        append = url.includes('?') ? '&' : '?'
-        window.location.href = url+append+tipo+'='+e.target.value
+        
+        window.location.href = url+'?'+tipo+'='+e.target.value
       }
       
   }

@@ -23,7 +23,7 @@ class PessoaController extends Controller
     $data = $request->data;
     $doc = $request->doc;
     $busca_nome = $request->buscanome;
-    $busca_doc = $request->buscadodoc;
+    $busca_doc = $request->buscadoc;
 
     $pessoas = Pessoa::query()
       ->when($name, function (Builder $query, $name) {
