@@ -93,7 +93,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="4" class="text-center">Não há Instrutores cadastrados.</td>
+              <td colspan="5" class="text-center">Não há Instrutores cadastrados.</td>
             </tr>
           @endforelse
         </tbody>
