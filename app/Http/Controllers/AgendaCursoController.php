@@ -95,10 +95,10 @@ class AgendaCursoController extends Controller
       'status_proposta.in' => 'Selecione uma opção válida',
       'destaque.integer' => 'O dado enviado não é valido',
       'tipo_agendamento.in' => 'Selecione uma opção válida',
-      'curso_id.required' => 'Selecione uma opção válida',
+      'curso_id.required' => 'É necessário escolher um curso',
       'curso_id.exists' => 'Selecione uma opção válida',
       'pessoa_id.exists' => 'Selecione uma opção válida',
-      'instrutor_id.required' => 'Selecione uma opção válida',
+      'instrutor_id.required' => 'É necessário escolher um instrutor',
       'instrutor_id.in' => 'Selecione uma opção válida',
       'endereco_local.string' => 'O dado enviado não é valido',
       'data_inicio.date' => 'O dado enviado não é uma data valida',
@@ -119,8 +119,8 @@ class AgendaCursoController extends Controller
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
     $validated['uid'] = config('hashing.uid');
-    $validated['investimento'] = str_replace(',','.', $request->investimento);
-    $validated['investimento_associado'] = str_replace(',','.', $request->investimento);
+    $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
+    $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
 
     $agenda_curso = AgendaCursos::create($validated);
 
@@ -196,8 +196,8 @@ class AgendaCursoController extends Controller
       'valor_orcamento.string' => 'O dado enviado não é valido',
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
-    $validated['investimento'] = str_replace(',','.', $request->investimento);
-    $validated['investimento_associado'] = str_replace(',','.', $request->investimento);
+    $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
+    $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
 
     $agendacurso->update($validated);
 
