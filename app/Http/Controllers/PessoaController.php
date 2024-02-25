@@ -120,7 +120,7 @@ class PessoaController extends Controller
       'end_padrao' => $endereco->id
     ]);
 
-    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('success', 'Pessoa cadastrada com sucesso');
+    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('pessoa-success', 'Pessoa cadastrada com sucesso');
   }
 
   /**
@@ -165,7 +165,7 @@ class PessoaController extends Controller
       'codigo_contabil' => $request->get('codigo_contabil'),
     ]);
 
-    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('succes', 'Pessoa cadastrada com sucesso');
+    return back()->with('pessoa-success', 'Pessoa atualizada com sucesso');
 
   }
 
