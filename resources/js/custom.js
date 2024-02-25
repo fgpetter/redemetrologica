@@ -78,7 +78,9 @@ const uploadField = document.getElementById("folder");
   }
 }
 
-
+/**
+ * Form de busca em tabelas
+ */
 function search(e, url, tipo){
   if(e.keyCode === 13){
       e.preventDefault();
@@ -90,3 +92,17 @@ function search(e, url, tipo){
       
   }
 }
+
+/**
+ * Show Hide de card de dados IN COMPANY
+ */
+tipoAgendamento = document.getElementById('tipo_agendamento')
+cardInCompany = document.getElementById('cursos-incompany')
+
+tipoAgendamento.addEventListener("change", function(){
+  if(tipoAgendamento.value == 'IN-COMPANY'){
+    cardInCompany.classList.remove("d-none");
+  } else {
+    cardInCompany.classList.add("d-none");
+  }
+});
