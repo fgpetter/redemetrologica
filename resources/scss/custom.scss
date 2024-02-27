@@ -57,7 +57,12 @@ transition: color 0.3s ease-in-out;
   background-size: cover;
   height:100%;
    width:100%;
-}
+  background-position: center center;
+    /* Centraliza a imagem de background */
+    background-repeat: no-repeat;
+    /* Evita a repetição da imagem de background */
+  }
+
 .SiteCards--efeito {
   background-color: rgba(44, 95, 116, 0.92);
   width: 100%;
@@ -202,4 +207,17 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
   
 };
 
-// CLASSES DO SITE
+.SiteCards__descricao {
+ 
+  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: height 0.3s ease;
+ 
+}
+
+.SiteCards--efeito:hover .SiteCards__descricao {
+  height: auto;
+  white-space: normal;
+}

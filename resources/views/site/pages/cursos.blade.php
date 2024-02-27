@@ -46,21 +46,27 @@
     {{-- cardCursos agendados --}}
     <div class="container row justify-content-center">
         @foreach ($agendacursos as $agendacurso)
-            <div class="col-3 mt-4" style="width:  18rem; height:  13rem;">
+            <div class="col-3 mt-4" style="width: 18rem; height: 20rem;">
                 <div class="SiteCards__bgimage text-white d-grid"
                     style="background-image: url('{{ $agendacurso->curso->thumb ? asset($agendacurso->curso->thumb) : asset('build/images/site/cursos-placeholder.jpg') }}');">
-                    <div class="SiteCards--efeito d-grid align-self-end align-items-end p-3">
-                        <p class="text-center h6 text-white">{{ Str::limit($agendacurso->curso->descricao, 80) }}</p>
-                        <p class="text-end">{{ Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }} </p>
+                    <div class="SiteCards--efeito  align-self-end d-grid align-self-end align-items-end p-3">
+                        <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}"
+                            class=" align-self-center text-center h5 text-white SiteCards__descricao" style="height: 100%;">
+                            {{ $agendacurso->curso->descricao }}
+                        </a>
                         <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}" class="text-start text-white bold">
-                            Visualizar 
-                            <i class="fa-solid fa-circle-chevron-right"></i>
+                            <i class="fa fa-clock-o" aria-hidden="true"></i>
+                            {{ Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}
                         </a>
                     </div>
+
                 </div>
             </div>
         @endforeach
     </div>
+
+
+
 
     {{-- cardCursos --}}
 @endsection
