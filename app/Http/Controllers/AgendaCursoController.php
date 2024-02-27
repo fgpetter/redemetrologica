@@ -235,9 +235,19 @@ class AgendaCursoController extends Controller
     return view('site.pages.cursos', ['agendacursos' => $agendacursos]);
   }
 
-  public function showCursoAgendado(AgendaCursos $agendacurso): View
-  {
-    dd($agendacurso);
-  }
 
+  /**
+   * mostra pagina da slug de cursos agendados
+   *
+   
+   * @return View
+   **/
+  public function showCursoAgendado($uid): View
+  {
+
+    $agendacursos = Agendacursos::where('uid', $uid)->with('curso')->get();
+
+
+    return view('site.pages.slug-cursos', ['agendacursos' => $agendacursos]);
+  }
 }
