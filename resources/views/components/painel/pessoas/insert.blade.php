@@ -91,7 +91,7 @@
       {{-- PJ --}}
       @if(!$pessoa->id || $pessoa->tipo_pessoa == 'PJ')
         <div class="tab-pane {{$pessoa->tipo_pessoa == 'PJ' ? 'active' : ''}}" id="pj" role="tabpanel">
-          <form method="POST" action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->id) : route('pessoa-create') }}">
+          <form method="POST" action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->uid) : route('pessoa-create') }}">
             @csrf
             <div class="row gy-3">
 
