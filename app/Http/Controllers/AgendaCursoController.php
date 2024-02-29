@@ -119,8 +119,13 @@ class AgendaCursoController extends Controller
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
     $validated['uid'] = config('hashing.uid');
-    $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
-    $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
+    
+    if($validated['investimento']){
+      $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
+    }
+    if($validated['investimento_associado']){
+      $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
+    }
 
     $agenda_curso = AgendaCursos::create($validated);
 
@@ -196,8 +201,17 @@ class AgendaCursoController extends Controller
       'valor_orcamento.string' => 'O dado enviado não é valido',
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
-    $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
-    $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
+
+    if($validated['investimento']){
+      $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
+    }
+    if($validated['investimento_associado']){
+      $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
+    }
+
+    if(!$request->destaque){$validated['destaque'] = 0;}
+    if(!$request->site){$validated['site'] = 0;}
+    if(!$request->inscricoes){$validated['inscricoes'] = 0;}
 
     $agendacurso->update($validated);
 

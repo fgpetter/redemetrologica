@@ -208,7 +208,7 @@
 
     <div class="col-sm-12">
       <x-forms.input-textarea name="observacoes" label="Observações">
-      {{ old('observacoes') ?? ($agendacurso->obs ?? null) }}
+      {{ old('observacoes') ?? ($agendacurso->observacoes ?? null) }}
       </x-forms.input-textarea>
       @error('observacoes')<div class="text-warning">{{ $message }}</div>@enderror
     </div>
