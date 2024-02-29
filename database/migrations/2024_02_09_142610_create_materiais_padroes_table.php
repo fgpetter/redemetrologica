@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('cod_fabricante')->nullable();
             $table->string('marca')->nullable();
             $table->enum('tipo', ['CURSOS', 'INTERLAB', 'AMBOS']);
-            $table->boolean('padrao');
+            $table->boolean('padrao')->default(0);
             $table->decimal('valor')->nullable();
             $table->enum('tipo_despesa', ['FIXO', 'VARIAVEL', 'OUTROS']);
             $table->text('observacoes')->nullable();
