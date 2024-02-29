@@ -21,7 +21,7 @@
         @forelse ($avaliacoes as $avaliacao)
           <tr>
             <th>
-              <a href="#" data-bs-toggle="modal" data-bs-target="{{'#avaliacaoModal'.$avaliacao->uid}}">#{{substr($avaliacao->uid, 7)}} </a>
+              <a href="#" data-bs-toggle="modal" data-bs-target="{{--'#avaliacaoModal'.$avaliacao->uid --}}">#{{substr($avaliacao->uid, 7)}} </a>
             </th>
             <td class="text-truncate" style="max-width: 50vw">{{ $avaliacao->empresa }}</td>
             <td>{{ ($avaliacao->data) ? Carbon\Carbon::parse($avaliacao->data)->format('d/m/Y') : '' }}</td>
@@ -36,7 +36,7 @@
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                      data-bs-target="{{'#avaliacaoModal'.$avaliacao->uid}}">Editar</a>
+                      data-bs-target="{{--'#avaliacaoModal'.$avaliacao->uid --}}">Editar</a>
                   </li>
                   <li>
                     <form method="POST"

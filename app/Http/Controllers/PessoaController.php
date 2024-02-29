@@ -22,8 +22,10 @@ class PessoaController extends Controller
     $name = $request->name;
     $data = $request->data;
     $doc = $request->doc;
+    $busca_nome = $request->buscanome;
+    $busca_doc = $request->buscadoc;
 
-    $pessoas = Pessoa::query()
+    $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'created_at')
       ->when($name, function (Builder $query, $name) {
         $query->orderBy('nome_razao', $name);
       })
@@ -32,6 +34,12 @@ class PessoaController extends Controller
       })
       ->when($doc, function (Builder $query, $doc) {
         $query->orderBy('cpf_cnpj', $doc);
+      })
+      ->when($busca_nome, function (Builder $query, $busca_nome) {
+        $query->where('nome_razao', 'LIKE', "%$busca_nome%");
+      })
+      ->when($busca_doc, function (Builder $query, $busca_doc) {
+        $query->where('cpf_cnpj', 'LIKE', "%$busca_doc%");
       })
       ->paginate(10);
       
@@ -112,7 +120,7 @@ class PessoaController extends Controller
       'end_padrao' => $endereco->id
     ]);
 
-    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('success', 'Pessoa cadastrada com sucesso');
+    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('pessoa-success', 'Pessoa cadastrada com sucesso');
   }
 
   /**
@@ -157,7 +165,7 @@ class PessoaController extends Controller
       'codigo_contabil' => $request->get('codigo_contabil'),
     ]);
 
-    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('succes', 'Pessoa cadastrada com sucesso');
+    return back()->with('pessoa-success', 'Pessoa atualizada com sucesso');
 
   }
 

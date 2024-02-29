@@ -16,12 +16,12 @@ return new class extends Migration
             $table->string('uid');
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
             $table->string('curriculo')->nullable();
-            $table->boolean('exp_min_comprovada');
-            $table->boolean('curso_incerteza');
-            $table->boolean('curso_iso');
-            $table->boolean('curso_aud_interna');
-            $table->boolean('parecer_psicologico');
-            $table->date('data_ingresso');
+            $table->boolean('exp_min_comprovada')->default(false);
+            $table->boolean('curso_incerteza')->default(false);
+            $table->boolean('curso_iso')->default(false);
+            $table->boolean('curso_aud_interna')->default(false);
+            $table->boolean('parecer_psicologico')->default(false);
+            $table->date('data_ingresso')->nullable();
             $table->timestamps();
         });
     }

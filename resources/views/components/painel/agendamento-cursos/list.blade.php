@@ -62,7 +62,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="4" class="text-center">Não há Agendamento de Cursos</td>
+            <td colspan="7" class="text-center">Não há Agendamento de Cursos</td>
           </tr>
           @endforelse
         </tbody>

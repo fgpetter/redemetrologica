@@ -49,7 +49,7 @@
             <div class="col-3">
               <label for="tipo" class="form-label">Tipo de Material</label>
               <select class="form-control" id="tipo" name="tipo">
-                <option value="CURSO">Cursos</option>
+                <option value="CURSOS">Cursos</option>
                 <option value="INTERLAB">Interlab</option>
                 <option value="AMBOS">Ambos</option>
               </select>

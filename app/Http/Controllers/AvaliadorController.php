@@ -71,7 +71,7 @@ class AvaliadorController extends Controller
    * @param Request $request
    * @return RedirectResponse
    **/
-  public function createAvaliacao(Request $request): RedirectResponse
+  public function createAvaliacao(Request $request, Avaliador $avaliador): RedirectResponse
   {
     $request->validate([
       'empresa' => ['nullable', 'string'],
@@ -85,21 +85,21 @@ class AvaliadorController extends Controller
       ]
     );
 
-    $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
-    
-    // cria um avaliador vinculado a pessoa
-    $avaliador = Avaliador::create([
+    $avaliacao = AvaliacaoAvaliador::create([
       'uid' => config('hashing.uid'),
-      'pessoa_id' => $pessoa->id,
+      'avaliador_id' => $avaliador->id,
+      'empresa' => $request->empresa,
+      'data' => $request->sata,
+      'situacao' => $request->situacao,
     ]);
 
-    if(!$avaliador){
+    if(!$avaliacao){
       return redirect()->back()
       ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('avaliador-insert', $avaliador->uid)
-      ->with('avaliador-success', 'Avaliador cadastrado com sucesso');
+      ->with('avaliador-success', 'Avaliação cadastrada com sucesso');
   }
 
   /**

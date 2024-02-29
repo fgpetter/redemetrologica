@@ -89,6 +89,11 @@ class FuncionarioController extends Controller
       'uf' => $request->get('uf')
     ]);
 
+    // Adiciona endereço padrao
+    if($request->end_padrao){
+      $pessoa->update(['end_padrao' => $endereco->id]);
+    }
+
     if(!$endereco){
       return redirect()->back()
         ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
@@ -208,6 +213,12 @@ class FuncionarioController extends Controller
       'cidade' => $request->get('cidade'),
       'uf' => $request->get('uf')
     ]);
+
+    // Adiciona endereço padrao
+    if($request->end_padrao){
+      $funcionario->pessoa->update(['end_padrao' => $funcionario->pessoa->enderecos->first()->id]);
+    }
+    
 
     return redirect()->back()->with('funcionario-success', 'Funcionario atualizado com sucesso');
   }

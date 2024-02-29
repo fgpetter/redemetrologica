@@ -15,7 +15,7 @@
         <option @selected($agendacurso->status == 'CANCELADO') value="CANCELADO">CANCELADO</option>
         <option @selected($agendacurso->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
         <option @selected($agendacurso->status == 'REALIZADO') value="REALIZADO">REALIZADO</option>
-        <option @selected($agendacurso->status == 'PROPOSTA  ENVIADA') value="PROPOSTA ENVIADA">PROPOSTA ENVIADA</option>
+        <option @selected($agendacurso->status == 'PROPOSTA ENVIADA') value="PROPOSTA ENVIADA">PROPOSTA ENVIADA</option>
         <option @selected($agendacurso->status == 'REAGENDAR') value="REAGENDAR">REAGENDAR</option>
         </x-forms.input-select>
       @error('status') <div class="text-warning">{{ $message }}</div> @enderror
@@ -223,6 +223,6 @@
     </div>
   </div>
 </form>
-@if($curso->id)
+@if($agendacurso->id)
   <x-painel.cursos.form-delete route="agendamento-curso-delete" id="{{$agendacurso->uid}}" />
 @endif

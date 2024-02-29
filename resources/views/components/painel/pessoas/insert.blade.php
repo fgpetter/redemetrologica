@@ -1,5 +1,5 @@
-@if (session('error')) <div class="alert alert-danger"> {{ session('error') }} </div> @endif
-@if (session('success')) <div class="alert alert-success"> {{ session('success') }} </div> @endif
+@if (session('pessoa-error')) <div class="alert alert-danger"> {{ session('pessoa-error') }} </div> @endif
+@if (session('pessoa-success')) <div class="alert alert-success"> {{ session('pessoa-success') }} </div> @endif
 <div class="card">
   <div class="card-body">
 
@@ -21,7 +21,7 @@
       {{-- PF --}}
       @if(!$pessoa->id || $pessoa->tipo_pessoa == 'PF')
         <div class="tab-pane active" id="pf" role="tabpanel">
-          <form method="POST" action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->id) : route('pessoa-create') }}">
+          <form method="POST" action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->uid) : route('pessoa-create') }}">
             @csrf
             <div class="row gy-3">
               <input type="hidden" name="tipo_pessoa" value="PF">
@@ -91,7 +91,7 @@
       {{-- PJ --}}
       @if(!$pessoa->id || $pessoa->tipo_pessoa == 'PJ')
         <div class="tab-pane {{$pessoa->tipo_pessoa == 'PJ' ? 'active' : ''}}" id="pj" role="tabpanel">
-          <form method="POST" action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->id) : route('pessoa-create') }}">
+          <form method="POST" action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->uid) : route('pessoa-create') }}">
             @csrf
             <div class="row gy-3">
 
