@@ -34,7 +34,7 @@ class MateriaisPadroesController extends Controller
         'fabricante' => ['nullable', 'string'],
         'fornecedor' => ['nullable', 'string'],
         'marca' => ['nullable', 'string'],
-        'tipo' => ['required', Rule::in(['CURSO','INTERLAB','AMBOS'])],
+        'tipo' => ['required', Rule::in(['CURSOS','INTERLAB','AMBOS'])],
         'padrao' => ['nullable', 'integer'],
         'valor' => ['nullable', 'string'],
         'tipo_despesa' => ['required', Rule::in(['FIXO','VARIAVEL','OUTROS']) ],
@@ -57,7 +57,7 @@ class MateriaisPadroesController extends Controller
     );
 
     $validated['uid'] = config('hashing.uid');
-    $validated['valor'] = str_replace(',','.', $validated['valor']);
+    ($validated['valor']) ? $validated['valor'] = str_replace(',','.', $validated['valor']) : null;
 
     $material_padrao = MaterialPadrao::create($validated);
 
@@ -82,7 +82,7 @@ class MateriaisPadroesController extends Controller
       'fabricante' => ['nullable', 'string'],
       'fornecedor' => ['nullable', 'string'],
       'marca' => ['nullable', 'string'],
-      'tipo' => ['required', Rule::in(['CURSO','INTERLAB','AMBOS'])],
+      'tipo' => ['required', Rule::in(['CURSOS','INTERLAB','AMBOS'])],
       'padrao' => ['nullable', 'integer'],
       'valor' => ['nullable', 'string'],
       'tipo_despesa' => ['required', Rule::in(['FIXO','VARIAVEL','OUTROS']) ],
@@ -105,7 +105,7 @@ class MateriaisPadroesController extends Controller
     ]
   );
 
-  $validated['valor'] = str_replace(',','.', $validated['valor']);
+  ($validated['valor']) ? $validated['valor'] = str_replace(',','.', $validated['valor']) : null;
   $validated['padrao'] = ($request->has('padrao')) ? 1 : 0;
 
   $materiaisPadroes->update($validated);
