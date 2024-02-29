@@ -108,7 +108,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::get('index', [AvaliadorController::class, 'index'])->name('avaliador-index');
     Route::get('insert/{avaliador:uid?}', [AvaliadorController::class, 'insert'])->name('avaliador-insert');
     Route::post('create', [AvaliadorController::class, 'create'])->name('avaliador-create');
-    Route::post('create-avaliacao/{avaliador}', [AvaliadorController::class, 'createAvaliacao'])->name('avaliador-create-avaliacao');
+    Route::post('create-avaliacao/{avaliador:uid}', [AvaliadorController::class, 'createAvaliacao'])->name('avaliador-create-avaliacao');
     Route::post('update/{avaliador:uid}', [AvaliadorController::class, 'update'])->name('avaliador-update');
     Route::post('update-avaliacao/{avaliacao:uid}', [AvaliadorController::class, 'update'])->name('avaliador-update-avaliacao');
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
