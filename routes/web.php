@@ -32,7 +32,7 @@ Route::get('home', [App\Http\Controllers\HomeController::class, 'root'])->name('
 Route::view('noticias', 'site.pages.noticias');
 Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
-Route::view('cursos', 'site.pages.cursos');
+
 Route::view('interlaboratoriais', 'site.pages.interlaboratoriais');
 Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
 Route::view('laboratorios-reconhecidos', 'site.pages.laboratorios-reconhecidos');
@@ -50,6 +50,13 @@ Route::get('noticias', [PostController::class, 'ListNoticias'])->name('show-list
 Route::get('galerias', [PostController::class, 'ListGalerias'])->name('show-list'); //mostra lista de galerias
 Route::get('noticia/{slug}', [PostController::class, 'show'])->name('noticia-show'); //mostra noticia
 Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-show'); //mostra galeria
+
+
+/*Rotas das slugs de cursos agendados */
+Route::get('cursos', [AgendaCursoController::class, 'listCursosAgendados'])->name('cursos-agendados-list');
+Route::get('cursos/{agendacurso:uid}', [AgendaCursoController::class, 'showCursoAgendado'])->name('curso-agendados-show');
+
+
 
 /* Rotas do template */
 // Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
