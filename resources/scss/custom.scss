@@ -26,6 +26,11 @@ File: Custom Css File teste
   color: #fff000;
   text-shadow: 1px -1px 0px #ffffff, 1px 0px 0px #ffffff;
 }
+.SiteBanner--titulocursos {
+  font-size: 1.5rem;
+  color: #fff000;
+  text-shadow: 1px -1px 0px #ffffff, 1px 0px 0px #ffffff;
+}
 .SiteBanner--interlab {
   font-size: 3rem;
   color: #08492d;
@@ -218,4 +223,5 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
 .SiteCards--efeito:hover .SiteCards__descricao {
   height: auto;
   white-space: normal;
+  transition: height 0.5s ease;
 }

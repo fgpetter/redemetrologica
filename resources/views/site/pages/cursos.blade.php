@@ -50,7 +50,11 @@
         @foreach ($agendacursos as $agendacurso)
             <div class="col-3 mt-4" style="width: 18rem; height: 20rem;">
                 <div class="SiteCards__bgimage text-white d-grid"
-                    style="background-image: url('{{ $agendacurso->curso->thumb ? asset($agendacurso->curso->thumb) : asset('build/images/site/cursos-placeholder.jpg') }}');">
+                    style="background-image: url('{{ $agendacurso->curso->thumb
+                        ? asset($agendacurso->curso->thumb)
+                        : ($agendacurso->tipo_agendamento == 'ONLINE'
+                            ? asset('build/images/site/online-placeholder.jpg')
+                            : asset('build/images/site/evento-placeholder.jpg')) }}');">
                     <div class="SiteCards--efeito  align-self-end d-grid align-self-end align-items-end p-3">
                         <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}"
                             class=" align-self-center text-center h5 text-white SiteCards__descricao" style="height: 100%;">
