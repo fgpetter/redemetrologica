@@ -26,6 +26,11 @@ File: Custom Css File teste
   color: #fff000;
   text-shadow: 1px -1px 0px #ffffff, 1px 0px 0px #ffffff;
 }
+.SiteBanner--titulocursos {
+  font-size: 1.5rem;
+  color: #fff000;
+  text-shadow: 1px -1px 0px #ffffff, 1px 0px 0px #ffffff;
+}
 .SiteBanner--interlab {
   font-size: 3rem;
   color: #08492d;
@@ -57,7 +62,10 @@ transition: color 0.3s ease-in-out;
   background-size: cover;
   height:100%;
    width:100%;
-}
+  background-position: center center;
+    background-repeat: no-repeat;
+  }
+
 .SiteCards--efeito {
   background-color: rgba(44, 95, 116, 0.92);
   width: 100%;
@@ -202,4 +210,18 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
   
 };
 
-// CLASSES DO SITE
+.SiteCards__descricao {
+ 
+  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: height 0.3s ease;
+ 
+}
+
+.SiteCards--efeito:hover .SiteCards__descricao {
+  height: auto;
+  white-space: normal;
+  transition: height 0.5s ease;
+}
