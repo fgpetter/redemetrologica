@@ -91,63 +91,38 @@
                     @enderror
                 </div>
 
-                {{-- <div class="col-12">
-                    <label for="folder" class="form-label">Folder
-                        <i class="ri-information-fill align-middle" data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Somente imagens e PDF de até 2MB"></i>
-                    </label>
-                    <input class="form-control @if ($curso->folder) d-none @endif" name="folder"
-                        type="file" id="folder" accept=".jpg,.jpeg,.png,.pdf">
-                    @error('folder')
-                        <div class="text-warning">{{ $message }}</div>
-                    @enderror
-
-                    @if ($curso->folder)
-                        <div class="col-12">
-                            <a href="{{ asset('curso-folder/' . $curso->folder) }}">{{ $curso->folder }}</a>
-                            <input class="form-check-input ms-2" type="checkbox" name="deletefolder" id="deletefolder"
-                                value="{{ $curso->folder }}">
-                            <label class="form-check-label">Remover</label>
-                        </div>
-                    @endif
-                </div> --}}
-
-
-
-                {{-- <div class="col-12">
-                    <label for="folder" class="form-label">Folder</label>
-                    @if ($curso->folder)
+                {{-- thumb --}}
+                <div class="col-12">
+                    <label for="folder" class="form-label">Thumb</label>
+                    @if ($curso->thumb)
                         <div class="input-group mt-0">
-
                             <input type="text" class="form-control" readonly
-                                value="{{ explode('folders/', $curso->folder)[0] }}">
+                                value="{{ explode('curso-thumb/', $curso->thumb)[0] }}">
                             <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                 aria-expanded="false"></button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ asset($curso->folder) }}"
+                                <li><a class="dropdown-item" href="{{ asset($curso->thumb) }}"
                                         target="_blank">Baixar</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="javascript:void(0)"
-                                        onclick="document.getElementById('folder-delete').submit();">Remover
+                                        onclick="document.getElementById('thumb-delete').submit();">Remover
                                     </a>
                                 </li>
                             </ul>
                         </div>
                     @else
-                        <input class="form-control" name="folder" type="file" id="folder"
-                            accept=".doc, .pdf, .docx">
-                        @error('folder')
+                        <input class="form-control" name="thumb" type="file" id="thumb"
+                            accept=".jpeg, .jpg, .png">
+                        @error('thumb')
                             <div class="text-warning">{{ $message }}</div>
                         @enderror
                     @endif
-                </div > --}}
-
-
-
-
+                </div>
+                {{-- thumb --}}
+                {{-- folder --}}
                 <div class="col-12">
                     <label for="folder" class="form-label">Folder</label>
                     @if ($curso->folder)
@@ -177,11 +152,7 @@
                         @enderror
                     @endif
                 </div>
-
-
-
-
-
+                {{-- folder --}}
                 <div class="col-12">
                     <label class="form-label">Observações Internas</label>
                     <textarea class="form-control" name="observacoes_internas" id="observacoes_internas" rows="2">{{ old('observacoes_internas') ?? ($curso->observacoes_internas ?? null) }}</textarea>
@@ -194,16 +165,15 @@
                     <button type="submit"
                         class="btn btn-primary px-4">{{ $curso->id ? 'Atualizar' : 'Salvar' }}</button>
                 </div>
-
             </div>
         </form>
-
-
-
         @if ($curso->id)
             <x-painel.cursos.form-delete route="curso-delete" id="{{ $curso->uid }}" />
 
             <form method="POST" id="folder-delete" action="{{ route('curso-folder-delete', $curso->uid) }}">
+                @csrf
+            </form>
+            <form method="POST" id="thumb-delete" action="{{ route('curso-thumb-delete', $curso->uid) }}">
                 @csrf
             </form>
         @endif
