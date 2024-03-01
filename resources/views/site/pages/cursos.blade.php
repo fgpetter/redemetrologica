@@ -51,7 +51,7 @@
             <div class="col-3 mt-4" style="width: 18rem; height: 20rem;">
 
                 <div class="SiteCards__bgimage text-white d-grid"
-                    style="background-image: url('{{ $agendacurso->curso->thumb
+                    style="background-image: url('{{ $agendacurso->curso->thumb ?? ''
                         ? asset('curso-thumb/' . $agendacurso->curso->thumb)
                         : ($agendacurso->tipo_agendamento == 'ONLINE'
                             ? asset('build/images/site/online-placeholder.jpg')
@@ -59,7 +59,7 @@
                     <div class="SiteCards--efeito  align-self-end d-grid align-self-end align-items-end p-3">
                         <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}"
                             class=" align-self-center text-center h5 text-white SiteCards__descricao" style="height: 100%;">
-                            {{ $agendacurso->curso->descricao }}
+                            {{ $agendacurso->curso->descricao ?? '' }}
                         </a>
                         <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}" class="text-start text-white bold">
                             <i class="fa fa-clock-o" aria-hidden="true"></i>
