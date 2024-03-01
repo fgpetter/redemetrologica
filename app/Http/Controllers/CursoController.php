@@ -45,7 +45,8 @@ class CursoController extends Controller
         'referencias_utilizadas' => ['nullable', 'string'],
         'conteudo_programatico' => ['nullable', 'string'],
         'observacoes_internas' => ['nullable', 'string'],
-        'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)]
+        'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
+        'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)]
 
       ],
       [
@@ -60,6 +61,8 @@ class CursoController extends Controller
         'observacoes_internas.string' => 'O campo aceita somente texto.',
         'folder.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
         'folder.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+        'thumb.mimes' => 'Apenas arquivos JPG,PNG são permitidos.',
+        'thumb.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.tinyjpg.com.',
       ]
     );
     $validated['uid'] = config('hashing.uid');
@@ -85,6 +88,30 @@ class CursoController extends Controller
       }
 
       $validated['folder'] = $fileName;
+    }
+
+
+    if ($request->hasFile('thumb')) {
+      $originName = $request->file('thumb')->getClientOriginalName();
+      $fileName = pathinfo($originName, PATHINFO_FILENAME);
+      $fileName = str_replace(' ', '-', $fileName);
+      $extension = $request->file('thumb')->getClientOriginalExtension();
+      $fileName = $fileName . '_' . time() . '.' . $extension;
+      $request->file('thumb')->move(public_path('curso-thumb'), $fileName);
+
+      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+      if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
+        $img = Image::make(public_path('curso-thumb/' . $fileName));
+        if ($img->height() > 750) {
+          $img->resize(null, 750, function ($constraint) {
+            $constraint->aspectRatio();
+          });
+        }
+        $img->encode('jpg', 75);
+        $img->save(public_path('curso-thumb/' . $fileName));
+      }
+
+      $validated['thumb'] = $fileName;
     }
 
 
@@ -123,7 +150,7 @@ class CursoController extends Controller
       [
         'descricao' => ['nullable', 'string', 'max:190'],
         'tipo_curso' => ['nullable', 'string', 'in:OFICIAL,SUPLENTE,OUTROS'],
-        'carga_horaria' => ['numeric'],
+        'carga_horaria' => ['nullable', 'numeric'],
         'objetivo' => ['nullable', 'string'],
         'publico_alvo' => ['nullable', 'string'],
         'pre_requisitos' => ['nullable', 'string'],
@@ -131,7 +158,9 @@ class CursoController extends Controller
         'referencias_utilizadas' => ['nullable', 'string'],
         'conteudo_programatico' => ['nullable', 'string'],
         'observacoes_internas' => ['nullable', 'string'],
-        'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)]
+        'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
+        'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)]
+
       ],
       [
         'descricao.string' => 'O campo aceita somente texto.',
@@ -143,8 +172,10 @@ class CursoController extends Controller
         'referencias_utilizadas.string' => 'O campo aceita somente texto.',
         'conteudo_programatico.string' => 'O campo aceita somente texto.',
         'observacoes_internas.string' => 'O campo aceita somente texto.',
-        'folder.types' => 'O tipo de arquivo não é permitido.',
-        'folder.max' => 'O arquivo é muito grande.',
+        'folder.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'folder.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+        'thumb.mimes' => 'Apenas arquivos JPG,PNG são permitidos.',
+        'thumb.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.tinyjpg.com.',
       ]
     );
 
@@ -173,6 +204,29 @@ class CursoController extends Controller
       $validated['folder'] = $fileName;
     }
 
+    if ($request->hasFile('thumb')) {
+      $originName = $request->file('thumb')->getClientOriginalName();
+      $fileName = pathinfo($originName, PATHINFO_FILENAME);
+      $fileName = str_replace(' ', '-', $fileName);
+      $extension = $request->file('thumb')->getClientOriginalExtension();
+      $fileName = $fileName . '_' . time() . '.' . $extension;
+      $request->file('thumb')->move(public_path('curso-thumb'), $fileName);
+
+      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
+      if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
+        $img = Image::make(public_path('curso-thumb/' . $fileName));
+        if ($img->height() > 750) {
+          $img->resize(null, 750, function ($constraint) {
+            $constraint->aspectRatio();
+          });
+        }
+        $img->encode('jpg', 75);
+        $img->save(public_path('curso-thumb/' . $fileName));
+      }
+
+      $validated['thumb'] = $fileName;
+    }
+
 
     $curso->update($validated);
 
@@ -198,6 +252,25 @@ class CursoController extends Controller
 
     return redirect()->back()->with('curso-success', 'Folder removido');
   }
+
+  /**
+   * Remove arquivo de thumb do curso
+   *
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  public function thumbDelete(Curso $curso): RedirectResponse
+  {
+
+    if (FileFacade::exists(public_path('curso-thumb/' . $curso->thumb))) {
+      FileFacade::delete(public_path('curso-thumb/' . $curso->thumb));
+    }
+
+    $curso->update(['thumb' => null]);
+
+    return redirect()->back()->with('curso-success', 'thumb removido');
+  }
+
   /**
    * Remove curso
    *
@@ -208,6 +281,9 @@ class CursoController extends Controller
   {
     if (FileFacade::exists(public_path('curso-folder/' . $curso->folder))) {
       FileFacade::delete(public_path('curso-folder/' . $curso->folder));
+    }
+    if (FileFacade::exists(public_path('curso-thumb/' . $curso->thumb))) {
+      FileFacade::delete(public_path('curso-thumb/' . $curso->thumb));
     }
     $curso->delete();
     return redirect()->route('curso-index')->with('curso-success', 'Curso removido');
