@@ -43,6 +43,7 @@
             :cursos="$cursos" 
             :empresas="$empresas"
             :agendacurso="$agendacurso"
+            :cursoatual="$cursoatual"
           />
         </div>
         

@@ -38,7 +38,8 @@ class AgendaCursoController extends Controller
   {
     $data = [
       'instrutores' => Instrutor::all(),
-      'cursos' => Curso::all(),
+      'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
+      'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),
       'inscritos' => CursoInscrito::select()->with('empresa')->where('agenda_curso_id', $agendacurso->id)->get(),
       'inscritos_empresas' => CursoInscritoEmpresa::select()->where('agenda_curso_id', $agendacurso->id)->get(),

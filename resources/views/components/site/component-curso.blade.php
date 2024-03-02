@@ -5,7 +5,7 @@
 
         <div class=" container align-self-center text-start text-white ">
             <p class="SiteBanner--titulocursos  my-5"><strong>
-                    {{ $agendacursos->curso->descricao }}</strong></p>
+                    {{ $agendacursos->curso->descricao ?? '' }}</strong></p>
             <p><i class="bi bi-clock text-warning mx-1"></i> Data:
                 {{ Carbon\Carbon::parse($agendacursos->data_inicio)->format('d/m/Y') }} a
                 {{ Carbon\Carbon::parse($agendacursos->data_fim)->format('d/m/Y') }} </p>
@@ -19,24 +19,24 @@
             <div class="mx-5 mt-4 ">
                 <h3 class=" pt-5">Objetivo:</h3>
                 <hr>
-                <p>{{ $agendacursos->curso->objetivo }}</p>
+                <p>{{ $agendacursos->curso->objetivo ?? '' }}</p>
 
                 <h3 class=" pt-3">Público-Alvo:</h3>
                 <hr>
-                <p>{{ $agendacursos->curso->publico_alvo }}
+                <p>{{ $agendacursos->curso->publico_alvo ?? '' }}
                 </p>
 
                 <h3 class=" pt-3">Pré-Requisitos:</h3>
                 <hr>
-                <p>{{ $agendacursos->curso->pre_requisitos }}</p>
+                <p>{{ $agendacursos->curso->pre_requisitos ?? '' }}</p>
 
                 <h3 class=" pt-3">Referências:</h3>
                 <hr>
-                <p>{{ $agendacursos->curso->referencias_utilizadas }}</p>
+                <p>{{ $agendacursos->curso->referencias_utilizadas ?? '' }}</p>
 
                 <h3 class=" pt-3">Conteúdo Programático:</h3>
                 <hr>
-                <p>{{ $agendacursos->curso->conteudo_programatico }}</p>
+                <p>{{ $agendacursos->curso->conteudo_programatico ?? '' }}</p>
 
 
             </div>

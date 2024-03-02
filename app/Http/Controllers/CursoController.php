@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AgendaCursos;
 use App\Models\Curso;
-use App\Rules\PreventXSS;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -279,13 +279,18 @@ class CursoController extends Controller
    **/
   public function delete(Curso $curso): RedirectResponse
   {
+
+
     if (FileFacade::exists(public_path('curso-folder/' . $curso->folder))) {
       FileFacade::delete(public_path('curso-folder/' . $curso->folder));
     }
     if (FileFacade::exists(public_path('curso-thumb/' . $curso->thumb))) {
       FileFacade::delete(public_path('curso-thumb/' . $curso->thumb));
     }
-    $curso->delete();
+
+    $tem_cursos_agendados = AgendaCursos::where('curso_id', $curso->id)->first();
+    ( !$tem_cursos_agendados ) ? $curso->forceDelete() : $curso->delete();
+
     return redirect()->route('curso-index')->with('curso-success', 'Curso removido');
   }
 }

@@ -41,8 +41,11 @@
     <div class="col-sm-12">
       <x-forms.input-select name="curso_id" label="Nome do Curso <span class='text-danger'>*</span>">
         <option value="">Selecione um curso</option>
+        @if($cursoatual) 
+          <option selected value="{{$cursoatual->id}}">{{$cursoatual->descricao}}</option>
+        @endif
         @foreach ($cursos as $curso)
-          <option @selected($agendacurso->curso_id == $curso->id) value="{{$curso->id}}">{{$curso->descricao}}</option>
+          <option value="{{$curso->id}}">{{$curso->descricao}}</option>
         @endforeach
       </x-forms.input-select>
       @error('curso_id') <div class="text-warning">{{ $message }}</div> @enderror

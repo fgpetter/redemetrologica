@@ -25,6 +25,7 @@
             :agendacurso="$agendacurso"
             :inscritos="$inscritos"
             :inscritosempresas="$inscritos_empresas"
+            :cursoatual="$curso_atual"
             />
         </div>
 
