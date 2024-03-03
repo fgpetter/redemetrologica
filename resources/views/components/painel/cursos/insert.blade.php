@@ -168,7 +168,8 @@
             </div>
         </form>
         @if ($curso->id)
-            <x-painel.cursos.form-delete route="curso-delete" id="{{ $curso->uid }}" />
+            <x-painel.form.delete route="curso-delete" id="{{ $curso->uid }}" label="Curso" />
+
 
             <form method="POST" id="folder-delete" action="{{ route('curso-folder-delete', $curso->uid) }}">
                 @csrf
