@@ -1,6 +1,7 @@
 const vite = require('vite');
 import laravel from 'laravel-vite-plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import Swal from 'sweetalert2'
 const lodash = require("lodash");
 
 
