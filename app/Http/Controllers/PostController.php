@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\Rule;
 use Intervention\Image\Facades\Image;
 
 
@@ -99,7 +98,7 @@ class PostController extends Controller
       [
         'titulo' => ['required', 'string', 'max:255'],
         'conteudo' => ['required_if:tipo,noticia', 'string'],
-        'thumb' => ['required',  'sometimes:string', 'sometimes:image', 'sometimes:mimes:jpg,png,jpeg'],
+        'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
         'data_publicacao' => ['required', 'date'],
       ],
       [
@@ -256,7 +255,7 @@ class PostController extends Controller
    * Edita dados de post
    *
    * @param Request $request
-   * @param Post $posts
+   * @param Post $post
    * @return RedirectResponse
    **/
   public function update(Request $request, Post $post): RedirectResponse
@@ -467,11 +466,10 @@ class PostController extends Controller
   /**
    * Remove post
    *
-   * @param Request $request
-   * @param User $post
+   * @param Post $post
    * @return RedirectResponse
    **/
-  public function delete(Request $request, Post $post, PostMedia $postMedia): RedirectResponse
+  public function delete(Post $post): RedirectResponse
   {
     //deleta a thumb
     if (File::exists(public_path('post-media/' . $post->thumb))) {
@@ -494,9 +492,9 @@ class PostController extends Controller
 
 
     if ($post->tipo == 'noticia') {
-      return redirect()->route('noticia-index')->with('update-success', 'Noticia adicionada');
+      return redirect()->route('noticia-index')->with('update-success', 'Noticia removida');
     }
-    return redirect()->route('galeria-index')->with('update-success', 'Galeria adicionada');
+    return redirect()->route('galeria-index')->with('update-success', 'Galeria removida');
   }
 
   /**
@@ -553,10 +551,10 @@ class PostController extends Controller
   /**
    * mostra pagina da slug da noticia/galeria no site
    *
-   
+   * @param string $slug
    * @return View
    **/
-  public function show($slug)
+  public function show($slug): View
   {
     $postMedia = PostMedia::where('slug_post', $slug)->get();
     $post = Post::where('slug', $slug)->firstOrFail();
