@@ -2,7 +2,7 @@
       <div class="card-body">
           <div class="row">
               <div class="col-12 d-flex justify-content-end mb-3">
-                  <a href="{{ route($tipo.'-insert') }}" class="btn btn-sm btn-success">
+                  <a href="{{ route($tipo . '-insert') }}" class="btn btn-sm btn-success">
                       <i class="ri-add-line align-bottom me-1"></i> Adicionar
                   </a>
               </div>
@@ -15,7 +15,7 @@
               </div>
           @endif
 
-          <div class="table-responsive">
+          <div class="table-responsive" style="min-height: 25vh">
               <table class="table table-striped align-middle table-nowrap mb-0">
                   <thead>
                       <tr>
@@ -32,7 +32,7 @@
                   <tbody>
                       @forelse ($posts as $post)
                           <tr>
-                              <th scope="row"><a href="{{ route($tipo.'-insert', ['post' => $post->slug]) }}"
+                              <th scope="row"><a href="{{ route($tipo . '-insert', ['post' => $post->slug]) }}"
                                       class="fw-medium"> #{{ $post['id'] }} </a></th>
                               <td>{{ $post['titulo'] }}</td>
                               <td>{{ Str::ucfirst($post['tipo']) }}</td>
@@ -60,13 +60,10 @@
                                       </a>
                                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
                                           <li><a class="dropdown-item"
-                                                  href="{{ route($tipo.'-insert', ['post' => $post->slug]) }}">Editar</a>
+                                                  href="{{ route($tipo . '-insert', ['post' => $post->slug]) }}">Editar</a>
                                           </li>
                                           <li>
-                                              <form method="POST" action="{{ route('post-delete', $post->id) }}">
-                                                  @csrf
-                                                  <button class="dropdown-item" type="submit">Deletar</button>
-                                              </form>
+                                              <x-painel.form.delete route="post-delete" id="{{ $post->id }}" />
                                           </li>
                                       </ul>
                                   </div>
