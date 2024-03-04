@@ -57,7 +57,7 @@ document.querySelectorAll('.input-cep').forEach(el => {
 });
 
 window.onload = function(){
-  if (window.jQuery){
+  if (window.jQuery && window.jQuery.fn.mask) {
     $('#input-cnpj').mask('00.000.000/0000-00', {reverse: true});
     $('#input-cpf').mask('000.000.000-00', {reverse: true});
     $('.money').mask('000.000.000.000.000,00', {reverse: true});
@@ -99,10 +99,12 @@ function search(e, url, tipo){
 tipoAgendamento = document.getElementById('tipo_agendamento')
 cardInCompany = document.getElementById('cursos-incompany')
 
-tipoAgendamento.addEventListener("change", function(){
-  if(tipoAgendamento.value == 'IN-COMPANY'){
-    cardInCompany.classList.remove("d-none");
-  } else {
-    cardInCompany.classList.add("d-none");
-  }
-});
+if(tipoAgendamento){
+  tipoAgendamento.addEventListener("change", function(){
+    if(tipoAgendamento.value == 'IN-COMPANY'){
+      cardInCompany.classList.remove("d-none");
+    } else {
+      cardInCompany.classList.add("d-none");
+    }
+  })
+}

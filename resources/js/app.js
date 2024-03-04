@@ -1467,142 +1467,142 @@ File: Main Js File
             });
 
         // notification messages
-        if (document.getElementsByClassName("notification-check")) {
-            function emptyNotification() {
-                if (
-                    document.querySelectorAll(".notification-item").length > 0
-                ) {
-                    document
-                        .querySelectorAll(".notification-title")
-                        .forEach(function (item) {
-                            item.style.display = "block";
-                        });
-                } else {
-                    document
-                        .querySelectorAll(".notification-title")
-                        .forEach(function (item) {
-                            item.style.display = "none";
-                        });
+        // if (document.getElementsByClassName("notification-check")) {
+        //     function emptyNotification() {
+        //         if (
+        //             document.querySelectorAll(".notification-item").length > 0
+        //         ) {
+        //             document
+        //                 .querySelectorAll(".notification-title")
+        //                 .forEach(function (item) {
+        //                     item.style.display = "block";
+        //                 });
+        //         } else {
+        //             document
+        //                 .querySelectorAll(".notification-title")
+        //                 .forEach(function (item) {
+        //                     item.style.display = "none";
+        //                 });
 
-                    var emptyNotificationElem = document.querySelector(
-                        "#notificationItemsTabContent .empty-notification-elem"
-                    );
-                    if (!emptyNotificationElem) {
-                        document.getElementById(
-                            "notificationItemsTabContent"
-                        ).innerHTML +=
-                            '<div class="empty-notification-elem text-center px-4">\
-						<div class="mt-3 avatar-md mx-auto">\
-							<div class="avatar-title bg-info-subtle text-info fs-24 rounded-circle">\
-							<i class="bi bi-bell "></i>\
-							</div>\
-						</div>\
-						<div class="pb-3 mt-2">\
-							<h6 class="fs-lg fw-semibold lh-base">Hey! You have no any notifications </h6>\
-						</div>\
-					</div>';
-                    }
-                }
-            }
-            emptyNotification();
-            Array.from(
-                document.querySelectorAll(".notification-check input")
-            ).forEach(function (element) {
-                element.addEventListener("change", function (el) {
-                    el.target
-                        .closest(".notification-item")
-                        .classList.toggle("active");
+        //             var emptyNotificationElem = document.querySelector(
+        //                 "#notificationItemsTabContent .empty-notification-elem"
+        //             );
+        //             if (!emptyNotificationElem) {
+        //                 document.getElementById(
+        //                     "notificationItemsTabContent"
+        //                 ).innerHTML +=
+        //                     '<div class="empty-notification-elem text-center px-4">\
+		// 				<div class="mt-3 avatar-md mx-auto">\
+		// 					<div class="avatar-title bg-info-subtle text-info fs-24 rounded-circle">\
+		// 					<i class="bi bi-bell "></i>\
+		// 					</div>\
+		// 				</div>\
+		// 				<div class="pb-3 mt-2">\
+		// 					<h6 class="fs-lg fw-semibold lh-base">Hey! You have no any notifications </h6>\
+		// 				</div>\
+		// 			</div>';
+        //             }
+        //         }
+        //     }
+        //     emptyNotification();
+        //     Array.from(
+        //         document.querySelectorAll(".notification-check input")
+        //     ).forEach(function (element) {
+        //         element.addEventListener("change", function (el) {
+        //             el.target
+        //                 .closest(".notification-item")
+        //                 .classList.toggle("active");
 
-                    var checkedCount = document.querySelectorAll(
-                        ".notification-check input:checked"
-                    ).length;
+        //             var checkedCount = document.querySelectorAll(
+        //                 ".notification-check input:checked"
+        //             ).length;
 
-                    if (
-                        el.target
-                            .closest(".notification-item")
-                            .classList.contains("active")
-                    ) {
-                        checkedCount > 0
-                            ? (document.getElementById(
-                                  "notification-actions"
-                              ).style.display = "block")
-                            : (document.getElementById(
-                                  "notification-actions"
-                              ).style.display = "none");
-                    } else {
-                        checkedCount > 0
-                            ? (document.getElementById(
-                                  "notification-actions"
-                              ).style.display = "block")
-                            : (document.getElementById(
-                                  "notification-actions"
-                              ).style.display = "none");
-                    }
-                    document.getElementById("select-content").innerHTML =
-                        checkedCount;
-                });
+        //             if (
+        //                 el.target
+        //                     .closest(".notification-item")
+        //                     .classList.contains("active")
+        //             ) {
+        //                 checkedCount > 0
+        //                     ? (document.getElementById(
+        //                           "notification-actions"
+        //                       ).style.display = "block")
+        //                     : (document.getElementById(
+        //                           "notification-actions"
+        //                       ).style.display = "none");
+        //             } else {
+        //                 checkedCount > 0
+        //                     ? (document.getElementById(
+        //                           "notification-actions"
+        //                       ).style.display = "block")
+        //                     : (document.getElementById(
+        //                           "notification-actions"
+        //                       ).style.display = "none");
+        //             }
+        //             document.getElementById("select-content").innerHTML =
+        //                 checkedCount;
+        //         });
 
-                var notificationDropdown = document.getElementById(
-                    "notificationDropdown"
-                );
-                if (notificationDropdown) {
-                    notificationDropdown.addEventListener(
-                        "hide.bs.dropdown",
-                        function (event) {
-                            element.checked = false;
-                            document
-                                .querySelectorAll(".notification-item")
-                                .forEach(function (item) {
-                                    item.classList.remove("active");
-                                });
-                            emptyNotification();
-                            document.getElementById(
-                                "notification-actions"
-                            ).style.display = "";
-                        }
-                    );
-                }
-            });
+        //         var notificationDropdown = document.getElementById(
+        //             "notificationDropdown"
+        //         );
+        //         if (notificationDropdown) {
+        //             notificationDropdown.addEventListener(
+        //                 "hide.bs.dropdown",
+        //                 function (event) {
+        //                     element.checked = false;
+        //                     document
+        //                         .querySelectorAll(".notification-item")
+        //                         .forEach(function (item) {
+        //                             item.classList.remove("active");
+        //                         });
+        //                     emptyNotification();
+        //                     document.getElementById(
+        //                         "notification-actions"
+        //                     ).style.display = "";
+        //                 }
+        //             );
+        //         }
+        //     });
 
-            var removeItem = document.getElementById("removeNotificationModal");
-            if (removeItem) {
-                removeItem.addEventListener("show.bs.modal", function (event) {
-                    document
-                        .getElementById("delete-notification")
-                        .addEventListener("click", function () {
-                            Array.from(
-                                document.querySelectorAll(".notification-item")
-                            ).forEach(function (element) {
-                                if (element.classList.contains("active")) {
-                                    element.remove();
-                                }
-                                Array.from(
-                                    document.querySelectorAll(
-                                        ".notification-badge"
-                                    )
-                                ).forEach(function (item) {
-                                    item.innerHTML = document.querySelectorAll(
-                                        ".notification-check input"
-                                    ).length;
-                                });
-                                Array.from(
-                                    document.querySelectorAll(
-                                        ".notification-unread"
-                                    )
-                                ).forEach(function (item) {
-                                    item.innerHTML = document.querySelectorAll(
-                                        ".notification-item.unread-message"
-                                    ).length;
-                                });
-                            });
-                            emptyNotification();
-                            document
-                                .getElementById("NotificationModalbtn-close")
-                                .click();
-                        });
-                });
-            }
-        }
+        //     var removeItem = document.getElementById("removeNotificationModal");
+        //     if (removeItem) {
+        //         removeItem.addEventListener("show.bs.modal", function (event) {
+        //             document
+        //                 .getElementById("delete-notification")
+        //                 .addEventListener("click", function () {
+        //                     Array.from(
+        //                         document.querySelectorAll(".notification-item")
+        //                     ).forEach(function (element) {
+        //                         if (element.classList.contains("active")) {
+        //                             element.remove();
+        //                         }
+        //                         Array.from(
+        //                             document.querySelectorAll(
+        //                                 ".notification-badge"
+        //                             )
+        //                         ).forEach(function (item) {
+        //                             item.innerHTML = document.querySelectorAll(
+        //                                 ".notification-check input"
+        //                             ).length;
+        //                         });
+        //                         Array.from(
+        //                             document.querySelectorAll(
+        //                                 ".notification-unread"
+        //                             )
+        //                         ).forEach(function (item) {
+        //                             item.innerHTML = document.querySelectorAll(
+        //                                 ".notification-item.unread-message"
+        //                             ).length;
+        //                         });
+        //                     });
+        //                     emptyNotification();
+        //                     document
+        //                         .getElementById("NotificationModalbtn-close")
+        //                         .click();
+        //                 });
+        //         });
+        //     }
+        // }
     }
 
     function initComponents() {
