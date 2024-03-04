@@ -118,14 +118,11 @@ class AgendaCursoController extends Controller
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
     $validated['uid'] = config('hashing.uid');
-    
-    if($validated['investimento']){
-      $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
-    }
-    if($validated['investimento_associado']){
-      $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
-    }
 
+    $validated['investimento'] = $this->formataMoeda($validated['investimento']) ?? null;
+    $validated['investimento_associado'] = $this->formataMoeda($validated['investimento_associado']) ?? null;
+    $validated['valor_orcamento'] = $this->formataMoeda($validated['valor_orcamento']) ?? null;
+    
     $agenda_curso = AgendaCursos::create($validated);
 
     if (!$agenda_curso) {
@@ -201,12 +198,9 @@ class AgendaCursoController extends Controller
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
 
-    if($validated['investimento']){
-      $validated['investimento'] = str_replace(',','.', str_replace('.','', $request->investimento));
-    }
-    if($validated['investimento_associado']){
-      $validated['investimento_associado'] = str_replace(',','.', str_replace('.','', $request->investimento_associado));
-    }
+    $validated['investimento'] = $this->formataMoeda($validated['investimento']) ?? null;
+    $validated['investimento_associado'] = $this->formataMoeda($validated['investimento_associado']) ?? null;
+    $validated['valor_orcamento'] = $this->formataMoeda($validated['valor_orcamento']) ?? null;
 
     if(!$request->destaque){$validated['destaque'] = 0;}
     if(!$request->site){$validated['site'] = 0;}
@@ -263,5 +257,20 @@ class AgendaCursoController extends Controller
 
 
     return view('site.pages.slug-cursos', ['agendacursos' => $agendacursos]);
+  }
+
+  /**
+   * Undocumented function
+   *
+   * @param string $valor
+   * @return string|null
+   */
+  private function formataMoeda($valor): ?string
+  {
+    if($valor){
+      return str_replace(',','.', str_replace('.','', $valor));
+    } else {
+      return null;
+    }
   }
 }
