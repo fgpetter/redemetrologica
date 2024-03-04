@@ -2619,23 +2619,23 @@ File: Main Js File
 /********************* scroll top js ************************/
 //
 
-const myButton = document.getElementById("back-to-top");
+// const myButton = document.getElementById("back-to-top");
 
-if (myButton) {
-    // Show the button when the user scrolls down 100px from the top of the document
-    window.addEventListener("scroll", function () {
-        if (window.scrollY > 100) {
-            myButton.style.display = "block";
-        } else {
-            myButton.style.display = "none";
-        }
-    });
+// if (myButton) {
+//     // Show the button when the user scrolls down 100px from the top of the document
+//     window.addEventListener("scroll", function () {
+//         if (window.scrollY > 100) {
+//             myButton.style.display = "block";
+//         } else {
+//             myButton.style.display = "none";
+//         }
+//     });
 
-    // Scroll to the top of the document when the user clicks on the button
-    myButton.addEventListener("click", function () {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-        });
-    });
-}
+//     // Scroll to the top of the document when the user clicks on the button
+//     myButton.addEventListener("click", function () {
+//         window.scrollTo({
+//             top: 0,
+//             behavior: "smooth",
+//         });
+//     });
+// }

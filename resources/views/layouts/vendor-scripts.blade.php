@@ -1,6 +1,12 @@
 <!-- JAVASCRIPT -->
 <script src="{{ URL::asset('build/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/simplebar/simplebar.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
+<script src="{{ URL::asset('build/js/jquery-3.7.1.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/jquery.mask.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/custom.js') }}"></script>
+<script src="{{ URL::asset('build/js/app.js') }}"></script>
 
 <script>
   function loadJsLib() {
@@ -27,3 +33,4 @@
   document.addEventListener('DOMContentLoaded', loadJsLib);
 </script>
 @yield('script')
+

@@ -18,10 +18,3 @@
     </div>
   </div>
 @endsection
-
-@section('script')
-  <script src="{{ URL::asset('build/js/pages/imask.js') }}"></script>
-  <script src="{{ URL::asset('build/js/jquery-3.7.1.min.js') }}"></script>
-  <script src="{{ URL::asset('build/js/jquery.mask.min.js') }}"></script>
-  <script src="{{ URL::asset('build/js/custom.js') }}"></script>
-@endsection

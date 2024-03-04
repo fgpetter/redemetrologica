@@ -33,18 +33,18 @@
         <li class="menu-title"><span>ADMINISTRAÇÃO</span></li>
 
         {{-- Usuarios --}}
-        <li class="nav-item"></li>
-          <a class="nav-link menu-link collapsed {{ request()->is('painel/user/*') ? 'active' : '' }}"
+        <li class="nav-item">
+          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/user']) ? 'active' : '' }}"
             href="#sidebarUsers" data-bs-toggle="collapse" role="button"
-            aria-expanded="{{ request()->is('painel/user/*') ? 'true' : 'false' }}"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/user']) ? 'true' : 'false' }}"
             aria-controls="sidebarUsers">
-            <i class="ph-user-circle"></i> USUÁRIOS
+            <i class="ph-user-circle"></i> <span>USUÁRIOS</span>
           </a>
-          <div class="collapse menu-dropdown {{ request()->is('painel/user/*') ? 'show' : '' }}"
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/user']) ? 'show' : '' }}" 
             id="sidebarUsers">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
-                <a href="/painel/user/index"
+                <a href="{{ route('user-index') }}"
                   class="nav-link {{ request()->is('painel/user/index') ? 'active' : '' }}"
                   role="button" data-key="t-signin">
                   Listar
@@ -56,11 +56,11 @@
 
         {{-- Pessoas --}}
         <li class="nav-item">
-          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor']) ? 'active' : '' }}"
+          <a class="nav-link menu-link collapsed "
             href="#sidebarPessoas" data-bs-toggle="collapse" role="button"
             aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor']) ? 'true' : 'false' }}"
             aria-controls="sidebarPessoas">
-            <i class="ph-identification-card"></i> PESSOAS
+            <i class="ph-identification-card"></i> <span>PESSOAS</span>
           </a>
           <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/avaliador', 'painel/instrutor']) ? 'show' : '' }}"
             id="sidebarPessoas">
@@ -104,7 +104,7 @@
             href="#sidebarCursos" data-bs-toggle="collapse" role="button"
             aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'true' : 'false' }}"
             aria-controls="sidebarCursos">
-            <i class="ph-identification-card"></i>CURSOS
+            <i class="ph-identification-card"></i> <span>CURSOS</span> 
           </a>
           <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'show' : '' }}"
             id="sidebarCursos">
@@ -129,7 +129,7 @@
 
         {{-- CADASTROS ADICIONAIS --}}
         <li class="nav-item">
-          <a class="nav-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
+          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
             href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse" role="button"
             aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
             aria-controls="sidebarCadastrosAdicionais">
@@ -207,19 +207,19 @@
 
         {{-- Notícias --}}
         <li class="nav-item">
-        <a href="/painel/post/noticias"
-          class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
-          role="button" data-key="t-signin">
-          <i class="ph-newspaper"></i> <span>NOTÍCIAS</span>
-        </a>
+          <a href="/painel/post/noticias"
+            class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
+            role="button" data-key="t-signin">
+            <i class="ph-newspaper"></i> <span>NOTÍCIAS</span>
+          </a>
         </li>
         {{-- Galeria --}}
         <li class="nav-item">
-        <a href="/painel/post/galeria" 
-          class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
-          role="button" data-key="t-signin">
-          <i class="ph-image"></i> <span>GALERIA</span>
-        </a>
+          <a href="/painel/post/galeria" 
+            class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
+            role="button" data-key="t-signin">
+            <i class="ph-image"></i> <span>GALERIA</span>
+          </a>
         </li>
 
       </ul>

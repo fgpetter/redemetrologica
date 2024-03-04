@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                V1.0 @ 2023
+                V1.0 @ 2024
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
@@ -12,7 +12,3 @@
         </div>
     </div>
 </footer>
-@section('script')
-<script src="{{ URL::asset('build/js/app.js') }}"></script>
-<script src="{{ URL::asset('build/js/custom.js') }}"></script>
-@endsection
