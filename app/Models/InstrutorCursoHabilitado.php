@@ -20,7 +20,7 @@ class InstrutorCursoHabilitado extends Model
     protected $guarded = [];
 
     /**
-     * Carrega pessoa
+     * Carrega curso
      * @return BelongsTo
      */
     public function curso(): BelongsTo
