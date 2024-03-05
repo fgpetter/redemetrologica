@@ -185,7 +185,7 @@
     </div>
 
     @if($pessoa->id)
-      <x-painel.pessoas.form-delete route="pessoa-delete" id="{{$pessoa->uid}}" />
+      <x-painel.form-delete.delete route="pessoa-delete" id="{{$pessoa->uid}}" label="Pessoa" />
     @endif
 
   </div>

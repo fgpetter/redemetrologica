@@ -50,7 +50,8 @@
                                                 href="{{ route('curso-insert', ['curso' => $curso->uid]) }}">Editar</a>
                                         </li>
                                         <li>
-                                            <x-painel.form.delete route="curso-delete" id="{{ $curso->uid }}" />
+                                            <x-painel.form-delete.delete route="curso-delete"
+                                                id="{{ $curso->uid }}" />
                                         </li>
                                     </ul>
                                 </div>

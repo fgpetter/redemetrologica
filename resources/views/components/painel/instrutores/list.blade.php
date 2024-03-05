@@ -82,10 +82,9 @@
                       </a>
                     </li>
                     <li>
-                      <form method="POST" action="{{ route('instrutor-delete', $instrutor->uid) }}">
-                        @csrf
-                        <button class="dropdown-item" type="submit">Excluir</button>
-                      </form>
+                   
+                         <x-painel.form-delete.delete route='instrutor-delete'
+                                                id="{{ $instrutor->uid }}" />
                     </li>
                   </ul>
                 </div>

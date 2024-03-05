@@ -36,10 +36,9 @@
       </div>
     </form>
     @isset($user)
-      <form class="d-flex justify-content-end" style="margin-top: -1.5rem" method="POST" action="{{ route('user-delete', $user->id) }}">
-        @csrf
-        <button type="submit" class="btn btn-sm btn-danger">Remover usuário</button>
-      </form>
+
+         <x-painel.form-delete.delete route='user-delete'
+                                                id="{{ $user->id }}" label="Usuário"/>
     @endisset
 
   </div>
