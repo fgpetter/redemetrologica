@@ -127,6 +127,30 @@
           </div>
         </li>
 
+        {{-- FINANCEIRO --}}
+        <li class="nav-item">
+          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'active' : '' }}"
+            href="#sidebarFinanceiro" data-bs-toggle="collapse" role="button"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'true' : 'false' }}"
+            aria-controls="sidebarFinanceiro">
+            <i class="ph-identification-card"></i> <span>FINANCEIRO</span> 
+          </a>
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'show' : '' }}"
+            id="sidebarFinanceiro">
+            <ul class="nav nav-sm flex-column">
+            <li class="nav-item">
+              </li>
+              <li class="nav-item">
+              <a href="{{ route('lancamento-financeiro-index') }}"
+                class="nav-link {{ request()->is('painel/financeiro/lancamento/index') ? 'active' : '' }}"
+                role="button" data-key="t-signin">
+                Lançamentos
+              </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
         {{-- CADASTROS ADICIONAIS --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
@@ -213,6 +237,7 @@
             <i class="ph-newspaper"></i> <span>NOTÍCIAS</span>
           </a>
         </li>
+        
         {{-- Galeria --}}
         <li class="nav-item">
           <a href="/painel/post/galeria" 
