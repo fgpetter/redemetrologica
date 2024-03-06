@@ -58,7 +58,7 @@
                                         <button class="dropdown-item" type="submit">Excluir</button>
                                     </form>
                                     <x-painel.form-delete.delete route='materiais-padroes-delete'
-                                        id="{{ $inscrito->uid }}" label='' />
+                                        id="{{ $inscrito->uid }}"/>
                                 </li>
                             </ul>
                         </div>

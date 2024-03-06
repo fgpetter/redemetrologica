@@ -54,7 +54,7 @@
                                 @if ($pessoa->end_padrao != $endereco->id)
                                     {{-- Impede deletar endereço padrão --}}
                                     
-                                    <x-painel.form-delete.delete route='endereco--delete'
+                                    <x-painel.form-delete.delete route='endereco-delete'
                                                 id="{{ $endereco->uid }}" />
 
                                 @endif

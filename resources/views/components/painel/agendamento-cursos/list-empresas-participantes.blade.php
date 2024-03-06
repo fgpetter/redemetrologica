@@ -37,7 +37,7 @@
                                 <li>
 
                                     <x-painel.form-delete.delete route='materiais-padroes-delete'
-                                        id="{{ $empresa->uid }}" lavel='' />
+                                        id="{{ $empresa->uid }}"/>
                                 </li>
                             </ul>
                         </div>
