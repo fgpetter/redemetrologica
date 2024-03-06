@@ -63,7 +63,8 @@
                                                   href="{{ route($tipo . '-insert', ['post' => $post->slug]) }}">Editar</a>
                                           </li>
                                           <li>
-                                              <x-painel.form.delete route="post-delete" id="{{ $post->id }}" />
+                                              <x-painel.form-delete.delete route="post-delete"
+                                                  id="{{ $post->id }}" />
                                           </li>
                                       </ul>
                                   </div>

@@ -137,7 +137,7 @@
         </div>
 
         @if ($post->id)
-            <x-painel.post.form-delete route="post-delete" id="{{ $post->id }}" />
+            <x-painel.form-delete.delete route="post-delete" id="{{ $post->id }}" label=''/>
             <form method="POST" id="thumb-delete" action="{{ route('thumb-delete', $post->id) }}">
                 @csrf
             </form>

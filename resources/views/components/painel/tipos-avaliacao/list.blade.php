@@ -2,7 +2,8 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12 d-flex justify-content-end mb-3">
-                <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#tipoAvaliacaoModal">
+                <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                    data-bs-target="#tipoAvaliacaoModal">
                     <i class="ri-add-line align-bottom me-1"></i> Adicionar Tipo de Avaliação
                 </a>
             </div>
@@ -27,9 +28,9 @@
                     @forelse ($avaliacoes as $avaliacao)
                         <tr>
                             <th><a href="#" class="fw-medium" data-bs-toggle="modal"
-                                data-bs-target="{{ '#tipoAvaliacaoModal'.$avaliacao->uid }}">
-                                #{{substr($avaliacao->uid, 7)}}
-                              </a></th>
+                                    data-bs-target="{{ '#tipoAvaliacaoModal' . $avaliacao->uid }}">
+                                    #{{ substr($avaliacao->uid, 7) }}
+                                </a></th>
                             <td class="text-truncate" style="max-width: 50vw">{{ $avaliacao['descricao'] }}</td>
                             <td>
                                 <div class="dropdown">
@@ -41,19 +42,17 @@
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                data-bs-target="{{ '#tipoAvaliacaoModal'.$avaliacao->uid }}">Editar</a>
+                                                data-bs-target="{{ '#tipoAvaliacaoModal' . $avaliacao->uid }}">Editar</a>
                                         </li>
                                         <li>
-                                            <form method="POST"
-                                                action="{{ route('tipo-avaliacao-delete', $avaliacao['uid']) }}">
-                                                @csrf
-                                                <button class="dropdown-item" type="submit">Excluir</button>
-                                            </form>
+
+                                            <x-painel.form-delete.delete route='tipo-avaliacao-delete'
+                                                id="{{ $avaliacao->uid }}" />
                                         </li>
                                     </ul>
                                 </div>
                             </td>
-                            <x-painel.tipos-avaliacao.modal-avaliacao :avaliacao="$avaliacao"/>
+                            <x-painel.tipos-avaliacao.modal-avaliacao :avaliacao="$avaliacao" />
                         </tr>
                     @empty
                         <tr>

@@ -66,11 +66,9 @@
                       <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{'#cursoshabilitadosModal'.$cursohabilitado->uid}}">Editar</a>
                     </li>
                     <li>
-                      <form method="POST"
-                        action="{{ route('instrutor-delete-curso-habilitado', $cursohabilitado->uid) }}">
-                        @csrf
-                        <button class="dropdown-item" type="submit">Excluir</button>
-                      </form>
+                      
+                         <x-painel.form-delete.delete route='instrutor-delete-curso-habilitado'
+                                                id="{{ $cursohabilitado->uid }}" />
                     </li>
                   </ul>
                 </div>

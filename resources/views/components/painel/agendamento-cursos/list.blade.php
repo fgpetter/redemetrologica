@@ -58,11 +58,9 @@
                                                 href="{{ route('agendamento-curso-insert', $agendacurso->uid) }}">Editar</a>
                                         </li>
                                         <li>
-                                            <form method="POST"
-                                                action="{{ route('agendamento-curso-delete', $agendacurso->uid) }}">
-                                                @csrf
-                                                <button class="dropdown-item" type="submit">Excluir</button>
-                                            </form>
+
+                                            <x-painel.form-delete.delete route='agendamento-curso-delete'
+                                                id="{{ $agendacurso->uid }}" />
                                         </li>
                                     </ul>
                                 </div>

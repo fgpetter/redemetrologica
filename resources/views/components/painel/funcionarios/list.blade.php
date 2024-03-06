@@ -46,10 +46,10 @@
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
                     <li><a class="dropdown-item" href="{{route('funcionario-insert', ['funcionario' => $funcionario->uid])}}">Editar</a></li>
                     <li>
-                      <form method="POST" action="{{ route('funcionario-delete', $funcionario->uid) }}">
-                        @csrf
-                        <button class="dropdown-item" type="submit">Deletar</button>
-                      </form>
+                     
+                      <x-painel.form-delete.delete route='funcionario-delete'
+                                                id="{{ $funcionario->uid }}" />
+
                     </li>
                   </ul>
                 </div>
