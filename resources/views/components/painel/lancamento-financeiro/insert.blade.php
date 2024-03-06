@@ -138,7 +138,7 @@
       </div>
     </form>
     @if ($lancamento->id)
-      <x-painel.form.delete route="curso-delete" id="{{ $lancamento->uid }}" label="Curso" />
+      <x-painel.form-delete.delete route="lancamento-financeiro-delete" id="{{ $lancamento->uid }}" label="Lançamento" />
     @endif
 
   </div>

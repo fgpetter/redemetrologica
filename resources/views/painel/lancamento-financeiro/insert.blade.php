@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title') Editar Curso @endsection
+@section('title') @if ($lancamento->id) Editar Lançamento @else Cadastrar Lançamento @endif @endsection
 @section('content')
 @component('components.breadcrumb')
 @slot('li_1') Financeiro @endslot

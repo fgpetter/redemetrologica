@@ -51,7 +51,7 @@
                         href="{{ route('lancamento-financeiro-insert', ['lancamento' => $lancamento->uid]) }}">Editar</a>
                     </li>
                     <li>
-                      <x-painel.form.delete route="lancamento-financeiro-delete" id="{{ $lancamento->uid }}" />
+                      <x-painel.form-delete.delete route="lancamento-financeiro-delete" id="{{ $lancamento->uid }}" />
                     </li>
                   </ul>
                 </div>
