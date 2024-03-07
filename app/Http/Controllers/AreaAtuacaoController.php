@@ -21,27 +21,29 @@ class AreaAtuacaoController extends Controller
    */
   public function store(Request $request)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      'observacoes' => ['nullable', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',
-      'observacoes.string' => 'Conteúdo inválido',
-  
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+        'observacoes' => ['nullable', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
+        'observacoes.string' => 'Conteúdo inválido',
+
       ]
     );
-  
+
     $validated['uid'] = config('hashing.uid');
-  
+
     $material_padrao = AreaAtuacao::create($validated);
-  
-    if(!$material_padrao){
+
+    if (!$material_padrao) {
       return redirect()->back()
-      ->with('atuacao-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
-  
+
     return redirect()->route('area-atuacao-index')
-      ->with('atuacao-success', 'Material Padrão cadastrado com sucesso');
+      ->with('success', 'Área de atuação cadastrada com sucesso');
   }
 
 
@@ -50,21 +52,22 @@ class AreaAtuacaoController extends Controller
    */
   public function update(Request $request, AreaAtuacao $areaAtuacao)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      'observacoes' => ['nullable', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',
-      'observacoes.string' => 'Conteúdo inválido',
-  
-      ]
-    );  
-  
-    $areaAtuacao->update($validated);  
-  
-    return redirect()->route('area-atuacao-index')
-      ->with('atuacao-success', 'Material Padrão cadastrado com sucesso');
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+        'observacoes' => ['nullable', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
+        'observacoes.string' => 'Conteúdo inválido',
 
+      ]
+    );
+
+    $areaAtuacao->update($validated);
+
+    return redirect()->route('area-atuacao-index')
+      ->with('success', 'Área de atuação atualizado com sucesso');
   }
 
   /**
@@ -75,6 +78,6 @@ class AreaAtuacaoController extends Controller
     $areaAtuacao->delete();
 
     return redirect()->route('area-atuacao-index')
-    ->with('atuacao-success', 'Material Padrão removido com sucesso');
+      ->with('warning', 'Área de atuação removida com sucesso');
   }
 }

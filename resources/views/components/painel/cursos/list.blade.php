@@ -8,12 +8,7 @@
             </div>
         </div>
 
-        @if (session('curso-success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('curso-success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+            <x-alerts.alert  />
 
         <div class="table-responsive" style="min-height: 25vh">
             <table class="table table-responsive table-striped align-middle table-nowrap mb-0"

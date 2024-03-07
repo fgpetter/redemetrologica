@@ -42,7 +42,7 @@ class PessoaController extends Controller
         $query->where('cpf_cnpj', 'LIKE', "%$busca_doc%");
       })
       ->paginate(10);
-      
+
     return view('painel.pessoas.index', ['pessoas' => $pessoas]);
   }
 
@@ -57,23 +57,25 @@ class PessoaController extends Controller
   {
     $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
 
-    $request->validate([
-      'nome_razao' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj'],
-      'nome_fantasia' => ['nullable', 'string', 'max:255'],
-      'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
-      'rg_ie' => ['nullable', 'string', 'max:255'],
-      'insc_municipal' => ['nullable', 'string', 'max:255'],
-      'codigo_contabil' => ['nullable', 'string', 'max:255'],
-      'tipo_pessoa' => ['required', 'string', 'max:2'],
-      'telefone' => ['nullable', 'string', 'max:255'],
-      'email' => ['nullable', 'string', 'max:255'],
-      'cep' => ['required', 'string'],
-      'endereco' => ['required', 'string'],
-      'complemento' => ['nullable', 'string'],
-      'bairro' => ['nullable', 'string'],
-      'cidade' => ['required', 'string'],
-      'uf' => ['required', 'string'],
-      ],[
+    $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj'],
+        'nome_fantasia' => ['nullable', 'string', 'max:255'],
+        'cpf_cnpj' => ['required', 'string', 'max:255'], // TODO - adicionar validação de CPF/CNPJ
+        'rg_ie' => ['nullable', 'string', 'max:255'],
+        'insc_municipal' => ['nullable', 'string', 'max:255'],
+        'codigo_contabil' => ['nullable', 'string', 'max:255'],
+        'tipo_pessoa' => ['required', 'string', 'max:2'],
+        'telefone' => ['nullable', 'string', 'max:255'],
+        'email' => ['nullable', 'string', 'max:255'],
+        'cep' => ['required', 'string'],
+        'endereco' => ['required', 'string'],
+        'complemento' => ['nullable', 'string'],
+        'bairro' => ['nullable', 'string'],
+        'cidade' => ['required', 'string'],
+        'uf' => ['required', 'string'],
+      ],
+      [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
         'cep.required' => 'Preencha o campo CEP',
@@ -81,7 +83,7 @@ class PessoaController extends Controller
         'cidade.required' => 'Preencha o campo cidade',
         'uf.required' => 'Preencha o uf',
       ]
-    );     
+    );
 
     $pessoa = Pessoa::create([
       'uid' => config('hashing.uid'),
@@ -112,7 +114,7 @@ class PessoaController extends Controller
 
     ]);
 
-    if(!$pessoa){
+    if (!$pessoa) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
@@ -120,7 +122,7 @@ class PessoaController extends Controller
       'end_padrao' => $endereco->id
     ]);
 
-    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('pessoa-success', 'Pessoa cadastrada com sucesso');
+    return redirect()->route('pessoa-insert', ['pessoa' => $pessoa])->with('success', 'Pessoa cadastrada com sucesso');
   }
 
   /**
@@ -143,11 +145,13 @@ class PessoaController extends Controller
    **/
   public function update(Request $request, Pessoa $pessoa): RedirectResponse
   {
-    $request->validate([
-      'nome_razao' => ['required', 'string', 'max:255'],
-      'cpf_cnpj' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj,'.$pessoa->id], // TODO - adicionar validação de CPF/CNPJ
-      'tipo_pessoa' => ['required', 'string', 'max:2'],
-      ],[
+    $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:255'],
+        'cpf_cnpj' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj,' . $pessoa->id], // TODO - adicionar validação de CPF/CNPJ
+        'tipo_pessoa' => ['required', 'string', 'max:2'],
+      ],
+      [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
       ]
@@ -155,7 +159,7 @@ class PessoaController extends Controller
 
     $pessoa->update([
       'tipo_pessoa' => $request->get('tipo_pessoa'),
-      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')) ,
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')),
       'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
       'cpf_cnpj' => $request->get('cpf_cnpj'),
       'rg_ie' => $request->get('rg_ie'),
@@ -165,8 +169,7 @@ class PessoaController extends Controller
       'codigo_contabil' => $request->get('codigo_contabil'),
     ]);
 
-    return back()->with('pessoa-success', 'Pessoa atualizada com sucesso');
-
+    return back()->with('success', 'Pessoa atualizada com sucesso');
   }
 
   /**
@@ -175,10 +178,9 @@ class PessoaController extends Controller
    * @param User $user
    * @return RedirectResponse
    **/
-    public function delete(Pessoa $pessoa): RedirectResponse
-    {
-      $pessoa->delete();
-      return redirect()->route('pessoa-index')->with('update-success', 'Pessoa removida');
-    }
-
+  public function delete(Pessoa $pessoa): RedirectResponse
+  {
+    $pessoa->delete();
+    return redirect()->route('pessoa-index')->with('success', 'Pessoa removida');
+  }
 }

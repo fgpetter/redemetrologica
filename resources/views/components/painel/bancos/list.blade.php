@@ -8,18 +8,7 @@
             </div>
         </div>
 
-        @if (session('banco-success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('banco-success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @if (session('banco-error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('banco-error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+            <x-alerts.alert  />
 
         <div class="table-responsive" style="min-height: 25vh">
             <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
@@ -72,8 +61,8 @@
                 </tbody>
             </table>
             {{-- <div class="row mt-3">
-        {!! $bancos->withQueryString()->links('pagination::bootstrap-5') !!}
-      </div> --}}
+    {!! $bancos->withQueryString()->links('pagination::bootstrap-5') !!}
+    </div> --}}
         </div>
         <x-painel.bancos.modal-bancos />
 

@@ -3,17 +3,7 @@
     'pessoa' => null,
 ])
 
-@if (session('endereco-success'))
-    <div class="alert alert-success"> {{ session('endereco-success') }} </div>
-@endif
-@if (session('endereco-error'))
-    <div class="alert alert-danger">
-        {{ session('endereco-error') }}
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </div>
-@endif
+    <x-alerts.alert  />
 
 <div class="card {{ $class }}">
     <div class="card-header d-flex justify-content-between">
@@ -53,10 +43,8 @@
                                 </li>
                                 @if ($pessoa->end_padrao != $endereco->id)
                                     {{-- Impede deletar endereço padrão --}}
-                                    
-                                    <x-painel.form-delete.delete route='endereco-delete'
-                                                id="{{ $endereco->uid }}" />
 
+                                    <x-painel.form-delete.delete route='endereco-delete' id="{{ $endereco->uid }}" />
                                 @endif
                             </ul>
                         </div>

@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 
 class CentroCustoController extends Controller
 {
-    /**
+  /**
    * Display a listing of the resource.
    */
   public function index()
   {
 
-    return view('painel.centro-custo.index',['centrocustos' => CentroCusto::all() ]);
+    return view('painel.centro-custo.index', ['centrocustos' => CentroCusto::all()]);
   }
 
 
@@ -22,26 +22,27 @@ class CentroCustoController extends Controller
    */
   public function store(Request $request)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',
-    
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
+
       ]
-      );
-    
-      $validated['uid'] = config('hashing.uid');
-    
-      $centro_custo = CentroCusto::create($validated);
-    
-      if(!$centro_custo){
+    );
+
+    $validated['uid'] = config('hashing.uid');
+
+    $centro_custo = CentroCusto::create($validated);
+
+    if (!$centro_custo) {
       return redirect()->back()
-      ->with('centro-custo-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-      }
-    
-      return redirect()->route('centro-custo-index')
-      ->with('centro-custo-success', 'Centro de Custo cadastrado com sucesso');
-    
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+
+    return redirect()->route('centro-custo-index')
+      ->with('success', 'Centro de Custo cadastrado com sucesso');
   }
 
 
@@ -50,18 +51,19 @@ class CentroCustoController extends Controller
    */
   public function update(Request $request, CentroCusto $centroCusto)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',  
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
       ]
-    );  
-  
-    $centroCusto->update($validated);  
-  
-    return redirect()->route('centro-custo-index')
-      ->with('centro-custo-success', 'Centro de Custo cadastrado com sucesso');
+    );
 
+    $centroCusto->update($validated);
+
+    return redirect()->route('centro-custo-index')
+      ->with('success', 'Centro de Custo cadastrado com sucesso');
   }
 
   /**
@@ -72,6 +74,6 @@ class CentroCustoController extends Controller
     $centroCusto->delete();
 
     return redirect()->route('centro-custo-index')
-    ->with('centro-custo-success', 'Centro de Custo removido com sucesso');
+      ->with('success', 'Centro de Custo removido com sucesso');
   }
 }

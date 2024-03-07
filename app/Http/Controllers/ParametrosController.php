@@ -13,7 +13,7 @@ class ParametrosController extends Controller
   public function index()
   {
 
-    return view('painel.parametros.index',['parametros' => Parametro::all() ]);
+    return view('painel.parametros.index', ['parametros' => Parametro::all()]);
   }
 
 
@@ -22,26 +22,27 @@ class ParametrosController extends Controller
    */
   public function store(Request $request)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',
-    
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
+
       ]
-      );
-    
-      $validated['uid'] = config('hashing.uid');
-    
-      $material_padrao = Parametro::create($validated);
-    
-      if(!$material_padrao){
+    );
+
+    $validated['uid'] = config('hashing.uid');
+
+    $material_padrao = Parametro::create($validated);
+
+    if (!$material_padrao) {
       return redirect()->back()
-      ->with('parametro-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-      }
-    
-      return redirect()->route('parametros-index')
-      ->with('parametro-success', 'Material Padrão cadastrado com sucesso');
-    
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+
+    return redirect()->route('parametros-index')
+      ->with('success', 'Material Padrão cadastrado com sucesso');
   }
 
 
@@ -50,18 +51,19 @@ class ParametrosController extends Controller
    */
   public function update(Request $request, Parametro $parametro)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',  
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
       ]
-    );  
-  
-    $parametro->update($validated);  
-  
-    return redirect()->route('parametros-index')
-      ->with('parametro-success', 'Material Padrão cadastrado com sucesso');
+    );
 
+    $parametro->update($validated);
+
+    return redirect()->route('parametros-index')
+      ->with('success', 'Material Padrão cadastrado com sucesso');
   }
 
   /**
@@ -72,6 +74,6 @@ class ParametrosController extends Controller
     $parametro->delete();
 
     return redirect()->route('parametros-index')
-    ->with('parametro-success', 'Material Padrão removido com sucesso');
+      ->with('success', 'Material Padrão removido com sucesso');
   }
 }

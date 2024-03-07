@@ -10,12 +10,7 @@
     </div>
 </div>
 
-@if (session('update-success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('update-success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
+<x-alerts.alert />
 <div class="table-responsive" style="min-height: 25vh">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
@@ -58,7 +53,7 @@
                                         <button class="dropdown-item" type="submit">Excluir</button>
                                     </form>
                                     <x-painel.form-delete.delete route='materiais-padroes-delete'
-                                        id="{{ $inscrito->uid }}"/>
+                                        id="{{ $inscrito->uid }}" />
                                 </li>
                             </ul>
                         </div>

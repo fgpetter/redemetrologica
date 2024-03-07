@@ -61,11 +61,11 @@ class InstrutorController extends Controller
 
     if (!$instrutor) {
       return redirect()->back()
-        ->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('instrutor-insert', $instrutor->uid)
-      ->with('instrutor-success', 'Insrutor cadastrado com sucesso');
+      ->with('success', 'Insrutor cadastrado com sucesso');
   }
 
   /**
@@ -144,7 +144,7 @@ class InstrutorController extends Controller
       'rg_ie' => $request->rg_ie,
     ]);
 
-    return back()->with('instrutor-success', 'Insrtutor atualizado com sucesso');
+    return back()->with('success', 'Insrtutor atualizado com sucesso');
   }
 
   /**
@@ -158,7 +158,7 @@ class InstrutorController extends Controller
 
     $instrutor->delete();
 
-    return redirect()->route('instrutor-index')->with('instrutor-success', 'Insrtutor removido');
+    return redirect()->route('instrutor-index')->with('success', 'Insrtutor removido');
   }
 
   public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
@@ -201,10 +201,10 @@ class InstrutorController extends Controller
     ]);
 
     if (!$curso_habilitado) {
-      return back()->with('instrutor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+      return back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
-    return back()->with('instrutor-success', 'Curso cadastrado com sucesso');
+    return back()->with('success', 'Curso cadastrado com sucesso');
   }
 
   public function updateCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado, Request $request)
@@ -237,14 +237,14 @@ class InstrutorController extends Controller
       'observacoes' => $request->analise_observacoes,
     ]);
 
-    return back()->with('instrutor-success', 'Curso atualizado com sucesso');
+    return back()->with('success', 'Curso atualizado com sucesso');
   }
 
   public function deleteCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado)
   {
     $cursohabilitado->delete();
 
-    return back()->with('instrutor-success', 'Curso removido com sucesso');
+    return back()->with('success', 'Curso removido com sucesso');
   }
 
 
@@ -263,6 +263,6 @@ class InstrutorController extends Controller
 
     $instrutor->update(['curriculo' => null]);
 
-    return redirect()->back()->with('instrutor-success', 'Currículo removido');
+    return redirect()->back()->with('success', 'Currículo removido');
   }
 }

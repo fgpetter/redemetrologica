@@ -28,14 +28,16 @@ class BancosController extends Controller
    */
   public function store(Request $request): RedirectResponse
   {
-    $validated = $request->validate([
+    $validated = $request->validate(
+      [
         'numero_banco' => ['nullable', 'string'],
         'nome_banco' => ['nullable', 'string'],
         'agencia' => ['nullable', 'string'],
         'conta' => ['nullable', 'string'],
         'movimenta_financeiro' => ['nullable', 'string'],
         'padrao' => ['nullable', 'string'],
-      ],[
+      ],
+      [
         'numero_banco.string' => 'Conteúdo inválido',
         'nome_banco.string' => 'Conteúdo inválido',
         'agencia.string' => 'Conteúdo inválido',
@@ -49,13 +51,13 @@ class BancosController extends Controller
 
     $banco = Banco::create($validated);
 
-    if(!$banco){
+    if (!$banco) {
       return redirect()->back()
-        ->with('banco-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('banco-index')
-      ->with('banco-success', 'Banco cadastrado com sucesso');
+      ->with('success', 'Banco cadastrado com sucesso');
   }
 
 
@@ -64,14 +66,16 @@ class BancosController extends Controller
    */
   public function update(Request $request, Banco $banco)
   {
-    $validated = $request->validate([
+    $validated = $request->validate(
+      [
         'numero_banco' => ['nullable', 'string'],
         'nome_banco' => ['nullable', 'string'],
         'agencia' => ['nullable', 'string'],
         'conta' => ['nullable', 'string'],
         'movimenta_financeiro' => ['nullable', 'string'],
         'padrao' => ['nullable', 'string'],
-      ],[
+      ],
+      [
         'numero_banco.string' => 'Conteúdo inválido',
         'nome_banco.string' => 'Conteúdo inválido',
         'agencia.string' => 'Conteúdo inválido',
@@ -81,14 +85,13 @@ class BancosController extends Controller
       ]
     );
 
-  $validated['padrao'] = ($request->has('padrao')) ? 1 : 0;
-  $validated['movimenta_financeiro'] = ($request->has('padrao')) ? 1 : 0;
+    $validated['padrao'] = ($request->has('padrao')) ? 1 : 0;
+    $validated['movimenta_financeiro'] = ($request->has('padrao')) ? 1 : 0;
 
-  $banco->update($validated);
+    $banco->update($validated);
 
-  return redirect()->route('banco-index')
-    ->with('banco-success', 'Banco atualizado com sucesso');
-
+    return redirect()->route('banco-index')
+      ->with('success', 'Banco atualizado com sucesso');
   }
 
   /**
@@ -99,6 +102,6 @@ class BancosController extends Controller
     $banco->delete();
 
     return redirect()->route('banco-index')
-    ->with('banco-success', 'Banco removido com sucesso');
+      ->with('success', 'Banco removido com sucesso');
   }
 }

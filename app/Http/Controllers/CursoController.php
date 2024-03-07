@@ -119,11 +119,11 @@ class CursoController extends Controller
 
     if (!$curso) {
       return redirect()->back()
-        ->with('curso-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('curso-index')
-      ->with('curso-success', 'Curso cadastrado com sucesso');
+      ->with('success', 'Curso cadastrado com sucesso');
   }
 
   /**
@@ -231,7 +231,7 @@ class CursoController extends Controller
     $curso->update($validated);
 
     return redirect()->back()
-      ->with('curso-success', 'Curso atualizado com sucesso');
+      ->with('success', 'Curso atualizado com sucesso');
   }
 
 
@@ -250,7 +250,7 @@ class CursoController extends Controller
 
     $curso->update(['folder' => null]);
 
-    return redirect()->back()->with('curso-success', 'Folder removido');
+    return redirect()->back()->with('success', 'Folder removido');
   }
 
   /**
@@ -268,7 +268,7 @@ class CursoController extends Controller
 
     $curso->update(['thumb' => null]);
 
-    return redirect()->back()->with('curso-success', 'thumb removido');
+    return redirect()->back()->with('success', 'thumb removido');
   }
 
   /**
@@ -289,8 +289,8 @@ class CursoController extends Controller
     }
 
     $tem_cursos_agendados = AgendaCursos::where('curso_id', $curso->id)->first();
-    ( !$tem_cursos_agendados ) ? $curso->forceDelete() : $curso->delete();
+    (!$tem_cursos_agendados) ? $curso->forceDelete() : $curso->delete();
 
-    return redirect()->route('curso-index')->with('curso-success', 'Curso removido');
+    return redirect()->route('curso-index')->with('success', 'Curso removido');
   }
 }

@@ -19,14 +19,17 @@ class UnidadeController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $validator = Validator::make($request->all(),[
-      'nome' => ['required', 'string', 'max:255'],
-      'pessoa' => ['required', 'integer'],
-      'cep' => ['required', 'string'],
-      'endereco' => ['required', 'string'],
-      'cidade' => ['required', 'string'],
-      'uf' => ['required', 'string'],
-      ],[
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'nome' => ['required', 'string', 'max:255'],
+        'pessoa' => ['required', 'integer'],
+        'cep' => ['required', 'string'],
+        'endereco' => ['required', 'string'],
+        'cidade' => ['required', 'string'],
+        'uf' => ['required', 'string'],
+      ],
+      [
         'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
@@ -38,7 +41,7 @@ class UnidadeController extends Controller
     if ($validator->fails()) {
       return redirect()->back()
         ->withInput()
-        ->with('unidade-error', 'Dados informados não são válidos')
+        ->with('error', 'Dados informados não são válidos')
         ->withErrors($validator);
     }
 
@@ -66,13 +69,13 @@ class UnidadeController extends Controller
       'responsavel_tecnico' => $request->get('responsavel_tecnico'),
     ]);
 
-    if(!$unidade){
+    if (!$unidade) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
     $endereco->update(['unidade_id' => $unidade->id]);
 
-    return redirect()->back()->with('unidade-success', 'Unidade cadastrada com sucesso');
+    return redirect()->back()->with('success', 'Unidade cadastrada com sucesso');
   }
 
   /**
@@ -85,14 +88,16 @@ class UnidadeController extends Controller
   public function update(Request $request, Unidade $unidade): RedirectResponse
   {
 
-    $request->validate([
-      'nome' => ['required', 'string', 'max:255'],
-      'pessoa' => ['required', 'integer'],
-      'cep' => ['required', 'string'],
-      'endereco' => ['required', 'string'],
-      'cidade' => ['required', 'string'],
-      'estado' => ['required', 'string'],
-      ],[
+    $request->validate(
+      [
+        'nome' => ['required', 'string', 'max:255'],
+        'pessoa' => ['required', 'integer'],
+        'cep' => ['required', 'string'],
+        'endereco' => ['required', 'string'],
+        'cidade' => ['required', 'string'],
+        'estado' => ['required', 'string'],
+      ],
+      [
         'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
@@ -121,7 +126,7 @@ class UnidadeController extends Controller
     ]);
 
 
-    return redirect()->route('user-index')->with('unidade-success', 'Unidade atualizada');
+    return redirect()->route('user-index')->with('success', 'Unidade atualizada');
   }
 
   /**
@@ -134,7 +139,6 @@ class UnidadeController extends Controller
   {
     $unidade->delete();
 
-    return redirect()->back()->with('unidade-success', 'Unidade removida');
+    return redirect()->back()->with('success', 'Unidade removida');
   }
-
 }

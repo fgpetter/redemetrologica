@@ -7,20 +7,7 @@
                 </a>
             </div>
         </div>
-
-        @if (session('atuacao-success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('atuacao-success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @if (session('atuacao-error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('atuacao-error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
+        <x-alerts.alert  />
         <div class="table-responsive" style="min-height: 25vh">
             <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
                 <thead>
@@ -72,8 +59,8 @@
                 </tbody>
             </table>
             {{-- <div class="row mt-3">
-        {!! $areasAtuacao->withQueryString()->links('pagination::bootstrap-5') !!}
-      </div> --}}
+    {!! $areasAtuacao->withQueryString()->links('pagination::bootstrap-5') !!}
+    </div> --}}
         </div>
         <x-painel.areas-atuacao.modal-area-atuacao />
     </div>
