@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 
 class ModalidadePagamentoController extends Controller
 {
-    /**
+  /**
    * Display a listing of the resource.
    */
   public function index()
   {
 
-    return view('painel.modalidade-pagamento.index',['modalidadepagamentos' => ModalidadePagamento::all() ]);
+    return view('painel.modalidade-pagamento.index', ['modalidadepagamentos' => ModalidadePagamento::all()]);
   }
 
 
@@ -22,26 +22,27 @@ class ModalidadePagamentoController extends Controller
    */
   public function store(Request $request)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',
-    
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
+
       ]
-      );
-    
-      $validated['uid'] = config('hashing.uid');
-    
-      $modalidade_pagamento = ModalidadePagamento::create($validated);
-    
-      if(!$modalidade_pagamento){
+    );
+
+    $validated['uid'] = config('hashing.uid');
+
+    $modalidade_pagamento = ModalidadePagamento::create($validated);
+
+    if (!$modalidade_pagamento) {
       return redirect()->back()
-      ->with('modalidade-pagamento-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-      }
-    
-      return redirect()->route('modalidade-pagamento-index')
-      ->with('modalidade-pagamento-success', 'Centro de Custo cadastrado com sucesso');
-    
+        ->with('modalidade-pagamento-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+
+    return redirect()->route('modalidade-pagamento-index')
+      ->with('success', 'Centro de Custo cadastrado com sucesso');
   }
 
 
@@ -50,18 +51,19 @@ class ModalidadePagamentoController extends Controller
    */
   public function update(Request $request, ModalidadePagamento $modalidadePagamento)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',  
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
       ]
-    );  
-  
-    $modalidadePagamento->update($validated);  
-  
-    return redirect()->route('modalidade-pagamento-index')
-      ->with('modalidade-pagamento-success', 'Centro de Custo cadastrado com sucesso');
+    );
 
+    $modalidadePagamento->update($validated);
+
+    return redirect()->route('modalidade-pagamento-index')
+      ->with('success', 'Centro de Custo cadastrado com sucesso');
   }
 
   /**
@@ -72,6 +74,6 @@ class ModalidadePagamentoController extends Controller
     $modalidadePagamento->delete();
 
     return redirect()->route('modalidade-pagamento-index')
-    ->with('modalidade-pagamento-success', 'Centro de Custo removido com sucesso');
+      ->with('success', 'Centro de Custo removido com sucesso');
   }
 }

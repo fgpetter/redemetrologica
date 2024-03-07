@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 
 class AvaliadorController extends Controller
 {
-    /**
+  /**
    * Gera pagina de listagem de usuários
    *
    * @return View
@@ -23,8 +23,8 @@ class AvaliadorController extends Controller
   {
     $avaliadores = Avaliador::paginate(10);
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
-      ->whereNotIn('id',function($query) {
-          $query->select('pessoa_id')->from('avaliadores');
+      ->whereNotIn('id', function ($query) {
+        $query->select('pessoa_id')->from('avaliadores');
       })
       ->get();
 
@@ -39,9 +39,11 @@ class AvaliadorController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $request->validate([
-      'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
-      ],[
+    $request->validate(
+      [
+        'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
+      ],
+      [
         'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
         'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
         'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente'
@@ -49,20 +51,20 @@ class AvaliadorController extends Controller
     );
 
     $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
-    
+
     // cria um avaliador vinculado a pessoa
     $avaliador = Avaliador::create([
       'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
     ]);
 
-    if(!$avaliador){
+    if (!$avaliador) {
       return redirect()->back()
-      ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('avaliador-insert', $avaliador->uid)
-      ->with('avaliador-success', 'Avaliador cadastrado com sucesso');
+      ->with('success', 'Avaliador cadastrado com sucesso');
   }
 
   /**
@@ -73,11 +75,13 @@ class AvaliadorController extends Controller
    **/
   public function createAvaliacao(Request $request, Avaliador $avaliador): RedirectResponse
   {
-    $request->validate([
-      'empresa' => ['nullable', 'string'],
-      'situacao' => ['required', Rule::in(['AVALIADOR','AVALIADOR EM TREINAMENTO','AVALIADOR LÍDER','ESPECIALISTA'])],
-      'data' => ['nullable', 'date'],
-      ],[
+    $request->validate(
+      [
+        'empresa' => ['nullable', 'string'],
+        'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],
+        'data' => ['nullable', 'date'],
+      ],
+      [
         'empresa.string' => 'Dado inváido.',
         'situacao.required' => 'Selecione uma opção válida',
         'situacao.in' => 'Selecione uma opção válida',
@@ -93,13 +97,13 @@ class AvaliadorController extends Controller
       'situacao' => $request->situacao,
     ]);
 
-    if(!$avaliacao){
+    if (!$avaliacao) {
       return redirect()->back()
-      ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('avaliador-insert', $avaliador->uid)
-      ->with('avaliador-success', 'Avaliação cadastrada com sucesso');
+      ->with('success', 'Avaliação cadastrada com sucesso');
   }
 
   /**
@@ -123,11 +127,13 @@ class AvaliadorController extends Controller
    **/
   public function update(Request $request, Avaliador $avaliador): RedirectResponse
   {
-    $request->validate([
-      'nome_razao' => ['required', 'string', 'max:255'],
-      'cpf_cnpj' => ['required', 'string', 'max:14','min:14'], // TODO - adicionar validação de CPF/CNPJ
-      'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'] //5mb
-      ],[
+    $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:255'],
+        'cpf_cnpj' => ['required', 'string', 'max:14', 'min:14'], // TODO - adicionar validação de CPF/CNPJ
+        'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'] //5mb
+      ],
+      [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo CPF',
         'cpf_cnpj.min' => 'CPF inválido',
@@ -139,7 +145,7 @@ class AvaliadorController extends Controller
 
     // se foi enviado currículo
     if ($request->hasFile('curriculo')) {
-      $fileName = sanitizeFileName( pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME) );
+      $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
       $extension = $request->file('curriculo')->getClientOriginalExtension();
       $fileName = $fileName . '_' . time() . '.' . $extension;
       $request->file('curriculo')->move(public_path('curriculos'), $fileName);
@@ -164,7 +170,7 @@ class AvaliadorController extends Controller
       'email' => $request->get('email')
     ]);
 
-    return redirect()->back()->with('avaliador-success', 'Avaliador atualizado com sucesso');
+    return redirect()->back()->with('success', 'Avaliador atualizado com sucesso');
   }
 
   /**
@@ -173,16 +179,16 @@ class AvaliadorController extends Controller
    * @param User $user
    * @return RedirectResponse
    **/
-    public function delete(Avaliador $avaliador): RedirectResponse
-    {
-      if (File::exists(public_path($avaliador->curriculo))) {
-        File::delete(public_path($avaliador->curriculo));
-      }
-
-      $avaliador->delete();
-
-      return redirect()->route('avaliador-index')->with('avaliador-success', 'Avaliador removido');
+  public function delete(Avaliador $avaliador): RedirectResponse
+  {
+    if (File::exists(public_path($avaliador->curriculo))) {
+      File::delete(public_path($avaliador->curriculo));
     }
+
+    $avaliador->delete();
+
+    return redirect()->route('avaliador-index')->with('success', 'Avaliador removido');
+  }
 
   /**
    * Remove arquivo de curriculo
@@ -195,10 +201,9 @@ class AvaliadorController extends Controller
     if (File::exists(public_path($avaliador->curriculo))) {
       File::delete(public_path($avaliador->curriculo));
     }
-  
+
     $avaliador->update(['curriculo' => null]);
 
-    return redirect()->back()->with('avaliador-success', 'Curriculo removido');
+    return redirect()->back()->with('success', 'Curriculo removido');
   }
-
 }

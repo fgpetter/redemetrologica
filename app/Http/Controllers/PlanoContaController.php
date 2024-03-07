@@ -19,7 +19,7 @@ class PlanoContaController extends Controller
   public function index(): View
   {
     $data = [
-      'planocontas' => PlanoConta::select()->with('centrocusto')->get(), 
+      'planocontas' => PlanoConta::select()->with('centrocusto')->get(),
       'centrocustos' => CentroCusto::all()
     ];
     return view('painel.plano-conta.index', $data);
@@ -38,7 +38,7 @@ class PlanoContaController extends Controller
       [
         'descricao' => ['required', 'string'],
         'centro_custo_id' => ['nullable', 'exists:centro_custos,id'],
-        'codigo_contabil' => ['nullable','numeric','max_digits:19'],
+        'codigo_contabil' => ['nullable', 'numeric', 'max_digits:19'],
         'grupo_contas' => ['nullable', 'string'],
       ],
       [
@@ -56,11 +56,11 @@ class PlanoContaController extends Controller
 
     if (!$planoconta) {
       return redirect()->back()
-        ->with('plano-conta-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('plano-conta-index')
-      ->with('plano-conta-success', 'Plano de conta cadastrado com sucesso');
+      ->with('success', 'Plano de conta cadastrado com sucesso');
   }
 
 
@@ -73,7 +73,7 @@ class PlanoContaController extends Controller
       [
         'descricao' => ['nullable', 'string'],
         'centro_custo_id' => ['nullable', 'exists:centro_custos,id'],
-        'codigo_contabil' => ['nullable','numeric','max_digits:19'],
+        'codigo_contabil' => ['nullable', 'numeric', 'max_digits:19'],
         'grupo_contas' => ['nullable', 'string'],
       ],
       [
@@ -88,7 +88,7 @@ class PlanoContaController extends Controller
     $planoconta->update($validated);
 
     return redirect()->route('plano-conta-index')
-      ->with('plano-conta-success', 'Plano de conta atualizado com sucesso');
+      ->with('success', 'Plano de conta atualizado com sucesso');
   }
 
   /**
@@ -99,6 +99,6 @@ class PlanoContaController extends Controller
     $planoconta->delete();
 
     return redirect()->route('plano-conta-index')
-      ->with('plano-conta-success', 'Plano de conta removido com sucesso');
+      ->with('success', 'Plano de conta removido com sucesso');
   }
 }

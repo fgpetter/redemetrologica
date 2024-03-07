@@ -21,26 +21,27 @@ class TipoAvaliacaoController extends Controller
    */
   public function store(Request $request)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',
-      
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
+
       ]
-      );
-      
-      $validated['uid'] = config('hashing.uid');
-      
-      $tipo_avaliacao = TipoAvaliacao::create($validated);
-      
-      if(!$tipo_avaliacao){
+    );
+
+    $validated['uid'] = config('hashing.uid');
+
+    $tipo_avaliacao = TipoAvaliacao::create($validated);
+
+    if (!$tipo_avaliacao) {
       return redirect()->back()
-      ->with('parametro-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-      }
-      
-      return redirect()->route('tipo-avaliacao-index')
-      ->with('parametro-success', 'Tipo Avaliação cadastrado com sucesso');
-    
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+
+    return redirect()->route('tipo-avaliacao-index')
+      ->with('success', 'Tipo Avaliação cadastrado com sucesso');
   }
 
   /**
@@ -48,18 +49,19 @@ class TipoAvaliacaoController extends Controller
    */
   public function update(Request $request, TipoAvaliacao $tipoAvaliacao)
   {
-    $validated = $request->validate([
-      'descricao' => ['required', 'string'],
-      ],[
-      'descricao.required' => 'Preencha o campo Descrição',  
+    $validated = $request->validate(
+      [
+        'descricao' => ['required', 'string'],
+      ],
+      [
+        'descricao.required' => 'Preencha o campo Descrição',
       ]
-      );  
-    
-      $tipoAvaliacao->update($validated);  
-    
-      return redirect()->route('tipo-avaliacao-index')
-      ->with('parametro-success', 'Tipo Avaliação cadastrado com sucesso');
-    
+    );
+
+    $tipoAvaliacao->update($validated);
+
+    return redirect()->route('tipo-avaliacao-index')
+      ->with('success', 'Tipo Avaliação cadastrado com sucesso');
   }
 
   /**
@@ -70,7 +72,6 @@ class TipoAvaliacaoController extends Controller
     $tipoAvaliacao->delete();
 
     return redirect()->route('tipo-avaliacao-index')
-    ->with('parametro-success', 'Tipo Avaliação removido com sucesso');
-  
+      ->with('success', 'Tipo Avaliação removido com sucesso');
   }
 }

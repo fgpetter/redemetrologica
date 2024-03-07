@@ -221,9 +221,9 @@ class PostController extends Controller
     }
 
     if ($posts->tipo == 'noticia') {
-      return redirect()->route('noticia-index')->with('update-success', 'Noticia adicionada');
+      return redirect()->route('noticia-index')->with('success', 'Noticia adicionada');
     }
-    return redirect()->route('galeria-index')->with('update-success', 'Galeria adicionada');
+    return redirect()->route('galeria-index')->with('success', 'Galeria adicionada');
   }
 
   /**
@@ -440,9 +440,9 @@ class PostController extends Controller
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
     if ($post->tipo == 'noticia') {
-      return redirect()->route('noticia-index')->with('update-success', 'Noticia atualizada');
+      return redirect()->route('noticia-index')->with('success', 'Noticia atualizada');
     }
-    return redirect()->route('galeria-index')->with('update-success', 'Galeria atualizada');
+    return redirect()->route('galeria-index')->with('success', 'Galeria atualizada');
   }
 
   /**
@@ -460,7 +460,7 @@ class PostController extends Controller
 
     $post->update(['thumb' => null]);
 
-    return redirect()->back()->with('update-success', 'thumb removido');
+    return redirect()->back()->with('success', 'thumb removido');
   }
 
   /**
@@ -492,9 +492,9 @@ class PostController extends Controller
 
 
     if ($post->tipo == 'noticia') {
-      return redirect()->route('noticia-index')->with('update-success', 'Noticia removida');
+      return redirect()->route('noticia-index')->with('success', 'Noticia removida');
     }
-    return redirect()->route('galeria-index')->with('update-success', 'Galeria removida');
+    return redirect()->route('galeria-index')->with('success', 'Galeria removida');
   }
 
   /**

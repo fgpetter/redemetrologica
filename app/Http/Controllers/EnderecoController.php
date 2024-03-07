@@ -19,14 +19,17 @@ class EnderecoController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $validator = Validator::make($request->all(),[
-      'pessoa' => ['required', 'integer'],
-      'cep' => ['required', 'string'],
-      'endereco' => ['required', 'string'],
-      'cidade' => ['required', 'string'],
-      'uf' => ['required', 'string'],
-      'end_padrao' => ['nullable', 'integer']
-      ],[
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'pessoa' => ['required', 'integer'],
+        'cep' => ['required', 'string'],
+        'endereco' => ['required', 'string'],
+        'cidade' => ['required', 'string'],
+        'uf' => ['required', 'string'],
+        'end_padrao' => ['nullable', 'integer']
+      ],
+      [
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
@@ -37,7 +40,7 @@ class EnderecoController extends Controller
 
     if ($validator->fails()) {
       return redirect()->back()
-        ->with('endereco-error', 'Dados de endereço não são válidos')
+        ->with('error', 'Dados de endereço não são válidos')
         ->withErrors($validator);
     }
 
@@ -52,16 +55,16 @@ class EnderecoController extends Controller
       'uf' => $request->get('uf'),
 
     ]);
-    
-    if(!$endereco){
-      return redirect()->back()->with('endereco-error', 'Ocorreu um erro!');
+
+    if (!$endereco) {
+      return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
-    if(isset($request->end_padrao)){
+    if (isset($request->end_padrao)) {
       Pessoa::find($request->pessoa)->update(['end_padrao' => $endereco->id]);
     }
 
-    return redirect()->back()->with('endereco-success', 'Endereço cadastrado com sucesso');
+    return redirect()->back()->with('success', 'Endereço cadastrado com sucesso');
   }
 
   /**
@@ -73,13 +76,16 @@ class EnderecoController extends Controller
    **/
   public function update(Request $request, Endereco $endereco): RedirectResponse
   {
-    $validator = Validator::make($request->all(),[
-      'cep' => ['required', 'string'],
-      'endereco' => ['required', 'string'],
-      'cidade' => ['required', 'string'],
-      'uf' => ['required', 'string'],
-      'end_padrao' => ['nullable', 'integer']
-      ],[
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'cep' => ['required', 'string'],
+        'endereco' => ['required', 'string'],
+        'cidade' => ['required', 'string'],
+        'uf' => ['required', 'string'],
+        'end_padrao' => ['nullable', 'integer']
+      ],
+      [
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
@@ -90,9 +96,9 @@ class EnderecoController extends Controller
 
     if ($validator->fails()) {
       return redirect()->back()
-        ->with('endereco-error', 'Dados de endereço não são válidos')
+        ->with('error', 'Dados de endereço não são válidos')
         ->withErrors($validator);
-    } 
+    }
 
     $endereco->update([
       'endereco' => $request->get('endereco'),
@@ -105,13 +111,13 @@ class EnderecoController extends Controller
 
     $pessoa = Pessoa::find($request->pessoa);
 
-    if(isset($request->end_padrao)){
+    if (isset($request->end_padrao)) {
       $pessoa->update(['end_padrao' => $endereco->id]);
     } elseif ($pessoa->end_padrao == $endereco->id) {
       $pessoa->update(['end_padrao' => null]);
     }
 
-    return redirect()->back()->with('endereco-success', 'Endereço atualizado');
+    return redirect()->back()->with('success', 'Endereço atualizado');
   }
 
   /**
@@ -122,13 +128,12 @@ class EnderecoController extends Controller
    **/
   public function delete(Endereco $endereco): RedirectResponse
   {
-    if($endereco->unidade_id){
-      return redirect()->back()->with('endereco-error', 'Endereço atrelado a unidade não pode ser removido');
+    if ($endereco->unidade_id) {
+      return redirect()->back()->with('error', 'Endereço atrelado a unidade não pode ser removido');
     }
 
     $endereco->delete();
 
-    return redirect()->back()->with('endereco-success', 'Endereco removido');
+    return redirect()->back()->with('success', 'Endereco removido');
   }
-
 }

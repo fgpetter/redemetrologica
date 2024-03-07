@@ -122,7 +122,7 @@ class AgendaCursoController extends Controller
     $validated['investimento'] = $this->formataMoeda($validated['investimento']) ?? null;
     $validated['investimento_associado'] = $this->formataMoeda($validated['investimento_associado']) ?? null;
     $validated['valor_orcamento'] = $this->formataMoeda($validated['valor_orcamento']) ?? null;
-    
+
     $agenda_curso = AgendaCursos::create($validated);
 
     if (!$agenda_curso) {
@@ -130,7 +130,7 @@ class AgendaCursoController extends Controller
     }
 
     return redirect()->route('agendamento-curso-index')
-      ->with('agendamento-success', 'Agendamento cadastrado com sucesso');
+      ->with('success', 'Agendamento cadastrado com sucesso');
   }
 
   /**
@@ -202,14 +202,20 @@ class AgendaCursoController extends Controller
     $validated['investimento_associado'] = $this->formataMoeda($validated['investimento_associado']) ?? null;
     $validated['valor_orcamento'] = $this->formataMoeda($validated['valor_orcamento']) ?? null;
 
-    if(!$request->destaque){$validated['destaque'] = 0;}
-    if(!$request->site){$validated['site'] = 0;}
-    if(!$request->inscricoes){$validated['inscricoes'] = 0;}
+    if (!$request->destaque) {
+      $validated['destaque'] = 0;
+    }
+    if (!$request->site) {
+      $validated['site'] = 0;
+    }
+    if (!$request->inscricoes) {
+      $validated['inscricoes'] = 0;
+    }
 
     $agendacurso->update($validated);
 
     return redirect()->route('agendamento-curso-index')
-      ->with('agendamento-success', 'Agendamento atualizado com sucesso');
+      ->with('success', 'Agendamento atualizado com sucesso');
   }
 
   /**
@@ -223,7 +229,7 @@ class AgendaCursoController extends Controller
     $agendacurso->delete();
 
     return redirect()->route('agendamento-curso-index')
-      ->with('agendamento-success', 'Agendamento removido com sucesso');
+      ->with('success', 'Agendamento removido com sucesso');
   }
 
   /**
@@ -267,8 +273,8 @@ class AgendaCursoController extends Controller
    */
   private function formataMoeda($valor): ?string
   {
-    if($valor){
-      return str_replace(',','.', str_replace('.','', $valor));
+    if ($valor) {
+      return str_replace(',', '.', str_replace('.', '', $valor));
     } else {
       return null;
     }

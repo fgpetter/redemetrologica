@@ -20,12 +20,15 @@ class DadoBancarioController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $validator = Validator::make($request->all(),[
-      'nome_banco' => ['required', 'string'],
-      'cod_banco' => ['required', 'string'],
-      'agencia' => ['required', 'string'],
-      'conta' => ['required', 'string'],
-      ],[
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'nome_banco' => ['required', 'string'],
+        'cod_banco' => ['required', 'string'],
+        'agencia' => ['required', 'string'],
+        'conta' => ['required', 'string'],
+      ],
+      [
         'nome_banco.required' => 'Preencha o nome do banco',
         'cod_banco.required' => 'Preencha o código do banco',
         'agencia.required' => 'Preencha a agência',
@@ -49,11 +52,11 @@ class DadoBancarioController extends Controller
       'conta' => $request->get('conta'),
     ]);
 
-    if(!$conta){
+    if (!$conta) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
-    return redirect()->back()->with('conta-success', 'Conta cadastrada com sucesso');
+    return redirect()->back()->with('success', 'Conta cadastrada com sucesso');
   }
 
   /**
@@ -65,12 +68,15 @@ class DadoBancarioController extends Controller
    **/
   public function update(Request $request, DadoBancario $conta): RedirectResponse
   {
-    $validator = Validator::make($request->all(),[
-      'nome_banco' => ['required', 'string'],
-      'cod_banco' => ['required', 'string'],
-      'agencia' => ['required', 'string'],
-      'conta' => ['required', 'string'],
-      ],[
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'nome_banco' => ['required', 'string'],
+        'cod_banco' => ['required', 'string'],
+        'agencia' => ['required', 'string'],
+        'conta' => ['required', 'string'],
+      ],
+      [
         'nome_banco.required' => 'Preencha o nome do banco',
         'cod_banco.required' => 'Preencha o código do banco',
         'agencia.required' => 'Preencha a agência',
@@ -80,7 +86,7 @@ class DadoBancarioController extends Controller
 
     if ($validator->fails()) {
       return redirect()->back()
-        ->with('unidade-error', 'Dados informados não são válidos')
+        ->with('error', 'Dados informados não são válidos')
         ->withErrors($validator);
     }
 
@@ -92,12 +98,11 @@ class DadoBancarioController extends Controller
       'conta' => $request->get('conta'),
     ]);
 
-    if(!$conta){
+    if (!$conta) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
 
-    return redirect()->back()->with('conta-success', 'Conta cadastrada com sucesso');
-
+    return redirect()->back()->with('success', 'Conta cadastrada com sucesso');
   }
 
   /**
@@ -110,7 +115,6 @@ class DadoBancarioController extends Controller
   {
     $conta->delete();
 
-    return redirect()->back()->with('conta-success', 'Conta removida');
+    return redirect()->back()->with('success', 'Conta removida');
   }
-
 }

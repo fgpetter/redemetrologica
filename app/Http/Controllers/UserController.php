@@ -98,7 +98,7 @@ class UserController extends Controller
     if (!$user) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
     }
-    return redirect()->route('user-index')->with('update-success', 'Usuário atualizado');
+    return redirect()->route('user-index')->with('success', 'Usuário atualizado');
   }
 
   /**
@@ -112,6 +112,6 @@ class UserController extends Controller
   {
     $user->delete();
 
-    return redirect()->route('user-index')->with('update-success', 'Usuário removido');;
+    return redirect()->route('user-index')->with('success', 'Usuário removido');;
   }
 }
