@@ -43,7 +43,7 @@ class AreaAtuacaoController extends Controller
     }
 
     return redirect()->route('area-atuacao-index')
-      ->with('success', 'Material Padrão cadastrado com sucesso');
+      ->with('success', 'Área de atuação cadastrada com sucesso');
   }
 
 
@@ -67,7 +67,7 @@ class AreaAtuacaoController extends Controller
     $areaAtuacao->update($validated);
 
     return redirect()->route('area-atuacao-index')
-      ->with('success', 'Material Padrão cadastrado com sucesso');
+      ->with('success', 'Área de atuação atualizado com sucesso');
   }
 
   /**
@@ -78,6 +78,6 @@ class AreaAtuacaoController extends Controller
     $areaAtuacao->delete();
 
     return redirect()->route('area-atuacao-index')
-      ->with('success', 'Material Padrão removido com sucesso');
+      ->with('warning', 'Área de atuação removida com sucesso');
   }
 }

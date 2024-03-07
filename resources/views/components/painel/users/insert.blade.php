@@ -1,9 +1,4 @@
- @if (session('error'))
-     <x-alerts.alert type="error" />
- @endif
- @if (session('success'))
-     <x-alerts.alert type="success" />
- @endif
+     <x-alerts.alert  />
  <div class="card">
      @if (!isset($user))
          <div class="card-header">

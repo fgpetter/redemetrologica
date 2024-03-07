@@ -1,9 +1,4 @@
- @if (session('error'))
-     <x-alerts.alert type="error" />
- @endif
- @if (session('success'))
-     <x-alerts.alert type="success" />
- @endif
+ <x-alerts.alert />
 
  <form method="POST"
      action="{{ isset($agendacurso->id) ? route('agendamento-curso-update', $agendacurso->uid) : route('agendamento-curso-create') }}">

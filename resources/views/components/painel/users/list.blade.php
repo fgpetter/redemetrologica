@@ -3,12 +3,7 @@
           <h4 class="card-title mb-0">Usuários</h4>
       </div><!-- end card header -->
       <div class="card-body">
-          @if (session('error'))
-              <x-alerts.alert type="error" />
-          @endif
-          @if (session('success'))
-              <x-alerts.alert type="success" />
-          @endif
+              <x-alerts.alert  />
 
           <div class="table-responsive">
               <table class="table table-striped align-middle table-nowrap mb-0">
