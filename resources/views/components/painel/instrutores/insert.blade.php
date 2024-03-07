@@ -1,11 +1,14 @@
 @props([
     'instrutor' => null,
     'cursos' => null,
-    'cursoshabilitados' => null
+    'cursoshabilitados' => null,
 ])
 
-@if (session('instrutor-error'))
-    <div class="alert alert-danger"> {{ session('error') }} </div>
+@if (session('error'))
+    <x-alerts.alert type="error" />
+@endif
+@if (session('success'))
+    <x-alerts.alert type="sucess" />
 @endif
 
 <div class="card">
@@ -38,8 +41,9 @@
             </div>
 
             <div class="tab-pane" id="documentos" role="tabpanel"> <!-- Cursos habilitados -->
-                <div class="row gy-3">                    
-                    <x-painel.instrutores.list-cursos-habilitados :instrutor="$instrutor" :cursoshabilitados="$cursoshabilitados" :cursos="$cursos"/>
+                <div class="row gy-3">
+                    <x-painel.instrutores.list-cursos-habilitados :instrutor="$instrutor" :cursoshabilitados="$cursoshabilitados"
+                        :cursos="$cursos" />
                 </div>
             </div>
 

@@ -3,16 +3,11 @@
     'pessoa' => null,
 ])
 
-@if (session('endereco-success'))
-    <div class="alert alert-success"> {{ session('endereco-success') }} </div>
+@if (session('error'))
+    <x-alerts.alert type="error" />
 @endif
-@if (session('endereco-error'))
-    <div class="alert alert-danger">
-        {{ session('endereco-error') }}
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </div>
+@if (session('success'))
+    <x-alerts.alert type="sucess" />
 @endif
 
 <div class="card {{ $class }}">
@@ -53,10 +48,8 @@
                                 </li>
                                 @if ($pessoa->end_padrao != $endereco->id)
                                     {{-- Impede deletar endereço padrão --}}
-                                    
-                                    <x-painel.form-delete.delete route='endereco-delete'
-                                                id="{{ $endereco->uid }}" />
 
+                                    <x-painel.form-delete.delete route='endereco-delete' id="{{ $endereco->uid }}" />
                                 @endif
                             </ul>
                         </div>

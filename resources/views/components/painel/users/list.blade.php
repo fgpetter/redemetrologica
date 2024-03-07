@@ -3,11 +3,11 @@
           <h4 class="card-title mb-0">Usuários</h4>
       </div><!-- end card header -->
       <div class="card-body">
-          @if (session('update-success'))
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                  {{ session('update-success') }}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
+          @if (session('error'))
+              <x-alerts.alert type="error" />
+          @endif
+          @if (session('success'))
+              <x-alerts.alert type="sucess" />
           @endif
 
           <div class="table-responsive">

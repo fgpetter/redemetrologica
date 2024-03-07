@@ -3,11 +3,11 @@
 ])
 
 
-@if (session('update-success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('update-success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+@if (session('error'))
+    <x-alerts.alert type="error" />
+@endif
+@if (session('success'))
+    <x-alerts.alert type="sucess" />
 @endif
 <div class="table-responsive" style="min-height: 25vh">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
@@ -37,7 +37,7 @@
                                 <li>
 
                                     <x-painel.form-delete.delete route='materiais-padroes-delete'
-                                        id="{{ $empresa->uid }}"/>
+                                        id="{{ $empresa->uid }}" />
                                 </li>
                             </ul>
                         </div>

@@ -8,19 +8,12 @@
             </div>
         </div>
 
-        @if (session('parametro-success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('parametro-success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        @if (session('error'))
+            <x-alerts.alert type="error" />
         @endif
-        @if (session('parametro-error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('parametro-error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        @if (session('success'))
+            <x-alerts.alert type="sucess" />
         @endif
-
 
         <div class="table-responsive" style="min-height: 25vh">
             <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
@@ -70,8 +63,8 @@
                 </tbody>
             </table>
             {{-- <div class="row mt-3">
-        {!! $padroes->withQueryString()->links('pagination::bootstrap-5') !!}
-      </div> --}}
+    {!! $padroes->withQueryString()->links('pagination::bootstrap-5') !!}
+    </div> --}}
         </div>
         <x-painel.parametros.modal-parametros />
     </div>

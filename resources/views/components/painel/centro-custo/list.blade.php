@@ -8,17 +8,11 @@
             </div>
         </div>
 
-        @if (session('centro-custo-success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('centro-custo-success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        @if (session('error'))
+            <x-alerts.alert type="error" />
         @endif
-        @if (session('centro-custo-error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('centro-custo-error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        @if (session('success'))
+            <x-alerts.alert type="sucess" />
         @endif
 
 
@@ -70,8 +64,8 @@
                 </tbody>
             </table>
             {{-- <div class="row mt-3">
-        {!! $padroes->withQueryString()->links('pagination::bootstrap-5') !!}
-      </div> --}}
+    {!! $padroes->withQueryString()->links('pagination::bootstrap-5') !!}
+    </div> --}}
         </div>
         <x-painel.centro-custo.modal-centro-custo />
     </div>
