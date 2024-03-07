@@ -2,7 +2,7 @@
      <x-alerts.alert type="error" />
  @endif
  @if (session('success'))
-     <x-alerts.alert type="sucess" />
+     <x-alerts.alert type="success" />
  @endif
 
  <form method="POST"
