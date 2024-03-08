@@ -8,7 +8,7 @@
                 </a>
             </div>
         </div>
-            <x-alerts.alert  />
+
 
 
         <div class="table-responsive" style="min-height: 25vh">

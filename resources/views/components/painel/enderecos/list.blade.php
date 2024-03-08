@@ -3,7 +3,7 @@
     'pessoa' => null,
 ])
 
-    <x-alerts.alert  />
+
 
 <div class="card {{ $class }}">
     <div class="card-header d-flex justify-content-between">

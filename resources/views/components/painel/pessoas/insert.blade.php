@@ -1,194 +1,194 @@
-     <x-alerts.alert  />
- <div class="card">
-     <div class="card-body">
+     <div class="card">
+         <div class="card-body">
 
-         {{-- Abas --}}
-         @if (!$pessoa->id)
-             <ul class="nav nav-pills nav-primary mb-3" role="tablist">
-                 <li class="nav-item">
-                     <a class="nav-link active" data-bs-toggle="tab" href="#pf" role="tab">Pessoa Física</a>
-                 </li>
-                 <li class="nav-item ">
-                     <a class="nav-link" data-bs-toggle="tab" href="#pj" role="tab">Pessoa Jurídica</a>
-                 </li>
-             </ul>
-         @endif
-
-         {{-- Formularios --}}
-         <div class="tab-content">
-
-             {{-- PF --}}
-             @if (!$pessoa->id || $pessoa->tipo_pessoa == 'PF')
-                 <div class="tab-pane active" id="pf" role="tabpanel">
-                     <form method="POST"
-                         action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->uid) : route('pessoa-create') }}">
-                         @csrf
-                         <div class="row gy-3">
-                             <input type="hidden" name="tipo_pessoa" value="PF">
-                             <div class="col-12">
-                                 <x-forms.input-field name="nome_razao" required='required' :value="old('nome_razao') ?? ($pessoa->nome_razao ?? null)">
-                                     <x-slot:label>
-                                         Nome Completo
-                                         <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
-                                     </x-slot:label>
-                                 </x-forms.input-field>
-                                 @error('nome_razao')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('cpf_cnpj') ?? ($pessoa->cpf_cnpj ?? null)" name="cpf_cnpj" required='required'
-                                     id="input-cpf">
-                                     <x-slot:label>
-                                         CPF
-                                         <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
-                                     </x-slot:label>
-                                 </x-forms.input-field>
-                                 @error('cpf_cnpj')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie"
-                                     required='required' label="RG" />
-                                 @error('rg_ie')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" class="telefone"
-                                     label="Telefone" />
-                                 @error('telefone')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email" id="email"
-                                     label="Email" />
-                                 @error('email')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             @if (!$pessoa->id)
-                                 <x-painel.enderecos.form-endereco />
-                             @endif
-
-                             <div class="col-12">
-                                 <button type="submit"
-                                     class="btn btn-primary px-4">{{ $pessoa->id ? 'Atualizar' : 'Salvar' }}</button>
-                             </div>
-
-                         </div>
-                     </form>
-                 </div>
+             {{-- Abas --}}
+             @if (!$pessoa->id)
+                 <ul class="nav nav-pills nav-primary mb-3" role="tablist">
+                     <li class="nav-item">
+                         <a class="nav-link active" data-bs-toggle="tab" href="#pf" role="tab">Pessoa Física</a>
+                     </li>
+                     <li class="nav-item ">
+                         <a class="nav-link" data-bs-toggle="tab" href="#pj" role="tab">Pessoa Jurídica</a>
+                     </li>
+                 </ul>
              @endif
-             {{-- PJ --}}
-             @if (!$pessoa->id || $pessoa->tipo_pessoa == 'PJ')
-                 <div class="tab-pane {{ $pessoa->tipo_pessoa == 'PJ' ? 'active' : '' }}" id="pj"
-                     role="tabpanel">
-                     <form method="POST"
-                         action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->uid) : route('pessoa-create') }}">
-                         @csrf
-                         <div class="row gy-3">
 
-                             <input type="hidden" name="tipo_pessoa" value="PJ">
-                             <div class="col-12">
-                                 <x-forms.input-field :value="old('nome_razao') ?? ($pessoa->nome_razao ?? null)" name="nome_razao" required='required'
-                                     :uppercase="true">
-                                     <x-slot:label>
-                                         Razão Social
-                                         <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
-                                     </x-slot:label>
-                                 </x-forms.input-field>
-                                 @error('nome_razao')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
+             {{-- Formularios --}}
+             <div class="tab-content">
+
+                 {{-- PF --}}
+                 @if (!$pessoa->id || $pessoa->tipo_pessoa == 'PF')
+                     <div class="tab-pane active" id="pf" role="tabpanel">
+                         <form method="POST"
+                             action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->uid) : route('pessoa-create') }}">
+                             @csrf
+                             <div class="row gy-3">
+                                 <input type="hidden" name="tipo_pessoa" value="PF">
+                                 <div class="col-12">
+                                     <x-forms.input-field name="nome_razao" required='required' :value="old('nome_razao') ?? ($pessoa->nome_razao ?? null)">
+                                         <x-slot:label>
+                                             Nome Completo
+                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                                         </x-slot:label>
+                                     </x-forms.input-field>
+                                     @error('nome_razao')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('cpf_cnpj') ?? ($pessoa->cpf_cnpj ?? null)" name="cpf_cnpj" required='required'
+                                         id="input-cpf">
+                                         <x-slot:label>
+                                             CPF
+                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                                         </x-slot:label>
+                                     </x-forms.input-field>
+                                     @error('cpf_cnpj')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie"
+                                         required='required' label="RG" />
+                                     @error('rg_ie')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" class="telefone"
+                                         label="Telefone" />
+                                     @error('telefone')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email" id="email"
+                                         label="Email" />
+                                     @error('email')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 @if (!$pessoa->id)
+                                     <x-painel.enderecos.form-endereco />
+                                 @endif
+
+                                 <div class="col-12">
+                                     <button type="submit"
+                                         class="btn btn-primary px-4">{{ $pessoa->id ? 'Atualizar' : 'Salvar' }}</button>
+                                 </div>
+
                              </div>
+                         </form>
+                     </div>
+                 @endif
+                 {{-- PJ --}}
+                 @if (!$pessoa->id || $pessoa->tipo_pessoa == 'PJ')
+                     <div class="tab-pane {{ $pessoa->tipo_pessoa == 'PJ' ? 'active' : '' }}" id="pj"
+                         role="tabpanel">
+                         <form method="POST"
+                             action="{{ isset($pessoa->id) ? route('pessoa-update', $pessoa->uid) : route('pessoa-create') }}">
+                             @csrf
+                             <div class="row gy-3">
 
-                             <div class="col-12">
-                                 <x-forms.input-field :value="old('nome_fantasia') ?? ($pessoa->nome_fantasia ?? null)" name="nome_fantasia" label="Nome Fantasia"
-                                     :uppercase="true" />
-                                 @error('nome_fantasia')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
+                                 <input type="hidden" name="tipo_pessoa" value="PJ">
+                                 <div class="col-12">
+                                     <x-forms.input-field :value="old('nome_razao') ?? ($pessoa->nome_razao ?? null)" name="nome_razao" required='required'
+                                         :uppercase="true">
+                                         <x-slot:label>
+                                             Razão Social
+                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                                         </x-slot:label>
+                                     </x-forms.input-field>
+                                     @error('nome_razao')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-12">
+                                     <x-forms.input-field :value="old('nome_fantasia') ?? ($pessoa->nome_fantasia ?? null)" name="nome_fantasia" label="Nome Fantasia"
+                                         :uppercase="true" />
+                                     @error('nome_fantasia')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('cpf_cnpj') ?? ($pessoa->cpf_cnpj ?? null)" name="cpf_cnpj" required='required'
+                                         id="input-cnpj">
+                                         <x-slot:label>
+                                             CNPJ
+                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
+                                         </x-slot:label>
+                                     </x-forms.input-field>
+                                     @error('cpf_cnpj')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie"
+                                         label="Inscrição estadual" />
+                                     @error('rg_ie')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('insc_municipal') ?? ($pessoa->insc_municipal ?? null)" type="number" name="insc_municipal"
+                                         label="Inscrição Municipal" />
+                                     @error('insc_municipal')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" label="Telefone"
+                                         class="telefone" />
+                                     @error('telefone')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email"
+                                         label="Email" />
+                                     @error('email')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('codigo_contabil') ?? ($pessoa->codigo_contabil ?? null)" type="codigo_contabil"
+                                         name="codigo_contabil" label="Código Contábil" />
+                                     @error('codigo_contabil')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 @if (!$pessoa->id)
+                                     <x-painel.enderecos.form-endereco />
+                                 @endif
+
+                                 <div class="col-12">
+                                     <button type="submit"
+                                         class="btn btn-primary px-4">{{ $pessoa->id ? 'Atualizar' : 'Salvar' }}</button>
+                                 </div>
                              </div>
+                         </form>
+                     </div>
+                 @endif
 
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('cpf_cnpj') ?? ($pessoa->cpf_cnpj ?? null)" name="cpf_cnpj" required='required'
-                                     id="input-cnpj">
-                                     <x-slot:label>
-                                         CNPJ
-                                         <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
-                                     </x-slot:label>
-                                 </x-forms.input-field>
-                                 @error('cpf_cnpj')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
+             </div>
 
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie"
-                                     label="Inscrição estadual" />
-                                 @error('rg_ie')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('insc_municipal') ?? ($pessoa->insc_municipal ?? null)" type="number" name="insc_municipal"
-                                     label="Inscrição Municipal" />
-                                 @error('insc_municipal')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" label="Telefone"
-                                     class="telefone" />
-                                 @error('telefone')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email" label="Email" />
-                                 @error('email')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             <div class="col-6">
-                                 <x-forms.input-field :value="old('codigo_contabil') ?? ($pessoa->codigo_contabil ?? null)" type="codigo_contabil" name="codigo_contabil"
-                                     label="Código Contábil" />
-                                 @error('codigo_contabil')
-                                     <div class="text-warning">{{ $message }}</div>
-                                 @enderror
-                             </div>
-
-                             @if (!$pessoa->id)
-                                 <x-painel.enderecos.form-endereco />
-                             @endif
-
-                             <div class="col-12">
-                                 <button type="submit"
-                                     class="btn btn-primary px-4">{{ $pessoa->id ? 'Atualizar' : 'Salvar' }}</button>
-                             </div>
-                         </div>
-                     </form>
-                 </div>
+             @if ($pessoa->id)
+                 <x-painel.form-delete.delete route="pessoa-delete" id="{{ $pessoa->uid }}" label="Pessoa" />
              @endif
 
          </div>
 
-         @if ($pessoa->id)
-             <x-painel.form-delete.delete route="pessoa-delete" id="{{ $pessoa->uid }}" label="Pessoa" />
-         @endif
-
      </div>
-
- </div>

@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{{ asset('build/images/favicon.png') }}">
     {{-- sweetalert --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @include('layouts.head-css')
 
     {{-- vite hot refresh --}}
@@ -19,12 +19,14 @@
 
 <body>
     {{-- @show --}}
+    <x-alerts.alert />
     <div id="layout-wrapper">
         @include('layouts.topbar')
         @include('layouts.sidebar')
         <div class="main-content">
             <div class="page-content">
                 <div class="container-fluid">
+
                     @yield('content')
                 </div>
             </div>

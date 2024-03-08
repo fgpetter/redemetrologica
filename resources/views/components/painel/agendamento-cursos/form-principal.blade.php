@@ -1,5 +1,3 @@
- <x-alerts.alert />
-
  <form method="POST"
      action="{{ isset($agendacurso->id) ? route('agendamento-curso-update', $agendacurso->uid) : route('agendamento-curso-create') }}">
      @csrf
