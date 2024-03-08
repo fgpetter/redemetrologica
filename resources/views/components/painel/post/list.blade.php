@@ -9,7 +9,7 @@
           </div>
 
 
-              <x-alerts.alert  />
+
 
 
 

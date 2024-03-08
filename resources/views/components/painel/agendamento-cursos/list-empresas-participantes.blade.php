@@ -3,7 +3,7 @@
 ])
 
 
-<x-alerts.alert />
+
 <div class="table-responsive" style="min-height: 25vh">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>

@@ -1,5 +1,3 @@
- <x-alerts.alert />
-
  <div class="card">
      <div class="card-body">
 

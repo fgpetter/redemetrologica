@@ -1,9 +1,21 @@
-
 @foreach (['error', 'success', 'warning'] as $key)
     @if (session($key))
-        <div class="alert alert-{{ ($key == 'error' ? 'danger' : $key) }} alert-dismissible fade show" role="alert">
-            {{ session($key) }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-right',
+                iconColor: 'white',
+                customClass: {
+                    popup: 'colored-toast',
+                },
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+            })
+            Toast.fire({
+                icon: '{{ $key }}',
+                title: '{{ session($key) }}',
+            })
+        </script>
     @endif
 @endforeach
