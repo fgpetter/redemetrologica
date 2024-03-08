@@ -74,6 +74,6 @@ class ParametrosController extends Controller
     $parametro->delete();
 
     return redirect()->route('parametros-index')
-      ->with('success', 'Material Padrão removido com sucesso');
+      ->with('warning', 'Material Padrão removido com sucesso');
   }
 }

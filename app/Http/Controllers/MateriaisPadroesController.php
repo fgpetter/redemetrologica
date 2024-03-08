@@ -127,6 +127,6 @@ class MateriaisPadroesController extends Controller
     $materiaisPadroes->delete();
 
     return redirect()->route('materiais-padroes-index')
-      ->with('success', 'Material Padrão removido com sucesso');
+      ->with('warning', 'Material Padrão removido com sucesso');
   }
 }

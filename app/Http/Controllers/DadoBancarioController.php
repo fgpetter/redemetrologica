@@ -115,6 +115,6 @@ class DadoBancarioController extends Controller
   {
     $conta->delete();
 
-    return redirect()->back()->with('success', 'Conta removida');
+    return redirect()->back()->with('warning', 'Conta removida');
   }
 }

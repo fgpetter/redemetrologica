@@ -72,6 +72,6 @@ class TipoAvaliacaoController extends Controller
     $tipoAvaliacao->delete();
 
     return redirect()->route('tipo-avaliacao-index')
-      ->with('success', 'Tipo Avaliação removido com sucesso');
+      ->with('warning', 'Tipo Avaliação removido com sucesso');
   }
 }

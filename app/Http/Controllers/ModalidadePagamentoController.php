@@ -74,6 +74,6 @@ class ModalidadePagamentoController extends Controller
     $modalidadePagamento->delete();
 
     return redirect()->route('modalidade-pagamento-index')
-      ->with('success', 'Centro de Custo removido com sucesso');
+      ->with('warning', 'Centro de Custo removido com sucesso');
   }
 }

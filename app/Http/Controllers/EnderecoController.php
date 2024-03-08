@@ -134,6 +134,6 @@ class EnderecoController extends Controller
 
     $endereco->delete();
 
-    return redirect()->back()->with('success', 'Endereco removido');
+    return redirect()->back()->with('warning', 'Endereco removido');
   }
 }

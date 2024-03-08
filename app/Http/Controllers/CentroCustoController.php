@@ -74,6 +74,6 @@ class CentroCustoController extends Controller
     $centroCusto->delete();
 
     return redirect()->route('centro-custo-index')
-      ->with('success', 'Centro de Custo removido com sucesso');
+      ->with('warning', 'Centro de Custo removido com sucesso');
   }
 }

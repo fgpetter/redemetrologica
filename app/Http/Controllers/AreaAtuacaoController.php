@@ -78,6 +78,6 @@ class AreaAtuacaoController extends Controller
     $areaAtuacao->delete();
 
     return redirect()->route('area-atuacao-index')
-      ->with('success', 'Área de atuação removida com sucesso');
+      ->with('warning', 'Área de atuação removida com sucesso');
   }
 }

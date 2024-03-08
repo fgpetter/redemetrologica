@@ -158,7 +158,7 @@ class InstrutorController extends Controller
 
     $instrutor->delete();
 
-    return redirect()->route('instrutor-index')->with('success', 'Insrtutor removido');
+    return redirect()->route('instrutor-index')->with('warning', 'Insrtutor removido');
   }
 
   public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
@@ -244,7 +244,7 @@ class InstrutorController extends Controller
   {
     $cursohabilitado->delete();
 
-    return back()->with('success', 'Curso removido com sucesso');
+    return back()->with('warning', 'Curso removido com sucesso');
   }
 
 

@@ -69,6 +69,6 @@ class PostMediaController extends Controller
         // Deleta o registro da tabela post_media
         $postMedia->delete();
 
-        return redirect()->back()->with('success', 'Imagem excluída com sucesso!');
+        return redirect()->back()->with('warning', 'Imagem excluída com sucesso!');
     }
 }

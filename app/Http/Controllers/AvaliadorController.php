@@ -187,7 +187,7 @@ class AvaliadorController extends Controller
 
     $avaliador->delete();
 
-    return redirect()->route('avaliador-index')->with('success', 'Avaliador removido');
+    return redirect()->route('avaliador-index')->with('warning', 'Avaliador removido');
   }
 
   /**

@@ -102,6 +102,6 @@ class BancosController extends Controller
     $banco->delete();
 
     return redirect()->route('banco-index')
-      ->with('success', 'Banco removido com sucesso');
+      ->with('warning', 'Banco removido com sucesso');
   }
 }

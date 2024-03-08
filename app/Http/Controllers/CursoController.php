@@ -291,6 +291,6 @@ class CursoController extends Controller
     $tem_cursos_agendados = AgendaCursos::where('curso_id', $curso->id)->first();
     (!$tem_cursos_agendados) ? $curso->forceDelete() : $curso->delete();
 
-    return redirect()->route('curso-index')->with('success', 'Curso removido');
+    return redirect()->route('curso-index')->with('warning', 'Curso removido');
   }
 }

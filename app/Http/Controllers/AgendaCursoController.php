@@ -229,7 +229,7 @@ class AgendaCursoController extends Controller
     $agendacurso->delete();
 
     return redirect()->route('agendamento-curso-index')
-      ->with('success', 'Agendamento removido com sucesso');
+      ->with('warning', 'Agendamento removido com sucesso');
   }
 
   /**

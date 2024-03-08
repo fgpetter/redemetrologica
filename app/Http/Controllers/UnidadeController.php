@@ -139,6 +139,6 @@ class UnidadeController extends Controller
   {
     $unidade->delete();
 
-    return redirect()->back()->with('success', 'Unidade removida');
+    return redirect()->back()->with('warning', 'Unidade removida');
   }
 }

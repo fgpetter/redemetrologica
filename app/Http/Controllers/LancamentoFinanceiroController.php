@@ -141,7 +141,7 @@ class LancamentoFinanceiroController extends Controller
   public function delete(LancamentoFinanceiro $lancamento): RedirectResponse
   {
     $lancamento->delete();
-    return redirect()->route('lancamento-financeiro-index')->with('success', 'Lancamento removido');
+    return redirect()->route('lancamento-financeiro-index')->with('warning', 'Lancamento removido');
   }
 
   /**

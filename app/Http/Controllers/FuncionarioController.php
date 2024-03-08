@@ -239,7 +239,7 @@ class FuncionarioController extends Controller
 
       $funcionario->delete();
 
-      return redirect()->route('funcionario-index')->with('funcionario-success', 'Funcionario removido');
+      return redirect()->route('funcionario-index')->with('warning', 'Funcionario removido');
     }
 
   /**

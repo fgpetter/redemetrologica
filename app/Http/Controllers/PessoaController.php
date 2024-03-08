@@ -181,6 +181,6 @@ class PessoaController extends Controller
   public function delete(Pessoa $pessoa): RedirectResponse
   {
     $pessoa->delete();
-    return redirect()->route('pessoa-index')->with('success', 'Pessoa removida');
+    return redirect()->route('pessoa-index')->with('warning', 'Pessoa removida');
   }
 }

@@ -99,6 +99,6 @@ class PlanoContaController extends Controller
     $planoconta->delete();
 
     return redirect()->route('plano-conta-index')
-      ->with('success', 'Plano de conta removido com sucesso');
+      ->with('warning', 'Plano de conta removido com sucesso');
   }
 }

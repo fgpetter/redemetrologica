@@ -492,9 +492,9 @@ class PostController extends Controller
 
 
     if ($post->tipo == 'noticia') {
-      return redirect()->route('noticia-index')->with('success', 'Noticia removida');
+      return redirect()->route('noticia-index')->with('warning', 'Noticia removida');
     }
-    return redirect()->route('galeria-index')->with('success', 'Galeria removida');
+    return redirect()->route('galeria-index')->with('warning', 'Galeria removida');
   }
 
   /**
