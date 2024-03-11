@@ -59,7 +59,7 @@
                     <div class="SiteCards--efeito  align-self-end d-grid align-self-end align-items-end p-3">
                         <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}"
                             class=" align-self-center text-center h5 text-white SiteCards__descricao" style="height: 100%;">
-                            {{ $agendacurso->curso->descricao ?? '' }}
+                            {{ $agendacurso->curso->descricao }}
                         </a>
                         <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}" class="text-start text-white bold">
                             <i class="fa fa-clock-o" aria-hidden="true"></i>
