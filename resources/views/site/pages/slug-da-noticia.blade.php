@@ -1,6 +1,6 @@
 @extends('site.layouts.layout-site')
 @section('title')
-  {{ $post->slug }}
+  {{ $post->titulo }}
 @endsection
 @section('content')
   {{-- banner --}}
