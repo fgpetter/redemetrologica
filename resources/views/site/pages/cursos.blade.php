@@ -47,9 +47,6 @@
   {{-- cardCursos agendados --}}
   <div class="container row justify-content-center">
 
-    @foreach ($agendacursos as $agendacurso)
-      <div class="col-3 mt-4" style="width: 18rem; height: 20rem;">
-
         <div class="SiteCards__bgimage text-white d-grid"
           style="background-image: url('{{ $agendacurso->curso->thumb ?? ''
             ? asset('curso-thumb/' . $agendacurso->curso->thumb)
@@ -71,9 +68,6 @@
       </div>
     @endforeach
   </div>
-
-
-
 
   {{-- cardCursos --}}
 @endsection

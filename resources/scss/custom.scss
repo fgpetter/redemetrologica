@@ -212,10 +212,8 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
 
 .SiteCards__descricao {
  
-  
+  height: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   transition: height 0.3s ease;
  
 }
