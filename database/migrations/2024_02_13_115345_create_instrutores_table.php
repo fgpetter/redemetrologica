@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('instrutores', function (Blueprint $table) {
             $table->id();
             $table->string('uid');
-            $table->foreignId('pessoa_id')->constrained();
+            $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
             $table->boolean('situacao')->default(true);
             $table->string('curriculo')->nullable();
             $table->text('observacoes')->nullable();
