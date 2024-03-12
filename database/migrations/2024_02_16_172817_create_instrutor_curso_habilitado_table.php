@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('instrutor_curso_habilitado', function (Blueprint $table) {
             $table->id();
             $table->string('uid');
-            $table->foreignId('instrutor_id')->constrained()->cascadeOnDelete(); //funcina
+            $table->foreignId('instrutor_id')->constrained('instrutores')->cascadeOnDelete();
             $table->foreignId('curso_id')->constrained()->onDelete('cascade'); //não funciona
             $table->boolean('habilitado')->default(false);
             $table->boolean('conhecimento')->default(false);
