@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('situacao')->default(true);
             $table->string('curriculo')->nullable();
             $table->text('observacoes')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

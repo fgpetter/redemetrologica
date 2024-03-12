@@ -217,10 +217,12 @@
          <div class="col-sm-12">
              <x-forms.input-select name="instrutor_id" label="Instrutor <span class='text-danger'>*</span>">
                  <option value="">Selecione um instrutor</option>
-                 @foreach ($instrutores as $instrutor)
-                     <option @selected($agendacurso->instrutor_id == $instrutor->id) value="{{ $instrutor->id }}">
-                         {{ $instrutor->pessoa->nome_razao }}</option>
-                 @endforeach
+                    @if ($instrutoratual)
+                    <option selected value="{{ $instrutoratual->id }}">{{ $instrutoratual->nome_razao }}</option>
+                    @endif
+                    @foreach ($instrutores as $instrutor)
+                    <option value="{{ $instrutor->id }}">{{ $instrutor->pessoa->nome_razao }}</option>
+                    @endforeach
              </x-forms.input-select>
              @error('instrutor_id')
                  <div class="text-warning">{{ $message }}</div>

@@ -37,7 +37,13 @@ class AgendaCursoController extends Controller
   public function insert(AgendaCursos $agendacurso): View
   {
     $data = [
-      'instrutores' => Instrutor::all(),
+      'instrutores' => Instrutor::whereNotIn('id', [$agendacurso->instrutor_id])->get(),
+      'instrutor_atual' => Instrutor::join('pessoas', 'instrutores.pessoa_id', '=', 'pessoas.id')
+        ->select('instrutores.id', 'pessoas.nome_razao')
+        ->where('instrutores.id', $agendacurso->instrutor_id)
+        ->withTrashed()
+        ->first(),
+
       'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),

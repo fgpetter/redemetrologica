@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Instrutor extends Model
 {
-    use HasFactory;
+    use
+        HasFactory,
+        SoftDeletes;
 
     protected $table = 'instrutores';
 
@@ -23,10 +26,8 @@ class Instrutor extends Model
      * Carrega pessoa
      * @return BelongsTo
      */
-    public function pessoa() : BelongsTo
+    public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class);
     }
-
-
 }
