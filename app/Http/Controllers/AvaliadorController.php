@@ -150,6 +150,9 @@ class AvaliadorController extends Controller
       $fileName = $fileName . '_' . time() . '.' . $extension;
       $request->file('curriculo')->move(public_path('curriculos'), $fileName);
       $curriculo = 'curriculos/' . $fileName;
+      $avaliador->update([
+        'curriculo' => $curriculo
+      ]);
     }
 
     $avaliador->update([
@@ -159,7 +162,6 @@ class AvaliadorController extends Controller
       'curso_aud_interna' => $request->get('curso_aud_interna') ?? 0,
       'parecer_psicologico' => $request->get('parecer_psicologico') ?? 0,
       'data_ingresso' => $request->get('data_ingresso'),
-      'curriculo' => $curriculo ?? null
     ]);
 
     $avaliador->pessoa->update([
