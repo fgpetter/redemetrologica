@@ -218,7 +218,7 @@
              <x-forms.input-select name="instrutor_id" label="Instrutor <span class='text-danger'>*</span>">
                  <option value="">Selecione um instrutor</option>
                     @if ($instrutoratual)
-                    <option selected value="{{ $instrutoratual->id }}">{{ $instrutoratual->nome_razao }}</option>
+                    <option selected value="{{ $instrutoratual->id }}">{{ $instrutoratual->pessoa->nome_razao }}</option>
                     @endif
                     @foreach ($instrutores as $instrutor)
                     <option value="{{ $instrutor->id }}">{{ $instrutor->pessoa->nome_razao }}</option>
