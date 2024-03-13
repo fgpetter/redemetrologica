@@ -93,7 +93,17 @@ class LancamentoFinanceiroController extends Controller
       $pessoas = $pessoasT;
     }
 
-    $centrosdecusto = CentroCusto::select('id', 'descricao')->get();
+    $centrosdecustoT = CentroCusto::whereNot('id', $lancamento->centro_custo_id)->get();
+    $centrocusto_lancamento = CentroCusto::where('id', $lancamento->centro_custo_id)
+      ->withTrashed()
+      ->first();
+    if ($centrocusto_lancamento) {
+      $centrosdecusto = $centrosdecustoT->push($centrocusto_lancamento);
+    } else {
+      $centrosdecusto = $centrosdecustoT;
+    }
+
+
     return view('painel.lancamento-financeiro.insert', [
       'lancamento' => $lancamento,
       'pessoas' => $pessoas,

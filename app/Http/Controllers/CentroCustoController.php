@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PlanoConta;
 use App\Models\CentroCusto;
 use Illuminate\Http\Request;
+use App\Models\LancamentoFinanceiro;
 
 class CentroCustoController extends Controller
 {
@@ -71,7 +73,13 @@ class CentroCustoController extends Controller
    */
   public function destroy(CentroCusto $centroCusto)
   {
-    $centroCusto->delete();
+    $tem_lac_financ = LancamentoFinanceiro::where('centro_custo_id', $centroCusto->id)->first();
+    $tem_plano_contas = PlanoConta::where('centro_custo_id', $centroCusto->id)->first();
+    if ($tem_lac_financ || $tem_plano_contas) {
+      $centroCusto->delete();
+    } else {
+      $centroCusto->forceDelete();
+    }
 
     return redirect()->route('centro-custo-index')
       ->with('warning', 'Centro de Custo removido com sucesso');
