@@ -87,7 +87,11 @@ class LancamentoFinanceiroController extends Controller
     $pessoaLancamento = Pessoa::where('id', $lancamento->pessoa_id)
       ->withTrashed()
       ->first();
-    $pessoas = $pessoasT->push($pessoaLancamento);
+    if ($pessoaLancamento) {
+      $pessoas = $pessoasT->push($pessoaLancamento);
+    } else {
+      $pessoas = $pessoasT;
+    }
 
     $centrosdecusto = CentroCusto::select('id', 'descricao')->get();
     return view('painel.lancamento-financeiro.insert', [

@@ -38,11 +38,9 @@
                          <select class="form-select" name="pessoa_id" aria-label="Default select example">
                              <option> - </option>
                              @foreach ($pessoas as $pessoa)
-                            @if($pessoa)
                             <option @selected($lancamento->pessoa_id == $pessoa->id) value="{{ $pessoa->id }}">
                                 {{ $pessoa->nome_razao }}
                             </option>
-                            @endif
                             @endforeach
                          </select>
                          @error('pessoa')
