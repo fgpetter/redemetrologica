@@ -6,6 +6,7 @@ use App\Models\Pessoa;
 use App\Models\Endereco;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
+use App\Models\LancamentoFinanceiro;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -180,7 +181,9 @@ class PessoaController extends Controller
    **/
   public function delete(Pessoa $pessoa): RedirectResponse
   {
-    $pessoa->delete();
+    $tem_lac_financ = LancamentoFinanceiro::where('pessoa_id', $pessoa->id)->first();
+    (!$tem_lac_financ) ? $pessoa->forceDelete() : $pessoa->delete();
+
     return redirect()->route('pessoa-index')->with('warning', 'Pessoa removida');
   }
 }
