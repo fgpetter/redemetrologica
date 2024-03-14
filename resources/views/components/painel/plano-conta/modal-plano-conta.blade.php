@@ -41,8 +41,7 @@
                 @endif
                 @foreach ($centrocustos as $centrocusto)
                 @if (!isset($planoconta) || $planoconta->centro_custo_id <> $centrocusto->id)
-                  <option value="{{ $centrocusto->id }}" @if(isset($planoconta) && $planoconta->centro_custo_id == $centrocusto->id)
-                    selected @endif>
+                  <option value="{{ $centrocusto->id }}">
                     {{ $centrocusto->descricao }}
                   </option>
                   @endif
