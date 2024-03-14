@@ -33,15 +33,22 @@
               @error('grupo_contas') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-6">
+              
               <x-forms.input-select name="centro_custo_id" label="Centro de custos">
                 <option value="">Selecione um centro de custo</option>
+                @if (isset($planoconta) && isset($planoconta->centrocusto))
+                <option selected value="{{ $planoconta->centro_custo_id }}">{{ $planoconta->centrocusto->descricao }}</option>
+                @endif
                 @foreach ($centrocustos as $centrocusto)
-                  <option value="{{ $centrocusto->id }}" 
-                    @if(isset($planoconta)) @selected($planoconta->centro_custo_id == $centrocusto->id) @endif>
+                @if (!isset($planoconta) || $planoconta->centro_custo_id <> $centrocusto->id)
+                  <option value="{{ $centrocusto->id }}" @if(isset($planoconta) && $planoconta->centro_custo_id == $centrocusto->id)
+                    selected @endif>
                     {{ $centrocusto->descricao }}
                   </option>
-                @endforeach
+                  @endif
+                  @endforeach
               </x-forms.input-select>
+              
               @error('centro_custo_id') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 

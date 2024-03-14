@@ -22,7 +22,8 @@ class PlanoContaController extends Controller
       'planocontas' => PlanoConta::with(['centrocusto' => function ($query) {
         $query->withTrashed();
       }])->get(),
-      'centrocustos' => CentroCusto::withTrashed()->get()
+
+      'centrocustos' => CentroCusto::all()
     ];
     return view('painel.plano-conta.index', $data);
   }
