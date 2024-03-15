@@ -48,7 +48,7 @@ class Pessoa extends Model
     }
 
     /**
-     * Lista retorna quando essa pessoa é um funcionário.
+     * Retorna quando essa pessoa é um funcionário.
      */
     public function funcionario(): HasOne
     {
@@ -56,10 +56,18 @@ class Pessoa extends Model
     }
 
     /**
-     * Lista retorna quando essa pessoa é um avaliador.
+     * Retorna quando essa pessoa é um avaliador.
      */
     public function avaliador(): HasOne
     {
         return $this->hasOne(Avaliador::class);
+    }
+
+    /**
+     * Retorna quando essa pessoa é um instrutor.
+     */
+    public function instrutor(): HasOne
+    {
+        return $this->hasOne(Instrutor::class);
     }
 }

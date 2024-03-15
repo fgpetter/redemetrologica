@@ -38,7 +38,8 @@ class AgendaCursoController extends Controller
   {
     $data = [
       'instrutores' => Instrutor::whereNot('id', $agendacurso->instrutor_id)->get(),
-      'instrutor_atual' => Instrutor::where('id', $agendacurso->instrutor_id)
+      'instrutor_atual' => Instrutor::with(['pessoa' => fn($q) => $q->withTrashed()])
+        ->where('id', $agendacurso->instrutor_id)
         ->withTrashed()
         ->first(),
 
@@ -49,6 +50,7 @@ class AgendaCursoController extends Controller
       'inscritos_empresas' => CursoInscritoEmpresa::select()->where('agenda_curso_id', $agendacurso->id)->get(),
       'agendacurso' => $agendacurso
     ];
+
 
     foreach ($data['inscritos_empresas'] as $key => $empresa) {
       $participantes = CursoInscrito::select('empresa_id')->where('empresa_id', $empresa->pessoa_id)->count();
