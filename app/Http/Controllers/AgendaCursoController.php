@@ -37,7 +37,12 @@ class AgendaCursoController extends Controller
   public function insert(AgendaCursos $agendacurso): View
   {
     $data = [
-      'instrutores' => Instrutor::all(),
+      'instrutores' => Instrutor::whereNot('id', $agendacurso->instrutor_id)->get(),
+      'instrutor_atual' => Instrutor::with(['pessoa' => fn($q) => $q->withTrashed()])
+        ->where('id', $agendacurso->instrutor_id)
+        ->withTrashed()
+        ->first(),
+
       'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),
@@ -45,6 +50,7 @@ class AgendaCursoController extends Controller
       'inscritos_empresas' => CursoInscritoEmpresa::select()->where('agenda_curso_id', $agendacurso->id)->get(),
       'agendacurso' => $agendacurso
     ];
+
 
     foreach ($data['inscritos_empresas'] as $key => $empresa) {
       $participantes = CursoInscrito::select('empresa_id')->where('empresa_id', $empresa->pessoa_id)->count();

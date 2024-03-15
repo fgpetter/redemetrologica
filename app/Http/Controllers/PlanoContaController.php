@@ -19,7 +19,10 @@ class PlanoContaController extends Controller
   public function index(): View
   {
     $data = [
-      'planocontas' => PlanoConta::select()->with('centrocusto')->get(),
+      'planocontas' => PlanoConta::with(['centrocusto' => function ($query) {
+        $query->withTrashed();
+      }])->get(),
+
       'centrocustos' => CentroCusto::all()
     ];
     return view('painel.plano-conta.index', $data);

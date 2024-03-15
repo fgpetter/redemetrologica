@@ -26,6 +26,7 @@ return new class extends Migration
             $table->integer('alterado_por')->nullable();
             $table->integer('end_padrao')->nullable();
             $table->integer('end_cobranca')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

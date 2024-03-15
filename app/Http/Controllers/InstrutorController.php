@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Curso;
 use App\Models\Pessoa;
 use App\Models\Instrutor;
-use App\Models\InstrutorCursoHabilitado;
 use Illuminate\View\View;
+use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\File;
-use Illuminate\Support\Facades\File as FileFacade;
-
 use Illuminate\Validation\Validator;
 use Illuminate\Http\RedirectResponse;
+
+use Illuminate\Validation\Rules\File;
+use App\Models\InstrutorCursoHabilitado;
+use Illuminate\Support\Facades\File as FileFacade;
 
 class InstrutorController extends Controller
 {
@@ -156,7 +157,10 @@ class InstrutorController extends Controller
       FileFacade::delete(public_path('curriculos/' . $instrutor->curriculo));
     }
 
-    $instrutor->delete();
+
+
+    $tem_cursos_agendados = AgendaCursos::where('instrutor_id', $instrutor->id)->first();
+    (!$tem_cursos_agendados) ? $instrutor->forceDelete() : $instrutor->delete();
 
     return redirect()->route('instrutor-index')->with('warning', 'Insrtutor removido');
   }

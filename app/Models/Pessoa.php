@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pessoa extends Model
 {
-    use HasFactory;
+    use
+        HasFactory,
+        SoftDeletes;
 
     /**
      * The attributes that aren't mass assignable.
@@ -45,7 +48,7 @@ class Pessoa extends Model
     }
 
     /**
-     * Lista retorna quando essa pessoa é um funcionário.
+     * Retorna quando essa pessoa é um funcionário.
      */
     public function funcionario(): HasOne
     {
@@ -53,11 +56,18 @@ class Pessoa extends Model
     }
 
     /**
-     * Lista retorna quando essa pessoa é um avaliador.
+     * Retorna quando essa pessoa é um avaliador.
      */
     public function avaliador(): HasOne
     {
         return $this->hasOne(Avaliador::class);
     }
 
+    /**
+     * Retorna quando essa pessoa é um instrutor.
+     */
+    public function instrutor(): HasOne
+    {
+        return $this->hasOne(Instrutor::class);
+    }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pessoa;
 use App\Models\Endereco;
+use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
+use App\Models\LancamentoFinanceiro;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -180,7 +182,18 @@ class PessoaController extends Controller
    **/
   public function delete(Pessoa $pessoa): RedirectResponse
   {
-    $pessoa->delete();
+    // validar se pessoa tem lancamentos financeiros
+    $tem_lac_financ = LancamentoFinanceiro::where('pessoa_id', $pessoa->id)->first();
+    // validar se pessoa tem agendas
+    $tem_agenda = AgendaCursos::where('instrutor_id', $pessoa->instrutor->id)->first();
+    if($tem_agenda) { $pessoa->instrutor->delete(); }
+    
+    if ($tem_lac_financ || $tem_agenda) {
+      $pessoa->delete();
+    } else {
+      $pessoa->forceDelete();
+    }
+
     return redirect()->route('pessoa-index')->with('warning', 'Pessoa removida');
   }
 }

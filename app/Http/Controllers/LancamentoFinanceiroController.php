@@ -19,8 +19,10 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function index(): View
   {
-    $lancamentosfinanceiros = LancamentoFinanceiro::select('uid','pessoa_id', 'data_vencimento', 'valor', 'data_pagamento', 'historico')
-      ->with('pessoa')
+    $lancamentosfinanceiros = LancamentoFinanceiro::select('uid', 'pessoa_id', 'data_vencimento', 'valor', 'data_pagamento', 'historico')
+      ->with(['pessoa' => function ($query) {
+        $query->withTrashed();
+      }])
       ->orderBy('data_vencimento', 'desc')
       ->paginate(15);
 
@@ -79,12 +81,35 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function insert(LancamentoFinanceiro $lancamento): View
   {
-    $pessoas = Pessoa::select('id', 'nome_razao')->get();
-    $centrosdecusto = CentroCusto::select('id', 'descricao')->get();
+
+
+    $pessoasT = Pessoa::whereNot('id', $lancamento->pessoa_id)->get();
+    $pessoaLancamento = Pessoa::where('id', $lancamento->pessoa_id)
+      ->withTrashed()
+      ->first();
+    if ($pessoaLancamento) {
+      $pessoas = $pessoasT->push($pessoaLancamento);
+    } else {
+      $pessoas = $pessoasT;
+    }
+
+    $centrosdecustoT = CentroCusto::whereNot('id', $lancamento->centro_custo_id)->get();
+    $centrocusto_lancamento = CentroCusto::where('id', $lancamento->centro_custo_id)
+      ->withTrashed()
+      ->first();
+    if ($centrocusto_lancamento) {
+      $centrosdecusto = $centrosdecustoT->push($centrocusto_lancamento);
+    } else {
+      $centrosdecusto = $centrosdecustoT;
+    }
+
+
     return view('painel.lancamento-financeiro.insert', [
-        'lancamento' => $lancamento, 
-        'pessoas' => $pessoas, 
-        'centrosdecusto' => $centrosdecusto]);
+      'lancamento' => $lancamento,
+      'pessoas' => $pessoas,
+      'centrosdecusto' => $centrosdecusto,
+
+    ]);
   }
 
   /**
@@ -98,7 +123,7 @@ class LancamentoFinanceiroController extends Controller
   {
 
     $validated = $request->validate(
-    [
+      [
         'data_emissao' => ['nullable'],
         'data_autorizacao' => ['nullable'],
         'enviado_banco' => ['nullable', 'integer', 'in:0,1'],
@@ -119,14 +144,15 @@ class LancamentoFinanceiroController extends Controller
         'status' => ['required', 'in:EFETIVADO,PROVISIONADO'],
         'conciliado' => ['nullable', 'integer', 'in:0,1'],
         'observacoes' => ['nullable'],
-    ],
-    [
+      ],
+      [
         'data_autorizacao.in' => 'A opção selecionada é inválida',
         'enviado_banco.in' => 'A opção selecionada é inválida',
         'status.in' => 'A opção selecionada é inválida',
-        'conciliado.in' => 'A opção selecionada é inválida',                
-    ]);
-
+        'conciliado.in' => 'A opção selecionada é inválida',
+      ]
+    );
+    $validated['valor'] = $this->formataMoeda($validated['valor']) ?? null;
     $lancamento->update($validated);
 
     return redirect()->back()->with('success', 'Lancamento atualizado com sucesso');
@@ -152,8 +178,8 @@ class LancamentoFinanceiroController extends Controller
    */
   private function formataMoeda($valor): ?string
   {
-    if($valor){
-      return str_replace(',','.', str_replace('.','', $valor));
+    if ($valor) {
+      return str_replace(',', '.', str_replace('.', '', $valor));
     } else {
       return null;
     }

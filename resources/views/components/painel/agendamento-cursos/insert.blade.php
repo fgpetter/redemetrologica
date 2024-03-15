@@ -35,7 +35,7 @@
 
              <div class="tab-pane active" id="principal" role="tabpanel"> <!-- Principal -->
                  <x-painel.agendamento-cursos.form-principal :instrutores="$instrutores" :cursos="$cursos" :empresas="$empresas"
-                     :agendacurso="$agendacurso" :cursoatual="$cursoatual" />
+                     :agendacurso="$agendacurso" :cursoatual="$cursoatual" :instrutoratual="$instrutoratual"/>
              </div>
 
              <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
