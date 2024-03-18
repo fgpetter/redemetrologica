@@ -70,7 +70,7 @@
               <td>@if ($avaliador->curso_incerteza) <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif</td>
               <td>@if ($avaliador->curso_iso) <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif</td>
               <td>@if ($avaliador->curso_aud_interna) <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif</td>
-              <td>{{($avaliador->data_ingresso) ? Carbon\Carbon::parse($avaliador->data_ingresso)->format('d/m/Y') : ''}}</td>
+              <td>{{ $avaliador->data_ingresso?->format('d/m/Y') }}</td>
               <td>
                 <div class="dropdown">
                   <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown" aria-expanded="false">

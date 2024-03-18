@@ -17,7 +17,6 @@
     if (isset($_GET['buscadoc'])) {
         $busca_doc = $_GET['buscadoc'];
     }
-
 @endphp
 <div class="card">
     <div class="card-body">
@@ -88,7 +87,7 @@
                                 {{ Str::of($pessoa->nome_razao)->limit(60) }}</td>
                             <td><input type="text" class="form-control-plaintext table-cpf-cnpj"
                                     style="min-width: 135px" value="{{ $pessoa->cpf_cnpj }}" readonly></td>
-                            <td>{{ Carbon\Carbon::parse($pessoa->created_at)->format('d/m/Y') }}</td>
+                            <td>{{ $pessoa->created_at->format('d/m/Y') }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"

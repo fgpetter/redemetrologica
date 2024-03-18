@@ -63,7 +63,7 @@
                         </a>
                         <a href="{{ route('curso-agendados-show', $agendacurso->uid) }}" class="text-start text-white bold">
                             <i class="fa fa-clock-o" aria-hidden="true"></i>
-                            {{ Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}
+                            {{ $agendacurso->data_inicio?->format('d/m/Y') }}
                         </a>
                     </div>
 

@@ -22,16 +22,10 @@ class Avaliador extends Model
      */
     protected $guarded = [];
 
-    // protected $casts = [
-    //     'data_ingresso'  => 'date',
-    // ];
+    protected $casts = [
+        'data_ingresso'  => 'date',
+    ];
 
-    protected function dataIngresso(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => date('d/m/Y', strtotime($value)),
-        );
-    }
 
     /**
      * Carrega pessoa

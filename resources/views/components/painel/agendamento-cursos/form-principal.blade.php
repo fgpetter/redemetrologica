@@ -151,7 +151,7 @@
          </div>
 
          <div class="col-sm-3">
-             <x-forms.input-field :value="old('data_inicio') ?? ($agendacurso->data_inicio ?? null)" type="date" name="data_inicio"
+             <x-forms.input-field :value="old('data_inicio') ?? ($agendacurso->data_inicio->format('Y-m-d') ?? null)" type="date" name="data_inicio"
                  label="Data Inicio  <span class='text-danger'>*</span>" />
              @error('data_inicio')
                  <div class="text-warning">{{ $message }}</div>
@@ -159,7 +159,7 @@
          </div>
 
          <div class="col-sm-3">
-             <x-forms.input-field :value="old('data_fim') ?? ($agendacurso->data_fim ?? null)" type="date" name="data_fim" label="Data Fim" />
+             <x-forms.input-field :value="old('data_fim') ?? ($agendacurso->data_fim->format('Y-m-d') ?? null)" type="date" name="data_fim" label="Data Fim" />
              @error('data_fim')
                  <div class="text-warning">{{ $message }}</div>
              @enderror
@@ -245,7 +245,7 @@
          </div>
 
          <div class="col-sm-3">
-             <x-forms.input-field :value="old('data_limite_pagamento') ?? ($agendacurso->data_limite_pagamento ?? null)" type="date" name="data_limite_pagamento"
+             <x-forms.input-field :value="old('data_limite_pagamento') ?? ($agendacurso->data_limite_pagamento->format('Y-m-d') ?? null)" type="date" name="data_limite_pagamento"
                  label="Data Limite Pagamento" />
              @error('data_limite_pagamento')
                  <div class="text-warning">{{ $message }}</div>

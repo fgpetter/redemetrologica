@@ -19,6 +19,12 @@ class AgendaCursos extends Model
      */
     protected $guarded = [];
 
+    protected $casts = [
+        'data_inicio'  => 'date',
+        'data_fim'  => 'date',
+        'data_limite_pagamento'  => 'date',
+    ];
+
     /**
      * Carrega curso
      * @return BelongsTo
