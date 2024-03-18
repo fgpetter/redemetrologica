@@ -12,7 +12,7 @@
     </div>
     @if ($funcionario->id)
       <div class="col-4">
-        <x-painel.funcionarios.dados-bancarios :funcionario="$funcionario"/>
+        <x-painel.dados-bancarios.form-dados-bancarios :pessoa="$funcionario->pessoa"/>
       </div>
     @endif
 
