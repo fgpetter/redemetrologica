@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -18,6 +21,17 @@ class Avaliador extends Model
      * @var array
      */
     protected $guarded = [];
+
+    // protected $casts = [
+    //     'data_ingresso'  => 'date',
+    // ];
+
+    protected function dataIngresso(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('d/m/Y', strtotime($value)),
+        );
+    }
 
     /**
      * Carrega pessoa
