@@ -6,14 +6,22 @@
 
 
 <div class="card {{ $class }}">
-    <div class="card-header d-flex justify-content-between">
-        <h4 class="card-title mb-0">Dados de Endereço</h4>
+    <div class="card-header d-flex justify-content-between align-items-start">
+        <div class="d-flex align-items-center gap-3">
+            <div class="avatar-sm">
+                <span class="avatar-title bg-dark-subtle text-dark rounded-circle fs-3">
+                    <i class="ph-map-trifold-light"></i>
+                </span>
+            </div>
+            <h4 class="card-title mb-0">Dados de Endereço</h4>
+        </div>
+        
         <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modal_endereco_cadastro"
             class="btn btn-sm btn-success">
             <i class="ri-add-line align-bottom me-1"></i>
             Adicionar endereço
         </a>
-    </div><!-- end card header -->
+    </div>
     <div class="card-body px-1">
 
         <ul class="list-group list-group-flush">

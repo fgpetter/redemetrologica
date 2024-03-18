@@ -1,7 +1,7 @@
-<div class="card">
-    <div class="card-body d-flex justify-content-between align-items-start">
+<div class="card shadow-none mb-1">
+    <div class="card-header py-1"> <span class="fs-5" >Unidade: {{ $unidade->nome }}</span> </div>
+    <div class="card-body d-flex justify-content-between align-items-start py-2">
         <div>
-            <h6 class="card-subtitle mb-2">Unidade {{ $unidade->nome }}</h6>
             <p>
                 {!! '<strong> Responsável: </strong>' . $unidade->nome_responsavel !!} <br>
                 <strong> Email: </strong> {{ $unidade->email }} <br>
