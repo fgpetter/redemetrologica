@@ -58,6 +58,8 @@ class PessoaController extends Controller
   public function create(Request $request): RedirectResponse
   {
     $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
+    $request['telefone'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
+    $request['cep'] = preg_replace('/[^0-9]/', '', $request->get('cep'));
 
     $request->validate(
       [
@@ -68,7 +70,7 @@ class PessoaController extends Controller
         'insc_municipal' => ['nullable', 'string', 'max:255'],
         'codigo_contabil' => ['nullable', 'string', 'max:255'],
         'tipo_pessoa' => ['required', 'string', 'max:2'],
-        'telefone' => ['nullable', 'string', 'max:255'],
+        'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
         'email' => ['nullable', 'string', 'max:255'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
@@ -90,14 +92,13 @@ class PessoaController extends Controller
     $pessoa = Pessoa::create([
       'uid' => config('hashing.uid'),
       'tipo_pessoa' => $request->get('tipo_pessoa'),
-      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')),
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
       'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
       'cpf_cnpj' => $request->get('cpf_cnpj'),
       'rg_ie' => $request->get('rg_ie'),
       'insc_municipal' => $request->get('insc_municipal'),
       'telefone' => $request->get('telefone'),
       'email' => $request->get('email'),
-      'codigo_contabil' => $request->get('codigo_contabil'),
     ]);
 
     if (!$pessoa) {
@@ -147,6 +148,10 @@ class PessoaController extends Controller
    **/
   public function update(Request $request, Pessoa $pessoa): RedirectResponse
   {
+    $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
+    $request['telefone'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
+    $request['cep'] = preg_replace('/[^0-9]/', '', $request->get('cep'));
+
     $request->validate(
       [
         'nome_razao' => ['required', 'string', 'max:255'],
@@ -161,14 +166,13 @@ class PessoaController extends Controller
 
     $pessoa->update([
       'tipo_pessoa' => $request->get('tipo_pessoa'),
-      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucfirst($request->get('nome_razao')),
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
       'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
       'cpf_cnpj' => $request->get('cpf_cnpj'),
       'rg_ie' => $request->get('rg_ie'),
       'insc_municipal' => $request->get('insc_municipal'),
       'telefone' => $request->get('telefone'),
       'email' => $request->get('email'),
-      'codigo_contabil' => $request->get('codigo_contabil'),
     ]);
 
     return back()->with('success', 'Pessoa atualizada com sucesso');

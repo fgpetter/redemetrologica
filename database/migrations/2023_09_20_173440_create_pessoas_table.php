@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('insc_municipal')->nullable();
             $table->string('telefone')->nullable();
             $table->string('email')->nullable();
-            $table->string('codigo_contabil')->nullable();
             $table->integer('alterado_por')->nullable();
             $table->integer('end_padrao')->nullable();
             $table->integer('end_cobranca')->nullable();

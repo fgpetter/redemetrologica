@@ -138,7 +138,7 @@
                                      @enderror
                                  </div>
 
-                                 <div class="col-6">
+                                 <div class="col-4">
                                      <x-forms.input-field :value="old('insc_municipal') ?? ($pessoa->insc_municipal ?? null)" type="number" name="insc_municipal"
                                          label="Inscrição Municipal" />
                                      @error('insc_municipal')
@@ -146,7 +146,7 @@
                                      @enderror
                                  </div>
 
-                                 <div class="col-6">
+                                 <div class="col-4">
                                      <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" label="Telefone"
                                          class="telefone" />
                                      @error('telefone')
@@ -154,18 +154,10 @@
                                      @enderror
                                  </div>
 
-                                 <div class="col-6">
+                                 <div class="col-4">
                                      <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email"
                                          label="Email" />
                                      @error('email')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
-                                 </div>
-
-                                 <div class="col-6">
-                                     <x-forms.input-field :value="old('codigo_contabil') ?? ($pessoa->codigo_contabil ?? null)" type="codigo_contabil"
-                                         name="codigo_contabil" label="Código Contábil" />
-                                     @error('codigo_contabil')
                                          <div class="text-warning">{{ $message }}</div>
                                      @enderror
                                  </div>
