@@ -15,12 +15,17 @@ return new class extends Migration
             $table->id();
             $table->string('uid');
             $table->foreignId('pessoa_id')->constrained();
+            $table->unsignedBigInteger('empresa_id');
             $table->foreignId('agenda_curso_id')->constrained();
             $table->decimal('valor')->nullable();
-            $table->boolean('confirmou')->default('0');
-            $table->dateTime('certificado_emitido')->nullable();
+            $table->dateTime('data_confirmacao')->nullable();
             $table->dateTime('data_inscricao');
             $table->foreignId('pesquisa_id')->nullable();
+            $table->dateTime('resposta_pesquisa')->nullable();
+            $table->dateTime('certificado_emitido')->nullable();
+            $table->string('certificado_path')->nullable();
+            $table->string('como_ficou_sabendo')->nullable();
+            $table->boolean('emite_nf')->default(0);
             $table->timestamps();
         });
     }

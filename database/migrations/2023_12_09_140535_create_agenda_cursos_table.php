@@ -15,18 +15,18 @@ return new class extends Migration
         Schema::create('agenda_cursos', function (Blueprint $table) {
             $table->id();
             $table->string('uid');
-            $table->enum('status', ['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR']);
-            $table->boolean('destaque')->default(0);
-            $table->enum('tipo_agendamento', ['ONLINE', 'EVENTO', 'IN-COMPANY']);
-            $table->foreignId('curso_id');
-            $table->foreignIdFor(Instrutor::class);
-            $table->foreignId('pessoa_id')->nullable();
+            $table->foreignId('curso_id')->constrained();
+            $table->foreignId('instrutor_id')->constrained('instrutores', 'id');
+            $table->foreignId('empresa_id')->constrained('pessoas', 'id')->nullable();
             $table->text('endereco_local')->nullable();
             $table->date('data_inicio')->nullable();
             $table->date('data_fim')->nullable();
             $table->date('data_limite_pagamento')->nullable();
             $table->date('validade_proposta')->nullable();
             $table->string('horario')->nullable();
+            $table->enum('status', ['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR']);
+            $table->enum('tipo_agendamento', ['ONLINE', 'EVENTO', 'IN-COMPANY']);
+            $table->boolean('destaque')->default(0);
             $table->boolean('inscricoes')->default(0);
             $table->boolean('site')->default(0);
             $table->integer('carga_horaria')->nullable();
