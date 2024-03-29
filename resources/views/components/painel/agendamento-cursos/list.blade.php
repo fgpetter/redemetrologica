@@ -37,7 +37,7 @@
         class="text-danger fw-bold" @endif>
                                 {{ $agendacurso->status }}</td>
                             <td style="white-space: nowrap; margin: 10px 0 10px">
-                                {{ $agendacurso->data_inicio?->format('d/m/Y') }}</td>
+                                {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}</td>
                             <td>{{ $agendacurso->curso->descricao ?? '' }}</td>
                             <td class="text-center">{{ $agendacurso->carga_horaria }}</td>
                             <td>

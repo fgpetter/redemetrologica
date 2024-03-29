@@ -68,7 +68,7 @@
                             </th>
                             <td>{{ $instrutor->pessoa->nome_razao }}</td>
                             <td>{{ $instrutor->pessoa->cpf_cnpj }}</td>
-                            <td>{{ $instrutor->created_at }}</td>
+                            <td>{{ $instrutor->created_at->format('d/m/Y') }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
