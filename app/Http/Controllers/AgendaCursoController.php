@@ -47,15 +47,8 @@ class AgendaCursoController extends Controller
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),
       'inscritos' => CursoInscrito::select()->with('empresa')->where('agenda_curso_id', $agendacurso->id)->get(),
-      'inscritos_empresas' => [],
       'agendacurso' => $agendacurso
-    ];
-
-
-    foreach ($data['inscritos_empresas'] as $key => $empresa) {
-      $participantes = CursoInscrito::select('empresa_id')->where('empresa_id', $empresa->pessoa_id)->count();
-      $data['inscritos_empresas'][$key]['participantes'] = $participantes;
-    }
+    ];    
 
     return view('painel.agendamento-cursos.insert', $data);
   }
