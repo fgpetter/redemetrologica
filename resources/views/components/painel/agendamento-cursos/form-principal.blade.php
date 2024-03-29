@@ -64,14 +64,14 @@
                      <div class="row gy-3">
 
                          <div class="col-12">
-                             <x-forms.input-select name="pessoa_id" label="Empresa">
+                             <x-forms.input-select name="empresa_id" label="Empresa">
                                  <option value="">Selecione</option>
                                  @foreach ($empresas as $empresa)
-                                     <option @selected($agendacurso->pessoa_id == $empresa->id) value="{{ $empresa->id }}">
+                                     <option @selected($agendacurso->empresa_id == $empresa->id) value="{{ $empresa->id }}">
                                          {{ $empresa->nome_razao }}</option>
                                  @endforeach
                              </x-forms.input-select>
-                             @error('pessoa_id')
+                             @error('empresa_id')
                                  <div class="text-warning">{{ $message }}</div>
                              @enderror
                          </div>
@@ -126,11 +126,11 @@
                          <div class="col-sm-3">
                              <x-forms.input-select name="status_proposta" label="Status da Proposta">
                                  <option value="">Selecione</option>
-                                 <option @selected($agendacurso->pessoa_id == 'PENDENTE') value="PENDENTE">PENDENTE</option>
-                                 <option @selected($agendacurso->pessoa_id == 'AGUARDANDO APROVACAO') value="AGUARDANDO APROVACAO">AGUARDANDO APROVAÇÃO
+                                 <option @selected($agendacurso->status_proposta == 'PENDENTE') value="PENDENTE">PENDENTE</option>
+                                 <option @selected($agendacurso->status_proposta == 'AGUARDANDO APROVACAO') value="AGUARDANDO APROVACAO">AGUARDANDO APROVAÇÃO
                                  </option>
-                                 <option @selected($agendacurso->pessoa_id == 'APROVADA') value="APROVADA">APROVADA</option>
-                                 <option @selected($agendacurso->pessoa_id == 'REPROVADA') value="REPROVADA">REPROVADA</option>
+                                 <option @selected($agendacurso->status_proposta == 'APROVADA') value="APROVADA">APROVADA</option>
+                                 <option @selected($agendacurso->status_proposta == 'REPROVADA') value="REPROVADA">REPROVADA</option>
                              </x-forms.input-select>
                              @error('status_proposta')
                                  <div class="text-warning">{{ $message }}</div>
@@ -151,7 +151,7 @@
          </div>
 
          <div class="col-sm-3">
-             <x-forms.input-field :value="old('data_inicio') ?? ($agendacurso->data_inicio->format('Y-m-d') ?? null)" type="date" name="data_inicio"
+             <x-forms.input-field :value="old('data_inicio') ?? ($agendacurso->data_inicio ?? null)" type="date" name="data_inicio"
                  label="Data Inicio  <span class='text-danger'>*</span>" />
              @error('data_inicio')
                  <div class="text-warning">{{ $message }}</div>
@@ -159,7 +159,7 @@
          </div>
 
          <div class="col-sm-3">
-             <x-forms.input-field :value="old('data_fim') ?? ($agendacurso->data_fim->format('Y-m-d') ?? null)" type="date" name="data_fim" label="Data Fim" />
+             <x-forms.input-field :value="old('data_fim') ?? ($agendacurso->data_fim ?? null)" type="date" name="data_fim" label="Data Fim" />
              @error('data_fim')
                  <div class="text-warning">{{ $message }}</div>
              @enderror
@@ -245,7 +245,7 @@
          </div>
 
          <div class="col-sm-3">
-             <x-forms.input-field :value="old('data_limite_pagamento') ?? ($agendacurso->data_limite_pagamento->format('Y-m-d') ?? null)" type="date" name="data_limite_pagamento"
+             <x-forms.input-field :value="old('data_limite_pagamento') ?? ($agendacurso->data_limite_pagamento ?? null)" type="date" name="data_limite_pagamento"
                  label="Data Limite Pagamento" />
              @error('data_limite_pagamento')
                  <div class="text-warning">{{ $message }}</div>
