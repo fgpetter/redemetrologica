@@ -47,7 +47,7 @@ class AgendaCursoController extends Controller
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),
       'inscritos' => CursoInscrito::select()->with('empresa')->where('agenda_curso_id', $agendacurso->id)->get(),
-      'inscritos_empresas' => CursoInscritoEmpresa::select()->where('agenda_curso_id', $agendacurso->id)->get(),
+      'inscritos_empresas' => [],
       'agendacurso' => $agendacurso
     ];
 
@@ -75,7 +75,7 @@ class AgendaCursoController extends Controller
       'tipo_agendamento' => ['required', Rule::in(['ONLINE', 'EVENTO', 'IN-COMPANY'])],
       'curso_id' => ['required', 'exists:cursos,id'],
       'instrutor_id' => ['required', 'exists:instrutores,id'],
-      'pessoa_id' => ['nullable', 'exists:pessoas,id'],
+      'empresa_id' => ['nullable', 'exists:pessoas,id'],
       'endereco_local' => ['nullable', 'string'],
       'data_inicio' => ['required', 'date'],
       'data_fim' => ['nullable', 'date'],
@@ -102,7 +102,7 @@ class AgendaCursoController extends Controller
       'tipo_agendamento.in' => 'Selecione uma opção válida',
       'curso_id.required' => 'É necessário escolher um curso',
       'curso_id.exists' => 'Selecione uma opção válida',
-      'pessoa_id.exists' => 'Selecione uma opção válida',
+      'empresa_id.exists' => 'Selecione uma opção válida',
       'instrutor_id.required' => 'É necessário escolher um instrutor',
       'instrutor_id.in' => 'Selecione uma opção válida',
       'endereco_local.string' => 'O dado enviado não é valido',
