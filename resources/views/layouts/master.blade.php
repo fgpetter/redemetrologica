@@ -13,6 +13,7 @@
 
     {{-- vite hot refresh --}}
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+    @livewireStyles
 </head>
 
 {{-- @section('body') --}}
@@ -35,6 +36,7 @@
     </div>
 
     @include('layouts.vendor-scripts')
+    @livewireScripts
 </body>
 
 </html>

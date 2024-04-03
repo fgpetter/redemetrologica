@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use App\Models\CursoInscrito;
 use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
-use App\Models\CursoInscritoEmpresa;
 use Illuminate\Http\RedirectResponse;
 
 class AgendaCursoController extends Controller

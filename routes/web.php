@@ -20,6 +20,7 @@ use App\Http\Controllers\CentroCustoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
+use App\Http\Controllers\InscricaoCursoController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\LancamentoFinanceiroController;
@@ -53,10 +54,10 @@ Route::get('noticia/{slug}', [PostController::class, 'show'])->name('noticia-sho
 Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-show'); //mostra galeria
 
 
-/*Rotas das slugs de cursos agendados */
+/*Rotas de cursos */
 Route::get('cursos', [AgendaCursoController::class, 'listCursosAgendados'])->name('cursos-agendados-list');
-Route::get('cursos/{agendacurso:uid}', [AgendaCursoController::class, 'showCursoAgendado'])->name('curso-agendados-show');
-
+Route::get('cursos/{agendacurso:uid}', [AgendaCursoController::class, 'showCursoAgendado'])->name('curso-agendado-show');
+Route::get('curso/inscricao', [InscricaoCursoController::class, 'cursoInscricao']);
 
 
 /* Rotas do template */
@@ -142,6 +143,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [AgendaCursoController::class, 'create'])->name('agendamento-curso-create');
     Route::post('update/{agendacurso:uid}', [AgendaCursoController::class, 'update'])->name('agendamento-curso-update');
     Route::post('delete/{agendacurso:uid}', [AgendaCursoController::class, 'delete'])->name('agendamento-curso-delete');
+  });
+
+  /* Matricula em cursos */
+  Route::group(['prefix' => 'inscricao-curso'], function () {
+    Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
   });
 
   /* Instrutores*/

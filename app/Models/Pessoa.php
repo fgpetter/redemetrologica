@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Pessoa extends Model
 {
@@ -71,12 +72,38 @@ class Pessoa extends Model
         return $this->hasOne(Instrutor::class);
     }
 
+    /**
+     * Retorna usuário da pessoa
+     * @return HasOne
+     */
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class);
+    }
+
+    /**
+     * Retorna empresa a qual a pessoa pertence
+     * @return BelongsToMany
+     */
+
+    public function empresas(): BelongsToMany
+    {
+        return $this->belongsToMany(Pessoa::class, 'empresas_pessoas', 'pessoa_id', 'empresa_id');
+    }
+
+    public function cursos(): HasMany
+    {
+        return $this->hasMany(CursoInscrito::class);
+    }
+
     // Acessors and mutators
 
     protected function cpfCnpj(): Attribute
     {
         return Attribute::make(
             get: fn (string|null $value) => $this->formataDoc($value),
+            set: fn (string|null $value) => preg_replace("/[^\d]/", "", $value),
         );
     }
 
@@ -84,6 +111,7 @@ class Pessoa extends Model
     {
         return Attribute::make(
             get: fn (string|null $value) => $this->formataTel($value),
+            set: fn (string|null $value) => preg_replace("/[^\d]/", "", $value),
         );
     }
 
@@ -99,10 +127,10 @@ class Pessoa extends Model
     protected function formataTel(string|null $value): string
     {
         if(strlen($value) === 11){
-            return preg_replace("/([0-9]{2})([0-9]{5})([0-9]{4})/", "\(\$1\) \$2-\$3", $value);
+            return preg_replace("/([0-9]{2})([0-9]{5})([0-9]{4})/", "(\$1) \$2-\$3", $value);
         }
         if(strlen($value) === 10){
-            return preg_replace("/([0-9]{2})([0-9]{4})([0-9]{4})/", "\(\$1\) \$2-\$3", $value);
+            return preg_replace("/([0-9]{2})([0-9]{4})([0-9]{4})/", "(\$1) \$2-\$3", $value);
         }
 
         return '';

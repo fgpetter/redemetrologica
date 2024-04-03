@@ -36,6 +36,12 @@
                     <form action="{{ route('login')}}" method="post">
                       @csrf
 
+                      @error('document')
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                          {{ $message }}
+                        </div>
+                      @enderror                      
+
                       <div class="mb-3">
                         <label for="username" class="form-label">Usuário</label>
                         <input type="text" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" id="username" name="email" placeholder="Digite seu email">

@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
 use App\Models\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -51,9 +50,26 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'document' => ['required','cpf'],
+            'email' => ['required','email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'password_confirmation' => ['required_with:password', 'string', 'min:8','same:password'],
+        ],[
+            'name.required' => 'O campo nome é obrigatório',
+            'name.string' => 'O campo nome deve ser um texto',
+            'name.max' => 'O campo nome deve ter no maximo 255 caracteres',
+            'document.required' => 'O campo CPF é obrigatório',
+            'document.cpf' => 'O CPF não é valido',
+            'email.required' => 'O campo email é obrigatório',
+            'email.email' => 'O campo email deve ser um email',
+            'email.max' => 'O campo email deve ter no maximo 255 caracteres',
+            'email.unique' => 'O email informado ja foi registrado',
+            'password.required' => 'O campo senha é obrigatório',
+            'password.string' => 'O campo senha deve ser um texto',
+            'password.min' => 'O campo senha deve ter pelo menos 8 caracteres',
+            'password_confirmation.required_with' => 'O campo confirmar senha é obrigatório',
+            'password_confirmation.same' => 'As senhas não conferem',
+
         ]);
     }
 

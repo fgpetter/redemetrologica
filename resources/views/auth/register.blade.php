@@ -34,13 +34,26 @@
                       </p>
                     </div>
                     <div class="p-2 mt-3">
-                      <form class="needs-validation" novalidate id="signup" method="POST" action="{{ route('register') }}">
+                      <form class="needs-validation" id="signup" method="POST" novalidate action="{{ route('register') }}">
                       @csrf
                         <div class="mb-3">
                           <label for="username" class="form-label">Nome <span class="text-danger">*</span></label>
                           <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" 
                             id="username" required>
                           @error('name')
+                          <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                          </span>
+                          @enderror
+                        </div>
+                        <div class="mb-3">
+                          <label for="document" class="form-label">CPF <span class="text-danger">*</span> 
+                            &nbsp; 
+                            <small>Por que exigimos esse dado?</small>
+                          </label>
+                          <input type="text" class="form-control @error('document') is-invalid @enderror" name="document" value="{{ old('document') }}" 
+                            id="document" required>
+                          @error('document')
                           <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                           </span>
@@ -56,28 +69,28 @@
                           </span>
                           @enderror
                         </div>
-                        <div class="mb-2">
-                          <label for="password-input" class="form-label">Senha <span class="text-danger">*</span></label>
-                          <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" 
-                            id="password-input" placeholder="Enter password" required>
-                          @error('password')
-                          <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                          </span>
-                          @enderror
+                        <div class="row mb-2">
+                          <div class="col-6">
+                            <label for="password-input" class="form-label">Senha <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" 
+                              id="password-input" required>
+                            @error('password')
+                            <span class="invalid-feedback" role="alert">
+                              <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                          </div>
+                          <div class="col-6">
+                            <label for="confirm-password-input" class="form-label">Repita a senha <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation" 
+                              id="confirm-password-input" required>
+                            @error('password_confirmation')
+                            <span class="invalid-feedback" role="alert">
+                              <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                          </div>
                         </div>
-
-                        <div class="mb-2">
-                          <label for="confirm-password-input" class="form-label">Repita a senha <span class="text-danger">*</span></label>
-                          <input type="password" class="form-control @error('password') is-invalid @enderror" name="password_confirmation" 
-                            id="confirm-password-input" placeholder="Enter password" required>
-                          @error('password')
-                          <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                          </span>
-                          @enderror
-                        </div>
-
   
                         <div class="mb-4">
                           <p class="mb-0 fs-xs text-muted fst-italic">Ao se registrar, você declara que leu e concorda com os
