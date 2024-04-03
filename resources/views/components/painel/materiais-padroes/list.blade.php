@@ -18,8 +18,8 @@
                         </th>
                         <th scope="col" style="width:40%">Descrição</th>
                         <th scope="col" style="width:40%">Fornecedor</th>
-                        <th scope="col">Valor</th>
-                        <th scope="col">Padrao</th>
+                        <th scope="col" style="width: 5%">Valor</th>
+                        <th scope="col" style="width: 5%">Padrao</th>
                         <th scope="col" style="width: 5%"></th>
                     </tr>
                 </thead>
@@ -32,9 +32,7 @@
                                 </a></th>
                             <td>{{ $material->descricao }}</td>
                             <td>{{ $material->fornecedor }}</td>
-                            <td>R$ <input type="text" class="money" value="{{ $material['valor'] }}"
-                                    style="border: 0; background: transparent" size="9"></td>
-                            <td>
+                            <td>@if ($material->valor) R$ {{ number_format($material->valor, 2, ',', '.') }} @else R$ 0.00 @endif <td>
                                 @if ($material->padrao)
                                     <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i>
                                 @endif

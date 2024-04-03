@@ -87,7 +87,7 @@ class MateriaisPadroesController extends Controller
         'marca' => ['nullable', 'string'],
         'tipo' => ['required', Rule::in(['CURSOS', 'INTERLAB', 'AMBOS'])],
         'padrao' => ['nullable', 'integer'],
-        'valor' => ['nullable', 'string'],
+        'valor' => ['nullable', 'string', 'max:12'],
         'tipo_despesa' => ['required', Rule::in(['FIXO', 'VARIAVEL', 'OUTROS'])],
         'observacoes' => ['nullable', 'string'],
       ],
@@ -109,7 +109,7 @@ class MateriaisPadroesController extends Controller
       ]
     );
 
-    ($validated['valor']) ? $validated['valor'] = str_replace(',', '.', $validated['valor']) : null;
+    ($validated['valor']) ? $validated['valor'] = str_replace(',', '.', str_replace('.', '', $validated['valor'])) : null;
     $validated['padrao'] = ($request->has('padrao')) ? 1 : 0;
 
     $materiaisPadroes->update($validated);
