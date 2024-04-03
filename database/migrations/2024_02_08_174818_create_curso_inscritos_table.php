@@ -24,8 +24,6 @@ return new class extends Migration
             $table->dateTime('resposta_pesquisa')->nullable();
             $table->dateTime('certificado_emitido')->nullable();
             $table->string('certificado_path')->nullable();
-            $table->string('como_ficou_sabendo')->nullable();
-            $table->boolean('emite_nf')->default(0);
             $table->timestamps();
         });
     }
