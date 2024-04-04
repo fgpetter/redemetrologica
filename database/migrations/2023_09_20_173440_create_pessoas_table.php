@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pessoas', function (Blueprint $table) {
             $table->id();
             $table->string('uid');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('nome_razao');
             $table->string('nome_fantasia')->nullable();
             $table->string('cpf_cnpj');
