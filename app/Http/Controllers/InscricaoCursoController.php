@@ -37,8 +37,37 @@ class InscricaoCursoController extends Controller
 
     }
 
+    /**
+     * Cadastra cliente no curso
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function confirmaInscricao(Request $request): RedirectResponse
     {
+        // valida dados
+        $request->validate([
+            'nome' => ['required', 'string', 'max:190'],
+            'email' => ['required', 'email', 'max:190'],
+            'telefone' => ['required', 'celular_com_ddd'],
+            'cpf_cnpj' => ['required', 'cpf'],
+            'cnpj' => ['nullable', 'cnpj'],
+            'id_empresa' => ['nullable', 'exists:pessoas,id'],
+            ],[
+            'nome.required' => 'Preencha o campo nome',
+            'nome.string' => 'O dado enviado não é válido',
+            'nome.max' => 'O dado enviado ultrapassa o limite de 190 caracteres',
+            'email.required' => 'Preencha o campo email',
+            'email.email' => 'O dado enviado não é um email válido',
+            'email.max' => 'O dado enviado ultrapassa o limite de 190 caracteres',
+            'telefone.required' => 'Preencha o campo telefone',
+            'telefone.celular_com_ddd' => 'O dado enviado não é um telefone válido',
+            'cpf_cnpj.required' => 'Preencha o campo CPF',
+            'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
+            'cnpj.required' => 'Preencha o campo CNPJ',
+            'cnpj.cnpj' => 'O dado enviado não é um CNPJ válido',
+        ]);
+
         $agendacurso = AgendaCursos::where('id', $request->id_curso)->first();
 
         // verifica se a empresa já te cadastro no curso
@@ -75,6 +104,9 @@ class InscricaoCursoController extends Controller
             'agenda_curso_id' => $request->id_curso,
             'data_inscricao' => now()
         ]);
+
+        // se enviados convites, envia email de convite
+
 
         // remove dados da sessão
         session()->forget(['curso', 'empresa']);

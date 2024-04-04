@@ -5,6 +5,7 @@ namespace App\View\Components\painel\painelCliente;
 use Closure;
 use App\Models\Pessoa;
 use App\Models\AgendaCursos;
+use App\Models\CursoInscrito;
 use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
 
@@ -30,6 +31,12 @@ class ConfirmaInscricao extends Component
     */
     public function render(): View|Closure|string
     {
+        // verifica se já está inscrita no curso
+        if( CursoInscrito::where('agenda_curso_id', $this->curso->id)->where('pessoa_id', $this->pessoa->id)->exists() ) {
+            session()->forget(['curso', 'empresa']);
+            return redirect('painel');
+        }
+
         // TODO verificar se empresa atrelada a pessoa é a mesma empresa do convite
 
         if(!session('empresa')){
