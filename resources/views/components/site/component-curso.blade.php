@@ -49,7 +49,7 @@
         <div class="SiteCards__bgimage p-5 text-center mb-5 text-white container-fluid "
             style="background-size: cover; background-image: url('{{ asset('build/images/site/lab-banner-iso.png') }}');height:100%; width:100%;">
             <div class="container">
-                <button type="button" class="btn btn-warning btn-lg mb-4">INSCREVER-SE</button>
+                <a href="{{ route('curso-inscricao', ['target' => $agendacursos->uid]) }}" class="btn btn-warning btn-lg mb-4">INSCREVER-SE</a>
 
 
                 <div class="row justify-content-center">

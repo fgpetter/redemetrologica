@@ -6,7 +6,7 @@
 @else
 <form class=" form-delete " method="POST" action="{{ route($route, $id) }}">
   @csrf
-  <button class="dropdown-item botao-delete" type="submit" ">Deletar</button>
+  <button class="dropdown-item botao-delete" type="submit">Deletar</button>
 </form>
 @endif
 

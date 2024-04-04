@@ -57,7 +57,7 @@ Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-sho
 /*Rotas de cursos */
 Route::get('cursos', [AgendaCursoController::class, 'listCursosAgendados'])->name('cursos-agendados-list');
 Route::get('cursos/{agendacurso:uid}', [AgendaCursoController::class, 'showCursoAgendado'])->name('curso-agendado-show');
-Route::get('curso/inscricao', [InscricaoCursoController::class, 'cursoInscricao']);
+Route::get('curso/inscricao', [InscricaoCursoController::class, 'cursoInscricao'])->name('curso-inscricao');
 
 
 /* Rotas do template */

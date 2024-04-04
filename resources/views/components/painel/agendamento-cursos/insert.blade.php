@@ -44,7 +44,7 @@
                  <x-painel.agendamento-cursos.modal-participante />
 
                  <h5 class="h5 mt-5">Empresas participantes</h5>
-                 <x-painel.agendamento-cursos.list-empresas-participantes :empresas="$inscritosempresas" />
+                 <x-painel.agendamento-cursos.list-empresas-participantes :inscritos="$inscritos" />
              </div>
 
              <div class="tab-pane" id="NF" role="tabpanel"> <!-- notas fiscais -->

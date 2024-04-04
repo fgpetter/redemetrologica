@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CursoInscrito extends Model
 {
@@ -37,9 +38,9 @@ class CursoInscrito extends Model
 
     /**
      * Carrega Empresa associado
-     * @return 
+     * @return HasOne
      */
-    public function empresa()
+    public function empresa(): HasOne
     {
         return $this->hasOne(Pessoa::class, 'id', 'empresa_id');
     }

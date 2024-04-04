@@ -24,7 +24,6 @@
             :empresas="$empresas" 
             :agendacurso="$agendacurso"
             :inscritos="$inscritos"
-            :inscritosempresas="$inscritos_empresas"
             :cursoatual="$curso_atual"
             :instrutoratual="$instrutor_atual"
             />

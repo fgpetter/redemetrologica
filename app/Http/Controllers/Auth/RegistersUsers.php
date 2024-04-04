@@ -76,6 +76,7 @@ trait RegistersUsers
             'nome_razao' => $request['name'],
             'cpf_cnpj' => preg_replace('/[^0-9]/', '', $request['document']),
             'tipo_pessoa' => 'PF',
+            'email' => $request['email'],
             'user_id' => $user->id
         ]);
 

@@ -1,9 +1,3 @@
-@props([
-    'empresas' => [],
-])
-
-
-
 <div class="table-responsive" style="min-height: 25vh">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
@@ -14,36 +8,41 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($empresas as $empresa)
-                <tr>
-                    <td>{{ $empresa->pessoa->nome_razao }}</td>
-                    <td>{{ $empresa->participantes }}</td>
-                    <td>
-                        <div class="dropdown">
-                            <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                        data-bs-target="#participanteModal">Editar</a>
-                                </li>
-                                <li>
+            @if($inscritos)
+                @foreach ($inscritos as $inscrito)
+                    @if($inscrito->pessoa->tipo_pessoa === 'PJ')
+                        <tr>
+                            <td>{{ $inscrito->pessoa->nome_razao }}</td>
+                            <td>{{ $inscrito->participantes }}</td>
+                            <td>
+                                <div class="dropdown">
+                                    <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                data-bs-target="#participanteModal">Editar</a>
+                                        </li>
+                                        <li>
 
-                                    <x-painel.form-delete.delete route='materiais-padroes-delete'
-                                        id="{{ $empresa->uid }}" />
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <x-painel.agendamento-cursos.modal-participante />
-            @empty
+                                            <x-painel.form-delete.delete route='materiais-padroes-delete'
+                                                id="{{ $inscrito->uid }}" />
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    <x-painel.agendamento-cursos.modal-participante />
+                    @endif
+                @endforeach
+            @else
                 <tr>
                     <td colspan="6" class="text-center">Este Instrutor não possui cursos realizados.</td>
                 </tr>
-            @endforelse
+            @endif
+            
         </tbody>
     </table>
 
