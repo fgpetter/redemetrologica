@@ -14,7 +14,7 @@
     @else
 
         @if ( session('curso') )
-            <x-painel.painel-cliente.confirma-inscricao />
+            <x-Painel.PainelCliente.ConfirmaInscricao />
         @endif
 
         @if ( auth()->user()->pessoa->cursos->count() > 0 )

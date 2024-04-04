@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\painel\painelCliente;
+namespace App\View\Components\Painel\PainelCliente;
 
 use Closure;
 use App\Models\Pessoa;
