@@ -14,7 +14,8 @@ class ConfirmaInscricao extends Component
     public Pessoa|null $empresa;
     public AgendaCursos $curso;
     public Pessoa $pessoa;
-    public bool $convite = false;
+    public bool $convite;
+
 
     /**
     * Create a new component instance.
@@ -24,6 +25,7 @@ class ConfirmaInscricao extends Component
         $this->empresa = session('empresa') ?? null;
         $this->curso = session('curso');
         $this->pessoa = Pessoa::where('user_id', auth()->user()->id)->first();
+        $this->convite = session('convite') ?? false;
     }
 
     /**
@@ -43,7 +45,6 @@ class ConfirmaInscricao extends Component
             $this->empresa = $this->pessoa->empresas()->first() ?? null;
         } else {
             $this->pessoa->empresas()->sync($this->empresa->id);
-            $this->convite = true;
         }
 
         return view('components.painel.painel-cliente.confirma-inscricao');

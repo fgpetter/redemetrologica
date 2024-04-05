@@ -24,26 +24,30 @@
         </p>        
 
       @endif
+
+      @if(!$empresa)
+        <form action="{{ route('informa-empresa') }}" method="post" class="mb-4">
+          @csrf
+            <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-warning rounded">
+              <p class="mb-2 text-black">Essa inscrição não está relacionada a uma empresa!</p>
+              <footer class="blockquote-footer mt-0 text-black">Adicione o CNPJ da sua empresa para essa inscrição ou deixe em branco para uma inscrição individual:</footer>
+            </blockquote>
+            <div class="row">
+              <div class="col-8 col-xxl-6">
+                <input type="text" class="form-control" name="cnpj" placeholder="CNPJ" id="input-cnpj">
+                @error('cnpj')<div class="text-warning">{{ $message }}</div>@enderror
+              </div>
+              <div class="col-2">
+                <button type="submit" class="btn btn-primary">Adicionar</button>
+              </div>
+            </div>
+        </form>
+      @endif
       
       <form action="{{ route('confirma-inscricao') }}" method="post">
         @csrf
-        @if(!$empresa)
-          <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-warning rounded">
-            <p class="mb-2 text-black">Essa inscrição não está relacionada a uma empresa!</p>
-            <footer class="blockquote-footer mt-0 text-black">Adicione o CNPJ da sua empresa para essa inscrição ou deixe em branco para uma inscrição individual:</footer>
-          </blockquote>
-          <div class="col-sm-8 col-xxl-6">
-            <input type="text" class="form-control" name="cnpj" placeholder="CNPJ" id="input-cnpj">
-            @error('cnpj')<div class="text-warning">{{ $message }}</div>@enderror
-            {{-- TODO Criar lógica para confirmar CNPJ via ajax --}}
-            <span id="nome-empresa"></span>
-          </div>
-        @endif
 
-        <h6 class="card-subtitle mt-3 mb-2 text-primary-emphasis">Dados do participante:</h6>
-        @if($errors->any())
-            {!! implode('', $errors->all('<div>:message</div>')) !!}
-        @endif
+        <h6 class="card-subtitle mb-2 text-primary-emphasis">Dados do participante:</h6>
         <div class="col-sm-8 col-xxl-6">
           <label for="nome" class="form-label">Nome <span class="text-danger"> * </span></label>
           <input type="text" class="form-control" name="nome" value="{{ auth()->user()->pessoa->nome_razao }}" required>

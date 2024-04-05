@@ -59,7 +59,6 @@ Route::get('cursos', [AgendaCursoController::class, 'listCursosAgendados'])->nam
 Route::get('cursos/{agendacurso:uid}', [AgendaCursoController::class, 'showCursoAgendado'])->name('curso-agendado-show');
 Route::get('curso/inscricao', [InscricaoCursoController::class, 'cursoInscricao'])->name('curso-inscricao');
 
-
 /* Rotas do template */
 // Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
@@ -148,6 +147,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /* Matricula em cursos */
   Route::group(['prefix' => 'inscricao-curso'], function () {
     Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
+    Route::post('informa-empresa', [InscricaoCursoController::class, 'informaEmpresa'])->name('informa-empresa');
   });
 
   /* Instrutores*/

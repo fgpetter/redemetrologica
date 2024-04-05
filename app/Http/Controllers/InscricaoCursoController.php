@@ -20,7 +20,11 @@ class InscricaoCursoController extends Controller
     public function cursoInscricao(Request $request): RedirectResponse
     {
         // limpa a sessao
-        session()->forget(['curso', 'empresa']);
+        session()->forget(['curso', 'empresa', 'convite']);
+        
+        if($request->invite && $request->invite == 1) {
+            session()->put('convite', true);
+        }
 
         // verificar se o curso existe e se tem inscrições abertas
         // salva informações na sessão
@@ -51,7 +55,6 @@ class InscricaoCursoController extends Controller
             'email' => ['required', 'email', 'max:190'],
             'telefone' => ['required', 'celular_com_ddd'],
             'cpf_cnpj' => ['required', 'cpf'],
-            'cnpj' => ['nullable', 'cnpj'],
             'id_empresa' => ['nullable', 'exists:pessoas,id'],
             ],[
             'nome.required' => 'Preencha o campo nome',
@@ -64,26 +67,28 @@ class InscricaoCursoController extends Controller
             'telefone.celular_com_ddd' => 'O dado enviado não é um telefone válido',
             'cpf_cnpj.required' => 'Preencha o campo CPF',
             'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
-            'cnpj.required' => 'Preencha o campo CNPJ',
-            'cnpj.cnpj' => 'O dado enviado não é um CNPJ válido',
         ]);
 
         $agendacurso = AgendaCursos::where('id', $request->id_curso)->first();
 
-        // verifica se a empresa já te cadastro no curso
-        $empresaInscrito = CursoInscrito::where('empresa_id', $request->id_empresa)
-            ->where('agenda_curso_id', $request->id_curso)->first();
+        // verifica se a empresa já tem cadastro no curso
+        if($request->id_empresa){
 
-        if(!$empresaInscrito) {
-            CursoInscrito::create([
-                'uid' => config('hashing.uid'),
-                'pessoa_id' => $request->id_empresa,
-                'agenda_curso_id' => $request->id_curso,
-                'valor' => $agendacurso->valor,
-                'data_inscricao' => now()
-
-            ]);
+            $empresaInscrito = CursoInscrito::where('pessoa_id', $request->id_empresa)
+                ->where('agenda_curso_id', $request->id_curso)->first();
+            
+            if(!$empresaInscrito) {
+                CursoInscrito::create([
+                    'uid' => config('hashing.uid'),
+                    'pessoa_id' => $request->id_empresa,
+                    'agenda_curso_id' => $request->id_curso,
+                    'valor' => $agendacurso->valor,
+                    'data_inscricao' => now()
+    
+                ]);
+            }
         }
+
 
         // atualiza dados da pessoa
         $pessoa = Pessoa::where('id', $request->id_pessoa)->first();
@@ -95,23 +100,45 @@ class InscricaoCursoController extends Controller
                 'cpf_cnpj' => $request->cpf_cnpj,
             ]
         );
+        // se foi informado CNPJ no form, atrela a pessoa a empresa
+        $pessoa->empresas()->sync($request->id_empresa);
 
         // adiciona pessoa a cursos_inscritos
         CursoInscrito::create([
             'uid' => config('hashing.uid'),
             'pessoa_id' => $request->id_pessoa,
-            'empresa_id' => $request->id_empresa ?? null,
+            'empresa_id' => $request->id_empresa ?? $id_empresa ?? null,
             'agenda_curso_id' => $request->id_curso,
             'data_inscricao' => now()
         ]);
 
         // se enviados convites, envia email de convite
 
-
         // remove dados da sessão
         session()->forget(['curso', 'empresa']);
 
         // redireciona para painel
         return redirect('painel');
+    }
+
+    public function informaEmpresa(Request $request): RedirectResponse
+    {
+        // valida dados
+        $request->validate([
+            'cnpj' => ['nullable', 'cnpj'],
+            ],[
+            'cnpj.required' => 'Preencha o campo CNPJ',
+            'cnpj.cnpj' => 'O dado enviado não é um CNPJ válido',
+        ]);
+
+        $empresa = Pessoa::where('cpf_cnpj', preg_replace('/[^0-9]/', '', $request->cnpj))->where('tipo_pessoa', 'PJ')->first() ?? null;
+        
+        if(!$empresa) {
+            return back()->with('error', 'Empresa não encontrada');
+        }
+
+        session()->put('empresa', $empresa);
+
+        return back()->with('success', 'Empresa adicionada com sucesso!');
     }
 }
