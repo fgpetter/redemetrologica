@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('uid');
             $table->foreignId('pessoa_id')->constrained();
-            $table->unsignedBigInteger('empresa_id');
+            $table->unsignedBigInteger('empresa_id')->nullable();
             $table->foreignId('agenda_curso_id')->constrained();
             $table->decimal('valor')->nullable();
             $table->dateTime('data_confirmacao')->nullable();
