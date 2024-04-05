@@ -2,8 +2,6 @@
  
 namespace App\View\Components\Painel\Unidades;
 
-use App\Models\Pessoa;
-use App\Models\Unidade;
 use Illuminate\View\Component;
  
 class Modal extends Component
