@@ -69,24 +69,26 @@ class InscricaoCursoController extends Controller
             'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
         ]);
 
+        $associado = Pessoa::where('id', $request->id_pessoa)->where('associado', 1)->exists();
         $agendacurso = AgendaCursos::where('id', $request->id_curso)->first();
-
+        
         // verifica se a empresa já tem cadastro no curso
         if($request->id_empresa){
-
-            $empresaInscrito = CursoInscrito::where('pessoa_id', $request->id_empresa)
-                ->where('agenda_curso_id', $request->id_curso)->first();
             
-            if(!$empresaInscrito) {
-                CursoInscrito::create([
-                    'uid' => config('hashing.uid'),
-                    'pessoa_id' => $request->id_empresa,
-                    'agenda_curso_id' => $request->id_curso,
-                    'valor' => $agendacurso->valor,
-                    'data_inscricao' => now()
-    
-                ]);
-            }
+            // se usuário vinculado a empresa, sobrescreve o dado de associado da empresa
+            $associado = Pessoa::where('id', $request->id_empresa)->where('associado', 1)->exists();
+
+            CursoInscrito::updateOrCreate([
+                'pessoa_id' => $request->id_empresa,
+                'agenda_curso_id' => $request->id_curso
+            ],
+            [
+                'uid' => config('hashing.uid'),
+                'pessoa_id' => $request->id_empresa,
+                'agenda_curso_id' => $request->id_curso,
+                'data_inscricao' => now()
+            ]);
+
         }
 
 
@@ -100,7 +102,6 @@ class InscricaoCursoController extends Controller
                 'cpf_cnpj' => $request->cpf_cnpj,
             ]
         );
-        // se foi informado CNPJ no form, atrela a pessoa a empresa
         $pessoa->empresas()->sync($request->id_empresa);
 
         // adiciona pessoa a cursos_inscritos
@@ -109,13 +110,14 @@ class InscricaoCursoController extends Controller
             'pessoa_id' => $request->id_pessoa,
             'empresa_id' => $request->id_empresa ?? $id_empresa ?? null,
             'agenda_curso_id' => $request->id_curso,
+            'valor' => ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento,
             'data_inscricao' => now()
         ]);
 
         // se enviados convites, envia email de convite
 
         // remove dados da sessão
-        session()->forget(['curso', 'empresa']);
+        session()->forget(['curso', 'empresa', 'convite']);
 
         // redireciona para painel
         return redirect('painel');
