@@ -12,27 +12,24 @@
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
             <tr>
-                <th scope="col">Data Inscrição</th>
+                <th scope="col" style="width: 5%; white-space: nowrap;">Data Inscrição</th>
                 <th scope="col">Empresa</th>
                 <th scope="col">Nome</th>
-                <th scope="col">Confirmou</th>
+                <th scope="col" style="width: 5%; white-space: nowrap;">Confirmado</th>
                 <th scope="col" style="width: 5%; white-space: nowrap;"></th>
             </tr>
         </thead>
         <tbody>
             @if($inscritos)
-                @foreach ($inscritos as $inscrito)
+                @foreach ($inscritos->sortBy('empresa_id') as $inscrito)
                     @if($inscrito->pessoa->tipo_pessoa === 'PF')
                         <tr>
                             <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
                             <td>{{ Str::limit($inscrito->empresa?->nome_razao, 30) ?? 'Individual' }}</td>
                             <td>{{ $inscrito->pessoa->nome_razao }}</td>
-                            <td>
-                                @if ($inscrito->confirmou)
-                                    <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i>
-                                @else
-                                    <i class="ri-alarm-fill label-icon text-warning fs-xl ms-2"></i>
-                                @endif
+                            <td> {!! $inscrito->data_confirmacao 
+                                    ? \Carbon\Carbon::parse($inscrito->data_confirmacao)->format('d/m/Y') 
+                                    : '<span class="badge rounded-pill bg-warning">Não</span>' !!}
                             </td>
                             <td>
                                 <div class="dropdown">

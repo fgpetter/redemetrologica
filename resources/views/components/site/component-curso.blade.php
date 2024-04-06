@@ -55,12 +55,12 @@
                 <div class="row justify-content-center">
                     <div class="col-md-3 bg-white p-3 m-2 border rounded">
                         <span class="fs-1 font-weight-bold text-primary" style="font-size: 24px;">R$
-                            {{ $agendacursos->investimento }}</span><br>
+                            {{ number_format($agendacursos->investimento_associado, 2, ',', '.') }}</span><br>
                         <span class="text-dark opacity-50" style="font-size: 18px;">Associados</span>
                     </div>
                     <div class="col-md-3 bg-white p-3 m-2 border rounded">
                         <span class="fs-1 font-weight-bold text-primary" style="font-size: 24px;">R$
-                            {{ $agendacursos->investimento_associado }}</span><br>
+                            {{ number_format($agendacursos->investimento, 2, ',', '.') }}</span><br>
                         <span class="text-dark opacity-50" style="font-size: 18px;">Não associados</span>
                     </div>
                 </div>

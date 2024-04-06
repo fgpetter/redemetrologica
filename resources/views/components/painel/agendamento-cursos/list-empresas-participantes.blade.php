@@ -4,6 +4,7 @@
             <tr>
                 <th scope="col">Empresa</th>
                 <th scope="col">Participantes</th>
+                <th scope="col">Associado</th>
                 <th scope="col" style="width: 5%; white-space: nowrap;"></th>
             </tr>
         </thead>
@@ -13,7 +14,10 @@
                     @if($inscrito->pessoa->tipo_pessoa === 'PJ')
                         <tr>
                             <td>{{ $inscrito->pessoa->nome_razao }}</td>
-                            <td>{{ $inscrito->participantes }}</td>
+                            <td>{{ $inscritos->where('empresa_id', $inscrito->pessoa_id)->count() }}</td>
+                            <td>{!! ($inscrito->pessoa->associado) 
+                                ? '<span class="badge rounded-pill bg-success">Sim</span>' 
+                                : '<span class="badge rounded-pill bg-warning">Não</span>' !!}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"

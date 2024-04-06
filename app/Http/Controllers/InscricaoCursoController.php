@@ -69,13 +69,11 @@ class InscricaoCursoController extends Controller
             'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
         ]);
 
-        $associado = Pessoa::where('id', $request->id_pessoa)->where('associado', 1)->exists();
         $agendacurso = AgendaCursos::where('id', $request->id_curso)->first();
         
         // verifica se a empresa já tem cadastro no curso
         if($request->id_empresa){
             
-            // se usuário vinculado a empresa, sobrescreve o dado de associado da empresa
             $associado = Pessoa::where('id', $request->id_empresa)->where('associado', 1)->exists();
 
             CursoInscrito::updateOrCreate([
@@ -89,6 +87,8 @@ class InscricaoCursoController extends Controller
                 'data_inscricao' => now()
             ]);
 
+        } else {
+            $associado = Pessoa::where('id', $request->id_pessoa)->where('associado', 1)->exists();
         }
 
 
