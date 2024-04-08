@@ -77,21 +77,18 @@ class InscricaoCursoController extends Controller
             
             $associado = Pessoa::where('id', $request->id_empresa)->where('associado', 1)->exists();
 
-            CursoInscrito::updateOrCreate([
+            $empresa = CursoInscrito::firstOrNew([
                 'pessoa_id' => $request->id_empresa,
                 'agenda_curso_id' => $request->id_curso
-            ],
-            [
-                'uid' => config('hashing.uid'),
-                'pessoa_id' => $request->id_empresa,
-                'agenda_curso_id' => $request->id_curso,
-                'data_inscricao' => now()
             ]);
+            $empresa->pessoa_id = $request->id_empresa;
+            $empresa->agenda_curso_id = $request->id_curso;
+            $empresa->data_inscricao = now();
+            $empresa->save();
 
         } else {
             $associado = Pessoa::where('id', $request->id_pessoa)->where('associado', 1)->exists();
         }
-
 
         // atualiza dados da pessoa
         $pessoa = Pessoa::where('id', $request->id_pessoa)->first();
@@ -107,7 +104,6 @@ class InscricaoCursoController extends Controller
 
         // adiciona pessoa a cursos_inscritos
         CursoInscrito::create([
-            'uid' => config('hashing.uid'),
             'pessoa_id' => $request->id_pessoa,
             'empresa_id' => $request->id_empresa ?? $id_empresa ?? null,
             'agenda_curso_id' => $request->id_curso,
@@ -203,7 +199,6 @@ class InscricaoCursoController extends Controller
             ]);
         }
 
-        dd($request->data_confirmacao);
         CursoInscrito::updateOrCreate([
             'uid' => $request->inscrito_uid ?? config('hashing.uid'),
         ],[
