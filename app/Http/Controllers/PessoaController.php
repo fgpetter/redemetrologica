@@ -200,4 +200,16 @@ class PessoaController extends Controller
 
     return redirect()->route('pessoa-index')->with('warning', 'Pessoa removida');
   }
+
+  public function associaEmpresa(Request $request, Pessoa $pessoa): RedirectResponse
+  {
+    if($request->get('detach')){
+      $pessoa->empresas()->detach($request->get('empresa_id'));
+      
+    } else {
+      $pessoa->empresas()->sync($request->get('empresa_id'));
+    }
+    
+    return back()->with('success', 'Pessoa atualizada com sucesso');
+  }
 }

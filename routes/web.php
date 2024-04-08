@@ -88,6 +88,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [PessoaController::class, 'create'])->name('pessoa-create');
     Route::post('update/{pessoa:uid}', [PessoaController::class, 'update'])->name('pessoa-update');
     Route::post('delete/{pessoa:uid}', [PessoaController::class, 'delete'])->name('pessoa-delete');
+    Route::post('associa-empresa/{pessoa:uid}', [PessoaController::class, 'associaEmpresa'])->name('pessoa-associa-empresa');
   });
 
   /* Endereços */

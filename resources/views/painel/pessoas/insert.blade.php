@@ -13,8 +13,11 @@
       <x-painel.enderecos.list :pessoa="$pessoa"/>
     @endif
   </div>
-
+  
   <div class="col-xl-5 col-xxl-6">
+    @if($pessoa->id && $pessoa->tipo_pessoa == 'PF')
+      <x-painel.pessoas.empresas :pessoa="$pessoa"/>
+    @endif
     @if($pessoa->id && $pessoa->tipo_pessoa == 'PJ')
       <x-painel.unidades.list :pessoa="$pessoa"/>
     @endif

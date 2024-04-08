@@ -28,7 +28,6 @@
                                      <x-forms.input-field name="nome_razao" required='required' :value="old('nome_razao') ?? ($pessoa->nome_razao ?? null)">
                                          <x-slot:label>
                                              Nome Completo
-                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
                                          </x-slot:label>
                                      </x-forms.input-field>
                                      @error('nome_razao')
@@ -41,7 +40,6 @@
                                          id="input-cpf">
                                          <x-slot:label>
                                              CPF
-                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
                                          </x-slot:label>
                                      </x-forms.input-field>
                                      @error('cpf_cnpj')
@@ -50,8 +48,7 @@
                                  </div>
 
                                  <div class="col-6">
-                                     <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie"
-                                         required='required' label="RG" />
+                                     <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie" label="RG" />
                                      @error('rg_ie')
                                          <div class="text-warning">{{ $message }}</div>
                                      @enderror
@@ -101,7 +98,6 @@
                                          :uppercase="true">
                                          <x-slot:label>
                                              Razão Social
-                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
                                          </x-slot:label>
                                      </x-forms.input-field>
                                      @error('nome_razao')
@@ -122,7 +118,6 @@
                                          id="input-cnpj">
                                          <x-slot:label>
                                              CNPJ
-                                             <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small>
                                          </x-slot:label>
                                      </x-forms.input-field>
                                      @error('cpf_cnpj')
