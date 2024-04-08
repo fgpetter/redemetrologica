@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Query\Expression;
 
 return new class extends Migration
 {
@@ -13,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('instrutor_curso_habilitado', function (Blueprint $table) {
             $table->id();
-            $table->string('uid');
+            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
             $table->foreignId('instrutor_id')->constrained('instrutores')->cascadeOnDelete();
             $table->foreignId('curso_id')->constrained()->onDelete('cascade'); //não funciona
             $table->boolean('habilitado')->default(false);
