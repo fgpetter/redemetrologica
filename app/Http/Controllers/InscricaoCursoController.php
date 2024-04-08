@@ -203,6 +203,7 @@ class InscricaoCursoController extends Controller
             ]);
         }
 
+        dd($request->data_confirmacao);
         CursoInscrito::updateOrCreate([
             'uid' => $request->inscrito_uid ?? config('hashing.uid'),
         ],[
@@ -210,6 +211,7 @@ class InscricaoCursoController extends Controller
             'certificado_emitido' => $request->certificado_emitido,
             'resposta_pesquisa' => $request->resposta_pesquisa,
             'data_inscricao' => $request->data_inscricao ?? now(),
+            'valor' => str_replace(',', '.', str_replace('.', '', $request->valor)),
         ]);
 
         return back()->with('success', 'Dados salvos com sucesso!');
