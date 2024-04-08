@@ -148,6 +148,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   Route::group(['prefix' => 'inscricao-curso'], function () {
     Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
     Route::post('informa-empresa', [InscricaoCursoController::class, 'informaEmpresa'])->name('informa-empresa');
+    Route::post('cancela-inscricao', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
+    Route::post('salvar-inscrito', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
   });
 
   /* Instrutores*/

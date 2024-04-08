@@ -1,11 +1,22 @@
-<div class="row">
+@if ($errors->any())
+    <div class="alert alert-warning">
+        <strong>Erro ao salvar os dados!</strong> <br><br>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+{{-- <div class="row">
     <div class="col-12">
         <a href="#" class="btn btn-sm btn-success float-end" data-bs-toggle="modal"
-            data-bs-target="#participanteModal">
-            <i class="ri-add-line align-bottom me-1"></i> Adicionar participante
+            data-bs-target="#inscritoModal">
+            <i class="ri-add-line align-bottom me-1"></i> Adicionar inscrito
         </a>
     </div>
-</div>
+</div> --}}
 
 
 <div class="table-responsive" style="min-height: 25vh">
@@ -40,7 +51,7 @@
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                                         <li>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#participanteModal">Editar</a>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
                                         </li>
                                         <li>                                            
                                             <x-painel.form-delete.delete route='materiais-padroes-delete' id="{{ $inscrito->uid }}" />
@@ -49,7 +60,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <x-painel.agendamento-cursos.modal-participante />
+                        <x-painel.agendamento-cursos.modal-participante :inscrito="$inscrito"/>
                     @endif
                 @endforeach
             @else

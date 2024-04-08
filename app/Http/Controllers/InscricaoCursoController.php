@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pessoa;
 use App\Models\AgendaCursos;
-use App\Models\CursoInscrito;
 use Illuminate\Http\Request;
+use App\Models\CursoInscrito;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Validator;
 
 class InscricaoCursoController extends Controller
 {
@@ -123,6 +124,12 @@ class InscricaoCursoController extends Controller
         return redirect('painel');
     }
 
+    /**
+     * Adiciona empresa contratante a inscricao do curso
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function informaEmpresa(Request $request): RedirectResponse
     {
         // valida dados
@@ -142,5 +149,69 @@ class InscricaoCursoController extends Controller
         session()->put('empresa', $empresa);
 
         return back()->with('success', 'Empresa adicionada com sucesso!');
+    }
+
+
+    public function salvaInscrito(Request $request): RedirectResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'inscrito_uid' => ['nullable', 'exists:curso_inscritos,uid'],
+            'pessoa_uid' => ['nullable', 'exists:pessoas,uid'],
+            'nome' => ['required', 'string', 'max:190'],
+            'telefone' => ['required', 'celular_com_ddd'],
+            'email' => ['required', 'email', 'max:190'],
+            'cpf_cnpj' => ['required_if:pessoa_uid,null', 'cpf'],
+            'data_confirmacao' => ['nullable', 'date'],
+            'certificado_emitido' => ['nullable', 'date'],
+            'resposta_pesquisa' => ['nullable', 'date'],
+            ],[
+                'inscrito_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
+                'pessoa_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
+                'cpf_cnpj.required_if' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
+                'nome.required' => 'O nome precisa ser informado',
+                'nome.string' => 'O nome precisa ser umtexto válido',
+                'nome.max' => 'O nome deve ter no maximo 190 caracteres',
+                'email.required' => 'O email precisa ser informado',
+                'email.email' => 'O email precisa ser um email válido',
+                'email.max' => 'O email deve ter no maximo 190 caracteres',
+                'cpf_cnpj.required_if' => 'O documento precisa ser informado',
+                'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
+                'data_confirmacao.date' => 'O dado enviado não é uma data válida',
+                'certificado_emitido.date' => 'O dado enviado não é uma data válida',
+                'resposta_pesquisa.date' => 'O dado enviado não é uma data válida',
+            ]);
+
+        if($validator->fails()){
+            return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
+        }
+
+        if($request->pessoa_uid) {
+            $pessoa = Pessoa::where('uid', $request->pessoa_uid)->first();
+            $pessoa->update([
+                'nome_razao' => $request->nome,
+                'email' => $request->email,
+                'telefone' => $request->telefone,
+            ]);
+        } else {
+            $pessoa = Pessoa::create([
+                'uid' => $request->pessoa_uid ?? config('hashing.uid'),
+                'nome_razao' => $request->nome,
+                'email' => $request->email,
+                'telefone' => $request->telefone,
+                'cpf' => $request->cpf_cnpj,
+                'tipo_pessoa' => 'PF',
+            ]);
+        }
+
+        CursoInscrito::updateOrCreate([
+            'uid' => $request->inscrito_uid ?? config('hashing.uid'),
+        ],[
+            'data_confirmacao' => $request->data_confirmacao,
+            'certificado_emitido' => $request->certificado_emitido,
+            'resposta_pesquisa' => $request->resposta_pesquisa,
+            'data_inscricao' => $request->data_inscricao ?? now(),
+        ]);
+
+        return back()->with('success', 'Dados salvos com sucesso!');
     }
 }
