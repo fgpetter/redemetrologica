@@ -1,50 +1,44 @@
-     <div class="card">
-         @if (!isset($user))
-             <div class="card-header">
-                 <h4 class="card-title mb-0">Inserir usuário</h4>
-             </div>
-         @endif
-         <div class="card-body">
-             <form method="POST" action="{{ isset($user) ? route('user-update', $user->id) : route('user-create') }}">
-                 @csrf
-                 <div class="row gy-3">
-                     <div class="col-12">
-                         <label for="nome" class="form-label">Nome</label>
-                         <input type="text" class="form-control" name="nome" id="nome"
-                             value="{{ old('nome') ?? ($user->name ?? null) }}" placeholder="Nome">
-                         @error('nome')
-                             <div class="text-warning">{{ $message }}</div>
-                         @enderror
-                     </div>
-                     <div class="col-12">
-                         <label for="email" class="form-label">E-mail</label>
-                         <input type="email" class="form-control" name="email" id="email"
-                             value="{{ old('email') ?? ($user->email ?? null) }}" placeholder="E-mail">
-                         @error('email')
-                             <div class="text-warning">{{ $message }}</div>
-                         @enderror
-                     </div>
-                     <div class="col-12">
-                         @isset($user)
-                             <label for="pessoa" class="form-label" style="margin-bottom: -0.5rem">Pessoa
-                                 Associada</label>
-                             <select class="form-control" name="pessoa" id="pessoa">
-                                 <option value="">Selecione uma pessoa</option>
-                                 <option value="Choice 1">Choice 1</option>
-                                 <option value="Choice 2">Choice 2</option>
-                                 <option value="Choice 3">Choice 3</option>
-                             </select>
-                         @endisset
-                     </div>
-                     <div class="col-12">
-                         <button type="submit" class="btn btn-primary px-4">Salvar</button>
-                     </div>
-                 </div>
-             </form>
-             @isset($user)
-                 <x-painel.form-delete.delete route='user-delete' id="{{ $user->id }}" label="Usuário" />
-             @endisset
+<div class="card">
+    @if (!isset($user))
+        <div class="card-header">
+            <h4 class="card-title mb-0">Inserir usuário</h4>
+        </div>
+    @endif
+    <div class="card-body">
+        <form method="POST" action="{{ isset($user) ? route('user-update', $user->id) : route('user-create') }}">
+            @csrf
+            <div class="row gy-3">
+                <div class="col-12">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input type="text" class="form-control" name="nome" id="nome"
+                        value="{{ old('nome') ?? ($user->name ?? null) }}" placeholder="Nome">
+                    @error('nome')
+                        <div class="text-warning">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-12">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" name="email" id="email"
+                        value="{{ old('email') ?? ($user->email ?? null) }}" placeholder="E-mail">
+                    @error('email')
+                        <div class="text-warning">{{ $message }}</div>
+                    @enderror
+                </div>
+                @if($user->pessoa)
+                <div class="col-12">
+                    <strong>Pessoa associada ao usuário: </strong>
+                    <a href="{{"/painel/pessoa/insert/".$user->pessoa->uid}}">{{ $user->pessoa->nome_razao }}</a>
+                </div>
+                @endif
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary px-4">Salvar</button>
+                </div>
+            </div>
+        </form>
+        @isset($user)
+            <x-painel.form-delete.delete route='user-delete' id="{{ $user->id }}" label="Usuário" />
+        @endisset
 
-         </div>
+    </div>
 
-     </div>
+</div>
