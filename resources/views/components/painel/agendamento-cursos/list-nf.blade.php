@@ -152,8 +152,8 @@
     @enderror
   </div>
   <div class="col-sm-12">
-    <x-forms.input-textarea name="obs" label="Observações">
-      {{ old('obs') ?? ($agendamento_curso->obs ?? null) }}
+    <x-forms.input-textarea name="obs" label="Observações"
+      >{{ old('obs') ?? ($agendamento_curso->obs ?? null) }}
     </x-forms.input-textarea>
     @error('obs')
       <div class="text-warning">{{ $message }}</div>

@@ -80,8 +80,8 @@
 
 
              <div class="col-sm-12">
-                 <x-forms.input-textarea name="observacoes" label="Observações">
-                     {{ old('observacoes') ?? ($instrutor->observacoes ?? null) }}
+                 <x-forms.input-textarea name="observacoes" label="Observações"
+                    >{{ old('observacoes') ?? ($instrutor->observacoes ?? null) }}
                  </x-forms.input-textarea>
                  @error('observacoes')
                      <div class="text-warning">{{ $message }}</div>

@@ -127,8 +127,7 @@
                              <x-forms.input-select name="status_proposta" label="Status da Proposta">
                                  <option value="">Selecione</option>
                                  <option @selected($agendacurso->status_proposta == 'PENDENTE') value="PENDENTE">PENDENTE</option>
-                                 <option @selected($agendacurso->status_proposta == 'AGUARDANDO APROVACAO') value="AGUARDANDO APROVACAO">AGUARDANDO APROVAÇÃO
-                                 </option>
+                                 <option @selected($agendacurso->status_proposta == 'AGUARDANDO APROVACAO') value="AGUARDANDO APROVACAO">AGUARDANDO APROVAÇÃO</option>
                                  <option @selected($agendacurso->status_proposta == 'APROVADA') value="APROVADA">APROVADA</option>
                                  <option @selected($agendacurso->status_proposta == 'REPROVADA') value="REPROVADA">REPROVADA</option>
                              </x-forms.input-select>
@@ -253,8 +252,8 @@
          </div>
 
          <div class="col-sm-12">
-             <x-forms.input-textarea name="observacoes" label="Observações">
-                 {{ old('observacoes') ?? ($agendacurso->observacoes ?? null) }}
+             <x-forms.input-textarea name="observacoes" label="Observações"
+                >{{ old('observacoes') ?? ($agendacurso->observacoes ?? null) }}
              </x-forms.input-textarea>
              @error('observacoes')
                  <div class="text-warning">{{ $message }}</div>

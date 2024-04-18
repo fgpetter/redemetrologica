@@ -122,13 +122,9 @@
 
                      <div class="col-12">
                          <label class="form-label">Observações</label>
-                         <textarea name="observacoes" class="form-select" name="observacoes">{{ old('observacoes') ?? ($lancamento->observacoes ?? null) }}
-      </textarea>
+                         <textarea name="observacoes" class="form-control" name="observacoes"
+                            >{{ old('observacoes') ?? ($lancamento->observacoes ?? null) }}</textarea>
                      </div>
-
-
-
-
 
                      <div class="col-12">
                          <button type="submit"
@@ -137,8 +133,7 @@
                  </div>
              </form>
              @if ($lancamento->id)
-                 <x-painel.form-delete.delete route="lancamento-financeiro-delete" id="{{ $lancamento->uid }}"
-                     label="Lançamento" />
+                 <x-painel.form-delete.delete route="lancamento-financeiro-delete" id="{{ $lancamento->uid }}" label="Lançamento" />
              @endif
 
          </div>
