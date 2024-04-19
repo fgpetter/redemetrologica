@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pessoa;
 use App\Models\AgendaCursos;
+use App\Models\CentroCusto;
 use Illuminate\Http\Request;
 use App\Models\CursoInscrito;
+use App\Models\LancamentoFinanceiro;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 
@@ -43,7 +45,7 @@ class InscricaoCursoController extends Controller
     }
 
     /**
-     * Cadastra cliente no curso
+     * Cadastra cliente no curso a partir da área do cliente
      *
      * @param Request $request
      * @return RedirectResponse
@@ -77,14 +79,12 @@ class InscricaoCursoController extends Controller
             
             $associado = Pessoa::where('id', $request->id_empresa)->where('associado', 1)->exists();
 
-            $empresa = CursoInscrito::firstOrNew([
+            CursoInscrito::firstOrCreate([
                 'pessoa_id' => $request->id_empresa,
                 'agenda_curso_id' => $request->id_curso
+            ],[
+                "data_inscricao" => now()
             ]);
-            $empresa->pessoa_id = $request->id_empresa;
-            $empresa->agenda_curso_id = $request->id_curso;
-            $empresa->data_inscricao = now();
-            $empresa->save();
 
         } else {
             $associado = Pessoa::where('id', $request->id_pessoa)->where('associado', 1)->exists();
@@ -103,7 +103,7 @@ class InscricaoCursoController extends Controller
         $pessoa->empresas()->sync($request->id_empresa);
 
         // adiciona pessoa a cursos_inscritos
-        CursoInscrito::create([
+        $this->adicionaInscrito([
             'pessoa_id' => $request->id_pessoa,
             'empresa_id' => $request->id_empresa ?? $id_empresa ?? null,
             'agenda_curso_id' => $request->id_curso,
@@ -132,7 +132,6 @@ class InscricaoCursoController extends Controller
         $request->validate([
             'cnpj' => ['nullable', 'cnpj'],
             ],[
-            'cnpj.required' => 'Preencha o campo CNPJ',
             'cnpj.cnpj' => 'O dado enviado não é um CNPJ válido',
         ]);
 
@@ -148,6 +147,12 @@ class InscricaoCursoController extends Controller
     }
 
 
+    /**
+     * Adiciona / Edita inscrito manualmente na tela de agenda de cursos
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function salvaInscrito(Request $request): RedirectResponse
     {
         $validator = Validator::make($request->all(), [
@@ -199,16 +204,52 @@ class InscricaoCursoController extends Controller
             ]);
         }
 
-        CursoInscrito::updateOrCreate([
-            'uid' => $request->inscrito_uid ?? config('hashing.uid'),
-        ],[
-            'data_confirmacao' => $request->data_confirmacao,
-            'certificado_emitido' => $request->certificado_emitido,
-            'resposta_pesquisa' => $request->resposta_pesquisa,
-            'data_inscricao' => $request->data_inscricao ?? now(),
-            'valor' => str_replace(',', '.', str_replace('.', '', $request->valor)),
-        ]);
+        $this->adicionaInscrito([]);
 
         return back()->with('success', 'Dados salvos com sucesso!');
+    }
+
+    private function adicionaInscrito($dado_inscrito){
+
+        // adiciona os dados de inscricao
+        CursoInscrito::updateOrCreate([
+            'uid' => $dado_inscrito->inscrito_uid ?? config('hashing.uid'),
+        ],[
+            'pessoa_id' => $dado_inscrito['pessoa_id'],
+            'empresa_id' => $dado_inscrito['empresa_id'] ?? null,
+            'agenda_curso_id' => $dado_inscrito['agenda_curso_id'],
+            'valor' => $dado_inscrito['valor'],
+            'data_inscricao' => now(),
+            'data_confirmacao' => $dado_inscrito['data_confirmacao'] ?? null,
+            'certificado_emitido' => $dado_inscrito['certificado_emitido'] ?? null,
+            'resposta_pesquisa' => $dado_inscrito['resposta_pesquisa'] ?? null,
+        ]);
+
+        // adiciona lancamento financeiro por empresa
+        if( isset($dado_inscrito['empresa_id']) ) {
+            $lancamento = LancamentoFinanceiro::where('pessoa_id', $dado_inscrito['empresa_id'])
+                ->where('agenda_curso_id', $dado_inscrito['agenda_curso_id'])
+                ->first();
+
+            if(!$lancamento) {
+                $lancamento = LancamentoFinanceiro::create([
+                    'uid' => config('hashing.uid'),
+                    'pessoa_id' => $dado_inscrito['empresa_id'],
+                    'agenda_curso_id' => $dado_inscrito['agenda_curso_id'],
+                    'historico' => 'Inscrição curso -' . AgendaCursos::find($dado_inscrito['agenda_curso_id'])->curso->descricao,
+                    'valor' => $dado_inscrito['valor'],
+                    'centro_custo_id' => CentroCusto::where('descricao', 'TREINAMENTO')->first()->id,
+                    'data_emissao' => now(),
+                    'status' => 'PROVISIONADO',
+                    'observacoes' => 'Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao ." - R$". $dado_inscrito['valor'],
+                ]);
+            } else {
+                $lancamento->update([
+                    'valor' => $lancamento->valor + $dado_inscrito['valor'],
+                    'observacoes' => $lancamento->observacoes . "\n" . 'Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao . " - R$". $dado_inscrito['valor'],
+                ]);
+            }
+
+        }
     }
 }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('documento')->nullable();
             $table->foreignId('pessoa_id')->nullable();
             $table->foreignId('centro_custo_id')->nullable();
-            $table->string('historico')->nullable();
+            $table->string('historico', 999)->nullable();
             $table->enum('tipo_lancamento', ['CREDITO', 'DEBITO']);
             $table->decimal('valor')->nullable();
             $table->date('data_vencimento')->nullable();
@@ -29,6 +29,9 @@ return new class extends Migration
             $table->date('data_pagamento')->nullable();
             $table->enum('status', ['EFETIVADO', 'PROVISIONADO']);
             $table->text('observacoes')->nullable();
+            $table->foreignId('agenda_curso_id')->nullable();
+            $table->foreignId('interlab_id')->nullable();
+            $table->foreignId('avaliacao_id')->nullable();
             $table->timestamps();
         });
     }
