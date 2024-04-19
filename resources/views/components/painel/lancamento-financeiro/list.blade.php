@@ -15,27 +15,28 @@
                 style="table-layout: fixed">
                 <thead>
                     <tr>
-                        <th scope="col">Nome</th>
-                        <th scope="col">Vencimento</th>
+                        <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
+                        <th scope="col">Emissão</th>
+                        <th scope="col">Tipo</th>
                         <th scope="col">Valor</th>
                         <th scope="col">Pagamento</th>
-                        <th scope="col" style="width: 7%;"></th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($lancamentosfinanceiros as $lancamento)
                         <tr>
                             <td class="text-truncate">
-                                <a href="javascript:void(0);">
-                                    <i class="ri-file-text-line btn-ghost px-2"></i>
+                                <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                    <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
                                 </a> {{ $lancamento->pessoa->nome_razao }}
                             </td>
-                            <td class="text-truncate">
-                                {{ Carbon\Carbon::parse($lancamento->data_emissao)->format('d/m/Y') }} </td>
-                            <td class="text-truncate"> <input type="text" class="money border-0 bg-transparent"
-                                    value="{{ $lancamento->valor }}"> </td>
-                            <td class="text-truncate">
-                                {{ Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') }} </td>
+                            <td>{{ ($lancamento->data_emissao) ? Carbon\Carbon::parse($lancamento->data_emissao)->format('d/m/Y') : '-'  }} </td>
+                            <td>{!! ($lancamento->tipo_lancamento == 'CREDITO') ? 
+                                "<span class='badge rounded-pill bg-success'>Crédito</span>" : 
+                                "<span class='badge rounded-pill bg-warning'>Débito</span>"!!}</td>
+                            <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
+                            <td> {{ ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : '-' }} </td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
@@ -55,6 +56,19 @@
                                     </ul>
                                 </div>
 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="p-0">
+                                <div class="collapse" id="{{"collapse".$lancamento->uid}}">
+                                    <div class="row gy-2 m-3 mt-2">
+                                        <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
+                                        <div class="col-2"><b>Vencimento:</b> {{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }}</div>
+                                        <div class="col-2"><b>Documento:</b> {{ $lancamento->documento ?? '-' }}</div>
+                                        <div class="col-2"><b>Nº Documento:</b> {{ $lancamento->num_documento ?? '-' }}</div>
+                                        <div class="col-2"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @empty

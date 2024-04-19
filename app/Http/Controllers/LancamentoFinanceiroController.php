@@ -19,7 +19,7 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function index(): View
   {
-    $lancamentosfinanceiros = LancamentoFinanceiro::select('uid', 'pessoa_id', 'data_vencimento', 'valor', 'data_pagamento', 'historico')
+    $lancamentosfinanceiros = LancamentoFinanceiro::select()
       ->with(['pessoa' => function ($query) {
         $query->withTrashed();
       }])
@@ -125,33 +125,27 @@ class LancamentoFinanceiroController extends Controller
     $validated = $request->validate(
       [
         'data_emissao' => ['nullable'],
-        'data_autorizacao' => ['nullable'],
-        'enviado_banco' => ['nullable', 'integer', 'in:0,1'],
-        'num_cheque' => ['nullable'],
+        'num_documento' => ['nullable'],
         'documento' => ['nullable'],
-        'pessoa_id' => ['nullable'],
-        'centro_custo_id' => ['nullable'],
+        'pessoa_id' => ['required', 'exists:pessoas,id'],
+        'centro_custo_id' => ['required', 'exists:centro_custos,id'],
         'historico' => ['nullable'],
         'banco_id' => ['nullable'],
         'tipo_lancamento' => ['required', 'in:CREDITO,DEBITO'],
-        'valor_bruto' => ['nullable'],
-        'desconto' => ['nullable'],
         'valor' => ['nullable'],
         'data_vencimento' => ['nullable'],
-        'competencia_folha' => ['nullable'],
-        'modalidade_pagamento_id' => ['nullable'],
         'data_pagamento' => ['nullable'],
         'status' => ['required', 'in:EFETIVADO,PROVISIONADO'],
-        'conciliado' => ['nullable', 'integer', 'in:0,1'],
         'observacoes' => ['nullable'],
       ],
       [
-        'data_autorizacao.in' => 'A opção selecionada é inválida',
-        'enviado_banco.in' => 'A opção selecionada é inválida',
+        'status.required' => 'O campo Status é obrigatório',
         'status.in' => 'A opção selecionada é inválida',
-        'conciliado.in' => 'A opção selecionada é inválida',
+        'tippo_lancamento.required' => 'O campo Tipo de Lancamento é obrigatório',
+        'tipo_lancamento.in' => 'A opção selecionada é inválida',
       ]
     );
+
     $validated['valor'] = $this->formataMoeda($validated['valor']) ?? null;
     $lancamento->update($validated);
 
