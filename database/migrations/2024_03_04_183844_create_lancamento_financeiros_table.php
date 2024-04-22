@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('enviado_banco')->default(0);
             $table->string('num_documento')->nullable();
             $table->string('documento')->nullable();
+            $table->string('nota_fiscal')->nullable();
             $table->foreignId('pessoa_id')->nullable();
             $table->foreignId('centro_custo_id')->nullable();
             $table->string('historico', 999)->nullable();

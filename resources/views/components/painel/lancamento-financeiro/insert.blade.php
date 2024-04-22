@@ -27,6 +27,14 @@
         </div>
 
         <div class="col-3">
+          <label class="form-label">Nota Fiscal</label>
+          <input type="text" class="form-control" name="nota_fiscal" value="{{ old('nota_fiscal') ?? ($lancamento->nota_fiscal ?? null) }}">
+          @error('nota_fiscal')
+          <div class="text-warning">{{ $message }}</div>
+          @enderror
+        </div>
+        
+        <div class="col-3">
           <label class="form-label">Número do documento</label>
           <input type="text" class="form-control" name="num_documento" value="{{ old('num_documento') ?? ($lancamento->num_documento ?? null) }}">
           @error('num_documento')
@@ -34,7 +42,7 @@
           @enderror
         </div>
 
-        <div class="col-6">
+        <div class="col-3">
           <label class="form-label">Documento</label>
           <input type="text" class="form-control" name="documento" value="{{ old('documento') ?? ($lancamento->documento ?? null) }}">
           @error('documento')
@@ -58,7 +66,7 @@
         </div>
 
         <div class="col-6">
-          <label class="form-label">Conta | Centro Custo</label>
+          <label class="form-label">Centro Custo</label>
           <select class="form-select" name="centro_custo_id" aria-label="Default select example">
             <option> - </option>
             @foreach ($centrosdecusto as $centrodecusto)
