@@ -7,7 +7,7 @@
         @slot('li_1') Inicio @endslot
         @slot('title') Painel @endslot
     @endcomponent
-    @if(auth()->user()->pessoa->funcionario)
+    @if(auth()->user()->pessoa?->funcionario)
         {{-- carega componentes referentes ao funcionário e área --}}
         é funcionário
         
@@ -17,7 +17,7 @@
             <x-Painel.PainelCliente.ConfirmaInscricao />
         @endif
 
-        @if ( auth()->user()->pessoa->cursos->count() > 0 )
+        @if ( auth()->user()->pessoa?->cursos?->count() > 0 )
             Tem cursos
         @endif
 
