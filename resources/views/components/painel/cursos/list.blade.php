@@ -17,9 +17,10 @@
                     <tr>
                         <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID
                         </th>
-                        <th scope="col">Descricao</th>
-                        <th scope="col">Objetivo</th>
-                        <th scope="col" style="width: 7%;"></th>
+                        <th scope="col" style="width: 50%; white-space: nowrap;">Descricao</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Carga Horária</th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,7 +32,8 @@
                                 </a>
                             </th>
                             <td class="text-truncate">{{ $curso->descricao }}</td>
-                            <td class="text-truncate">{{ $curso->objetivo }}</td>
+                            <td >{{ $curso->tipo_curso }}</td>
+                            <td >{{ $curso->carga_horaria }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
