@@ -36,7 +36,7 @@
                     @if($inscrito->pessoa->tipo_pessoa === 'PF')
                         <tr>
                             <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
-                            <td>{{ Str::limit($inscrito->empresa?->nome_razao, 30) ?? 'Individual' }}</td>
+                            <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
                             <td>{{ $inscrito->pessoa->nome_razao }}</td>
                             <td> {!! $inscrito->data_confirmacao 
                                     ? \Carbon\Carbon::parse($inscrito->data_confirmacao)->format('d/m/Y') 
