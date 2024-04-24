@@ -1,6 +1,6 @@
 @props([
 "despesa" => null,
-"planosconta" => App\Models\PlanoConta::all(),
+"materiaispadrao" => null,
 "agendacurso" => null
 ])
 {{-- modal --}}
@@ -21,13 +21,13 @@
             <input type="hidden" name="agenda_curso_id" value="{{ $agendacurso->id }}">
             <div class="row gy-1">
               <div class="col-12">
-                <x-forms.input-select name="plano_conta" label="Descrição" required="true">
+                <x-forms.input-select name="material_padrao" label="Descrição" required="true">
                   <option>- Selecione</option>
-                  @foreach ($planosconta as $planoconta)
-                    <option value="{{ $planoconta->id }}" @selected($planoconta->id == $despesa?->plano_conta_id)>{{ $planoconta->descricao }}</option>
+                  @foreach ($materiaispadrao as $materialpadrao)
+                    <option value="{{ $materialpadrao->id }}" @selected($materialpadrao->id == $despesa?->material_padrao_id)>{{ $materialpadrao->descricao }}</option>
                   @endforeach
                 </x-forms.input-select>
-                @error('plano_conta')
+                @error('material_padrao')
                   <span class="invalid-feedback" role="alert">{{ $message }}</span>
                 @enderror
               </div>
@@ -54,7 +54,7 @@
                 <label for="total" class="form-label">Total</label>
                 <input type="text" class="form-control money" name="total" 
                   value="{{old('total') ?? ($despesa->total ?? null)}}" 
-                  id="{{'despesa_total'.$despesa?->id}}" required>
+                  id="{{'despesa_total'.$despesa?->id}}" readonly>
                 @error('total')
                   <span class="invalid-feedback" role="alert">{{ $message }}</span>
                 @enderror

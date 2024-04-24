@@ -42,7 +42,7 @@
              </div>
 
              <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
-                <x-painel.agendamento-cursos.list-despesas :despesas="$despesas" :agendacurso="$agendacurso"/>
+                <x-painel.agendamento-cursos.list-despesas :despesas="$despesas" :agendacurso="$agendacurso" :materiaispadrao="$materiaispadrao"/>
              </div>
 
          </div>

@@ -19,9 +19,9 @@ class CursoDespesa extends Model
      * Carrega planos de contas atrelados
      * @return HasOne 
      */
-    public function planoConta(): HasOne
+    public function materialPadrao(): HasOne
     {
-        return $this->hasOne(PlanoConta::class, 'id', 'plano_conta_id');
+        return $this->hasOne(MaterialPadrao::class, 'id', 'material_padrao_id');
     }
 
     /**

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('curso_despesas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('agenda_curso_id');
-            $table->foreignId('plano_conta_id');
+            $table->foreignId('material_padrao_id');
             $table->decimal('quantidade', 8, 2)->default(0);
             $table->decimal('valor', 8, 2)->default(0);
             $table->decimal('total', 8, 2)->default(0);

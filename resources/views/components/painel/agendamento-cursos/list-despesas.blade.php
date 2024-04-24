@@ -30,7 +30,7 @@
         <tbody>
                 @forelse ( $despesas as $despesa)
                 <tr>
-                    <td>{{ $despesa->planoConta->descricao }}</td>
+                    <td>{{ $despesa->materialPadrao->descricao }}</td>
                     <td>{{ $despesa->quantidade }}</td>
                     <td>{{ "R$ " . number_format($despesa->valor, 2, ',', '.') }}</td>
                     <td>{{ "R$ " . number_format($despesa->total, 2, ',', '.') }}</td>
@@ -52,7 +52,7 @@
                         </div>
                     </td>
                 </tr>
-                <x-painel.agendamento-cursos.modal-despesa :despesa="$despesa" :agendacurso="$agendacurso" />
+                <x-painel.agendamento-cursos.modal-despesa :despesa="$despesa" :agendacurso="$agendacurso" :materiaispadrao="$materiaispadrao"/>
                 @empty
                     <tr>
                         <td colspan="5" class="text-center">Não há despesas cadastradas</td>
@@ -62,6 +62,6 @@
         </tbody>
     </table>
 
-    <x-painel.agendamento-cursos.modal-despesa :agendacurso="$agendacurso"/>
+    <x-painel.agendamento-cursos.modal-despesa :agendacurso="$agendacurso" :materiaispadrao="$materiaispadrao"/>
 
 </div>

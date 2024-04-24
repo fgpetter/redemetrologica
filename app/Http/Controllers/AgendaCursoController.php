@@ -9,6 +9,7 @@ use App\Models\AgendaCursos;
 use App\Models\CursoDespesa;
 use Illuminate\Http\Request;
 use App\Models\CursoInscrito;
+use App\Models\MaterialPadrao;
 use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -37,8 +38,8 @@ class AgendaCursoController extends Controller
   public function insert(AgendaCursos $agendacurso): View
   {
     $data = [
-      'instrutores' => Instrutor::whereNot('id', $agendacurso->instrutor_id)->get(),
-      'instrutor_atual' => Instrutor::with(['pessoa' => fn($q) => $q->withTrashed()])
+      'instrutores' => Instrutor::select('uid', 'pessoa_id')->with('pessoa')->whereNot('id', $agendacurso->instrutor_id)->get(),
+      'instrutor_atual' => Instrutor::select('uid', 'pessoa_id')->with(['pessoa' => fn($q) => $q->withTrashed()])
         ->where('id', $agendacurso->instrutor_id)
         ->withTrashed()
         ->first(),
@@ -46,10 +47,11 @@ class AgendaCursoController extends Controller
       'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),
-      'inscritos' => CursoInscrito::select()->with('empresa')->where('agenda_curso_id', $agendacurso->id)->get(),
-      'despesas' => CursoDespesa::with('planoConta')->where('agenda_curso_id', $agendacurso->id)->get(),
+      'inscritos' => CursoInscrito::select()->with('empresa')->with('pessoa')->where('agenda_curso_id', $agendacurso->id)->get(),
+      'despesas' => CursoDespesa::select()->with('materialPadrao:id,descricao')->where('agenda_curso_id', $agendacurso->id)->get(),
+      'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
       'agendacurso' => $agendacurso
-    ];    
+    ];
 
     return view('painel.agendamento-cursos.insert', $data);
   }
@@ -276,7 +278,7 @@ class AgendaCursoController extends Controller
     $request->validate([
       'despesa_id' => ['nullable', 'exists:curso_despesas,id'],
       'agenda_curso_id' => ['nullable', 'exists:agenda_cursos,id'],
-      'plano_conta' => ['required', 'exists:plano_contas,id'],
+      'material_padrao' => ['required', 'exists:materiais_padroes,id'],
       'quantidade' => ['required', 'integer'],
       'valor' => ['required','regex:/[\d.,]+$/'],
       'total' => ['required', 'regex:/[\d.,]+$/'],
@@ -284,7 +286,7 @@ class AgendaCursoController extends Controller
 
       'despesa_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
       'agenda_curso_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
-      'descricao.exists' => 'Selecione uma opção válida',
+      'material_padrao.exists' => 'Selecione uma opção válida',
       'quantidade.integer' => 'O dado enviado não é valido',
       'quantidade.required' => 'Preencha o campo',
       'valor.required' => 'Preencha o campo',
@@ -296,7 +298,7 @@ class AgendaCursoController extends Controller
 
     CursoDespesa::updateOrCreate([
       'agenda_curso_id' => $request->agenda_curso_id,
-      'plano_conta_id' => $request->plano_conta,
+      'material_padrao_id' => $request->material_padrao,
     ],[
       'quantidade' => $request->quantidade,
       'valor' => $this->formataMoeda($request->valor),

@@ -27,6 +27,7 @@
             :cursoatual="$curso_atual"
             :instrutoratual="$instrutor_atual"
             :despesas="$despesas"
+            :materiaispadrao="$materiaispadrao"
             />
         </div>
 
