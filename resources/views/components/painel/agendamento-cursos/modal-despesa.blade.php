@@ -79,11 +79,11 @@
   const total{{$despesa?->id}} = document.querySelector("{{'#despesa_total'.$despesa?->id}}")
   
   valor{{$despesa?->id}}.addEventListener('keyup', () => {
-    total{{$despesa?->id}}.value = (qtd{{ $despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", "."));
+    total{{$despesa?->id}}.value = (qtd{{ $despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).tofixed(2);
   });
   
   qtd{{ $despesa?->id}}.addEventListener('keyup', () => {
-    total{{$despesa?->id}}.value = (qtd{{ $despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", "."));
+    total{{$despesa?->id}}.value = (qtd{{ $despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).tofixed(2);
   });
 </script>
 {{-- endmodal --}}
