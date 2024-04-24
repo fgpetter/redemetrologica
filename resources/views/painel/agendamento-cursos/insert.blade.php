@@ -26,6 +26,7 @@
             :inscritos="$inscritos"
             :cursoatual="$curso_atual"
             :instrutoratual="$instrutor_atual"
+            :despesas="$despesas"
             />
         </div>
 

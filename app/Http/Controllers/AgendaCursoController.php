@@ -6,6 +6,7 @@ use App\Models\Curso;
 use App\Models\Pessoa;
 use App\Models\Instrutor;
 use App\Models\AgendaCursos;
+use App\Models\CursoDespesa;
 use Illuminate\Http\Request;
 use App\Models\CursoInscrito;
 use Illuminate\Validation\Rule;
@@ -46,6 +47,7 @@ class AgendaCursoController extends Controller
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),
       'inscritos' => CursoInscrito::select()->with('empresa')->where('agenda_curso_id', $agendacurso->id)->get(),
+      'despesas' => CursoDespesa::with('planoConta')->where('agenda_curso_id', $agendacurso->id)->get(),
       'agendacurso' => $agendacurso
     ];    
 
@@ -261,6 +263,47 @@ class AgendaCursoController extends Controller
 
 
     return view('site.pages.slug-cursos', ['agendacursos' => $agendacursos]);
+  }
+
+  /**
+   * Salva despesa do agendamento de curso
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   */
+  public function salvaDespesa(Request $request): RedirectResponse
+  {
+    $request->validate([
+      'despesa_id' => ['nullable', 'exists:curso_despesas,id'],
+      'agenda_curso_id' => ['nullable', 'exists:agenda_cursos,id'],
+      'plano_conta' => ['required', 'exists:plano_contas,id'],
+      'quantidade' => ['required', 'integer'],
+      'valor' => ['required','regex:/[\d.,]+$/'],
+      'total' => ['required', 'regex:/[\d.,]+$/'],
+    ],[
+
+      'despesa_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
+      'agenda_curso_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
+      'descricao.exists' => 'Selecione uma opção válida',
+      'quantidade.integer' => 'O dado enviado não é valido',
+      'quantidade.required' => 'Preencha o campo',
+      'valor.required' => 'Preencha o campo',
+      'valor.regex' => 'Não é um número válido',
+      'total.required' => 'O campo não pode estar vazio',
+      'total.regex' => 'Não é um número válido',
+    ]);
+
+
+    CursoDespesa::updateOrCreate([
+      'agenda_curso_id' => $request->agenda_curso_id,
+      'plano_conta_id' => $request->plano_conta,
+    ],[
+      'quantidade' => $request->quantidade,
+      'valor' => $this->formataMoeda($request->valor),
+      'total' => $request->total,
+    ]);
+
+    return back()->with('success', 'Despesa salva com sucesso');
   }
 
   /**

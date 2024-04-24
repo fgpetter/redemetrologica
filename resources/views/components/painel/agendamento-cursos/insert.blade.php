@@ -16,12 +16,6 @@
              </li>
 
              <li class="nav-item">
-                 <a class="nav-link" data-bs-toggle="tab" href="#NF" role="tab" aria-selected="false">
-                     Notas Fiscais
-                 </a>
-             </li>
-
-             <li class="nav-item">
                  <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
                      Despesas
                  </a>
@@ -47,11 +41,8 @@
                  <x-painel.agendamento-cursos.list-empresas-participantes :inscritos="$inscritos" />
              </div>
 
-             <div class="tab-pane" id="NF" role="tabpanel"> <!-- notas fiscais -->
-                 {{-- <x-painel.agendamento-cursos.list-nf /> --}}
-             </div>
-
              <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
+                <x-painel.agendamento-cursos.list-despesas :despesas="$despesas" :agendacurso="$agendacurso"/>
              </div>
 
          </div>

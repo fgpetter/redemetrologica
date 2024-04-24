@@ -63,9 +63,7 @@
                     @endforelse
                 </tbody>
             </table>
-            {{-- <div class="row mt-3">
-  {!! $planocontas->withQueryString()->links('pagination::bootstrap-5') !!}
-  </div> --}}
+            <div class="mt-4">{!! $planocontas->withQueryString()->links('pagination::bootstrap-5') !!}</div>
         </div>
         <x-painel.plano-conta.modal-plano-conta :centrocustos="$centrocustos" />
 

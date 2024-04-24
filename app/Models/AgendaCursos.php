@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -26,5 +27,14 @@ class AgendaCursos extends Model
     public function curso() : BelongsTo
     {
         return $this->belongsTo(Curso::class);
+    }
+
+    /**
+     * Carrega custos atrelados
+     * @return HasMany 
+     */
+    public function despesas(): HasMany
+    {
+        return $this->hasMany(CursoDespesa::class);
     }
 }

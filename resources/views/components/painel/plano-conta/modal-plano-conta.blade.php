@@ -26,7 +26,7 @@
               @error('codigo_contabil') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
-            <div class="col-3">
+            <div class="col-6">
               <label for="grupo_contas" class="form-label">Grupo de Contas</label>
               <input type="text" class="form-control" id="grupo_contas" name="grupo_contas"
               value="{{ old('grupo_contas') ?? $planoconta->grupo_contas ?? null }}">
@@ -52,7 +52,7 @@
             </div>
 
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer mt-3">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             <button type="submit" class="btn btn-primary">Salvar</button>
           </div>

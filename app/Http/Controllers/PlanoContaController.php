@@ -21,7 +21,7 @@ class PlanoContaController extends Controller
     $data = [
       'planocontas' => PlanoConta::with(['centrocusto' => function ($query) {
         $query->withTrashed();
-      }])->get(),
+      }])->paginate(10),
 
       'centrocustos' => CentroCusto::all()
     ];

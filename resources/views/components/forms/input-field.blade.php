@@ -9,7 +9,8 @@
     'uppercase' => false,
     'pattern' => null,
     'title' => null,
-    'tooltip' => null
+    'tooltip' => null,
+    'readonly' => false
 ])
 
 <label class="form-label">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis"> * </span>' : '') !!}</label>
@@ -23,4 +24,5 @@
     @if ($id) id={{ $id }} @endif
     @if ($placeholder) placeholder="{{ $placeholder }}" @endif
     @if ($uppercase) oninput="this.value = this.value.toUpperCase()" @endif
-    @if ($pattern) pattern='{{ $pattern }}' title="{{ $title }}" @endif>
+    @if ($pattern) pattern='{{ $pattern }}' title="{{ $title }}" @endif
+    @readonly($readonly) >
