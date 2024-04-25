@@ -14,12 +14,12 @@
             <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 5%">ID
+                        <th scope="col" style="width: 5%; white-space: nowrap;">ID
                         </th>
-                        <th scope="col" style="width:40%">Descrição</th>
-                        <th scope="col" style="width:40%">Fornecedor</th>
-                        <th scope="col" style="width: 5%">Valor</th>
-                        <th scope="col" style="width: 5%">Padrao</th>
+                        <th scope="col" >Descrição</th>
+                        <th scope="col" >Fornecedor</th>
+                        <th scope="col" >Valor</th>
+                        <th scope="col" >Tipo</th>
                         <th scope="col" style="width: 5%"></th>
                     </tr>
                 </thead>
@@ -32,11 +32,8 @@
                                 </a></th>
                             <td>{{ $material->descricao }}</td>
                             <td>{{ $material->fornecedor }}</td>
-                            <td>@if ($material->valor) R$ {{ number_format($material->valor, 2, ',', '.') }} @else R$ 0.00 @endif <td>
-                                @if ($material->padrao)
-                                    <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i>
-                                @endif
-                            </td>
+                            <td>@if ($material->valor) R$ {{ number_format($material->valor, 2, ',', '.') }} @else R$ 0.00 @endif</td>
+                            <td>{{ $material->tipo }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -66,9 +63,7 @@
                     @endforelse
                 </tbody>
             </table>
-            <div class="row mt-3">
-                {!! $materiais->withQueryString()->links('pagination::bootstrap-5') !!}
-            </div>
+            <div class="mt-3">{!! $materiais->withQueryString()->links('pagination::bootstrap-5') !!}</div>
         </div>
         <x-painel.materiais-padroes.modal-materiais-padroes />
 
