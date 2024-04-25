@@ -165,6 +165,7 @@ class InscricaoCursoController extends Controller
             'data_confirmacao' => ['nullable', 'date'],
             'certificado_emitido' => ['nullable', 'date'],
             'resposta_pesquisa' => ['nullable', 'date'],
+            'valor' => ['nullable', 'regex:/[\d.,]+$/'],
             ],[
                 'inscrito_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
                 'pessoa_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
@@ -180,6 +181,7 @@ class InscricaoCursoController extends Controller
                 'data_confirmacao.date' => 'O dado enviado não é uma data válida',
                 'certificado_emitido.date' => 'O dado enviado não é uma data válida',
                 'resposta_pesquisa.date' => 'O dado enviado não é uma data válida',
+                'valor.regex' => 'O valor informado não é um número',
             ]);
 
         if($validator->fails()){
@@ -204,8 +206,18 @@ class InscricaoCursoController extends Controller
             ]);
         }
 
-        $this->adicionaInscrito([]);
-
+        $inscrito = CursoInscrito::where('uid', $request->inscrito_uid)->first();
+        $this->adicionaInscrito([
+            'uid' => $request->inscrito_uid,
+            'pessoa_id' => $pessoa->id,
+            'empresa_id' => $inscrito?->empresa_id ?? null,
+            'agenda_curso_id' => $inscrito?->agenda_curso_id ?? null,
+            'valor' => $this->formataMoeda($request->valor),
+            'data_inscricao' => $inscrito?->data_inscricao ?? null,
+            'certificado_emitido' => $request->certificado_emitido,
+            'resposta_pesquisa' => $request->resposta_pesquisa,
+        ]);
+        
         return back()->with('success', 'Dados salvos com sucesso!');
     }
 
@@ -213,14 +225,13 @@ class InscricaoCursoController extends Controller
 
         // adiciona os dados de inscricao
         CursoInscrito::updateOrCreate([
-            'uid' => $dado_inscrito->inscrito_uid ?? config('hashing.uid'),
+            'uid' => $dado_inscrito['uid'] ?? config('hashing.uid'),
         ],[
             'pessoa_id' => $dado_inscrito['pessoa_id'],
             'empresa_id' => $dado_inscrito['empresa_id'] ?? null,
             'agenda_curso_id' => $dado_inscrito['agenda_curso_id'],
             'valor' => $dado_inscrito['valor'],
             'data_inscricao' => now(),
-            'data_confirmacao' => $dado_inscrito['data_confirmacao'] ?? null,
             'certificado_emitido' => $dado_inscrito['certificado_emitido'] ?? null,
             'resposta_pesquisa' => $dado_inscrito['resposta_pesquisa'] ?? null,
         ]);
@@ -241,15 +252,25 @@ class InscricaoCursoController extends Controller
                     'centro_custo_id' => CentroCusto::where('descricao', 'TREINAMENTO')->first()->id,
                     'data_emissao' => now(),
                     'status' => 'PROVISIONADO',
-                    'observacoes' => 'Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao ." - R$". $dado_inscrito['valor'],
+                    'observacoes' => date('d/m/Y H:i').' - Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao ." - R$". $dado_inscrito['valor'],
                 ]);
             } else {
                 $lancamento->update([
-                    'valor' => $lancamento->valor + $dado_inscrito['valor'],
-                    'observacoes' => $lancamento->observacoes . "\n" . 'Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao . " - R$". $dado_inscrito['valor'],
+                    'valor' => CursoInscrito::select('valor')->where('empresa_id', $dado_inscrito['empresa_id'])->sum('valor'),
+                    'observacoes' => $lancamento->observacoes . "\n" . date('d/m/Y H:i') . ' - Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao . " - R$". $dado_inscrito['valor'],
                 ]);
             }
 
         }
     }
+
+    private function formataMoeda($valor): ?string
+    {
+      if ($valor) {
+        return str_replace(',', '.', str_replace('.', '', $valor));
+      } else {
+        return null;
+      }
+    }
+  
 }

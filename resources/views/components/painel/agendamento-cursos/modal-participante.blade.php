@@ -20,6 +20,7 @@
           @if( isset($inscrito) )
             <input type="hidden" name="inscrito_uid" value="{{ $inscrito->uid }}">
             <input type="hidden" name="data_inscricao" value="{{ $inscrito->data_inscricao }}">
+            <input type="hidden" name="pessoa_id" value="{{ $inscrito->pessoa->id}}">
             <input type="hidden" name="pessoa_uid" value="{{ $inscrito->pessoa->uid}}">
           @endif
           <div class="row">
@@ -41,9 +42,6 @@
             </div>
             <div class="col col-sm-4 my-1">
               <x-forms.input-field :value="$inscrito->valor ?? null" name="valor" label="Valor" class="money" />
-            </div>
-            <div class="col col-sm-4 my-1">            
-              <x-forms.input-field :value="$data_confirmacao ?? null" type="date" name="data_confirmacao" label="Data Confirmação" />
             </div>
             <div class="col col-sm-4 my-1">
               <x-forms.input-field :value="$certificado_emitido ?? null" type="date" name="certificado_emitido" label="Certificado Enviado Em" />
