@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('centro_custo_id')->nullable();
             $table->integer('codigo_contabil')->nullable();
             $table->string('grupo_contas')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
