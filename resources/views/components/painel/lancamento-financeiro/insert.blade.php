@@ -35,9 +35,9 @@
         </div>
         
         <div class="col-3">
-          <label class="form-label">Número do documento</label>
-          <input type="text" class="form-control" name="num_documento" value="{{ old('num_documento') ?? ($lancamento->num_documento ?? null) }}">
-          @error('num_documento')
+          <label class="form-label">Conciliação</label>
+          <input type="text" class="form-control" name="consiliacao" value="{{ old('consiliacao') ?? ($lancamento->consiliacao ?? null) }}">
+          @error('consiliacao')
           <div class="text-warning">{{ $message }}</div>
           @enderror
         </div>

@@ -40,7 +40,7 @@ class LancamentoFinanceiroController extends Controller
     $validated = $request->validate(
       [
         'data_emissao' => ['nullable'],
-        'num_documento' => ['nullable'],
+        'consiliacao' => ['nullable'],
         'documento' => ['nullable'],
         'nota_fiscal' => ['nullable'],
         'pessoa_id' => ['required', 'exists:pessoas,id'],
@@ -126,7 +126,7 @@ class LancamentoFinanceiroController extends Controller
     $validated = $request->validate(
       [
         'data_emissao' => ['nullable'],
-        'num_documento' => ['nullable'],
+        'consiliacao' => ['nullable'],
         'documento' => ['nullable'],
         'nota_fiscal' => ['nullable'],
         'pessoa_id' => ['required', 'exists:pessoas,id'],
