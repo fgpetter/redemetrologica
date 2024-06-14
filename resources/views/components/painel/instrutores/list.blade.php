@@ -35,9 +35,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <p>Caso a pessoa não esteja cadastrada ainda, <a href="{{ route('pessoa-insert') }}">Clique
-                                    Aqui</a></p>
-
+                            <p>Caso a pessoa não esteja cadastrada ainda, <a href="{{ route('pessoa-insert') }}">Clique Aqui</a></p>
                         </div>
                     </div>
                 </div>
@@ -99,6 +97,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="row mt-3">
+                {!! $instrutores->withQueryString()->links('pagination::bootstrap-5') !!}
+            </div>
 
         </div>
     </div>

@@ -22,7 +22,7 @@ class InstrutorController extends Controller
    */
   public function index()
   {
-    $instrutores = Instrutor::all();
+    $instrutores = Instrutor::paginate(10);
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->whereNotIn('id', function ($query) {
         $query->select('pessoa_id')->from('instrutores');
