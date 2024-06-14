@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AgendaCursos;
 use App\Models\Pessoa;
 use App\Models\CentroCusto;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use App\Models\LancamentoFinanceiro;
+use App\Models\ModalidadePagamento;
+use App\Models\PlanoConta;
 use Illuminate\Http\RedirectResponse;
 
 
@@ -23,10 +26,15 @@ class LancamentoFinanceiroController extends Controller
       ->with(['pessoa' => function ($query) {
         $query->withTrashed();
       }])
+      ->whereIn('status', ['EFETIVADO','PROVISIONADO'])
       ->orderBy('data_vencimento', 'desc')
-      ->paginate(15);
+      ->get();
 
-    return view('painel.lancamento-financeiro.index', ['lancamentosfinanceiros' => $lancamentosfinanceiros]);
+    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->get();
+
+    return view(
+      'painel.lancamento-financeiro.index', 
+      ['lancamentosfinanceiros' => $lancamentosfinanceiros, 'pessoas' => $pessoas]);
   }
 
   /**
@@ -82,10 +90,9 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function insert(LancamentoFinanceiro $lancamento): View
   {
-
-
-    $pessoasT = Pessoa::whereNot('id', $lancamento->pessoa_id)->get();
-    $pessoaLancamento = Pessoa::where('id', $lancamento->pessoa_id)
+    $pessoasT = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento->pessoa_id)->get();
+    $pessoaLancamento = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
+      ->where('id', $lancamento->pessoa_id)
       ->withTrashed()
       ->first();
     if ($pessoaLancamento) {
@@ -94,7 +101,7 @@ class LancamentoFinanceiroController extends Controller
       $pessoas = $pessoasT;
     }
 
-    $centrosdecustoT = CentroCusto::whereNot('id', $lancamento->centro_custo_id)->get();
+    $centrosdecustoT = CentroCusto::whereNot('id', $lancamento->centro_custo_id)->orderBy('descricao')->get();
     $centrocusto_lancamento = CentroCusto::where('id', $lancamento->centro_custo_id)
       ->withTrashed()
       ->first();
@@ -104,12 +111,15 @@ class LancamentoFinanceiroController extends Controller
       $centrosdecusto = $centrosdecustoT;
     }
 
+    $planoConta = PlanoConta::all();
+    $modalidadePagamento = ModalidadePagamento::all();
 
     return view('painel.lancamento-financeiro.insert', [
       'lancamento' => $lancamento,
       'pessoas' => $pessoas,
       'centrosdecusto' => $centrosdecusto,
-
+      'planosconta' => $planoConta,
+      'modalidadepagamento' => $modalidadePagamento
     ]);
   }
 
@@ -165,6 +175,33 @@ class LancamentoFinanceiroController extends Controller
     $lancamento->delete();
     return redirect()->route('lancamento-financeiro-index')->with('warning', 'Lancamento removido');
   }
+
+  /**
+   * Gera pagina de listagem lancamentos a receber
+   *
+   * @return View
+   **/
+  public function areceber(): View
+  {
+    $lancamentosfinanceiros = LancamentoFinanceiro::select()
+    ->with(['pessoa' => function ($query) {
+      $query->withTrashed();
+    }])
+    ->where('status', 'A RECEBER')
+    ->orderBy('data_emissao', 'desc')
+    ->paginate(15);
+
+    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->get();
+
+    $cursos = AgendaCursos::select('id','uid','curso_id')->whereIn('status', ['AGENDADO', 'CONFIRMADO'])->with('curso')->get();
+
+
+    return view('painel.lancamento-financeiro.areceber', 
+    ['lancamentosfinanceiros' => $lancamentosfinanceiros, 'pessoas' => $pessoas, 'cursos' => $cursos]);
+  }
+
+
+
 
   /**
    * Undocumented function

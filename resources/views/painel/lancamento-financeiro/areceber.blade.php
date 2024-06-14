@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-  Lançamentos Financeiros
+    Contas a receber
 @endsection
 @section('content')
   @component('components.breadcrumb')
@@ -8,13 +8,13 @@
       Financeiro
     @endslot
     @slot('title')
-      Lançamentos Financeiros
+      Contas a receber
     @endslot
   @endcomponent
 
   <div class="row">
     <div class="col">
-      <x-painel.lancamento-financeiro.list-lancamentos :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas"/>
+      <x-painel.lancamento-financeiro.list-areceber :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas" :cursos="$cursos"/>
     </div>
   </div>
 @endsection

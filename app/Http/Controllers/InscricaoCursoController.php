@@ -238,6 +238,8 @@ class InscricaoCursoController extends Controller
 
         // adiciona lancamento financeiro por empresa
         if( isset($dado_inscrito['empresa_id']) ) {
+            $curso = AgendaCursos::find($dado_inscrito['agenda_curso_id'])->curso;
+
             $lancamento = LancamentoFinanceiro::where('pessoa_id', $dado_inscrito['empresa_id'])
                 ->where('agenda_curso_id', $dado_inscrito['agenda_curso_id'])
                 ->first();
@@ -247,11 +249,11 @@ class InscricaoCursoController extends Controller
                     'uid' => config('hashing.uid'),
                     'pessoa_id' => $dado_inscrito['empresa_id'],
                     'agenda_curso_id' => $dado_inscrito['agenda_curso_id'],
-                    'historico' => 'Inscrição curso -' . AgendaCursos::find($dado_inscrito['agenda_curso_id'])->curso->descricao,
+                    'historico' => 'Inscrição curso - ID:' . $curso->id . ' - ' . $curso->descricao,
                     'valor' => $dado_inscrito['valor'],
                     'centro_custo_id' => CentroCusto::where('descricao', 'TREINAMENTO')->first()->id,
                     'data_emissao' => now(),
-                    'status' => 'PROVISIONADO',
+                    'status' => 'A RECEBER',
                     'observacoes' => date('d/m/Y H:i').' - Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao ." - R$". $dado_inscrito['valor'],
                 ]);
             } else {

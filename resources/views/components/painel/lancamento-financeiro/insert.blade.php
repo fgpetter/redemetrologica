@@ -52,11 +52,11 @@
 
         <div class="col-6">
           <label class="form-label">Pessoa</label>
-          <select class="form-select" name="pessoa_id" aria-label="Default select example">
+          <select class="form-select" name="pessoa_id" id="pessoa">
             <option> - </option>
             @foreach ($pessoas as $pessoa)
             <option @selected($lancamento->pessoa_id == $pessoa->id) value="{{ $pessoa->id }}">
-              {{ $pessoa->nome_razao }}
+              {{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}
             </option>
             @endforeach
           </select>
@@ -65,9 +65,9 @@
           @enderror
         </div>
 
-        <div class="col-6">
+        <div class="col-3">
           <label class="form-label">Centro Custo</label>
-          <select class="form-select" name="centro_custo_id" aria-label="Default select example">
+          <select class="form-select" name="centro_custo_id">
             <option> - </option>
             @foreach ($centrosdecusto as $centrodecusto)
             <option @selected($lancamento->centro_custo_id == $centrodecusto->id) value="{{ $centrodecusto->id }}">
@@ -75,6 +75,20 @@
             @endforeach
           </select>
           @error('centro_custo_id')
+          <div class="text-warning">{{ $message }}</div>
+          @enderror
+        </div>
+
+        <div class="col-3">
+          <label class="form-label">Plano Conta</label>
+          <select class="form-select" name="plano_conta_id" id="plano_conta">
+            <option> - </option>
+            @foreach ($planosconta as $planoconta)
+            <option @selected($lancamento->plano_conta_id == $planoconta->id) value="{{ $planoconta->id }}">
+              {{ $planoconta->descricao }}</option>
+            @endforeach
+          </select>
+          @error('plano_conta_id')
           <div class="text-warning">{{ $message }}</div>
           @enderror
         </div>
@@ -89,7 +103,7 @@
 
         <div class="col-3">
           <label class="form-label">Tipo</label>
-          <select class="form-select" name="tipo_lancamento" aria-label="Default select example">
+          <select class="form-select" name="tipo_lancamento">
             <option value="CREDITO"> CRÉDITO </option>
             <option value="DEBITO"> DEBITO </option>
           </select>
@@ -98,7 +112,7 @@
           @enderror
         </div>
 
-        <div class="col-3">
+        <div class="col-2">
           <label class="form-label">Valor</label>
           <input type="text" class="form-control money" name="valor" value="{{ old('valor') ?? ($lancamento->valor ?? null) }}">
           @error('valor')
@@ -106,7 +120,7 @@
           @enderror
         </div>
 
-        <div class="col-3">
+        <div class="col-2">
           <label class="form-label">Vencimento</label>
           <input type="date" class="form-control" name="data_vencimento" value="{{ old('data_vencimento') ?? ($lancamento->data_vencimento ?? null) }}">
           @error('data_vencimento')
@@ -114,9 +128,9 @@
           @enderror
         </div>
 
-        <div class="col-3">
+        <div class="col-2">
           <label class="form-label">Pagamento</label>
-          <input type="date" class="form-control" name="data_pagamento" value="{{ old('data_pagamento') ?? ($lancamento->data_pagamento ?? null) }}">
+          <input type="date" class="form-control" name="data_pagamento" value="{{ old('data_pagamento') ?? ($lancamento->data_pagamento ?? null) }}" id="data_pagamento">
           @error('data_pagamento')
           <div class="text-warning">{{ $message }}</div>
           @enderror
@@ -124,18 +138,26 @@
 
         <div class="col-3">
           <label class="form-label">Status</label>
-          <select class="form-select" name="status" aria-label="Default select example">
-            <option @selected($lancamento->status == 'EFETIVADO') value="EFETIVADO"> EFETIVADO </option>
-            <option @selected($lancamento->status == 'PROVISIONADO') value="PROVISIONADO"> PROVISIONADO </option>
+          <input type="text" class="form-control" name="status" value="{{ $lancamento->data_pagamento ? 'EFETIVADO' : 'PROVISIONADO'  }}" readonly >
+        </div>
+
+        <div class="col-3">
+          <label class="form-label">Modalidade de Pagamento</label>
+          <select class="form-select" name="modalidade_pagamento_id">
+            <option> - </option>
+            @foreach ($modalidadepagamento as $modalidade)
+            <option @selected($lancamento->modalidade_pagamento_id == $modalidade->id) value="{{ $modalidade->id }}">
+              {{ $modalidade->descricao }}</option>
+            @endforeach
           </select>
-          @error('status')
+          @error('modalidade_pagamento_id')
           <div class="text-warning">{{ $message }}</div>
           @enderror
         </div>
 
         <div class="col-12">
           <label class="form-label">Observações</label>
-          <textarea name="observacoes" class="form-control" name="observacoes">{{ old('observacoes') ?? ($lancamento->observacoes ?? null) }}</textarea>
+          <textarea name="observacoes" class="form-control" name="observacoes" rows="5">{{ old('observacoes') ?? ($lancamento->observacoes ?? null) }}</textarea>
         </div>
 
         <div class="col-12">

@@ -138,7 +138,12 @@
           <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'show' : '' }}"
             id="sidebarFinanceiro">
             <ul class="nav nav-sm flex-column">
-            <li class="nav-item">
+              <li class="nav-item">
+              <a href="{{ route('a-receber-index') }}"
+                class="nav-link {{ request()->is('areceber/index') ? 'active' : '' }}"
+                role="button" data-key="t-signin">
+                A receber
+              </a>
               </li>
               <li class="nav-item">
               <a href="{{ route('lancamento-financeiro-index') }}"

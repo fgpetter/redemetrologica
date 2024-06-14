@@ -270,17 +270,16 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{planoconta:uid}', [PlanoContaController::class, 'destroy'])->name('plano-conta-delete');
   });
 
-  /**
-   * Financeiro
-   */
-
-   /* Lancamentos */
+  /* Financeiro */
   Route::group(['prefix' => 'financeiro'], function () {
     Route::get('lancamento/index', [LancamentoFinanceiroController::class, 'index'])->name('lancamento-financeiro-index');
     Route::get('lancamento/insert/{lancamento:uid?}', [LancamentoFinanceiroController::class, 'insert'])->name('lancamento-financeiro-insert');
     Route::post('lancamento/store', [LancamentoFinanceiroController::class, 'store'])->name('lancamento-financeiro-store');
     Route::post('lancamento/update/{lancamento:uid}', [LancamentoFinanceiroController::class, 'update'])->name('lancamento-financeiro-update');
     Route::post('lancamento/delete/{lancamento:uid}', [LancamentoFinanceiroController::class, 'delete'])->name('lancamento-financeiro-delete');
+
+    Route::get('areceber/index', [LancamentoFinanceiroController::class, 'areceber'])->name('a-receber-index');
+
   });
 
 
