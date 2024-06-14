@@ -17,11 +17,12 @@ return new class extends Migration
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
             $table->date('data_emissao')->nullable();
             $table->boolean('enviado_banco')->default(0);
-            $table->string('num_documento')->nullable();
+            $table->string('consiliacao')->nullable();
             $table->string('documento')->nullable();
             $table->string('nota_fiscal')->nullable();
             $table->foreignId('pessoa_id')->nullable();
             $table->foreignId('centro_custo_id')->nullable();
+            $table->foreignId('plano_conta_id')->nullable();
             $table->string('historico', 999)->nullable();
             $table->enum('tipo_lancamento', ['CREDITO', 'DEBITO']);
             $table->decimal('valor')->nullable();
