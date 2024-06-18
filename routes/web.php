@@ -18,6 +18,7 @@ use App\Http\Controllers\AgendaCursoController;
 use App\Http\Controllers\AreaAtuacaoController;
 use App\Http\Controllers\CentroCustoController;
 use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\InscricaoCursoController;
@@ -171,6 +172,16 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /**
    * Avalições
    */
+  Route::group(['prefix' => 'avaliacao'], function () {
+    Route::get('index', [CursoController::class, 'index'])->name('agendamento-avaliacao-index');
+    Route::get('insert/{valiacao:uid?}', [CursoController::class, 'insert'])->name('avaliacao-insert');
+    Route::post('create', [CursoController::class, 'create'])->name('avaliacao-create');
+    Route::post('update/{avaliacao:uid}', [CursoController::class, 'update'])->name('avaliacao-update');
+    Route::post('delete/{avaliacao:uid}', [CursoController::class, 'delete'])->name('avaliacao-delete');
+    Route::post('delete-folder/{valiacao:uid}', [CursoController::class, 'folderDelete'])->name('valiacao-folder-delete');
+    Route::post('delete-thumb/{avaliacao:uid}', [CursoController::class, 'thumbDelete'])->name('valiacao-thumb-delete');
+  });
+
 
    /* Avaliadores */
   Route::group(['prefix' => 'avaliador'], function () {
@@ -182,6 +193,19 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update-avaliacao/{avaliacao:uid}', [AvaliadorController::class, 'update'])->name('avaliador-update-avaliacao');
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
     Route::post('delete-curriculo/{avaliador:uid}', [AvaliadorController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
+  });
+
+  /* Laboratorios */
+  Route::group(['prefix' => 'laboratorios'], function () {
+    Route::get('index', [LaboratorioController::class, 'index'])->name('laboratorio-index');
+    Route::get('insert/{laboratorio:uid?}', [LaboratorioController::class, 'insert'])->name('laboratorio-insert');
+    Route::post('create', [LaboratorioController::class, 'create'])->name('laboratorio-create');
+    Route::post('update/{laboratorio:uid}', [LaboratorioController::class, 'update'])->name('laboratorio-update');
+    Route::post('delete/{laboratorio:uid}', [LaboratorioController::class, 'delete'])->name('laboratorio-delete');
+
+    Route::post('save-interno/{laboratorio_interno:uid?}', [LaboratorioController::class, 'saveInterno'])->name('laboratorio-save-interno');
+    Route::post('delete-interno/{laboratorio_interno:uid?}', [LaboratorioController::class, 'deleteInterno'])->name('laboratorio-delete-interno');
+
   });
 
   /*

@@ -12,18 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('unidades', function (Blueprint $table) {
+        Schema::create('laboratorios', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('endereco_id')->constrained()->cascadeOnDelete();
-            $table->string('nome');
+            $table->foreignId('endereco_id')->constrained()->cascadeOnDelete()->nullable();
+            $table->string('nome')->nullable();
             $table->string('telefone')->nullable();
-            $table->string('nome_responsavel')->nullable();
             $table->string('email')->nullable();
             $table->string('cod_laboratorio')->nullable();
             $table->string('responsavel_tecnico')->nullable();
-            $table->integer('laboratorio_id')->nullable();
+            $table->boolean('laboratorio_associado')->default(0);
             $table->timestamps();
         });
     }
@@ -33,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('unidades');
+        Schema::dropIfExists('laboratorios');
     }
 };

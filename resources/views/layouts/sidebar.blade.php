@@ -58,11 +58,11 @@
         <li class="nav-item">
           <a class="nav-link menu-link collapsed "
             href="#sidebarPessoas" data-bs-toggle="collapse" role="button"
-            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor']) ? 'true' : 'false' }}"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor', 'painel/laboratorios']) ? 'true' : 'false' }}"
             aria-controls="sidebarPessoas">
-            <i class="ph-identification-card"></i> <span>PESSOAS</span>
+            <i class="ph-address-book"></i> <span>PESSOAS</span>
           </a>
-          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/avaliador', 'painel/instrutor']) ? 'show' : '' }}"
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/avaliador', 'painel/instrutor', 'painel/laboratorios']) ? 'show' : '' }}"
             id="sidebarPessoas">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
@@ -74,26 +74,55 @@
               </li>
               <li class="nav-item">
                 <a href="{{ route('funcionario-index') }}"
-                  class="nav-link {{ request()->is('painel/funcionario/index') ? 'active' : '' }}"
+                  class="nav-link {{ request()->is('painel/funcionario/*') ? 'active' : '' }}"
                   role="button" data-key="t-signin">
                   Funcionários
                 </a>
               </li>
               <li class="nav-item">
                 <a href="{{ route('avaliador-index') }}"
-                  class="nav-link {{ request()->is('painel/avaliador/index') ? 'active' : '' }}"
+                  class="nav-link {{ request()->is('painel/avaliador/*') ? 'active' : '' }}"
                   role="button" data-key="t-signin">
                   Avaliadores
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{{ route('laboratorio-index') }}"
+                  class="nav-link {{ request()->is('painel/laboratorios/*') ? 'active' : '' }}"
+                  role="button" data-key="t-signin">
+                  Laboratórios
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{{ route('instrutor-index') }}"
-                  class="nav-link {{ request()->is('painel/instrutor/index') ? 'active' : '' }}"
+                  class="nav-link {{ request()->is('painel/instrutor/*') ? 'active' : '' }}"
                   role="button" data-key="t-signin">
                   Instrutores
                 </a>
               </li>
 
+            </ul>
+          </div>
+        </li>
+
+        {{-- Avaliacoes --}}
+        <li class="nav-item">
+          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/avaliacao']) ? 'active' : '' }}"
+            href="#sidebarAvaliacoes" data-bs-toggle="collapse" role="button"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/avaliacao']) ? 'true' : 'false' }}"
+            aria-controls="sidebarAvaliacoes">
+            <i class="ph-crosshair"></i> <span>AVALIAÇÕES</span> 
+          </a>
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/avaliacao']) ? 'show' : '' }}"
+            id="sidebarAvaliacoes">
+            <ul class="nav nav-sm flex-column">
+              <li class="nav-item">
+                <a href="{{ route('agendamento-avaliacao-index') }}"
+                  class="nav-link {{ request()->is('painel/agendamento-avaliacao/*') ? 'active' : '' }}"
+                  role="button" data-key="t-signin">
+                  Agendamento de Avaliações
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -104,21 +133,21 @@
             href="#sidebarCursos" data-bs-toggle="collapse" role="button"
             aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'true' : 'false' }}"
             aria-controls="sidebarCursos">
-            <i class="ph-identification-card"></i> <span>CURSOS</span> 
+            <i class="ph-books-thin"></i> <span>CURSOS</span> 
           </a>
           <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'show' : '' }}"
             id="sidebarCursos">
             <ul class="nav nav-sm flex-column">
             <li class="nav-item">
               <a href="{{ route('curso-index') }}"
-                class="nav-link {{ request()->is('painel/curso/index') ? 'active' : '' }}"
+                class="nav-link {{ request()->is('painel/curso/*') ? 'active' : '' }}"
                 role="button" data-key="t-signin">
                 Cursos
               </a>
               </li>
               <li class="nav-item">
               <a href="{{ route('agendamento-curso-index') }}"
-                class="nav-link {{ request()->is('painel/agendamento-curso/index') ? 'active' : '' }}"
+                class="nav-link {{ request()->is('painel/agendamento-curso/*') ? 'active' : '' }}"
                 role="button" data-key="t-signin">
                 Agendamento de Cursos
               </a>
@@ -133,7 +162,7 @@
             href="#sidebarFinanceiro" data-bs-toggle="collapse" role="button"
             aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'true' : 'false' }}"
             aria-controls="sidebarFinanceiro">
-            <i class="ph-identification-card"></i> <span>FINANCEIRO</span> 
+            <i class="ph-calculator"></i> <span>FINANCEIRO</span> 
           </a>
           <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'show' : '' }}"
             id="sidebarFinanceiro">
