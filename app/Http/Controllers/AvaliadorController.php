@@ -21,7 +21,7 @@ class AvaliadorController extends Controller
    **/
   public function index(): View
   {
-    $avaliadores = Avaliador::paginate(10);
+    $avaliadores = Avaliador::with('pessoa')->paginate(10);
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->whereNotIn('id', function ($query) {
         $query->select('pessoa_id')->from('avaliadores');

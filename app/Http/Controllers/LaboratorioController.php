@@ -19,7 +19,7 @@ class LaboratorioController extends Controller
      **/
     public function index(): View
     {
-        $laboratorios = Laboratorio::paginate(10);
+        $laboratorios = Laboratorio::with('pessoa')->paginate(10);
         $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
             ->where('tipo_pessoa', 'PJ')
             ->whereNotIn('id', function ($query) {

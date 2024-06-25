@@ -8,10 +8,7 @@ use App\Models\Instrutor;
 use Illuminate\View\View;
 use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Validator;
 use Illuminate\Http\RedirectResponse;
-
-use Illuminate\Validation\Rules\File;
 use App\Models\InstrutorCursoHabilitado;
 use Illuminate\Support\Facades\File as FileFacade;
 
@@ -22,7 +19,7 @@ class InstrutorController extends Controller
    */
   public function index()
   {
-    $instrutores = Instrutor::paginate(10);
+    $instrutores = Instrutor::with('pessoa')->paginate(10);
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->whereNotIn('id', function ($query) {
         $query->select('pessoa_id')->from('instrutores');
