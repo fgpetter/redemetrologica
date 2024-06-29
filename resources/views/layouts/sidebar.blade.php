@@ -111,14 +111,14 @@
             href="#sidebarAvaliacoes" data-bs-toggle="collapse" role="button"
             aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/avaliacao']) ? 'true' : 'false' }}"
             aria-controls="sidebarAvaliacoes">
-            <i class="ph-crosshair"></i> <span>AVALIAÇÕES</span> 
+            <i class="ph-flask"></i> <span>AVALIAÇÕES</span> 
           </a>
           <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/avaliacao']) ? 'show' : '' }}"
             id="sidebarAvaliacoes">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
                 <a href="{{ route('agendamento-avaliacao-index') }}"
-                  class="nav-link {{ request()->is('painel/agendamento-avaliacao/*') ? 'active' : '' }}"
+                  class="nav-link {{ request()->is('painel/avaliacao/*') ? 'active' : '' }}"
                   role="button" data-key="t-signin">
                   Agendamento de Avaliações
                 </a>

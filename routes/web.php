@@ -22,6 +22,7 @@ use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\InscricaoCursoController;
+use App\Http\Controllers\AgendaAvaliacaoController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\LancamentoFinanceiroController;
@@ -173,13 +174,12 @@ Route::prefix('painel')->middleware('auth')->group(function () {
    * Avalições
    */
   Route::group(['prefix' => 'avaliacao'], function () {
-    Route::get('index', [CursoController::class, 'index'])->name('agendamento-avaliacao-index');
-    Route::get('insert/{valiacao:uid?}', [CursoController::class, 'insert'])->name('avaliacao-insert');
-    Route::post('create', [CursoController::class, 'create'])->name('avaliacao-create');
-    Route::post('update/{avaliacao:uid}', [CursoController::class, 'update'])->name('avaliacao-update');
-    Route::post('delete/{avaliacao:uid}', [CursoController::class, 'delete'])->name('avaliacao-delete');
-    Route::post('delete-folder/{valiacao:uid}', [CursoController::class, 'folderDelete'])->name('valiacao-folder-delete');
-    Route::post('delete-thumb/{avaliacao:uid}', [CursoController::class, 'thumbDelete'])->name('valiacao-thumb-delete');
+    Route::get('index', [AgendaAvaliacaoController::class, 'index'])->name('agendamento-avaliacao-index');
+    Route::get('insert/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'insert'])->name('avaliacao-insert');
+    Route::post('create', [AgendaAvaliacaoController::class, 'create'])->name('avaliacao-create');
+    Route::post('update/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'update'])->name('avaliacao-update');
+    Route::post('delete/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'delete'])->name('avaliacao-delete');
+    Route::post('save-area/{area:uid?}', [AgendaAvaliacaoController::class, 'saveArea'])->name('avaliacao-save-area');
   });
 
 

@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
             $table->foreignId('endereco_id')->constrained()->cascadeOnDelete()->nullable();
-            $table->string('nome')->nullable();
+            $table->string('nome_laboratorio')->nullable();
+            $table->string('contato')->nullable();
             $table->string('telefone')->nullable();
             $table->string('email')->nullable();
             $table->string('cod_laboratorio')->nullable();
