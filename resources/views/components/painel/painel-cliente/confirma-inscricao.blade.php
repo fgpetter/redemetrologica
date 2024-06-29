@@ -1,5 +1,10 @@
 <div class="col-12 col-xxl-6 col-xl-8">
 
+  @if($errors->any())
+    @foreach($errors->all() as $error)
+      <div class="alert alert-warning">{{ $error }}</div>
+    @endforeach
+  @endif
   <div class="card">
     <div class="card-body">
       <h5 class="card-title mb-3">Confirme sua inscrição:</h5>

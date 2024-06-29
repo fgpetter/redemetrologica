@@ -33,6 +33,12 @@ class ConfirmaInscricao extends Component
     */
     public function render(): View|Closure|string
     {
+        // verifica se usuário tem uma pessoa associada
+        if(!$this->pessoa) {
+            logger()->error('Usuário não tem uma pessoa associada', ['user_id' => auth()->user()->id]);
+            abort(404);
+        }
+
         // verifica se já está inscrita no curso
         if( CursoInscrito::where('agenda_curso_id', $this->curso->id)->where('pessoa_id', $this->pessoa->id)->exists() ) {
             session()->forget(['curso', 'empresa']);
