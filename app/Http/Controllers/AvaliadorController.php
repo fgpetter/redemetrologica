@@ -131,7 +131,8 @@ class AvaliadorController extends Controller
       [
         'nome_razao' => ['required', 'string', 'max:255'],
         'cpf_cnpj' => ['required', 'string', 'max:14', 'min:14'], // TODO - adicionar validação de CPF/CNPJ
-        'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'] //5mb
+        'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], //5mb
+        'data_ingresso' => ['nullable', 'date'],
       ],
       [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
