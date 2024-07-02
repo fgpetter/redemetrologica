@@ -43,7 +43,7 @@
                       @enderror                      
 
                       <div class="mb-3">
-                        <label for="username" class="form-label">Usuário</label>
+                        <label for="username" class="form-label">Usuário <small class="text-muted">(email)</small></label>
                         <input type="text" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" id="username" name="email" placeholder="Digite seu email">
                         @error('email')
                         <span class="invalid-feedback" role="alert">
