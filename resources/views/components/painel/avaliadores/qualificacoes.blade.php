@@ -42,14 +42,14 @@
                                 </li>
                                 <li>
 
-                                    <x-painel.form-delete.delete route='area-atuacao-delete'
+                                    <x-painel.form-delete.delete route='avaliador-delete-qualificacao'
                                         id="{{ $qualificacao->uid }}" />
                                 </li>
                             </ul>
                         </div>
                     </td>
                 </tr>
-                <x-painel.avaliadores.modal-qualificacoes-insert :qualificacao="$qualificacao" />
+                <x-painel.avaliadores.modal-qualificacoes-insert :qualificacao="$qualificacao" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>
             @empty
                 <tr>
                     <td colspan="5" class="text-center">Não há qualificações cadastradas.</td>
@@ -57,8 +57,5 @@
             @endforelse
         </tbody>
     </table>
-    {{-- <div class="row mt-3">
-      {!! $areasAtuacao->withQueryString()->links('pagination::bootstrap-5') !!}
-    </div> --}}
 </div>
-<x-painel.avaliadores.modal-qualificacoes-insert />
+<x-painel.avaliadores.modal-qualificacoes-insert :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>

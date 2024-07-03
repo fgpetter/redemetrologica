@@ -6,6 +6,7 @@ namespace App\Models;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -35,6 +36,16 @@ class Avaliador extends Model
     {
         return $this->belongsTo(Pessoa::class);
     }
+
+    /**
+     * Qualificações
+     * @return HasMany
+     */
+    public function qualificacoes(): HasMany
+    {
+        return $this->hasMany(Qualificacao::class);
+    }
+
 
 
 }

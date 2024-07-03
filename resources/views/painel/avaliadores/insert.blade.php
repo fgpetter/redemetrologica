@@ -8,7 +8,12 @@
   <div class="row">
 
     <div class="col col-8">
-      <x-painel.avaliadores.insert :avaliador="$avaliador" :avaliacoes="$avaliacoes"/>
+      <x-painel.avaliadores.insert 
+        :avaliador="$avaliador" 
+        :avaliacoes="$avaliacoes" 
+        :qualificacoes="$qualificacoes"
+        :qualificacoeslist="$qualificacoes_list"
+      />
     </div>
     @if ($avaliador->id)
       <div class="col-4">

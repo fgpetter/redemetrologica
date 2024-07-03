@@ -49,13 +49,10 @@
                 <x-painel.avaliadores.modal-avaliacoes-insert :avaliador="$avaliador" :avaliacao="$avaliacao" />
             @empty
                 <tr>
-                    <td colspan="4" class="text-center">Não há áreas de atuação cadastradas.</td>
+                    <td colspan="5" class="text-center">Não há avaliações cadastradas.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
-    {{-- <div class="row mt-3">
-      {!! $areasAtuacao->withQueryString()->links('pagination::bootstrap-5') !!}
-    </div> --}}
 </div>
 <x-painel.avaliadores.modal-avaliacoes-insert :avaliador="$avaliador" />

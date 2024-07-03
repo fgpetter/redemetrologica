@@ -50,7 +50,7 @@
                          <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" />
                      </div>
                      <div class="tab-pane" id="qualificacoes" role="tabpanel">
-                         {{-- <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes"/> --}}
+                         <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>
                          {{-- <x-painel.avaliadores.certificados :certificados="$certificados"/> --}}
                          {{-- <x-painel.avaliadores.area-atucao :areaatuacao="$areaatuacao"/> --}}
                      </div>

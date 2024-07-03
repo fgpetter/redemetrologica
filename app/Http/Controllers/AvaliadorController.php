@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AvaliacaoAvaliador;
-use App\Models\Avaliador;
 use App\Models\Pessoa;
+use App\Models\Avaliador;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\File;
+use App\Models\Qualificacao;
 use Illuminate\Validation\Rule;
+use App\Models\AvaliacaoAvaliador;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\File;
+use Illuminate\Http\RedirectResponse;
 
 
 class AvaliadorController extends Controller
 {
   /**
-   * Gera pagina de listagem de usuários
+   * Gera pagina de listagem de avaliadores
    *
    * @return View
    **/
@@ -32,7 +34,7 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Adiciona usuários na base
+   * Adiciona avaliadores na base
    *
    * @param Request $request
    * @return RedirectResponse
@@ -68,7 +70,7 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Adiciona usuários na base
+   * Adiciona avaliacao
    *
    * @param Request $request
    * @return RedirectResponse
@@ -107,19 +109,36 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Tela de edição de usuário
+   * Tela de edição de avaliador
    *
    * @param Avaliador $avaliador
    * @return View
    **/
   public function insert(Avaliador $avaliador): View
   {
+    // carrega avaliações que esse avaliador realizou
     $avaliacoes = AvaliacaoAvaliador::where('avaliador_id', $avaliador->id)->get();
-    return view('painel.avaliadores.insert', ['avaliador' => $avaliador, 'avaliacoes' => $avaliacoes]);
+
+    // carrega qualificações do avaliador
+    $qualificacoes = Qualificacao::where('avaliador_id', $avaliador->id)->get();
+    $qualificacoes_list = [
+      'atividades' => DB::table('qualificacoes')->distinct()->get(['atividade']),
+      'instrutores' => DB::table('qualificacoes')->distinct()->get(['instrutor']),
+    ];
+
+    return view(
+      'painel.avaliadores.insert',
+      [
+        'avaliador' => $avaliador,
+        'avaliacoes' => $avaliacoes,
+        'qualificacoes' => $qualificacoes,
+        'qualificacoes_list' => $qualificacoes_list
+      ]
+    );
   }
 
   /**
-   * Edita dados de usuário
+   * Edita dados de avaliador
    *
    * @param Request $request
    * @param Avaliador $user
@@ -177,7 +196,7 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Remove usuário
+   * Remove avaliador
    *
    * @param User $user
    * @return RedirectResponse
@@ -209,4 +228,76 @@ class AvaliadorController extends Controller
 
     return redirect()->back()->with('success', 'Curriculo removido');
   }
+
+  /**
+   * Adiciona qualificação
+   *
+   * @param Avaliador $avaliador
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function createQualificacao(Avaliador $avaliador, Request $request): RedirectResponse
+  {
+    $validatedData = $request->validate([
+      'ano' => ['nullable', 'string'],
+      'atividade' => ['nullable', 'string'],
+      'instrutor' => ['nullable', 'string'],
+    ], [
+      'ano.string' => 'O campo Ano deve ser uma string.',
+      'atividade.string' => 'O campo Atividade deve ser uma string.',
+      'instrutor.string' => 'O campo Instrutor deve ser uma string.',
+    ]);
+
+    if (!$avaliador) {
+      return redirect()->back()->with('error', 'Houve um erro, tente novamente');
+    }
+
+    $validatedData['avaliador_id'] = $avaliador->id;
+
+    Qualificacao::create($validatedData);
+
+    return redirect()->back()->with('success', 'Qualificação cadastrada com sucesso');
+  }
+
+  /**
+   * Atualiza qualificação
+   *
+   * @param Qualificacao $qualificacao
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function updateQualificacao(Request $request, Qualificacao $qualificacao)
+  {
+    // Validação dos dados com mensagens de erro personalizadas
+    $validatedData = $request->validate([
+      'ano' => 'nullable|string',
+      'atividade' => 'nullable|string',
+      'instrutor' => 'nullable|string',
+    ], [
+      'ano.string' => 'O campo Ano deve ser uma string.',
+      'atividade.string' => 'O campo Atividade deve ser uma string.',
+      'instrutor.string' => 'O campo Instrutor deve ser uma string.',
+    ]);
+
+    // Atualizar os dados no modelo Qualificacoes
+    $qualificacao->update($validatedData);
+
+    // Redirecionar para a rota atual com mensagem de sucesso
+    return redirect()->back()->with('success', 'Qualificação atualizada com sucesso');
+  }
+
+    /**
+   * Remove avaliador
+   *
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  public function deleteQualificacao(Qualificacao $qualificacao): RedirectResponse
+  {
+
+    $qualificacao->delete();
+
+    return redirect()->back()->with('warning', 'Qualificação removida');
+  }
+
 }
