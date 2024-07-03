@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('laboratorios_internos', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
+            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->foreignId('laboratorio_id')->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('area_atuacao_id');
             $table->string('nome')->nullable();

@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('plano_contas', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
+            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->string('descricao')->nullable();
             $table->foreignId('centro_custo_id')->nullable();
             $table->integer('codigo_contabil')->nullable();

@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('avaliacao_avaliadores', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
+            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->integer('agenda_avaliacao_id')->nullable();
             $table->integer('avaliador_id');
             $table->string('empresa')->nullable();

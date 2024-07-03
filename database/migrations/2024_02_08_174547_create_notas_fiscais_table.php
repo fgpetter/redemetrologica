@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('notas_fiscais', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"));
+            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->string('num_nf');
             $table->foreignId('pessoa_id')->constrained();
             $table->foreignId('unidade_id');
