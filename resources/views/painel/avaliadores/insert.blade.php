@@ -13,6 +13,7 @@
         :avaliacoes="$avaliacoes" 
         :qualificacoes="$qualificacoes"
         :qualificacoeslist="$qualificacoes_list"
+        :areasatuacao="$areas_atuacao"
       />
     </div>
     @if ($avaliador->id)

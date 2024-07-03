@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row mt-4">
     <div class="col-12">
         <a href="#" class="btn btn-sm btn-success float-end" data-bs-toggle="modal" data-bs-target="#avaliacaoModal">
             <i class="ri-add-line align-bottom me-1"></i> Adicionar avaliacao

@@ -198,6 +198,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create-qualificacao/{avaliador:uid}', [AvaliadorController::class, 'createQualificacao'])->name('avaliador-create-qualificacao');
     Route::post('update-qualificacao/{qualificacao:uid}', [AvaliadorController::class, 'updateQualificacao'])->name('avaliador-update-qualificacao');
     Route::post('delete-qualificacao/{qualificacao:uid}', [AvaliadorController::class, 'deleteQualificacao'])->name('avaliador-delete-qualificacao');
+    
+    Route::post('create-area/{avaliador:uid}', [AvaliadorController::class, 'createArea'])->name('avaliador-create-area');
+    Route::post('update-area/{area:uid}', [AvaliadorController::class, 'updateArea'])->name('avaliador-update-area');
+    Route::post('delete-area/{area:uid}', [AvaliadorController::class, 'deleteArea'])->name('avaliador-delete-area');
   });
 
   /* Laboratorios */
