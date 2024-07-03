@@ -24,6 +24,22 @@
                         <div class="text-warning">{{ $message }}</div>
                     @enderror
                 </div>
+
+                @if( auth()->user()->id == $user->id || auth()->user()->email == 'fgpetter@gmail.com' )
+                    <h6 class="mb-0 mt-4"> Alterar senha</h6>
+                    <div class="col-12">
+                        <label for="password" class="form-label">Nova Senha</label>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Senha">
+                        @error('password') <div class="text-warning">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-12">
+                        <label for="password_confirmation" class="form-label">Confirmar Senha</label>
+                        <input type="password" class="form-control" name="password_confirmation" id="password_confirmation" placeholder="Confirmar Senha">
+                        @error('password_confirmation') <div class="text-warning">{{ $message }}</div> @enderror
+                    </div>
+                @endif
+
                 @if($user->pessoa)
                 <div class="col-12">
                     <strong>Pessoa associada ao usuário: </strong>

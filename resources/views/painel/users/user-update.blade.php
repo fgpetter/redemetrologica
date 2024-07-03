@@ -7,7 +7,7 @@
 @endcomponent
 
 <div class="row">
-  <div class="col-12 col-sm-8">
+  <div class="col-12 col-sm-6">
     <x-painel.users.insert :user="$user"/>
   </div>
 </div>

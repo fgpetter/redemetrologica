@@ -80,20 +80,28 @@ class UserController extends Controller
       [
         'nome' => ['required', 'string', 'max:255'],
         'email' => ['unique:users,email,' . $user->id, 'required', 'string', 'email'],
+        'password' => ['nullable', 'string', 'min:8', 'confirmed'],
       ],
       [
         'nome.required' => 'Preencha o campo nome',
         'email.required' => 'Preencha o campo email',
         'email.email' => 'Não é um email válido',
         'email.unique' => 'Esse email já está em uso',
+        'password.confirmed' => 'As senhas não conferem',
+        'password.min' => 'A senha deve ter pelo menos 8 caracteres',
       ]
     );
 
     $user->update([
       'name' => $request->get('nome'),
-      'email' => $request->get('email'),
-      'password' => Hash::make('Password')
+      'email' => $request->get('email')
     ]);
+
+    if($request->get('password')) {
+      $user->update([
+        'password' => Hash::make($request->get('password'))
+      ]);
+    }
 
     if (!$user) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
