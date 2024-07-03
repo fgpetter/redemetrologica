@@ -46,6 +46,15 @@ class Avaliador extends Model
         return $this->hasMany(Qualificacao::class);
     }
 
+    /**
+     * Áreas de atuação
+     * @return HasMany
+     */
+    public function areas(): HasMany
+    {
+        return $this->hasMany(AvaliadorArea::class);
+    }
+
 
 
 }

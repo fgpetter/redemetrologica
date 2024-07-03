@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pessoa;
 use App\Models\Avaliador;
-use Illuminate\Http\Request;
+use App\Models\AreaAtuacao;
 use App\Models\Qualificacao;
+use Illuminate\Http\Request;
+use App\Models\AvaliadorArea;
 use Illuminate\Validation\Rule;
 use App\Models\AvaliacaoAvaliador;
 use Illuminate\Support\Facades\DB;
@@ -126,13 +128,17 @@ class AvaliadorController extends Controller
       'instrutores' => DB::table('qualificacoes')->distinct()->get(['instrutor']),
     ];
 
+    // carrega areas de atuação do avaliador
+    $areas_atuacao = AreaAtuacao::select('id', 'uid', 'descricao')->get();
+
     return view(
       'painel.avaliadores.insert',
       [
         'avaliador' => $avaliador,
         'avaliacoes' => $avaliacoes,
         'qualificacoes' => $qualificacoes,
-        'qualificacoes_list' => $qualificacoes_list
+        'qualificacoes_list' => $qualificacoes_list,
+        'areas_atuacao' => $areas_atuacao,
       ]
     );
   }
@@ -266,9 +272,8 @@ class AvaliadorController extends Controller
    * @param Request $request
    * @return RedirectResponse
    **/
-  public function updateQualificacao(Request $request, Qualificacao $qualificacao)
+  public function updateQualificacao(Request $request, Qualificacao $qualificacao): RedirectResponse
   {
-    // Validação dos dados com mensagens de erro personalizadas
     $validatedData = $request->validate([
       'ano' => 'nullable|string',
       'atividade' => 'nullable|string',
@@ -279,10 +284,8 @@ class AvaliadorController extends Controller
       'instrutor.string' => 'O campo Instrutor deve ser uma string.',
     ]);
 
-    // Atualizar os dados no modelo Qualificacoes
     $qualificacao->update($validatedData);
 
-    // Redirecionar para a rota atual com mensagem de sucesso
     return redirect()->back()->with('success', 'Qualificação atualizada com sucesso');
   }
 
@@ -299,5 +302,75 @@ class AvaliadorController extends Controller
 
     return redirect()->back()->with('warning', 'Qualificação removida');
   }
+
+  /**
+   * Adiciona area de atuação
+   *
+   * @param Avaliador $avaliador
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function createArea(Avaliador $avaliador, Request $request): RedirectResponse
+  {
+    $validatedData = $request->validate([
+      'area_id' => ['required', 'exists:areas_atuacao,id'],
+      'situacao' => ['nullable', 'in:ATIVO,AVALIADOR,AVALIADOR EM TREINAMENTO,AVALIADOR LIDER,ESPECIALISTA,INATIVO'],
+      'data_cadastro' => ['nullable', 'date'],
+    ], [
+      'area_id.required' => 'Selecione uma opção válida',
+      'area_id.exists' => 'Selecione uma opção válida',
+      'situacao.in' => 'Selecione uma opção válida',
+      'data_cadastro.date' => 'Data inválida'
+    ]);
+
+    if (!$avaliador) {
+      return redirect()->back()->with('error', 'Houve um erro, tente novamente');
+    }
+
+    $validatedData['avaliador_id'] = $avaliador->id;
+
+    AvaliadorArea::create($validatedData);
+
+    return redirect()->back()->with('success', 'Área cadastrada com sucesso');
+  }
+
+  /**
+   * Atualiza qualificação
+   *
+   * @param AvaliadorArea $area
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function updateArea(Request $request, AvaliadorArea $area): RedirectResponse
+  {
+    $validatedData = $request->validate([
+      'area_id' => ['required', 'exists:areas_atuacao,id'],
+      'situacao' => ['nullable', 'in:ATIVO,AVALIADOR,AVALIADOR EM TREINAMENTO,AVALIADOR LIDER,ESPECIALISTA,INATIVO'],
+      'data_cadastro' => ['nullable', 'date'],
+    ], [
+      'area_id.required' => 'Selecione uma opção válida',
+      'area_id.exists' => 'Selecione uma opção válida',
+      'situacao.in' => 'Selecione uma opção válida',
+      'data_cadastro.date' => 'Data inválida'
+    ]);
+
+    $area->update($validatedData);
+
+    return redirect()->back()->with('success', 'Área atualizada com sucesso');
+  }
+
+    /**
+   * Remove avaliador
+   *
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  public function deleteArea(AvaliadorArea $area): RedirectResponse
+  {
+    $area->delete();
+
+    return redirect()->back()->with('warning', 'Qualificação removida');
+  }
+
 
 }
