@@ -1,12 +1,12 @@
   <div class="card">
       <div class="card-body">
-          <div class="row">
+          {{-- <div class="row">
               <div class="col-12 d-flex justify-content-end mb-3">
                   <a href="{{ route('funcionario-insert') }}" class="btn btn-sm btn-success">
                       <i class="ri-add-line align-bottom me-1"></i> Adicionar
                   </a>
               </div>
-          </div>
+          </div> --}}
 
 
 
