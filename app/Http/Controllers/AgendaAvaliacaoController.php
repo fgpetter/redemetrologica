@@ -167,6 +167,20 @@ class AgendaAvaliacaoController extends Controller
     }
 
     /**
+     * Remove agendamento de avaliacao
+     * 
+     * @param AgendaAvaliacao $avaliacao
+     * @return RedirectResponse
+     */
+    public function delete(AgendaAvaliacao $avaliacao): RedirectResponse
+    {
+        $avaliacao->delete();
+
+        return redirect()->back()->with('warning', 'Avaliação removida com sucesso');
+    }
+
+
+    /**
      * Salva uma nova area avaliada
      * @param AreaAvaliada $area
      * @param Request $request
