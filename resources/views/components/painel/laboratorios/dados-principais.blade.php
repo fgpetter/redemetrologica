@@ -11,7 +11,11 @@
       </div>
 
       <div class="col-10">
-        <x-forms.input-field name="nome" :value="old('nome') ?? ($laboratorio->nome ?? null)" label="Nome do laboratorio" />
+        <x-forms.input-field name="nome_laboratorio" 
+          :value="old('nome_laboratorio') ?? ($laboratorio->nome_laboratorio ?? null)" 
+          label="Nome do laboratorio"
+          tooltip="Necessário para identificação do laboratorio ao cadastrar uma avaliação"
+          required/>
       </div>
 
       <div class="col-2">
