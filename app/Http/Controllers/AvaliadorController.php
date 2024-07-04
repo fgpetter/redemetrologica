@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 use App\Models\AvaliacaoAvaliador;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
+use App\Models\CertificadoAvaliador;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 
@@ -371,6 +372,84 @@ class AvaliadorController extends Controller
 
     return redirect()->back()->with('warning', 'Qualificação removida');
   }
+
+  
+
+
+
+
+
+    /**
+   * Adiciona certificado
+   *
+   * @param Avaliador $avaliador
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function createCertificado(Avaliador $avaliador, Request $request): RedirectResponse
+  {
+    $validatedData = $request->validate([
+      'data' => ['nullable', 'date'],
+      'revisao' => ['nullable', 'string'],
+      'responsavel' => ['nullable', 'string'],
+      'motivo' => ['nullable', 'string'],
+    ], [
+      'data.date' => ' Data inválida',
+      'revisao.string' => 'Dado inválido',
+      'responsavel.string' => 'Dado inválido',
+      'motivo.string' => 'Dado inválido',
+    ]);
+
+    if (!$avaliador) {
+      return redirect()->back()->with('error', 'Houve um erro, tente novamente');
+    }
+
+    $validatedData['avaliador_id'] = $avaliador->id;
+
+    CertificadoAvaliador::create($validatedData);
+
+    return redirect()->back()->with('success', 'Certificado cadastrado com sucesso');
+  }
+
+  /**
+   * Atualiza certificado
+   *
+   * @param CertificadoAvaliador $certificado
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function updateCertificado(Request $request, CertificadoAvaliador $certificado): RedirectResponse
+  {
+    $validatedData = $request->validate([
+      'data' => ['nullable', 'date'],
+      'revisao' => ['nullable', 'string'],
+      'responsavel' => ['nullable', 'string'],
+      'motivo' => ['nullable', 'string'],
+    ], [
+      'data.date' => ' Data inválida',
+      'revisao.string' => 'Dado inválido',
+      'responsavel.string' => 'Dado inválido',
+      'motivo.string' => 'Dado inválido',
+    ]);
+
+    $certificado->update($validatedData);
+
+    return redirect()->back()->with('success', 'Certificado atualizado com sucesso');
+  }
+
+    /**
+   * Remove certificado
+   *
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  public function deleteCertificado(CertificadoAvaliador $certificado): RedirectResponse
+  {
+    $certificado->delete();
+
+    return redirect()->back()->with('warning', 'Certificado removido');
+  }
+
 
 
 }

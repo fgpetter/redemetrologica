@@ -24,6 +24,12 @@
                              Qualificações e Áreas
                          </a>
                      </li>
+                     <li class="nav-item">
+                         <a class="nav-link" data-bs-toggle="tab" href="#certificados" role="tab"
+                             aria-selected="false">
+                             Certificados
+                         </a>
+                     </li>
                  </ul>
 
                  <div class="tab-content">
@@ -52,7 +58,9 @@
                      <div class="tab-pane" id="qualificacoes" role="tabpanel">
                          <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>
                          <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador"/>
-                         {{-- <x-painel.avaliadores.certificados :certificados="$certificados"/> --}}
+                     </div>
+                     <div class="tab-pane" id="certificados" role="tabpanel">
+                         <x-painel.avaliadores.certificados :avaliador="$avaliador"/>
                      </div>
                  </div>
 

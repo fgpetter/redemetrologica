@@ -80,7 +80,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete');
   });
 
-
   /**
    * Pessoas 
    */
@@ -123,7 +122,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'])->name('conta-update');
     Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'])->name('conta-delete');
   });
-
 
   /**
    *  Cursos 
@@ -182,8 +180,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('save-area/{area:uid?}', [AgendaAvaliacaoController::class, 'saveArea'])->name('avaliacao-save-area');
   });
 
-
-   /* Avaliadores */
+  /* Avaliadores */
   Route::group(['prefix' => 'avaliador'], function () {
     Route::get('index', [AvaliadorController::class, 'index'])->name('avaliador-index');
     Route::get('insert/{avaliador:uid?}', [AvaliadorController::class, 'insert'])->name('avaliador-insert');
@@ -202,6 +199,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create-area/{avaliador:uid}', [AvaliadorController::class, 'createArea'])->name('avaliador-create-area');
     Route::post('update-area/{area:uid}', [AvaliadorController::class, 'updateArea'])->name('avaliador-update-area');
     Route::post('delete-area/{area:uid}', [AvaliadorController::class, 'deleteArea'])->name('avaliador-delete-area');
+    
+    Route::post('create-certificado/{avaliador:uid}', [AvaliadorController::class, 'createCertificado'])->name('avaliador-create-certificado');
+    Route::post('update-certificado/{certificado:uid}', [AvaliadorController::class, 'updateCertificado'])->name('avaliador-update-certificado');
+    Route::post('delete-certificado/{certificado:uid}', [AvaliadorController::class, 'deleteCertificado'])->name('avaliador-delete-certificado');
   });
 
   /* Laboratorios */
