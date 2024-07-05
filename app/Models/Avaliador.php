@@ -61,6 +61,15 @@ class Avaliador extends Model
         return $this->hasMany(CertificadoAvaliador::class);
     }
 
+    /**
+     * Status
+     * @return HasMany
+     */
+    public function status(): HasMany
+    {
+        return $this->hasMany(StatusAvaliador::class);
+    }
+
 
 
 }

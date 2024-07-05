@@ -30,6 +30,12 @@
                              Certificados
                          </a>
                      </li>
+                     <li class="nav-item">
+                         <a class="nav-link" data-bs-toggle="tab" href="#controlestatus" role="tab"
+                             aria-selected="false">
+                             Status
+                         </a>
+                     </li>
                  </ul>
 
                  <div class="tab-content">
@@ -52,19 +58,25 @@
 
                          </div>
                      </div>
+
                      <div class="tab-pane" id="avaliacoes" role="tabpanel">
                          <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" />
                      </div>
+
                      <div class="tab-pane" id="qualificacoes" role="tabpanel">
                          <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>
                          <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador"/>
                      </div>
+
                      <div class="tab-pane" id="certificados" role="tabpanel">
                          <x-painel.avaliadores.certificados :avaliador="$avaliador"/>
                      </div>
+
+                     <div class="tab-pane" id="controlestatus" role="tabpanel">
+                        <x-painel.avaliadores.status :avaliador="$avaliador"/>
+                     </div>
+
                  </div>
-
-
 
              </form>
              @if ($avaliador->id)

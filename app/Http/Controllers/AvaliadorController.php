@@ -8,6 +8,7 @@ use App\Models\AreaAtuacao;
 use App\Models\Qualificacao;
 use Illuminate\Http\Request;
 use App\Models\AvaliadorArea;
+use App\Models\StatusAvaliador;
 use Illuminate\Validation\Rule;
 use App\Models\AvaliacaoAvaliador;
 use Illuminate\Support\Facades\DB;
@@ -360,7 +361,7 @@ class AvaliadorController extends Controller
     return redirect()->back()->with('success', 'Área atualizada com sucesso');
   }
 
-    /**
+  /**
    * Remove avaliador
    *
    * @param User $user
@@ -373,13 +374,7 @@ class AvaliadorController extends Controller
     return redirect()->back()->with('warning', 'Qualificação removida');
   }
 
-  
-
-
-
-
-
-    /**
+  /**
    * Adiciona certificado
    *
    * @param Avaliador $avaliador
@@ -449,6 +444,78 @@ class AvaliadorController extends Controller
 
     return redirect()->back()->with('warning', 'Certificado removido');
   }
+
+  /**
+   * Adiciona status
+   *
+   * @param Avaliador $avaliador
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function createStatus(Avaliador $avaliador, Request $request): RedirectResponse
+  {
+    $validatedData = $request->validate([
+      'data' => ['nullable', 'date'],
+      'status' => ['nullable', 'in:ATIVO,AVALIADOR,AVALIADOR EM TREINAMENTO,AVALIADOR LIDER,ESPECIALISTA,INATIVO'],
+      'parecer_positivo' => ['nullable', 'in:0,1'],
+      'seminario' => ['nullable', 'in:0,1'],
+    ], [
+      'data.date' => ' Data inválida',
+      'status.in' => 'Selecione uma opção válida',
+      'parecer_positivo.in' => 'Selecione uma opção válida',
+      'seminario.in' => 'Selecione uma opção válida',
+    ]);
+
+    if (!$avaliador) {
+      return redirect()->back()->with('error', 'Houve um erro, tente novamente');
+    }
+
+    $validatedData['avaliador_id'] = $avaliador->id;
+
+    StatusAvaliador::create($validatedData);
+
+    return redirect()->back()->with('success', 'Status cadastrado com sucesso');
+  }
+
+  /**
+   * Atualiza status
+   *
+   * @param StatusAvaliador $status
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function updateStatus(Request $request, StatusAvaliador $status): RedirectResponse
+  {
+    $validatedData = $request->validate([
+      'data' => ['nullable', 'date'],
+      'status' => ['nullable', 'in:ATIVO,AVALIADOR,AVALIADOR EM TREINAMENTO,AVALIADOR LIDER,ESPECIALISTA,INATIVO'],
+      'parecer_positivo' => ['nullable', 'in:0,1'],
+      'seminario' => ['nullable', 'in:0,1'],
+    ], [
+      'data.date' => ' Data inválida',
+      'status.in' => 'Selecione uma opção válida',
+      'parecer_positivo.in' => 'Selecione uma opção válida',
+      'seminario.in' => 'Selecione uma opção válida',
+    ]);
+
+    $status->update($validatedData);
+
+    return redirect()->back()->with('success', 'Status atualizado com sucesso');
+  }
+
+  /**
+   * Remove status
+   *
+   * @param User $user
+   * @return RedirectResponse
+   **/
+  public function deleteStatus(StatusAvaliador $status): RedirectResponse
+  {
+    $status->delete();
+
+    return redirect()->back()->with('warning', 'Status removido');
+  }
+
 
 
 

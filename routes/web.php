@@ -203,6 +203,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create-certificado/{avaliador:uid}', [AvaliadorController::class, 'createCertificado'])->name('avaliador-create-certificado');
     Route::post('update-certificado/{certificado:uid}', [AvaliadorController::class, 'updateCertificado'])->name('avaliador-update-certificado');
     Route::post('delete-certificado/{certificado:uid}', [AvaliadorController::class, 'deleteCertificado'])->name('avaliador-delete-certificado');
+
+    Route::post('create-status/{avaliador:uid}', [AvaliadorController::class, 'createStatus'])->name('avaliador-create-status');
+    Route::post('update-status/{status:uid}', [AvaliadorController::class, 'updateStatus'])->name('avaliador-update-status');
+    Route::post('delete-status/{status:uid}', [AvaliadorController::class, 'deleteStatus'])->name('avaliador-delete-status');
+
   });
 
   /* Laboratorios */
