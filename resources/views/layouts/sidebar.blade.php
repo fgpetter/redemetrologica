@@ -281,6 +281,16 @@
           </a>
         </li>
 
+        {{-- Downloads --}}
+        <li class="nav-item">
+          <a href="/painel/downloads/index" 
+            class="nav-link {{ request()->is('painel/downloads/index') ? 'active' : '' }}"
+            role="button" data-key="t-signin">
+            <i class="ph-file-arrow-down"></i> <span>Arquivos de Downloads</span>
+          </a>
+        </li>
+        
+
       </ul>
     </div>
     <!-- Sidebar -->

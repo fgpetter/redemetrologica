@@ -1,3 +1,12 @@
+@php
+if(isset($_GET['categoria'])) {
+    $categoria = $_GET['categoria'];
+}
+if(isset($_GET['descricao'])) {
+    $descricao = $_GET['descricao'];
+}
+@endphp
+
 @extends('site.layouts.layout-site')
 @section('content')
     {{-- banner --}}
@@ -8,85 +17,59 @@
 
         </div>
     </div>
-
     {{-- banner --}}
+
     {{-- table --}}
     <div class="container">
-        <div class="card-body">
-            <div id="table-gridjs">
-                <div role="complementary" class="gridjs gridjs-container" style="width: 100%;">
-                    <div class="gridjs-head">
-                        <div class="gridjs-search"><input type="search" placeholder="Pesquisar..."
-                                aria-label="Type a keyword..." class="gridjs-input gridjs-search-input"></div>
-                    </div>
-                    <div class="gridjs-wrapper" style="height: auto;">
-                        <table role="grid" class="gridjs-table" style="height: auto;">
-                            <thead class="gridjs-thead">
-                                <tr class="gridjs-tr">
-                                    <th data-column-id="titulo" class="gridjs-th gridjs-th-sort" tabindex="0"
-                                        style="width: 180px;">
-                                        <div class="gridjs-th-content">Titulo</div>
-                                    </th>
-                                    <th data-column-id="descrição" class="gridjs-th gridjs-th-sort" tabindex="0"
-                                        style="width: 280px;">
-                                        <div class="gridjs-th-content">Descrição</div>
-                                    </th>
-                                    <th data-column-id="categoria" class="gridjs-th gridjs-th-sort" tabindex="0"
-                                        style="width: 30px;">
-                                        <div class="gridjs-th-content">Categoria</div>
-                                    </th>
+        <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
+            <thead>
+                <h5 class="h5 mt-3">Filtros</h5>
+                <tr>
+                    <th>
+                        <select name="categoria" id="categoria" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'categoria')">
+                            <option value="">Selecione uma categoria</option>
+                            <option @selected( isset($categoria) && $categoria == "CURSOS") value="CURSOS">CURSOS</option>
+                            <option @selected( isset($categoria) && $categoria == "QUALIDADE") value="QUALIDADE">QUALIDADE</option>
+                            <option @selected( isset($categoria) && $categoria == "INTERLAB") value="INTERLAB">INTERLAB</option>
+                            <option @selected( isset($categoria) && $categoria == "INSTITUCIONAL") value="INSTITUCIONAL">INSTITUCIONAL</option>
+                        </select>
+                    </th>
+                    <th scope="col">
+                        <input type="text" class="form-control form-control-sm"
+                            onkeypress="search(event, window.location.href, 'descricao')"
+                            placeholder="Buscar por titulo ou descricao" value="{{ $descricao ?? null }}">
+                    </th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <thead>
+                <tr>
+                    <th scope="col">Arquivo</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Categoria</th>
+                </tr>
+            </thead>
 
-                                </tr>
-                            </thead>
-                            <tbody class="gridjs-tbody">
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="titulo" class="gridjs-td">FR61 rev1_FORMULARIO PARA RECLAMAÇÃO DE
-                                        CLIENTES</td>
-                                    <td data-column-id="descrição" class="gridjs-td">Use este formulário para reclamação de
-                                        clientes da Rede Metrológica RS</td>
-                                    <td data-column-id="categoria" class="gridjs-td">Cursos</td>
-                                </tr>
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="titulo" class="gridjs-td">FR61 rev1_FORMULARIO PARA RECLAMAÇÃO DE
-                                        CLIENTES</td>
-                                    <td data-column-id="descrição" class="gridjs-td">Use este formulário para reclamação de
-                                        clientes da Rede Metrológica RS</td>
-                                    <td data-column-id="categoria" class="gridjs-td">Cursos</td>
-                                </tr>
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="titulo" class="gridjs-td">FR61 rev1_FORMULARIO PARA RECLAMAÇÃO DE
-                                        CLIENTES</td>
-                                    <td data-column-id="descrição" class="gridjs-td">Use este formulário para reclamação de
-                                        clientes da Rede Metrológica RS</td>
-                                    <td data-column-id="categoria" class="gridjs-td">Cursos</td>
-                                </tr>
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="titulo" class="gridjs-td">FR61 rev1_FORMULARIO PARA RECLAMAÇÃO DE
-                                        CLIENTES</td>
-                                    <td data-column-id="descrição" class="gridjs-td">Use este formulário para reclamação de
-                                        clientes da Rede Metrológica RS</td>
-                                    <td data-column-id="categoria" class="gridjs-td">Cursos</td>
-                                </tr>
+            <tbody>
+                @forelse ($downloads as $download)
+                    <tr>
+                        <td>
+                            <a href="{{ asset('downloads/' . $download->arquivo) }}" target="_blank">
+                                <i class="ph-file-arrow-down align-middle me-1" style="font-size: 1.4rem"></i>
+                                {{ $download->titulo }}
+                            </a>
+                        </td>
+                        <td>{{ $download->descricao }}</td>
+                        <td>{{ $download->categoria }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center">Não há downloads cadastrados</td>
+                    </tr>
+                @endforelse
+            </tbody>
 
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="gridjs-footer">
-                        <div class="gridjs-pagination">
-                            <div role="status" aria-live="polite" class="gridjs-summary" title="Page 1 of 2">
-                                Mostrando <b>1</b> de <b>2</b> dos <b>2</b> resultados</div>
-                            <div class="gridjs-pages"><button tabindex="0" role="button" disabled="" title="Previous"
-                                    aria-label="Previous" class="">Anterior</button><button tabindex="0"
-                                    role="button" class="gridjs-currentPage" title="Page 1"
-                                    aria-label="Page 1">1</button><button tabindex="0" role="button" class=""
-                                    title="Page 2" aria-label="Page 2">2</button><button tabindex="0" role="button"
-                                    title="Next" aria-label="Next" class="">Proximo</button></div>
-                        </div>
-                    </div>
-                    <div id="gridjs-temp" class="gridjs-temp"></div>
-                </div>
-            </div>
-        </div>
+        </table>
     </div>
     {{-- table --}}
 @endsection

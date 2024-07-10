@@ -6,6 +6,6 @@
         <li><a class="dropdown-item" href="laboratorios-avaliacao">Avaliação de Laboratórios</a></li>
         <li><a class="dropdown-item" href="laboratorios-reconhecidos">Laboratórios Reconhecidos</a></li>
         <li><a class="dropdown-item" href="bonus-metrologia">Bônus Metrologia</a></li>
-        <li><a class="dropdown-item" href="downloads">Downloads</a></li>
+        <li><a class="dropdown-item" href="laboratorios-downloads">Downloads</a></li>
     </ul>
 </li>

@@ -8,6 +8,7 @@ use App\Http\Controllers\CursoController;
 use App\Http\Controllers\BancosController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\EnderecoController;
 use App\Http\Controllers\AvaliadorController;
 use App\Http\Controllers\InstrutorController;
@@ -41,7 +42,7 @@ Route::view('interlaboratoriais', 'site.pages.interlaboratoriais');
 Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
 Route::view('laboratorios-reconhecidos', 'site.pages.laboratorios-reconhecidos');
 Route::view('bonus-metrologia', 'site.pages.bonus-metrologia');
-Route::view('downloads', 'site.pages.downloads');
+Route::get('laboratorios-downloads', [DownloadController::class, 'siteIndex']);
 Route::view('fale-conosco', 'site.pages.fale-conosco');
 Route::view('slug-da-noticia', 'site.pages.slug-da-noticia');
 Route::view('slug-da-galeria', 'site.pages.slug-da-galeria');
@@ -222,24 +223,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete-interno/{laboratorio_interno:uid?}', [LaboratorioController::class, 'deleteInterno'])->name('laboratorio-delete-interno');
 
   });
-
-  /*
-   * Noticias e Galeria 
-   */
-  Route::group(['prefix' => 'post'], function () {
-    Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
-    Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
-    Route::get('noticia-insert/{post:slug?}', [PostController::class, 'noticiaInsert'])->name('noticia-insert'); // tela de edicao
-    Route::get('galeria-insert/{post:slug?}', [PostController::class, 'galeriaInsert'])->name('galeria-insert'); // tela de edicao
-    Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
-    Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
-    Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
-    Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
-    Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
-
-    Route::delete('post-media/{id}', [PostMediaController::class, 'destroy'])->name('post-media.destroy'); //apaga postMedia
-  });
-
   
   /**
    * Cadastros adicionais
@@ -320,6 +303,35 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::get('areceber/index', [LancamentoFinanceiroController::class, 'areceber'])->name('a-receber-index');
 
   });
+
+  /*
+   * Site 
+   */
+
+  // Rotas de noticia e galeria
+  Route::group(['prefix' => 'post'], function () {
+    Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
+    Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
+    Route::get('noticia-insert/{post:slug?}', [PostController::class, 'noticiaInsert'])->name('noticia-insert'); // tela de edicao
+    Route::get('galeria-insert/{post:slug?}', [PostController::class, 'galeriaInsert'])->name('galeria-insert'); // tela de edicao
+    Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
+    Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
+    Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
+    Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
+    Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); //deletar thumb
+
+    Route::delete('post-media/{id}', [PostMediaController::class, 'destroy'])->name('post-media.destroy'); //apaga postMedia
+  });
+
+  // Rotas de upload de arquivos
+  Route::group(['prefix' => 'downloads'], function () {
+    Route::get('index', [DownloadController::class, 'index'])->name('download-index');
+    Route::get('insert/{download:uid?}', [DownloadController::class, 'insert'])->name('download-insert');
+    Route::post('create', [DownloadController::class, 'create'])->name('download-create');
+    Route::post('update/{download:uid}', [DownloadController::class, 'update'])->name('download-update');
+    Route::post('delete/{download:uid}', [DownloadController::class, 'delete'])->name('download-delete');
+  });
+
 
 
 });
