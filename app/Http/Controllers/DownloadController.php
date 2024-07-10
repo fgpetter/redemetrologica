@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Download;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
@@ -115,8 +114,8 @@ class DownloadController extends Controller
     
     public function siteIndex(Request $request): View
     {
-        $categoria = $request->input('categoria');
-        $titulo = $request->input('titulo');
+        $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('categoria'));
+        $titulo = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('descricao'));
 
         $downloads = Download::select('titulo', 'descricao', 'arquivo','categoria')
             ->when($categoria, function ($query) use ($categoria) {

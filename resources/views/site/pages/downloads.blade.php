@@ -1,9 +1,9 @@
 @php
 if(isset($_GET['categoria'])) {
-    $categoria = $_GET['categoria'];
+    $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['categoria']);
 }
 if(isset($_GET['descricao'])) {
-    $descricao = $_GET['descricao'];
+    $descricao = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['descricao']);
 }
 @endphp
 
