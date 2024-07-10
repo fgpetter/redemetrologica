@@ -24,7 +24,7 @@
 
       <div class="col-12 col-xxl-7">
         <label for="laboratorio" class="form-label">Laboratório</label>
-        <input type="text" class="form-control" name="laboratorio" value="{{ $laboratorio->nome }} - {{ $laboratorio->pessoa->nome_razao }}" id="laboratorio" readonly>
+        <input type="text" class="form-control" name="laboratorio" value="{{ $laboratorio->nome_laboratorio }} - {{ $laboratorio->pessoa->nome_razao }}" id="laboratorio" readonly>
         @error('laboratorio') <div class="text-warning">{{ $message }}</div> @enderror        
       </div>
 
@@ -41,17 +41,17 @@
 
       <div class="col-3">
         <label for="contato" class="form-label">Contato</label>
-        <input type="text" class="form-control" name="contato" value="{{ $laboratorio->contato }}" id="contato" readonly>        
+        <input type="text" class="form-control" name="contato" value="{{ $laboratorio->contato }}" id="contato">        
       </div>
 
       <div class="col-3">
         <label for="fone" class="form-label">Telefone</label>
-        <input type="text" class="form-control" name="fone" value="{{ $laboratorio->fone }}" id="fone" readonly>        
+        <input type="text" class="form-control" name="fone" value="{{ $laboratorio->telefone }}" id="fone">        
       </div>
 
       <div class="col-3">
         <label for="email" class="form-label">E-mail</label>
-        <input type="text" class="form-control" name="email" value="{{ $laboratorio->email }}" id="fone" readonly>        
+        <input type="text" class="form-control" name="email" value="{{ $laboratorio->email }}" id="fone">        
       </div>
 
       <div class="col-3"> &nbsp; </div>

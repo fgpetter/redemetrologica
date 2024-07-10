@@ -16,11 +16,11 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($avaliacao->areas as $area_avaliada)
+            @forelse ($avaliacao->areas as $areaavaliada)
                 <tr>
-                    <td class="text-truncate" style="max-width: 50vw">{{ $area_avaliada->areaAtuacao->descricao }}</td>
-                    <td>{{ $area_avaliada->avaliador->pessoa->nome_razao }}</td>
-                    <td>{{ $area_avaliada->situacao }}</td>
+                    <td class="text-truncate" style="max-width: 50vw">{{ $areaavaliada->areaAtuacao->descricao }}</td>
+                    <td>{{ $areaavaliada->avaliador->pessoa->nome_razao }}</td>
+                    <td>{{ $areaavaliada->situacao }}</td>
                     <td>
                         <div class="dropdown">
                             <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -30,16 +30,20 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                        data-bs-target="{{ '#areaAvaliadaModal'.$area_avaliada->uid }}">Editar</a>
+                                        data-bs-target="{{ '#areaAvaliadaModal'.$areaavaliada->uid }}">Editar</a>
                                 </li>
                                 <li>
-                                    <x-painel.form-delete.delete route='laboratorio-delete-interno' id="{{ $area_avaliada->uid }}" />
+                                    <x-painel.form-delete.delete route='laboratorio-delete-interno' id="{{ $areaavaliada->uid }}" />
                                 </li>
                             </ul>
                         </div>
                     </td>
                 </tr>
-                {{-- <x-painel.avaliacoes.modal-areas-avaliadas  /> --}}
+                <x-painel.avaliacoes.modal-areas-avaliadas 
+                    :laboratorio="$laboratorio" 
+                    :avaliadores="$avaliadores" 
+                    :avaliacao="$avaliacao" 
+                    :areaavaliada="$areaavaliada" />
             @empty
                 <tr>
                     <td colspan="5" class="text-center">Não há áreas de atuação cadastradas.</td>

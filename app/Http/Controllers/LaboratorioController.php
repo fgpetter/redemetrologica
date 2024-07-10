@@ -89,7 +89,7 @@ class LaboratorioController extends Controller
     {
         $validated = $request->validate(
         [
-            'nome' => ['nullable', 'string'],
+            'nome_laboratorio' => ['nullable', 'string'],
             'laboratorio_associado' => ['numeric', 'in:1,0'],
             'telefone' => ['nullable','string'],
             'email' => ['nullable', 'email'],
@@ -97,7 +97,7 @@ class LaboratorioController extends Controller
             'cod_laboratorio' => ['nullable', 'numeric'],
         ],
         [
-            'nome.string' => 'O dado enviado não é válido',
+            'nome_laboratorio.string' => 'O dado enviado não é válido',
             'laboratorio_associado.in' => 'Selecione uma opção',
             'laboratorio_associado.numeric' => 'Selecione uma opção',
             'telefone.string' => 'O dado enviado não é válido',

@@ -2,11 +2,11 @@
   @csrf
     <div class="row gy-3">
 
-      <div class="col-6">
+      <div class="col-8">
         <x-forms.input-field name="nome_razao" :value="$laboratorio->pessoa->nome_razao ?? null" label="Razão Social"  :readonly=true />
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
         <x-forms.input-field name="cpf_cnpj" :value="$laboratorio->pessoa->cpf_cnpj ?? null" label="CNPJ"  :readonly=true />
       </div>
 
@@ -25,19 +25,23 @@
         </x-forms.input-select>
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
         <x-forms.input-field name="telefone" :value="old('telefone') ?? ($laboratorio->telefone ?? null)" label="Telefone" />
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
         <x-forms.input-field name="email" :value="old('email') ?? ($laboratorio->email ?? null)" label="E-mail" />
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
+        <x-forms.input-field name="contato" :value="old('contato') ?? ($laboratorio->contato ?? null)" label="Pessoa de contato" />
+      </div>
+
+      <div class="col-4">
         <x-forms.input-field name="responsavel_tecnico" :value="old('responsavel_tecnico') ?? ($laboratorio->responsavel_tecnico ?? null)" label="Responsável Técnico" />
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
         <x-forms.input-field name="cod_laboratorio" :value="old('cod_laboratorio') ?? ($laboratorio->cod_laboratorio ?? null)" label="Código do Laboratório" />
       </div>
 

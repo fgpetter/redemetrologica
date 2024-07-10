@@ -197,6 +197,7 @@ class AgendaAvaliacaoController extends Controller
             'data_final' => ['nullable', 'date'],
             'avaliador_id' => ['required', 'exists:avaliadores,id'],
             'num_ensaios' => ['nullable', 'integer'],
+            'dias' => ['nullable', 'integer'],
         ],[
             'avaliacao_id.required' => 'Dados inválidos, selecione uma avaliação e envie novamente',
             'avaliacao_id.exists' => 'Dados inválidos, selecione uma avaliação e envie novamente',
@@ -210,6 +211,7 @@ class AgendaAvaliacaoController extends Controller
             'num_ensaios.integer' => 'O dado enviado não é valido',
         ]);
 
+        $validate['valor_dia']  = $this->formataMoeda($request->valor_dia );
         $validate['valor_estim_desloc']  = $this->formataMoeda($request->valor_estim_desloc );
         $validate['valor_estim_alim']  = $this->formataMoeda($request->valor_estim_alim );
         $validate['valor_estim_hosped']  = $this->formataMoeda($request->valor_estim_hosped );
