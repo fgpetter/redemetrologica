@@ -39,7 +39,7 @@ class AgendaCursoController extends Controller
   {
     $data = [
       'instrutores' => Instrutor::select('id','uid', 'pessoa_id')->with('pessoa')->whereNot('id', $agendacurso->instrutor_id)->get(),
-      'instrutor_atual' => Instrutor::select('uid', 'pessoa_id')->with(['pessoa' => fn($q) => $q->withTrashed()])
+      'instrutor_atual' => Instrutor::select('id', 'uid', 'pessoa_id')->with(['pessoa' => fn($q) => $q->withTrashed()])
         ->where('id', $agendacurso->instrutor_id)
         ->withTrashed()
         ->first(),
@@ -180,7 +180,7 @@ class AgendaCursoController extends Controller
       'curso_id.exists' => 'Selecione uma opção válida',
       'pessoa_id.exists' => 'Selecione uma opção válida',
       'instrutor_id.required' => 'Selecione uma opção válida',
-      'instrutor_id.in' => 'Selecione uma opção válida',
+      'instrutor_id.in' => 'Instrutor não cadastrado',
       'endereco_local.string' => 'O dado enviado não é valido',
       'data_inicio.date' => 'O dado enviado não é uma data valida',
       'data_fim.date' => 'O dado enviado não é uma data valida',
