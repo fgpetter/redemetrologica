@@ -97,6 +97,19 @@ class DownloadController extends Controller
             'categoria.string' => 'O valor informado tem caracteres inválidos',
         ]);
 
+        if ($request->hasFile('arquivo')) {
+
+            File::delete(public_path('downloads/'.$download->arquivo));
+
+            $originName = $request->file('arquivo')->getClientOriginalName();
+            $fileName = pathinfo($originName, PATHINFO_FILENAME);
+            $fileName = str_replace(' ', '-', $fileName);
+            $extension = $request->file('arquivo')->getClientOriginalExtension();
+            $fileName = $fileName . '_' . time() . '.' . $extension;
+            $request->file('arquivo')->move(public_path('downloads'), $fileName);            
+        }
+
+
         $download->update($validated);
         return redirect()->route('download-index')->with('success', 'Download editado com sucesso');
     }
