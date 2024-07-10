@@ -106,9 +106,12 @@ class DownloadController extends Controller
             $fileName = str_replace(' ', '-', $fileName);
             $extension = $request->file('arquivo')->getClientOriginalExtension();
             $fileName = $fileName . '_' . time() . '.' . $extension;
-            $request->file('arquivo')->move(public_path('downloads'), $fileName);            
+            $request->file('arquivo')->move(public_path('downloads'), $fileName);
+            
+            $validated['arquivo'] = $fileName;
+        } else {
+            unset($validated['arquivo']);
         }
-
 
         $download->update($validated);
         return redirect()->route('download-index')->with('success', 'Download editado com sucesso');
