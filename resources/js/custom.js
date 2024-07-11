@@ -65,6 +65,18 @@ function search(e, url, tipo){
   }
 }
 
+function searchSelect(e, url, tipo){
+  e.preventDefault();
+  url = url.split('?')[0] // remove parametros
+  
+  if(e.target.value != undefined){
+    window.location.href = url+'?'+tipo+'='+e.target.value
+  }
+      
+}
+
+
+
 /**
  * Show Hide de card de dados IN COMPANY
  */
