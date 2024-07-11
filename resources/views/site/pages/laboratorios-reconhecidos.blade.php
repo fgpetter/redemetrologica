@@ -1,96 +1,79 @@
+@php
+if(isset($_GET['categoria'])) {
+  $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['categoria']);
+}
+if(isset($_GET['descricao'])) {
+  $descricao = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['descricao']);
+}
+@endphp
+
 @extends('site.layouts.layout-site')
 @section('content')
-    {{-- banner inicial --}}
-    <div class="card text-bg-dark">
-        <img src="{{ asset('build\images\site\lab-reconhecido-01.png') }}" class="card-img" alt="...">
-
-        <div class="card-img-overlay d-flex justify-content-center">
-            <div class="align-self-center text-center ">
-                <h1 class="text-warning"><strong>LABORATÓRIOS RECONHECIDOS</strong></h1>
-            </div>
-        </div>
+  {{-- banner --}}
+  <div class="SiteCards__bgimage p-5 text-center  text-white "
+    style="background-size: cover; background-image: url('{{ asset('build/images/site/BANNER-HOME-TOPO-2698-x-726-px_5-1.png') }}');height:100%; width:100%;">
+    <div class="container h-full">
+      <h1 class="text-white"> Laboratórios Reconhecidos</h1>
 
     </div>
-    {{-- banner inicial --}}
+  </div>
+  {{-- banner --}}
 
-    {{-- table --}}
-    <div class="container">
-        <div class="card-body">
-            <div id="table-gridjs">
-                <div role="complementary" class="gridjs gridjs-container" style="width: 100%;">
-                    <div class="gridjs-head">
-                        <div class="gridjs-search"><input type="search" placeholder="Pesquisar..."
-                                aria-label="Type a keyword..." class="gridjs-input gridjs-search-input"></div>
-                    </div>
-                    <div class="gridjs-wrapper" style="height: auto;">
-                        <table role="grid" class="gridjs-table" style="height: auto;">
-                            <thead class="gridjs-thead">
-                                <tr class="gridjs-tr">
-                                    <th data-column-id="Entidade" class="gridjs-th gridjs-th-sort" tabindex="0"
-                                        style="width: 80px;">
-                                        <div class="gridjs-th-content">Entidade</div>
-                                    </th>
-                                    <th data-column-id="Laboratório" class="gridjs-th gridjs-th-sort" tabindex="0"
-                                        style="width: 150px;">
-                                        <div class="gridjs-th-content">Laboratório</div>
-                                    </th>
-                                    <th data-column-id="Cidade" class="gridjs-th gridjs-th-sort" tabindex="0"
-                                        style="width: 220px;">
-                                        <div class="gridjs-th-content">Cidade</div>
-                                    </th>
-                                    <th data-column-id="Outrsinf" class="gridjs-th gridjs-th-sort" tabindex="0"
-                                        style="width: 220px;">
-                                        <div class="gridjs-th-content">Outras informações</div>
-                                    </th>
+  {{-- table --}}
+  <div class="container mt-4">
+    <table class="table table-responsive table-striped align-middle table-nowrap">
+      {{-- <thead>
+        <h5 class="h5">Filtros</h5>
+        <tr>
+          <th>
+            <select name="categoria" id="categoria" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'categoria')">
+              <option value="">Selecione uma categoria</option>
+              <option @selected( isset($categoria) && $categoria == "CURSOS") value="CURSOS">CURSOS</option>
+              <option @selected( isset($categoria) && $categoria == "QUALIDADE") value="QUALIDADE">QUALIDADE</option>
+              <option @selected( isset($categoria) && $categoria == "INTERLAB") value="INTERLAB">INTERLAB</option>
+              <option @selected( isset($categoria) && $categoria == "INSTITUCIONAL") value="INSTITUCIONAL">INSTITUCIONAL</option>
+            </select>
+          </th>
+          <th scope="col">
+            <input type="text" class="form-control form-control-sm"
+              onkeypress="search(event, window.location.href, 'descricao')"
+              placeholder="Buscar por titulo ou descricao" value="{{ $descricao ?? null }}">
+          </th>
+          <th scope="col"></th>
+        </tr>
+      </thead> --}}
+      <thead>
+        <tr>
+          <th scope="col">Entidade</th>
+          <th scope="col">Laboratório</th>
+          <th scope="col">Cidade</th>
+          <th scope="col">Outras informações</th>
+        </tr>
+      </thead>
 
-                                </tr>
-                            </thead>
-                            <tbody class="gridjs-tbody">
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="Entidade" class="gridjs-td">3D METROLOGIA</td>
-                                    <td data-column-id="Laboratório" class="gridjs-td">DIMENSIONAL</td>
-                                    <td data-column-id="Cidade" class="gridjs-td">SAO LEOPOLDO</td>
-                                    <td data-column-id="Outrasinf" class="gridjs-td">Bônus Metrologia</td>
-                                </tr>
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="Entidade" class="gridjs-td">3D METROLOGIA</td>
-                                    <td data-column-id="Laboratório" class="gridjs-td">DIMENSIONAL</td>
-                                    <td data-column-id="Cidade" class="gridjs-td">SAO LEOPOLDO</td>
-                                    <td data-column-id="Outrasinf" class="gridjs-td">Bônus Metrologia</td>
-                                </tr>
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="Entidade" class="gridjs-td">3D METROLOGIA</td>
-                                    <td data-column-id="Laboratório" class="gridjs-td">DIMENSIONAL</td>
-                                    <td data-column-id="Cidade" class="gridjs-td">SAO LEOPOLDO</td>
-                                    <td data-column-id="Outrasinf" class="gridjs-td">Bônus Metrologia</td>
-                                </tr>
-                                <tr class="gridjs-tr">
-                                    <td data-column-id="Entidade" class="gridjs-td">3D METROLOGIA</td>
-                                    <td data-column-id="Laboratório" class="gridjs-td">DIMENSIONAL</td>
-                                    <td data-column-id="Cidade" class="gridjs-td">SAO LEOPOLDO</td>
-                                    <td data-column-id="Outrasinf" class="gridjs-td">Bônus Metrologia</td>
-                                </tr>
+      <tbody>
+        @forelse ($laboratorios as $laboratorio)
+          <tr>
+            <td>
+              <a href="{{ asset('laboratorios/' . $laboratorio->certificado) }}" target="_blank">
+                <i class="ph-file-arrow-down align-middle me-1" style="font-size: 1.4rem"></i>
+                {{ $laboratorio->laboratorio->nome_laboratorio }}
+              </a>
+            </td>
+            <td>{{ $laboratorio->area->descricao }}</td>
+            <td>
+              {{ $laboratorio->laboratorio->pessoa->enderecos->first()->cidade }}
+            </td>
+            <td></td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="5" class="text-center">Não há laboratorios cadastrados</td>
+          </tr>
+        @endforelse
+      </tbody>
 
-
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="gridjs-footer">
-                        <div class="gridjs-pagination">
-                            <div role="status" aria-live="polite" class="gridjs-summary" title="Page 1 of 2">
-                                Mostrando <b>1</b> de <b>2</b> dos <b>2</b> resultados</div>
-                            <div class="gridjs-pages"><button tabindex="0" role="button" disabled="" title="Previous"
-                                    aria-label="Previous" class="">Anterior</button><button tabindex="0"
-                                    role="button" class="gridjs-currentPage" title="Page 1"
-                                    aria-label="Page 1">1</button><button tabindex="0" role="button" class=""
-                                    title="Page 2" aria-label="Page 2">2</button><button tabindex="0" role="button"
-                                    title="Next" aria-label="Next" class="">Proximo</button></div>
-                        </div>
-                    </div>
-                    <div id="gridjs-temp" class="gridjs-temp"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {{-- table --}}
+    </table>
+  </div>
+  {{-- table --}}
 @endsection

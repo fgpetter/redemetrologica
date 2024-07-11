@@ -76,7 +76,7 @@ class DownloadController extends Controller
      * Edita um download
      *
      * @param Request $request description
-     * @param Doed $download
+     * @param Download $download
      * @return RedirectResponse
      */
     public function update(Request $request, Download $download): RedirectResponse
@@ -127,7 +127,13 @@ class DownloadController extends Controller
         return redirect()->route('download-index')->with('warning', 'Download removido com sucesso');
     }
 
-    
+    /**
+     * Apresenta a tela de download no site
+     *
+     * @param Request $request description
+     * @return View
+     */
+
     public function siteIndex(Request $request): View
     {
         $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('categoria'));

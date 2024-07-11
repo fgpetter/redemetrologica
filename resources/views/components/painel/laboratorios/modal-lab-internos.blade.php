@@ -7,7 +7,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form method="POST" action="{{ route('laboratorio-save-interno', $labinterno->uid ?? null) }}">
+          <form method="POST" action="{{ route('laboratorio-save-interno', $labinterno->uid ?? null) }}" enctype="multipart/form-data">
             @csrf
             <div class="row gy-3 mb-3">
 
@@ -73,7 +73,22 @@
               </div>
 
               <div class="col-12">
-                <label for="certificado">Certificado</label>
+                @if ($labinterno->certificado ?? null)
+                  <label class="form-label">Arquivo atual</label><br>
+                  <a href="{{ asset('downloads/' . $labinterno->certificado) }}">
+                    <span>
+                      <i class="ph-file-arrow-down align-middle" style="font-size: 1rem"></i>
+                    </span>
+                    {{ $labinterno->certificado }}
+                  </a>
+                  <br>
+                  <br>
+                @endif
+                <label for="certificado">@if ($labinterno->certificado ?? null) Alterar @else Inserir @endif Certificado
+                  <span data-bs-toggle="tooltip" data-bs-html="true" title="Ao adicionar um arquivo o anterior será removido">
+                    <i class="ri-information-line align-middle text-warning-emphasis" style="font-size: 1rem"></i>
+                  </span>
+                </label>
                 <input class="form-control" type="file" name="certificado" id="certificado">
                 @error('certificado') <div class="text-warning">{{ $message }}</div> @enderror
               </div>

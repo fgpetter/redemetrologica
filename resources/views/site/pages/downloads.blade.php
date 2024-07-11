@@ -20,10 +20,10 @@ if(isset($_GET['descricao'])) {
     {{-- banner --}}
 
     {{-- table --}}
-    <div class="container">
-        <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
+    <div class="container mt-4">
+        <table class="table table-responsive table-striped align-middle table-nowrap">
             <thead>
-                <h5 class="h5 mt-3">Filtros</h5>
+                <h5 class="h6 ps-3 mb-0">Filtros</h5>
                 <tr>
                     <th>
                         <select name="categoria" id="categoria" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'categoria')">

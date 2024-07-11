@@ -14,7 +14,7 @@
         <x-forms.input-field name="nome_laboratorio" 
           :value="old('nome_laboratorio') ?? ($laboratorio->nome_laboratorio ?? null)" 
           label="Nome do laboratorio"
-          tooltip="Necessário para identificação do laboratorio ao cadastrar uma avaliação"
+          tooltip="Nome desse laboratorio que irá aparecer no site e no cadastro de avaliação."
           required/>
       </div>
 

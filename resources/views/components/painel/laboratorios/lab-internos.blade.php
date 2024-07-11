@@ -12,6 +12,7 @@
                 <th scope="col">Área</th>
                 <th scope="col">Nome</th>
                 <th scope="col" style="width: 5%; white-space: nowrap;">Reconhechecido</th>
+                <th scope="col" style="width: 5%; white-space: nowrap;">Cert. Site</th>
                 <th scope="col" style="width: 5%; white-space: nowrap;">Última avaliação</th>
                 <th scope="col" class="d-sm-table-cell" style="width: 5%; white-space: nowrap;"></th>
             </tr>
@@ -22,6 +23,9 @@
                     <td class="text-truncate" style="max-width: 50vw">{{ $lab_interno->area->descricao }}</td>
                     <td>{{ $lab_interno->nome }}</td>
                     <td>{!! ( $lab_interno->reconhecido )
+                        ? '<span class="badge rounded-pill bg-success">Sim</span>'
+                        : '<span class="badge rounded-pill bg-danger">Não</span>' !!}</td>
+                    <td>{!! ( $lab_interno->site )
                         ? '<span class="badge rounded-pill bg-success">Sim</span>'
                         : '<span class="badge rounded-pill bg-danger">Não</span>' !!}</td>
                     <td>{{ now()->format('d/m/Y') }}</td>

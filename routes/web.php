@@ -40,7 +40,7 @@ Route::view('associe-se', 'site.pages.associe-se');
 
 Route::view('interlaboratoriais', 'site.pages.interlaboratoriais');
 Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
-Route::view('laboratorios-reconhecidos', 'site.pages.laboratorios-reconhecidos');
+Route::get('laboratorios-reconhecidos', [LaboratorioController::class, 'siteIndex']);
 Route::view('bonus-metrologia', 'site.pages.bonus-metrologia');
 Route::get('laboratorios-downloads', [DownloadController::class, 'siteIndex']);
 Route::view('fale-conosco', 'site.pages.fale-conosco');
