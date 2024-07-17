@@ -88,7 +88,8 @@
 
                      {{-- thumb --}}
                      <div class="col-12">
-                         <label for="folder" class="form-label">Thumb</label>
+                        <label for="folder" class="form-label">Thumb</label>
+
                          @if ($curso->thumb)
                              <div class="input-group mt-0">
                                  <input type="text" class="form-control" readonly
@@ -115,6 +116,7 @@
                                  <div class="text-warning">{{ $message }}</div>
                              @enderror
                          @endif
+                         <div class="form-text" id="basic-addon4"> Imagem que irá aparecer no site </div>
                      </div>
                      {{-- thumb --}}
                      {{-- folder --}}
@@ -138,7 +140,7 @@
                                          </a>
                                      </li>
                                  </ul>
-                             </div>
+                            </div>
                          @else
                              <input class="form-control" name="folder" type="file" id="folder"
                                  accept=".doc, .pdf, .docx, .jpeg, .jpg, .png">
@@ -146,6 +148,7 @@
                                  <div class="text-warning">{{ $message }}</div>
                              @enderror
                          @endif
+                         <div class="form-text" id="basic-addon4"> Folder do curso disponível para download </div>
                      </div>
                      {{-- folder --}}
                      <div class="col-12">

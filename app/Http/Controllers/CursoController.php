@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\File as FileFacade;
 class CursoController extends Controller
 {
   /**
-   * Gera pagina de listagem de usuários
+   * Gera pagina de listagem de cursos
    *
    * @return View
    **/
@@ -68,50 +68,44 @@ class CursoController extends Controller
     $validated['uid'] = config('hashing.uid');
 
     if ($request->hasFile('folder')) {
-      $originName = $request->file('folder')->getClientOriginalName();
-      $fileName = pathinfo($originName, PATHINFO_FILENAME);
-      $fileName = str_replace(' ', '-', $fileName);
+      $original_name = $request->file('folder')->getClientOriginalName();
+      $file_name = pathinfo($original_name, PATHINFO_FILENAME);
+      $file_name = str_replace(' ', '-', $file_name);
       $extension = $request->file('folder')->getClientOriginalExtension();
-      $fileName = $fileName . '_' . time() . '.' . $extension;
-      $request->file('folder')->move(public_path('curso-folder'), $fileName);
 
       // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
       if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
-        $img = Image::make(public_path('curso-folder/' . $fileName));
-        if ($img->height() > 750) {
-          $img->resize(null, 750, function ($constraint) {
-            $constraint->aspectRatio();
-          });
-        }
+        $image = $request->file('thumb');
+        $img = Image::make($image);
         $img->encode('jpg', 75);
-        $img->save(public_path('curso-folder/' . $fileName));
+  
+        $file_name = $file_name . '_' . time() . '.jpg';
+  
+        $img->save(public_path('curso-thumb/' . $file_name));
+      } else {
+        
+        $file_name = $file_name . '_' . time() . '.' . $extension;
+        $request->file('folder')->move(public_path('curso-folder'), $file_name);
       }
 
-      $validated['folder'] = $fileName;
+      $validated['folder'] = $file_name;
     }
 
 
     if ($request->hasFile('thumb')) {
-      $originName = $request->file('thumb')->getClientOriginalName();
-      $fileName = pathinfo($originName, PATHINFO_FILENAME);
-      $fileName = str_replace(' ', '-', $fileName);
-      $extension = $request->file('thumb')->getClientOriginalExtension();
-      $fileName = $fileName . '_' . time() . '.' . $extension;
-      $request->file('thumb')->move(public_path('curso-thumb'), $fileName);
+      $original_name = $request->file('thumb')->getClientOriginalName();
+      $file_name = pathinfo($original_name, PATHINFO_FILENAME);
+      $file_name = str_replace(' ', '-', $file_name);
 
-      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-      if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
-        $img = Image::make(public_path('curso-thumb/' . $fileName));
-        if ($img->height() > 750) {
-          $img->resize(null, 750, function ($constraint) {
-            $constraint->aspectRatio();
-          });
-        }
-        $img->encode('jpg', 75);
-        $img->save(public_path('curso-thumb/' . $fileName));
-      }
+      $image = $request->file('thumb');
+      $img = Image::make($image);
+      $img->encode('jpg', 75);
 
-      $validated['thumb'] = $fileName;
+      $file_name = $file_name . '_' . time() . '.jpg';
+
+      $img->save(public_path('curso-thumb/' . $file_name));
+
+      $validated['thumb'] = $file_name;
     }
 
 
