@@ -216,8 +216,8 @@ class CursoController extends Controller
       $image = $request->file('thumb');
       $img = Image::make($image);
 
-      if ($img->height() > 300) {
-        $img->resize(null, 300, function ($constraint) {
+      if ($img->height() > 750) {
+        $img->resize(null, 750, function ($constraint) {
           $constraint->aspectRatio();
         });
       }
