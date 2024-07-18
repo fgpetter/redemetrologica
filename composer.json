@@ -8,6 +8,7 @@
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
+        "itsgoingd/clockwork": "^5.2",
         "laravel/framework": "^10",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
@@ -18,11 +19,10 @@
         "yajra/laravel-datatables-oracle": "^10.11"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.10",
         "fakerphp/faker": "^1.9.1",
         "laradumps/laradumps": "^2.4",
         "laravel/pint": "^1.0",
-        "laravel/sail": "^1.18",
+        "laravel/sail": "^1.30",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
         "phpunit/phpunit": "^10.1",
