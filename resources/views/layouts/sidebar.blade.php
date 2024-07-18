@@ -156,6 +156,36 @@
           </div>
         </li>
 
+        {{-- Interlabs --}}
+        <li class="nav-item">
+          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/interlab', 'painel/agendamento-interlab']) ? 'active' : '' }}"
+            href="#sidebarInterlabs" data-bs-toggle="collapse" role="button"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/interlab', 'painel/agendamento-interlab']) ? 'true' : 'false' }}"
+            aria-controls="sidebarInterlabs">
+            <i class="ph-graph-thin"></i> <span>INTERLABS</span> 
+          </a>
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/interlab', 'painel/agendamento-interlab']) ? 'show' : '' }}"
+            id="sidebarInterlabs">
+            <ul class="nav nav-sm flex-column">
+            <li class="nav-item">
+              <a href="{{ route('interlab-index') }}"
+                class="nav-link {{ request()->is('painel/interlab/*') ? 'active' : '' }}"
+                role="button" data-key="t-signin">
+                Interlab
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{-- route('agendamento-interlab-index') --}}"
+                class="nav-link {{ request()->is('painel/agendamento-interlab/*') ? 'active' : '' }}"
+                role="button" data-key="t-signin">
+                Agendamento de Interlabs
+              </a>
+            </li>
+            </ul>
+          </div>
+        </li>
+        
+
         {{-- FINANCEIRO --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'active' : '' }}"

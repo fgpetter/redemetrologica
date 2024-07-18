@@ -24,6 +24,7 @@ use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\InscricaoCursoController;
 use App\Http\Controllers\AgendaAvaliacaoController;
+use App\Http\Controllers\InterlabController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\LancamentoFinanceiroController;
@@ -223,6 +224,21 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete-interno/{laboratorio_interno:uid?}', [LaboratorioController::class, 'deleteInterno'])->name('laboratorio-delete-interno');
 
   });
+
+  /**
+   *  Interlaboratoriais
+   */
+  Route::group(['prefix' => 'interlab'], function () {
+    Route::get('index', [InterlabController::class, 'index'])->name('interlab-index');
+    Route::get('insert/{interlab:uid?}', [InterlabController::class, 'insert'])->name('interlab-insert');
+    Route::post('create', [InterlabController::class, 'create'])->name('interlab-create');
+    Route::post('update/{interlab:uid}', [InterlabController::class, 'update'])->name('interlab-update');
+    Route::post('delete/{interlab:uid}', [InterlabController::class, 'delete'])->name('interlab-delete');
+    Route::post('delete-folder/{interlab:uid}', [InterlabController::class, 'folderDelete'])->name('interlab-folder-delete');
+    Route::post('delete-thumb/{interlab:uid}', [InterlabController::class, 'thumbDelete'])->name('interlab-thumb-delete');
+  });
+
+
   
   /**
    * Cadastros adicionais
@@ -303,6 +319,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::get('areceber/index', [LancamentoFinanceiroController::class, 'areceber'])->name('a-receber-index');
 
   });
+
 
   /*
    * Site 
