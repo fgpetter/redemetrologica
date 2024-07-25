@@ -147,6 +147,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{agendacurso:uid}', [AgendaCursoController::class, 'update'])->name('agendamento-curso-update');
     Route::post('delete/{agendacurso:uid}', [AgendaCursoController::class, 'delete'])->name('agendamento-curso-delete');
     Route::post('salvar-despesa', [AgendaCursoController::class, 'salvaDespesa'])->name('salvar-despesa');
+    Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('delete-despesa');
   });
 
   /* Matricula em cursos */
@@ -247,6 +248,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{agendainterlab:uid}', [AgendaInterlabController::class, 'update'])->name('agenda-interlab-update');
     Route::post('delete/{agendainterlab:uid}', [AgendaInterlabController::class, 'delete'])->name('agenda-interlab-delete');
     Route::post('salva-material-padrao', [AgendaInterlabController::class, 'salvaMaterialPadrao'])->name('salvar-material-padrao');
+    Route::post('delete-material-padrao/{materialPadrao:uid}', [AgendaInterlabController::class, 'deleteMaterialPadrao'])->name('delete-material-padrao');
 
   });
 

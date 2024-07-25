@@ -306,6 +306,18 @@ class AgendaCursoController extends Controller
   }
 
   /**
+   * Remove despesa do agendamento de curso
+   *
+   * @param CursoDespesa $despesa
+   * @return RedirectResponse
+   */
+  public function deleteDespesa(CursoDespesa $despesa): RedirectResponse
+  {
+    $despesa->delete();
+    return back()->with('success', 'Despesa removida com sucesso');
+  }
+
+  /**
    * Formata valor para BD
    *
    * @param string $valor

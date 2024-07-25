@@ -199,6 +199,12 @@ class AgendaInterlabController extends Controller
     return back()->with('success', 'Material salvo com sucesso');
   }
 
+  public function deleteMaterialPadrao(InterlabMateriaisPadrao $materialPadrao): RedirectResponse
+  {
+    $materialPadrao->delete();
+    return back()->with('warning', 'Material removido');
+  }
+
   /**
    * Formata valor para BD
    *

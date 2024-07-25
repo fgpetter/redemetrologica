@@ -41,7 +41,7 @@
                   <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#materialPadraoModal' . $interlabMaterialPadrao->id }}">Editar</a>
                 </li>
                 <li>
-                  <x-painel.form-delete.delete route='materiais-padroes-delete' id="{{ $interlabMaterialPadrao->id }}" />
+                  <x-painel.form-delete.delete route='delete-material-padrao' id="{{ $interlabMaterialPadrao->uid }}" />
                 </li>
               </ul>
             </div>
