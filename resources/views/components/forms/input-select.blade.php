@@ -1,9 +1,10 @@
 @props([
-    'label',
-    'tooltip' => null,
-    'name', 
-    'id' => null,
-    'required' => null
+  'label',
+  'tooltip' => null,
+  'name', 
+  'id' => null,
+  'required' => null,
+  'helper' => null
 ])
 
 <label class="form-label">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis">*</span>' : '') !!}</label>

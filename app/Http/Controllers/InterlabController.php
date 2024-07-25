@@ -20,7 +20,7 @@ class InterlabController extends Controller
    **/
   public function index(): View
   {
-    $interlabs = Interlab::orderBy('id', 'desc')->paginate(15);
+    $interlabs = Interlab::paginate(15);
     return view('painel.interlabs.index', ['interlabs' => $interlabs]);
   }
 
@@ -96,8 +96,8 @@ class InterlabController extends Controller
     return redirect()->route('interlab-index')->with('success', 'Interlab cadastrado com sucesso');
   }
 
-    /**
-   * Adiciona interlab na base
+  /**
+   * Altera interlab
    *
    * @param Request $request
    * @return RedirectResponse
@@ -169,7 +169,7 @@ class InterlabController extends Controller
     // $tem_interlabs_agendados = AgendaCursos::where('interlab_id', $interlab->id)->first();
     // (!$tem_interlabs_agendados) ? $interlab->forceDelete() : $interlab->delete();
 
-    $interlab->delete();
+    $interlab->forceDelete();
 
     return redirect()->route('interlab-index')->with('warning', 'Interlab removido');
   }

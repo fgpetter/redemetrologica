@@ -10,6 +10,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\EnderecoController;
+use App\Http\Controllers\InterlabController;
 use App\Http\Controllers\AvaliadorController;
 use App\Http\Controllers\InstrutorController;
 use App\Http\Controllers\PostMediaController;
@@ -22,9 +23,9 @@ use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\DadoBancarioController;
 use App\Http\Controllers\TipoAvaliacaoController;
+use App\Http\Controllers\AgendaInterlabController;
 use App\Http\Controllers\InscricaoCursoController;
 use App\Http\Controllers\AgendaAvaliacaoController;
-use App\Http\Controllers\InterlabController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\LancamentoFinanceiroController;
@@ -236,6 +237,17 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{interlab:uid}', [InterlabController::class, 'delete'])->name('interlab-delete');
     Route::post('delete-folder/{interlab:uid}', [InterlabController::class, 'folderDelete'])->name('interlab-folder-delete');
     Route::post('delete-thumb/{interlab:uid}', [InterlabController::class, 'thumbDelete'])->name('interlab-thumb-delete');
+  });
+
+  /* Agenda de interlab */
+  Route::group(['prefix' => 'agenda-interlab'], function () {
+    Route::get('index', [AgendaInterlabController::class, 'index'])->name('agenda-interlab-index');
+    Route::get('insert/{agendainterlab:uid?}', [AgendaInterlabController::class, 'insert'])->name('agenda-interlab-insert');
+    Route::post('create', [AgendaInterlabController::class, 'create'])->name('agenda-interlab-create');
+    Route::post('update/{agendainterlab:uid}', [AgendaInterlabController::class, 'update'])->name('agenda-interlab-update');
+    Route::post('delete/{agendainterlab:uid}', [AgendaInterlabController::class, 'delete'])->name('agenda-interlab-delete');
+    Route::post('salva-material-padrao', [AgendaInterlabController::class, 'salvaMaterialPadrao'])->name('salvar-material-padrao');
+
   });
 
 

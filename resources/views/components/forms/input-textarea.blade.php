@@ -1,11 +1,12 @@
 @props([
-    'label',
-    'tooltip' => null,
-    'name', 
-    'required' => null, 
-    'id' => null, 
-    'uppercase' => false
-    ])
+  'label',
+  'tooltip' => null,
+  'name', 
+  'required' => null, 
+  'id' => null, 
+  'uppercase' => false,
+  'helper' => null
+])
 
 <label class="form-label">{{ $label }}</label>
 @if ($tooltip)
@@ -17,3 +18,4 @@
 @if ($id) id={{ $id }} @endif
 @if ($required) {{ $required }} @endif
 @if ($uppercase) oninput="this.value = this.value.toUpperCase()" @endif>{{ $slot }}</textarea>
+@if ($helper) <small class="form-text text-muted">{{ $helper }}</small> @endif
