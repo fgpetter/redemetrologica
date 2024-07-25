@@ -31,7 +31,7 @@
 
               <div class="col-4">
                 <label for="quantidade" class="form-label">Qauntidade</label>
-                <input type="number" class="form-control" name="quantidade" 
+                <input type="number" step=".01" class="form-control" name="quantidade" 
                   value="{{old('quantidade') ?? ($despesa->quantidade ?? null)}}" 
                   id="{{'despesa_qtd'.$despesa?->id}}" required>
                 @error('quantidade')
@@ -75,12 +75,11 @@
   const qtd{{ $despesa?->id}} = document.querySelector("{{'#despesa_qtd'.$despesa?->id}}")
   const total{{$despesa?->id}} = document.querySelector("{{'#despesa_total'.$despesa?->id}}")
   
-  valor{{$despesa?->id}}.addEventListener('keyup', () => {
-    total{{$despesa?->id}}.value = (qtd{{ $despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2);
-  });
+  valor{{$despesa?->id}}.addEventListener('keyup', () => {    
+    total{{$despesa?->id}}.value = (qtd{{$despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2)
+  })
   
   qtd{{ $despesa?->id}}.addEventListener('keyup', () => {
-    total{{$despesa?->id}}.value = (qtd{{ $despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2);
-  });
+    total{{$despesa?->id}}.value = (qtd{{$despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2)
+  })
 </script>
-{{-- endmodal --}}

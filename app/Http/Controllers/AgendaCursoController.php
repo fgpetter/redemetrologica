@@ -278,13 +278,13 @@ class AgendaCursoController extends Controller
     $request->validate([
       'agenda_curso_id' => ['nullable', 'exists:agenda_cursos,id'],
       'material_padrao' => ['required', 'exists:materiais_padroes,id'],
-      'quantidade' => ['required', 'integer'],
+      'quantidade' => ['required', 'regex:/[\d.,]+$/'],
       'valor' => ['required','regex:/[\d.,]+$/'],
       'total' => ['required', 'regex:/[\d.,]+$/'],
     ],[
       'agenda_curso_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
       'material_padrao.exists' => 'Selecione uma opção válida',
-      'quantidade.integer' => 'O dado enviado não é valido',
+      'quantidade.regex' => 'O dado enviado não é valido',
       'quantidade.required' => 'Preencha o campo',
       'valor.required' => 'Preencha o campo',
       'valor.regex' => 'Não é um número válido',

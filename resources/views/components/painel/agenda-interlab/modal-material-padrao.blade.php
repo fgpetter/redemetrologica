@@ -31,7 +31,7 @@
 
               <div class="col-4">
                 <label for="quantidade" class="form-label">Qauntidade</label>
-                <input type="number" class="form-control" name="quantidade" 
+                <input type="number" step=".01" class="form-control" name="quantidade" 
                   value="{{old('quantidade') ?? ($interlabMaterialPadrao->quantidade ?? null)}}" 
                   id="{{'material_qtd'.$interlabMaterialPadrao?->id}}" required>
                 @error('quantidade') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
@@ -88,11 +88,12 @@
   const total{{$interlabMaterialPadrao?->id}} = document.querySelector("{{'#material_total'.$interlabMaterialPadrao?->id}}")
   
   valor{{$interlabMaterialPadrao?->id}}.addEventListener('keyup', () => {
-    total{{$interlabMaterialPadrao?->id}}.value = (qtd{{ $interlabMaterialPadrao?->id}}.value * valor{{$interlabMaterialPadrao?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2);
-  });
+    total{{$interlabMaterialPadrao?->id}}.value = (qtd{{ $interlabMaterialPadrao?->id}}.value * valor{{$interlabMaterialPadrao?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2)
+  })
   
   qtd{{ $interlabMaterialPadrao?->id}}.addEventListener('keyup', () => {
-    total{{$interlabMaterialPadrao?->id}}.value = (qtd{{ $interlabMaterialPadrao?->id}}.value * valor{{$interlabMaterialPadrao?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2);
-  });
+    total{{$interlabMaterialPadrao?->id}}.value = (qtd{{ $interlabMaterialPadrao?->id}}.value * valor{{$interlabMaterialPadrao?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2)
+  })
 </script>
+
 {{-- endmodal --}}

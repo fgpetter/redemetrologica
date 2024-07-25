@@ -31,7 +31,7 @@
                 @forelse ( $despesas as $despesa)
                 <tr>
                     <td>{{ $despesa->materialPadrao->descricao }}</td>
-                    <td>{{ $despesa->quantidade }}</td>
+                    <td>{{ number_format($despesa->quantidade, 2, ',', '.') }}</td>
                     <td>{{ "R$ " . number_format($despesa->valor, 2, ',', '.') }}</td>
                     <td>{{ "R$ " . number_format($despesa->total, 2, ',', '.') }}</td>
                     <td>

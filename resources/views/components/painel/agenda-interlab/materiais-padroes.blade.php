@@ -24,7 +24,7 @@
         <tr>
           
           <td>{{ $interlabMaterialPadrao->materialPadrao->descricao }}</td>
-          <td>{{ $interlabMaterialPadrao->quantidade }}</td>
+          <td>{{ number_format($interlabMaterialPadrao->quantidade, 2, ',', '.') }}</td>
           <td>{{ $interlabMaterialPadrao->lote }}</td>
           <td>{{ $interlabMaterialPadrao->validade->format('d/m/Y') }}</td>
           <td>{{ "R$ " . number_format($interlabMaterialPadrao->valor, 2, ',', '.') }}</td>
