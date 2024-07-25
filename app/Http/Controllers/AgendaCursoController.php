@@ -46,9 +46,9 @@ class AgendaCursoController extends Controller
 
       'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
-      'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->limit(50)->get(),
+      'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->get(),
       'inscritos' => CursoInscrito::select()->with('empresa')->with('pessoa')->where('agenda_curso_id', $agendacurso->id)->get(),
-      'despesas' => CursoDespesa::select()->with('materialPadrao:id,descricao')->where('agenda_curso_id', $agendacurso->id)->get(),
+      'despesas' => $agendacurso->despesas()->with('materialPadrao:id,descricao')->get(),
       'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
       'agendacurso' => $agendacurso
     ];
@@ -276,15 +276,12 @@ class AgendaCursoController extends Controller
   public function salvaDespesa(Request $request): RedirectResponse
   {
     $request->validate([
-      'despesa_id' => ['nullable', 'exists:curso_despesas,id'],
       'agenda_curso_id' => ['nullable', 'exists:agenda_cursos,id'],
       'material_padrao' => ['required', 'exists:materiais_padroes,id'],
       'quantidade' => ['required', 'integer'],
       'valor' => ['required','regex:/[\d.,]+$/'],
       'total' => ['required', 'regex:/[\d.,]+$/'],
     ],[
-
-      'despesa_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
       'agenda_curso_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
       'material_padrao.exists' => 'Selecione uma opção válida',
       'quantidade.integer' => 'O dado enviado não é valido',
@@ -297,7 +294,7 @@ class AgendaCursoController extends Controller
 
 
     CursoDespesa::updateOrCreate([
-      'agenda_curso_id' => $request->agenda_curso_id,
+      'agenda_cursos_id' => $request->agenda_curso_id,
       'material_padrao_id' => $request->material_padrao,
     ],[
       'quantidade' => $request->quantidade,
@@ -309,7 +306,7 @@ class AgendaCursoController extends Controller
   }
 
   /**
-   * Undocumented function
+   * Formata valor para BD
    *
    * @param string $valor
    * @return string|null

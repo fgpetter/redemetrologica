@@ -116,7 +116,7 @@
                                  <div class="text-warning">{{ $message }}</div>
                              @enderror
                          @endif
-                         <div class="form-text" id="basic-addon4"> Imagem que irá aparecer no site </div>
+                         <div class="form-text"> Imagem que irá aparecer no site </div>
                      </div>
                      {{-- thumb --}}
                      {{-- folder --}}
@@ -148,7 +148,7 @@
                                  <div class="text-warning">{{ $message }}</div>
                              @enderror
                          @endif
-                         <div class="form-text" id="basic-addon4"> Folder do curso disponível para download </div>
+                         <div class="form-text" > Folder do curso disponível para download </div>
                      </div>
                      {{-- folder --}}
                      <div class="col-12">

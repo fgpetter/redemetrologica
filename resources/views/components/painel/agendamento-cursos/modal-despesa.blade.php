@@ -15,9 +15,6 @@
         <div class="row gy-3">
           <form method="POST" action="{{ route('salvar-despesa', $despesa?->id) }}">
             @csrf
-            @if (isset($despesa))
-              <input type="hidden" name="despesa_id" value="{{ $despesa?->id }}">
-            @endif
             <input type="hidden" name="agenda_curso_id" value="{{ $agendacurso->id }}">
             <div class="row gy-1">
               <div class="col-12">
