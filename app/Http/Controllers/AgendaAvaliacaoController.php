@@ -240,7 +240,17 @@ class AgendaAvaliacaoController extends Controller
     private function formataMoeda($valor): ?string
     {
         if ($valor) {
-            return str_replace(',', '.', preg_replace('/[^0-9\,]/', '', $valor));
+            if (str_contains($valor, '.') && str_contains($valor, ',')) {
+                return str_replace(',', '.', str_replace('.', '', $valor));
+            }
+
+            if (str_contains($valor, '.') && !str_contains($valor, ',')) {
+                return $valor;
+            }
+
+            if (str_contains($valor, ',') && !str_contains($valor, '.')) {
+                return str_replace(',', '.', $valor);
+            }
         } else {
             return null;
         }
