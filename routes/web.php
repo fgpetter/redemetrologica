@@ -67,7 +67,12 @@ Route::get('curso/inscricao', [InscricaoCursoController::class, 'cursoInscricao'
 /* Rotas do template */
 // Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
-/* Rotas do painel */
+
+/**
+ * 
+ * Rotas do painel
+ * 
+ */
 Route::prefix('painel')->middleware('auth')->group(function () {
 
   Route::get('/', function () {

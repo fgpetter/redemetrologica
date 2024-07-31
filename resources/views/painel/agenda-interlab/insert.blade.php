@@ -3,12 +3,12 @@
     Editar Agendamento de Interlab
 @endsection
 @section('content')
-    @component('components.breadcrumb')
-        @slot('li_1') @endslot
-        @slot('title')
-            Cadastrar Agendamento de Interlab
-        @endslot
-    @endcomponent
+
+    <x-breadcrumb 
+    li1="Agendamento de Interlab" 
+    li1link="agenda-interlab-index"
+    title="Cadastrar Agendamento de Interlab"/>
+
     <div class="row">
         <div class="col-12">
             <x-painel.agenda-interlab.insert 

@@ -19,7 +19,7 @@
 </div> --}}
 
 
-<div class="table-responsive" style="min-height: 25vh">
+<div class="table-responsive" style="min-height: 180px">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
             <tr>
@@ -31,43 +31,41 @@
             </tr>
         </thead>
         <tbody>
-            @if($inscritos)
-                @foreach ($inscritos->sortBy('empresa_id') as $inscrito)
-                    @if($inscrito->pessoa->tipo_pessoa === 'PF')
-                        <tr>
-                            <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
-                            <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
-                            <td>{{ $inscrito->pessoa->nome_razao }}</td>
-                            <td> {!! $inscrito->data_confirmacao 
-                                    ? \Carbon\Carbon::parse($inscrito->data_confirmacao)->format('d/m/Y') 
-                                    : '<span class="badge rounded-pill bg-warning">Não</span>' !!}
-                            </td>
-                            <td>
-                                <div class="dropdown">
-                                    <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                        <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                        <li>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
-                                        </li>
-                                        <li>                                            
-                                            <x-painel.form-delete.delete route='materiais-padroes-delete' id="{{ $inscrito->uid }}" />
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <x-painel.agendamento-cursos.modal-participante :inscrito="$inscrito"/>
-                    @endif
-                @endforeach
-            @else
-            <tr>
-                <td colspan="6" class="text-center">Este Instrutor não possui cursos realizados.</td>
-            </tr>
-            @endif
+            @forelse ($inscritos->sortBy('empresa_id') as $inscrito)
+                @if($inscrito->pessoa->tipo_pessoa === 'PF')
+                    <tr>
+                        <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
+                        <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
+                        <td>{{ $inscrito->pessoa->nome_razao }}</td>
+                        <td> {!! $inscrito->data_confirmacao 
+                                ? \Carbon\Carbon::parse($inscrito->data_confirmacao)->format('d/m/Y') 
+                                : '<span class="badge rounded-pill bg-warning">Não</span>' !!}
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
+                                    </li>
+                                    <li>                                            
+                                        <x-painel.form-delete.delete route='materiais-padroes-delete' id="{{ $inscrito->uid }}" />
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <x-painel.agendamento-cursos.modal-participante :inscrito="$inscrito"/>
+                @endif
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>
+                </tr>
+            @endforelse
             
         </tbody>
     </table>

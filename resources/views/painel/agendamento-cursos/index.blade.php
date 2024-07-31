@@ -1,16 +1,11 @@
 @extends('layouts.master')
 @section('title')
-    Listagem de Agendamento de Cursos
+    Listagem de Agendamento de Cursosstyle="min-height:
 @endsection
 @section('content')
-    @component('components.breadcrumb')
-        @slot('li_1')
-            Pessoas
-        @endslot
-        @slot('title')
-            Listagem de Agendamento de Cursos
-        @endslot
-    @endcomponent
+    <x-breadcrumb 
+        li1="Cursos" li1link="curso-index"
+        title="Listagem de Agendamento de Cursos"/>
 
     <div class="row">
         <div class="col">

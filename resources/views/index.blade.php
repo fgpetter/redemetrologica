@@ -10,7 +10,6 @@
     @if(auth()->user()->pessoa?->funcionario)
         {{-- carega componentes referentes ao funcionário e área --}}
         é funcionário
-        
     @else
 
         @if ( session('curso') )

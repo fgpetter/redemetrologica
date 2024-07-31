@@ -3,10 +3,8 @@
     'pessoa' => null,
 ])
 
-
-
-<div class="card {{ $class }}">
-    <div class="card-header d-flex justify-content-between align-items-start">
+<div class="card shadow-none border overflow-hidden card-border-info mt-3">
+    <div class="card-header d-flex justify-content-between align-items-start bg-info-subtle py-2">
         <div class="d-flex align-items-center gap-3">
             <div class="avatar-sm">
                 <span class="avatar-title bg-dark-subtle text-dark rounded-circle fs-3">
@@ -17,7 +15,7 @@
         </div>
         
         <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modal_endereco_cadastro"
-            class="btn btn-sm btn-success">
+            class="btn btn-sm btn-success mt-2">
             <i class="ri-add-line align-bottom me-1"></i>
             Adicionar endereço
         </a>

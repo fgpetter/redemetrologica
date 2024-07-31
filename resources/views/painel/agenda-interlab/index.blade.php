@@ -3,13 +3,8 @@
     Listagem de Agendamento de Interlabs
 @endsection
 @section('content')
-    @component('components.breadcrumb')
-        @slot('li_1')
-        @endslot
-        @slot('title')
-            Listagem de Agendamento de Interlabs
-        @endslot
-    @endcomponent
+    <x-breadcrumb 
+    title="Listagem de Agendamento de Interlabs"/>
 
     <div class="row">
         <div class="col">

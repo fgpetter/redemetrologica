@@ -3,20 +3,20 @@
     <div class="row gy-3">
 
       <div class="col-8">
-        <label class="form-label">Nome Completo<small class="text-danger-emphasis opacity-75"> (Obrigatório)
+        <label class="form-label">Nome Completo<small class="text-danger-emphasis opacity-75"> *
           </small></label>
         <input type="text" class="form-control" name="nome_razao"
-          value="{{ old('nome_razao') ?? ($avaliador->pessoa->nome_razao ?? null) }}">
+          value="{{ old('nome_razao') ?? ($avaliador->pessoa->nome_razao ?? null) }}" required>
         @error('nome_razao')
           <div class="text-warning">{{ $message }}</div>
         @enderror
       </div>
 
       <div class="col-4">
-        <label class="form-label">CPF<small class="text-danger-emphasis opacity-75"> (Obrigatório)
+        <label class="form-label">CPF<small class="text-danger-emphasis opacity-75"> *
           </small></label>
         <input type="text" class="form-control" name="cpf_cnpj" id="input-cpf"
-          value="{{ old('cpf_cnpj') ?? ($avaliador->pessoa->cpf_cnpj ?? null) }}">
+          value="{{ old('cpf_cnpj') ?? ($avaliador->pessoa->cpf_cnpj ?? null) }}" required>
         @error('cpf_cnpj')
           <div class="text-warning">{{ $message }}</div>
         @enderror

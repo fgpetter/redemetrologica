@@ -5,7 +5,7 @@
         </a>
     </div>
 </div>
-<div class="table-responsive mt-3" style="min-height: 25vh">
+<div class="table-responsive mt-3" style="min-height: 180px">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
             <tr>

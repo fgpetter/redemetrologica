@@ -3,14 +3,14 @@
   'endereco' => null
 ])
 <div class="col-4">
-  <label for="cep" class="form-label">CEP<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+  <label for="cep" class="form-label">CEP<small class="text-danger-emphasis opacity-75"> * </small></label>
   <input type="text" class="form-control input-cep" name="cep"
     value="{{ old('cep') ?? $endereco->cep ?? null }}" required>
     @error('cep') <div class="text-warning">{{ $message }}</div> @enderror
 </div>
 
 <div class="col-8">
-  <label for="endereco" class="form-label">Endereço<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+  <label for="endereco" class="form-label">Endereço<small class="text-danger-emphasis opacity-75"> * </small></label>
   <input type="text" class="form-control" name="endereco" id="endereco" 
     value="{{ old('endereco') ?? $endereco->endereco ?? null }}" placeholder="Ex. Av. Brasil, 1234" required>
     @error('endereco') <div class="text-warning">{{ $message }}</div> @enderror
@@ -29,7 +29,7 @@
 </div>
 
 <div class="col-6">
-  <label for="cidade" class="form-label">Cidade<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+  <label for="cidade" class="form-label">Cidade<small class="text-danger-emphasis opacity-75"> * </small></label>
   <input type="text" class="form-control" name="cidade" id="cidade" 
     value="{{ old('cidade') ?? $endereco->cidade ?? null }}" required>
     @error('cidade') <div class="text-warning">{{ $message }}</div> @enderror

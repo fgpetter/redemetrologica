@@ -20,7 +20,7 @@
           <div class="row g-3">
             <div class="col-12">
               <div>
-                <label class="form-label">Nome <small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+                <label class="form-label">Nome <small class="text-danger-emphasis opacity-75"> * </small></label>
                 <input type="text" class="form-control" name="nome"
                   value="{{old('nome') ?? $unidade->nome ?? ''}}" required>
               </div>

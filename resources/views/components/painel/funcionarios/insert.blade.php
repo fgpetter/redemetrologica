@@ -7,9 +7,7 @@
                  <div class="row gy-3">
 
                      <div class="col-8">
-                         <label class="form-label">Nome Completo<small class="text-danger-emphasis opacity-75">
-                                 (Obrigatório)
-                             </small></label>
+                         <label class="form-label">Nome Completo<small class="text-danger-emphasis opacity-75"> * </small></label>
                          <input type="text" class="form-control" name="nome_razao"
                              value="{{ old('nome_razao') ?? ($funcionario->pessoa->nome_razao ?? null) }}">
                          @error('nome_razao')
@@ -18,8 +16,7 @@
                      </div>
 
                      <div class="col-4">
-                         <label class="form-label">CPF<small class="text-danger-emphasis opacity-75"> (Obrigatório)
-                             </small></label>
+                         <label class="form-label">CPF<small class="text-danger-emphasis opacity-75"> * </small></label>
                          <input type="text" class="form-control" name="cpf_cnpj" id="input-cpf"
                              value="{{ old('cpf_cnpj') ?? ($funcionario->pessoa->cpf_cnpj ?? null) }}">
                          @error('cpf_cnpj')

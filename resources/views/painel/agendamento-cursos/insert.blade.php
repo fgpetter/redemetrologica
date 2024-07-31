@@ -1,21 +1,13 @@
 @extends('layouts.master')
 @section('title')
-    Editar Agendamento de Cursos
+    @if ($agendacurso->id) Editar Agendamento de Cursos @else Cadastrar Agendamento de Cursos @endif
 @endsection
 @section('content')
-    @component('components.breadcrumb')
-        @slot('li_1')
-            Pessoas
-        @endslot
-        @slot('title')
-            {{-- @if ($Instrutor->id)
-                Editar Instrutor
-            @else
-                Cadastrar Instrutor
-            @endif --}}
-            Cadastrar Agendamento de Cursos
-        @endslot
-    @endcomponent
+
+    <x-breadcrumb 
+    li1="Agendamento de Cursos" li1link="agendamento-curso-index"
+    :title="$agendacurso->id ? 'Editar Agendamento de Cursos' : 'Cadastrar Agendamento de Cursos'" />
+    
     <div class="row">
         <div class="col col-xxl-8">
             <x-painel.agendamento-cursos.insert 

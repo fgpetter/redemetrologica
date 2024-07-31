@@ -1,10 +1,16 @@
 @extends('layouts.master')
 @section('title') Editar Avaliador @endsection
 @section('content')
-  @component('components.breadcrumb')
+
+  <x-breadcrumb
+    li_1="Avaliadores" li_1link="avaliador-index"
+    title="Editar Avaliador" />
+  
+  {{-- @component('components.breadcrumb')
   @slot('li_1') Pessoas @endslot
   @slot('title') @if ($avaliador->id) Editar Avaliador @else Cadastrar Avaliador @endif @endslot
-  @endcomponent
+  @endcomponent --}}
+  
   <div class="row">
 
     <div class="col col-8">

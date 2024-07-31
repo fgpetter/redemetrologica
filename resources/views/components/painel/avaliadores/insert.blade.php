@@ -53,7 +53,7 @@
                              @endif
 
                              <div class="col-12 mt-4 px-0">
-                                 <x-painel.enderecos.list class="shadow-none" :pessoa="$avaliador->pessoa" />
+                                 <x-painel.enderecos.list :pessoa="$avaliador->pessoa" />
                              </div>
 
                          </div>

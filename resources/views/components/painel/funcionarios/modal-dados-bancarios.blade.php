@@ -25,25 +25,25 @@
             </div>
 
             <div class="col-sm-6">
-              <label class="form-label">Nome do banco<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+              <label class="form-label">Nome do banco<small class="text-danger-emphasis opacity-75"> * </small></label>
               <input type="text" class="form-control" name="nome_banco" required 
                 value="{{old('nome_banco') ?? $conta->nome_banco ?? ''}}">
             </div>
 
             <div class="col-sm-6">
-              <label class="form-label">Código do banco<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+              <label class="form-label">Código do banco<small class="text-danger-emphasis opacity-75"> * </small></label>
               <input type="text" class="form-control" name="cod_banco" required 
                 value="{{old('cod_banco') ?? $conta->cod_banco ?? ''}}">
             </div>
 
             <div class="col-sm-6">
-              <label class="form-label">Agencia<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+              <label class="form-label">Agencia<small class="text-danger-emphasis opacity-75"> * </small></label>
               <input type="text" class="form-control" name="agencia" required 
                 value="{{old('agencia') ?? $conta->agencia ?? ''}}">
             </div>
 
             <div class="col-sm-6">
-              <label class="form-label">Conta<small class="text-danger-emphasis opacity-75"> (Obrigatório) </small></label>
+              <label class="form-label">Conta<small class="text-danger-emphasis opacity-75"> * </small></label>
               <input type="text" class="form-control" name="conta" required 
                 value="{{old('conta') ?? $conta->conta ?? ''}}">
             </div>

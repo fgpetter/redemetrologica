@@ -10,10 +10,10 @@
                           <div class="col-12">
                               <input type="hidden" name="tipo" value="{{ $tipo }}">
                               <label class="form-label">Titulo {{ $tipo }}
-                                  <small class="text-danger-emphasis opacity-75">(Obrigatório) </small>
+                                  <small class="text-danger-emphasis opacity-75"> * </small>
                               </label>
                               <input type="text" class="form-control" name="titulo"
-                                  value="{{ old('titulo') ?? ($post->titulo ?? null) }}">
+                                  value="{{ old('titulo') ?? ($post->titulo ?? null) }}" required>
                               @error('titulo')
                                   <div class="text-warning">{{ $message }}</div>
                               @enderror
@@ -24,11 +24,9 @@
                               {{-- mostra só se for noticia --}}
                               <div class="col-12">
                                   <label class="form-label">Conteudo
-                                      <small class="text-danger-emphasis opacity-75">(Obrigatório) </small>
+                                      <small class="text-danger-emphasis opacity-75"> * </small>
                                   </label>
-                                  <textarea id="editor" class="ckeditor-classic" name="conteudo">
-          {!! old('conteudo') ?? ($post->conteudo ?? null) !!}
-        </textarea>
+                                  <textarea id="editor" class="ckeditor-classic" name="conteudo" required>{!! old('conteudo') ?? ($post->conteudo ?? null) !!}</textarea>
                                   @error('conteudo')
                                       <div class="text-warning">{{ $message }}</div>
                                   @enderror
