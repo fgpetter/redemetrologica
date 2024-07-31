@@ -9,17 +9,19 @@
         </a>
       </li>
 
-      <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#participantes" role="tab" aria-selected="false">
-        Participantes
-        </a>
-      </li>
+      @if($agendainterlab->id)
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#participantes" role="tab" aria-selected="false">
+          Participantes
+          </a>
+        </li>
 
-      <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
-        Materiais e Padrões
-        </a>
-      </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
+          Materiais e Padrões
+          </a>
+        </li>
+      @endif
     </ul>
 
     <!-- Tab panes -->
