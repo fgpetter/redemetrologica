@@ -8,7 +8,7 @@ use App\Models\AgendaInterlab;
 use App\Models\MaterialPadrao;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use App\Models\InterlabMateriaisPadrao;
+use App\Models\InterlabDespesa;
 
 class AgendaInterlabController extends Controller
 {
@@ -36,7 +36,7 @@ class AgendaInterlabController extends Controller
       'agendainterlab' => $agendainterlab , 
       'interlabs' => Interlab::all(),
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->get(),
-      'interlabMateriaisPadrao' => $agendainterlab->materiaisPadrao()->get(),
+      'interlabDespesa' => $agendainterlab->despesa()->get(),
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -159,10 +159,11 @@ class AgendaInterlabController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-  public function salvaMaterialPadrao(Request $request): RedirectResponse
+  public function salvaDespesa(Request $request): RedirectResponse
   {
     $request->validate([
       'agenda_interlab_id' => ['nullable', 'exists:agenda_interlabs,id'],
+      'despesa_id' => ['nullable', 'exists:interlab_despesas,id'],
       'material_padrao' => ['required', 'exists:materiais_padroes,id'],
       'quantidade' => ['required', 'regex:/[\d.,]+$/'],
       'valor' => ['required','regex:/[\d.,]+$/'],
@@ -172,6 +173,7 @@ class AgendaInterlabController extends Controller
       'data_compra' => ['nullable', 'date'],
     ],[
       'agenda_interlab_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
+      'despesa_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
       'material_padrao.exists' => 'Selecione uma opção válida',
       'quantidade.regex' => 'O dado enviado não é valido',
       'quantidade.required' => 'Preencha o campo',
@@ -184,13 +186,14 @@ class AgendaInterlabController extends Controller
       'data_compra.date' => 'Permitido somente data',
     ]);
 
-    InterlabMateriaisPadrao::updateOrCreate([
+    interlabDespesa::updateOrCreate([
+      'id' => $request->despesa_id,
+    ],[
       'agenda_interlab_id' => $request->agenda_interlab_id,
       'material_padrao_id' => $request->material_padrao,
-    ],[
       'quantidade' => $request->quantidade,
       'valor' => $this->formataMoeda($request->valor),
-      'total' => $request->total,
+      'total' => $this->formataMoeda($request->total),
       'lote' => $request->lote,
       'validade' => $request->validade,
       'data_compra' => $request->data_compra,
@@ -199,7 +202,7 @@ class AgendaInterlabController extends Controller
     return back()->with('success', 'Material salvo com sucesso');
   }
 
-  public function deleteMaterialPadrao(InterlabMateriaisPadrao $materialPadrao): RedirectResponse
+  public function deleteDespesa(InterlabDespesa $materialPadrao): RedirectResponse
   {
     $materialPadrao->delete();
     return back()->with('warning', 'Material removido');
@@ -214,7 +217,18 @@ class AgendaInterlabController extends Controller
   private function formataMoeda($valor): ?string
   {
     if ($valor) {
-      return str_replace(',', '.', str_replace('.', '', $valor));
+      if(str_contains($valor, '.') && str_contains($valor, ',') ) {
+        return str_replace(',', '.', str_replace('.', '', $valor));
+      }
+
+      if(str_contains($valor, '.') && !str_contains($valor, ',') ) {
+        return $valor;
+      }
+
+      if(str_contains($valor, ',') && !str_contains($valor, '.') ){
+        return str_replace(',', '.', $valor);
+      }
+
     } else {
       return null;
     }

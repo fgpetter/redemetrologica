@@ -15,7 +15,7 @@
                 :agendainterlab="$agendainterlab" 
                 :interlabs="$interlabs"
                 :materiaisPadrao="$materiaisPadrao"
-                :interlabMateriaisPadrao="$interlabMateriaisPadrao"
+                :interlabDespesa="$interlabDespesa"
             />
         </div>
     </div>

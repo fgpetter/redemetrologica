@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-12 d-flex justify-content-end my-3">
-    <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#materialPadraoModal">
+    <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#despesaModal">
       <i class="ri-add-line align-bottom me-1"></i> Adicionar
     </a>
   </div>
@@ -20,15 +20,15 @@
       </tr>
     </thead>
     <tbody>
-        @forelse ( $interlabMateriaisPadrao as $interlabMaterialPadrao)
+        @forelse ( $interlabDespesa as $despesa)
         <tr>
           
-          <td>{{ $interlabMaterialPadrao->materialPadrao->descricao }}</td>
-          <td>{{ number_format($interlabMaterialPadrao->quantidade, 2, ',', '.') }}</td>
-          <td>{{ $interlabMaterialPadrao->lote }}</td>
-          <td>{{ $interlabMaterialPadrao->validade->format('d/m/Y') }}</td>
-          <td>{{ "R$ " . number_format($interlabMaterialPadrao->valor, 2, ',', '.') }}</td>
-          <td>{{ "R$ " . number_format($interlabMaterialPadrao->total, 2, ',', '.') }}</td>
+          <td>{{ $despesa->materialPadrao->descricao }}</td>
+          <td>{{ number_format($despesa->quantidade, 2, ',', '.') }}</td>
+          <td>{{ $despesa->lote }}</td>
+          <td>{{ $despesa->validade->format('d/m/Y') }}</td>
+          <td>{{ "R$ " . number_format($despesa->valor, 2, ',', '.') }}</td>
+          <td>{{ "R$ " . number_format($despesa->total, 2, ',', '.') }}</td>
           <td>
             <div class="dropdown">
               <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -38,17 +38,17 @@
               </a>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                 <li>
-                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#materialPadraoModal' . $interlabMaterialPadrao->id }}">Editar</a>
+                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#despesaModal' . $despesa->id }}">Editar</a>
                 </li>
                 <li>
-                  <x-painel.form-delete.delete route='delete-material-padrao' id="{{ $interlabMaterialPadrao->uid }}" />
+                  <x-painel.form-delete.delete route='delete-despesa' id="{{ $despesa->uid }}" />
                 </li>
               </ul>
             </div>
           </td>
         </tr>
-        <x-painel.agenda-interlab.modal-material-padrao 
-          :interlabMaterialPadrao="$interlabMaterialPadrao" 
+        <x-painel.agenda-interlab.modal-despesa 
+          :despesa="$despesa" 
           :agendainterlab="$agendainterlab" 
           :materiaisPadrao="$materiaisPadrao"/>
         @empty
@@ -60,7 +60,7 @@
     </tbody>
   </table>
 
-  <x-painel.agenda-interlab.modal-material-padrao 
+  <x-painel.agenda-interlab.modal-despesa 
     :agendainterlab="$agendainterlab" 
     :materiaisPadrao="$materiaisPadrao"/>
 

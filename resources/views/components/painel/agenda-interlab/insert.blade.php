@@ -18,7 +18,7 @@
 
         <li class="nav-item">
           <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
-          Materiais e Padrões
+          Despesas
           </a>
         </li>
       @endif
@@ -43,11 +43,11 @@
       </div>
 
       <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
-      <x-painel.agenda-interlab.materiais-padroes 
+      <x-painel.agenda-interlab.despesas 
         :agendainterlab="$agendainterlab" 
         :interlabs="$interlabs" 
         :materiaisPadrao="$materiaisPadrao"
-        :interlabMateriaisPadrao="$interlabMateriaisPadrao"/>
+        :interlabDespesa="$interlabDespesa"/>
       </div>
 
     </div>

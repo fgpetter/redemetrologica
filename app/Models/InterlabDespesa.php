@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class InterlabMateriaisPadrao extends Model
+class InterlabDespesa extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'interlab_materiais_padrao';
+    protected $table = 'interlab_despesas';
 
     protected $guarded = [];
 

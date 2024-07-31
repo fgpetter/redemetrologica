@@ -88,6 +88,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete');
   });
 
+  
+
   /**
    * Pessoas 
    */
@@ -130,6 +132,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'])->name('conta-update');
     Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'])->name('conta-delete');
   });
+
+
 
   /**
    *  Cursos 
@@ -176,6 +180,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('deletecursoshabilitado/{cursohabilitado:uid}', [InstrutorController::class, 'deleteCursoHabilitado'])->name('instrutor-delete-curso-habilitado');
     Route::post('delete-curriculo/{instrutor:uid}', [InstrutorController::class, 'curriculoDelete'])->name('instrutor-curriculo-delete');
   });
+
+
 
   /**
    * Avalições
@@ -232,6 +238,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
   });
 
+
+
   /**
    *  Interlaboratoriais
    */
@@ -252,8 +260,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [AgendaInterlabController::class, 'create'])->name('agenda-interlab-create');
     Route::post('update/{agendainterlab:uid}', [AgendaInterlabController::class, 'update'])->name('agenda-interlab-update');
     Route::post('delete/{agendainterlab:uid}', [AgendaInterlabController::class, 'delete'])->name('agenda-interlab-delete');
-    Route::post('salva-material-padrao', [AgendaInterlabController::class, 'salvaMaterialPadrao'])->name('salvar-material-padrao');
-    Route::post('delete-material-padrao/{materialPadrao:uid}', [AgendaInterlabController::class, 'deleteMaterialPadrao'])->name('delete-material-padrao');
+    Route::post('salva-despesa', [AgendaInterlabController::class, 'salvaDespesa'])->name('salvar-despesa');
+    Route::post('delete-despesa/{materialPadrao:uid}', [AgendaInterlabController::class, 'deleteDespesa'])->name('delete-despesa');
 
   });
 

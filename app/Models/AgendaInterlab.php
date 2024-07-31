@@ -36,9 +36,9 @@ class AgendaInterlab extends Model
      *
      * @return HasMany
      */
-    public function materiaisPadrao(): HasMany
+    public function despesa(): HasMany
     {
-        return $this->hasMany(InterlabMateriaisPadrao::class);
+        return $this->hasMany(InterlabDespesa::class);
     }
 
 }

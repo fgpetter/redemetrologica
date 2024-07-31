@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('interlab_materiais_padrao', function (Blueprint $table) {
+        Schema::create('interlab_despesas', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->foreignIdFor(AgendaInterlab::class)->constrained();
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('interlab_materiais_padrao');
+        Schema::dropIfExists('interlab_despesas');
     }
 };
