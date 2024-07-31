@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('curso_despesas', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
-            $table->foreignIdFor(AgendaCursos::class)->constrained();
+            $table->foreignIdFor(AgendaCursos::class)->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('material_padrao_id');
             $table->decimal('quantidade', 8, 2)->default(0);
             $table->decimal('valor', 8, 2)->default(0);
