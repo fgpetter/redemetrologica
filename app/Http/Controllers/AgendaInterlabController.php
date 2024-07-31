@@ -9,6 +9,8 @@ use App\Models\MaterialPadrao;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use App\Models\InterlabDespesa;
+use Illuminate\Support\Facades\DB;
+
 
 class AgendaInterlabController extends Controller
 {
@@ -37,6 +39,8 @@ class AgendaInterlabController extends Controller
       'interlabs' => Interlab::all(),
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->get(),
       'interlabDespesa' => $agendainterlab->despesa()->get(),
+      'fabricantes' => DB::table('interlab_despesas')->distinct()->get(['fabricante']),
+      'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -165,25 +169,28 @@ class AgendaInterlabController extends Controller
       'agenda_interlab_id' => ['nullable', 'exists:agenda_interlabs,id'],
       'despesa_id' => ['nullable', 'exists:interlab_despesas,id'],
       'material_padrao' => ['required', 'exists:materiais_padroes,id'],
-      'quantidade' => ['required', 'regex:/[\d.,]+$/'],
-      'valor' => ['required','regex:/[\d.,]+$/'],
-      'total' => ['required', 'regex:/[\d.,]+$/'],
+      'quantidade' => ['nullable', 'regex:/[\d.,]+$/'],
+      'valor' => ['nullable','regex:/[\d.,]+$/'],
+      'total' => ['nullable', 'regex:/[\d.,]+$/'],
       'lote' => ['nullable', 'string'],
       'validade' => ['nullable', 'date'],
       'data_compra' => ['nullable', 'date'],
+      'fornecedor' => ['nullable', 'string'],
+      'fabricante' => ['nullable', 'string'],
+      'cod_fabricante' => ['nullable', 'string'],
     ],[
       'agenda_interlab_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
       'despesa_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
       'material_padrao.exists' => 'Selecione uma opção válida',
       'quantidade.regex' => 'O dado enviado não é valido',
-      'quantidade.required' => 'Preencha o campo',
-      'valor.required' => 'Preencha o campo',
       'valor.regex' => 'Não é um número válido',
-      'total.required' => 'O campo não pode estar vazio',
       'total.regex' => 'Não é um número válido',
       'lote.string' => 'Permitido somente texto',
       'validade.date' => 'Permitido somente data',
       'data_compra.date' => 'Permitido somente data',
+      'fornecedor.string' => 'O dado enviado não é valido',
+      'fabricante.string' => 'O dado enviado não é valido',
+      'cod_fabricante.string' => 'O dado enviado não é valido',
     ]);
 
     interlabDespesa::updateOrCreate([
@@ -197,6 +204,10 @@ class AgendaInterlabController extends Controller
       'lote' => $request->lote,
       'validade' => $request->validade,
       'data_compra' => $request->data_compra,
+      'fornecedor' => $request->fornecedor,
+      'fabricante' => $request->fabricante,
+      'cod_fabricante' => $request->cod_fabricante,
+
     ]);
 
     return back()->with('success', 'Material salvo com sucesso');

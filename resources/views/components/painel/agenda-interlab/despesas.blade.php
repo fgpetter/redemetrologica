@@ -26,7 +26,7 @@
           <td>{{ $despesa->materialPadrao->descricao }}</td>
           <td>{{ number_format($despesa->quantidade, 2, ',', '.') }}</td>
           <td>{{ $despesa->lote }}</td>
-          <td>{{ $despesa->validade->format('d/m/Y') }}</td>
+          <td>{{ $despesa->validade?->format('d/m/Y') }}</td>
           <td>{{ "R$ " . number_format($despesa->valor, 2, ',', '.') }}</td>
           <td>{{ "R$ " . number_format($despesa->total, 2, ',', '.') }}</td>
           <td>
@@ -50,7 +50,9 @@
         <x-painel.agenda-interlab.modal-despesa 
           :despesa="$despesa" 
           :agendainterlab="$agendainterlab" 
-          :materiaisPadrao="$materiaisPadrao"/>
+          :materiaisPadrao="$materiaisPadrao"
+          :fornecedores="$fornecedores"
+          :fabricantes="$fabricantes" />
         @empty
           <tr>
             <td colspan="7" class="text-center">Não há materiais cadastrados</td>
@@ -62,6 +64,8 @@
 
   <x-painel.agenda-interlab.modal-despesa 
     :agendainterlab="$agendainterlab" 
-    :materiaisPadrao="$materiaisPadrao"/>
+    :materiaisPadrao="$materiaisPadrao"
+    :fornecedores="$fornecedores"
+    :fabricantes="$fabricantes" />
 
 </div>

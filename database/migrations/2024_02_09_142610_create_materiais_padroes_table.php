@@ -16,14 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->string('descricao');
-            $table->string('fornecedor')->nullable();
-            $table->string('fabricante')->nullable();
-            $table->string('cod_fabricante')->nullable();
-            $table->string('marca')->nullable();
             $table->enum('tipo', ['CURSOS', 'INTERLAB', 'AMBOS']);
-            $table->boolean('padrao')->default(0);
-            $table->decimal('valor')->nullable();
-            $table->enum('tipo_despesa', ['FIXO', 'VARIAVEL', 'OUTROS']);
             $table->text('observacoes')->nullable();
 
             $table->timestamps();

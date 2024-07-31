@@ -1,7 +1,9 @@
 @props([
 "despesa" => null,
 "materiaisPadrao" => null,
-"agendainterlab" => null
+"agendainterlab" => null,
+"fornecedores" => null,
+"fabricantes" => null,
 ])
 {{-- modal --}}
 <div class="modal fade" id="{{ isset($despesa) ? 'despesaModal'.$despesa->id : 'despesaModal'}}" tabindex="-1" aria-labelledby="despesaModalLabel" aria-hidden="true">
@@ -31,10 +33,47 @@
               </div>
 
               <div class="col-4">
+                <label for="fornecedor" class="form-label">Fornecedor</label>
+                <input class="form-control" name="fornecedor" 
+                  value="{{old('fornecedor') ?? ($despesa->fornecedor ?? null)}}" 
+                  list="fornecedorList">
+                @error('fornecedor') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
+                <datalist id="fornecedorList">
+                  @foreach ($fornecedores as $fornecedor)
+                      <option value="{{ $fornecedor->fornecedor }}">
+                  @endforeach
+              </datalist>
+
+              </div>
+
+              <div class="col-4">
+                <label for="fabricante" class="form-label">Fabricante</label>
+                <input class="form-control" name="fabricante" 
+                  value="{{old('fabricante') ?? ($despesa->fabricante ?? null)}}"
+                  list="fabricanteList">
+                @error('fabricante') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
+
+                <datalist id="fabricanteList">
+                  @foreach ($fabricantes as $fabricante)
+                      <option value="{{ $fabricante->fabricante }}">
+                  @endforeach
+              </datalist>
+
+              </div>
+
+              <div class="col-4">
+                <label for="cod_fabricante" class="form-label">Codigo Fabricante</label>
+                <input class="form-control" name="cod_fabricante" 
+                  value="{{old('cod_fabricante') ?? ($despesa->cod_fabricante ?? null)}}" >
+                @error('cod_fabricante') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
+              </div>
+
+
+              <div class="col-4">
                 <label for="quantidade" class="form-label">Qauntidade</label>
                 <input type="number" step=".01" class="form-control" name="quantidade" 
                   value="{{old('quantidade') ?? ($despesa->quantidade ?? null)}}" 
-                  id="{{'material_qtd'.$despesa?->id}}" required>
+                  id="{{'material_qtd'.$despesa?->id}}" >
                 @error('quantidade') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
@@ -42,7 +81,7 @@
                 <label for="valor" class="form-label">Valor</label>
                 <input type="text" class="form-control money" name="valor" 
                   value="{{old('valor') ?? ($despesa->valor ?? null)}}" 
-                  id="{{'material_valor'.$despesa?->id}}" required>
+                  id="{{'material_valor'.$despesa?->id}}" >
                 @error('valor') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
               
@@ -60,12 +99,12 @@
               </div>
               
               <div class="col-4">
-                <x-forms.input-field type="date" name="validade" label="Validade" :value="old('validade') ?? ($despesa?->validade->format('Y-m-d') ?? null)"/>
+                <x-forms.input-field type="date" name="validade" label="Validade" :value="old('validade') ?? ($despesa?->validade?->format('Y-m-d') ?? null)"/>
                 @error('total') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
               <div class="col-4">
-                <x-forms.input-field type="date" name="data_compra" label="Data da compra" :value="old('data_compra') ?? ($despesa?->data_compra->format('Y-m-d') ?? null)"/>
+                <x-forms.input-field type="date" name="data_compra" label="Data da compra" :value="old('data_compra') ?? ($despesa?->data_compra?->format('Y-m-d') ?? null)"/>
                 @error('total') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
@@ -93,7 +132,7 @@
   })
   
   qtd{{ $despesa?->id}}.addEventListener('keyup', () => {
-    total{{$despesa?->id}}.value = (qtd{{ $despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2)
+    total{{$despesa?->id}}.value = (qtd{{$despesa?->id}}.value * valor{{$despesa?->id}}.value.replace(".", "").replace(",", ".")).toFixed(2)
   })
 </script>
 

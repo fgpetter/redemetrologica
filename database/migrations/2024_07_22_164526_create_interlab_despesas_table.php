@@ -18,10 +18,14 @@ return new class extends Migration
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->foreignIdFor(AgendaInterlab::class)->constrained();
             $table->unsignedBigInteger('material_padrao_id');
-            $table->decimal('quantidade', 8, 2)->default(0);
-            $table->decimal('valor', 8, 2)->default(0);
-            $table->decimal('total', 8, 2)->default(0);
+            $table->string('fornecedor')->nullable();
+            $table->string('fabricante')->nullable();
+            $table->string('cod_fabricante')->nullable();
+            $table->string('marca')->nullable();
             $table->string('lote')->nullable();
+            $table->decimal('quantidade', 8, 2)->nullable();
+            $table->decimal('valor', 8, 2)->nullable();
+            $table->decimal('total', 8, 2)->nullable();
             $table->date('validade')->nullable();
             $table->date('data_compra')->nullable();
             $table->timestamps();

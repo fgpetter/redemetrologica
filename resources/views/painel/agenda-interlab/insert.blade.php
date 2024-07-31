@@ -16,6 +16,8 @@
                 :interlabs="$interlabs"
                 :materiaisPadrao="$materiaisPadrao"
                 :interlabDespesa="$interlabDespesa"
+                :fabricantes="$fabricantes"
+                :fornecedores="$fornecedores"
             />
         </div>
     </div>

@@ -47,7 +47,9 @@
         :agendainterlab="$agendainterlab" 
         :interlabs="$interlabs" 
         :materiaisPadrao="$materiaisPadrao"
-        :interlabDespesa="$interlabDespesa"/>
+        :interlabDespesa="$interlabDespesa"
+        :fornecedores="$fornecedores"
+        :fabricantes="$fabricantes" />
       </div>
 
     </div>
