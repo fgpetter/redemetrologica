@@ -1,7 +1,7 @@
 <div class="card">
   <div class="card-body">
 
-    <ul class="nav nav-tabs nav-justified mb-3" role="tablist">
+    <ul class="nav nav-pills arrow-navtabs nav-info bg-light mb-3" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" data-bs-toggle="tab" href="#principal" role="tab"
           aria-selected="true">
