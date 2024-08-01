@@ -57,9 +57,9 @@
                     @endforelse
                 </tbody>
             </table>
-            {{-- <div class="row mt-3">
-    {!! $padroes->withQueryString()->links('pagination::bootstrap-5') !!}
-    </div> --}}
+            <div class="row mt-3">
+                {!! $parametros->withQueryString()->links('pagination::bootstrap-5') !!}
+            </div>
         </div>
         <x-painel.parametros.modal-parametros />
     </div>

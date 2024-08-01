@@ -13,7 +13,7 @@ class ParametrosController extends Controller
   public function index()
   {
 
-    return view('painel.parametros.index', ['parametros' => Parametro::all()]);
+    return view('painel.parametros.index', ['parametros' => Parametro::paginate(15)]);
   }
 
 
