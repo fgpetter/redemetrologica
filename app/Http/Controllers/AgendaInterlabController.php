@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Interlab;
+use App\Models\Parametro;
 use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
 use App\Models\MaterialPadrao;
+use App\Models\InterlabDespesa;
+use App\Models\InterlabParametro;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use App\Models\InterlabDespesa;
-use Illuminate\Support\Facades\DB;
 
 
 class AgendaInterlabController extends Controller
@@ -38,9 +40,11 @@ class AgendaInterlabController extends Controller
       'agendainterlab' => $agendainterlab , 
       'interlabs' => Interlab::all(),
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->get(),
-      'interlabDespesa' => $agendainterlab->despesa()->get(),
+      'interlabDespesa' => $agendainterlab->despesas()->get(),
       'fabricantes' => DB::table('interlab_despesas')->distinct()->get(['fabricante']),
       'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
+      'interlabParametros' => $agendainterlab->parametros()->get(),
+      'parametros' => Parametro::all()
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -193,7 +197,7 @@ class AgendaInterlabController extends Controller
       'cod_fabricante.string' => 'O dado enviado não é valido',
     ]);
 
-    interlabDespesa::updateOrCreate([
+    InterlabDespesa::updateOrCreate([
       'id' => $request->despesa_id,
     ],[
       'agenda_interlab_id' => $request->agenda_interlab_id,
@@ -213,11 +217,56 @@ class AgendaInterlabController extends Controller
     return back()->with('success', 'Material salvo com sucesso');
   }
 
-  public function deleteDespesa(InterlabDespesa $materialPadrao): RedirectResponse
+  /**
+   * Remove despesa do agendamento de curso
+   *
+   * @param InterlabDespesa $despesa
+   * @return RedirectResponse
+   */
+  public function deleteDespesa(InterlabDespesa $despesa): RedirectResponse
   {
-    $materialPadrao->delete();
+    $despesa->delete();
     return back()->with('warning', 'Material removido');
   }
+
+  /**
+   * Salva parametro do agendamento de curso
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   */
+
+  public function salvaParametro(Request $request): RedirectResponse
+  {
+    $request->validate([
+      'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
+      'parametro_id' => ['required', 'exists:parametros,id'],
+    ],[
+      'agenda_interlab_id.exists' => 'Dado informado está incorreto. Tente novamente',
+      'parametro_id.exists' => 'Dado informado está incorreto. Tente novamente',
+    ]);
+
+    InterlabParametro::create([
+      'agenda_interlab_id' => $request->agenda_interlab_id,
+      'parametro_id' => $request->parametro_id,
+    ]);
+
+    return back()->with('success', 'Parametro salvo com sucesso');
+  }
+
+  /**
+   * Remove parametro
+   *
+   * @param InterlabDespesa $despesa
+   * @return RedirectResponse
+   */
+  public function deleteParametro(InterlabParametro $parametro): RedirectResponse
+  {
+    $parametro->delete();
+    return back()->with('warning', 'Parametro removido');
+  }
+
+
 
   /**
    * Formata valor para BD

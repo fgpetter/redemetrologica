@@ -32,13 +32,23 @@ class AgendaInterlab extends Model
     }
 
     /**
-     * Retorna materiais padrão
+     * Retorna despesas associadas
      *
      * @return HasMany
      */
-    public function despesa(): HasMany
+    public function despesas(): HasMany
     {
         return $this->hasMany(InterlabDespesa::class);
+    }
+
+    /**
+     * Retorna parametros associados
+     *
+     * @return HasMany
+     */
+    public function parametros(): HasMany
+    {
+        return $this->hasMany(InterlabParametro::class);
     }
 
 }
