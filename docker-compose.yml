@@ -1,11 +1,12 @@
 services:
-    laravel.test:
+    sistema-rede.test:
         build:
             context: ./vendor/laravel/sail/runtimes/8.3
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: sail-8.3/app
+        mem_limit: 512m
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -27,6 +28,7 @@ services:
             - mailpit
     mysql:
         image: 'mysql/mysql-server:8.0'
+        mem_limit: 512m
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         environment:
@@ -51,6 +53,7 @@ services:
             timeout: 5s
     redis:
         image: 'redis:alpine'
+        mem_limit: 512m
         ports:
             - '${FORWARD_REDIS_PORT:-6379}:6379'
         volumes:
@@ -66,6 +69,7 @@ services:
             timeout: 5s
     mailpit:
         image: 'axllent/mailpit:latest'
+        mem_limit: 512m
         ports:
             - '${FORWARD_MAILPIT_PORT:-1025}:1025'
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
