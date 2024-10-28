@@ -10,7 +10,7 @@
     title="Cadastrar Agendamento de Interlab"/>
 
     <div class="row">
-        <div class="col-8">
+        <div class="col-9">
             <x-painel.agenda-interlab.insert 
                 :agendainterlab="$agendainterlab" 
                 :interlabs="$interlabs"
@@ -18,10 +18,12 @@
                 :interlabDespesa="$interlabDespesa"
                 :fabricantes="$fabricantes"
                 :fornecedores="$fornecedores"
+                :interlabParametros="$interlabParametros"
+                :rodadas="$rodadas"
             />
         </div>
         @if($agendainterlab->id)
-            <div class="col-4">
+            <div class="col-3">
                 <x-painel.agenda-interlab.parametros 
                     :interlabParametros="$interlabParametros" 
                     :parametros="$parametros" 

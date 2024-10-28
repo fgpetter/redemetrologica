@@ -3,10 +3,9 @@
 use App\Models\Parametro;
 use App\Models\AgendaInterlab;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-
-
 
 return new class extends Migration
 {
@@ -15,10 +14,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('interlab_parametros', function (Blueprint $table) {
+        Schema::create('interlab_rodadas', function (Blueprint $table) {
             $table->id();
+            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->foreignIdFor(AgendaInterlab::class)->constrained()->onDelete('cascade');
-            $table->foreignIdFor(Parametro::class)->constrained();
+            $table->string('descricao');
+            $table->integer('vias');
+            $table->text('cronograma')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('interlab_parametros');
+        Schema::dropIfExists('interlab_rodadas');
     }
 };

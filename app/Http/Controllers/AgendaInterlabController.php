@@ -9,6 +9,7 @@ use App\Models\AgendaInterlab;
 use App\Models\MaterialPadrao;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabParametro;
+use App\Models\InterlabRodada;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -17,7 +18,7 @@ use Illuminate\Http\RedirectResponse;
 class AgendaInterlabController extends Controller
 {
    /**
-   * Gera tela de lista de cursos agendados
+   * Gera tela de lista de interlabs agendados
    * 
    * @return View
    */
@@ -28,23 +29,26 @@ class AgendaInterlabController extends Controller
   }
 
    /**
-   * Tela de cadastro e ediçao de agenda de cursos
+   * Tela de cadastro e ediçao de agenda de interlabs
    * 
-   * @param AgendaCursos $agendamento_curso
+   * @param AgendaInterlab $agendainterlab
    * @return View
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
 
+    $agenda_interlab = $agendainterlab->with('despesas')->with('parametros')->with('rodadas')->first();
+
     $data = [
-      'agendainterlab' => $agendainterlab , 
+      'agendainterlab' => $agenda_interlab, 
       'interlabs' => Interlab::all(),
-      'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->get(),
-      'interlabDespesa' => $agendainterlab->despesas()->get(),
+      'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->orderBy('descricao')->get(),
+      'interlabDespesa' => $agenda_interlab->despesas,
       'fabricantes' => DB::table('interlab_despesas')->distinct()->get(['fabricante']),
       'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
-      'interlabParametros' => $agendainterlab->parametros()->get(),
-      'parametros' => Parametro::all()
+      'interlabParametros' => $agenda_interlab->parametros,
+      'parametros' => Parametro::orderBy('descricao')->get(),
+      'rodadas' => $agenda_interlab->rodadas,
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -162,7 +166,7 @@ class AgendaInterlabController extends Controller
   }
 
   /**
-   * Salva despesa do agendamento de curso
+   * Salva despesa do agendamento de interlab
    *
    * @param Request $request
    * @return RedirectResponse
@@ -218,7 +222,7 @@ class AgendaInterlabController extends Controller
   }
 
   /**
-   * Remove despesa do agendamento de curso
+   * Remove despesa do agendamento de interlab
    *
    * @param InterlabDespesa $despesa
    * @return RedirectResponse
@@ -230,41 +234,69 @@ class AgendaInterlabController extends Controller
   }
 
   /**
-   * Salva parametro do agendamento de curso
+   * Salva rodada
    *
    * @param Request $request
    * @return RedirectResponse
    */
 
-  public function salvaParametro(Request $request): RedirectResponse
+  public function salvaRodada(Request $request): RedirectResponse
   {
+    //dd($request->all());
     $request->validate([
       'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
-      'parametro_id' => ['required', 'exists:parametros,id'],
+      'rodada_id' => ['nullable', 'exists:agenda_interlabs,id'],
+      'descricao' => ['required', 'string'],
+      'vias' => ['required', 'numeric' ,'min:1'],
+      'cronograma' => ['nullable', 'string'],
+      'parametros' => ['nullable', 'array'],	
+    ],
+    [
+      'agenda_interlab_id.required' => 'Houve um erro ao salvar. Tente novamente',
+      'agenda_interlab_id.exists' => 'Houve um erro ao salvar. Tente novamente',
+      'descricao.required' => 'O campo descricão obrigatório',
+      'descricao.string' => 'Permitido somente texto',
+      'vias.required' => 'O campo vias obrigatório e deve ser maior que 0',
+      'vias.numeric' => 'Permitido somente número',
+      'vias.min' => 'O campo vias obrigatório e deve ser maior que 0',
+      'cronograma.string' => 'Permitido somente texto',
+      'parametros.array' => 'Houve um erro ao salvar. Tente novamente',
+    ]);
+
+    $interlab_rodada = InterlabRodada::updateOrCreate([
+      'id' => $request->rodada_id,
     ],[
-      'agenda_interlab_id.exists' => 'Dado informado está incorreto. Tente novamente',
-      'parametro_id.exists' => 'Dado informado está incorreto. Tente novamente',
-    ]);
-
-    InterlabParametro::create([
       'agenda_interlab_id' => $request->agenda_interlab_id,
-      'parametro_id' => $request->parametro_id,
+      'descricao' => $request->descricao,
+      'vias' => $request->vias,
+      'cronograma' => $request->cronograma,
     ]);
 
-    return back()->with('success', 'Parametro salvo com sucesso');
+    foreach ($request->parametros as $parametro) {
+      $interlab_rodada->parametros()->updateOrCreate([
+        'interlab_rodada_id' => $interlab_rodada->id,
+        'parametro_id' => $parametro
+      ],[
+        'agenda_interlab_id' => $request->agenda_interlab_id
+      ]);
+    }
+
+    return back()->with('success', 'Rodada salva com sucesso');
   }
 
   /**
    * Remove parametro
    *
-   * @param InterlabDespesa $despesa
+   * @param InterlabRodada $rodada
    * @return RedirectResponse
    */
-  public function deleteParametro(InterlabParametro $parametro): RedirectResponse
+  public function deleteRodada(InterlabRodada $rodada): RedirectResponse
   {
-    $parametro->delete();
-    return back()->with('warning', 'Parametro removido');
+    $rodada->delete();
+    return back()->with('warning', 'Rodada removida');
   }
+
+ 
 
 
 

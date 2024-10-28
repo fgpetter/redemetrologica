@@ -95,17 +95,17 @@
 
               <div class="col-4">
                 <x-forms.input-field name="lote" label="Lote" :value="old('lote') ?? ($despesa->lote ?? null)"/>
-                @error('total') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
+                @error('lote') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
               
               <div class="col-4">
                 <x-forms.input-field type="date" name="validade" label="Validade" :value="old('validade') ?? ($despesa?->validade?->format('Y-m-d') ?? null)"/>
-                @error('total') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
+                @error('validade') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
               <div class="col-4">
                 <x-forms.input-field type="date" name="data_compra" label="Data da compra" :value="old('data_compra') ?? ($despesa?->data_compra?->format('Y-m-d') ?? null)"/>
-                @error('total') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
+                @error('data_compra') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
             </div>

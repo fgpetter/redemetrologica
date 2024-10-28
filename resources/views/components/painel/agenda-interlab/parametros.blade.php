@@ -11,9 +11,9 @@
 
 <div class="card">
   <div class="card-header d-flex justify-content-between">
-    <h4 class="card-title mb-0">Parametros</h4>
+    <h4 class="card-title mb-0">Parametros do interlab</h4>
     <a data-bs-toggle="modal" data-bs-target="#modal_parametro_cadastro" class="btn btn-sm btn-success"> <i
-        class="ri-add-line align-bottom me-1"></i> Adicionar Parametro </a>
+        class="ri-add-line align-bottom me-1"></i> Adicionar</a>
   </div><!-- end card header -->
   <div class="card-body">
 
@@ -21,9 +21,7 @@
       @forelse ($interlabParametros as $parametro)
         {{-- <x-painel.avaliadores.modal-dados-bancarios :avaliador="$avaliador" :parametro="$parametro" /> --}}
         <div class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <strong>{{ $parametro->parametro->descricao }}</strong>
-          </div>
+          <div>{{ $parametro->parametro->descricao }}</div>
           <div>
             <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
               aria-expanded="false">

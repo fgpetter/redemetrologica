@@ -2,11 +2,10 @@
 
 use App\Models\Parametro;
 use App\Models\AgendaInterlab;
+use App\Models\InterlabRodada;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-
-
 
 return new class extends Migration
 {
@@ -15,9 +14,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('interlab_parametros', function (Blueprint $table) {
+        Schema::create('interlab_rodada_parametros', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(AgendaInterlab::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(InterlabRodada::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(Parametro::class)->constrained();
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('interlab_parametros');
+        Schema::dropIfExists('interlab_rodada_parametros');
     }
 };

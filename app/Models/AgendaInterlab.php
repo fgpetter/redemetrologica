@@ -51,4 +51,15 @@ class AgendaInterlab extends Model
         return $this->hasMany(InterlabParametro::class);
     }
 
+    /**
+     * Retorna rodadas associados
+     *
+     * @return HasMany
+     */
+    public function rodadas(): HasMany
+    {
+        return $this->hasMany(InterlabRodada::class);
+    }
+
+
 }

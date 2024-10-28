@@ -266,6 +266,9 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     
     Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salvar-parametro');
     Route::post('delete-parametro/{parametro}', [AgendaInterlabController::class, 'deleteParametro'])->name('delete-parametro');
+    
+    Route::post('salva-rodada', [AgendaInterlabController::class, 'salvaRodada'])->name('salvar-rodada');
+    Route::post('delete-rodada/{rodada}', [AgendaInterlabController::class, 'deleteRodada'])->name('delete-rodada');
 
   });
 

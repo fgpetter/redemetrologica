@@ -21,6 +21,12 @@
           Despesas
           </a>
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#rodadas" role="tab" aria-selected="false">
+          Rodadas
+          </a>
+        </li>
       @endif
     </ul>
 
@@ -28,9 +34,9 @@
     <div class="tab-content">
 
       <div class="tab-pane active" id="principal" role="tabpanel"> <!-- Principal -->
-      <x-painel.agenda-interlab.form-principal 
-        :agendainterlab="$agendainterlab" 
-        :interlabs="$interlabs"/>
+        <x-painel.agenda-interlab.form-principal 
+          :agendainterlab="$agendainterlab" 
+          :interlabs="$interlabs"/>
       </div>
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
@@ -43,13 +49,19 @@
       </div>
 
       <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
-      <x-painel.agenda-interlab.despesas 
-        :agendainterlab="$agendainterlab" 
-        :interlabs="$interlabs" 
-        :materiaisPadrao="$materiaisPadrao"
-        :interlabDespesa="$interlabDespesa"
-        :fornecedores="$fornecedores"
-        :fabricantes="$fabricantes" />
+        <x-painel.agenda-interlab.despesas 
+          :agendainterlab="$agendainterlab" 
+          :materiaisPadrao="$materiaisPadrao"
+          :interlabDespesa="$interlabDespesa"
+          :fornecedores="$fornecedores"
+          :fabricantes="$fabricantes" />
+      </div>
+
+      <div class="tab-pane" id="rodadas" role="tabpanel"> <!-- despesas -->
+        <x-painel.agenda-interlab.rodadas 
+          :agendainterlab="$agendainterlab"
+          :interlabParametros="$interlabParametros" 
+          :rodadas="$rodadas"/>
       </div>
 
     </div>
