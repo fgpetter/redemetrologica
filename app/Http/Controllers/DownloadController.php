@@ -62,10 +62,11 @@ class DownloadController extends Controller
             $fileName = str_replace(' ', '-', $fileName);
             $extension = $request->file('arquivo')->getClientOriginalExtension();
             $fileName = $fileName . '_' . time() . '.' . $extension;
-            $request->file('arquivo')->move(public_path('downloads'), $fileName);            
+            $request->file('arquivo')->move(public_path('downloads'), $fileName);
         }
 
         $validated['arquivo'] = $fileName;
+        $validated['site'] = $request->site ?? 0;
 
         Download::create($validated);
         return redirect()->route('download-index')->with('success', 'Download criado com sucesso');
@@ -112,6 +113,7 @@ class DownloadController extends Controller
         } else {
             unset($validated['arquivo']);
         }
+        $validated['site'] = $request->site ?? 0;
 
         $download->update($validated);
         return redirect()->route('download-index')->with('success', 'Download editado com sucesso');
@@ -139,7 +141,7 @@ class DownloadController extends Controller
         $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('categoria'));
         $titulo = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('descricao'));
 
-        $downloads = Download::select('titulo', 'descricao', 'arquivo','categoria')
+        $downloads = Download::select('titulo', 'descricao', 'arquivo','categoria','site')
             ->when($categoria, function ($query) use ($categoria) {
                 return $query->where('categoria', $categoria);
             })

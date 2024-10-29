@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('titulo')->nullable();
             $table->string('descricao')->nullable();
             $table->enum('categoria',['CURSOS', 'QUALIDADE', 'INTERLAB', 'INSTITUCIONAL'])->nullable();
+            $table->boolean('site')->default(false);
             $table->string('arquivo');
             $table->timestamps();
         });

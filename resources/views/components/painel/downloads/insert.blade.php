@@ -17,7 +17,7 @@
               @error('descricao') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             
-            <div class="col-12">
+            <div class="col-10">
               <x-forms.input-select name="categoria" label="Categoria">
                 <option value="">Selecione</option>
                 <option @selected( $download->categoria == 'CURSOS' ) value="CURSOS">CURSOS</option>
@@ -26,6 +26,15 @@
                 <option @selected( $download->categoria == 'INSTITUCIONAL' ) value="INSTITUCIONAL">INSTITUCIONAL</option>
               </x-forms.input-select>
               @error('categoria') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col-sm-2">
+              <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
+                <input class="form-check-input" name="site" value="1" id="site" type="checkbox"
+                  @checked($download->site ?? false)>
+                <label class="form-check-label" for="site">SITE</label>
+              </div>
+              @error('site') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-12">

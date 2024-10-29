@@ -52,6 +52,7 @@ if(isset($_GET['descricao'])) {
 
             <tbody>
                 @forelse ($downloads as $download)
+                    @if($download->site == 1)
                     <tr>
                         <td>
                             <a href="{{ asset('downloads/' . $download->arquivo) }}" target="_blank">
@@ -62,6 +63,7 @@ if(isset($_GET['descricao'])) {
                         <td>{{ $download->descricao }}</td>
                         <td>{{ $download->categoria }}</td>
                     </tr>
+                    @endif
                 @empty
                     <tr>
                         <td colspan="5" class="text-center">Não há downloads cadastrados</td>
