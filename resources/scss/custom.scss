@@ -282,3 +282,14 @@ figure.image-style-side {
 figure.image-style-side img {
   max-width: 500px;
 }
+
+.btn-rede-azul {
+  background-color: #2c5f74;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-rede-azul:hover {
+  background-color: #007e8f;
+  color: white;
+}

@@ -40,7 +40,9 @@ Route::view('noticias', 'site.pages.noticias');
 Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
 
-Route::get('interlaboratoriais', [AgendaInterlabController::class,'exibeInterlabsSite']);
+Route::get('interlaboratoriais', [AgendaInterlabController::class,'exibeInterlabsSite'])->name('site-list-interlaboratoriais');
+Route::get('interlaboratorial/{agendainterlab:uid}', [AgendaInterlabController::class,'exibePaginaAgendaInterlab'])->name('site-single-interlaboratorial');
+
 Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
 Route::get('laboratorios-reconhecidos', [LaboratorioController::class, 'siteIndex']);
 Route::view('bonus-metrologia', 'site.pages.bonus-metrologia');
@@ -49,7 +51,6 @@ Route::view('fale-conosco', 'site.pages.fale-conosco');
 Route::view('slug-da-noticia', 'site.pages.slug-da-noticia');
 Route::view('slug-da-galeria', 'site.pages.slug-da-galeria');
 Route::view('sobre', 'site.pages.sobre');
-Route::view('slug-interlaboratoriais', 'site.pages.slug-interlaboratoriais');
 Route::view('slug-cursos', 'site.pages.slug-cursos');
 
 /*Rotas das slugs (noticia e galeria) */

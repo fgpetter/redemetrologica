@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Interlab;
 use App\Models\Parametro;
-use Illuminate\Http\Request;
+use App\Models\PostMedia;
 use App\Models\AgendaInterlab;
+use App\Models\InterlabRodada;
 use App\Models\MaterialPadrao;
 use App\Models\InterlabDespesa;
-use App\Models\InterlabRodada;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\File;
 
 
 class AgendaInterlabController extends Controller
@@ -97,6 +100,13 @@ class AgendaInterlabController extends Controller
       ]
     );
 
+    $validated['site'] = $request->site ?? 0;
+    $validated['destaque'] = $request->destaque ?? 0;
+    $validated['inscricao'] = $request->inscricao ?? 0;
+
+
+    $validated['descricao'] = $this->salvaImagensTemporarias($request);
+
     $agenda_interlab = AgendaInterlab::create($validated);
 
     if (!$agenda_interlab) {
@@ -151,6 +161,8 @@ class AgendaInterlabController extends Controller
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
     $validated['inscricao'] = $request->inscricao ?? 0;
+
+    $validated['descricao'] = $this->salvaImagensTemporarias($request);
 
     $agendainterlab->update($validated);
 
@@ -327,6 +339,56 @@ class AgendaInterlabController extends Controller
     }
   }
 
+  /**
+   * 
+   * Lida com imagens temporárias do editor de imagens 
+   * e retorna o conteúdo atualizado para pasta correta
+   * 
+   * @return string $content
+   */
+  private function salvaImagensTemporarias($request): string {
+    $descricao = $request->get('descricao');
+    
+    // lida com as pastas temporarias do editor de conteúdo
+    if (session()->has('tempPastas')) {
+      $tempPastas = session()->get('tempPastas');
+
+      //troca a pasta temporaria pela permanente no conteudo do texto
+      foreach ($tempPastas as $tempPasta) {
+        $descricao = str_replace($tempPasta, 'interlab-media', $descricao);
+      }
+
+      foreach ($tempPastas as $tempPasta) {
+        $tempMediaPath = public_path($tempPasta);
+        $postMediaPath = public_path('interlab-media');
+
+        if(File::exists($tempMediaPath)) {
+          $files = File::allFiles($tempMediaPath);
+  
+          foreach ($files as $file) {
+            $destinationPath = $postMediaPath . DIRECTORY_SEPARATOR . $file->getFilename();
+  
+            // copia se o arquivo não existir
+            if (!File::exists($destinationPath)) {
+              File::copy($file->getPathname(), $destinationPath);
+            }
+          }
+          // deleta pasta temporaria
+          File::deleteDirectory($tempMediaPath);
+        }
+      }
+
+      // limpa a session
+      session()->forget('tempPastas');
+    }
+    return $descricao;
+  }
+
+  /**
+   * Exibe interlabs que estão visiveis na página de interlabs do site
+   *
+   * @return View
+   */
   public function exibeInterlabsSite() {
     
     $interlabs = AgendaInterlab::with('interlab')
@@ -336,6 +398,19 @@ class AgendaInterlabController extends Controller
     ->get();
 
     return view('site.pages.interlaboratoriais', compact('interlabs'));
+  }
+
+  /**
+   * Exibe a página de detalhes de um agendamento específico de interlab.
+   *
+   * @param AgendaInterlab $agendainterlab
+   * @return View
+   */
+  public function exibePaginaAgendaInterlab(AgendaInterlab $agendainterlab) {
+
+    $agendainterlab->load('interlab');
+
+    return view('site.pages.single-interlaboratorial', compact('agendainterlab'));
   }
 
 }

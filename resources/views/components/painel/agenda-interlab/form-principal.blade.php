@@ -62,10 +62,9 @@
   </div>
 
   <div class="row gy-3 mt-1">
-    <div class="col-sm-12">
-      <x-forms.input-textarea name="descricao" label="Descrição" helper='Se preenchido irá substituir a descrição do interlab selecionado'>
-        {{ old('descricao') ?? ($agendainterlab->descricao ?? null) }}
-      </x-forms.input-textarea>
+    <div class="col-12">
+      <label class="form-label">Descrição</label>
+      <textarea id="editor" class="ckeditor-classic" name="descricao">{!! old('descricao') ?? ($agendainterlab->descricao ?? null) !!}</textarea>
       @error('descricao') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
@@ -104,3 +103,24 @@
   <x-painel.form-delete.delete route='agendamento-curso-delete' id="{{ $agendainterlab->uid }}"
     label="Agendamento de curso" />
 @endif
+
+<script src="{{ URL::asset('build/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
+<script>
+  var ckClassicEditor = document.querySelectorAll(".ckeditor-classic")
+  if (ckClassicEditor) {
+    Array.from(ckClassicEditor).forEach(function() {
+      ClassicEditor
+        .create(document.querySelector('.ckeditor-classic'), {
+          ckfinder: {
+            uploadUrl: '{{ route('image-upload') . '?_token=' . csrf_token() }}',
+          }
+        })
+        .then(function(editor) {
+          editor.ui.view.editable.element.style.height = '45vh';
+        })
+        .catch(function(error) {
+          console.error(error);
+        });
+    });
+  }
+</script>
