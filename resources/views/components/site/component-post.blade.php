@@ -1,18 +1,17 @@
-<div class="container ">
-    <div class="row  justify-content-center align-items-center">
-        <div class="col-md-10  shadow-lg border-1">
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-10 shadow-lg border-1 bg-white px-0">
             {{-- noticia --}}
-            <div class="container  d-flex justify-content-center align-items-center my-3">
-                <img src="{{ asset('post-media/' . $post->thumb) }}" class="img-fluid rounded" alt="...">
+            <div class="container" 
+                style="height: 400px; background: url({{ asset('post-media/' . $post->thumb) }}) center/cover no-repeat; ">
             </div>
             <div class="container">
-                <div class="row d-flex  justify-content-center align-items-center text-center">
+                <div class="row d-flex justify-content-center align-items-center px-2">
                     <div class="col">
                         <h1>{{ $post->titulo }}</h1>
                         @if ($post->tipo == 'noticia')
                             <div>{!! $post->conteudo !!}</div>
                         @endif
-
                     </div>
                 </div>
             </div>

@@ -273,4 +273,12 @@ box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px 0px inset;
 .colored-toast .swal2-html-container {
   color: white;
 }
-// Colored Toasts
+
+figure.image-style-side {
+  float: right;
+  padding: 20px;
+}
+
+figure.image-style-side img {
+  max-width: 500px;
+}

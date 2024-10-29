@@ -9,8 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Intervention\Image\Facades\Image;
-
-
 use Illuminate\Support\Facades\File;
 
 class PostController extends Controller
@@ -69,8 +67,15 @@ class PostController extends Controller
 
       // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
       $img = Image::make(public_path($this->PastaTemp . '/' . $fileName));
+      // limita a imagem em 750px de altura
       if ($img->height() > 750) {
         $img->resize(null, 750, function ($constraint) {
+          $constraint->aspectRatio();
+        });
+      }
+      // limita a imagem em 750px de largura
+      if ($img->width() > 750) {
+        $img->resize(750, null, function ($constraint) {
           $constraint->aspectRatio();
         });
       }
@@ -129,7 +134,7 @@ class PostController extends Controller
 
       // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
       $img = Image::make(public_path('post-media/' . $fileName));
-      if ($img->height() > 750) {
+      if ($img->height() > 1250) {
         $img->resize(null, 750, function ($constraint) {
           $constraint->aspectRatio();
         });
@@ -303,7 +308,7 @@ class PostController extends Controller
 
       // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
       $img = Image::make(public_path('post-media/' . $fileName));
-      if ($img->height() > 750) {
+      if ($img->height() > 1250) {
         $img->resize(null, 750, function ($constraint) {
           $constraint->aspectRatio();
         });
