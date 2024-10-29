@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
 use App\Models\MaterialPadrao;
 use App\Models\InterlabDespesa;
-use App\Models\InterlabParametro;
 use App\Models\InterlabRodada;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
@@ -36,19 +35,21 @@ class AgendaInterlabController extends Controller
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
-
-    $agenda_interlab = $agendainterlab->with('despesas')->with('parametros')->with('rodadas')->first();
+    // loads despesas from agendainterlab
+    $agendainterlab->load('despesas');
+    $agendainterlab->load('parametros');
+    $agendainterlab->load('rodadas');
 
     $data = [
-      'agendainterlab' => $agenda_interlab, 
+      'agendainterlab' => $agendainterlab, 
       'interlabs' => Interlab::all(),
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->orderBy('descricao')->get(),
-      'interlabDespesa' => $agenda_interlab->despesas,
+      'interlabDespesa' => $agendainterlab->despesas,
       'fabricantes' => DB::table('interlab_despesas')->distinct()->get(['fabricante']),
       'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
-      'interlabParametros' => $agenda_interlab->parametros,
+      'interlabParametros' => $agendainterlab->parametros,
       'parametros' => Parametro::orderBy('descricao')->get(),
-      'rodadas' => $agenda_interlab->rodadas,
+      'rodadas' => $agendainterlab->rodadas,
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -146,6 +147,10 @@ class AgendaInterlabController extends Controller
         'sob_demanda.numeric' => 'Opção inválida',
       ]
     );
+
+    $validated['site'] = $request->site ?? 0;
+    $validated['destaque'] = $request->destaque ?? 0;
+    $validated['inscricao'] = $request->inscricao ?? 0;
 
     $agendainterlab->update($validated);
 
@@ -296,10 +301,6 @@ class AgendaInterlabController extends Controller
     return back()->with('warning', 'Rodada removida');
   }
 
- 
-
-
-
   /**
    * Formata valor para BD
    *
@@ -324,6 +325,16 @@ class AgendaInterlabController extends Controller
     } else {
       return null;
     }
+  }
+
+  public function exibeInterlabsSite() {
+    
+    $interlabs = AgendaInterlab::with('interlab')
+    ->where('site', 1)
+    ->orderBy('destaque', 'desc')
+    ->get();
+
+    return view('site.pages.interlaboratoriais', compact('interlabs'));
   }
 
 }

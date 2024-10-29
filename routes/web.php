@@ -40,7 +40,7 @@ Route::view('noticias', 'site.pages.noticias');
 Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
 
-Route::view('interlaboratoriais', 'site.pages.interlaboratoriais');
+Route::get('interlaboratoriais', [AgendaInterlabController::class,'exibeInterlabsSite']);
 Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
 Route::get('laboratorios-reconhecidos', [LaboratorioController::class, 'siteIndex']);
 Route::view('bonus-metrologia', 'site.pages.bonus-metrologia');
