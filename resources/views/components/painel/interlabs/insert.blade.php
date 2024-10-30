@@ -26,46 +26,36 @@
                 <div class="col-12">
                     <label class="form-label">Descrição</label>
                     <textarea class="form-control" name="descricao" id="descricao" rows="2">{{ old('descricao') ?? ($interlab->descricao ?? null) }}</textarea>
+                    <div class="form-text"> Informação que irá aparecer no site </div>
                     @error('descricao') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
-                {{-- thumb --}}
-                <div class="col-12">
-                    <label for="folder" class="form-label">Thumb</label>
-                    @if ($interlab->thumb)
-                        <div class="input-group mt-0">
-                            <input type="text" class="form-control" readonly
-                                value="{{ explode('interlab-thumb/', $interlab->thumb)[0] }}">
-                            <button class="btn btn-success dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false"></button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ asset($interlab->thumb) }}"
-                                        target="_blank">Baixar</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="javascript:void(0)"
-                                        onclick="document.getElementById('thumb-delete').submit();">Remover
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    @else
-                        <input class="form-control" name="thumb" type="file" id="thumb"
-                            accept=".jpeg, .jpg, .png">
-                        @error('thumb')
-                            <div class="text-warning">{{ $message }}</div>
-                        @enderror
-                    @endif
-                    <div class="form-text"> Imagem que irá aparecer no site </div>
-                </div>
-                {{-- thumb --}}
+                
                 <div class="col-12">
                     <label class="form-label">Observações</label>
                     <textarea class="form-control" name="observacoes" id="observacoes" rows="2">{{ old('observacoes') ?? ($interlab->observacoes ?? null) }}</textarea>
+                    <div class="form-text"> Informação interna </div>
                     @error('observacoes') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
+
+                {{-- thumb --}}
+                    <label for="thumb" class="form-label">Ícone</label>
+                    <div class="form-text"> Imagem que irá aparecer no site </div>
+                    <div class="row">
+                        @foreach($thumbs as $key => $thumb)
+                        <div class="col-sm-2 p-1">
+                            <div class="bg-light align-items-center text-center p-2">
+                                <div class="form-check rounded check-bg" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $key }}"
+                                    style="height: 80px; background: center / contain no-repeat url({{url( asset('build/images/site/').'/'.$thumb )}})">
+                                    
+                                    <input class="form-check-input" name="thumb" value="{{ $thumb }}" type="radio"
+                                    @checked($thumb == $interlab->thumb ?? false)>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @error('thumb') <div class="text-warning">{{ $message }}</div> @enderror
 
                 <div class="col-12">
                     <button type="submit"
@@ -75,11 +65,6 @@
         </form>
         @if ($interlab->id)
             <x-painel.form-delete.delete route="interlab-delete" id="{{ $interlab->uid }}" label="Curso" />
-
-
-            <form method="POST" id="thumb-delete" action="{{ route('interlab-thumb-delete', $interlab->uid) }}">
-                @csrf
-            </form>
         @endif
 
     </div>

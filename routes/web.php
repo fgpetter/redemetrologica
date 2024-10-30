@@ -251,7 +251,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{interlab:uid}', [InterlabController::class, 'update'])->name('interlab-update');
     Route::post('delete/{interlab:uid}', [InterlabController::class, 'delete'])->name('interlab-delete');
     Route::post('delete-folder/{interlab:uid}', [InterlabController::class, 'folderDelete'])->name('interlab-folder-delete');
-    Route::post('delete-thumb/{interlab:uid}', [InterlabController::class, 'thumbDelete'])->name('interlab-thumb-delete');
   });
 
   /* Agenda de interlab */
