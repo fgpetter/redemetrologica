@@ -14,22 +14,36 @@
   </div>
 
   <div class="row mt-3">
-    <div class="col-sm-4">
+    <div class="col-sm-3">
       <x-forms.input-select name="status" label="Status">
-        <option @selected($agendainterlab->status == 'PENDENTE') value="PENDENTE">PENDENTE</option>
-        <option @selected($agendainterlab->status == 'APROVADO') value="APROVADO">APROVADO</option>
-        <option @selected($agendainterlab->status == 'REPROVADO') value="REPROVADO">REPROVADO</option>
+        <option @selected($agendainterlab->status == 'AGENDADO') value="AGENDADO">AGENDADO</option>
+        <option @selected($agendainterlab->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
+        <option @selected($agendainterlab->status == 'CONCLUIDO') value="CONCLUIDO">CONCLUIDO</option>
       </x-forms.input-select>
       @error('status') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
-    <div class="col-sm-4">
-      <x-forms.input-select name="tipo" label="Tipo">
-        <option @selected($agendainterlab->tipo == 'BILATERAL') value="BILATERAL">BILATERAL</option>
-        <option @selected($agendainterlab->tipo == 'INTERLABORATORIAL') value="INTERLABORATORIAL">INTERLABORATORIAL</option>
-      </x-forms.input-select>
-      @error('tipo') <div class="text-warning">{{ $message }}</div> @enderror
+    <div class="col-sm-2">
+      <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
+        label="Data Inicio"/>
+      @error('data_inicio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
+
+    <div class="col-sm-2">
+      <x-forms.input-field :value="old('data_fim') ?? ($agendainterlab->data_fim?->format('Y-m-d') ?? null)" type="date" name="data_fim"
+        label="Data Final"/>
+      @error('data_fim') <div class="text-warning">{{ $message }}</div> @enderror
+    </div>
+
+    <div class="col-sm-3">
+      <x-forms.input-select name="certificado" label="Emitir certificado por:">
+        <option @selected($agendainterlab->certificado == 'EMPRESA') value="EMPRESA">EMPRESA</option>
+        <option @selected($agendainterlab->certificado == 'PARTICIPANTE') value="PARTICIPANTE">PARTICIPANTE</option>
+      </x-forms.input-select>
+      @error('certificado') <div class="text-warning">{{ $message }}</div> @enderror
+    </div>
+
+
   </div>
 
   <div class="row mt-3">
@@ -66,26 +80,6 @@
       <label class="form-label">Descrição</label>
       <textarea id="editor" class="ckeditor-classic" name="descricao">{!! old('descricao') ?? ($agendainterlab->descricao ?? null) !!}</textarea>
       @error('descricao') <div class="text-warning">{{ $message }}</div> @enderror
-    </div>
-
-    <div class="col-sm-3">
-      <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
-        label="Data Inicio"/>
-      @error('data_inicio') <div class="text-warning">{{ $message }}</div> @enderror
-    </div>
-
-    <div class="col-sm-3">
-      <x-forms.input-field :value="old('data_fim') ?? ($agendainterlab->data_fim?->format('Y-m-d') ?? null)" type="date" name="data_fim"
-        label="Data Final"/>
-      @error('data_fim') <div class="text-warning">{{ $message }}</div> @enderror
-    </div>
-
-    <div class="col-sm-2">
-      <x-forms.input-select name="sob_demanda" label="Sob Demanda">
-        <option value="0">NÃO</option>
-        <option @selected($agendainterlab->sob_demanda ?? false) value="1">SIM</option>
-      </x-forms.input-select>
-      @error('sob_demanda') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
 

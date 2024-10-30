@@ -22,14 +22,5 @@
                 :rodadas="$rodadas"
             />
         </div>
-        @if($agendainterlab->id)
-            <div class="col-3">
-                <x-painel.agenda-interlab.parametros 
-                    :interlabParametros="$interlabParametros" 
-                    :parametros="$parametros" 
-                    :agendainterlab="$agendainterlab"
-                /> 
-            </div>
-        @endif
     </div>
 @endsection

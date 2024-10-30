@@ -12,12 +12,12 @@
       <table class="table table-responsive table-striped align-middle mb-0">
         <thead>
           <tr>
-            <th scope="col" style="width: 5%; white-space: nowrap;">Mês</th>
+            <th scope="col" style="width: 5%; white-space: nowrap;">Mês/Ano</th>
             <th scope="col" style="width: 5%; white-space: nowrap;">COD</th>
             <th scope="col" style="width: 10%; white-space: nowrap;">Status</th>
             <th scope="col" style="width: 10%; white-space: nowrap;">Data Inicio</th>
+            <th scope="col" style="width: 10%; white-space: nowrap;">Data Fim</th>
             <th scope="col">Nome do Interlab</th>
-            <th scope="col">Tipo</th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
           </tr>
         </thead>
@@ -25,23 +25,24 @@
           @forelse ($agendainterlabs as $agendainterlab)
             <tr>
               <th class="text-uppercase">
-                {{ Carbon\Carbon::parse($agendainterlab->data_inicio)->locale('pt-BR')->translatedFormat('F') }}
+                {{ Carbon\Carbon::parse($agendainterlab->data_inicio)->format('m/Y') }}
               </th>
 
-              <td class="text-center">{{ $agendainterlab->id }}</td>
+              <td class="text-center"><a href="{{ route('agenda-interlab-insert', $agendainterlab->uid) }}">#{{ $agendainterlab->id }}</a></td>
 
               <td
-                @if ($agendainterlab->status == 'APROVADO') class="text-success fw-bold"
-                @elseif ($agendainterlab->status == 'PENDENTE') class="text-primary fw-bold"
-                @elseif ($agendainterlab->status == 'REPROVADO') class="text-danger fw-bold" @endif>
+                @if ($agendainterlab->status == 'CONFIRMADO') class="text-success fw-bold"
+                @elseif ($agendainterlab->status == 'AGENDADO') class="text-primary fw-bold"
+                @elseif ($agendainterlab->status == 'CONCLUIDO') class="text-danger fw-bold" @endif>
                 {{ $agendainterlab->status }}</td>
 
               <td style="white-space: nowrap; margin: 10px 0 10px">
                 {{ $agendainterlab->data_inicio->format('d/m/Y') }}</td>
+              <td style="white-space: nowrap; margin: 10px 0 10px">
+                {{ $agendainterlab->data_fim->format('d/m/Y') }}</td>
 
               <td>{{ $agendainterlab->interlab->nome ?? '' }}</td>
 
-              <td>{{ $agendainterlab->tipo }}</td>
 
               <td>
                 <div class="dropdown">

@@ -41,6 +41,9 @@
                   <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#despesaModal' . $despesa->id }}">Editar</a>
                 </li>
                 <li>
+                  <a class="dropdown-item botao-delete" href="{{ route('agenda-interlab-duplicar-despesa', $despesa->uid) }}" >Duplicar</a>
+                </li>
+                <li>
                   <x-painel.form-delete.delete route='delete-despesa' id="{{ $despesa->uid }}" />
                 </li>
               </ul>

@@ -41,11 +41,11 @@
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
         <h5 class="h5 mt-3">Inscritos</h5>
-        {{-- <x-painel.agendamento-cursos.list-participantes :inscritos="$inscritos" />
-        <x-painel.agendamento-cursos.modal-participante /> --}}
+        {{-- <x-painel.agenda-interlab.list-participantes :inscritos="$inscritos" />
+        <x-painel.agenda-interlab.modal-participante /> --}}
 
         <h5 class="h5 mt-5">Empresas participantes</h5>
-        {{-- <x-painel.agendamento-cursos.list-empresas-participantes :inscritos="$inscritos" /> --}}
+        {{-- <x-painel.agenda-interlab.list-empresas-participantes :inscritos="$inscritos" /> --}}
       </div>
 
       <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->

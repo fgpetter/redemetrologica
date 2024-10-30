@@ -4,17 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Interlab;
 use App\Models\Parametro;
-use App\Models\PostMedia;
+use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabRodada;
 use App\Models\MaterialPadrao;
+use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\File;
+use Illuminate\Http\RedirectResponse;
 
 
 class AgendaInterlabController extends Controller
@@ -26,7 +25,10 @@ class AgendaInterlabController extends Controller
    */
   public function index(): View
   {
-    $agenda_interlabs = AgendaInterlab::with('interlab')->paginate(15);
+    $agenda_interlabs = AgendaInterlab::with('interlab')
+      ->orderBy('data_inicio', 'asc')
+      ->paginate(15);
+
     return view('painel.agenda-interlab.index', ['agenda_interlabs' => $agenda_interlabs]);
   }
 
@@ -69,15 +71,13 @@ class AgendaInterlabController extends Controller
     $validated = $request->validate(
       [
         'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
-        'status' => ['required', 'string', 'in:APROVADO,PENDENTE,REPROVADO'],
-        'tipo' => ['required', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+        'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
         'inscricao' => ['nullable', 'numeric'],
         'site' => ['nullable', 'numeric'],
         'destaque' => ['nullable', 'numeric'],
         'descricao' => ['nullable', 'string'],
         'data_inicio' => ['required', 'date'],
         'data_fim' => ['nullable', 'date'],
-        'sob_demanda' => ['nullable', 'numeric'],
       ],
       [
         'interlab_id.required' => 'Selecione um interlab',
@@ -86,9 +86,6 @@ class AgendaInterlabController extends Controller
         'status.required' => 'O campo status obrigatório',
         'status.in' => 'Opção inválida',
         'status.string' => 'Permitido somente texto',
-        'tipo.required' => 'O campo tipo obrigatório',
-        'tipo.in' => 'Opção inválida',
-        'tipo.string' => 'Permitido somente texto',
         'inscricao.numeric' => 'Opção inválida',
         'site.numeric' => 'Opção inválida',
         'destaque.numeric' => 'Opção inválida',
@@ -96,7 +93,6 @@ class AgendaInterlabController extends Controller
         'data_inicio.required' => 'O campo data obrigatório',
         'data_inicio.date' => 'Permitido somente data',
         'data_fim.date' => 'Permitido somente data',
-        'sob_demanda.numeric' => 'Opção inválida',
       ]
     );
 
@@ -127,15 +123,13 @@ class AgendaInterlabController extends Controller
     $validated = $request->validate(
       [
         'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
-        'status' => ['required', 'string', 'in:APROVADO,PENDENTE,REPROVADO'],
-        'tipo' => ['required', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+        'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
         'inscricao' => ['nullable', 'numeric'],
         'site' => ['nullable', 'numeric'],
         'destaque' => ['nullable', 'numeric'],
         'descricao' => ['nullable', 'string'],
         'data_inicio' => ['required', 'date'],
         'data_fim' => ['nullable', 'date'],
-        'sob_demanda' => ['nullable', 'numeric'],
       ],
       [
         'interlab_id.required' => 'Selecione um interlab',
@@ -144,9 +138,6 @@ class AgendaInterlabController extends Controller
         'status.required' => 'O campo status obrigatório',
         'status.in' => 'Opção inválida',
         'status.string' => 'Permitido somente texto',
-        'tipo.required' => 'O campo tipo obrigatório',
-        'tipo.in' => 'Opção inválida',
-        'tipo.string' => 'Permitido somente texto',
         'inscricao.numeric' => 'Opção inválida',
         'site.numeric' => 'Opção inválida',
         'destaque.numeric' => 'Opção inválida',
@@ -154,7 +145,6 @@ class AgendaInterlabController extends Controller
         'data_inicio.required' => 'O campo data obrigatório',
         'data_inicio.date' => 'Permitido somente data',
         'data_fim.date' => 'Permitido somente data',
-        'sob_demanda.numeric' => 'Opção inválida',
       ]
     );
 
@@ -236,6 +226,24 @@ class AgendaInterlabController extends Controller
     ]);
 
     return back()->with('success', 'Material salvo com sucesso');
+  }
+
+/**
+ * Duplica despesa do agendamento de interlab removendo campos 
+ * que não devem sere duplicados como id, uid, and timestamps.
+ *
+ * @param InterlabDespesa $despesa
+ * @return \Illuminate\Http\RedirectResponse
+ */
+  public function duplicarDespesa(InterlabDespesa $despesa): RedirectResponse {
+    $despesa = collect($despesa)->forget(['id','uid', 'created_at', 'updated_at', 'deleted_at'])->toArray();
+
+    $despesa['validade'] = ($despesa['validade']) ? Carbon::parse($despesa['validade'])->format('Y-m-d') : null;
+    $despesa['data_compra'] = ($despesa['data_compra']) ? Carbon::parse($despesa['data_compra'])->format('Y-m-d') : null;
+
+    InterlabDespesa::create($despesa);
+    
+    return back()->with('success', 'Material duplicado com sucesso');
   }
 
   /**
