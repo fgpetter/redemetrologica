@@ -89,8 +89,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete');
   });
 
-  
-
   /**
    * Pessoas 
    */
@@ -164,7 +162,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   Route::group(['prefix' => 'inscricao-curso'], function () {
     Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
     Route::post('informa-empresa', [InscricaoCursoController::class, 'informaEmpresa'])->name('informa-empresa');
-    Route::post('cancela-inscricao', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
+    Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
     Route::post('salvar-inscrito', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
   });
 

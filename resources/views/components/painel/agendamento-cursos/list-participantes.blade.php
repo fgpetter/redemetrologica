@@ -53,7 +53,7 @@
                                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
                                     </li>
                                     <li>                                            
-                                        <x-painel.form-delete.delete route='materiais-padroes-delete' id="{{ $inscrito->uid }}" />
+                                        <x-painel.form-delete.delete route='cancela-inscricao' id="{{ $inscrito->uid }}" />
                                     </li>
                                 </ul>
                             </div>

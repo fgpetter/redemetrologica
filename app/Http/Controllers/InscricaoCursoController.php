@@ -30,8 +30,9 @@ class InscricaoCursoController extends Controller
         }
 
         // verificar se o curso existe e se tem inscrições abertas
-        // salva informações na sessão
         $agendacurso = AgendaCursos::where('uid', $request->target)->where('inscricoes', 1)->first() ?? abort(404);
+        
+        // salva informações na sessão
         session()->put('curso', $agendacurso);
         
         // verifica se é um convite e salva informações na sessão
@@ -146,7 +147,6 @@ class InscricaoCursoController extends Controller
         return back()->with('success', 'Empresa adicionada com sucesso!');
     }
 
-
     /**
      * Adiciona / Edita inscrito manualmente na tela de agenda de cursos
      *
@@ -219,6 +219,11 @@ class InscricaoCursoController extends Controller
         ]);
         
         return back()->with('success', 'Dados salvos com sucesso!');
+    }
+
+    public function cancelaInscricao(CursoInscrito $inscrito){
+        $inscrito->delete();
+        return back()->with('success', 'Inscrição cancelada com sucesso!');
     }
 
     private function adicionaInscrito($dado_inscrito){
