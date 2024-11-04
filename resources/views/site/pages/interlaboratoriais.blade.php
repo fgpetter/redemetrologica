@@ -39,8 +39,11 @@
             <img src="{{ url( asset('build/images/site/').'/'.$agendaInterlab->interlab->thumb ) }}" 
               class="card-img-top align-self-center pt-2" alt="" style="max-width: 170px" >
             <div class="card-body text-white" style="background-color: #405D71; margin-top: -15px">
-              <h5 class="card-title pb-2">{{ $agendaInterlab->interlab->nome }}</h5>
-              <a href="javaScript:void(0);" class="text-start text-white bold">Visualizar <i
+              <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" class="text-white bold">
+                <h5 class="card-title pb-2">{{ $agendaInterlab->interlab->nome }}</h5>
+              </a>
+
+              <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" class="text-start text-white bold">Visualizar <i
                 class="fa-solid fa-circle-chevron-right"></i></a>
             </div>
             <div class="card-footer py-2 border-0 text-white" style="background-color: #002C41">

@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class CursoInscrito extends Model
+
+class InterlabInscrito extends Model
 {
     /**
      * The attributes that aren't mass assignable.
@@ -16,12 +17,19 @@ class CursoInscrito extends Model
     protected $guarded = [];
 
     /**
-     * Carrega curso
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'interlab_inscritos';
+
+    /**
+     * Carrega interlab
      * @return BelongsTo
      */
-    public function agendaCurso() : BelongsTo
+    public function agendaInterlab() : BelongsTo
     {
-        return $this->belongsTo(AgendaCursos::class);
+        return $this->belongsTo(AgendaInterlab::class);
     }
 
     /**
@@ -41,4 +49,6 @@ class CursoInscrito extends Model
     {
         return $this->hasOne(Pessoa::class, 'id', 'empresa_id');
     }
+
+
 }

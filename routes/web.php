@@ -1,47 +1,53 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\CursoController;
-use App\Http\Controllers\BancosController;
-use App\Http\Controllers\PessoaController;
-use App\Http\Controllers\UnidadeController;
-use App\Http\Controllers\DownloadController;
-use App\Http\Controllers\EnderecoController;
-use App\Http\Controllers\InterlabController;
-use App\Http\Controllers\AvaliadorController;
-use App\Http\Controllers\InstrutorController;
-use App\Http\Controllers\PostMediaController;
-use App\Http\Controllers\ParametrosController;
-use App\Http\Controllers\PlanoContaController;
-use App\Http\Controllers\AgendaCursoController;
-use App\Http\Controllers\AreaAtuacaoController;
-use App\Http\Controllers\CentroCustoController;
-use App\Http\Controllers\FuncionarioController;
-use App\Http\Controllers\LaboratorioController;
-use App\Http\Controllers\DadoBancarioController;
-use App\Http\Controllers\TipoAvaliacaoController;
-use App\Http\Controllers\AgendaInterlabController;
-use App\Http\Controllers\InscricaoCursoController;
-use App\Http\Controllers\AgendaAvaliacaoController;
-use App\Http\Controllers\MateriaisPadroesController;
-use App\Http\Controllers\ModalidadePagamentoController;
-use App\Http\Controllers\LancamentoFinanceiroController;
+use Illuminate\Support\Facades\{Auth, Route};
+use App\Http\Controllers\{
+  PostController,
+  UserController,
+  CursoController,
+  BancosController,
+  PessoaController,
+  UnidadeController,
+  DownloadController,
+  EnderecoController,
+  InterlabController,
+  AvaliadorController,
+  InstrutorController,
+  PostMediaController,
+  ParametrosController,
+  PlanoContaController,
+  AgendaCursoController,
+  AreaAtuacaoController,
+  CentroCustoController,
+  FuncionarioController,
+  LaboratorioController,
+  DadoBancarioController,
+  TipoAvaliacaoController,
+  AgendaInterlabController,
+  InscricaoCursoController,
+  AgendaAvaliacaoController,
+  MateriaisPadroesController,
+  InscricaoInterlabController,
+  ModalidadePagamentoController,
+  LancamentoFinanceiroController,
+  HomeController
+};
+
 
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
-Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
+Route::get('/', [HomeController::class, 'root'])->name('root');
 
 /* Rotas estáticas */
-Route::get('home', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
+Route::get('home', [HomeController::class, 'root'])->name('root');
 Route::view('noticias', 'site.pages.noticias');
 Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
 
+/*Rotas de interlabs */
 Route::get('interlaboratoriais', [AgendaInterlabController::class,'exibeInterlabsSite'])->name('site-list-interlaboratoriais');
 Route::get('interlaboratorial/{agendainterlab:uid}', [AgendaInterlabController::class,'exibePaginaAgendaInterlab'])->name('site-single-interlaboratorial');
+Route::get('interlab/inscricao', [InscricaoInterlabController::class, 'interlabInscricao'])->name('interlab-inscricao');
 
 Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
 Route::get('laboratorios-reconhecidos', [LaboratorioController::class, 'siteIndex']);
@@ -51,7 +57,6 @@ Route::view('fale-conosco', 'site.pages.fale-conosco');
 Route::view('slug-da-noticia', 'site.pages.slug-da-noticia');
 Route::view('slug-da-galeria', 'site.pages.slug-da-galeria');
 Route::view('sobre', 'site.pages.sobre');
-Route::view('slug-cursos', 'site.pages.slug-cursos');
 
 /*Rotas das slugs (noticia e galeria) */
 Route::get('noticias', [PostController::class, 'ListNoticias'])->name('show-list'); //mostra lista de noticias
@@ -59,15 +64,14 @@ Route::get('galerias', [PostController::class, 'ListGalerias'])->name('show-list
 Route::get('noticia/{slug}', [PostController::class, 'show'])->name('noticia-show'); //mostra noticia
 Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-show'); //mostra galeria
 
-
 /*Rotas de cursos */
 Route::get('cursos', [AgendaCursoController::class, 'listCursosAgendados'])->name('cursos-agendados-list');
 Route::get('cursos/{agendacurso:uid}', [AgendaCursoController::class, 'showCursoAgendado'])->name('curso-agendado-show');
 Route::get('curso/inscricao', [InscricaoCursoController::class, 'cursoInscricao'])->name('curso-inscricao');
+Route::view('slug-cursos', 'site.pages.slug-cursos');
 
 /* Rotas do template */
 // Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
-
 
 /**
  * 
@@ -259,17 +263,29 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{agendainterlab:uid}', [AgendaInterlabController::class, 'update'])->name('agenda-interlab-update');
     Route::post('delete/{agendainterlab:uid}', [AgendaInterlabController::class, 'delete'])->name('agenda-interlab-delete');
     
+    /* Despesas */
     Route::post('salva-despesa', [AgendaInterlabController::class, 'salvaDespesa'])->name('salvar-despesa');
     Route::get('duplicar-despesa/{despesa:uid}', [AgendaInterlabController::class, 'duplicarDespesa'])->name('agenda-interlab-duplicar-despesa');
     Route::post('delete-despesa/{despesa:uid}', [AgendaInterlabController::class, 'deleteDespesa'])->name('delete-despesa');
     
+    /* Parametros */
     Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salvar-parametro');
     Route::post('delete-parametro/{parametro}', [AgendaInterlabController::class, 'deleteParametro'])->name('delete-parametro');
     
+    /* RodadascursoInscricao */
     Route::post('salva-rodada', [AgendaInterlabController::class, 'salvaRodada'])->name('salvar-rodada');
     Route::post('delete-rodada/{rodada}', [AgendaInterlabController::class, 'deleteRodada'])->name('delete-rodada');
 
   });
+
+  /* Inscricao em interlaboratoriais */
+  Route::group(['prefix' => 'inscricao-interlab'], function () {
+    Route::post('confirmacao', [InscricaoInterlabController::class, 'confirmaInscricao'])->name('confirma-inscricao-interlab');
+    Route::post('informa-empresa', [InscricaoInterlabController::class, 'informaEmpresa'])->name('informa-empresa-interlab');
+    Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoInterlabController::class, 'cancelaInscricao'])->name('cancela-inscricao-interlab');
+    Route::post('salvar-inscrito', [InscricaoInterlabController::class, 'salvaInscrito'])->name('salvar-inscrito-interlab');
+  });
+  
 
 
   

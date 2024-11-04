@@ -2,38 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pessoa;
-use App\Models\AgendaCursos;
-use App\Models\CentroCusto;
-use Illuminate\Http\Request;
-use App\Models\CursoInscrito;
-use App\Models\LancamentoFinanceiro;
-use Illuminate\Http\RedirectResponse;
+use App\Models\{AgendaInterlab, Pessoa, CentroCusto, Interlab, InterlabInscrito, LancamentoFinanceiro};
+use Illuminate\Http\{Request, RedirectResponse};
 use Illuminate\Support\Facades\Validator;
 
-class InscricaoCursoController extends Controller
+class InscricaoInterlabController extends Controller
 {
     /**
-     * Verifica o link de inscrição e faz o roteamento da inscrição 
-     * conforme os critérios
+     * Faz roteamento da inscrição salvando dados do link na sessão
+     * e redirecionando para o painel
      *
      * @param Request $request
      * @return RedirectResponse
      */
-    public function cursoInscricao(Request $request): RedirectResponse
+    public function interlabInscricao(Request $request): RedirectResponse
     {
+
         // limpa a sessao
         session()->forget(['interlab','curso', 'empresa', 'convite']);
-        
+
         if($request->invite && $request->invite == 1) {
-            session()->put('convite', true);
+          session()->put('convite', true);
         }
 
-        // verificar se o curso existe e se tem inscrições abertas
-        $agendacurso = AgendaCursos::where('uid', $request->target)->where('inscricoes', 1)->first() ?? abort(404);
-        
+        // verificar se o interlab existe e se tem inscrições abertas
+        $agenda_interlab = AgendaInterlab::where('uid', $request->target)->where('inscricao', 1)->first() ?? abort(404);
+
         // salva informações na sessão
-        session()->put('curso', $agendacurso);
+        session()->put('interlab', $agenda_interlab);
         
         // verifica se é um convite e salva informações na sessão
         if($request->referer) {
@@ -41,6 +37,7 @@ class InscricaoCursoController extends Controller
             ($empresa) ? session()->put('empresa', $empresa) : abort(404);
         }
 
+        // redireciona para o painel e carrega a lógica do componente em app\view\ConfirmaInscricao
         return redirect('painel');
 
     }
@@ -73,22 +70,16 @@ class InscricaoCursoController extends Controller
             'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
         ]);
 
-        $agendacurso = AgendaCursos::where('id', $request->id_curso)->first();
-        
-        // verifica se a empresa já tem cadastro no curso
+        // verifica se a empresa já tem cadastro no interlab
         if($request->id_empresa){
-            
-            $associado = Pessoa::where('id', $request->id_empresa)->where('associado', 1)->exists();
 
-            CursoInscrito::firstOrCreate([
+            InterlabInscrito::firstOrCreate([
                 'pessoa_id' => $request->id_empresa,
-                'agenda_curso_id' => $request->id_curso
+                'agenda_interlab_id' => $request->id_interlab
             ],[
                 "data_inscricao" => now()
             ]);
 
-        } else {
-            $associado = Pessoa::where('id', $request->id_pessoa)->where('associado', 1)->exists();
         }
 
         // atualiza dados da pessoa
@@ -103,26 +94,25 @@ class InscricaoCursoController extends Controller
         );
         $pessoa->empresas()->sync($request->id_empresa);
 
-        // adiciona pessoa a cursos_inscritos
+        // adiciona pessoa a interlabs_inscritos
         $this->adicionaInscrito([
             'pessoa_id' => $request->id_pessoa,
             'empresa_id' => $request->id_empresa ?? $id_empresa ?? null,
-            'agenda_curso_id' => $request->id_curso,
-            'valor' => ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento,
+            'agenda_interlab_id' => $request->id_interlab,
             'data_inscricao' => now()
         ]);
 
         // se enviados convites, envia email de convite
 
         // remove dados da sessão
-        session()->forget(['curso', 'empresa', 'convite']);
+        session()->forget(['interlab', 'empresa', 'convite']);
 
         // redireciona para painel
         return redirect('painel');
     }
 
     /**
-     * Adiciona empresa contratante a inscricao do curso
+     * Adiciona empresa contratante a inscricao do interlab
      *
      * @param Request $request
      * @return RedirectResponse
@@ -148,7 +138,7 @@ class InscricaoCursoController extends Controller
     }
 
     /**
-     * Adiciona / Edita inscrito manualmente na tela de agenda de cursos
+     * Adiciona / Edita inscrito manualmente na tela de agenda de interlabs
      *
      * @param Request $request
      * @return RedirectResponse
@@ -165,7 +155,6 @@ class InscricaoCursoController extends Controller
             'data_confirmacao' => ['nullable', 'date'],
             'certificado_emitido' => ['nullable', 'date'],
             'resposta_pesquisa' => ['nullable', 'date'],
-            'valor' => ['nullable', 'regex:/[\d.,]+$/'],
             ],[
                 'inscrito_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
                 'pessoa_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
@@ -181,7 +170,6 @@ class InscricaoCursoController extends Controller
                 'data_confirmacao.date' => 'O dado enviado não é uma data válida',
                 'certificado_emitido.date' => 'O dado enviado não é uma data válida',
                 'resposta_pesquisa.date' => 'O dado enviado não é uma data válida',
-                'valor.regex' => 'O valor informado não é um número',
             ]);
 
         if($validator->fails()){
@@ -206,13 +194,12 @@ class InscricaoCursoController extends Controller
             ]);
         }
 
-        $inscrito = CursoInscrito::where('uid', $request->inscrito_uid)->first();
+        $inscrito = InterlabInscrito::where('uid', $request->inscrito_uid)->first();
         $this->adicionaInscrito([
             'uid' => $request->inscrito_uid,
             'pessoa_id' => $pessoa->id,
             'empresa_id' => $inscrito?->empresa_id ?? null,
             'agenda_curso_id' => $inscrito?->agenda_curso_id ?? null,
-            'valor' => $this->formataMoeda($request->valor),
             'data_inscricao' => $inscrito?->data_inscricao ?? null,
             'certificado_emitido' => $request->certificado_emitido,
             'resposta_pesquisa' => $request->resposta_pesquisa,
@@ -221,7 +208,13 @@ class InscricaoCursoController extends Controller
         return back()->with('success', 'Dados salvos com sucesso!');
     }
 
-    public function cancelaInscricao(CursoInscrito $inscrito){
+/**
+ * Cancela a inscrição de um participante
+ *
+ * @param InterlabInscrito $inscrito
+ * @return RedirectResponse
+ */
+    public function cancelaInscricao(InterlabInscrito $inscrito){
         $inscrito->delete();
         return back()->with('success', 'Inscrição cancelada com sucesso!');
     }
@@ -229,46 +222,19 @@ class InscricaoCursoController extends Controller
     private function adicionaInscrito($dado_inscrito){
 
         // adiciona os dados de inscricao
-        CursoInscrito::updateOrCreate([
+        InterlabInscrito::updateOrCreate([
             'uid' => $dado_inscrito['uid'] ?? config('hashing.uid'),
         ],[
             'pessoa_id' => $dado_inscrito['pessoa_id'],
             'empresa_id' => $dado_inscrito['empresa_id'] ?? null,
-            'agenda_curso_id' => $dado_inscrito['agenda_curso_id'],
-            'valor' => $dado_inscrito['valor'],
+            'agenda_interlab_id' => $dado_inscrito['agenda_interlab_id'],
             'data_inscricao' => $dado_inscrito['data_inscricao'] ?? now(),
             'certificado_emitido' => $dado_inscrito['certificado_emitido'] ?? null,
             'resposta_pesquisa' => $dado_inscrito['resposta_pesquisa'] ?? null,
         ]);
 
         // adiciona lancamento financeiro por empresa
-        if( isset($dado_inscrito['empresa_id']) ) {
-            $curso = AgendaCursos::find($dado_inscrito['agenda_curso_id'])->curso;
-
-            $lancamento = LancamentoFinanceiro::where('pessoa_id', $dado_inscrito['empresa_id'])
-                ->where('agenda_curso_id', $dado_inscrito['agenda_curso_id'])
-                ->first();
-
-            if(!$lancamento) {
-                $lancamento = LancamentoFinanceiro::create([
-                    'uid' => config('hashing.uid'),
-                    'pessoa_id' => $dado_inscrito['empresa_id'],
-                    'agenda_curso_id' => $dado_inscrito['agenda_curso_id'],
-                    'historico' => 'Inscrição curso - ID:' . $curso->id . ' - ' . $curso->descricao,
-                    'valor' => $dado_inscrito['valor'],
-                    'centro_custo_id' => CentroCusto::where('descricao', 'TREINAMENTO')->first()->id,
-                    'data_emissao' => now(),
-                    'status' => 'A RECEBER',
-                    'observacoes' => date('d/m/Y H:i').' - Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao ." - R$". $dado_inscrito['valor'],
-                ]);
-            } else {
-                $lancamento->update([
-                    'valor' => CursoInscrito::select('valor')->where('empresa_id', $dado_inscrito['empresa_id'])->sum('valor'),
-                    'observacoes' => $lancamento->observacoes . "\n" . date('d/m/Y H:i') . ' - Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao . " - R$". $dado_inscrito['valor'],
-                ]);
-            }
-
-        }
+        // TODO: revisar o processo financeiro para interlab
     }
 
     private function formataMoeda($valor): ?string

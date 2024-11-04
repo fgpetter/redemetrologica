@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -95,6 +94,11 @@ class Pessoa extends Model
     public function cursos(): HasMany
     {
         return $this->hasMany(CursoInscrito::class);
+    }
+
+    public function interlabs(): HasMany
+    {
+        return $this->hasMany(InterlabInscrito::class);
     }
 
     // Acessors and mutators

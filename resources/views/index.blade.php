@@ -17,6 +17,11 @@
             <x-painel.painel-cliente.confirma-inscricao />
         @endif
 
+        @if ( session('interlab') )
+            {{-- carrega componente em app\view\ConfirmaInscricao --}}
+            <x-painel.painel-cliente.confirma-inscricao-interlab />
+        @endif
+
         @if ( auth()->user()->pessoa?->cursos?->count() > 0 )
             <div class="col-6">
                 <div class="card">
@@ -36,7 +41,21 @@
             </div>
         @endif
 
+        @if ( auth()->user()->pessoa?->interlabs?->count() > 0 )
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="h5 mb-3">Você está inscrito no seguinte Interlab:</h5>
     
+                    @foreach ( auth()->user()->pessoa?->interlabs as $interlab )
+                        <strong>Nome:</strong> {{ $interlab->agendaInterlab->interlab->nome }} <br>
+                    @endforeach
+    
+                </div>
+            </div>
+        </div>
+        @endif
+
     @endif
 
 @endsection
