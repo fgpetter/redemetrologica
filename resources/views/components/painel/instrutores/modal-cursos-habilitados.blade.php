@@ -24,6 +24,7 @@
             @if($cursos)
               <div class="col-sm-12">
                 <x-forms.input-select name="curso" label="Curso">
+                  <option value="">Selecione um curso</option>
                   @foreach ($cursos as $curso)
                     <option value="{{ $curso->id }}">{{ $curso->descricao }}</option>
                   @endforeach
