@@ -25,7 +25,7 @@ class PessoaController extends Controller
     $data = $request->data;
     $doc = $request->doc;
     $busca_nome = $request->buscanome;
-    $busca_doc = $request->buscadoc;
+    $busca_doc = preg_replace("/[^0-9]/", "", $request->buscadoc);
 
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'created_at')
       ->when($name, function (Builder $query, $name) {
