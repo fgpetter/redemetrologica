@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-
+use Illuminate\Support\Carbon;
 
 class AgendaAvaliacaoController extends Controller
 {
@@ -154,12 +154,15 @@ class AgendaAvaliacaoController extends Controller
             'enviado_certificado.in' => 'Selecione uma opção válida',
             'certificado_impresso.in' => 'Selecione uma opção válida',
             'ano_revisao_certificado.date' => 'Data da revisão do certificado inválida',
-            'obs.string' => 'Conteúdo inválido'            
+            'obs.string' => 'Conteúdo inválido'
 
         ]);
 
         $valor_proposta = $this->formataMoeda( $request->valor_proposta);
         $validate['valor_proposta'] = $valor_proposta;
+        $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(10)->format('Y-m-d');
+        $validate['data_proposta_acoes_corretivas'] = $request->data_proposta_acoes_corretivas ?? Carbon::parse($request->data_inicio)->addDays(7)->format('Y-m-d');
+        $validate['data_acoes_corretivas'] = $request->data_acoes_corretivas ?? Carbon::parse($request->data_inicio)->addDays(45)->format('Y-m-d');
 
         $avaliacao->update($validate);
 
