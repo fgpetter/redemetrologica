@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AgendaCursos;
-use App\Models\Pessoa;
-use App\Models\CentroCusto;
-use Illuminate\Http\Request;
+use App\Models\{AgendaCursos,Pessoa,CentroCusto,LancamentoFinanceiro,ModalidadePagamento,PlanoConta};
+use Illuminate\Http\{Request,RedirectResponse};
 use Illuminate\Contracts\View\View;
-use App\Models\LancamentoFinanceiro;
-use App\Models\ModalidadePagamento;
-use App\Models\PlanoConta;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Database\Eloquent\Builder;
 
 
 class LancamentoFinanceiroController extends Controller
@@ -22,19 +17,33 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function index(): View
   {
+    $data_inicial = $_GET['data_inicial'] ?? null;
+    $data_final = $_GET['data_final'] ?? null;
+    $tipo = $_GET['tipo'] ?? null;
+    $pessoa = $_GET['pessoa'] ?? null;
+
     $lancamentosfinanceiros = LancamentoFinanceiro::select()
       ->with(['pessoa' => function ($query) {
         $query->withTrashed();
       }])
-      ->whereIn('status', ['EFETIVADO','PROVISIONADO'])
+      ->when($data_inicial, function (Builder $query, $data_inicial) {
+        $query->where('data_emissao', '>', $data_inicial);
+      })
+      ->when($data_final, function (Builder $query, $data_final) {
+        $query->where('data_emissao', '<', $data_final);
+      })
+      ->when($tipo, function (Builder $query, $tipo) {
+        $query->where('tipo', $tipo);
+      })
       ->orderBy('data_vencimento', 'desc')
       ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->get();
 
-    return view(
-      'painel.lancamento-financeiro.index', 
-      ['lancamentosfinanceiros' => $lancamentosfinanceiros, 'pessoas' => $pessoas]);
+    return view( 'painel.lancamento-financeiro.index', [
+      'lancamentosfinanceiros' => $lancamentosfinanceiros, 
+      'pessoas' => $pessoas
+    ]);
   }
 
   /**
