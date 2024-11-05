@@ -126,8 +126,8 @@
                                  </div>
 
                                  <div class="col-6">
-                                     <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie"
-                                         label="Inscrição estadual" />
+                                     <x-forms.input-field :value="old('rg_ie') ?? $pessoa->rg_ie ?? $pessoa->tipo_pessoa == 'PF' ? '' : 'ISENTO'" type="text" name="rg_ie"
+                                         label="RG ou Inscrição Estadual" />
                                      @error('rg_ie')
                                          <div class="text-warning">{{ $message }}</div>
                                      @enderror
