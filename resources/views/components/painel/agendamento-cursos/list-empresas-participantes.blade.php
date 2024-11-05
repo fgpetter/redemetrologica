@@ -28,11 +28,10 @@
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
                                             data-bs-target="#participanteModal">Editar</a>
                                     </li>
-                                    <li>
-
+                                    {{-- <li>
                                         <x-painel.form-delete.delete route='materiais-padroes-delete'
                                             id="{{ $inscrito->uid }}" />
-                                    </li>
+                                    </li> --}}
                                 </ul>
                             </div>
                         </td>
