@@ -179,7 +179,6 @@ class AgendaAvaliacaoController extends Controller
         return redirect()->back()->with('warning', 'Avaliação removida com sucesso');
     }
 
-
     /**
      * Salva uma nova area avaliada
      * @param AreaAvaliada $area
@@ -235,6 +234,13 @@ class AgendaAvaliacaoController extends Controller
         }
 
         return redirect()->back()->with('success', 'Dados atualizados com sucesso');
+    }
+
+    public function deleteArea(AreaAvaliada $area): RedirectResponse
+    {
+        $area->delete();
+
+        return redirect()->back()->with('warning', 'Area removida com sucesso');
     }
 
     private function formataMoeda($valor): ?string

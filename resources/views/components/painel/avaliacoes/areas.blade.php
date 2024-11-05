@@ -33,7 +33,7 @@
                                         data-bs-target="{{ '#areaAvaliadaModal'.$areaavaliada->uid }}">Editar</a>
                                 </li>
                                 <li>
-                                    <x-painel.form-delete.delete route='laboratorio-delete-interno' id="{{ $areaavaliada->uid }}" />
+                                    <x-painel.form-delete.delete route='avaliacao-delete-area' id="{{ $areaavaliada->uid }}" />
                                 </li>
                             </ul>
                         </div>

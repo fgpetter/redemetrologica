@@ -196,6 +196,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'update'])->name('avaliacao-update');
     Route::post('delete/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'delete'])->name('avaliacao-delete');
     Route::post('save-area/{area:uid?}', [AgendaAvaliacaoController::class, 'saveArea'])->name('avaliacao-save-area');
+    Route::post('delete-area/{area:uid?}', [AgendaAvaliacaoController::class, 'deleteArea'])->name('avaliacao-delete-area');
   });
 
   /* Avaliadores */
