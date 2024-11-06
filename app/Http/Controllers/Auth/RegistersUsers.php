@@ -71,14 +71,15 @@ trait RegistersUsers
      */
     protected function registered(Request $request, $user)
     {
-        Pessoa::create([
-            'uid' => config('hashing.uid'),
-            'nome_razao' => $request['name'],
-            'cpf_cnpj' => preg_replace('/[^0-9]/', '', $request['document']),
-            'tipo_pessoa' => 'PF',
-            'email' => $request['email'],
-            'user_id' => $user->id
-        ]);
+        Pessoa::updateOrCreate(
+            ['cpf_cnpj' => preg_replace('/[^0-9]/', '', $request['document'])],
+            [
+                'nome_razao' => $request['name'],
+                'email' => $request['email'],
+                'tipo_pessoa' => 'PF',
+                'user_id' => $user->id
+            ]
+        );
 
         return redirect('painel');
     }
