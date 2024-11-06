@@ -37,5 +37,10 @@ class LancamentoFinanceiro extends Model
     {
         return $this->hasOne(CentroCusto::class);
     }
+
+    public function curso(): HasOne
+    {
+        return $this->hasOne(AgendaCursos::class, 'id', 'agenda_curso_id');
+    }
     
 }

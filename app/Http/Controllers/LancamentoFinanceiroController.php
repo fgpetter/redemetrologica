@@ -193,27 +193,25 @@ class LancamentoFinanceiroController extends Controller
   public function areceber(): View
   {
     $lancamentosfinanceiros = LancamentoFinanceiro::select()
-    ->with(['pessoa' => function ($query) {
-      $query->withTrashed();
-    }])
-    ->where('status', 'A RECEBER')
+    ->with( ['pessoa' => fn($query) => $query->withTrashed()] )
+    ->with('curso')
+    ->where('status', 'PROVISIONADO')
+    ->where('tipo_lancamento', 'CREDITO')
+    ->whereRelation('curso', fn($query) => $query->whereIn('status', ['CONFIRMADO','REALIZADO']))
     ->orderBy('data_emissao', 'desc')
     ->paginate(15);
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->get();
 
-    $cursos = AgendaCursos::select('id','uid','curso_id')->whereIn('status', ['AGENDADO', 'CONFIRMADO'])->with('curso')->get();
+    $cursos = AgendaCursos::select('id','uid','curso_id')->whereIn('status', ['CONFIRMADO','REALIZADO'])->with('curso')->get();
 
-
-    return view('painel.lancamento-financeiro.areceber', 
-    ['lancamentosfinanceiros' => $lancamentosfinanceiros, 'pessoas' => $pessoas, 'cursos' => $cursos]);
+    return view('painel.lancamento-financeiro.areceber', [
+      'lancamentosfinanceiros' => $lancamentosfinanceiros, 'pessoas' => $pessoas, 'cursos' => $cursos
+    ]);
   }
 
-
-
-
   /**
-   * Undocumented function
+   * Formata valor para decimal padrão SQL
    *
    * @param string $valor
    * @return string|null

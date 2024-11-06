@@ -32,8 +32,8 @@ return new class extends Migration
             $table->enum('status', ['EFETIVADO', 'PROVISIONADO']);
             $table->text('observacoes')->nullable();
             $table->foreignId('agenda_curso_id')->nullable();
-            $table->foreignId('interlab_id')->nullable();
-            $table->foreignId('avaliacao_id')->nullable();
+            $table->foreignId('agenda_interlab_id')->nullable();
+            $table->foreignId('agenda_avaliacao_id')->nullable();
             $table->timestamps();
         });
     }
