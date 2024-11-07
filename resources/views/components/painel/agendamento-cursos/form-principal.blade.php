@@ -243,14 +243,6 @@
              @enderror
          </div>
 
-         <div class="col-sm-3">
-             <x-forms.input-field :value="old('data_limite_pagamento') ?? ($agendacurso->data_limite_pagamento ?? null)" type="date" name="data_limite_pagamento"
-                 label="Data Limite Pagamento" />
-             @error('data_limite_pagamento')
-                 <div class="text-warning">{{ $message }}</div>
-             @enderror
-         </div>
-
          <div class="col-sm-12">
              <x-forms.input-textarea name="observacoes" label="Observações"
                 >{{ old('observacoes') ?? ($agendacurso->observacoes ?? null) }}

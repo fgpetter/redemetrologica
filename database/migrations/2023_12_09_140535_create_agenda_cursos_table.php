@@ -21,7 +21,6 @@ return new class extends Migration
             $table->text('endereco_local')->nullable();
             $table->date('data_inicio')->nullable();
             $table->date('data_fim')->nullable();
-            $table->date('data_limite_pagamento')->nullable();
             $table->date('validade_proposta')->nullable();
             $table->string('horario')->nullable();
             $table->enum('status', ['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR']);
