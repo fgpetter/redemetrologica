@@ -63,16 +63,28 @@
                                  </div>
 
                                  <div class="col-6">
+                                     <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone"
+                                         label="Telefone Alternativo" />
+                                     @error('telefone_alt')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" class="telefone"
+                                         label="Celular" />
+                                     @error('celular')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
+
+                                 <div class="col-6">
                                      <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email" id="email"
                                          label="Email" />
                                      @error('email')
                                          <div class="text-warning">{{ $message }}</div>
                                      @enderror
                                  </div>
-
-                                 @if (!$pessoa->id)
-                                     <x-painel.enderecos.form-endereco />
-                                 @endif
 
                                  <div class="col-12">
                                      <button type="submit"
@@ -133,7 +145,7 @@
                                      @enderror
                                  </div>
 
-                                 <div class="col-4">
+                                 <div class="col-6">
                                      <x-forms.input-field :value="old('insc_municipal') ?? ($pessoa->insc_municipal ?? null)" type="number" name="insc_municipal"
                                          label="Inscrição Municipal" />
                                      @error('insc_municipal')
@@ -141,7 +153,7 @@
                                      @enderror
                                  </div>
 
-                                 <div class="col-4">
+                                 <div class="col-6">
                                      <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" label="Telefone"
                                          class="telefone" />
                                      @error('telefone')
@@ -149,7 +161,24 @@
                                      @enderror
                                  </div>
 
-                                 <div class="col-4">
+                                 <div class="col-6">
+                                    <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone"
+                                        label="Telefone Alternativo" />
+                                    @error('telefone_alt')
+                                        <div class="text-warning">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6">
+                                    <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" class="telefone"
+                                        label="Celular" />
+                                    @error('celular')
+                                        <div class="text-warning">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+
+                                 <div class="col-6">
                                      <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email"
                                          label="Email" />
                                      @error('email')
@@ -157,9 +186,13 @@
                                      @enderror
                                  </div>
 
-                                 @if (!$pessoa->id)
-                                     <x-painel.enderecos.form-endereco />
-                                 @endif
+                                 <div class="col-6">
+                                     <x-forms.input-field :value="old('site') ?? ($pessoa->site ?? null)" type="site" name="site"
+                                         label="Site" />
+                                     @error('site')
+                                         <div class="text-warning">{{ $message }}</div>
+                                     @enderror
+                                 </div>
 
                                  <div class="col-12">
                                      <button type="submit"

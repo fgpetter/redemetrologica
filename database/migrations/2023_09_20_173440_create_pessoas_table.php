@@ -23,8 +23,10 @@ return new class extends Migration
             $table->string('rg_ie')->nullable();
             $table->string('insc_municipal')->nullable();
             $table->string('telefone')->nullable();
+            $table->string('telefone_alt')->nullable();
+            $table->string('celular')->nullable();
             $table->string('email')->nullable();
-            $table->integer('alterado_por')->nullable();
+            $table->string('site')->nullable();
             $table->integer('end_padrao')->nullable();
             $table->integer('end_cobranca')->nullable();
             $table->boolean('associado')->default(0);
