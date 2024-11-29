@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+use App\Http\Middleware\CheckPermission;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -21,6 +23,12 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+
+        Gate::before(function (User $user, $ability) {
+            Gate::define($ability, function (User $user) use ($ability) {
+                return $user->hasPermissionTo([$ability]);
+            });
+        });
+
     }
 }

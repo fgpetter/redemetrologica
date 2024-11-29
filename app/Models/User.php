@@ -3,16 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Pessoa;
+use App\Models\Permission;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\{HasOne,BelongsTo, BelongsToMany};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+
 
     /**
      * The attributes that are mass assignable.
@@ -53,5 +55,38 @@ class User extends Authenticatable
     public function pessoa(): HasOne
     {
         return $this->hasOne(Pessoa::class);
+    }
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class);
+    }
+    
+    
+    /**
+     * Adiciona permissão ao usuario.
+     *
+     * @param string $permission A permissão a ser adicionada
+     *
+     * @return void
+     */
+    public function givePermission($permission): void
+    {
+        /** @var Permission $permission */
+        $permission = Permission::firstOrCreate(['permission' => $permission]);
+
+        $this->permissions()->attach($permission);
+    }
+
+    /**
+     * Verifica se o usuário possui uma determinada permissão.
+     *
+     * @param string|string[] $permission A permissão a ser verificada
+     *
+     * @return bool
+     */
+    public function hasPermissionTo($permission): bool
+    {
+        return $this->permissions()->whereIn('permission', $permission)->exists();
     }
 }
