@@ -191,7 +191,7 @@
              @enderror
          </div>
 
-         <div class="col-sm-3">
+         <div class="col-sm-3" id="input-inscricoes">
              <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
                  <input class="form-check-input" name="inscricoes" value="1" id="inscricoes" type="checkbox"
                      @checked($agendacurso->inscricoes)>
@@ -202,7 +202,7 @@
              @enderror
          </div>
 
-         <div class="col-sm-3">
+         <div class="col-sm-3" id="input-site">
              <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
                  <input class="form-check-input" name="site" value="1" id="site" type="checkbox"
                      @checked($agendacurso->site)>
@@ -228,15 +228,15 @@
              @enderror
          </div>
 
-         <div class="col-sm-4">
-             <x-forms.input-field :value="old('investimento') ?? ($agendacurso->investimento ?? null)" name="investimento" label="Investimento" class="money" />
+         <div class="col-sm-4" id="input-investimento">
+             <x-forms.input-field :value="old('investimento') ?? ($agendacurso->investimento ?? null)" name="investimento" id="investimento" label="Investimento" class="money" />
              @error('investimento')
                  <div class="text-warning">{{ $message }}</div>
              @enderror
          </div>
 
-         <div class="col-sm-4">
-             <x-forms.input-field :value="old('investimento_associado') ?? ($agendacurso->investimento_associado ?? null)" name="investimento_associado" label="Investimento Associado"
+         <div class="col-sm-4" id="input-investimento_associado">
+             <x-forms.input-field :value="old('investimento_associado') ?? ($agendacurso->investimento_associado ?? null)" name="investimento_associado" id="investimento_associado" label="Investimento Associado"
                  class="money" />
              @error('investimento_associado')
                  <div class="text-warning">{{ $message }}</div>

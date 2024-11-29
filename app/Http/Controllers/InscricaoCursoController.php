@@ -10,7 +10,7 @@ class InscricaoCursoController extends Controller
 {
   /**
    * Verifica o link de inscrição e faz o roteamento da inscrição 
-   * conforme os critérios
+   * salvando dados do link na sessão e redirecionando para o painel
    *
    * @param Request $request
    * @return RedirectResponse

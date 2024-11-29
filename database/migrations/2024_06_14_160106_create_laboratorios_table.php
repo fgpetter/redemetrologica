@@ -18,8 +18,6 @@ return new class extends Migration
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
             $table->string('nome_laboratorio')->nullable();
             $table->string('contato')->nullable();
-            $table->string('telefone')->nullable();
-            $table->string('email')->nullable();
             $table->string('cod_laboratorio')->nullable();
             $table->string('responsavel_tecnico')->nullable();
             $table->boolean('laboratorio_associado')->default(0);
