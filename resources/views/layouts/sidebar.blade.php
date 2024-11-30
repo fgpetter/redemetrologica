@@ -29,9 +29,13 @@
       <div id="two-column-menu">
       </div>
       <ul class="navbar-nav" id="navbar-nav">
+
+        @canany(['admin','funcionario'])
+
         {{-- // ADMINISTRAÇÃO // --}}
         <li class="menu-title"><span>ADMINISTRAÇÃO</span></li>
 
+        @canany(['admin'])
         {{-- Usuarios --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/user']) ? 'active' : '' }}"
@@ -53,6 +57,7 @@
             </ul>
           </div>
         </li>
+        @endcan
 
         {{-- Pessoas --}}
         <li class="nav-item">
@@ -104,7 +109,7 @@
             </ul>
           </div>
         </li>
-
+        @canany(['admin','avaliacoes'])
         {{-- Avaliacoes --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/avaliacao']) ? 'active' : '' }}"
@@ -126,7 +131,9 @@
             </ul>
           </div>
         </li>
+        @endcan
 
+        @canany(['admin','cursos'])
         {{-- Cursos --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'active' : '' }}"
@@ -155,7 +162,9 @@
             </ul>
           </div>
         </li>
+        @endcan
 
+        @canany(['admin','interlabs'])
         {{-- Interlabs --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/interlab', 'painel/agendamento-interlab']) ? 'active' : '' }}"
@@ -184,8 +193,9 @@
             </ul>
           </div>
         </li>
-        
+        @endcan
 
+        @canany(['admin','financeiro'])
         {{-- FINANCEIRO --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/financeiro']) ? 'active' : '' }}"
@@ -214,6 +224,7 @@
             </ul>
           </div>
         </li>
+        @endcan
 
         {{-- CADASTROS ADICIONAIS --}}
         <li class="nav-item">
@@ -289,7 +300,6 @@
           </div>
         </li>
 
-
         {{-- // SITE // --}}
         <li class="menu-title"><span>SITE</span></li>
 
@@ -319,7 +329,8 @@
             <i class="ph-file-arrow-down"></i> <span>Arquivos de Downloads</span>
           </a>
         </li>
-        
+
+        @endcan
 
       </ul>
     </div>
