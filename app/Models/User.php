@@ -3,13 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Pessoa;
-use App\Models\Permission;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\{HasOne,BelongsTo, BelongsToMany};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\{HasOne,BelongsTo, BelongsToMany, HasOneThrough};
 
 class User extends Authenticatable
 {
@@ -57,12 +55,16 @@ class User extends Authenticatable
         return $this->hasOne(Pessoa::class);
     }
 
+    /**
+     * Retorna as permissões do usuario
+     *
+     * @return BelongsToMany
+     */
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class);
     }
-    
-    
+
     /**
      * Adiciona permissão ao usuario.
      *
@@ -87,6 +89,9 @@ class User extends Authenticatable
      */
     public function hasPermissionTo($permission): bool
     {
+        if(is_string($permission)){
+            $permission = [$permission];
+        }
         return $this->permissions()->whereIn('permission', $permission)->exists();
     }
 }

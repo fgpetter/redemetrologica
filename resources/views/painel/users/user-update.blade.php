@@ -1,14 +1,16 @@
 @extends('layouts.master')
 @section('title') Editar Usuário @endsection
 @section('content')
-@component('components.breadcrumb')
-@slot('li_1') Usuários @endslot
-@slot('title') Editar Usuário @endslot
-@endcomponent
+<x-breadcrumb 
+  li1="Usuários" li1link="user-index"
+  title="Editar Usuário"/>
 
 <div class="row">
-  <div class="col-12 col-sm-6">
+  <div class="col-12 col-sm-5">
     <x-painel.users.insert :user="$user"/>
+  </div>
+  <div class="col-12 col-sm-5">
+    <x-painel.users.permissions :user="$user"/>
   </div>
 </div>
 

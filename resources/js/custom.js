@@ -4,8 +4,6 @@
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-
-
 /**
  * iMasK input
  */
@@ -26,7 +24,6 @@ document.querySelectorAll('.telefone').forEach(el => {
     ]
   })
 });
-
 
 window.onload = function(){
   if (window.jQuery && window.jQuery.fn.mask) {
@@ -57,8 +54,8 @@ function search(e, url, tipo){
   if(e.keyCode === 13){
       e.preventDefault();
       url = url.split('?')[0] // remove parametros
+
       if(e.target.value != undefined){
-        
         window.location.href = url+'?'+tipo+'='+e.target.value
       }
       
@@ -68,14 +65,11 @@ function search(e, url, tipo){
 function searchSelect(e, url, tipo){
   e.preventDefault();
   url = url.split('?')[0] // remove parametros
-  
+
   if(e.target.value != undefined){
     window.location.href = url+'?'+tipo+'='+e.target.value
   }
-      
 }
-
-
 
 /**
  * Show Hide de card de dados IN COMPANY
@@ -105,3 +99,22 @@ if(tipoAgendamento){
     }
   })
 }
+
+/**
+ * Desabilita todos inputs de permissão quando selecionar admin
+ */
+window.onload = function(){
+  if (window.jQuery) {
+    $('#admin').change(function () {
+
+      if ($(this).prop('checked')) {
+        $(".permission").prop('checked', false).prop('disabled', true);
+        $(".text-admin").removeClass("d-none");
+      }
+      else {
+        $(".permission").prop('disabled', false);
+        $(".text-admin").addClass("d-none");
+      }
+    });
+  }
+};

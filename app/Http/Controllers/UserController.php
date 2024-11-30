@@ -122,4 +122,20 @@ class UserController extends Controller
 
     return redirect()->route('user-index')->with('warning', 'Usuário removido');;
   }
+
+  public function updatePermission(User $user, Request $request)
+  {
+    $request->validate([
+        'permission' => ['nullable', 'array'],
+        'permission.*' => ['nullable','numeric'],
+      ],
+      [
+        'permission.*.exists' => 'Permissão inválida',
+      ]);
+    $user->permissions()->sync($request->get('permission'));
+
+    return redirect()->back()->with('success', 'Permissões atualizadas');
+  }
+
+
 }
