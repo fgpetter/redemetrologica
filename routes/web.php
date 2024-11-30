@@ -33,7 +33,6 @@ use App\Http\Controllers\{
   HomeController
 };
 
-
 Auth::routes();
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 Route::get('/', [HomeController::class, 'root'])->name('root');
@@ -85,18 +84,19 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Usuários */
-  Route::group(['prefix' => 'user'], function () {
+  Route::group(['prefix' => 'user', 'middleware' => 'permission:admin'], function () {
     Route::get('index', [UserController::class, 'index'])->name('user-index');
     Route::get('edit/{user}', [UserController::class, 'view'])->name('user-edit');
     Route::post('create', [UserController::class, 'create'])->name('user-create');
     Route::post('update/{user}', [UserController::class, 'update'])->name('user-update');
     Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete');
+    Route::post('update-permissions/{user}', [UserController::class, 'updatePermission'])->name('user-permission-update');
   });
 
   /**
    * Pessoas 
    */
-  Route::group(['prefix' => 'pessoa'], function () {
+  Route::group(['prefix' => 'pessoa', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
     Route::get('insert/{pessoa:uid?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
     Route::post('create', [PessoaController::class, 'create'])->name('pessoa-create');
@@ -106,21 +106,21 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Endereços */
-  Route::group(['prefix' => 'endereco'], function () {
+  Route::group(['prefix' => 'endereco', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::post('create', [EnderecoController::class, 'create'])->name('endereco-create');
     Route::post('update/{endereco:uid}', [EnderecoController::class, 'update'])->name('endereco-update');
     Route::post('delete/{endereco:uid}', [EnderecoController::class, 'delete'])->name('endereco-delete');
   });
 
   /* Unidades */
-  Route::group(['prefix' => 'unidade'], function () {
+  Route::group(['prefix' => 'unidade', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::post('create', [UnidadeController::class, 'create'])->name('unidade-create');
     Route::post('update/{unidade:uid}', [UnidadeController::class, 'update'])->name('unidade-update');
     Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'])->name('unidade-delete');
   });
 
   /* Funcionarios */
-  Route::group(['prefix' => 'funcionario'], function () {
+  Route::group(['prefix' => 'funcionario', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [FuncionarioController::class, 'index'])->name('funcionario-index');
     Route::get('insert/{funcionario:uid?}', [FuncionarioController::class, 'insert'])->name('funcionario-insert');
     Route::post('create', [FuncionarioController::class, 'create'])->name('funcionario-create');
@@ -130,7 +130,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });  
 
   /* Dados bancários */
-  Route::group(['prefix' => 'conta'], function () {
+  Route::group(['prefix' => 'conta', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::post('create', [DadoBancarioController::class, 'create'])->name('conta-create');
     Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'])->name('conta-update');
     Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'])->name('conta-delete');
@@ -141,7 +141,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /**
    *  Cursos 
    */
-  Route::group(['prefix' => 'curso'], function () {
+  Route::group(['prefix' => 'curso', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [CursoController::class, 'index'])->name('curso-index');
     Route::get('insert/{curso:uid?}', [CursoController::class, 'insert'])->name('curso-insert');
     Route::post('create', [CursoController::class, 'create'])->name('curso-create');
@@ -152,7 +152,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Agendamento de cursos*/
-  Route::group(['prefix' => 'agendamento-curso'], function () {
+  Route::group(['prefix' => 'agendamento-curso', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [AgendaCursoController::class, 'index'])->name('agendamento-curso-index');
     Route::get('insert/{agendacurso:uid?}', [AgendaCursoController::class, 'insert'])->name('agendamento-curso-insert');
     Route::post('create', [AgendaCursoController::class, 'create'])->name('agendamento-curso-create');
@@ -163,7 +163,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Matricula em cursos */
-  Route::group(['prefix' => 'inscricao-curso'], function () {
+  Route::group(['prefix' => 'inscricao-curso', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
     Route::post('informa-empresa', [InscricaoCursoController::class, 'informaEmpresa'])->name('informa-empresa');
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
@@ -171,7 +171,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Instrutores*/
-  Route::group(['prefix' => 'instrutor'], function () {
+  Route::group(['prefix' => 'instrutor', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [InstrutorController::class, 'index'])->name('instrutor-index');
     Route::get('insert/{instrutor:uid?}', [InstrutorController::class, 'insert'])->name('instrutor-insert');
     Route::post('create', [InstrutorController::class, 'create'])->name('instrutor-create');
@@ -189,7 +189,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /**
    * Avalições
    */
-  Route::group(['prefix' => 'avaliacao'], function () {
+  Route::group(['prefix' => 'avaliacao', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [AgendaAvaliacaoController::class, 'index'])->name('agendamento-avaliacao-index');
     Route::get('insert/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'insert'])->name('avaliacao-insert');
     Route::post('create', [AgendaAvaliacaoController::class, 'create'])->name('avaliacao-create');
@@ -200,7 +200,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Avaliadores */
-  Route::group(['prefix' => 'avaliador'], function () {
+  Route::group(['prefix' => 'avaliador', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [AvaliadorController::class, 'index'])->name('avaliador-index');
     Route::get('insert/{avaliador:uid?}', [AvaliadorController::class, 'insert'])->name('avaliador-insert');
     Route::post('create', [AvaliadorController::class, 'create'])->name('avaliador-create');
@@ -230,7 +230,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Laboratorios */
-  Route::group(['prefix' => 'laboratorios'], function () {
+  Route::group(['prefix' => 'laboratorios', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [LaboratorioController::class, 'index'])->name('laboratorio-index');
     Route::get('insert/{laboratorio:uid?}', [LaboratorioController::class, 'insert'])->name('laboratorio-insert');
     Route::post('create', [LaboratorioController::class, 'create'])->name('laboratorio-create');
@@ -247,7 +247,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /**
    *  Interlaboratoriais
    */
-  Route::group(['prefix' => 'interlab'], function () {
+  Route::group(['prefix' => 'interlab', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [InterlabController::class, 'index'])->name('interlab-index');
     Route::get('insert/{interlab:uid?}', [InterlabController::class, 'insert'])->name('interlab-insert');
     Route::post('create', [InterlabController::class, 'create'])->name('interlab-create');
@@ -257,7 +257,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Agenda de interlab */
-  Route::group(['prefix' => 'agenda-interlab'], function () {
+  Route::group(['prefix' => 'agenda-interlab', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [AgendaInterlabController::class, 'index'])->name('agenda-interlab-index');
     Route::get('insert/{agendainterlab:uid?}', [AgendaInterlabController::class, 'insert'])->name('agenda-interlab-insert');
     Route::post('create', [AgendaInterlabController::class, 'create'])->name('agenda-interlab-create');
@@ -280,7 +280,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Inscricao em interlaboratoriais */
-  Route::group(['prefix' => 'inscricao-interlab'], function () {
+  Route::group(['prefix' => 'inscricao-interlab', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::post('confirmacao', [InscricaoInterlabController::class, 'confirmaInscricao'])->name('confirma-inscricao-interlab');
     Route::post('informa-empresa', [InscricaoInterlabController::class, 'informaEmpresa'])->name('informa-empresa-interlab');
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoInterlabController::class, 'cancelaInscricao'])->name('cancela-inscricao-interlab');
@@ -295,7 +295,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
    */
 
   /* Area de atuação */
-  Route::group(['prefix' => 'area-atuacao'], function () {
+  Route::group(['prefix' => 'area-atuacao', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [AreaAtuacaoController::class, 'index'])->name('area-atuacao-index');
     Route::post('store', [AreaAtuacaoController::class, 'store'])->name('area-atuacao-store');
     Route::post('update/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'update'])->name('area-atuacao-update');
@@ -303,7 +303,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Lista de materiais/padrões */
-  Route::group(['prefix' => 'materiais-padroes'], function () {
+  Route::group(['prefix' => 'materiais-padroes', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [MateriaisPadroesController::class, 'index'])->name('materiais-padroes-index');
     Route::post('store', [MateriaisPadroesController::class, 'store'])->name('materiais-padroes-store');
     Route::post('update/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('materiais-padroes-update');
@@ -311,7 +311,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Cadastro de parâmetros*/
-  Route::group(['prefix' => 'parametros'], function () {
+  Route::group(['prefix' => 'parametros', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [ParametrosController::class, 'index'])->name('parametros-index');
     Route::post('store', [ParametrosController::class, 'store'])->name('parametro-store');
     Route::post('update/{parametro:uid}', [ParametrosController::class, 'update'])->name('parametro-update');
@@ -319,7 +319,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Cadastro de tipos de avaliação*/
-  Route::group(['prefix' => 'tipos-avaliacao'], function () {
+  Route::group(['prefix' => 'tipos-avaliacao', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [TipoAvaliacaoController::class, 'index'])->name('tipo-avaliacao-index');
     Route::post('store', [TipoAvaliacaoController::class, 'store'])->name('tipo-avaliacao-store');
     Route::post('update/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
@@ -327,7 +327,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Cadastro de bancos*/
-  Route::group(['prefix' => 'banco'], function () {
+  Route::group(['prefix' => 'banco', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [BancosController::class, 'index'])->name('banco-index');
     Route::post('store', [BancosController::class, 'store'])->name('banco-store');
     Route::post('update/{banco:uid}', [BancosController::class, 'update'])->name('banco-update');
@@ -335,7 +335,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Cadastro de centro de custo*/
-  Route::group(['prefix' => 'centro-custo'], function () {
+  Route::group(['prefix' => 'centro-custo', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [CentroCustoController::class, 'index'])->name('centro-custo-index');
     Route::post('store', [CentroCustoController::class, 'store'])->name('centro-custo-store');
     Route::post('update/{centroCusto:uid}', [CentroCustoController::class, 'update'])->name('centro-custo-update');
@@ -343,7 +343,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Cadastro de centro de custo*/
-  Route::group(['prefix' => 'modalidade-pagamento'], function () {
+  Route::group(['prefix' => 'modalidade-pagamento', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [ModalidadePagamentoController::class, 'index'])->name('modalidade-pagamento-index');
     Route::post('store', [ModalidadePagamentoController::class, 'store'])->name('modalidade-pagamento-store');
     Route::post('update/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'update'])->name('modalidade-pagamento-update');
@@ -351,7 +351,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Cadastro de plano de contas */
-  Route::group(['prefix' => 'plano-conta'], function () {
+  Route::group(['prefix' => 'plano-conta', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [PlanoContaController::class, 'index'])->name('plano-conta-index');
     Route::post('store', [PlanoContaController::class, 'store'])->name('plano-conta-store');
     Route::post('update/{planoconta:uid}', [PlanoContaController::class, 'update'])->name('plano-conta-update');
@@ -359,7 +359,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Financeiro */
-  Route::group(['prefix' => 'financeiro'], function () {
+  Route::group(['prefix' => 'financeiro', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('lancamento/index', [LancamentoFinanceiroController::class, 'index'])->name('lancamento-financeiro-index');
     Route::get('lancamento/insert/{lancamento:uid?}', [LancamentoFinanceiroController::class, 'insert'])->name('lancamento-financeiro-insert');
     Route::post('lancamento/store', [LancamentoFinanceiroController::class, 'store'])->name('lancamento-financeiro-store');
@@ -376,7 +376,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
    */
 
   // Rotas de noticia e galeria
-  Route::group(['prefix' => 'post'], function () {
+  Route::group(['prefix' => 'post', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
     Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
     Route::get('noticia-insert/{post:slug?}', [PostController::class, 'noticiaInsert'])->name('noticia-insert'); // tela de edicao
@@ -391,7 +391,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   // Rotas de upload de arquivos
-  Route::group(['prefix' => 'downloads'], function () {
+  Route::group(['prefix' => 'downloads', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [DownloadController::class, 'index'])->name('download-index');
     Route::get('insert/{download:uid?}', [DownloadController::class, 'insert'])->name('download-insert');
     Route::post('create', [DownloadController::class, 'create'])->name('download-create');
