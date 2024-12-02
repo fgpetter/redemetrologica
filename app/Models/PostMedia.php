@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class PostMedia extends Model
 {
 
-    use HasFactory;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -18,12 +19,11 @@ class PostMedia extends Model
      */
     protected $fillable = ['slug_post', 'caminho_media'];
 
-    // /**
-    //  * Carrega categorias
-    //  * @return BelongsToMany
-    //  */
-    // public function categorias() : BelongsToMany
-    // {
-    //     return $this->belongsToMany(Category::class);
-    // }
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName('Usuários');
+    }
+
 }

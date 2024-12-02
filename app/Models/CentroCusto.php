@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class CentroCusto extends Model
 {
-    use
-        HasFactory,
-        SoftDeletes;
+    use SoftDeletes, LogsActivity;
 
     protected $table = 'centro_custos';
 
@@ -20,4 +20,12 @@ class CentroCusto extends Model
      * @var array
      */
     protected $guarded = [];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName( get_class($this) );
+    }
+
 }

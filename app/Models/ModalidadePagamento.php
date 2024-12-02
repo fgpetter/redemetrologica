@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class ModalidadePagamento extends Model
 {
-    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'modalidade_pagamentos';
 
@@ -17,4 +19,12 @@ class ModalidadePagamento extends Model
      * @var array
      */
     protected $guarded = [];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName( get_class($this) );
+    }
 }
+

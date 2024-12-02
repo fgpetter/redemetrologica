@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class Pessoa extends Model
 {
-    use
-        HasFactory,
-        SoftDeletes;
+    use SoftDeletes, LogsActivity;
 
     /**
      * The attributes that aren't mass assignable.
@@ -22,6 +22,14 @@ class Pessoa extends Model
      * @var array
      */
     protected $guarded = [];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName('Usuários');
+    }
+
 
     /**
      * Lista os endereços de uma pessoa.

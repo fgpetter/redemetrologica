@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class AvaliacaoAvaliador extends Model
 {
-    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'avaliacao_avaliadores';
 
@@ -18,5 +20,11 @@ class AvaliacaoAvaliador extends Model
      */
     protected $guarded = [];
 
-    
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName( get_class($this) );
+    }
+
 }

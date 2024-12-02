@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class AreaAtuacao extends Model
 {
-    use HasFactory;
+    use LogsActivity;
     protected $table = 'areas_atuacao';
 
     /**
@@ -16,4 +18,12 @@ class AreaAtuacao extends Model
      * @var array
      */
     protected $guarded = [];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName( get_class($this) );
+    }
 }
+

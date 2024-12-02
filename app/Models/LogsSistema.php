@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class LogsSistema extends Model
 {
-    use HasFactory;
+    use LogsActivity;
 
     /**
      * The attributes that aren't mass assignable.
@@ -15,6 +17,14 @@ class LogsSistema extends Model
      * @var array
      */
     protected $guarded = [];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName( get_class($this) );
+    }
+
 
     protected $table = 'logs_sistema';
 
