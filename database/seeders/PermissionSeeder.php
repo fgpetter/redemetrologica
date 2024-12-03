@@ -19,6 +19,7 @@ class PermissionSeeder extends Seeder
             ['permission' => 'cursos'],
             ['permission' => 'interlabs'],
             ['permission' => 'financeiro'],
+            ['permission' => 'cliente'],
         ];
         DB::table('permissions')->insert($permissions);
     }
