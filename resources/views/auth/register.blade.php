@@ -47,11 +47,8 @@
                           @enderror
                         </div>
                         <div class="mb-3">
-                          <label for="document" class="form-label">CPF <span class="text-danger">*</span> 
-                            &nbsp; 
-                            <small>Por que exigimos esse dado?</small>
-                          </label>
-                          <input type="text" class="form-control @error('document') is-invalid @enderror" name="document" value="{{ old('document') }}" 
+                          <label for="document" class="form-label">CPF <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control table-cpf-cnpj @error('document') is-invalid @enderror" name="document" value="{{ old('document') }}" 
                             id="document" required>
                           @error('document')
                           <span class="invalid-feedback" role="alert">
@@ -95,6 +92,10 @@
                         <div class="mb-4">
                           <p class="mb-0 fs-xs text-muted fst-italic">Ao se registrar, você declara que leu e concorda com os
                             <a href="#" class="text-primary text-decoration-underline fst-normal fw-medium">Termos de uso</a>
+                          </p>
+                          <br>
+                          <p class="mb-0 fs-xs text-muted fst-italic">
+                            O CPF é obrigatório pois será necessário para envio de certificados e registro de outros documentos atrelados ao seu nome.
                           </p>
                         </div>
   
