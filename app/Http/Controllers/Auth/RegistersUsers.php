@@ -31,9 +31,10 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
+        $document = preg_replace('/[^0-9]/', '', $request['document']);
         $this->validator($request->all())->validate();
 
-        if($pessoa = Pessoa::where('cpf_cnpj', $request['document'])->first()){
+        if($pessoa = Pessoa::where('cpf_cnpj', $document)->first()){
             $mail = obfuscate_email($pessoa->user->email);
             return redirect('login')->withErrors(['document' => "O CPF informado já está associado ao usuário {$mail}."]);
         }
@@ -80,6 +81,12 @@ trait RegistersUsers
                 'user_id' => $user->id
             ]
         );
+
+        /*
+          Adiciona permissão de cliente ao usuario
+          e garante que ele não tenha acesso ao sistema
+        */
+        $user->permissions()->sync([6]);
 
         return redirect('painel');
     }
