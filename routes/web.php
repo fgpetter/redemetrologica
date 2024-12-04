@@ -33,8 +33,14 @@ use App\Http\Controllers\{
   HomeController,
   PainelController
 };
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use Illuminate\Http\Request;
 
 Auth::routes();
+Route::get('/forgot-password', [ForgotPasswordController::class, 'forgotPassword'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('send-reset-link-email');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('reset-password');
+
 //Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 Route::get('/', [HomeController::class, 'root'])->name('root');
 

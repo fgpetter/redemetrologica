@@ -40,7 +40,7 @@
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                           {{ $message }}
                         </div>
-                      @enderror                      
+                      @enderror
 
                       <div class="mb-3">
                         <label for="username" class="form-label">Usuário <small class="text-muted">(email)</small></label>
@@ -53,9 +53,9 @@
                       </div>
 
                       <div class="mb-3">
-                        {{-- <div class="float-end">
-                          <a href="auth-pass-reset" class="text-muted">Esqueci minha senha</a>
-                        </div> --}}
+                        <div class="float-end">
+                          <a href="/forgot-password" class="text-link">Esqueci minha senha</a>
+                        </div>
                         <label class="form-label" for="password-input">Senha <span class="text-danger">*</span></label>
                         <div class="position-relative auth-pass-inputgroup mb-3">
                           <input type="password" class="form-control password-input pe-5 @error('password') is-invalid @enderror" id="password-input"  name="password"  placeholder="Digite sua senha">
