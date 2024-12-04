@@ -84,13 +84,13 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Usuários */
-  Route::group(['prefix' => 'user', 'middleware' => 'permission:admin'], function () {
-    Route::get('index', [UserController::class, 'index'])->name('user-index');
+  Route::group(['prefix' => 'user'], function () {
+    Route::get('index', [UserController::class, 'index'])->name('user-index')->middleware('permission:admin');
     Route::get('edit/{user}', [UserController::class, 'view'])->name('user-edit');
-    Route::post('create', [UserController::class, 'create'])->name('user-create');
+    Route::post('create', [UserController::class, 'create'])->name('user-create')->middleware('permission:admin');
     Route::post('update/{user}', [UserController::class, 'update'])->name('user-update');
-    Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete');
-    Route::post('update-permissions/{user}', [UserController::class, 'updatePermission'])->name('user-permission-update');
+    Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete')->middleware('permission:admin');
+    Route::post('update-permissions/{user}', [UserController::class, 'updatePermission'])->name('user-permission-update')->middleware('permission:admin');
   });
 
   /**
@@ -103,6 +103,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{pessoa:uid}', [PessoaController::class, 'update'])->name('pessoa-update');
     Route::post('delete/{pessoa:uid}', [PessoaController::class, 'delete'])->name('pessoa-delete');
     Route::post('associa-empresa/{pessoa:uid}', [PessoaController::class, 'associaEmpresa'])->name('pessoa-associa-empresa');
+    Route::post('associa-usuario/{pessoa:uid}', [PessoaController::class, 'associaUsuario'])->name('pessoa-associa-usuario');
   });
 
   /* Endereços */

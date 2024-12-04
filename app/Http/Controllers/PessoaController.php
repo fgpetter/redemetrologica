@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Pessoa;
+use Illuminate\Support\Str;
 use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use App\Models\LancamentoFinanceiro;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -176,13 +179,34 @@ class PessoaController extends Controller
 
   public function associaEmpresa(Request $request, Pessoa $pessoa): RedirectResponse
   {
-    if($request->get('detach')){
-      $pessoa->empresas()->detach($request->get('empresa_id'));
+    $pessoa->empresas()->sync($request->get('empresa_id'));
+    // if($request->get('detach')){
+    //   $pessoa->empresas()->detach($request->get('empresa_id'));
       
-    } else {
-      $pessoa->empresas()->sync($request->get('empresa_id'));
-    }
+    // } else {
+    //   $pessoa->empresas()->sync($request->get('empresa_id'));
+    // }
     
+    return back()->with('success', 'Pessoa atualizada com sucesso');
+  }
+  public function associaUsuario(Request $request, Pessoa $pessoa): RedirectResponse
+  {
+    $request->validate([
+      'nome' => ['required', 'string'],
+      'email' => ['required', 'string', 'email', 'unique:users,email'],
+    ]);
+
+    $random_password = Str::random(8);
+
+    $user = User::create([
+      'name' => $request->get('nome'),
+      'email' => $request->get('email'),
+      'password' => Hash::make('Password'),
+      'temporary_password' => 1
+    ]);
+
+    $pessoa->update([ 'user_id' => $user->id ]);
+
     return back()->with('success', 'Pessoa atualizada com sucesso');
   }
 }

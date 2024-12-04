@@ -9,9 +9,11 @@
   <div class="col-12 col-sm-5">
     <x-painel.users.insert :user="$user"/>
   </div>
-  <div class="col-12 col-sm-5">
-    <x-painel.users.permissions :user="$user"/>
-  </div>
+  @can('admin')
+    <div class="col-12 col-sm-5">
+      <x-painel.users.permissions :user="$user"/>
+    </div>
+  @endcan
 </div>
 
 @endsection

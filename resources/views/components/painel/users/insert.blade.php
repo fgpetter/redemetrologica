@@ -50,9 +50,11 @@
                 </div>
             </div>
         </form>
-        @isset($user)
-            <x-painel.form-delete.delete route='user-delete' id="{{ $user->id }}" label="Usuário" />
-        @endisset
+        @can('admin')
+            @isset($user)
+                <x-painel.form-delete.delete route='user-delete' id="{{ $user->id }}" label="Usuário" />
+            @endisset
+        @endcan
 
     </div>
 

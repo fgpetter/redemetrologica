@@ -9,23 +9,32 @@
 
   <div class="col-xl-7 col-xxl-6">
     <x-painel.pessoas.insert :pessoa="$pessoa"/>
+
+    {{-- Endereços --}}
     @if($pessoa->id)
       <x-painel.enderecos.list :pessoa="$pessoa"/>
     @endif
   </div>
   
   <div class="col-xl-5 col-xxl-6">
+
+    {{-- Empresa associada --}}
     @if($pessoa->id && $pessoa->tipo_pessoa == 'PF')
+      <x-painel.pessoas.usuario :pessoa="$pessoa"/>
       <x-painel.pessoas.empresas :pessoa="$pessoa"/>
     @endif
+
+    {{-- Unidades --}}
     @if($pessoa->id && $pessoa->tipo_pessoa == 'PJ')
       <x-painel.unidades.list :pessoa="$pessoa"/>
     @endif
 
+    {{-- Avaliador --}}
     @if($pessoa->avaliador)
       <x-painel.pessoas.avaliador-info :pessoa="$pessoa"/>
     @endif
 
+    {{-- Instrutor --}}
     @if($pessoa->instrutor)
       <x-painel.pessoas.instrutor-info :pessoa="$pessoa"/>
     @endif
