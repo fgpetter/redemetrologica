@@ -5,6 +5,14 @@
         </div>
     @endif
     <div class="card-body">
+        @if(Session::has('password-error'))
+            <div class="alert alert-warning alert-top-border" role="alert">
+                <i class="ri-alert-line me-3 align-middle fs-lg text-warning"></i>
+                <strong>Atenção!</strong>
+                - Você está tentando acessar o painel com uma senha temporária, 
+                por favor, altere sua senha para continuar.
+            </div>
+        @endif
         <form method="POST" action="{{ isset($user) ? route('user-update', $user->id) : route('user-create') }}">
             @csrf
             <div class="row gy-3">

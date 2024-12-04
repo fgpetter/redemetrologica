@@ -30,7 +30,8 @@ use App\Http\Controllers\{
   InscricaoInterlabController,
   ModalidadePagamentoController,
   LancamentoFinanceiroController,
-  HomeController
+  HomeController,
+  PainelController
 };
 
 Auth::routes();
@@ -79,9 +80,7 @@ Route::view('slug-cursos', 'site.pages.slug-cursos');
  */
 Route::prefix('painel')->middleware('auth')->group(function () {
 
-  Route::get('/', function () {
-    return view('index');
-  });
+  Route::get('/', [PainelController::class, 'index'])->name('painel-index');
 
   /* Usuários */
   Route::group(['prefix' => 'user'], function () {

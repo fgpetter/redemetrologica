@@ -27,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
+        'temporary_password'
     ];
 
     public function getActivitylogOptions(): LogOptions
