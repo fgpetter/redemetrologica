@@ -1,4 +1,5 @@
 @extends('site.layouts.layout-site')
+@section('title') Interlaboratoriais @endsection
 @section('content')
   {{-- banner inicial --}}
   <div class="card text-bg-dark">

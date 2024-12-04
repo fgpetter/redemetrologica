@@ -1,4 +1,5 @@
 @extends('site.layouts.layout-site')
+@section('title') Avaliações de laboratórios @endsection
 @section('content')
     <div class="container my-5 ">
         <div class="row justify-content-center align-items-center text-center my-5">

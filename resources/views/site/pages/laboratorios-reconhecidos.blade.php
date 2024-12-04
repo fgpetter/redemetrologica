@@ -8,6 +8,7 @@ if(isset($_GET['descricao'])) {
 @endphp
 
 @extends('site.layouts.layout-site')
+@section('title') Laboratórios Reconhecidos @endsection
 @section('content')
   {{-- banner --}}
   <div class="SiteCards__bgimage p-5 text-center  text-white "

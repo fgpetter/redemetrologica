@@ -1,4 +1,5 @@
 @extends('site.layouts.layout-site')
+@section('title') {{ $post->titulo }} @endsection
 @section('content')
     {{-- banner --}}
     <x-site.component-title :post="$post" />

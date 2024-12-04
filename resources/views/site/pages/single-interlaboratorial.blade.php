@@ -1,4 +1,5 @@
 @extends('site.layouts.layout-site')
+@section('title') Interlaboratorial @endsection
 @section('content')
   <!-- {{-- banner inicial --}} -->
   <div class="p-5 text-center mb-0"

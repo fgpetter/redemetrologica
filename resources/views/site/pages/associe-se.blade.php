@@ -1,4 +1,5 @@
 @extends('site.layouts.layout-site')
+@section('title') Associe-se @endsection
 @section('content')
     {{-- banner inicial --}}
     <div class="card text-bg-dark">

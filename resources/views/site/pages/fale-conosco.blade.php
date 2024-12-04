@@ -1,4 +1,5 @@
 @extends('site.layouts.layout-site')
+@section('title') Fale Conosco @endsection
 @section('content')
     {{-- contatos --}}
     <div class="container my-5">

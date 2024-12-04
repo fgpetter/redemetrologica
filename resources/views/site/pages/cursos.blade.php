@@ -1,7 +1,5 @@
 @extends('site.layouts.layout-site')
-@section('title')
-    Cursos
-@endsection
+@section('title') Cursos @endsection
 @section('content')
     {{-- carousel --}}
     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
