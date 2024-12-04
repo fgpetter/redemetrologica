@@ -30,12 +30,14 @@
       </div>
       <ul class="navbar-nav" id="navbar-nav">
 
-        @canany(['admin','funcionario'])
+
+      @canany(['admin','funcionario'])
 
         {{-- // ADMINISTRAÇÃO // --}}
         <li class="menu-title"><span>ADMINISTRAÇÃO</span></li>
+        
 
-        @canany(['admin'])
+        @can(['admin'])
         {{-- Usuarios --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/user']) ? 'active' : '' }}"
@@ -330,7 +332,22 @@
           </a>
         </li>
 
-        @endcan
+      @endcan
+
+        {{-- // MENU DO CLIENTE // --}}
+        <li class="menu-title"><span>Área do Cliente</span></li>
+        <li class="nav-item">
+          <a href="/painel" class="nav-link {{ request()->is('painel') ? 'active' : '' }}"
+            role="button" data-key="t-signin"> Painel </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link {{ request()->is('#') ? 'active' : '' }}"
+            role="button" data-key="t-signin"> Meus Cursos </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link {{ request()->is('#') ? 'active' : '' }}"
+            role="button" data-key="t-signin"> Meus PEPs </a>
+        </li>
 
       </ul>
     </div>

@@ -25,6 +25,14 @@
                 <x-site.nav.link_dropdown />
 
                 <x-site.nav.link nome='Fale Conosco' link='fale-conosco' />
+                
+                <li class="nav-item">
+                    @if( auth()->check() )
+                        <a class="btn btn-info px-4"  href="/painel"> Painel </a>
+                    @else
+                        <a class="btn btn-info px-4"  href="/painel"> Login </a>
+                </li>
+                @endif
             </ul>
         </div>
     </div>
