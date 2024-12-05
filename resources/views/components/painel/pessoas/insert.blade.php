@@ -49,41 +49,31 @@
 
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('rg_ie') ?? ($pessoa->rg_ie ?? null)" type="number" name="rg_ie" label="RG" />
-                                     @error('rg_ie')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                     @error('rg_ie') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" class="telefone"
-                                         label="Telefone" />
-                                     @error('telefone')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                         label="Telefone" /> 
+                                     @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone"
                                          label="Telefone Alternativo" />
-                                     @error('telefone_alt')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                     @error('telefone_alt') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" class="telefone"
                                          label="Celular" />
-                                     @error('celular')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                     @error('celular') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email" id="email"
                                          label="Email" />
-                                     @error('email')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                     @error('email') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-12">
@@ -128,9 +118,7 @@
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('cpf_cnpj') ?? ($pessoa->cpf_cnpj ?? null)" name="cpf_cnpj" required='required'
                                          id="input-cnpj">
-                                         <x-slot:label>
-                                             CNPJ
-                                         </x-slot:label>
+                                         <x-slot:label> CNPJ </x-slot:label>
                                      </x-forms.input-field>
                                      @error('cpf_cnpj')
                                          <div class="text-warning">{{ $message }}</div>
@@ -156,42 +144,32 @@
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" label="Telefone"
                                          class="telefone" />
-                                     @error('telefone')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                     @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-6">
                                     <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone"
                                         label="Telefone Alternativo" />
-                                    @error('telefone_alt')
-                                        <div class="text-warning">{{ $message }}</div>
-                                    @enderror
+                                    @error('telefone_alt') <div class="text-warning">{{ $message }}</div> @enderror
                                 </div>
 
                                 <div class="col-6">
                                     <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" class="telefone"
                                         label="Celular" />
-                                    @error('celular')
-                                        <div class="text-warning">{{ $message }}</div>
-                                    @enderror
+                                    @error('celular') <div class="text-warning">{{ $message }}</div> @enderror
                                 </div>
 
 
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('email') ?? ($pessoa->email ?? null)" type="email" name="email"
                                          label="Email" />
-                                     @error('email')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                     @error('email') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-6">
                                      <x-forms.input-field :value="old('site') ?? ($pessoa->site ?? null)" type="site" name="site"
                                          label="Site" />
-                                     @error('site')
-                                         <div class="text-warning">{{ $message }}</div>
-                                     @enderror
+                                     @error('site') <div class="text-warning">{{ $message }}</div> @enderror
                                  </div>
 
                                  <div class="col-12">

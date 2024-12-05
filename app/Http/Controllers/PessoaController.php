@@ -61,8 +61,8 @@ class PessoaController extends Controller
   {
     $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
     $request['telefone'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
-    $request['telefone_alt'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
-    $request['celular'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
+    $request['telefone_alt'] = preg_replace('/[^0-9]/', '', $request->get('telefone_alt'));
+    $request['celular'] = preg_replace('/[^0-9]/', '', $request->get('celular'));
     $request['nome_razao'] = ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao')));
     $request['nome_fantasia'] = strtoupper($request->get('nome_fantasia'));
 
@@ -121,8 +121,8 @@ class PessoaController extends Controller
   {
     $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
     $request['telefone'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
-    $request['telefone_alt'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
-    $request['celular'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
+    $request['telefone_alt'] = preg_replace('/[^0-9]/', '', $request->get('telefone_alt'));
+    $request['celular'] = preg_replace('/[^0-9]/', '', $request->get('celular'));
     $request['nome_razao'] = ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao')));
     $request['nome_fantasia'] = strtoupper($request->get('nome_fantasia'));
 
