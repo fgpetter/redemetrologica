@@ -46,12 +46,14 @@
                     @error('password_confirmation') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
+                @canany(['admin','funcionario'])
                 @if($user->pessoa)
                 <div class="col my-4 mx-2 bg-light py-3 rounded">
                     <strong>Usuário associado a pessoa: </strong>
                     <a href="{{"/painel/pessoa/insert/".$user->pessoa->uid}}">{{ $user->pessoa->nome_razao }}</a>
                 </div>
                 @endif
+                @endcanany
 
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary px-4">Salvar</button>
