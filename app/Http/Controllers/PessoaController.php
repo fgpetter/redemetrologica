@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Pessoa;
 use Illuminate\Support\Str;
+use App\Mail\UserRegistered;
 use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use App\Models\LancamentoFinanceiro;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -177,6 +179,13 @@ class PessoaController extends Controller
     return redirect()->route('pessoa-index')->with('warning', 'Pessoa removida');
   }
 
+  /**
+   * Associa uma empresa a uma pessoa
+   *
+   * @param Request $request
+   * @param Pessoa $pessoa
+   * @return RedirectResponse
+   */
   public function associaEmpresa(Request $request, Pessoa $pessoa): RedirectResponse
   {
     $pessoa->empresas()->sync($request->get('empresa_id'));
@@ -189,6 +198,14 @@ class PessoaController extends Controller
     
     return back()->with('success', 'Pessoa atualizada com sucesso');
   }
+
+  /**
+   * Associa um usuário a uma pessoa
+   *
+   * @param Request $request
+   * @param Pessoa $pessoa
+   * @return RedirectResponse
+   */
   public function associaUsuario(Request $request, Pessoa $pessoa): RedirectResponse
   {
     $request->validate([
@@ -201,11 +218,20 @@ class PessoaController extends Controller
     $user = User::create([
       'name' => $request->get('nome'),
       'email' => $request->get('email'),
-      'password' => Hash::make('Password'),
+      'password' => Hash::make($random_password),
       'temporary_password' => 1
     ]);
+    $user->givePermission('cliente');
 
     $pessoa->update([ 'user_id' => $user->id ]);
+
+    $user_data = [
+      'name' => $user->name,
+      'email' => $user->email,
+      'password' => $random_password,
+    ];
+
+    Mail::to( $user->email )->send( new UserRegistered($user_data) );
 
     return back()->with('success', 'Pessoa atualizada com sucesso');
   }
