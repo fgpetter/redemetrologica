@@ -86,7 +86,7 @@ trait RegistersUsers
           Adiciona permissão de cliente ao usuario
           e garante que ele não tenha acesso ao sistema
         */
-        $user->permissions()->sync([6]);
+        $user->givePermission('cliente');
 
         return redirect('painel');
     }

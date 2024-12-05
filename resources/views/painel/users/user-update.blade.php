@@ -11,7 +11,7 @@
   </div>
   @can('admin')
     <div class="col-12 col-sm-5">
-      <x-painel.users.permissions :user="$user"/>
+      <x-painel.users.permissions :user="$user" :permissions="$permissions"/>
     </div>
   @endcan
 </div>

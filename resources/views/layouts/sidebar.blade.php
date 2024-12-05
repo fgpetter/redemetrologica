@@ -334,6 +334,7 @@
 
       @endcan
 
+      @can('cliente')
         {{-- // MENU DO CLIENTE // --}}
         <li class="menu-title"><span>Área do Cliente</span></li>
         <li class="nav-item">
@@ -348,6 +349,8 @@
           <a href="#" class="nav-link {{ request()->is('#') ? 'active' : '' }}"
             role="button" data-key="t-signin"> Meus PEPs </a>
         </li>
+      @endcan
+
 
       </ul>
     </div>

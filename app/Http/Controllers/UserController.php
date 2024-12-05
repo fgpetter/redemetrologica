@@ -65,7 +65,8 @@ class UserController extends Controller
   public function view(User $user): View
   {
     if( auth()->user()->hasPermissionTo('admin') || ($user->id == auth()->user()->id) ) {
-      return view('painel.users.user-update', ['user' => $user]);
+      $permissions = $user->permissions()->pluck('permission')->toArray();
+      return view('painel.users.user-update', ['user' => $user , 'permissions' => $permissions]);
     }
     abort(404);
   }

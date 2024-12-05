@@ -105,9 +105,23 @@ if(tipoAgendamento){
  */
 window.onload = function(){
   if (window.jQuery) {
+    if($('#admin').prop('checked')) {
+      disableOthers(true);
+    }
     $('#admin').change(function () {
+      if ($(this).prop('checked')) { disableOthers(true) }
+      else { disableOthers(false) }
+    });
 
-      if ($(this).prop('checked')) {
+    $("#avaliacoes, #cursos, #interlabs, #financeiro").change(function (){
+      if ($(this).prop('checked')){
+        $("#funcionario").prop('checked', true);
+        $("#cliente").prop('checked', false);
+      }
+    })
+
+    function disableOthers(status) {
+      if (status == true) {
         $(".permission").prop('checked', false).prop('disabled', true);
         $(".text-admin").removeClass("d-none");
       }
@@ -115,6 +129,7 @@ window.onload = function(){
         $(".permission").prop('disabled', false);
         $(".text-admin").addClass("d-none");
       }
-    });
+
+    }
   }
 };
