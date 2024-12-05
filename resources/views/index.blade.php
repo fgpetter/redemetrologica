@@ -9,7 +9,7 @@
     @endcomponent
     @if(auth()->user()->pessoa?->funcionario)
         {{-- carega componentes referentes ao funcionário e área --}}
-        é funcionário
+        Painel de funcionários
     @else
 
         @if ( session('curso') )
