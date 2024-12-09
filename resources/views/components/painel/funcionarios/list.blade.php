@@ -23,7 +23,7 @@
                       </tr>
                   </thead>
                   <tbody>
-                      @forelse ($funcionarios as $funcionario)
+                      @forelse ($funcionarios->where('pessoa' , '!=', null) as $funcionario)
                           <tr>
                               <th scope="row" class="d-none d-sm-table-cell">
                                   <a href="{{ route('funcionario-insert', ['funcionario' => $funcionario->uid]) }}"

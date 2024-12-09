@@ -56,7 +56,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($instrutores as $instrutor)
+                    @forelse ($instrutores->where('pessoa' , '!=', null) as $instrutor)
                         <tr>
                             <th>
                                 <a href="{{ route('instrutor-insert', ['instrutor' => $instrutor->uid]) }}"

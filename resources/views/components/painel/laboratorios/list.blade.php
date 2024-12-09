@@ -49,12 +49,12 @@
         <tr>
           <th scope="col" style="width: 5%">ID</th>
           <th scope="col" style="width: 50%">Empresa</th>
-          <th scope="col" style="width: 40%">Nome</th>
+          <th scope="col" style="width: 40%">Nome do Laboratório</th>
           <th scope="col" style="width: 5%"></th>
         </tr>
       </thead>
       <tbody>
-        @forelse ($laboratorios as $laboratorio)
+        @forelse ($laboratorios->where('pessoa' , '!=', null) as $laboratorio)
           <tr>
             <th scope="row">
               <a href="{{ route('laboratorio-insert', ['laboratorio' => $laboratorio->uid]) }}" class="fw-medium">
@@ -62,7 +62,7 @@
                 </a>
               </th>
             <td>{{$laboratorio->pessoa->nome_razao}}</td>
-            <td>{{$laboratorio->nome}}</td>
+            <td>{{($laboratorio->nome_laboratorio != $laboratorio->pessoa->nome_razao) ? $laboratorio->nome_laboratorio : ''}}</td>
             <td>
               <div class="dropdown">
                 <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown" aria-expanded="false">

@@ -14,7 +14,7 @@
                   <form action="{{route('avaliador-create')}}" method="POST">
                     @csrf
                     <div class="row">
-                      <div class="col-10">                      
+                      <div class="col-10">
                         <select class="form-control" data-choices name="pessoa_uid" id="choices-single-default">
                           <option value="">Selecione na lista</option>
                           @foreach($pessoas as $pessoa)
@@ -58,7 +58,7 @@
           </tr>
         </thead>
         <tbody>
-          @forelse ($avaliadores as $avaliador)
+          @forelse ($avaliadores->where('pessoa' , '!=', null) as $avaliador)
             <tr>
               <th scope="row">
                 <a href="{{ route('avaliador-insert', ['avaliador' => $avaliador->uid]) }}" class="fw-medium">
