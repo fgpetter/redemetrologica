@@ -27,6 +27,11 @@
             <div class="col col-sm-6 my-1">
               <x-forms.input-field :value="$inscrito->pessoa->nome_razao ?? null" name="nome" label="Nome" required="true" />
             </div>
+            @if ($inscrito?->pessoa->deleted_at !== null)
+              <span class="text-danger"><i class="ri-information-line"></i>
+                <small style="vertical-align: text-top;" > Pessoa excluida, somente leitura</small>
+              </span>
+            @endif
             @if( !isset($inscrito) )
               <div class="col col-sm-6 my-1">
               <x-forms.input-field :value="$inscrito->pessoa->cpf_cnpj ?? null" name="cpf_cnpj" label="CPF" class="cpf_cnpj" required="true" id="input-cpf"/>
@@ -55,7 +60,9 @@
           </div>  
           <div class="modal-footer my-2">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            @if ($inscrito?->pessoa->deleted_at == null)
+              <button type="submit" class="btn btn-primary">Salvar</button>
+            @endif
           </div>
         </form>
 

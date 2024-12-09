@@ -47,7 +47,8 @@ class AgendaCursoController extends Controller
       'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
       'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
       'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->get(),
-      'inscritos' => CursoInscrito::select()->with('empresa')->with('pessoa')->where('agenda_curso_id', $agendacurso->id)->get(),
+      'inscritos' => CursoInscrito::select()->with('empresa')->with(['pessoa' => fn($q) => $q->withTrashed()])
+        ->where('agenda_curso_id', $agendacurso->id)->get(),
       'despesas' => $agendacurso->despesas()->with('materialPadrao:id,descricao')->get(),
       'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
       'agendacurso' => $agendacurso
@@ -251,14 +252,11 @@ class AgendaCursoController extends Controller
   /**
    * mostra pagina da slug de cursos agendados
    *
-   
    * @return View
    **/
   public function showCursoAgendado($uid): View
   {
-
     $agendacursos = Agendacursos::where('uid', $uid)->with('curso')->first();
-
 
     return view('site.pages.slug-cursos', ['agendacursos' => $agendacursos]);
   }
