@@ -163,18 +163,7 @@ class PessoaController extends Controller
    **/
   public function delete(Pessoa $pessoa): RedirectResponse
   {
-    // validar se pessoa tem lancamentos financeiros
-    $tem_lac_financ = LancamentoFinanceiro::where('pessoa_id', $pessoa->id)->first();
-
-    // validar se pessoa é instrutor em curso
-    $tem_agenda = AgendaCursos::where('instrutor_id', $pessoa->instrutor?->id)->first();
-    if($tem_agenda) { $pessoa->instrutor->delete(); }
-    
-    if ($tem_lac_financ || $tem_agenda) {
-      $pessoa->delete();
-    } else {
-      $pessoa->forceDelete();
-    }
+    $pessoa->delete(); // soft delete
 
     return redirect()->route('pessoa-index')->with('warning', 'Pessoa removida');
   }
