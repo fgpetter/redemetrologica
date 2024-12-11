@@ -17,7 +17,7 @@
     @endcomponent
     <div class="row">
 
-        <div class="col col-xxl-12">
+        <div class="col col-xxl-8">
 
             <x-painel.instrutores.insert :instrutor="$instrutor" :cursos="$cursos" :cursoshabilitados="$cursoshabilitados"/>
         </div>

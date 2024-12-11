@@ -23,8 +23,8 @@
 
              <div class="col-sm-2">
                  <x-forms.input-select name="tipo_pessoa" label="Tipo Pessoa">
-                     <option @selected($instrutor->pessoa->tipo_pessoa == 'PF') value="PF">PESSOA FÍSICA</option>
-                     <option @selected($instrutor->pessoa->tipo_pessoa == 'PJ') value="PJ">PESSOA JURÍDICA</option>
+                     <option @selected($instrutor->pessoa->tipo_pessoa == 'PF') value="PF">FÍSICA</option>
+                     <option @selected($instrutor->pessoa->tipo_pessoa == 'PJ') value="PJ">JURÍDICA</option>
                  </x-forms.input-select>
                  @error('tipo_pessoa')
                      <div class="text-warning">{{ $message }}</div>
@@ -47,7 +47,7 @@
 
 
 
-             <div class="col-6">
+             <div class="col-sm-6">
                  <label for="curriculo" class="form-label">Currículo</label>
                  @if ($instrutor->curriculo)
                      <div class="input-group mt-0">

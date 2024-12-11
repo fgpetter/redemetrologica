@@ -53,7 +53,7 @@
 
                 <thead>
                     <tr>
-                        <th scope="col" class="d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
+                        <th scope="col" class="d-none d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
                         <th scope="col">
                             <a href="{{ route('pessoa-index', ['name' => $order_name]) }}">
                                 {!! $order_name == 'ASC' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}

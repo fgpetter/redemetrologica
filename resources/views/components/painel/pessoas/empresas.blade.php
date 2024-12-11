@@ -11,7 +11,7 @@
         <form action="{{ route('pessoa-associa-empresa', $pessoa->uid) }}" method="post">
             @csrf
             <div class="row align-items-end">
-                <div class="col-10">
+                <div class="col-8 col-xxl-9">
                     @if($pessoa->empresas->isNotEmpty())
                         <input type="text" name="empresas" value="{{ $pessoa->empresas->first()->nome_razao }}" class="form-control border-0" readonly>
                     @else
@@ -23,7 +23,7 @@
                         </x-forms.input-select>
                     @endif
                 </div>
-                <div class="col-2">
+                <div class="col-4 col-xxl-3">
                     <button type="submit" class="btn btn-primary">{{ $pessoa->empresas->isNotEmpty() ? 'Remover' : 'Associar' }}</button>
                 </div>
             </div>

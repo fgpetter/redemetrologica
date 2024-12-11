@@ -16,7 +16,7 @@
     @endif
   </div>
   
-  <div class="col-xl-5 col-xxl-6">
+  <div class="col-12 col-xxl-5">
 
     {{-- Empresa associada --}}
     @if($pessoa->id && $pessoa->tipo_pessoa == 'PF')
