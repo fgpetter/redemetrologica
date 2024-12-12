@@ -20,6 +20,7 @@ use App\Http\Controllers\{
   AreaAtuacaoController,
   CentroCustoController,
   FuncionarioController,
+  FornecedorController,
   LaboratorioController,
   DadoBancarioController,
   TipoAvaliacaoController,
@@ -133,7 +134,16 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{funcionario:uid}', [FuncionarioController::class, 'update'])->name('funcionario-update');
     Route::post('delete/{funcionario:uid}', [FuncionarioController::class, 'delete'])->name('funcionario-delete');
     Route::post('delete-curriculo/{funcionario:uid}', [FuncionarioController::class, 'curriculoDelete'])->name('curriculo-delete');
-  });  
+  });
+
+  /* Fornecedores */
+  Route::group(['prefix' => 'fornecedor', 'middleware' => 'permission:funcionario,admin'], function () {
+    Route::get('index', [FornecedorController::class, 'index'])->name('fornecedor-index');
+    Route::get('insert/{fornecedor:uid?}', [FornecedorController::class, 'insert'])->name('fornecedor-insert');
+    Route::post('create', [FornecedorController::class, 'create'])->name('fornecedor-create');
+    Route::post('update/{fornecedor:uid}', [FornecedorController::class, 'update'])->name('fornecedor-update');
+    Route::post('delete/{fornecedor:uid}', [FornecedorController::class, 'delete'])->name('fornecedor-delete');
+  });
 
   /* Dados bancários */
   Route::group(['prefix' => 'conta', 'middleware' => 'permission:funcionario,admin'], function () {

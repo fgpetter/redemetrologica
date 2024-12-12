@@ -107,6 +107,13 @@
                   Instrutores
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="{{ route('fornecedor-index') }}"
+                  class="nav-link {{ request()->is('painel/fornecedor/*') ? 'active' : '' }}"
+                  role="button" data-key="t-signin">
+                  Fornecedores
+                </a>
+              </li>
 
             </ul>
           </div>

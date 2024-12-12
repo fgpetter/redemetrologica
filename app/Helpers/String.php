@@ -33,3 +33,12 @@ function obfuscate_email($email)
 
     return substr($name,0, $len) . str_repeat('*', $len) . "@" . end($em);   
 }
+
+function return_only_nunbers(array $array)
+{
+  $sanitized = [];
+  foreach ($array as $key => $value) {
+    $sanitized[$key] = preg_replace("/[^0-9]/", "", $value);
+  }
+  return $sanitized;
+}

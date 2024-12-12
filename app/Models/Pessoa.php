@@ -81,6 +81,14 @@ class Pessoa extends Model
     }
 
     /**
+     * Retorna quando essa pessoa é um fornecedor.
+     */
+    public function fornecedor(): HasOne
+    {
+        return $this->hasOne(Fornecedor::class);
+    }
+
+    /**
      * Retorna usuário da pessoa
      * @return BelongsTo
      */
@@ -94,24 +102,30 @@ class Pessoa extends Model
      * Retorna empresa a qual a pessoa pertence
      * @return BelongsToMany
      */
-
     public function empresas(): BelongsToMany
     {
         return $this->belongsToMany(Pessoa::class, 'empresas_pessoas', 'pessoa_id', 'empresa_id');
     }
 
+    /**
+     * Retorna cursos a qual a pessoa participou
+     * @return HasMany
+     */
     public function cursos(): HasMany
     {
         return $this->hasMany(CursoInscrito::class);
     }
 
+    /**
+     * Retorna interlabs a qual a pessoa participou
+     * @return HasMany
+     */
     public function interlabs(): HasMany
     {
         return $this->hasMany(InterlabInscrito::class);
     }
 
     // Acessors and mutators
-
     protected function cpfCnpj(): Attribute
     {
         return Attribute::make(
