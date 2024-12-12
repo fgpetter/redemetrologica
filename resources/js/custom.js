@@ -133,3 +133,11 @@ window.onload = function(){
     }
   }
 };
+
+/**
+ * Carrega aba conforme URI
+ */
+$(document).ready(function() {
+  const anchor = window.location.hash;
+  $(`a[href="${anchor}"]`).tab('show');
+});
