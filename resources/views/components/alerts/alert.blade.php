@@ -9,8 +9,9 @@
                     popup: 'colored-toast',
                 },
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 6000,
                 timerProgressBar: true,
+                showCloseButton: true
             })
             Toast.fire({
                 icon: '{{ $key }}',
