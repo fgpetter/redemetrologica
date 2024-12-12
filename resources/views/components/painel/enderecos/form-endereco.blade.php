@@ -2,6 +2,15 @@
   'pessoa' => null,
   'endereco' => null
 ])
+
+<div class="col-12">
+  <label for="info" class="form-label">Nome do endereço</label>
+  <input type="text" class="form-control" name="info" 
+    value="{{ old('info') ?? $endereco->info ?? null }}" placeholder="Ex. Endereço de Cobrança, Endereço de Entrega">
+    @error('info') <div class="text-warning">{{ $message }}</div> @enderror
+
+</div>
+
 <div class="col-5 col-sm-4">
   <label for="cep" class="form-label">CEP<small class="text-danger-emphasis opacity-75"> * </small></label>
   <input type="text" class="form-control input-cep" name="cep"

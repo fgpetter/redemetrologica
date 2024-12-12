@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->integer('unidade_id')->nullable();
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
+            $table->string('info')->nullable();
             $table->string('endereco')->nullable();
             $table->string('complemento')->nullable();
             $table->string('bairro')->nullable();
