@@ -24,6 +24,10 @@ return new class extends Migration
             $table->text('descricao')->nullable();
             $table->date('data_inicio')->nullable();
             $table->date('data_fim')->nullable();
+            $table->decimal('valor_rs')->nullable();
+            $table->decimal('valor_s_se')->nullable();
+            $table->decimal('valor_co')->nullable();
+            $table->decimal('valor_n_ne')->nullable();
             $table->timestamps();
         });
     }

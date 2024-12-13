@@ -43,7 +43,6 @@
       @error('certificado') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
-
   </div>
 
   <div class="row mt-3">
@@ -73,11 +72,47 @@
       </div>
       @error('destaque') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
+
+    <div class="col-12 col-sm-9 mt-4">
+      <div class="card border rouded shadow-none">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2">Valores de inscrição por rodada conforme região</h6>
+          <div class="row">
+
+            <div class="col col-sm-3">
+              <x-forms.input-field :value="old('valor_rs') ?? ($agendainterlab->valor_rs ?? null)" type="text" name="valor_rs"
+                label="Valor base - RS" class="money"/>
+              @error('valor_rs') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col col-sm-3">
+              <x-forms.input-field :value="old('valor_s_se') ?? ($agendainterlab->valor_s_se ?? null)" type="text" name="valor_s_se"
+                label="Sul e Sudeste" class="money"/>
+              @error('valor_s_se') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col col-sm-3">
+              <x-forms.input-field :value="old('valor_co') ?? ($agendainterlab->valor_co ?? null)" type="text" name="valor_co"
+                label="Centro Oeste" class="money"/>
+              @error('valor_co') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col col-sm-3">
+              <x-forms.input-field :value="old('valor_n_ne') ?? ($agendainterlab->valor_n_ne ?? null)" type="text" name="valor_n_ne"
+                label="Norte e Nordeste" class="money"/>
+              @error('valor_n_ne') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
 
   <div class="row gy-3 mt-1">
     <div class="col-12">
-      <label class="form-label">Descrição</label>
+      <h6 class="card-subtitle mb-2">Descrição do Programa</h6>
       <textarea id="editor" class="ckeditor-classic" name="descricao">{!! old('descricao') ?? ($agendainterlab->descricao ?? null) !!}</textarea>
       @error('descricao') <div class="text-warning">{{ $message }}</div> @enderror
     </div>

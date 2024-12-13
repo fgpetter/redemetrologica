@@ -78,6 +78,10 @@ class AgendaInterlabController extends Controller
         'descricao' => ['nullable', 'string'],
         'data_inicio' => ['required', 'date'],
         'data_fim' => ['nullable', 'date'],
+        'valor_rs' => ['nullable', 'string'],
+        'valor_s_se' => ['nullable', 'string'],
+        'valor_co' => ['nullable', 'string'],
+        'valor_n_ne' => ['nullable', 'string'],
       ],
       [
         'interlab_id.required' => 'Selecione um interlab',
@@ -93,14 +97,20 @@ class AgendaInterlabController extends Controller
         'data_inicio.required' => 'O campo data obrigatório',
         'data_inicio.date' => 'Permitido somente data',
         'data_fim.date' => 'Permitido somente data',
+        'valor_rs.string' => 'Valor inválido', 
+        'valor_s_se.string' => 'Valor inválido', 
+        'valor_co.string' => 'Valor inválido', 
+        'valor_n_ne.string' => 'Valor inválido', 
       ]
     );
 
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
     $validated['inscricao'] = $request->inscricao ?? 0;
-
-
+    $validated['valor_rs'] = $this->formataMoeda($request->valor_s_se);
+    $validated['valor_s_se'] = $this->formataMoeda($request->valor_s_se);
+    $validated['valor_co'] = $this->formataMoeda($request->valor_co);
+    $validated['valor_n_ne'] = $this->formataMoeda($request->valor_n_ne);
     $validated['descricao'] = $this->salvaImagensTemporarias($request);
 
     $agenda_interlab = AgendaInterlab::create($validated);
@@ -130,6 +140,10 @@ class AgendaInterlabController extends Controller
         'descricao' => ['nullable', 'string'],
         'data_inicio' => ['required', 'date'],
         'data_fim' => ['nullable', 'date'],
+        'valor_rs' => ['nullable', 'string'],
+        'valor_s_se' => ['nullable', 'string'],
+        'valor_co' => ['nullable', 'string'],
+        'valor_n_ne' => ['nullable', 'string'],
       ],
       [
         'interlab_id.required' => 'Selecione um interlab',
@@ -145,13 +159,20 @@ class AgendaInterlabController extends Controller
         'data_inicio.required' => 'O campo data obrigatório',
         'data_inicio.date' => 'Permitido somente data',
         'data_fim.date' => 'Permitido somente data',
+        'valor_rs.string' => 'Valor inválido',
+        'valor_s_se.string' => 'Valor inválido',
+        'valor_co.string' => 'Valor inválido',
+        'valor_n_ne.string' => 'Valor inválido',
       ]
     );
 
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
     $validated['inscricao'] = $request->inscricao ?? 0;
-
+    $validated['valor_rs'] = $this->formataMoeda($request->valor_s_se);
+    $validated['valor_s_se'] = $this->formataMoeda($request->valor_s_se);
+    $validated['valor_co'] = $this->formataMoeda($request->valor_co);
+    $validated['valor_n_ne'] = $this->formataMoeda($request->valor_n_ne);
     $validated['descricao'] = $this->salvaImagensTemporarias($request);
 
     $agendainterlab->update($validated);

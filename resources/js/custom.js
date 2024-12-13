@@ -25,15 +25,6 @@ document.querySelectorAll('.telefone').forEach(el => {
   })
 });
 
-window.onload = function(){
-  if (window.jQuery && window.jQuery.fn.mask) {
-    $('#input-cnpj').mask('00.000.000/0000-00', {reverse: true});
-    $('#input-cpf').mask('000.000.000-00', {reverse: true});
-    $('.money').mask('0.000.000,00', {reverse: true});
-    $('.cep').mask('00000-000');
-  }
-};
-
 /**
  * Impede upload de arquivos maiores de 2MB
  */
@@ -48,7 +39,8 @@ const uploadField = document.getElementById("folder");
 }
 
 /**
- * Form de busca em tabelas
+ * Pega dados de campos de busca em tabelas e converte em url
+ * para query no backend
  */
 function search(e, url, tipo){
   if(e.keyCode === 13){
@@ -69,6 +61,7 @@ function searchSelect(e, url, tipo){
   if(e.target.value != undefined){
     window.location.href = url+'?'+tipo+'='+e.target.value
   }
+
 }
 
 /**
@@ -100,11 +93,12 @@ if(tipoAgendamento){
   })
 }
 
-/**
- * Desabilita todos inputs de permissão quando selecionar admin
- */
 window.onload = function(){
   if (window.jQuery) {
+
+    /**
+     * Desabilita todos inputs de permissão quando selecionar admin
+     */
     if($('#admin').prop('checked')) {
       disableOthers(true);
     }
@@ -131,13 +125,23 @@ window.onload = function(){
       }
 
     }
+
+    /**
+     * Aplica mascaras com jquery mask
+    */
+    if (window.jQuery.fn.mask) {
+      $('#input-cnpj').mask('00.000.000/0000-00', {reverse: true});
+      $('#input-cpf').mask('000.000.000-00', {reverse: true});
+      $('.money').mask('0.000.000,00', {reverse: true});
+      $('.cep').mask('00000-000');
+    }
+
+    /**
+     * Carrega aba conforme URI
+    */
+    const anchor = window.location.hash;
+    $(`a[href="${anchor}"]`).tab('show');
+  
+  
   }
 };
-
-/**
- * Carrega aba conforme URI
- */
-$(document).ready(function() {
-  const anchor = window.location.hash;
-  $(`a[href="${anchor}"]`).tab('show');
-});
