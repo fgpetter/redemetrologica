@@ -64,36 +64,9 @@ function searchSelect(e, url, tipo){
 
 }
 
-/**
- * Show Hide de card de dados IN COMPANY
- */
-tipoAgendamento = document.getElementById('tipo_agendamento')
-
-cardInCompany = document.getElementById('cursos-incompany')
-
-inputs = document.querySelectorAll("#inscricoes, #site, #investimento, #investimento_associado, #input-investimento_associado, #input-investimento, #input-site, #input-inscricoes")
-
-if(tipoAgendamento){
-  tipoAgendamento.addEventListener("change", function(){
-    if(tipoAgendamento.value == 'IN-COMPANY'){
-      // exibe o card de inscrições incompany
-      cardInCompany.classList.remove("d-none");
-      // remove os campos de inscrições normais
-      inputs.forEach(input => {
-        input.value = ""
-        input.classList.add("d-none")
-
-      })
-    } else {
-      cardInCompany.classList.add("d-none");
-      inputs.forEach(input => {
-        input.classList.remove("d-none")
-      })
-    }
-  })
-}
 
 window.onload = function(){
+
   if (window.jQuery) {
 
     /**
@@ -141,7 +114,33 @@ window.onload = function(){
     */
     const anchor = window.location.hash;
     $(`a[href="${anchor}"]`).tab('show');
+  }  // end if jQuery
+
+  /**
+   * Aplica sweet alert de exclusão
+  */
+  const deleteButton = document.querySelectorAll('.botao-delete')
+  deleteButton.forEach(button => {
+
+    button.addEventListener('click', function(e) {
+      console.log(e.target.form)
+      e.preventDefault();
+      Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter isso!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, excluir!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          e.target.form.submit();
+        }
+      });
+    });
+
+  })
   
-  
-  }
+
 };
