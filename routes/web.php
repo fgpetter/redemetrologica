@@ -286,7 +286,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete-despesa/{despesa:uid}', [AgendaInterlabController::class, 'deleteDespesa'])->name('delete-despesa');
     
     /* Parametros */
-    Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salvar-parametro');
+    Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salva-parametro');
     Route::post('delete-parametro/{parametro}', [AgendaInterlabController::class, 'deleteParametro'])->name('delete-parametro');
     
     /* RodadascursoInscricao */

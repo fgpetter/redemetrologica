@@ -18,7 +18,7 @@
 
         <li class="nav-item">
           <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
-          Despesas
+          Despesas e Parametros
           </a>
         </li>
 
@@ -34,27 +34,35 @@
     <div class="tab-content">
 
       <div class="tab-pane active" id="principal" role="tabpanel"> <!-- Principal -->
+       <div class="col-sm-8">
         <x-painel.agenda-interlab.form-principal 
-          :agendainterlab="$agendainterlab" 
-          :interlabs="$interlabs"/>
+        :agendainterlab="$agendainterlab" 
+        :interlabs="$interlabs"/>
+       </div>
       </div>
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
-        <h5 class="h5 mt-3">Inscritos</h5>
-        {{-- <x-painel.agenda-interlab.list-participantes :inscritos="$inscritos" />
-        <x-painel.agenda-interlab.modal-participante /> --}}
-
-        <h5 class="h5 mt-5">Empresas participantes</h5>
-        {{-- <x-painel.agenda-interlab.list-empresas-participantes :inscritos="$inscritos" /> --}}
+        <div class="col-sm-8">
+          <h5 class="h5 mt-3">Inscritos</h5>
+          {{-- <x-painel.agenda-interlab.list-participantes :inscritos="$inscritos" />
+          <x-painel.agenda-interlab.modal-participante /> --}}
+  
+          <h5 class="h5 mt-5">Empresas participantes</h5>
+          {{-- <x-painel.agenda-interlab.list-empresas-participantes :inscritos="$inscritos" /> --}}
+        </div>
       </div>
 
       <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
-        <x-painel.agenda-interlab.despesas 
-          :agendainterlab="$agendainterlab" 
-          :materiaisPadrao="$materiaisPadrao"
-          :interlabDespesa="$interlabDespesa"
-          :fornecedores="$fornecedores"
-          :fabricantes="$fabricantes" />
+        <div class="col-12">
+          <x-painel.agenda-interlab.despesas 
+            :agendainterlab="$agendainterlab" 
+            :materiaisPadrao="$materiaisPadrao"
+            :interlabDespesa="$interlabDespesa"
+            :interlabParametros="$interlabParametros"
+            :parametros="$parametros"
+            :fornecedores="$fornecedores"
+            :fabricantes="$fabricantes" />
+        </div>
       </div>
 
       <div class="tab-pane" id="rodadas" role="tabpanel"> <!-- despesas -->

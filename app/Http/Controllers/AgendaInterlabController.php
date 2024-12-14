@@ -10,10 +10,12 @@ use App\Models\InterlabRodada;
 use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
+use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
+use App\Models\InterlabRodadaParametro;
 
 
 class AgendaInterlabController extends Controller
@@ -263,8 +265,8 @@ class AgendaInterlabController extends Controller
     $despesa['data_compra'] = ($despesa['data_compra']) ? Carbon::parse($despesa['data_compra'])->format('Y-m-d') : null;
 
     InterlabDespesa::create($despesa);
-    
-    return back()->with('success', 'Material duplicado com sucesso');
+
+    return back()->with('success', 'Material duplicado com sucesso')->withFragment('despesas');
   }
 
   /**
@@ -276,7 +278,7 @@ class AgendaInterlabController extends Controller
   public function deleteDespesa(InterlabDespesa $despesa): RedirectResponse
   {
     $despesa->delete();
-    return back()->with('warning', 'Material removido');
+    return back()->with('warning', 'Material removido')->withFragment('despesas');
   }
 
   /**
@@ -288,7 +290,6 @@ class AgendaInterlabController extends Controller
 
   public function salvaRodada(Request $request): RedirectResponse
   {
-    //dd($request->all());
     $request->validate([
       'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
       'rodada_id' => ['nullable', 'exists:agenda_interlabs,id'],
@@ -331,7 +332,7 @@ class AgendaInterlabController extends Controller
   }
 
   /**
-   * Remove parametro
+   * Remove rodada
    *
    * @param InterlabRodada $rodada
    * @return RedirectResponse
@@ -341,6 +342,42 @@ class AgendaInterlabController extends Controller
     $rodada->delete();
     return back()->with('warning', 'Rodada removida');
   }
+
+  public function salvaParametro(Request $request): RedirectResponse {
+    $request->validate([
+      'parametro_id' => ['required', 'exists:parametros,id'],
+      'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
+    ],[
+      'parametro_id.required' => 'Houve um erro ao salvar. Tente novamente',
+      'parametro_id.exists' => 'Houve um erro ao salvar. Tente novamente',
+      'agenda_interlab_id.required' => 'Houve um erro ao salvar. Tente novamente',
+      'agenda_interlab_id.exists' => 'Houve um erro ao salvar. Tente novamente',
+    ]);
+
+    InterlabParametro::updateOrCreate([
+      'agenda_interlab_id' => $request->agenda_interlab_id,
+      'parametro_id' => $request->parametro_id,
+    ]);
+
+    return back()->with('success', 'Parâmetro salvo com sucesso')->withFragment('despesas');
+  }
+
+  public function deleteParametro(InterlabParametro $parametro, Request $request): RedirectResponse {
+
+    $request->validate([
+      'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
+      'parametro_id' => ['required', 'exists:parametros,id'],
+    ]);
+
+    InterlabRodadaParametro::where('agenda_interlab_id', $request->agenda_interlab_id)
+      ->where('parametro_id', $request->parametro_id)
+      ->delete();
+
+    $parametro->delete();
+
+    return back()->with('warning', 'Parâmetro removido')->withFragment('despesas');
+  }
+
 
   /**
    * Formata valor para BD
@@ -414,7 +451,7 @@ class AgendaInterlabController extends Controller
   }
 
   /**
-   * Exibe interlabs que estão visiveis na página de interlabs do site
+   * Exibe no site a lista de interlaboratoriais
    *
    * @return View
    */
