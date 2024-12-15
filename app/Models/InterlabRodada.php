@@ -43,4 +43,21 @@ class InterlabRodada extends Model
     {
         return $this->hasMany(InterlabRodadaParametro::class);
     }
+
+    /**
+     * Atualiza lista de parametros da rodada
+     * Remove antigos e insere novos
+     *
+     * @param array $parametros
+     * @return void
+     */
+    public function updateParametros($parametros): void
+    {
+        $this->parametros()->delete();
+        if(!empty($parametros)) {
+            foreach ($parametros as $parametro) {
+                $this->parametros()->create(['parametro_id' => $parametro]);
+            }
+        }
+    }
 }

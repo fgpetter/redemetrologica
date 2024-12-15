@@ -1,3 +1,13 @@
+@if( $errors->rodadas->any() )
+  <div class="alert alert-warning">
+    <ul>
+        @foreach ($errors->rodadas->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+  </div>
+@endif
+
 <div class="row">
   <div class="col-12 d-flex justify-content-end my-3">
     <a href="javascript:void(0)" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#rodadaModal">
@@ -41,7 +51,7 @@
               </a>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                 <li>
-                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#rodadaModal' . $rodada->uid }}">Editar</a>
+                  <a class="dropdown-item" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="{{ '#rodadaModal' . $rodada->uid }}">Editar</a>
                 </li>
                 <li>
                   <x-painel.form-delete.delete route='delete-rodada' id="{{ $rodada->uid }}" />
@@ -50,15 +60,15 @@
             </div>
           </td>
         </tr>
-        {{-- <x-painel.agenda-interlab.modal-despesa 
-          :despesa="$despesa" 
-          :agendainterlab="$agendainterlab" 
-          :materiaisPadrao="$materiaisPadrao"
-          :fornecedores="$fornecedores"
-          :fabricantes="$fabricantes" /> --}}
+
+        <x-painel.agenda-interlab.modal-rodada 
+          :rodada="$rodada"
+          :agendainterlab="$agendainterlab"
+          :interlabParametros="$interlabParametros" />
+
         @empty
           <tr>
-            <td colspan="7" class="text-center">Não há materiais cadastrados</td>
+            <td colspan="7" class="text-center">Não há rodadas cadastradas</td>
           </tr>
         @endforelse
       

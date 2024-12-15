@@ -16,6 +16,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 use App\Models\InterlabRodadaParametro;
+use Illuminate\Support\Facades\Validator;
 
 
 class AgendaInterlabController extends Controller
@@ -290,25 +291,36 @@ class AgendaInterlabController extends Controller
 
   public function salvaRodada(Request $request): RedirectResponse
   {
-    $request->validate([
-      'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
-      'rodada_id' => ['nullable', 'exists:agenda_interlabs,id'],
-      'descricao' => ['required', 'string'],
-      'vias' => ['required', 'numeric' ,'min:1'],
-      'cronograma' => ['nullable', 'string'],
-      'parametros' => ['nullable', 'array'],	
-    ],
-    [
-      'agenda_interlab_id.required' => 'Houve um erro ao salvar. Tente novamente',
-      'agenda_interlab_id.exists' => 'Houve um erro ao salvar. Tente novamente',
-      'descricao.required' => 'O campo descricão obrigatório',
-      'descricao.string' => 'Permitido somente texto',
-      'vias.required' => 'O campo vias obrigatório e deve ser maior que 0',
-      'vias.numeric' => 'Permitido somente número',
-      'vias.min' => 'O campo vias obrigatório e deve ser maior que 0',
-      'cronograma.string' => 'Permitido somente texto',
-      'parametros.array' => 'Houve um erro ao salvar. Tente novamente',
-    ]);
+    $validator = Validator::make($request->all(), 
+      [
+        'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
+        'rodada_id' => ['nullable', 'exists:interlab_rodadas,id'],
+        'descricao' => ['required', 'string'],
+        'vias' => ['nullable', 'numeric' ,'min:1'],
+        'cronograma' => ['nullable', 'string'],
+        'parametros' => ['nullable', 'array'],
+        'parametros.*' => ['nullable', 'exists:parametros,id'],
+      ], [
+        'agenda_interlab_id.required' => 'Houve um erro ao salvar. Agenda inexistente',
+        'agenda_interlab_id.exists' => 'Houve um erro ao salvar. Agenda inexistente',
+        'rodada_id.exists' => 'Houve um erro ao salvar. Rodada inexistente',
+        'descricao.required' => 'O campo descricão obrigatório',
+        'descricao.string' => 'O campo descricão permite somente texto',
+        'vias.numeric' => 'O campo vias deve ser um número',
+        'vias.min' => 'O campo vias deve ser maior que 0',
+        'cronograma.string' => 'O campo cronograma permite somente texto',
+        'parametros.array' => 'Houve um erro ao salvar. Parametros inválidos',
+        'parametros.*.exists' => 'O parametro :input não existe',
+      ]
+    );
+
+    if ($validator->fails()){
+      return back()
+        ->withErrors($validator, 'rodadas')
+        ->withInput()
+        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
 
     $interlab_rodada = InterlabRodada::updateOrCreate([
       'id' => $request->rodada_id,
@@ -319,14 +331,7 @@ class AgendaInterlabController extends Controller
       'cronograma' => $request->cronograma,
     ]);
 
-    foreach ($request->parametros as $parametro) {
-      $interlab_rodada->parametros()->updateOrCreate([
-        'interlab_rodada_id' => $interlab_rodada->id,
-        'parametro_id' => $parametro
-      ],[
-        'agenda_interlab_id' => $request->agenda_interlab_id
-      ]);
-    }
+    $interlab_rodada->updateParametros($request->parametros);
 
     return back()->with('success', 'Rodada salva com sucesso');
   }
