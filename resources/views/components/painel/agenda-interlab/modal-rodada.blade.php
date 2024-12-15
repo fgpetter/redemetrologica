@@ -20,12 +20,12 @@
             <div class="row">
 
               <div class="col-10 py-2">
-                <x-forms.input-field name="descricao" label="Descrição" :value="old('descricao') ?? ($rodada->descricao ?? null)"/>
+                <x-forms.input-field name="descricao" label="Descrição" :value="old('descricao') ?? ($rodada->descricao ?? null)" required/>
                 @error('descricao') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
               <div class="col-2 py-2">
-                <x-forms.input-field type="number" name="vias" label="N° de Vias" :value="old('vias') ?? ($rodada->vias ?? null)"/>
+                <x-forms.input-field type="number" name="vias" label="N° de Vias" :value="old('vias') ?? ($rodada->vias ?? null)" required/>
                 @error('vias') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
