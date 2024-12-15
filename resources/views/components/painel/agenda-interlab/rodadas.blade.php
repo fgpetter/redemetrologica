@@ -1,11 +1,5 @@
 @if( $errors->rodadas->any() )
-  <div class="alert alert-warning">
-    <ul>
-        @foreach ($errors->rodadas->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-  </div>
+  <x-alerts.warning :errors="$errors->rodadas->all()"/>
 @endif
 
 <div class="row">

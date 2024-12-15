@@ -3,44 +3,41 @@
   @csrf
   <div class="row">
     <div class="col-12">
-      <x-forms.input-select name="interlab_id" label="Interlaboratorial">
+      <x-forms.input-select name="interlab_id" label="Interlaboratorial" errorBag="principal">
         @foreach ($interlabs as $interlab)
           <option value="">Selecione</option>
           <option @selected( $agendainterlab->interlab_id == $interlab->id ) value="{{ $interlab->id }}">{{ $interlab->nome }}</option>
         @endforeach
       </x-forms.input-select>
-      @error('interlab_id') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
 
   <div class="row mt-3">
     <div class="col-lg-3">
-      <x-forms.input-select name="status" label="Status">
+      <x-forms.input-select name="status" label="Status" errorBag="principal">
         <option @selected($agendainterlab->status == 'AGENDADO') value="AGENDADO">AGENDADO</option>
         <option @selected($agendainterlab->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
         <option @selected($agendainterlab->status == 'CONCLUIDO') value="CONCLUIDO">CONCLUIDO</option>
       </x-forms.input-select>
-      @error('status') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-6 col-lg-4 col-xl-2">
       <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
         label="Data Inicio"/>
-      @error('data_inicio') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('data_inicio','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-6 col-lg-4 col-xl-2">
       <x-forms.input-field :value="old('data_fim') ?? ($agendainterlab->data_fim?->format('Y-m-d') ?? null)" type="date" name="data_fim"
         label="Data Final"/>
-      @error('data_fim') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('data_fim','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-6 col-lg-3">
-      <x-forms.input-select name="certificado" label="Emitir certificado por:">
+      <x-forms.input-select name="certificado" label="Emitir certificado por:" errorBag="principal">
         <option @selected($agendainterlab->certificado == 'EMPRESA') value="EMPRESA">EMPRESA</option>
         <option @selected($agendainterlab->certificado == 'PARTICIPANTE') value="PARTICIPANTE">PARTICIPANTE</option>
       </x-forms.input-select>
-      @error('certificado') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
   </div>
@@ -52,7 +49,7 @@
           @checked($agendainterlab->inscricao ?? false)>
         <label class="form-check-label" for="inscricao">INSCRIÇÕES</label>
       </div>
-      @error('inscricao') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('inscricao','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-6 col-lg-3">
@@ -61,7 +58,7 @@
           @checked($agendainterlab->site ?? false)>
         <label class="form-check-label" for="site">SITE</label>
       </div>
-      @error('site') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('site','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-6 col-lg-3">
@@ -70,7 +67,7 @@
           @checked($agendainterlab->destaque ?? false)>
         <label class="form-check-label" for="destaque">DESTAQUE</label>
       </div>
-      @error('destaque') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('destaque','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-12 mt-4">
@@ -82,25 +79,25 @@
             <div class="col-12 col-lg-3">
               <x-forms.input-field :value="old('valor_rs') ?? ($agendainterlab->valor_rs ?? null)" type="text" name="valor_rs"
                 label="Valor base - RS" class="money"/>
-              @error('valor_rs') <div class="text-warning">{{ $message }}</div> @enderror
+              @error('valor_rs','principal') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-12 col-lg-3">
               <x-forms.input-field :value="old('valor_s_se') ?? ($agendainterlab->valor_s_se ?? null)" type="text" name="valor_s_se"
                 label="Sul e Sudeste" class="money"/>
-              @error('valor_s_se') <div class="text-warning">{{ $message }}</div> @enderror
+              @error('valor_s_se','principal') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-12 col-lg-3">
               <x-forms.input-field :value="old('valor_co') ?? ($agendainterlab->valor_co ?? null)" type="text" name="valor_co"
                 label="Centro Oeste" class="money"/>
-              @error('valor_co') <div class="text-warning">{{ $message }}</div> @enderror
+              @error('valor_co','principal') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-12 col-lg-3">
               <x-forms.input-field :value="old('valor_n_ne') ?? ($agendainterlab->valor_n_ne ?? null)" type="text" name="valor_n_ne"
                 label="Norte e Nordeste" class="money"/>
-              @error('valor_n_ne') <div class="text-warning">{{ $message }}</div> @enderror
+              @error('valor_n_ne','principal') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
           </div>
@@ -114,7 +111,7 @@
     <div class="col-12">
       <h6 class="card-subtitle mb-2">Descrição do Programa</h6>
       <textarea id="editor" class="ckeditor-classic" name="descricao">{!! old('descricao') ?? ($agendainterlab->descricao ?? null) !!}</textarea>
-      @error('descricao') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('descricao','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
 

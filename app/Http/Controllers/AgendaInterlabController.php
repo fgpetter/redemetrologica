@@ -71,41 +71,50 @@ class AgendaInterlabController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $validated = $request->validate(
-      [
-        'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
-        'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
-        'inscricao' => ['nullable', 'numeric'],
-        'site' => ['nullable', 'numeric'],
-        'destaque' => ['nullable', 'numeric'],
-        'descricao' => ['nullable', 'string'],
-        'data_inicio' => ['required', 'date'],
-        'data_fim' => ['nullable', 'date'],
-        'valor_rs' => ['nullable', 'string'],
-        'valor_s_se' => ['nullable', 'string'],
-        'valor_co' => ['nullable', 'string'],
-        'valor_n_ne' => ['nullable', 'string'],
-      ],
-      [
-        'interlab_id.required' => 'Selecione um interlab',
-        'interlab_id.exists' => 'Opção inválida',
-        'interlab_id.numeric' => 'Opção inválida',
-        'status.required' => 'O campo status obrigatório',
-        'status.in' => 'Opção inválida',
-        'status.string' => 'Permitido somente texto',
-        'inscricao.numeric' => 'Opção inválida',
-        'site.numeric' => 'Opção inválida',
-        'destaque.numeric' => 'Opção inválida',
-        'descricao.string' => 'Permitido somente texto',
-        'data_inicio.required' => 'O campo data obrigatório',
-        'data_inicio.date' => 'Permitido somente data',
-        'data_fim.date' => 'Permitido somente data',
-        'valor_rs.string' => 'Valor inválido', 
-        'valor_s_se.string' => 'Valor inválido', 
-        'valor_co.string' => 'Valor inválido', 
-        'valor_n_ne.string' => 'Valor inválido', 
-      ]
-    );
+
+    $validator = Validator::make($request->all(), [
+      'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
+      'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
+      'inscricao' => ['nullable', 'numeric'],
+      'site' => ['nullable', 'numeric'],
+      'destaque' => ['nullable', 'numeric'],
+      'descricao' => ['nullable', 'string'],
+      'data_inicio' => ['required', 'date'],
+      'data_fim' => ['nullable', 'date'],
+      'valor_rs' => ['nullable', 'string'],
+      'valor_s_se' => ['nullable', 'string'],
+      'valor_co' => ['nullable', 'string'],
+      'valor_n_ne' => ['nullable', 'string'],
+
+      ], [
+      'interlab_id.required' => 'Selecione um interlab',
+      'interlab_id.exists' => 'Opção inválida',
+      'interlab_id.numeric' => 'Opção inválida',
+      'status.required' => 'O campo status obrigatório',
+      'status.in' => 'Opção inválida',
+      'status.string' => 'Permitido somente texto',
+      'inscricao.numeric' => 'Opção inválida',
+      'site.numeric' => 'Opção inválida',
+      'destaque.numeric' => 'Opção inválida',
+      'descricao.string' => 'Permitido somente texto',
+      'data_inicio.required' => 'O campo data obrigatório',
+      'data_inicio.date' => 'Permitido somente data',
+      'data_fim.date' => 'Permitido somente data',
+      'valor_rs.string' => 'Valor inválido', 
+      'valor_s_se.string' => 'Valor inválido', 
+      'valor_co.string' => 'Valor inválido', 
+      'valor_n_ne.string' => 'Valor inválido', 
+
+    ]);
+
+    if ($validator->fails()) {
+      return back()
+      ->withErrors($validator, 'principal')
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
+    $validated = $validator->validated();
 
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
@@ -133,41 +142,58 @@ class AgendaInterlabController extends Controller
    **/
   public function update(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
   {
-    $validated = $request->validate(
-      [
-        'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
-        'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
-        'inscricao' => ['nullable', 'numeric'],
-        'site' => ['nullable', 'numeric'],
-        'destaque' => ['nullable', 'numeric'],
-        'descricao' => ['nullable', 'string'],
-        'data_inicio' => ['required', 'date'],
-        'data_fim' => ['nullable', 'date'],
-        'valor_rs' => ['nullable', 'string'],
-        'valor_s_se' => ['nullable', 'string'],
-        'valor_co' => ['nullable', 'string'],
-        'valor_n_ne' => ['nullable', 'string'],
-      ],
-      [
-        'interlab_id.required' => 'Selecione um interlab',
-        'interlab_id.exists' => 'Opção inválida',
-        'interlab_id.numeric' => 'Opção inválida',
-        'status.required' => 'O campo status obrigatório',
-        'status.in' => 'Opção inválida',
-        'status.string' => 'Permitido somente texto',
-        'inscricao.numeric' => 'Opção inválida',
-        'site.numeric' => 'Opção inválida',
-        'destaque.numeric' => 'Opção inválida',
-        'descricao.string' => 'Permitido somente texto',
-        'data_inicio.required' => 'O campo data obrigatório',
-        'data_inicio.date' => 'Permitido somente data',
-        'data_fim.date' => 'Permitido somente data',
-        'valor_rs.string' => 'Valor inválido',
-        'valor_s_se.string' => 'Valor inválido',
-        'valor_co.string' => 'Valor inválido',
-        'valor_n_ne.string' => 'Valor inválido',
-      ]
-    );
+
+    $validator = Validator::make($request->all(), [
+      'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
+      'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
+      'inscricao' => ['nullable', 'numeric'],
+      'site' => ['nullable', 'numeric'],
+      'destaque' => ['nullable', 'numeric'],
+      'descricao' => ['nullable', 'string'],
+      'data_inicio' => ['required', 'date'],
+      'data_fim' => ['nullable', 'date'],
+      'valor_rs' => ['nullable', 'string'],
+      'valor_s_se' => ['nullable', 'string'],
+      'valor_co' => ['nullable', 'string'],
+      'valor_n_ne' => ['nullable', 'string'],
+    ],[
+      'interlab_id.required' => 'Selecione um interlab',
+      'interlab_id.exists' => 'Opção inválida',
+      'interlab_id.numeric' => 'Opção inválida',
+      'status.required' => 'O campo status obrigatório',
+      'status.in' => 'Opção inválida',
+      'status.string' => 'Permitido somente texto',
+      'inscricao.numeric' => 'Opção inválida',
+      'site.numeric' => 'Opção inválida',
+      'destaque.numeric' => 'Opção inválida',
+      'descricao.string' => 'Permitido somente texto',
+      'data_inicio.required' => 'O campo data obrigatório',
+      'data_inicio.date' => 'Permitido somente data',
+      'data_fim.date' => 'Permitido somente data',
+      'valor_rs.string' => 'Valor inválido',
+      'valor_s_se.string' => 'Valor inválido',
+      'valor_co.string' => 'Valor inválido',
+      'valor_n_ne.string' => 'Valor inválido',
+
+    ]);
+
+
+    if ($validator->fails()) {
+
+      logger()->warning('VALIDATION ERROR', [ 
+        'METHOD' => __METHOD__, 
+        'REQUEST' => $request->all(),
+        'FAILED' => $validator->failed(),
+      ]);
+
+      return back()
+      ->withErrors($validator, 'principal')
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
+
+    $validated = $validator->validated();
 
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
@@ -179,6 +205,7 @@ class AgendaInterlabController extends Controller
     $validated['descricao'] = $this->salvaImagensTemporarias($request);
 
     $agendainterlab->update($validated);
+
 
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');
   }
@@ -204,7 +231,8 @@ class AgendaInterlabController extends Controller
    */
   public function salvaDespesa(Request $request): RedirectResponse
   {
-    $request->validate([
+
+    $validator = Validator::make($request->all(), [
       'agenda_interlab_id' => ['nullable', 'exists:agenda_interlabs,id'],
       'despesa_id' => ['nullable', 'exists:interlab_despesas,id'],
       'material_padrao' => ['required', 'exists:materiais_padroes,id'],
@@ -218,19 +246,35 @@ class AgendaInterlabController extends Controller
       'fabricante' => ['nullable', 'string'],
       'cod_fabricante' => ['nullable', 'string'],
     ],[
-      'agenda_interlab_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
-      'despesa_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
-      'material_padrao.exists' => 'Selecione uma opção válida',
-      'quantidade.regex' => 'O dado enviado não é valido',
-      'valor.regex' => 'Não é um número válido',
-      'total.regex' => 'Não é um número válido',
-      'lote.string' => 'Permitido somente texto',
-      'validade.date' => 'Permitido somente data',
-      'data_compra.date' => 'Permitido somente data',
-      'fornecedor.string' => 'O dado enviado não é valido',
-      'fabricante.string' => 'O dado enviado não é valido',
-      'cod_fabricante.string' => 'O dado enviado não é valido',
+      'agenda_interlab_id.exists' => 'O campo descrição não tem um material válido',
+      'despesa_id.exists' => 'Você está tentando editar uma despesa que nao existe',
+      'material_padrao.exists' => 'Selecione uma opção de material ou padrão válida',
+      'quantidade.regex' => 'Quantidade não é um número válido',
+      'valor.regex' => 'Valor não é um número válido',
+      'total.regex' => 'Valor total não é um número válido',
+      'lote.string' => 'Iformação de lote não é valida',
+      'validade.date' => 'Validade permite somente data',
+      'data_compra.date' => 'Data de compra permite somente data',
+      'fornecedor.string' => 'Nome de fornecedor não é um texto válido',
+      'fabricante.string' => 'Nome de fabricante não é um texto válido',
+      'cod_fabricante.string' => 'Código de fornecedor não é um texto válido',
+
     ]);
+
+    if ($validator->fails()) {
+
+      logger()->warning('VALIDATION ERROR', [ 
+        'METHOD' => __METHOD__, 
+        'REQUEST' => $request->all(),
+        'FAILED' => $validator->failed(),
+      ]);
+
+      return back()
+      ->withErrors($validator, 'despesas')
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente')
+      ->withFragment('despesas');
+    }
 
     InterlabDespesa::updateOrCreate([
       'id' => $request->despesa_id,
@@ -249,7 +293,7 @@ class AgendaInterlabController extends Controller
 
     ]);
 
-    return back()->with('success', 'Material salvo com sucesso');
+    return back()->with('success', 'Material salvo com sucesso')->withFragment('despesas');
   }
 
 /**
@@ -259,7 +303,8 @@ class AgendaInterlabController extends Controller
  * @param InterlabDespesa $despesa
  * @return \Illuminate\Http\RedirectResponse
  */
-  public function duplicarDespesa(InterlabDespesa $despesa): RedirectResponse {
+  public function duplicarDespesa(InterlabDespesa $despesa): RedirectResponse 
+  {
     $despesa = collect($despesa)->forget(['id','uid', 'created_at', 'updated_at', 'deleted_at'])->toArray();
 
     $despesa['validade'] = ($despesa['validade']) ? Carbon::parse($despesa['validade'])->format('Y-m-d') : null;
@@ -349,15 +394,30 @@ class AgendaInterlabController extends Controller
   }
 
   public function salvaParametro(Request $request): RedirectResponse {
-    $request->validate([
+    
+    $validator = Validator::make($request->all(),[
       'parametro_id' => ['required', 'exists:parametros,id'],
       'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
     ],[
-      'parametro_id.required' => 'Houve um erro ao salvar. Tente novamente',
-      'parametro_id.exists' => 'Houve um erro ao salvar. Tente novamente',
-      'agenda_interlab_id.required' => 'Houve um erro ao salvar. Tente novamente',
-      'agenda_interlab_id.exists' => 'Houve um erro ao salvar. Tente novamente',
+      'parametro_id.required' => 'O parametro é obrigatório',
+      'parametro_id.exists' => 'O parametro selecionado não existe',
+      'agenda_interlab_id.required' => 'Você está tentando editar um agendamento que não existe',
+      'agenda_interlab_id.exists' => 'Você está tentando editar um agendamento que não existe',
     ]);
+
+    if ($validator->fails()) {
+
+      logger()->warning('VALIDATION ERROR', [ 
+        'METHOD' => __METHOD__, 
+        'REQUEST' => $request->all(),
+        'FAILED' => $validator->failed(),
+      ]);
+
+      return back()
+      ->withErrors($validator, 'despesas')
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
 
     InterlabParametro::updateOrCreate([
       'agenda_interlab_id' => $request->agenda_interlab_id,

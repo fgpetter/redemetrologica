@@ -1,3 +1,7 @@
+@if( $errors->despesas->any() )
+  <x-alerts.warning :errors="$errors->despesas->all()"/>
+@endif
+
 <div class="row">
   <div class="col-12 col-md-7 col-xxl-8 pe-3">
     <div class="row">
