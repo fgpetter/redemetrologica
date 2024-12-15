@@ -29,7 +29,6 @@
                     <option value="{{ $curso->id }}">{{ $curso->descricao }}</option>
                   @endforeach
                 </x-forms.input-select>
-                @error('curso') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
             @elseif($curso)
               <h6 class="pe-5">{{ $curso->descricao }}</h6>
@@ -40,7 +39,6 @@
                 <option value="0">NÃO </option>
                 <option @selected($cursohabilitado->habilitado ?? null) value="1">SIM</option>
               </x-forms.input-select>
-              @error('habilitado') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-sm-6"></div>
 
@@ -48,9 +46,7 @@
               <x-forms.input-select name="conhecimento" label="Conhecimento <br> <small>(Graduação na área de atuação do curso)</small>">
                 <option value="0 ">NÃO </option>
                 <option @selected($cursohabilitado->conhecimento ?? null) value="1 ">SIM</option>
-
               </x-forms.input-select>
-              @error('conhecimento') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-sm-6">

@@ -24,9 +24,6 @@
                     <option value="{{ $materialpadrao->id }}" @selected($materialpadrao->id == $despesa?->material_padrao_id)>{{ $materialpadrao->descricao }}</option>
                   @endforeach
                 </x-forms.input-select>
-                @error('material_padrao')
-                  <span class="invalid-feedback" role="alert">{{ $message }}</span>
-                @enderror
               </div>
 
               <div class="col-4">

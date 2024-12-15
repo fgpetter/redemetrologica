@@ -20,7 +20,6 @@
                     <option value="{{ $areaatuacao->id }}" @selected( isset($labinterno) && $labinterno->area_atuacao_id == $areaatuacao->id )>{{ $areaatuacao->descricao }}</option>
                   @endforeach
                 </x-forms.input-select>
-                @error('area_atuacao_id') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
               <div class="col-8">
@@ -53,7 +52,6 @@
                   <option value="0"> NÃO </option>
                   <option @selected($labinterno->reconhecido ?? null) value="1"> SIM </option>
                 </x-forms.input-select>
-                @error('reconhecido') <div class="text-warning">{{ $message }}</div> @enderror
 
               </div>
               <div class="col-4">
@@ -61,7 +59,6 @@
                   <option value="0"> NÃO </option>
                   <option @selected($labinterno->sebrae ?? null) value="1"> SIM </option>
                 </x-forms.input-select>
-                @error('sebrae') <div class="text-warning">{{ $message }}</div> @enderror
 
               </div>
               <div class="col-4">
@@ -69,7 +66,6 @@
                   <option value="0"> NÃO </option>
                   <option @selected($labinterno->site ?? null) value="1"> SIM </option>
                 </x-forms.input-select>
-                @error('site') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
               <div class="col-12">

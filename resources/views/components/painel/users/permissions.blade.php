@@ -5,7 +5,10 @@
     <div class="card-body">
 
       @if( $errors->get('permission.*') )
-        <div class="alert alert-danger py-2">Permissão inválida</div>
+        <div class="alert alert-warning alert-top-border">
+          <i class="ri-alert-line me-3 align-middle fs-lg text-warning"></i>
+          Permissão inválida
+        </div>
       @endif
 
       <form method="POST" action="{{ route( 'user-permission-update', $user->id ) }}">

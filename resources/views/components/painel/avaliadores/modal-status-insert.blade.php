@@ -26,7 +26,6 @@
                 <option value="AVALIADOR LIDER" @selected( isset($status) && $status->status == 'AVALIADOR LIDER' )>AVALIADOR LIDER</option>
                 <option value="ESPECIALISTA" @selected( isset($status) && $status->status == 'ESPECIALISTA' )>ESPECIALISTA</option>
               </x-forms.input-select>
-              @error('status') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-6">
@@ -34,7 +33,6 @@
                 <option value="0">Não</option>
                 <option value="1" @selected(isset($status) && $status->parecer_positivo) >Sim</option>
               </x-forms.input-select>
-              @error('parecer_positivo') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-6">
@@ -42,7 +40,6 @@
                 <option value="0">Não</option>
                 <option value="1" @selected(isset($status) && $status->seminario)>Sim</option>
               </x-forms.input-select>
-              @error('seminario') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
           </div>

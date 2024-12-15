@@ -12,9 +12,6 @@
                  <option @selected($agendacurso->status == 'PROPOSTA ENVIADA') value="PROPOSTA ENVIADA">PROPOSTA ENVIADA</option>
                  <option @selected($agendacurso->status == 'REAGENDAR') value="REAGENDAR">REAGENDAR</option>
              </x-forms.input-select>
-             @error('status')
-                 <div class="text-warning">{{ $message }}</div>
-             @enderror
          </div>
 
          <div class="col-sm-4">
@@ -34,9 +31,6 @@
                  <option @selected($agendacurso->tipo_agendamento == 'EVENTO') value="EVENTO">EVENTO</option>
                  <option @selected($agendacurso->tipo_agendamento == 'IN-COMPANY') value="IN-COMPANY">IN-COMPANY</option>
              </x-forms.input-select>
-             @error('tipo_agendamento')
-                 <div class="text-warning">{{ $message }}</div>
-             @enderror
          </div>
 
          <div class="col-sm-12">
@@ -49,9 +43,6 @@
                      <option value="{{ $curso->id }}">{{ $curso->descricao }}</option>
                  @endforeach
              </x-forms.input-select>
-             @error('curso_id')
-                 <div class="text-warning">{{ $message }}</div>
-             @enderror
          </div>
 
          <div class="col-sm-12 {{ $agendacurso->tipo_agendamento == 'IN-COMPANY' ? '' : 'd-none' }} "
@@ -71,9 +62,6 @@
                                          {{ $empresa->nome_razao }}</option>
                                  @endforeach
                              </x-forms.input-select>
-                             @error('empresa_id')
-                                 <div class="text-warning">{{ $message }}</div>
-                             @enderror
                          </div>
 
 
@@ -131,9 +119,6 @@
                                  <option @selected($agendacurso->status_proposta == 'APROVADA') value="APROVADA">APROVADA</option>
                                  <option @selected($agendacurso->status_proposta == 'REPROVADA') value="REPROVADA">REPROVADA</option>
                              </x-forms.input-select>
-                             @error('status_proposta')
-                                 <div class="text-warning">{{ $message }}</div>
-                             @enderror
                          </div>
                      </div>
                  </div>
@@ -186,9 +171,6 @@
                  <option @selected($agendacurso->carga_horaria == '36') value="36">36</option>
                  <option @selected($agendacurso->carga_horaria == '40') value="40">40</option>
              </x-forms.input-select>
-             @error('carga_horaria')
-                 <div class="text-warning">{{ $message }}</div>
-             @enderror
          </div>
 
          <div class="col-sm-3" id="input-inscricoes">
@@ -223,9 +205,6 @@
                     <option value="{{ $instrutor->id }}">{{ $instrutor->pessoa->nome_razao }}</option>
                     @endforeach
              </x-forms.input-select>
-             @error('instrutor_id')
-                 <div class="text-warning">{{ $message }}</div>
-             @enderror
          </div>
 
          <div class="col-sm-4" id="input-investimento">

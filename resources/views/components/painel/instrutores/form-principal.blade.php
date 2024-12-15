@@ -16,9 +16,6 @@
                      <option @selected($instrutor->situacao == 1) value="1">ATIVO</option>
                      <option @selected($instrutor->situacao == 0) value="0">INATIVO</option>
                  </x-forms.input-select>
-                 @error('situacao')
-                     <div class="text-warning">{{ $message }}</div>
-                 @enderror
              </div>
 
              <div class="col-sm-2">
@@ -26,9 +23,6 @@
                      <option @selected($instrutor->pessoa->tipo_pessoa == 'PF') value="PF">FÍSICA</option>
                      <option @selected($instrutor->pessoa->tipo_pessoa == 'PJ') value="PJ">JURÍDICA</option>
                  </x-forms.input-select>
-                 @error('tipo_pessoa')
-                     <div class="text-warning">{{ $message }}</div>
-                 @enderror
              </div>
 
              <div class="col-sm-3">

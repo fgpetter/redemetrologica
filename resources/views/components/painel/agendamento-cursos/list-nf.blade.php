@@ -105,9 +105,6 @@
 
 
     </x-forms.input-select>
-    @error('enviado_financ')
-      <div class="text-warning">{{ $message }}</div>
-    @enderror
   </div>
 
   <div class="col-sm-4">
@@ -141,15 +138,9 @@
 
   <div class="col-sm-4">
     <x-forms.input-select name="modalidade" label="Modalidade">
-
       <option value="Modalidade 1">Modalidade 1</option>
       <option value="Modalidade 2">Modalidade 2</option>
-
-
     </x-forms.input-select>
-    @error('modalidade')
-      <div class="text-warning">{{ $message }}</div>
-    @enderror
   </div>
   <div class="col-sm-12">
     <x-forms.input-textarea name="obs" label="Observações"

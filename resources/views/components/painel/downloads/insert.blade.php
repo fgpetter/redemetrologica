@@ -25,7 +25,6 @@
                 <option @selected( $download->categoria == 'INTERLAB' ) value="INTERLAB">INTERLAB</option>
                 <option @selected( $download->categoria == 'INSTITUCIONAL' ) value="INSTITUCIONAL">INSTITUCIONAL</option>
               </x-forms.input-select>
-              @error('categoria') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-sm-2">

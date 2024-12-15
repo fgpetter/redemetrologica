@@ -19,7 +19,6 @@
             <option @selected($avaliacao->tipo_avaliacao_id == $tipo->id) value="{{ $tipo->id }}">{{ $tipo->descricao }}</option>
           @endforeach
         </x-forms.input-select>
-        @error('tipo_avaliacao_id') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-12 col-xxl-7">
@@ -35,7 +34,6 @@
             <option @selected($avaliacao->laboratorio_interno_id == $labinterno->id) value="{{ $labinterno->id }}">{{ $labinterno->nome }}</option>
           @endforeach
         </x-forms.input-select>
-        @error('laboratorio_interno_id') <div class="text-warning">{{ $message }}</div> @enderror
         
       </div>
 
@@ -69,7 +67,6 @@
           <option @selected($avaliacao->status_proposta == 'APROVADA') value="APROVADA">APROVADA</option>
           <option @selected($avaliacao->status_proposta == 'REPROVADA') value="REPROVADA">REPROVADA</option>
         </x-forms.input-select>
-        @error('status_proposta') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
       
       <div class="col-6"> &nbsp; </div>
@@ -79,7 +76,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->fr_28) value="1">SIM</option>
         </x-forms.input-select>
-        @error('fr_28') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -87,7 +83,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->fr_41) value="1">SIM</option>
         </x-forms.input-select>
-        @error('fr_41') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -95,7 +90,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->fr_101) value="1">SIM</option>
         </x-forms.input-select>
-        @error('fr_101') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -103,7 +97,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->fr_48) value="1">SIM</option>
         </x-forms.input-select>
-        @error('fr_48') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -118,7 +111,6 @@
           <option @selected($avaliacao->status_proposta == 'APROVADA AVALIADORES') value="APROVADA AVALIADORES">APROVADA AVALIADORES</option>
           <option @selected($avaliacao->status_proposta == 'NAO APROVADA') value="NAO APROVADA">NAO APROVADA</option>
         </x-forms.input-select>
-        @error('relatorio_fr06') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -131,7 +123,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->proc_laboratorio) value="1">SIM</option>
         </x-forms.input-select>
-        @error('proc_laboratorio') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -139,7 +130,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->inf_avaliadores) value="1">SIM</option>
         </x-forms.input-select>
-        @error('inf_avaliadores') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -147,7 +137,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->carta_reconhecimento) value="1">SIM</option>
         </x-forms.input-select>
-        @error('carta_reconhecimento') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -200,7 +189,6 @@
           <option @selected($avaliacao->comite = "NAO APROVADO") value="NAO APROVADO">NÃO APROVADO</option>
           <option @selected($avaliacao->comite = "COM PENDENCIAS") value="COM PENDENCIAS">COM PENDÊNCIAS</option>
         </x-forms.input-select>
-        @error('comite') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -214,7 +202,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->certificado) value="1">SIM</option>
         </x-forms.input-select>
-        @error('certificado') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -230,7 +217,6 @@
           <option @selected($avaliacao->enviado_certificado = "NAO ENVIADO") value="NAO ENVIADO">NÃO ENVIADO</option>
           <option @selected($avaliacao->enviado_certificado = "PENDENTE") value="PENDENTE">PENDENTE</option>
         </x-forms.input-select>
-        @error('enviado_certificado') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">
@@ -244,7 +230,6 @@
           <option value="0">NÃO</option>
           <option @selected($avaliacao->certificado_impresso) value="1">SIM</option>
         </x-forms.input-select>
-        @error('certificado_impresso') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-3">

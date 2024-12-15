@@ -86,27 +86,15 @@
           
           <div class="col-sm-6">
             <x-forms.input-select name="associado" label="Associado">
-          
               <option value="SIM">SIM</option>
               <option value="NÃO">NÃO</option>
-          
-          
             </x-forms.input-select>
-            @error('associado')
-              <div class="text-warning">{{ $message }}</div>
-            @enderror
           </div>
           <div class="col-sm-6">
             <x-forms.input-select name="emite_NF" label="Emite NF">
-          
               <option value="SIM">SIM</option>
               <option value="NÃO">NÃO</option>
-          
-          
             </x-forms.input-select>
-            @error('emite_NF')
-              <div class="text-warning">{{ $message }}</div>
-            @enderror
           </div>
         </form>
 

@@ -18,7 +18,6 @@
                     <option value="{{ $area_atuacao->id }}" @selected( isset($area) && $area->area_id == $area_atuacao->id )>{{ $area_atuacao->descricao }}</option>
                   @endforeach
                 </x-forms.input-select>
-                @error('area_id') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
               <div class="col-8">
@@ -31,17 +30,12 @@
                   <option value="AVALIADOR LIDER" @selected( isset($area) && $area->situacao == 'AVALIADOR LIDER' )>AVALIADOR LIDER</option>
                   <option value="ESPECIALISTA" @selected( isset($area) && $area->situacao == 'ESPECIALISTA' )>ESPECIALISTA</option>
                 </x-forms.input-select>
-                @error('situacao') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
-  
               <div class="col-4">
                 <x-forms.input-field name="data_cadastro" type="date" :value="old('data_cadastro') ?? $area->data_cadastro ?? null" label="Data Cadastro" />
                 @error('data_cadastro') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
-              
-              
-  
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>

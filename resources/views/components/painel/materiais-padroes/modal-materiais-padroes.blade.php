@@ -24,7 +24,6 @@
                 <option @selected( isset($material) && $material->tipo == "CURSOS" ) value="CURSOS">Cursos</option>
                 <option @selected( isset($material) && $material->tipo == "INTERLAB" ) value="INTERLAB">Interlab</option>
               </x-forms.input-select>
-              @error('tipo') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-12">

@@ -21,7 +21,6 @@
                     <option @selected( $areaavaliada->area_atuacao_id ?? null == $labinterno->area_atuacao_id) value="{{ $labinterno->area_atuacao_id }}" >{{ $labinterno->nome }}</option>
                   @endforeach
                 </x-forms.input-select>
-                @error('area_atuacao_id') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
               <div class="col-4">
@@ -34,7 +33,6 @@
                   <option @selected( $areaavaliada->situacao ?? null == 'AVALIADOR LIDER' ) value="AVALIADOR LIDER">AVALIADOR LIDER</option>
                   <option @selected( $areaavaliada->situacao ?? null == 'ESPECIALISTA' ) value="ESPECIALISTA">ESPECIALISTA</option>                  
                 </x-forms.input-select>
-                @error('situacao') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
               <div class="col-3">
@@ -62,7 +60,6 @@
                     <option @selected( $areaavaliada->avaliador_id ?? null == $avaliador->id ) value="{{ $avaliador->id }}" >{{ $avaliador->pessoa->nome_razao }}</option>
                   @endforeach
                 </x-forms.input-select>
-                @error('avaliador_id') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
               <div class="col-3">

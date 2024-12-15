@@ -4,7 +4,8 @@
   'name', 
   'id' => null,
   'required' => null,
-  'helper' => null
+  'helper' => null,
+  'errorBag' => null
 ])
 
 <label class="form-label">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis">*</span>' : '') !!}</label>
@@ -17,3 +18,5 @@
   @if ($required) required @endif>
     {{ $slot }}
 </select>
+
+@error($name, $errorBag) <div class="text-warning">{{ $message }}</div> @enderror
