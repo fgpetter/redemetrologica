@@ -18,7 +18,6 @@ return new class extends Migration
             $table->id();
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
             $table->foreignIdFor(AgendaInterlab::class)->constrained()->onDelete('cascade');
-            $table->foreignId('parametro_id')->constrained();
             $table->string('descricao');
             $table->integer('vias');
             $table->text('cronograma')->nullable();
