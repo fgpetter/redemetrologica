@@ -4,8 +4,8 @@
   <div class="row">
     <div class="col-12">
       <x-forms.input-select name="interlab_id" label="Interlaboratorial" errorBag="principal">
+        <option value="">Selecione</option>
         @foreach ($interlabs as $interlab)
-          <option value="">Selecione</option>
           <option @selected( $agendainterlab->interlab_id == $interlab->id ) value="{{ $interlab->id }}">{{ $interlab->nome }}</option>
         @endforeach
       </x-forms.input-select>

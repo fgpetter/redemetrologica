@@ -195,6 +195,7 @@ class AgendaInterlabController extends Controller
 
     $validated = $validator->validated();
 
+    // formata dados para gravar no banco
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
     $validated['inscricao'] = $request->inscricao ?? 0;
@@ -204,8 +205,13 @@ class AgendaInterlabController extends Controller
     $validated['valor_n_ne'] = $this->formataMoeda($request->valor_n_ne);
     $validated['descricao'] = $this->salvaImagensTemporarias($request);
 
-    $agendainterlab->update($validated);
+    // adiciona condicional para que interlabs concluidos não apareçam no site
+    if ($request->status == 'CONCLUIDO') {
+      $validated['site'] = 0;
+      $validated['inscricao'] = 0;
+    }
 
+    $agendainterlab->update($validated);
 
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');
   }
