@@ -4,7 +4,7 @@
   'interlabParametros' => null,
 ])
 {{-- modal --}}
-<div class="modal fade" id="{{ isset($rodada) ? 'rodadaModal'.$rodada->uid : 'rodadaModal'}}" tabindex="-1" aria-labelledby="rodadaModalLabel" aria-hidden="true">
+<div class="modal fade" id="{{ isset($rodada) ? 'rodadaModal'.$rodada->uid : 'rodadaModal'}}" tabindex="-1" aria-labelledby="rodadaModalLabel" >
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -33,12 +33,13 @@
                 <label class="form-label">Selecione os parametros da rodada</label>
                 @foreach ($interlabParametros as $parametro)
                     <div class="form-check mb-2">
+
                         <input class="form-check-input" name="parametros[]" 
-                          value="{{ $parametro->parametro->id }}" 
-                          type="checkbox"
+                          value="{{ $parametro->parametro->id }}" type="checkbox"
                           @checked( in_array( $parametro->parametro->id, $rodada?->parametros->pluck('parametro_id')->toArray() ?? [] ) )
-                          id="{{  'checkBox'.$parametro->parametro->id }}">
-                        <label class="form-check-label" for="{{ 'checkBox'.$parametro->parametro->id }}">
+                          id="{{ 'checkBox'.$rodada?->id.$parametro->parametro->id }}" >
+
+                        <label class="form-check-label" for="{{ 'checkBox'.$rodada?->id.$parametro->parametro->id }}">
                             {{ $parametro->parametro->descricao }}
                         </label>
                     </div>

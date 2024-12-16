@@ -364,7 +364,8 @@ class AgendaInterlabController extends Controller
       return back()
         ->withErrors($validator, 'rodadas')
         ->withInput()
-        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente')
+        ->withFragment('rodadas');
     }
 
 
@@ -379,7 +380,7 @@ class AgendaInterlabController extends Controller
 
     $interlab_rodada->updateParametros($request->parametros);
 
-    return back()->with('success', 'Rodada salva com sucesso');
+    return back()->with('success', 'Rodada salva com sucesso')->withFragment('rodadas');
   }
 
   /**
@@ -391,7 +392,7 @@ class AgendaInterlabController extends Controller
   public function deleteRodada(InterlabRodada $rodada): RedirectResponse
   {
     $rodada->delete();
-    return back()->with('warning', 'Rodada removida');
+    return back()->with('warning', 'Rodada removida')->withFragment('rodadas');
   }
 
   public function salvaParametro(Request $request): RedirectResponse {

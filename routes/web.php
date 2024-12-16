@@ -291,7 +291,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     
     /* RodadascursoInscricao */
     Route::post('salva-rodada', [AgendaInterlabController::class, 'salvaRodada'])->name('salvar-rodada');
-    Route::post('delete-rodada/{rodada}', [AgendaInterlabController::class, 'deleteRodada'])->name('delete-rodada');
+    Route::post('delete-rodada/{rodada:uid}', [AgendaInterlabController::class, 'deleteRodada'])->name('delete-rodada');
 
   });
 
