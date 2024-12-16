@@ -70,6 +70,15 @@ window.onload = function(){
   if (window.jQuery) {
 
     /**
+     * Redireciona para o link ao clicar duas vezes
+     */
+    $(".clicable").dblclick(function () {
+      if( !$(this).attr('href') || $(this).attr('href') == undefined ) { return; }
+      window.location.href = $(this).attr('href');
+    });
+    
+
+    /**
      * Desabilita todos inputs de permissão quando selecionar admin
      */
     if($('#admin').prop('checked')) {

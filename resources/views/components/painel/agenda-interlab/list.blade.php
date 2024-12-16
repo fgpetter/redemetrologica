@@ -14,16 +14,18 @@
           <tr>
             <th scope="col" style="width: 5%; white-space: nowrap;">Mês/Ano</th>
             <th scope="col" style="width: 5%; white-space: nowrap;">COD</th>
-            <th scope="col" style="width: 10%; white-space: nowrap;">Status</th>
-            <th scope="col" style="width: 10%; white-space: nowrap;">Data Inicio</th>
-            <th scope="col" style="width: 10%; white-space: nowrap;">Data Fim</th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">Status</th>
+            <th scope="col" ></th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">Data Inicio</th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">Data Fim</th>
             <th scope="col">Nome do Interlab</th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
           </tr>
         </thead>
         <tbody>
           @forelse ($agendainterlabs as $agendainterlab)
-            <tr>
+            <tr class="clicable" href="{{ route('agenda-interlab-insert', $agendainterlab->uid) }}">
+
               <th class="text-uppercase">
                 {{ Carbon\Carbon::parse($agendainterlab->data_inicio)->format('m/Y') }}
               </th>
@@ -34,15 +36,28 @@
                 @if ($agendainterlab->status == 'CONFIRMADO') class="text-success fw-bold"
                 @elseif ($agendainterlab->status == 'AGENDADO') class="text-primary fw-bold"
                 @elseif ($agendainterlab->status == 'CONCLUIDO') class="text-danger fw-bold" @endif>
-                {{ $agendainterlab->status }}</td>
+                {{ $agendainterlab->status }}
+              </td>
 
-              <td style="white-space: nowrap; margin: 10px 0 10px">
-                {{ $agendainterlab->data_inicio->format('d/m/Y') }}</td>
-              <td style="white-space: nowrap; margin: 10px 0 10px">
-                {{ $agendainterlab->data_fim->format('d/m/Y') }}</td>
+              <td style="white-space: nowrap;">
+                @if ($agendainterlab->site)
+                  <span data-bs-toggle="tooltip" data-bs-html="true" title="Visivel no site">
+                    <i class="ri-terminal-window-line label-icon text-primary" style="font-size: 1.4rem"></i> 
+                  </span>
+                  
+                @endif
+                @if ($agendainterlab->inscricao) &nbsp;
+                  <span data-bs-toggle="tooltip" data-bs-html="true" title="Inscrições abertas">
+                    <i class="ri-edit-2-fill label-icon text-success" style="font-size: 1.4rem"></i> 
+                  </span>
+                 @endif
+              </td>
 
-              <td>{{ $agendainterlab->interlab->nome ?? '' }}</td>
+              <td> {{ $agendainterlab->data_inicio->format('d/m/Y') }} </td>
 
+              <td> {{ $agendainterlab->data_fim->format('d/m/Y') }} </td>
+
+              <td> {{ $agendainterlab->interlab->nome ?? '' }} </td>
 
               <td>
                 <div class="dropdown">
