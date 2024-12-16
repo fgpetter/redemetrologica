@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('interlab_despesas', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
-            $table->foreignIdFor(AgendaInterlab::class)->constrained();
-            $table->unsignedBigInteger('material_padrao_id');
+            $table->foreignIdFor(AgendaInterlab::class)->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('material_padrao_id'); // FK para materiais_padroes
             $table->string('fornecedor')->nullable();
             $table->string('fabricante')->nullable();
             $table->string('cod_fabricante')->nullable();
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->date('data_compra')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
+            // criado separado por questao de plural
             $table->foreign('material_padrao_id')->references('id')->on('materiais_padroes')->onDelete('cascade');
         });
     }

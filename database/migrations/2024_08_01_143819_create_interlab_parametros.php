@@ -18,7 +18,7 @@ return new class extends Migration
         Schema::create('interlab_parametros', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(AgendaInterlab::class)->constrained()->onDelete('cascade');
-            $table->foreignIdFor(Parametro::class)->constrained();
+            $table->foreignIdFor(Parametro::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
