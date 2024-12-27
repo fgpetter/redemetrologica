@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LogsSistema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller as BaseController;
@@ -27,8 +26,6 @@ class Controller extends BaseController
             'acao' => debug_backtrace()[1]['function'],
             'info' => json_encode($info)
         ];
-
-        LogsSistema::create($data);
 
         Log::channel('action')->info(json_encode($data));
     }
