@@ -90,7 +90,7 @@ class InstrutorController extends Controller
   {
     $request->validate(
       [
-        'cpf_cnpj' => ['required', 'string'],
+        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $instrutor->pessoa->id],
         'rg_ie' => ['required', 'string'],
         'nome' => ['required', 'string'],
         'tipo_pessoa' => ['required', 'in:PF,PJ'],

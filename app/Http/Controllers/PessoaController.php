@@ -61,32 +61,30 @@ class PessoaController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
-    $request['telefone'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
-    $request['telefone_alt'] = preg_replace('/[^0-9]/', '', $request->get('telefone_alt'));
-    $request['celular'] = preg_replace('/[^0-9]/', '', $request->get('celular'));
+    $request->merge( return_only_nunbers( $request->only('cpf_cnpj','telefone','telefone_alt','celular') ) );
     $request['nome_razao'] = ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao')));
     $request['nome_fantasia'] = strtoupper($request->get('nome_fantasia'));
 
     $validated = $request->validate(
       [
-        'nome_razao' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj'],
-        'nome_fantasia' => ['nullable', 'string', 'max:255'],
-        'cpf_cnpj' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj'], // TODO - adicionar validação de CPF/CNPJ
-        'rg_ie' => ['nullable', 'string', 'max:255'],
-        'insc_municipal' => ['nullable', 'string', 'max:255'],
-        'codigo_contabil' => ['nullable', 'string', 'max:255'],
+        'nome_razao' => ['required', 'string', 'max:191'],
+        'nome_fantasia' => ['nullable', 'string', 'max:191'],
+        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj'], // TODO - adicionar validação de CPF/CNPJ
+        'rg_ie' => ['nullable', 'string', 'max:191'],
+        'insc_municipal' => ['nullable', 'string', 'max:191'],
+        'codigo_contabil' => ['nullable', 'string', 'max:191'],
         'tipo_pessoa' => ['required', 'string', 'max:2'],
         'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
         'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
         'celular' => ['nullable', 'string', 'min:10', 'max:11'],
-        'email' => ['nullable', 'string', 'max:255'],
-        'site' => ['nullable', 'string', 'max:255'],
+        'email' => ['nullable', 'string', 'max:191'],
+        'site' => ['nullable', 'string', 'max:191'],
       ],
       [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
         'cpf_cnpj.unique' => 'Esse CPF/CNPJ ja foi registrado',
+        'tipo_pessoa' => 'Preencha o campo tipo de pessoa',
       ]
     );
 
@@ -130,18 +128,18 @@ class PessoaController extends Controller
 
     $validated = $request->validate(
       [
-        'nome_razao' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj'],
-        'nome_fantasia' => ['nullable', 'string', 'max:255'],
-        'cpf_cnpj' => ['required', 'string', 'max:255', 'unique:pessoas,cpf_cnpj,' . $pessoa->id], // TODO - adicionar validação de CPF/CNPJ
-        'rg_ie' => ['nullable', 'string', 'max:255'],
-        'insc_municipal' => ['nullable', 'string', 'max:255'],
-        'codigo_contabil' => ['nullable', 'string', 'max:255'],
+        'nome_razao' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj'],
+        'nome_fantasia' => ['nullable', 'string', 'max:191'],
+        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $pessoa->id], // TODO - adicionar validação de CPF/CNPJ
+        'rg_ie' => ['nullable', 'string', 'max:191'],
+        'insc_municipal' => ['nullable', 'string', 'max:191'],
+        'codigo_contabil' => ['nullable', 'string', 'max:191'],
         'tipo_pessoa' => ['required', 'string', 'max:2'],
         'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
         'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
         'celular' => ['nullable', 'string', 'min:10', 'max:11'],
-        'email' => ['nullable', 'string', 'max:255'],
-        'site' => ['nullable', 'string', 'max:255'],
+        'email' => ['nullable', 'string', 'max:191'],
+        'site' => ['nullable', 'string', 'max:191'],
       ],
       [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',

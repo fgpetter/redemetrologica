@@ -33,11 +33,11 @@ class FuncionarioController extends Controller
   public function create(Request $request): RedirectResponse
   {
     $request->validate([
-      'nome_razao' => ['required', 'string', 'max:255'],
-      'cpf_cnpj' => ['required', 'string', 'max:14','min:14'], // TODO - adicionar validação de CPF/CNPJ
+      'nome_razao' => ['required', 'string', 'max:191'],
+      'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'], // TODO - adicionar validação de CPF/CNPJ
       'cep' => ['required', 'string', 'max:9', 'min:9'],
-      'endereco' => ['required', 'string', 'max:255'],
-      'cidade' => ['required', 'string', 'max:255'],
+      'endereco' => ['required', 'string', 'max:191'],
+      'cidade' => ['required', 'string', 'max:191'],
       'uf' => ['required', 'string', 'max:2', 'min:2'],
       'admissao' => ['required', 'date'],
       'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'] //5mb
@@ -150,11 +150,11 @@ class FuncionarioController extends Controller
   public function update(Request $request, Funcionario $funcionario): RedirectResponse
   {
     $request->validate([
-      'nome_razao' => ['required', 'string', 'max:255'],
-      'cpf_cnpj' => ['required', 'string', 'max:14','min:14'], // TODO - adicionar validação de CPF/CNPJ
+      'nome_razao' => ['required', 'string', 'max:191'],
+      'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $funcionario->pessoa->id], // TODO - adicionar validação de CPF/CNPJ
       'cep' => ['required', 'string', 'max:9', 'min:9'],
-      'endereco' => ['required', 'string', 'max:255'],
-      'cidade' => ['required', 'string', 'max:255'],
+      'endereco' => ['required', 'string', 'max:191'],
+      'cidade' => ['required', 'string', 'max:191'],
       'uf' => ['required', 'string', 'max:2', 'min:2'],
       'admissao' => ['required', 'date'],
       'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'] //5mb

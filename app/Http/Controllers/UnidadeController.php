@@ -22,7 +22,7 @@ class UnidadeController extends Controller
     $validator = Validator::make(
       $request->all(),
       [
-        'nome' => ['required', 'string', 'max:255'],
+        'nome' => ['required', 'string', 'max:191'],
         'pessoa' => ['required', 'integer'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
@@ -90,7 +90,7 @@ class UnidadeController extends Controller
 
     $request->validate(
       [
-        'nome' => ['required', 'string', 'max:255'],
+        'nome' => ['required', 'string', 'max:191'],
         'pessoa' => ['required', 'integer'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],

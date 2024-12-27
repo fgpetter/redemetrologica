@@ -101,7 +101,7 @@ class PostController extends Controller
 
     $request->validate(
       [
-        'titulo' => ['required', 'string', 'max:255'],
+        'titulo' => ['required', 'string', 'max:191'],
         'conteudo' => ['required_if:tipo,noticia', 'string'],
         'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
         'data_publicacao' => ['required', 'date'],
@@ -272,7 +272,7 @@ class PostController extends Controller
 
     $request->validate(
       [
-        'titulo' => ['required', 'string', 'max:255'],
+        'titulo' => ['required', 'string', 'max:191'],
         'conteudo' => ['required_if:tipo,noticia', 'string'],
         'thumb' => ['required',  'sometimes:string', 'sometimes:image', 'sometimes:mimes:jpg,png,jpeg'],
         'data_publicacao' => ['required', 'date'],
