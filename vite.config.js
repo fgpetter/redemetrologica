@@ -33,6 +33,7 @@ export default vite.defineConfig({
                     'resources/scss/icons.scss',
                     'resources/scss/app.scss',
                     'resources/scss/custom.scss',
+                    'resources/js/custom.js'
                 ],
                 refresh: true
             }
