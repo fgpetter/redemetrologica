@@ -26,7 +26,9 @@ class InscricaoInterlabController extends Controller
     }
 
     // verificar se o interlab existe e se tem inscrições abertas
-    $agenda_interlab = AgendaInterlab::where('uid', $request->target)->where('inscricao', 1)->first() ?? abort(404);
+    $agenda_interlab = AgendaInterlab::where('uid', $request->target)
+      ->where('inscricao', 1)
+      ->firstOrFail();
 
     // salva informações na sessão
     session()->put('interlab', $agenda_interlab);
@@ -101,8 +103,6 @@ class InscricaoInterlabController extends Controller
       'agenda_interlab_id' => $request->id_interlab,
       'data_inscricao' => now()
     ]);
-
-    // se enviados convites, envia email de convite
 
     // remove dados da sessão
     session()->forget(['interlab', 'empresa', 'convite']);
@@ -208,12 +208,45 @@ class InscricaoInterlabController extends Controller
     return back()->with('success', 'Dados salvos com sucesso!');
   }
 
-/**
- * Cancela a inscrição de um participante
- *
- * @param InterlabInscrito $inscrito
- * @return RedirectResponse
- */
+  /**
+   * Envia convite para incrição no interlab
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   */
+
+  public function enviaConvite() : RedirectResponse
+  {
+
+    $validator = Validator::make(request()->all(), [
+      'indicacao-email' => ['required', 'array'],
+      'indicacao-email.*' => ['required', 'email', 'max:190'],
+      'indicacao-nome' => ['required', 'array'],
+      'indicacao-nome.*' => ['required', 'string', 'max:190'],
+    ], [
+      'indicacao-email.required' => 'Preencha o campo email',
+      'indicacao-email.email' => 'O dado enviado não é um email válido',
+      'indicacao-email.max' => 'O dado enviado ultrapassa o limite de 190 caracteres',
+      'indicacao-nome.required' => 'Preencha o campo nome',
+      'indicacao-nome.string' => 'O dado enviado não é válido',
+      'indicacao-nome.max' => 'O dado enviado ultrapassa o limite de 190 caracteres',
+    ]);
+
+    if($validator->fails()){
+      return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
+    }
+
+    dd(request()->all());
+
+    return back()->with('success', 'Dados salvos com sucesso!');
+  }
+
+  /**
+   * Cancela a inscrição de um participante
+   *
+   * @param InterlabInscrito $inscrito
+   * @return RedirectResponse
+   */
   public function cancelaInscricao(InterlabInscrito $inscrito){
     $inscrito->delete();
     return back()->with('success', 'Inscrição cancelada com sucesso!');

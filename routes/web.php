@@ -179,7 +179,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Matricula em cursos */
-  Route::group(['prefix' => 'inscricao-curso', 'middleware' => 'permission:funcionario,admin'], function () {
+  Route::group(['prefix' => 'inscricao-curso'], function () {
     Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
     Route::post('informa-empresa', [InscricaoCursoController::class, 'informaEmpresa'])->name('informa-empresa');
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
@@ -296,16 +296,15 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   });
 
   /* Inscricao em interlaboratoriais */
-  Route::group(['prefix' => 'inscricao-interlab', 'middleware' => 'permission:funcionario,admin'], function () {
+  Route::group(['prefix' => 'inscricao-interlab'], function () {
     Route::post('confirmacao', [InscricaoInterlabController::class, 'confirmaInscricao'])->name('confirma-inscricao-interlab');
     Route::post('informa-empresa', [InscricaoInterlabController::class, 'informaEmpresa'])->name('informa-empresa-interlab');
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoInterlabController::class, 'cancelaInscricao'])->name('cancela-inscricao-interlab');
     Route::post('salvar-inscrito', [InscricaoInterlabController::class, 'salvaInscrito'])->name('salvar-inscrito-interlab');
+    Route::post('envia-convite', [InscricaoInterlabController::class, 'enviaConvite'])->name('envia-convite-interlab');
   });
-  
 
 
-  
   /**
    * Cadastros adicionais
    */

@@ -131,7 +131,6 @@ window.onload = function(){
   deleteButton.forEach(button => {
 
     button.addEventListener('click', function(e) {
-      console.log(e.target.form)
       e.preventDefault();
       Swal.fire({
         title: 'Tem certeza?',
