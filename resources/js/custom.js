@@ -76,7 +76,6 @@ window.onload = function(){
       if( !$(this).attr('href') || $(this).attr('href') == undefined ) { return; }
       window.location.href = $(this).attr('href');
     });
-    
 
     /**
      * Desabilita todos inputs de permissão quando selecionar admin
@@ -148,8 +147,51 @@ window.onload = function(){
         }
       });
     });
-
   })
+
+  /**
+   * Carrega sweet alert de informações de mudança no site
+  */
+    const inscrevasseButton = document.querySelectorAll('.botao-inscrevase')
+    inscrevasseButton.forEach(button => {
+      console.log(button)
   
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (localStorage.getItem('inscrevase') == 'false') {
+          window.location = e.target.getAttribute('href');
+          return;
+        }
+
+        Swal.fire({
+          title: 'Atenção!',
+          html: `
+            O sistema de inscrições da Rede Metrológica mudou. <br>
+            Agora você faz apenas um <b>único cadastro</b> e gerencia suas inscrições dentro da sua área de cliente.
+          `,
+          text: "",
+          icon: 'warning',
+          iconColor: '#f7dc6f',
+          iconHtml: '<i class="fas fa-exclamation-triangle" style="font-size: 3rem"></i>',
+          showCancelButton: true,
+          confirmButtonColor: '#3258d3',
+          cancelButtonColor: '#adb5bd',
+          confirmButtonText: 'Entendi!',
+          cancelButtonText: 'Não mostrar novamente',
+          reverseButtons: true,
+          width: '40rem'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location = e.target.getAttribute('href');
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Salva no local storage que não deve mostrar novamente
+            localStorage.setItem('inscrevase', 'false');
+            window.location = e.target.getAttribute('href');
+          } else if (result.dismiss !== Swal.DismissReason.cancel) {
+            return;
+          }
+        });
+      });
+    })
 
 };

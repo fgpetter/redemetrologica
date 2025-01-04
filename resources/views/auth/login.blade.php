@@ -92,14 +92,57 @@
     <!--end row-->
   </div>
   <!--end container-->
+
+  <!-- helper modal -->
+  <div class="modal fade" id="registerLoginHelper" tabindex="-1" aria-labelledby="registerLoginHelperLabel" aria-modal="true">
+    <div class="modal-dialog modal-dialog-right">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerLoginHelperLabel">Novo sistema de inscrições: <span class="text-primary"> Login </span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>Olá, você é novo por aqui?</h5>
+                <p>O sistema de <b>inscrições da Rede Metrológica mudou</b> 
+                  agora você terá uma área de cliente onde poderá gerenciar todas suas inscrições.
+                  <br><br>
+                  Se você já é cadastrado, basta fazer o login normalmente.
+                  <br>
+                  Se você é novo por aqui, clique em <b>Cadastre-se</b> e faça seu cadastro.
+                </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="dontShowModalLogin()">Não mostrar novamente</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
 </section>
 
 @section('script')
 
 <script src="{{ URL::asset('build/js/pages/password-addon.init.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
 
-@endsection
+    if (localStorage.getItem('registerLoginHelper') == 'false') {
+      return;
+
+    } else {
+      const registerLoginHelper = new bootstrap.Modal('#registerLoginHelper');
+      registerLoginHelper.show()
+    }
+  });
+
+  function dontShowModalLogin() {
+    localStorage.setItem('registerLoginHelper', 'false');
+  }
+</script>
+
   @include('layouts.vendor-scripts')
+
 </body>
 
 </html>

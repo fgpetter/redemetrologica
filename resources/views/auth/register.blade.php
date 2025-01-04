@@ -127,11 +127,57 @@
       <!--end row-->
     </div>
     <!--end container-->
+
+    <!-- helper modal -->
+    <div class="modal fade" id="registerHelper" tabindex="-1" aria-labelledby="registerHelperLabel" aria-modal="true">
+      <div class="modal-dialog modal-dialog-right">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="registerHelperLabel">Novo sistema de inscrições:<span class="text-primary"> Cadastro </span></h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <h5>Vamos criar sua conta na Rede Metrológica!</h5>
+                  <p>O sistema de <b>inscrições da Rede Metrológica mudou</b> 
+                    agora você terá uma área de cliente onde poderá gerenciar todas suas inscrições.
+                    <br><br>
+                    <b>Para começar, precisamos que você crie uma conta.</b> <br>
+                    Preencha os campos com seus dados e crie uma senha segura. <br>
+                    Se você já havia se cadastrado para algum curso ou evento da Rede Metrológica no sistema anterior, 
+                    iremos integrar seus dados antigos com sua nova conta.
+                    
+                  </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="dontShowModalLogin()">Não mostrar novamente</button>
+                  <button type="button" class="btn  btn-primary" data-bs-dismiss="modal">OK</button>
+              </div>
+          </div>
+      </div>
+    </div>
+
   </section>
 
   @section('script')
   <script src="{{ URL::asset('build/js/pages/password-addon.init.js') }}"></script>
   <script src="{{ URL::asset('build/js/pages/passowrd-create.init.js') }}"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  
+      if (localStorage.getItem('registerHelper') == 'false') {
+        return;
+  
+      } else {
+        const registerHelper = new bootstrap.Modal('#registerHelper');
+        registerHelper.show()
+      }
+    });
+  
+    function dontShowModalLogin() {
+      localStorage.setItem('registerHelper', 'false');
+    }
+  </script>
   @endsection
   @include('layouts.vendor-scripts')
 </body>
