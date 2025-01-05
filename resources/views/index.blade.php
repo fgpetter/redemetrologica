@@ -1,12 +1,13 @@
 @extends('layouts.master')
 
-@section('title') @lang('translation.starter') @endsection
+@section('title') Painel @endsection
 
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1') Inicio @endslot
         @slot('title') Painel @endslot
     @endcomponent
+
     @if(auth()->user()->pessoa?->funcionario)
         {{-- carega componentes referentes ao funcionário e área --}}
         Painel de funcionários
@@ -46,11 +47,11 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="h5 mb-3">Você está inscrito no seguinte Interlab:</h5>
-    
+
                     @foreach ( auth()->user()->pessoa?->interlabs as $interlab )
                         <strong>Nome:</strong> {{ $interlab->agendaInterlab->interlab->nome }} <br>
                     @endforeach
-    
+
                 </div>
             </div>
         </div>

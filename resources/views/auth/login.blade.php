@@ -113,15 +113,13 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="dontShowModalLogin()">Não mostrar novamente</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
   </div>
 
 </section>
-
-@section('script')
 
 <script src="{{ URL::asset('build/js/pages/password-addon.init.js') }}"></script>
 <script>

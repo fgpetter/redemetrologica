@@ -207,8 +207,10 @@
         </div>
     </div>
     <!-- destaques -->
-
+    @if(!$noticias->isEmpty())
     <x-site.component-listanoticias :noticias="$noticias" :galerias="$galerias" />
-
+    @endif
+    @if(!$galerias->isEmpty())
     <x-site.component-listagalerias :noticias="$noticias" :galerias="$galerias" />
+    @endif
 @endsection

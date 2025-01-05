@@ -77,4 +77,34 @@ if(isset($_GET['descricao'])) {
     </table>
   </div>
   {{-- table --}}
+
+
+  <!-- helper modal -->
+  <div class="modal fade" id="labReconhecidosHelper" tabindex="-1" aria-labelledby="labReconhecidosHelperLabel" aria-modal="true">
+    <div class="modal-dialog modal-dialog-right">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="labReconhecidosHelperLabel">Estamos atualizando nosso sistema</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Estamos em processo de atualização de nosso sistema. <br>
+                  O cadastro de laboratórios reconhecidos está sendo atualizado e em breve estará completamente disponível. <br><br>
+                  Caso o laboratório que você procura não esteja listado, solicite informações através do e-mail:
+                  <a href="mailto:avaliacoes@redemetrologica.com.br">avaliacoes@redemetrologica.com.br</a>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    new bootstrap.Modal('#labReconhecidosHelper').show()
+  })
+</script>
+  
 @endsection
