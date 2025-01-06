@@ -65,11 +65,11 @@
         <li class="nav-item">
           <a class="nav-link menu-link collapsed "
             href="#sidebarPessoas" data-bs-toggle="collapse" role="button"
-            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor', 'painel/laboratorios']) ? 'true' : 'false' }}"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor', 'painel/laboratorios', 'painel/fornecedor']) ? 'true' : 'false' }}"
             aria-controls="sidebarPessoas">
             <i class="ph-address-book"></i> <span>PESSOAS</span>
           </a>
-          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/avaliador', 'painel/instrutor', 'painel/laboratorios']) ? 'show' : '' }}"
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/funcionario', 'painel/pessoa', 'painel/avaliador', 'painel/instrutor', 'painel/laboratorios', 'painel/fornecedor']) ? 'show' : '' }}"
             id="sidebarPessoas">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
@@ -218,7 +218,7 @@
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
               <a href="{{ route('a-receber-index') }}"
-                class="nav-link {{ request()->is('areceber/index') ? 'active' : '' }}"
+                class="nav-link {{ request()->is('painel/financeiro/areceber/index') ? 'active' : '' }}"
                 role="button" data-key="t-signin">
                 A receber
               </a>
