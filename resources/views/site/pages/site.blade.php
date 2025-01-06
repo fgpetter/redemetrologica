@@ -198,7 +198,7 @@
                 <div class="SiteCards__bgimage p-5 text-center mb-5 text-white position-relative"
                     style="background-size: cover; background-image: url('{{ asset('build/images/site/LAB-RECONHECIDO-1349-x-443.png') }}'); height:100%; width:100%;">
                     <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
-                        <a href="/interlaboratoriais" type="button" class="btn btn-warning btn-lg">Ver mais</a>
+                        <a href="/laboratorios-reconhecidos" type="button" class="btn btn-warning btn-lg">Ver mais</a>
                     </div>
                 </div>
 
