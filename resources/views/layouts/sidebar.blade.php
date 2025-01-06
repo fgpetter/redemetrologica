@@ -2,7 +2,7 @@
 <div class="app-menu navbar-menu">
   <!-- LOGO -->
   <div class="navbar-brand-box">
-    <a href="index" class="logo logo-dark">
+    <a href="/painel" class="logo logo-dark">
       <span class="logo-sm">
         <img src="{{ URL::asset('build/images/favicon.png') }}" alt="" height="32">
       </span>
@@ -10,7 +10,7 @@
         <img src="{{ URL::asset('build/images/site/LOGO_REDE_BRANCO.png') }}" alt="" height="32">
       </span>
     </a>
-    <a href="index" class="logo logo-light">
+    <a href="/painel" class="logo logo-light">
       <span class="logo-sm">
         <img src="{{ URL::asset('build/images/favicon.png') }}" alt="" height="32">
       </span>
