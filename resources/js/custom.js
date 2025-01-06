@@ -194,3 +194,4 @@ window.onload = function(){
     })
 
 };
+console.log('Custom JS loaded!')
