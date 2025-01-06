@@ -3,7 +3,7 @@
   @csrf
   <div class="row">
     <div class="col-12">
-      <x-forms.input-select name="interlab_id" label="Interlaboratorial" errorBag="principal">
+      <x-forms.input-select name="interlab_id" label="Interlaboratorial" errorBag="principal" required>
         <option value="">Selecione</option>
         @foreach ($interlabs as $interlab)
           <option @selected( $agendainterlab->interlab_id == $interlab->id ) value="{{ $interlab->id }}">{{ $interlab->nome }}</option>
@@ -23,7 +23,7 @@
 
     <div class="col-6 col-lg-4 col-xl-2">
       <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
-        label="Data Inicio"/>
+        label="Data Inicio" required/>
       @error('data_inicio','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 

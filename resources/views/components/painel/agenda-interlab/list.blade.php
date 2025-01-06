@@ -53,9 +53,9 @@
                  @endif
               </td>
 
-              <td> {{ $agendainterlab->data_inicio->format('d/m/Y') }} </td>
+              <td> {{ $agendainterlab->data_inicio?->format('d/m/Y') }} </td>
 
-              <td> {{ $agendainterlab->data_fim->format('d/m/Y') }} </td>
+              <td> {{ $agendainterlab->data_fim?->format('d/m/Y') }} </td>
 
               <td> {{ $agendainterlab->interlab->nome ?? '' }} </td>
 

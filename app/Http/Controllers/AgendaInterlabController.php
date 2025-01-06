@@ -123,7 +123,7 @@ class AgendaInterlabController extends Controller
     $validated['valor_s_se'] = $this->formataMoeda($request->valor_s_se);
     $validated['valor_co'] = $this->formataMoeda($request->valor_co);
     $validated['valor_n_ne'] = $this->formataMoeda($request->valor_n_ne);
-    $validated['descricao'] = $this->salvaImagensTemporarias($request);
+    $validated['descricao'] = $request->get('descricao') ? $this->salvaImagensTemporarias($request->get('descricao') ) : null;
 
     $agenda_interlab = AgendaInterlab::create($validated);
 
@@ -131,7 +131,7 @@ class AgendaInterlabController extends Controller
       return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
-    return redirect()->back()->with('success', 'Agenda interlab cadastrado com sucesso');
+    return redirect()->route('agenda-interlab-index')->with('success', 'Agenda interlab cadastrado com sucesso');
   }
 
   /**
@@ -203,7 +203,7 @@ class AgendaInterlabController extends Controller
     $validated['valor_s_se'] = $this->formataMoeda($request->valor_s_se);
     $validated['valor_co'] = $this->formataMoeda($request->valor_co);
     $validated['valor_n_ne'] = $this->formataMoeda($request->valor_n_ne);
-    $validated['descricao'] = $this->salvaImagensTemporarias($request);
+    $validated['descricao'] = $request->get('descricao') ? $this->salvaImagensTemporarias($request->get('descricao') ) : null;
 
     // adiciona condicional para que interlabs concluidos não apareçam no site
     if ($request->status == 'CONCLUIDO') {
@@ -485,9 +485,8 @@ class AgendaInterlabController extends Controller
    * 
    * @return string $content
    */
-  private function salvaImagensTemporarias($request): string {
-    $descricao = $request->get('descricao');
-    
+  private function salvaImagensTemporarias($descricao): string {
+
     // lida com as pastas temporarias do editor de conteúdo
     if (session()->has('tempPastas')) {
       $tempPastas = session()->get('tempPastas');
