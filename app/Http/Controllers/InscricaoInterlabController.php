@@ -236,9 +236,7 @@ class InscricaoInterlabController extends Controller
       return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
     }
 
-    dd(request()->all());
-
-    return back()->with('success', 'Dados salvos com sucesso!');
+    return back()->with('success', 'Convites enviados com sucesso!');
   }
 
   /**
