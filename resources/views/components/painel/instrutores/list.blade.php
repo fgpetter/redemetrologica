@@ -22,8 +22,7 @@
                                             id="choices-single-default">
                                             <option value="">Selecione na lista</option>
                                             @foreach ($pessoas as $pessoa)
-                                                <option value="{{ $pessoa->uid }}">{{ $pessoa->cpf_cnpj }} |
-                                                    {{ $pessoa->nome_razao }}</option>
+                                                <option value="{{ $pessoa->uid }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
                                             @endforeach
                                         </select>
                                         @error('pessoa_uid')
