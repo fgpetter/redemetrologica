@@ -7,8 +7,10 @@
             <p class="SiteBanner--titulocursos  my-5"><strong>
                     {{ $agendacursos->curso->descricao ?? '' }}</strong></p>
             <p><i class="bi bi-clock text-warning mx-1"></i> Data:
-                {{ \Carbon\Carbon::parse($agendacursos->data_inicio)->format('d/m/Y') }} a
-                {{ \Carbon\Carbon::parse($agendacursos->data_fim)->format('d/m/Y') }} </p>
+                @if($agendacursos->data_inicio) {{ \Carbon\Carbon::parse($agendacursos->data_inicio)->format('d/m/Y') }} @endif
+                a
+                @if($agendacursos->data_fim) {{ \Carbon\Carbon::parse($agendacursos->data_fim)->format('d/m/Y') }} @endif</p>
+
             <p><i class="bi bi-stopwatch text-warning mx-1"></i>Horário: {{ $agendacursos->horario }}</p>
             <p><i class="bi bi-question-circle text-warning mx-1"></i>Carga Horária:
                 {{ $agendacursos->carga_horaria }}</p>

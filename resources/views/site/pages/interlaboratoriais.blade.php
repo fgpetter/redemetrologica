@@ -48,7 +48,8 @@
                 class="fa-solid fa-circle-chevron-right"></i></a>
             </div>
             <div class="card-footer py-2 border-0 text-white" style="background-color: #002C41">
-              <i class="bi bi-calendar2-event"></i> &nbsp; {{ \Carbon\Carbon::parse($agendaInterlab->data_inicio)->format('d/m/Y') }}
+              <i class="bi bi-calendar2-event"></i> &nbsp; 
+                @if($agendaInterlab->data_inicio) {{ \Carbon\Carbon::parse($agendaInterlab->data_inicio)->format('d/m/Y') }} @endif 
             </div>
           </div>
         </div>
