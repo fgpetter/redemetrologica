@@ -45,7 +45,9 @@ class ConfirmaInscricaoInterlab extends Component
         }
 
         // vincula novo cadastro a uma empresa se houver id de indicação
-        if(session('empresa')){
+        if(!session('empresa')){
+            $this->empresa = $this->pessoa->empresas()->first() ?? null;
+        } else {
             $this->pessoa->empresas()->sync($this->empresa->id);
         }
 
