@@ -29,7 +29,7 @@
               <th class="text-uppercase">
                 {{ Carbon\Carbon::parse($agendacurso->data_inicio)->locale('pt-BR')->translatedFormat('F') }}
               </th>
-              <td class="text-center">{{ $agendacurso->id }}</td>
+              <td class="text-center"> <a href="{{ route('agendamento-curso-insert', $agendacurso->uid) }}"># {{ $agendacurso->id }}</a> </td>
               <td
                 @if ($agendacurso->status == 'CONFIRMADO') class="text-success fw-bold"
                 @elseif ($agendacurso->status == 'REAGENDAR') class="text-primary fw-bold"
