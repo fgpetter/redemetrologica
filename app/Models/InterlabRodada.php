@@ -56,7 +56,11 @@ class InterlabRodada extends Model
         $this->parametros()->delete();
         if(!empty($parametros)) {
             foreach ($parametros as $parametro) {
-                $this->parametros()->create(['parametro_id' => $parametro]);
+                $this->parametros()->create(
+                    [
+                        'parametro_id' => $parametro,
+                        'agenda_interlab_id' => $this->agenda_interlab_id,
+                    ]);
             }
         }
     }
