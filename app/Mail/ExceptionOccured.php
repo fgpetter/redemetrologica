@@ -27,7 +27,7 @@ class ExceptionOccured extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('system@redemetrologica.com', 'Sistema Rede Metrológica'),
+            from: new Address('sistema@redemetrologica.com.br', 'Sistema Rede Metrológica'),
             subject: 'Exception Occured',
         );
     }
