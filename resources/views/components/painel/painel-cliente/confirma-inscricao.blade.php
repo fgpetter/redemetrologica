@@ -81,7 +81,7 @@
             <div class="col-5">
               <input type="email" class="form-control" name="indicacao-email[]" placeholder="Email">
             </div>
-            <div class="col-2">            
+            <div class="col-2">
               <a href="javascript:void(0)" onclick="duplicateRow()"  class="btn btn-primary"> + </a>
               <a href="javascript:void(0)" onclick="deleteRow(this)"  class="btn btn-danger"> - </a>
             </div>
