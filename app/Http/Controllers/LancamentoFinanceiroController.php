@@ -2,44 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{AgendaCursos,Pessoa,CentroCusto,LancamentoFinanceiro,ModalidadePagamento,PlanoConta};
-use Illuminate\Http\{Request,RedirectResponse};
+use Illuminate\Support\Arr;
+use App\Models\AgendaInterlab;
+use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Http\{Request,RedirectResponse};
+use App\Models\{AgendaCursos,Pessoa,CentroCusto,LancamentoFinanceiro,ModalidadePagamento,PlanoConta};
 
 class LancamentoFinanceiroController extends Controller
 {
   /**
    * Gera pagina de listagem lancamentos financeiros
    *
+   * @param Request $request
    * @return View
    **/
-  public function index(): View
+  public function index(Request $request): View
   {
-    $data_inicial = $_GET['data_inicial'] ?? null;
-    $data_final = $_GET['data_final'] ?? null;
-    $tipo = $_GET['tipo'] ?? null;
-    $pessoa = $_GET['pessoa'] ?? null;
+    $validated = $request->validate([
+      'data_inicial' => ['nullable', 'date'],
+      'data_final' => ['nullable', 'date'],
+      'pessoa' => ['nullable', 'exists:pessoas,id'],
+    ]);
 
-    $lancamentosfinanceiros = LancamentoFinanceiro::select()
-      ->with(['pessoa' => function ($query) {
-        $query->withTrashed();
-      }])
-      ->when($data_inicial, function (Builder $query, $data_inicial) {
-        $query->where('data_emissao', '>=', $data_inicial);
-      })
-      ->when($data_final, function (Builder $query, $data_final) {
-        $query->where('data_emissao', '<=', $data_final);
-      })
-      ->when($tipo, function (Builder $query, $tipo) {
-        $query->where('tipo', $tipo);
-      })
-      ->when($pessoa, function (Builder $query, $pessoa) {
-        $query->where('pessoa_id', $pessoa);
-      })
-      ->orderBy('data_vencimento', 'desc')
-      ->get();
+    $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)
+      ->orderBy('data_emissao', 'desc')
+      ->paginate(15);
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
@@ -84,7 +72,7 @@ class LancamentoFinanceiroController extends Controller
         'tipo_lancamento.in' => 'A opção selecionada é inválida',
       ]
     );
-    $validated['valor'] = $this->formataMoeda($validated['valor']) ?? null;
+    $validated['valor'] = formataMoeda($validated['valor']) ?? null;
     $validated['uid'] = config('hashing.uid');
 
 
@@ -173,7 +161,7 @@ class LancamentoFinanceiroController extends Controller
       ]
     );
 
-    $validated['valor'] = $this->formataMoeda($validated['valor']) ?? null;
+    $validated['valor'] = formataMoeda($validated['valor']) ?? null;
     $lancamento->update($validated);
 
     return redirect()->back()->with('success', 'Lancamento atualizado com sucesso');
@@ -194,51 +182,55 @@ class LancamentoFinanceiroController extends Controller
   /**
    * Gera pagina de listagem lancamentos a receber
    *
+   * @param Request $request
    * @return View
    **/
-  public function areceber(): View
+  public function areceber(Request $request): View
   {
-    $lancamentosfinanceiros = LancamentoFinanceiro::select()
-    ->with( ['pessoa' => fn($query) => $query->withTrashed()] )
-    ->with('curso')
-    ->where('status', 'PROVISIONADO')
-    ->where('tipo_lancamento', 'CREDITO')
-    ->whereRelation('curso', fn($query) => $query->whereIn('status', ['CONFIRMADO','REALIZADO']))
-    ->orderBy('data_emissao', 'desc')
-    ->paginate(15);
+    $validated = $request->validate([
+        'data_inicial' => ['nullable', 'date'],
+        'data_final' => ['nullable', 'date'],
+        'pessoa' => ['nullable', 'exists:pessoas,id'],
+        'area' => ['nullable', 'in:CURSO,PEP,AVALIACAO'],
+        'curso' => ['nullable', 'exists:agenda_cursos,id', Rule::prohibitedIf(boolval($request->pep))],
+        'pep' => ['nullable', 'exists:agenda_interlabs,id'],
+      ],[
+        'curso.prohibited' => 'Essa seleção é conflituosa',
+    ]);
 
-    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->get();
+    if( Arr::exists( $validated, 'curso' ) || Arr::exists( $validated, 'pep' )) {
+      $validated['area'] = match( $validated['area'] ?? null ) {
+        'CURSO' => 'agenda_curso_id',
+        'PEP' => 'agenda_interlab_id',
+        'AVALIACAO' => 'agenda_avaliacao_id',
+        default => null,
+      };
+    }
 
-    $cursos = AgendaCursos::select('id','uid','curso_id')->whereIn('status', ['CONFIRMADO','REALIZADO'])->with('curso')->get();
+    $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosAReceber($validated)
+      ->orderBy('data_emissao', 'desc')
+      ->paginate(15);
+
+    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
+      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->withTrashed()
+      ->get();
+
+    $cursos = AgendaCursos::select('id','uid','curso_id')
+      ->whereIn('status', ['CONFIRMADO','REALIZADO'])
+      ->with('curso')
+      ->get();
+
+    $agendainterlabs = AgendaInterlab::select('id','uid','interlab_id')
+      ->whereIn('status', ['CONFIRMADO','CONCLUIDO'])
+      ->with('interlab')
+      ->get();
 
     return view('painel.lancamento-financeiro.areceber', [
-      'lancamentosfinanceiros' => $lancamentosfinanceiros, 'pessoas' => $pessoas, 'cursos' => $cursos
+      'lancamentosfinanceiros' => $lancamentosfinanceiros, 
+      'pessoas' => $pessoas, 
+      'cursos' => $cursos,
+      'agendainterlabs' => $agendainterlabs
     ]);
-  }
-
-  /**
-   * Formata valor para decimal padrão SQL
-   *
-   * @param string $valor
-   * @return string|null
-   */
-  private function formataMoeda($valor): ?string
-  {
-    if ($valor) {
-      if(str_contains($valor, '.') && str_contains($valor, ',') ) {
-        return str_replace(',', '.', str_replace('.', '', $valor));
-      }
-
-      if(str_contains($valor, '.') && !str_contains($valor, ',') ) {
-        return $valor;
-      }
-
-      if(str_contains($valor, ',') && !str_contains($valor, '.') ){
-        return str_replace(',', '.', $valor);
-      }
-
-    } else {
-      return null;
-    }
   }
 }

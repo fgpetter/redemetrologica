@@ -14,7 +14,11 @@
 
   <div class="row">
     <div class="col">
-      <x-painel.lancamento-financeiro.list-areceber :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas" :cursos="$cursos"/>
+      <x-painel.lancamento-financeiro.list-areceber 
+      :lancamentosfinanceiros="$lancamentosfinanceiros" 
+      :pessoas="$pessoas" 
+      :cursos="$cursos"
+      :agendainterlabs="$agendainterlabs"/>
     </div>
   </div>
 @endsection
