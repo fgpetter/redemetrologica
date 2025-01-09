@@ -96,6 +96,7 @@ class InscricaoCursoController extends Controller
         'cpf_cnpj' => $request->cpf_cnpj,
       ]
     );
+
     $pessoa->empresas()->sync($request->id_empresa);
 
     // adiciona pessoa a cursos_inscritos
@@ -151,17 +152,17 @@ class InscricaoCursoController extends Controller
   public function salvaInscrito(Request $request): RedirectResponse
   {
     $validator = Validator::make($request->all(), [
-      'inscrito_uid' => ['nullable', 'exists:curso_inscritos,uid'],
-      'pessoa_uid' => ['nullable', 'exists:pessoas,uid'],
-      'nome' => ['required', 'string', 'max:190'],
-      'telefone' => ['required', 'celular_com_ddd'],
-      'email' => ['required', 'email', 'max:190'],
-      'cpf_cnpj' => ['required_if:pessoa_uid,null', 'cpf'],
-      'data_confirmacao' => ['nullable', 'date'],
-      'certificado_emitido' => ['nullable', 'date'],
-      'resposta_pesquisa' => ['nullable', 'date'],
-      'valor' => ['nullable', 'regex:/[\d.,]+$/'],
-      ],[
+        'inscrito_uid' => ['nullable', 'exists:curso_inscritos,uid'],
+        'pessoa_uid' => ['nullable', 'exists:pessoas,uid'],
+        'nome' => ['required', 'string', 'max:190'],
+        'telefone' => ['required', 'celular_com_ddd'],
+        'email' => ['required', 'email', 'max:190'],
+        'cpf_cnpj' => ['required_if:pessoa_uid,null', 'cpf'],
+        'data_confirmacao' => ['nullable', 'date'],
+        'certificado_emitido' => ['nullable', 'date'],
+        'resposta_pesquisa' => ['nullable', 'date'],
+        'valor' => ['nullable', 'regex:/[\d.,]+$/'],
+        ],[
         'inscrito_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
         'pessoa_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
         'cpf_cnpj.required_if' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
@@ -177,12 +178,13 @@ class InscricaoCursoController extends Controller
         'certificado_emitido.date' => 'O dado enviado não é uma data válida',
         'resposta_pesquisa.date' => 'O dado enviado não é uma data válida',
         'valor.regex' => 'O valor informado não é um número',
-      ]);
+    ]);
 
     if($validator->fails()){
       return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
     }
 
+    // cria ou atualiza pessoa
     if($request->pessoa_uid) {
       $pessoa = Pessoa::where('uid', $request->pessoa_uid)->first();
       $pessoa->update([
@@ -202,12 +204,14 @@ class InscricaoCursoController extends Controller
     }
 
     $inscrito = CursoInscrito::where('uid', $request->inscrito_uid)->first();
+
+    // executa lógica de inserção dos dados de escritos 
     $this->adicionaInscrito([
       'uid' => $request->inscrito_uid,
       'pessoa_id' => $pessoa->id,
       'empresa_id' => $inscrito?->empresa_id ?? null,
       'agenda_curso_id' => $inscrito?->agenda_curso_id ?? null,
-      'valor' => $this->formataMoeda($request->valor),
+      'valor' => formataMoeda($request->valor),
       'data_inscricao' => $inscrito?->data_inscricao ?? null,
       'certificado_emitido' => $request->certificado_emitido,
       'resposta_pesquisa' => $request->resposta_pesquisa,
@@ -258,9 +262,10 @@ class InscricaoCursoController extends Controller
       'resposta_pesquisa' => $dado_inscrito['resposta_pesquisa'] ?? null,
     ]);
 
+    $curso = AgendaCursos::find($dado_inscrito['agenda_curso_id'])->curso;
+
     // adiciona lancamento financeiro por empresa
     if( isset($dado_inscrito['empresa_id']) ) {
-      $curso = AgendaCursos::find($dado_inscrito['agenda_curso_id'])->curso;
 
       $lancamento = LancamentoFinanceiro::where('pessoa_id', $dado_inscrito['empresa_id'])
         ->where('agenda_curso_id', $dado_inscrito['agenda_curso_id'])
@@ -285,32 +290,18 @@ class InscricaoCursoController extends Controller
         ]);
       }
 
-    }
-  }
-
-  /**
-   *  Formata valor para decimal padrão SQL
-   * 
-   * @param string|null $valor
-   * @return string|null
-   */
-  private function formataMoeda($valor): ?string
-  {
-    if ($valor) {
-      if (str_contains($valor, '.') && str_contains($valor, ',')) {
-        return str_replace(',', '.', str_replace('.', '', $valor));
-      }
-
-      if (str_contains($valor, '.') && !str_contains($valor, ',')) {
-        return $valor;
-      }
-
-      if (str_contains($valor, ',') && !str_contains($valor, '.')) {
-        return str_replace(',', '.', $valor);
-      }
     } else {
-      return null;
+      $lancamento = LancamentoFinanceiro::create([
+        'pessoa_id' => $dado_inscrito['pessoa_id'],
+        'agenda_curso_id' => $dado_inscrito['agenda_curso_id'],
+        'historico' => 'Inscrição curso - ID:' . $curso->id . ' - ' . $curso->descricao,
+        'valor' => $dado_inscrito['valor'],
+        'centro_custo_id' => CentroCusto::where('descricao', 'TREINAMENTO')->first()->id,
+        'data_emissao' => now(),
+        'status' => 'PROVISIONADO',
+        'observacoes' => date('d/m/Y H:i').' - Inscrição de participante - ' . Pessoa::find($dado_inscrito['pessoa_id'])->nome_razao ." - R$". $dado_inscrito['valor'],
+      ]);
     }
   }
-  
+
 }
