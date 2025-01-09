@@ -27,18 +27,24 @@ class LancamentoFinanceiroController extends Controller
         $query->withTrashed();
       }])
       ->when($data_inicial, function (Builder $query, $data_inicial) {
-        $query->where('data_emissao', '>', $data_inicial);
+        $query->where('data_emissao', '>=', $data_inicial);
       })
       ->when($data_final, function (Builder $query, $data_final) {
-        $query->where('data_emissao', '<', $data_final);
+        $query->where('data_emissao', '<=', $data_final);
       })
       ->when($tipo, function (Builder $query, $tipo) {
         $query->where('tipo', $tipo);
       })
+      ->when($pessoa, function (Builder $query, $pessoa) {
+        $query->where('pessoa_id', $pessoa);
+      })
       ->orderBy('data_vencimento', 'desc')
       ->get();
 
-    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->get();
+    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
+      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->withTrashed()
+      ->get();
 
     return view( 'painel.lancamento-financeiro.index', [
       'lancamentosfinanceiros' => $lancamentosfinanceiros, 
