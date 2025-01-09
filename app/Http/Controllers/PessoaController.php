@@ -161,6 +161,7 @@ class PessoaController extends Controller
    **/
   public function delete(Pessoa $pessoa): RedirectResponse
   {
+    $pessoa->user()->delete(); // remove usuário associado
     $pessoa->delete(); // soft delete
 
     return redirect()->route('pessoa-index')->with('warning', 'Pessoa removida');
