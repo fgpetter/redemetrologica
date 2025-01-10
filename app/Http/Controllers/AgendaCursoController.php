@@ -256,7 +256,7 @@ class AgendaCursoController extends Controller
    **/
   public function showCursoAgendado($uid): View
   {
-    $agendacursos = Agendacursos::where('uid', $uid)->with('curso')->first();
+    $agendacursos = Agendacursos::where('uid', $uid)->with('curso')->firstOrFail();
 
     return view('site.pages.slug-cursos', ['agendacursos' => $agendacursos]);
   }
