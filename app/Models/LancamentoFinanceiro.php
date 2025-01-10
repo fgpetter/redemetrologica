@@ -100,6 +100,12 @@ class LancamentoFinanceiro extends Model
         })
         ->when($validated['area'] ?? null, function (Builder $query, $area) {
           $query->whereNotNull($area);
+        })
+        ->when($validated['curso'] ?? null, function (Builder $query, $curso) {
+          $query->where('agenda_curso_id', $curso);
+        })
+        ->when($validated['pep'] ?? null, function (Builder $query, $pep) {
+          $query->where('agenda_interlab_id', $pep);
         });
     }
 
