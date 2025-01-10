@@ -35,8 +35,12 @@ trait RegistersUsers
         $this->validator($request->all())->validate();
 
         if($pessoa = Pessoa::where('cpf_cnpj', $document)->first()){
-            $mail = obfuscate_email($pessoa->user->email);
-            return redirect('login')->withErrors(['document' => "O CPF informado já está associado ao usuário {$mail}."]);
+            if($pessoa->email) {
+                $mail = obfuscate_email($pessoa->email);
+                return redirect('login')->withErrors(['document' => "O CPF informado já está associado ao usuário {$mail}. Solicite a atualização do seu cadastro através do email contato@redemetrologica.com.br"]);
+            } else {
+                return redirect('login')->withErrors(['document' => "O CPF informado já está cadastrado. Solicite a atualização do seu cadastro através do email contato@redemetrologica.com.br"]);
+            }
         }
 
 
