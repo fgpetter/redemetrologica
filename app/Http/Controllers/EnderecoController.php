@@ -20,7 +20,6 @@ class EnderecoController extends Controller
   {
     $validated = $request->validate(
       [
-        'info' => ['nullable', 'string'],
         'pessoa_id' => ['required', 'integer'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
@@ -36,7 +35,13 @@ class EnderecoController extends Controller
         'end_padrao.integer' => 'Dado inválido'
       ]);
 
-    $endereco = Endereco::create($validated);
+    $endereco = Endereco::create([
+      'pessoa_id' => $validated['pessoa_id'],
+      'cep' => $validated['cep'],
+      'endereco' => $validated['endereco'],
+      'cidade' => $validated['cidade'],
+      'uf' => $validated['uf']
+    ]);
 
     if (!$endereco) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
@@ -60,7 +65,6 @@ class EnderecoController extends Controller
   {
     $validated = $request->validate(
       [
-        'info' => ['nullable', 'string'],
         'pessoa_id' => ['required', 'integer'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
@@ -76,9 +80,15 @@ class EnderecoController extends Controller
         'end_padrao.integer' => 'Dado inválido'
       ]);
 
-    $endereco->update($validated);
+    $endereco->update([
+      'pessoa_id' => $validated['pessoa_id'],
+      'cep' => $validated['cep'],
+      'endereco' => $validated['endereco'],
+      'cidade' => $validated['cidade'],
+      'uf' => $validated['uf']
+    ]);
 
-    $pessoa = Pessoa::find($request->pessoa);
+    $pessoa = Pessoa::find($request->pessoa_id);
 
     if (isset($request->end_padrao)) {
       $pessoa->update(['end_padrao' => $endereco->id]);
