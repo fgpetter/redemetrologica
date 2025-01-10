@@ -71,7 +71,7 @@
               </tr>
             </thead>
             <tbody>
-              @forelse ($lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO') as $lancamento)
+              @forelse ($lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento') as $lancamento)
                 <tr>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">

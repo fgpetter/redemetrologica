@@ -8,6 +8,8 @@
   }
 
   (isset($_GET['pessoa']) && $_GET['pessoa'] != "" ) ? $busca_pessoa = $_GET['pessoa'] : $busca_pessoa = null;
+  (isset($_GET['curso']) && $_GET['curso'] != "" ) ? $busca_curso = $_GET['curso'] : $busca_curso = null;
+  (isset($_GET['pep']) && $_GET['pep'] != "" ) ? $busca_pep = $_GET['pep'] : $busca_pep = null;
 @endphp
 
 <div class="card">
@@ -15,11 +17,11 @@
     <form method="GET">
       <div class="row gx-3 align-items-center">
         <div class="col-auto">
-          <x-forms.input-field :value="old('data_inicial') ?? ($lancamento_financeiro->data_inicial ?? null)" 
+          <x-forms.input-field :value="old('data_inicial') ?? $data_inicial ?? null" 
             type="date" name="data_inicial" id="data_inicial" label="Data Inicial" />
         </div>
         <div class="col-auto">
-          <x-forms.input-field :value="old('data_final') ?? ($lancamento_financeiro->data_final ?? null)" 
+          <x-forms.input-field :value="old('data_final') ?? $data_final ?? null" 
             type="date" name="data_final" id="data_final" label="Data Final" />
         </div>
         <div class="col-2">
@@ -36,7 +38,7 @@
           <x-forms.input-select name="curso" id="curso" label="Curso">
             <option value=""> - </option>
             @foreach ($cursos as $curso)
-              <option value="{{ $curso->id }}">{{ $curso->id }} - {{ $curso->curso->descricao }}</option>
+              <option @selected($curso->id == $busca_curso) value="{{ $curso->id }}">{{ $curso->id }} - {{ $curso->curso->descricao }}</option>
             @endforeach
           </x-forms.input-select>
         </div>
@@ -44,7 +46,7 @@
           <x-forms.input-select name="pep" id="pep" label="PEP">
             <option value=""> - </option>
             @foreach ($agendainterlabs as $agendainterlab)
-              <option value="{{ $agendainterlab->id }}">{{ $agendainterlab->id }} - {{ $agendainterlab->interlab->nome }}</option>
+              <option @selected($agendainterlab->id == $busca_pep) value="{{ $agendainterlab->id }}">{{ $agendainterlab->id }} - {{ $agendainterlab->interlab->nome }}</option>
             @endforeach
 
           </x-forms.input-select>
@@ -55,12 +57,13 @@
           <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
             <option value="" > - </option>
             @foreach ($pessoas as $pessoa)
-              <option value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
+              <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
             @endforeach
           </x-forms.input-select>
         </div>
         <div class="col-auto">
-          <button type="submit" class="btn btn-sm btn-primary px-3 py-2 mx-sm-3">Pesquisar</button>
+          <button type="submit" class="btn btn-sm btn-primary px-3 py-2 ms-sm-3">Pesquisar</button>
+          <button type="reset" class="btn btn-sm btn-danger px-3 py-2">Limpar</button>
         </div>
       </div>
     </form>
