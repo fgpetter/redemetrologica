@@ -27,7 +27,7 @@ class LancamentoFinanceiroController extends Controller
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)
       ->orderBy('data_emissao', 'desc')
-      ->paginate(15);
+      ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
@@ -209,7 +209,7 @@ class LancamentoFinanceiroController extends Controller
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosAReceber($validated)
       ->orderBy('data_emissao', 'desc')
-      ->paginate(15);
+      ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
