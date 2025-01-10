@@ -21,7 +21,7 @@ class EnderecoController extends Controller
     $validated = $request->validate(
       [
         'info' => ['nullable', 'string'],
-        'pessoa' => ['required', 'integer'],
+        'pessoa_id' => ['required', 'integer'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
         'cidade' => ['required', 'string'],
@@ -61,7 +61,7 @@ class EnderecoController extends Controller
     $validated = $request->validate(
       [
         'info' => ['nullable', 'string'],
-        'pessoa' => ['required', 'integer'],
+        'pessoa_id' => ['required', 'integer'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
         'cidade' => ['required', 'string'],

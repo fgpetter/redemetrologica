@@ -12,7 +12,7 @@
         <form action="{{ (isset($endereco->uid)) ? route('endereco-update', $endereco->uid) : route('endereco-create') }}" method="POST">
           @csrf
           <div class="row mb-4">
-            <input type="hidden" name="pessoa" value="{{$pessoa->id}}">
+            <input type="hidden" name="pessoa_id" value="{{$pessoa->id}}">
             <x-painel.enderecos.form-endereco :endereco="$endereco ?? null" :pessoa="$pessoa"/>
           </div>
             <div class="col-lg-12">
