@@ -48,7 +48,8 @@
   <label for="uf" class="form-label">Estado<small class="text-danger-emphasis opacity-75"> * </small></label>
   <input type="text" class="form-control" name="uf" id="uf" 
     value="{{ old('uf') ?? $endereco->uf ?? null }}" maxlength="2" pattern="[A-Z]{2}" 
-    title="Duas letras maiúsculo" required>
+    title="Duas letras maiúsculo" required
+    oninput="this.value = this.value.toUpperCase()">
     @error('uf') <div class="text-warning">{{ $message }}</div> @enderror
 </div>
 <div class="col-6 col-sm-4">
