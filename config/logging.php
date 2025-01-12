@@ -132,6 +132,12 @@ return [
             'path' => storage_path('logs/acoes_usuarios.log'),
             'ignore_exceptions' => true,
         ],
+
+        'mailsent' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/emails_enviados.log'),
+            'ignore_exceptions' => true,
+        ],
     ],
 
 ];

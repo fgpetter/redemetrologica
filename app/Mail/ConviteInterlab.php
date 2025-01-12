@@ -3,20 +3,20 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-//use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class UserRegistered extends Mailable
+class ConviteInterlab extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ShouldQueue;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(public $user_data)
+    public function __construct()
     {
         //
     }
@@ -27,7 +27,7 @@ class UserRegistered extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Seu usuário foi cadastrado',
+            subject: 'Convite Interlab',
         );
     }
 
@@ -37,7 +37,7 @@ class UserRegistered extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.user-registered',
+            view: 'view.name',
         );
     }
 

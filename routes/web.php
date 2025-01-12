@@ -181,9 +181,11 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /* Matricula em cursos */
   Route::group(['prefix' => 'inscricao-curso'], function () {
     Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
+    Route::post('envia-convite', [InscricaoCursoController::class, 'enviaConvite'])->name('envia-convite-curso');
     Route::post('informa-empresa', [InscricaoCursoController::class, 'informaEmpresa'])->name('informa-empresa');
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
     Route::post('salvar-inscrito', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
+    Route::get('conclui-inscricao', [InscricaoCursoController::class, 'concluiInscricao'])->name('conclui-inscricao');
   });
 
   /* Instrutores*/
@@ -413,7 +415,5 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{download:uid}', [DownloadController::class, 'update'])->name('download-update');
     Route::post('delete/{download:uid}', [DownloadController::class, 'delete'])->name('download-delete');
   });
-
-
 
 });
