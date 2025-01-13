@@ -78,7 +78,7 @@ class InscricaoCursoController extends Controller
     // atializa dados de endereço da pessoa se inscrição individual
     if(!$empresa) {
       Endereco::updateOrCreate([
-        'uid' => $request->id_endereco,
+        'pessoa_id' => $request->id_pessoa
       ],[
         'cep' => $request->cep,
         'uf' => $request->uf,
@@ -346,7 +346,7 @@ class InscricaoCursoController extends Controller
           'historico' => 'Inscrição no curso - ' . $agendacurso->curso->descricao,
           'valor' => $valor,
           'centro_custo_id' => '3', // TREINAMENTO
-          'centro_custo_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+          'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
           'data_emissao' => now(),
           'status' => 'PROVISIONADO',
         ]);
@@ -377,7 +377,7 @@ class InscricaoCursoController extends Controller
         'historico' => 'Inscrição no curso - ' . $agendacurso->curso->descricao,
         'valor' => formataMoeda($valor),
         'centro_custo_id' => '3', // TREINAMENTO
-        'centro_custo_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+        'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
         'data_emissao' => now(),
         'status' => 'PROVISIONADO',
       ]);
