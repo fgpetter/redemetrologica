@@ -123,7 +123,7 @@
               @endforelse
               <tr>
                 <td colspan="5" class="border-0"> 
-                  <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->sum('valor') }} </h6> 
+                  <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento')->sum('valor') }} </h6> 
                 </td>
               </tr>
             </tbody>

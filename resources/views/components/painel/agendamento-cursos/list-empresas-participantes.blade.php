@@ -25,18 +25,12 @@
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                            data-bs-target="#participanteModal">Editar</a>
+                                    <li><a class="dropdown-item" href="{{ route('pessoa-insert', $inscrito->pessoa->uid) }}" >Editar</a>
                                     </li>
-                                    {{-- <li>
-                                        <x-painel.form-delete.delete route='materiais-padroes-delete'
-                                            id="{{ $inscrito->uid }}" />
-                                    </li> --}}
                                 </ul>
                             </div>
                         </td>
                     </tr>
-                <x-painel.agendamento-cursos.modal-participante />
                 @endif
             @empty
                 <tr>

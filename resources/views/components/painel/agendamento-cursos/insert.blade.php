@@ -29,21 +29,43 @@
     <div class="tab-content">
 
       <div class="tab-pane active" id="principal" role="tabpanel"> <!-- Principal -->
-        <x-painel.agendamento-cursos.form-principal :instrutores="$instrutores" :cursos="$cursos" :empresas="$empresas"
-          :agendacurso="$agendacurso" :cursoatual="$cursoatual" :instrutoratual="$instrutoratual"/>
+        <x-painel.agendamento-cursos.form-principal 
+          :instrutores="$instrutores" 
+          :cursos="$cursos" 
+          :empresas="$empresas"
+          :agendacurso="$agendacurso" 
+          :cursoatual="$cursoatual" 
+          :instrutoratual="$instrutoratual"/>
       </div>
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
-        <h5 class="h5 mt-3">Inscritos</h5>
+        <div class="row px-1 align-items-between">
+          <div class="col">
+            <h5 class="h5 mt-3">Inscritos</h5>
+          </div>
+          <div class="col">
+            <a href="#" class="btn btn-sm btn-success float-end" data-bs-toggle="modal"
+              data-bs-target="#adicionaInscritoModal">
+              <i class="ri-add-line align-bottom me-1"></i> Adicionar inscrito
+            </a>
+          </div>
+        </div>
         <x-painel.agendamento-cursos.list-participantes :inscritos="$inscritos" />
-        <x-painel.agendamento-cursos.modal-participante />
+        <x-painel.agendamento-cursos.modal-insere-participante 
+          :agendacurso="$agendacurso" 
+          :empresas="$empresas" 
+          :pessoas="$pessoas"/>
+      
 
         <h5 class="h5 mt-5">Empresas participantes</h5>
         <x-painel.agendamento-cursos.list-empresas-participantes :inscritos="$inscritos" />
       </div>
 
       <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
-      <x-painel.agendamento-cursos.list-despesas :despesas="$despesas" :agendacurso="$agendacurso" :materiaispadrao="$materiaispadrao"/>
+      <x-painel.agendamento-cursos.list-despesas 
+        :despesas="$despesas" 
+        :agendacurso="$agendacurso" 
+        :materiaispadrao="$materiaispadrao"/>
       </div>
 
     </div>

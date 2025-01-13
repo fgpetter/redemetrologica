@@ -184,7 +184,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('envia-convite', [InscricaoCursoController::class, 'enviaConvite'])->name('envia-convite-curso');
     Route::post('informa-empresa', [InscricaoCursoController::class, 'informaEmpresa'])->name('informa-empresa');
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
-    Route::post('salvar-inscrito', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
+    Route::post('salvar-inscrito/{inscrito:uid?}', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
     Route::get('conclui-inscricao', [InscricaoCursoController::class, 'concluiInscricao'])->name('conclui-inscricao');
   });
 

@@ -43,7 +43,7 @@ class CursoInscrito extends Model
      */
     public function pessoa() : BelongsTo
     {
-        return $this->belongsTo(Pessoa::class);
+        return $this->belongsTo(Pessoa::class)->withTrashed();
     }
 
     /**

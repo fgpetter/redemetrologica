@@ -14,6 +14,7 @@
             :instrutores="$instrutores" 
             :cursos="$cursos" 
             :empresas="$empresas" 
+            :pessoas="$pessoas" 
             :agendacurso="$agendacurso"
             :inscritos="$inscritos"
             :cursoatual="$curso_atual"
@@ -22,7 +23,24 @@
             :materiaispadrao="$materiaispadrao"
             />
         </div>
-
-
     </div>
+@endsection
+
+@section('script')
+  <script defer>
+    const pessoa = document.getElementById('pessoa')
+    const empresa = document.getElementById('empresa')
+    if(pessoa){
+      const choices = new Choices(pessoa,{
+        searchFields: ['label'],
+        maxItemCount: -1
+      });
+    }
+    if(empresa){
+      const choices = new Choices(empresa,{
+        searchFields: ['label'],
+        maxItemCount: -1
+      });
+    }
+  </script>
 @endsection

@@ -37,18 +37,17 @@ class AgendaCursoController extends Controller
    */
   public function insert(AgendaCursos $agendacurso): View
   {
+    $agendacurso->load('instrutor', 'instrutor.pessoa', 'curso', 'inscritos');
+    $pessoas = Pessoa::select('id','uid', 'cpf_cnpj', 'tipo_pessoa' , 'nome_razao')->get();
+
     $data = [
       'instrutores' => Instrutor::select('id','uid', 'pessoa_id')->with('pessoa')->whereNot('id', $agendacurso->instrutor_id)->get(),
-      'instrutor_atual' => Instrutor::select('id', 'uid', 'pessoa_id')->with(['pessoa' => fn($q) => $q->withTrashed()])
-        ->where('id', $agendacurso->instrutor_id)
-        ->withTrashed()
-        ->first(),
-
+      'instrutor_atual' => $agendacurso->instrutor()->with('pessoa')->withTrashed()->first(),
       'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
-      'curso_atual' => Curso::select('id', 'descricao')->where('id', $agendacurso->curso_id)->withTrashed()->first(),
-      'empresas' => Pessoa::select('uid', 'nome_razao')->where('tipo_pessoa', 'PJ')->get(),
-      'inscritos' => CursoInscrito::select()->with('empresa')->with(['pessoa' => fn($q) => $q->withTrashed()])
-        ->where('agenda_curso_id', $agendacurso->id)->get(),
+      'curso_atual' => $agendacurso->curso()->withTrashed()->first(),
+      'empresas' => $pessoas->where('tipo_pessoa', 'PJ'),
+      'pessoas' => $pessoas->where('tipo_pessoa', 'PF'),
+      'inscritos' => $agendacurso->inscritos()->with('pessoa')->get(),
       'despesas' => $agendacurso->despesas()->with('materialPadrao:id,descricao')->get(),
       'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
       'agendacurso' => $agendacurso

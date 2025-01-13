@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\ConfirmaInscricaoRequest;
 use Illuminate\Http\{Request, RedirectResponse};
-use App\Models\{Pessoa, AgendaCursos, CursoInscrito, Endereco, LancamentoFinanceiro, Convite};
+use App\Models\{Pessoa, AgendaCursos, CursoInscrito, Endereco, LancamentoFinanceiro, Convite, Curso};
 
 class InscricaoCursoController extends Controller
 {
@@ -77,7 +78,7 @@ class InscricaoCursoController extends Controller
     // atializa dados de endereço da pessoa se inscrição individual
     if(!$empresa) {
       Endereco::updateOrCreate([
-        'uid' => $request->id_endereco ?? null,
+        'uid' => $request->id_endereco,
       ],[
         'cep' => $request->cep,
         'uf' => $request->uf,
@@ -179,10 +180,81 @@ class InscricaoCursoController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-  public function salvaInscrito(Request $request): RedirectResponse
+  public function salvaInscrito(Request $request, CursoInscrito $inscrito): RedirectResponse
   {
-    // TODO criar lógica
-    return back()->with('success', 'Dados salvos com sucesso!');
+    if( $inscrito->exists ) {
+      $validator = Validator::make($request->all(), [
+        'valor' => ['nullable','string'],
+        'certificado_emitido' => ['nullable', 'date'],
+        'resposta_pesquisa' => ['nullable', 'date'],
+      ],[
+        'certificado_emitido.date' => 'O campo Certificado Enviado não é uma data valida',
+        'resposta_pesquisa.date' => 'O o campo Pesqisa Respondida não é uma data valida',
+      ]);
+
+      if($validator->fails()) {
+        return back()->with('error', $validator->errors()->first());
+      }
+
+      $inscrito->update([
+        'valor' => formataMoeda($request->valor),
+        'certificado_emitido' => $request->certificado_emitido,
+        'resposta_pesquisa' => $request->resposta_pesquisa,
+      ]);
+
+      $this->atualizaFinanceiro($inscrito);
+
+      return back()->with('success', 'Inscrito atualizado com sucesso');
+    }
+
+    $validator = Validator::make($request->all(), [
+      'agenda_curso_id' => ['required', 'exists:agenda_cursos,id'],
+      'pessoa_id' => ['required', 'exists:pessoas,id'],
+      'empresa_id' => ['nullable', 'exists:pessoas,id'],
+      'valor' => ['nullable','string'],
+      'certificado_emitido' => ['nullable', 'date'],
+      'resposta_pesquisa' => ['nullable', 'date'],
+      ],[
+      'agenda_curso_id.required' => 'O agendamento de cursos não foi encontrado',
+      'agenda_curso_id.exists' => 'O agendamento de cursos não foi encontrado',
+      'pessoa_id.required' => 'É obrigatório informar o participante',
+      'pessoa_id.exists' => 'O participante nao foi encontrado',
+      'empresa_id.exists' => 'A empresa não foi encontrada',
+      'certificado_emitido.date' => 'O campo Certificado Enviado não é uma data valida',
+      'resposta_pesquisa.date' => 'O o campo Pesqisa Respondida não é uma data valida',
+    ]);
+
+    if($validator->fails()) {
+      return back()->with('error', $validator->errors()->first());
+    }
+
+    // verifica se a empresa já tem cadastro no curso, se não cria
+    // atribui empresa ao cadastro da pessoa caso não haja
+    if( $request->empresa_id ){
+      CursoInscrito::firstOrCreate([
+        'pessoa_id' => $request->empresa_id,
+        'agenda_curso_id' => $request->agenda_curso_id
+        ],[
+          'data_inscricao' => now()
+        ]);
+    }
+
+
+    CursoInscrito::create([
+      'pessoa_id' => $request->pessoa_id,
+      'agenda_curso_id' => $request->agenda_curso_id,
+      'empresa_id' => $request->empresa_id ?? null,
+      'valor' => formataMoeda($request->valor),
+      'data_inscricao' => now(),
+    ]);
+
+    $agendacurso = AgendaCursos::find($request->agenda_curso_id);
+    $inscrito = Pessoa::find($request->pessoa_id);
+    $empresa = Pessoa::find($request->empresa_id);
+
+    $this->adicionaLancamentoFinanceiro($agendacurso, $inscrito, $empresa, false, $request->valor);
+
+    return back()->with('success', 'Inscrito adicionado com sucesso');
   }
 
   /**
@@ -194,7 +266,14 @@ class InscricaoCursoController extends Controller
   public function cancelaInscricao(CursoInscrito $inscrito): RedirectResponse
   {
     $inscrito->delete();
-    $this->atualizaFinanceiro($inscrito);
+
+    if( $inscrito->empresa_id ){
+      $this->atualizaFinanceiro($inscrito);
+    } else {
+      LancamentoFinanceiro::where('pessoa_id', $inscrito->pessoa_id)
+      ->where('agenda_curso_id', $inscrito->agenda_curso_id)
+      ->delete();
+    }
 
     return back()->with('success', 'Inscrição cancelada com sucesso!');
   }
@@ -221,8 +300,9 @@ class InscricaoCursoController extends Controller
    * 
    * @return void
    */
-  private function adicionaInscrito(AgendaCursos $agendacurso, Pessoa $inscrito, Pessoa $empresa = null, $associado): void
+  private function adicionaInscrito(AgendaCursos $agendacurso, Pessoa $inscrito, Pessoa $empresa = null, $associado = false): void
   {
+
     CursoInscrito::updateOrCreate([
       'pessoa_id' => $inscrito->id,
       'agenda_curso_id' => $agendacurso->id,
@@ -241,12 +321,15 @@ class InscricaoCursoController extends Controller
    * @param Pessoa $inscrito
    * @param Pessoa|null $empresa
    * @param bool $associado
+   * @param string|null $valor
    * 
    * @return void
    */
-  private function adicionaLancamentoFinanceiro(AgendaCursos $agendacurso, Pessoa $inscrito, Pessoa $empresa = null, $associado): void
+  private function adicionaLancamentoFinanceiro(AgendaCursos $agendacurso, Pessoa $inscrito, Pessoa $empresa = null, $associado = false, $valor = null): void
   {
-    $valor = ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento;
+    if( !$valor ){
+      $valor = ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento;
+    }
 
     // se a inscrição está associada a uma empresa
     if( $empresa ) {
@@ -292,7 +375,7 @@ class InscricaoCursoController extends Controller
         'pessoa_id' => $inscrito->id,
         'agenda_curso_id' => $agendacurso->id,
         'historico' => 'Inscrição no curso - ' . $agendacurso->curso->descricao,
-        'valor' => $valor,
+        'valor' => formataMoeda($valor),
         'centro_custo_id' => '3', // TREINAMENTO
         'centro_custo_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
         'data_emissao' => now(),
@@ -311,25 +394,38 @@ class InscricaoCursoController extends Controller
    */
   private function atualizaFinanceiro(CursoInscrito $inscrito): void
   {
-    $lancamento = LancamentoFinanceiro::where('pessoa_id', $inscrito->empresa_id)
+    // verifica se o lancamento está atrelado a uma empresa
+    $lancamento_pj = LancamentoFinanceiro::where('pessoa_id', $inscrito->empresa_id)
       ->where('agenda_curso_id', $inscrito->agenda_curso_id)
       ->first();
 
-    $dados_empresa = CursoInscrito::where('empresa_id', $inscrito->empresa_id)
-      ->where('agenda_curso_id', $inscrito->agenda_curso_id)
-      ->with('pessoa')
-      ->get();
+    // sim atualiza o lançamento financeiro da empresa e recalcula o total do valor
+    if( $lancamento_pj ) {
+      $dados_empresa = CursoInscrito::where('empresa_id', $inscrito->empresa_id)
+        ->where('agenda_curso_id', $inscrito->agenda_curso_id)
+        ->with('pessoa')
+        ->get();
+  
+      $observacoes = '';
+      foreach($dados_empresa as $dado) {
+        $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
+        $observacoes .= "Inscrição de {$dado->pessoa->nome_razao}, com valor de R$ {$dado->valor}, em {$data} \n";
+      }
+  
+      $lancamento_pj->update([
+        'valor' => $dados_empresa->sum('valor'),
+        'observacoes' => $observacoes
+      ]);
+    } else { // se não, atualiza o lancamento da pessoa fisica
 
-    $observacoes = '';
-    foreach($dados_empresa as $dado) {
-      $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
-      $observacoes .= "Inscrição de {$dado->pessoa->nome_razao}, com valor de R$ {$dado->valor}, em {$data} \n";
+      LancamentoFinanceiro::where('pessoa_id', $inscrito->pessoa_id)
+      ->where('agenda_curso_id', $inscrito->agenda_curso_id)
+      ->update([
+        'valor' => formataMoeda($inscrito->valor)
+      ]);
+
     }
 
-    $lancamento->update([
-      'valor' => $dados_empresa->sum('valor'),
-      'observacoes' => $observacoes
-    ]);
   }
 
 }

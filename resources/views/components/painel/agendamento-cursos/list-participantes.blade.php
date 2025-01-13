@@ -9,16 +9,6 @@
     </div>
 @endif
 
-{{-- <div class="row">
-    <div class="col-12">
-        <a href="#" class="btn btn-sm btn-success float-end" data-bs-toggle="modal"
-            data-bs-target="#inscritoModal">
-            <i class="ri-add-line align-bottom me-1"></i> Adicionar inscrito
-        </a>
-    </div>
-</div> --}}
-
-
 <div class="table-responsive" style="min-height: 180px">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
@@ -52,14 +42,14 @@
                                     <li>
                                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
                                     </li>
-                                    <li>                                            
+                                    <li>
                                         <x-painel.form-delete.delete route='cancela-inscricao' id="{{ $inscrito->uid }}" />
                                     </li>
                                 </ul>
                             </div>
                         </td>
                     </tr>
-                    <x-painel.agendamento-cursos.modal-participante :inscrito="$inscrito"/>
+                    <x-painel.agendamento-cursos.modal-edita-participante :inscrito="$inscrito"/>
                 @endif
             @empty
                 <tr>

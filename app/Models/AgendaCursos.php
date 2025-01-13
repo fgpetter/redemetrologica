@@ -46,4 +46,14 @@ class AgendaCursos extends Model
     {
         return $this->hasMany(CursoDespesa::class);
     }
+
+    public function instrutor() : BelongsTo
+    {
+        return $this->belongsTo(Instrutor::class)->withTrashed();
+    }
+
+    public function inscritos() : HasMany
+    {
+        return $this->hasMany(CursoInscrito::class, 'agenda_curso_id', 'id');
+    }
 }
