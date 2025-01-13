@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-layout="vertical" data-sidebar="dark"
+<html lang="pt-BR" data-layout="vertical" data-sidebar="dark"
     data-sidebar-size="lg" data-preloader="disable" data-theme="default" data-bs-theme="light">
 
 <head>
@@ -7,6 +7,11 @@
     <meta charset="utf-8" />
     <title> @yield('title') | Rede Metrológica RS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="adopt-website-id" content="508299ca-d188-4c27-a881-d9f42be72dbd" />
+    <script src="//tag.goadopt.io/injector.js?website_code=508299ca-d188-4c27-a881-d9f42be72dbd" 
+    class="adopt-injector"></script>
+
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
