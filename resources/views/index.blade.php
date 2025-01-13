@@ -28,13 +28,21 @@
             @if ( auth()->user()->pessoa->cursos->count() > 0 )
                 <div class="col-6">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body lh-lg">
                             <h5 class="h5 mb-3">Você está inscrito no seguinte curso:</h5>
             
                             @foreach ( auth()->user()->pessoa?->cursos as $curso )
                                 <strong>Nome:</strong> {{ $curso->agendaCurso->curso->descricao }} <br>
-                                <strong>Data:</strong> {{ \Carbon\Carbon::parse($curso->agendaCurso->data_inicio)->format('d/m/Y') }} <br>
-                                <strong>Hora:</strong> {{ $curso->agendaCurso->horario }} <br>
+                                <strong>Período:</strong>
+                                de
+                                @if($curso->agendaCurso->data_inicio)
+                                {{ \Carbon\Carbon::parse($curso->agendaCurso->data_inicio)->format('d/m/Y') }} 
+                                @endif
+                                até 
+                                @if($curso->agendaCurso->data_fim)
+                                {{ \Carbon\Carbon::parse($curso->agendaCurso->data_fim)->format('d/m/Y') }} 
+                                @endif
+                                {{ $curso->agendaCurso->horario }} <br>
                                 <strong>Status do agendamento:</strong> {{ $curso->agendaCurso->status }} <br>
                                 <strong>Local: </strong> {{ $curso->agendaCurso->endereco_local }} <br>
                             @endforeach
