@@ -26,7 +26,7 @@
     <div class="container my-1">
         <div class="row justify-content-center align-items-center text-center">
             <div class="col">
-                <p><b>O Bônus Metrologia é uma solução do Sebrae/RS, em parceria com a Rede Metrológica, que
+                <p><b>O Bônus Metrologia é uma solução do Sebrae/RS, em parceria com a Rede Metrológica RS, que
                         possibilita as micro e pequenas empresas acessar, a menor custo, os serviços de calibração
                         de instrumentos de medição, análises em produtos e matérias primas diversas, ensaios e
                         outros testes disponíveis nos diversos laboratórios reconhecidos e contratados pela Rede

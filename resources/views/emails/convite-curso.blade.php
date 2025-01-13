@@ -7,7 +7,7 @@
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <div style="margin-top: 1.8rem; margin-bottom: 1.8rem;">
       <figure style="text-align: center;">
-        <img src="http://localhost/build/images/site/LOGO_REDE_COLOR.png" alt="Rede Metrológica" width="140px" style="max-width: 50%">
+        <img src="http://localhost/build/images/site/LOGO_REDE_COLOR.png" alt="Rede Metrológica RS" width="140px" style="max-width: 50%">
       </figure>
     </div>
 
@@ -38,7 +38,7 @@
         Equipe Rede Metrológica RS
       </p>
     </div>
-    <div style="text-align: center;"><span style="font-size: 12px;">© 2024 Sistema Rede Metrologica RS.</sp></div>
+    <div style="text-align: center;"><span style="font-size: 12px;">© 2025 Sistema Rede Metrológica RS.</sp></div>
   </div>
 </body>
 </html>

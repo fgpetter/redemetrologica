@@ -7,14 +7,14 @@
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <div style="margin-top: 1.8rem; margin-bottom: 1.8rem;">
       <figure style="text-align: center;">
-        <img src="http://localhost/build/images/site/LOGO_REDE_COLOR.png" alt="Rede Metrológica" width="140px">
+        <img src="http://localhost/build/images/site/LOGO_REDE_COLOR.png" alt="Rede Metrológica RS" width="140px">
       </figure>
     </div>
 
     <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
       <h3>Olá {{ $user_data['name'] }} </h3>
       <p>
-        Seu e-mail {{ $user_data['email'] }}, foi cadastrado como novo usuário no sistema da Rede Metrológica.
+        Seu e-mail {{ $user_data['email'] }}, foi cadastrado como novo usuário no sistema da Rede Metrológica RS.
       </p>
       <br>
 
@@ -30,9 +30,9 @@
         Obs: Essa senha é temporária e é só válida para o primeiro acesso.
       </p>
       <br>
-      <p>Atenciosamente,<br>Equipe Rede Metrológica</p>
+      <p>Atenciosamente,<br>Equipe Rede Metrológica RS</p>
     </div>
-    <div style="text-align: center;"><span style="font-size: 12px;">© 2024 Sistema Rede Metrologica.</sp></div>
+    <div style="text-align: center;"><span style="font-size: 12px;">© 2025 Sistema Rede Metrológica RS.</sp></div>
   </div>
 </body>
 </html>

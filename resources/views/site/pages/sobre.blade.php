@@ -1,5 +1,5 @@
 @extends('site.layouts.layout-site')
-@section('title') Sobre a Rede Metrológica @endsection
+@section('title') Sobre a Rede Metrológica RS @endsection
 @section('content')
     {{-- carousel --}}
     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">

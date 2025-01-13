@@ -28,7 +28,7 @@
               <div class="card mb-0 border-0 shadow-none mb-0">
                 <div class="card-body p-sm-5 m-lg-4">
                   <div class="text-center">
-                    <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" style="max-width: 12vw" class="card-img mb-3" alt="Rede Metrológica">
+                    <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" style="max-width: 12vw" class="card-img mb-3" alt="Rede Metrológica RS">
                     <h5 class="fs-3xl">Olá, faça seu login</h5>
                     <p class="mb-0 mt-3">Ainda não tem cadastro ? <a href="register" class="fw-semibold text-secondary text-decoration-underline"> Cadastre-se</a> </p>
                   </div>
@@ -103,7 +103,7 @@
             </div>
             <div class="modal-body">
                 <h5>Olá, você é novo por aqui?</h5>
-                <p>O sistema de <b>inscrições da Rede Metrológica mudou</b> 
+                <p>O sistema de <b>inscrições da Rede Metrológica RS mudou</b> 
                   agora você terá uma área de cliente onde poderá gerenciar todas suas inscrições.
                   <br><br>
                   Se você já é cadastrado, basta fazer o login normalmente.

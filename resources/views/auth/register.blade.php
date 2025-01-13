@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-preloader="disable" data-theme="default" data-bs-theme="light">
+<html lang="pt-BR" data-preloader="disable" data-theme="default" data-bs-theme="light">
 
 <head>
 
@@ -27,7 +27,7 @@
                 <div class="card mb-0 border-0 shadow-none mb-0">
                   <div class="card-body p-sm-5 m-lg-4">
                     <div class="text-center">
-                      <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" style="max-width: 12vw" class="card-img mb-3" alt="Rede Metrológica">
+                      <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" style="max-width: 12vw" class="card-img mb-3" alt="Rede Metrológica RS">
                       <h5 class="fs-3xl">Crie seu cadastro</h5>
                       <p class="mb-0 mt-3">Já tem uma conta ? 
                         <a href="/login" class="fw-semibold text-primary text-decoration-underline"> Faça Login </a> 
@@ -137,13 +137,13 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                  <h5>Vamos criar sua conta na Rede Metrológica!</h5>
-                  <p>O sistema de <b>inscrições da Rede Metrológica mudou</b> 
+                  <h5>Vamos criar sua conta na Rede Metrológica RS!</h5>
+                  <p>O sistema de <b>inscrições da Rede Metrológica RS mudou</b> 
                     agora você terá uma área de cliente onde poderá gerenciar todas suas inscrições.
                     <br><br>
                     <b>Para começar, precisamos que você crie uma conta.</b> <br>
                     Preencha os campos com seus dados e crie uma senha segura. <br>
-                    Se você já havia se cadastrado para algum curso ou evento da Rede Metrológica no sistema anterior, 
+                    Se você já havia se cadastrado para algum curso ou evento da Rede Metrológica RS no sistema anterior, 
                     iremos integrar seus dados antigos com sua nova conta.
                     
                   </p>

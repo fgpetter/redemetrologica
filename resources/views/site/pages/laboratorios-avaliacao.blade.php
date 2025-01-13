@@ -22,7 +22,7 @@
             <h1>PRÉ-REQUISITOS PARA SOLICITAR O RECONHECIMENTO</h1>
             <p>O laboratório interessado em obter reconhecimento pela Rede Metrológica RS nas áreas de calibração
                 e/ou
-                ensaios, além de já estar associado à Rede Metrológica (conforme RM 49), deve preencher um dos
+                ensaios, além de já estar associado à Rede Metrológica RS (conforme RM 49), deve preencher um dos
                 pré-requisitos:
 
                 a) Atender aos requisitos de reconhecimento/manutenção do reconhecimento descritos no documento
