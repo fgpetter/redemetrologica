@@ -87,6 +87,8 @@ class LaboratorioController extends Controller
    **/
   public function update(Request $request, Laboratorio $laboratorio): RedirectResponse
   {
+    $request->merge( return_only_nunbers( $request->only('telefone') ) );
+
     $validated = $request->validate(
       [
         'nome_laboratorio' => ['nullable', 'string'],
@@ -108,7 +110,7 @@ class LaboratorioController extends Controller
         'cod_laboratorio.numeric' => 'Código inválido',
       ]
     );
-
+    
     $laboratorio->update($validated);
 
     return redirect()->back()->with('success', 'Laboratório atualizado com sucesso');
