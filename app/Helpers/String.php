@@ -42,19 +42,25 @@ function obfuscate_email($email)
 }
 
 /**
- * Retorna apenas números de uma string
+ * Retorna apenas os números de uma string
  *
- * @param array $array
- * @return string|null
+ * @param array|string $array
+ * @return string|array|null
  */
-
-function return_only_nunbers(array $array)
+function return_only_nunbers(array|string $data)
 {
-  $sanitized = [];
-  foreach ($array as $key => $value) {
-    $sanitized[$key] = preg_replace("/[^0-9]/", "", $value);
+  if ( is_string($data) ) {
+    return preg_replace("/[^0-9]/", "", $data);
   }
-  return $sanitized;
+
+  if( is_array($data) ) {
+    $sanitized = [];
+    foreach ($data as $key => $value) {
+      $sanitized[$key] = preg_replace("/[^0-9]/", "", $value);
+    }
+    return $sanitized;
+  }
+  return null;
 }
 
 /**
