@@ -20,17 +20,17 @@
 
       <div class="col-2">
         <x-forms.input-select name="laboratorio_associado" label="Asociado">
-          <option @selected($laboratorio->laboratorio_associado == 1) value="1">SIM</option>
-          <option @selected($laboratorio->laboratorio_associado == 0) value="0">NÃO</option>
+          <option value="0">NÃO</option>
+          <option @selected($laboratorio->laboratorio_associado == 1 || $laboratorio->pessoa->associado == 1 ) value="1">SIM</option>
         </x-forms.input-select>
       </div>
 
       <div class="col-4">
-        <x-forms.input-field name="telefone" :value="old('telefone') ?? ($laboratorio->telefone ?? null)" label="Telefone" />
+        <x-forms.input-field name="telefone" :value="old('telefone') ?? ($laboratorio->telefone ?? $laboratorio->pessoa->telefone ?? null)" label="Telefone" class="telefone"/>
       </div>
 
       <div class="col-4">
-        <x-forms.input-field name="email" :value="old('email') ?? ($laboratorio->email ?? null)" label="E-mail" />
+        <x-forms.input-field type="email" name="email" :value="old('email') ?? ($laboratorio->email ?? $laboratorio->pessoa->email ?? null)" label="E-mail" />
       </div>
 
       <div class="col-4">

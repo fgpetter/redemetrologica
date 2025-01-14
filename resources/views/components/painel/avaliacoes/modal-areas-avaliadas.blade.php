@@ -137,11 +137,19 @@
               <div class="col-3"></div>
 
               <div class="col-4">
-                <x-forms.input-field name="total_gastos_estim" value="{{ $areaavaliada->total_gastos_estim ?? null}}" label="Total Avaliador Despesas Estim" class="money" readonly />
+                <x-forms.input-field name="total_gastos_estim" value="{{ $areaavaliada->total_gastos_estim ?? null}}" 
+                  label="Total Avaliador Despesas Estim" 
+                  class="money"
+                  placeholder="Auto preenchido ao salvar"
+                  readonly />
               </div>
 
               <div class="col-4">
-                <x-forms.input-field name="total_gastos_reais" value="{{ $areaavaliada->total_gastos_reais ?? null}}" label="Total Avaliador Despesas Reais" class="money" readonly />
+                <x-forms.input-field name="total_gastos_reais" value="{{ $areaavaliada->total_gastos_reais ?? null}}" 
+                  label="Total Avaliador Despesas Reais" 
+                  class="money"
+                  placeholder="Auto preenchido ao salvar"
+                  readonly />
               </div>
               
   

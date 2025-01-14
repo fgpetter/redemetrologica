@@ -14,11 +14,13 @@
                 <form action="{{route('avaliacao-create')}}" method="POST">
                   @csrf
                   <div class="row">
-                    <div class="col-10">                      
+                    <div class="col-10">
                       <select class="form-control" data-choices name="laboratorio_uid" id="choices-single-default">
                         <option value="">Selecione na lista</option>
                         @foreach($laboratorios as $laboratorio)
-                          <option value="{{ $laboratorio->uid }}">{{ $laboratorio->nome_laboratorio }} | {{ $laboratorio->pessoa->nome_razao }}</option>
+                          <option value="{{ $laboratorio->uid }}">
+                            {{ ($laboratorio->nome_laboratorio) ? "Lab: {$laboratorio->nome_laboratorio}  -  " : '' }} {{ $laboratorio->pessoa->nome_razao }}
+                          </option>
                         @endforeach
                       </select>
                       @error('laboratorio_uid')<div class="text-warning">{{ $message }}</div>@enderror
