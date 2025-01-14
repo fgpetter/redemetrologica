@@ -93,7 +93,7 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function insert(LancamentoFinanceiro $lancamento): View
   {
-    $lancamento->load(['pessoa:id,nome_razao,cpf_cnpj,end_padrao', 'pessoa.enderecos']);
+    $lancamento->load(['pessoa', 'pessoa.enderecos']);
     $enderecocobranca = ($lancamento->pessoa->end_padrao) ? $lancamento->pessoa->enderecos->find($lancamento->pessoa->end_padrao) : $lancamento->pessoa->enderecos->first();
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento->pessoa_id)->get();
     $centrosdecusto = CentroCusto::all();
