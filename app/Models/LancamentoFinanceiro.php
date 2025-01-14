@@ -36,16 +36,16 @@ class LancamentoFinanceiro extends Model
      */
     public function pessoa(): BelongsTo
     {
-        return $this->belongsTo(Pessoa::class);
+        return $this->belongsTo(Pessoa::class)->withTrashed();
     }
 
     /**
      * Carrega centro de custo
-     * @return hasOne
+     * @return BelongsTo
      */
-    public function centroCusto(): HasOne
+    public function centroCusto(): BelongsTo
     {
-        return $this->hasOne(CentroCusto::class);
+        return $this->belongsTo(CentroCusto::class)->withTrashed();
     }
 
     /**

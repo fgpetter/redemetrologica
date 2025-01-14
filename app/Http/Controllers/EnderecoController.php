@@ -107,6 +107,7 @@ class EnderecoController extends Controller
    **/
   public function delete(Endereco $endereco): RedirectResponse
   {
+    $endereco->pessoa->update(['end_padrao' => null]);
     $endereco->delete();
 
     return redirect()->back()->with('warning', 'Endereco removido');

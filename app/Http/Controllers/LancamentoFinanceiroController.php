@@ -93,32 +93,16 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function insert(LancamentoFinanceiro $lancamento): View
   {
-    $pessoasT = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento->pessoa_id)->get();
-    $pessoaLancamento = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->where('id', $lancamento->pessoa_id)
-      ->withTrashed()
-      ->first();
-    if ($pessoaLancamento) {
-      $pessoas = $pessoasT->push($pessoaLancamento);
-    } else {
-      $pessoas = $pessoasT;
-    }
-
-    $centrosdecustoT = CentroCusto::whereNot('id', $lancamento->centro_custo_id)->orderBy('descricao')->get();
-    $centrocusto_lancamento = CentroCusto::where('id', $lancamento->centro_custo_id)
-      ->withTrashed()
-      ->first();
-    if ($centrocusto_lancamento) {
-      $centrosdecusto = $centrosdecustoT->push($centrocusto_lancamento);
-    } else {
-      $centrosdecusto = $centrosdecustoT;
-    }
-
+    $lancamento->load(['pessoa:id,nome_razao,cpf_cnpj,end_padrao', 'pessoa.enderecos']);
+    $enderecocobranca = ($lancamento->pessoa->end_padrao) ? $lancamento->pessoa->enderecos->find($lancamento->pessoa->end_padrao) : $lancamento->pessoa->enderecos->first();
+    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento->pessoa_id)->get();
+    $centrosdecusto = CentroCusto::all();
     $planoConta = PlanoConta::all();
     $modalidadePagamento = ModalidadePagamento::all();
 
     return view('painel.lancamento-financeiro.insert', [
       'lancamento' => $lancamento,
+      'enderecocobranca' => $enderecocobranca,
       'pessoas' => $pessoas,
       'centrosdecusto' => $centrosdecusto,
       'planosconta' => $planoConta,

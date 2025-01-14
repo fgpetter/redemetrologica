@@ -53,7 +53,12 @@
         <div class="col-6">
           <label class="form-label">Pessoa</label>
           <select class="form-select" name="pessoa_id" id="pessoa">
-            <option> - </option>
+            <option value="" > Selecione uma pessoa </option>
+            @if($lancamento->pessoa_id)
+              <option selected value="{{ $lancamento->pessoa->id }}">
+                {{ $lancamento->pessoa->cpf_cnpj }} - {{ $lancamento->pessoa->nome_razao }}
+              </option>
+            @endif
             @foreach ($pessoas as $pessoa)
             <option @selected($lancamento->pessoa_id == $pessoa->id) value="{{ $pessoa->id }}">
               {{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}
@@ -68,7 +73,7 @@
         <div class="col-3">
           <label class="form-label">Centro Custo</label>
           <select class="form-select" name="centro_custo_id">
-            <option> - </option>
+            <option value=""> Selecione um centro de custo </option>
             @foreach ($centrosdecusto as $centrodecusto)
             <option @selected($lancamento->centro_custo_id == $centrodecusto->id) value="{{ $centrodecusto->id }}">
               {{ $centrodecusto->descricao }}</option>
@@ -82,7 +87,7 @@
         <div class="col-3">
           <label class="form-label">Plano Conta</label>
           <select class="form-select" name="plano_conta_id" id="plano_conta">
-            <option> - </option>
+            <option value=""> Selecione um plano de conta </option>
             @foreach ($planosconta as $planoconta)
             <option @selected($lancamento->plano_conta_id == $planoconta->id) value="{{ $planoconta->id }}">
               {{ $planoconta->descricao }}</option>
@@ -111,6 +116,27 @@
           <div class="text-warning">{{ $message }}</div>
           @enderror
         </div>
+
+        <div class="col-8">
+          <div class="card border overflow-hidden card-border-dark-subtle no-shadow mb-0">
+            <div class="card-body pb-1 lh-lg">
+              Nome ou razão social: {{ Str::title($lancamento->pessoa->nome_razao) }} <br>
+              CPF ou CNPJ: {{ $lancamento->pessoa->cpf_cnpj }} <br>
+              @if($lancamento->pessoa->enderecos->first())
+              Endereço: {{$enderecocobranca->endereco }}, 
+              {{$enderecocobranca->complemento }} - {{$enderecocobranca->cidade }} / {{$enderecocobranca->uf }} - CEP: {{$enderecocobranca->cep }}
+              @endif
+              <div class="text-end">
+                <a href="{{ route('pessoa-insert', $lancamento->pessoa->uid) }}" class="link-primary fw-medium">
+                  Editar dados
+                  <i class="ri-arrow-right-line align-middle"></i>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="col-4"></div>
 
         <div class="col-2">
           <label class="form-label">Valor</label>

@@ -10,6 +10,7 @@
     <div class="col">
       <x-painel.lancamento-financeiro.insert 
         :lancamento="$lancamento" 
+        :enderecocobranca="$enderecocobranca" 
         :pessoas="$pessoas" 
         :centrosdecusto="$centrosdecusto"
         :planosconta="$planosconta"
@@ -26,13 +27,15 @@
     if(pessoa){
       const choices = new Choices(pessoa,{
         searchFields: ['label'],
-        maxItemCount: -1
+        maxItemCount: -1,
+        allowHTML: true
       });
     }
     if(plano_conta){
       const choices = new Choices(plano_conta,{
         searchFields: ['label'],
-        maxItemCount: -1
+        maxItemCount: -1,
+        allowHTML: true
       });
     }
 
