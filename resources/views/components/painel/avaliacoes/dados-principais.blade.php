@@ -211,7 +211,7 @@
       </div>
 
       <div class="col-3">
-        <x-forms.input-select name="enviado_certificado" label="Ações Aceitas">
+        <x-forms.input-select name="enviado_certificado" label="Certificado Enviado">
           <option > - </option>
           <option @selected($avaliacao->enviado_certificado = "ENVIADO") value="ENVIADO">ENVIADO</option>
           <option @selected($avaliacao->enviado_certificado = "NAO ENVIADO") value="NAO ENVIADO">NÃO ENVIADO</option>

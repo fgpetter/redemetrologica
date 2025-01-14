@@ -22,7 +22,6 @@ class AgendaAvaliacaoController extends Controller
      */
     public function index(): View
     {
-
         $avaliacoes = AgendaAvaliacao::with('laboratorio')->orderBy('data_inicio')->get();
         $laboratorios = Laboratorio::with('pessoa')->get();
         return view('painel.avaliacoes.index', ['avaliacoes' => $avaliacoes, 'laboratorios' => $laboratorios]);
@@ -112,13 +111,13 @@ class AgendaAvaliacaoController extends Controller
             'pesq_satisfacao' => ['nullable', 'date'],
             'data_proposta_acoes_corretivas' => ['nullable', 'date'],
             'data_acoes_corretivas' => ['nullable', 'date'],
-            'acoes_aceitas' => ['nullable', 'string', Rule::in(['NAO','SIM','PARCIALMENTE'])],
+            'acoes_aceitas' => ['nullable', 'string', 'in:NAO,SIM,PARCIALMENTE'],
             'data_reuniao_comite' => ['nullable', 'date'],
-            'comite' => ['nullable', 'string', Rule::in(['APROVADO','NAO APROVADO','COM PENDENCIAS'])],
+            'comite' => ['nullable', 'string', 'in:APROVADO,NAO APROVADO,COM PENDENCIAS'],
             'prazo_ajuste_pos_comite' => ['nullable', 'date'],
             'certificado' => ['nullable', 'numeric', 'in:0,1'],
             'validade_certificado' => ['nullable', 'date'],
-            'enviado_certificado' => ['nullable', 'string', Rule::in(['ENVIADO','NAO ENVIADO','PENDENTE'])],
+            'enviado_certificado' => ['nullable', 'string', 'in:ENVIADO,NAO ENVIADO,PENDENTE'],
             'data_publicacao_site' => ['nullable', 'date'],
             'certificado_impresso' => ['nullable', 'numeric', 'in:0,1'],
             'ano_revisao_certificado' => ['nullable', 'date'],
