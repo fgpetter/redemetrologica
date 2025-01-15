@@ -14,9 +14,13 @@
                     <x-nav.link nome='{{$menu_item->nome}}' link='{{$menu_item->item}}'/>
                 @endforeach --}}
 
-                <x-site.nav.link nome='Notícias' link='noticias' />
+                <li class="nav-item">
+                    <a class="nav-link d-none d-xl-block" href="/noticias">Notícias</a>
+                </li>
 
-                <x-site.nav.link nome='Associe-se' link='associe-se' />
+                <li class="nav-item">
+                    <a class="nav-link d-none d-xl-block" href="/associe-se">Associe-se</a>
+                </li>
 
                 <x-site.nav.link nome='Cursos' link='cursos' />
 
