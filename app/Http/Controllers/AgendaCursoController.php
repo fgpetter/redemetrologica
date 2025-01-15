@@ -241,6 +241,9 @@ class AgendaCursoController extends Controller
       ->whereNotIn('tipo_agendamento', ['IN-COMPANY'])
       ->where('site', 1)
       ->whereNotNull('data_inicio')
+      ->orderBy('destaque', 'desc')
+      ->orderBy('inscricoes', 'desc')
+      ->orderBy('data_inicio')
       ->with('curso')
       ->get();
 

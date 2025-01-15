@@ -533,6 +533,7 @@ class AgendaInterlabController extends Controller
     ->where('site', 1)
     ->orderBy('destaque', 'desc')
     ->orderBy('inscricao', 'desc')
+    ->orderBy('data_inicio')
     ->get();
 
     return view('site.pages.interlaboratoriais', compact('interlabs'));

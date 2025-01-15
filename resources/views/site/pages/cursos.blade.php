@@ -27,7 +27,7 @@
 
 
   {{-- pesquisa --}}
-  <div class="container my-5">
+  {{-- <div class="container my-5">
     <div class="btn-toolbar justify-content-start" role="toolbar" aria-label="Toolbar with button groups">
       <div class="input-group border">
         <input type="text" class="form-control" placeholder="PESQUISAR POR" aria-label="Input group example"
@@ -39,41 +39,41 @@
       </div>
     </div>
 
-  </div>
+  </div> --}}
   {{-- pesquisa --}}
 
   {{-- cardCursos agendados --}}
-  <div class="container row justify-content-center">
-
-    @foreach ($agendacursos as $agendacurso)
-      <div class="col-3 mt-4" style="width: 18rem; height: 20rem;">
-
-        <div class="SiteCards__bgimage text-white d-grid"
-          style="background-image: url('{{ $agendacurso->curso->thumb ?? ''
+  <div class="container justify-content-center mt-5">
+    <div class="row gy-4 mx-auto">
+      @foreach ($agendacursos as $agendacurso)
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 d-flex justify-content-center">
+          <div class="card ribbon-box border shadow-none mb-lg-0 card-interlab" style="width: 18rem; background-image: url('{{ $agendacurso->curso->thumb ?? ''
             ? asset('curso-thumb/' . $agendacurso->curso->thumb)
             : ($agendacurso->tipo_agendamento == 'ONLINE'
               ? asset('build/images/site/online-placeholder.jpg')
-              : asset('build/images/site/evento-placeholder.jpg')) }}');">
-          <div class="SiteCards--efeito  align-self-end d-grid align-self-end align-items-end p-3">
-            <a href="{{ route('curso-agendado-show', $agendacurso->uid) }}"
-              class=" align-self-center text-center h5 text-white SiteCards__descricao" style="height: 100%;">
-              {{ $agendacurso->curso->descricao }}
-            </a>
-            <a href="{{ route('curso-agendado-show', $agendacurso->uid) }}" class="text-start text-white bold">
-              <i class="fa fa-clock-o" aria-hidden="true"></i>
-              @if($agendacurso->data_inicio)
-                {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}
-              @endif
-            </a>
+              : asset('build/images/site/evento-placeholder.jpg')) }}'); background-size: cover; background-repeat: no-repeat">
+            @if( $agendacurso->inscricoes == 1 )
+              <div class="ribbon ribbon-success round-shape">Inscrições abertas</div>
+            @endif
+            <div style="margin-top: 8rem">
+              <div class="card-body text-white" style="background-color: #405D71;">
+                <a href="{{ route('curso-agendado-show', $agendacurso->uid) }}" class="text-white bold">
+                  <h5 class="card-title pb-2">{{ $agendacurso->curso->descricao }}</h5>
+                </a>
+      
+                <a href="{{ route('curso-agendado-show', $agendacurso->uid) }}" class="text-start text-white bold">Visualizar <i
+                  class="fa-solid fa-circle-chevron-right"></i></a>
+              </div>
+              <div class="card-footer py-2 border-0 text-white" style="background-color: #002C41">
+                <i class="bi bi-calendar2-event"></i> &nbsp; 
+                  @if($agendacurso->data_inicio) {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }} @endif 
+              </div>
+            </div>
           </div>
-
         </div>
-      </div>
-    @endforeach
+      @endforeach
+    </div>
   </div>
-
-
-
 
   <!-- helper modal -->
   <div class="modal fade" id="cursosHelper" tabindex="-1" aria-labelledby="cursosHelperLabel" aria-modal="true">
