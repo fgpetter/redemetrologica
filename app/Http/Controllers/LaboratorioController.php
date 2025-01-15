@@ -10,6 +10,8 @@ use App\Models\LaboratorioInterno;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class LaboratorioController extends Controller
 {
@@ -18,9 +20,23 @@ class LaboratorioController extends Controller
    *
    * @return View
    **/
-  public function index(): View
+  public function index(Request $request): View
   {
-    $laboratorios = Laboratorio::with('pessoa')->paginate(10);
+    $nome = $request->name;
+    $busca_nome = $request->buscanome;
+
+    $laboratorios = Laboratorio::with('pessoa')
+      ->when($nome, function (Builder $query, $nome) {
+        $query->join('pessoas', 'laboratorios.pessoa_id', '=', 'pessoas.id')
+          ->orderBy('pessoas.nome_razao', $nome);
+      })
+      ->when($busca_nome, function (Builder $query, $busca_nome) {
+          $query->whereHas('pessoa', function($q) use ($busca_nome) {
+            $q->where('nome_razao', 'LIKE', "%$busca_nome%");
+          });
+      })
+      ->paginate(15);
+
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->where('tipo_pessoa', 'PJ')
       ->whereNotIn('id', function ($query) {

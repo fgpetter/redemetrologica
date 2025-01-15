@@ -1,3 +1,13 @@
+@php
+  $order_name = 'ASC';
+  if (isset($_GET['name']) && $_GET['name'] == 'ASC') {
+      $order_name = 'DESC';
+  }
+  if (isset($_GET['buscanome'])) {
+      $busca_nome = $_GET['buscanome'];
+  }
+@endphp
+
 <div class="card">
   <div class="card-body">
     <div class="row">
@@ -7,14 +17,13 @@
             <i class="ri-add-line align-bottom me-1"></i> Adicionar Laboratório
           </button>
         </div>
-
         <div class="collapse" id="collapseExample">
           <div class="card mb-3 shadow-none">
               <div class="card-body">
                 <form action="{{route('laboratorio-create')}}" method="POST">
                   @csrf
                   <div class="row">
-                    <div class="col-10">                      
+                    <div class="col-10">
                       <select class="form-control" data-choices name="pessoa_uid" id="choices-single-default">
                         <option value="">Selecione na lista</option>
                         @foreach($pessoas as $pessoa)
@@ -45,10 +54,29 @@
 
     <div class="table-responsive" style="min-height: 25vh">
       <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">
+              <input type="text" class="form-control form-control-sm"
+                  onkeypress="search(event, window.location.href, 'buscanome')"
+                  placeholder="Buscar por nome" value="{{ $busca_nome ?? null }}">
+            </th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+          </tr>
+      </thead>
+
       <thead>
         <tr>
           <th scope="col" style="width: 5%">ID</th>
-          <th scope="col" style="width: 50%">Empresa</th>
+          <th scope="col" style="width: 50%">
+            <a href="{{ route('laboratorio-index', ['name' => $order_name]) }}">
+              {!! $order_name == 'ASC' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+              &nbsp Nome
+            </a>
+          </th>
           <th scope="col" style="width: 40%">Nome do Laboratório</th>
           <th scope="col" style="width: 5%"></th>
         </tr>

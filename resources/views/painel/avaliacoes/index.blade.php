@@ -1,9 +1,9 @@
 @extends('layouts.master')
-@section('title') Listagem de Laboratórios @endsection
+@section('title') Listagem de Avaliações @endsection
 @section('content')
 @component('components.breadcrumb')
 @slot('li_1') Pessoas @endslot
-@slot('title') Listagem de Laboratórios @endslot
+@slot('title') Listagem de Avaliações @endslot
 @endcomponent
 
 <div class="row">
