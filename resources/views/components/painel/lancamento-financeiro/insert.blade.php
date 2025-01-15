@@ -117,6 +117,7 @@
           @enderror
         </div>
 
+        @if($lancamento->exists)
         <div class="col-8">
           <div class="card border overflow-hidden card-border-dark-subtle no-shadow mb-0">
             <div class="card-body pb-1 lh-lg">
@@ -132,11 +133,11 @@
                   <i class="ri-arrow-right-line align-middle"></i>
                 </a>
               </div>
-
             </div>
           </div>
         </div>
         <div class="col-4"></div>
+        @endif
 
         <div class="col-2">
           <label class="form-label">Valor</label>

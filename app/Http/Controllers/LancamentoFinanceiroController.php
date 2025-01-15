@@ -93,16 +93,19 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function insert(LancamentoFinanceiro $lancamento): View
   {
-    $lancamento->load(['pessoa', 'pessoa.enderecos']);
-    $enderecocobranca = ($lancamento->pessoa->end_padrao) ? $lancamento->pessoa->enderecos->find($lancamento->pessoa->end_padrao) : $lancamento->pessoa->enderecos->first();
-    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento->pessoa_id)->get();
+    if($lancamento->exists){
+      $lancamento->load(['pessoa', 'pessoa.enderecos']);
+      $enderecocobranca = ($lancamento->pessoa->end_padrao) ? $lancamento->pessoa->enderecos->find($lancamento->pessoa->end_padrao) : $lancamento->pessoa->enderecos->first();
+    }
+    $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento?->pessoa_id)->get();
+
     $centrosdecusto = CentroCusto::all();
     $planoConta = PlanoConta::all();
     $modalidadePagamento = ModalidadePagamento::all();
 
     return view('painel.lancamento-financeiro.insert', [
-      'lancamento' => $lancamento,
-      'enderecocobranca' => $enderecocobranca,
+      'lancamento' => $lancamento ?? null,
+      'enderecocobranca' => $enderecocobranca ?? null,
       'pessoas' => $pessoas,
       'centrosdecusto' => $centrosdecusto,
       'planosconta' => $planoConta,
