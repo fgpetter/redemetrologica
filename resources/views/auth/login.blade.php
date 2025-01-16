@@ -33,15 +33,15 @@
                     <p class="mb-0 mt-3">Ainda não tem cadastro ? <a href="register" class="fw-semibold text-secondary text-decoration-underline"> Cadastre-se</a> </p>
                   </div>
                   <div class="p-2 mt-3">
+
+                    @error('document')
+                      <div class="alert alert-danger alert-top-border" style="font-size: 0.9rem" role="alert">
+                        {!! $message !!}
+                      </div>
+                    @enderror
+
                     <form action="{{ route('login')}}" method="post">
                       @csrf
-
-                      @error('document')
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                          {{ $message }}
-                        </div>
-                      @enderror
-
                       <div class="mb-3">
                         <label for="username" class="form-label">Usuário <small class="text-muted">(email)</small></label>
                         <input type="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" id="username" name="email" placeholder="Digite seu email">

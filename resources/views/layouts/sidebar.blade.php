@@ -37,7 +37,6 @@
         <li class="menu-title"><span>ADMINISTRAÇÃO</span></li>
         
 
-        @can(['admin'])
         {{-- Usuarios --}}
         <li class="nav-item">
           <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/user']) ? 'active' : '' }}"
@@ -59,7 +58,6 @@
             </ul>
           </div>
         </li>
-        @endcan
 
         {{-- Pessoas --}}
         <li class="nav-item">

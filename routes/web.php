@@ -90,13 +90,13 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   Route::get('/', [PainelController::class, 'index'])->name('painel-index');
 
   /* Usuários */
-  Route::group(['prefix' => 'user'], function () {
-    Route::get('index', [UserController::class, 'index'])->name('user-index')->middleware('permission:admin');
+  Route::group(['prefix' => 'user',], function () {
+    Route::get('index', [UserController::class, 'index'])->name('user-index')->middleware('permission:funcionario,admin');
     Route::get('edit/{user}', [UserController::class, 'view'])->name('user-edit');
-    Route::post('create', [UserController::class, 'create'])->name('user-create')->middleware('permission:admin');
+    Route::post('create', [UserController::class, 'create'])->name('user-create')->middleware('permission:funcionario,admin');
     Route::post('update/{user}', [UserController::class, 'update'])->name('user-update');
-    Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete')->middleware('permission:admin');
-    Route::post('update-permissions/{user}', [UserController::class, 'updatePermission'])->name('user-permission-update')->middleware('permission:admin');
+    Route::post('delete/{user}', [UserController::class, 'delete'])->name('user-delete')->middleware('permission:funcionario,admin');
+    Route::post('update-permissions/{user}', [UserController::class, 'updatePermission'])->name('user-permission-update')->middleware('permission:funcionario,admin');
   });
 
   /**

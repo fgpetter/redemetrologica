@@ -64,7 +64,7 @@ class UserController extends Controller
    **/
   public function view(User $user): View
   {
-    if( auth()->user()->hasPermissionTo('admin') || ($user->id == auth()->user()->id) ) {
+    if( auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id) ) {
       $permissions = $user->permissions()->pluck('permission')->toArray();
       return view('painel.users.user-update', ['user' => $user , 'permissions' => $permissions]);
     }
@@ -80,7 +80,7 @@ class UserController extends Controller
    **/
   public function update(Request $request, User $user): RedirectResponse
   {
-    if( auth()->user()->hasPermissionTo('admin') || ($user->id == auth()->user()->id) ) {
+    if( auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id) ) {
 
       $request->validate(
         [
@@ -109,7 +109,7 @@ class UserController extends Controller
           'temporary_password' => 0
         ]);
       }
-      if(auth()->user()->hasPermissionTo('admin')) {
+      if(auth()->user()->hasPermissionTo(['admin', 'funcionario'])) {
         return redirect()->route('user-index')->with('success', 'Usuário atualizado');
       }
       return redirect()->route('painel-index')->with('success', 'Usuário atualizado');
