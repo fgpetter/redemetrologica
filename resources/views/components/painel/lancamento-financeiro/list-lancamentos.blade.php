@@ -64,7 +64,7 @@
             <thead>
               <tr>
                 <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                <th scope="col" style="white-space: nowrap;">Emissão</th>
+                <th scope="col" style="white-space: nowrap;">Vencimento</th>
                 <th scope="col" style="white-space: nowrap;">Valor</th>
                 <th scope="col" style="white-space: nowrap;">Pagamento</th>
                 <th scope="col" style="width: 5%; white-space: nowrap;"></th>
@@ -78,7 +78,7 @@
                       <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
                     </a> {{ $lancamento->pessoa->nome_razao }}
                   </td>
-                  <td>{{ ($lancamento->data_emissao) ? Carbon\Carbon::parse($lancamento->data_emissao)->format('d/m/Y') : '-'  }} </td>
+                  <td>{{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }} </td>
                   
                   <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
                   <td> {!! ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : "<span class='badge rounded-pill bg-warning'>Em Aberto</span>" !!} </td>

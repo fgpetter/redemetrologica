@@ -78,7 +78,7 @@
         <thead>
           <tr>
             <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-            <th scope="col">Emissão</th>
+            <th scope="col">Vencimento</th>
             <th scope="col">Área</th>
             <th scope="col">Valor</th>
             <th scope="col">Pagamento</th>
@@ -93,7 +93,7 @@
                   <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
                 </a> {{ $lancamento->pessoa->nome_razao }}
               </td>
-              <td>{{ ($lancamento->data_emissao) ? Carbon\Carbon::parse($lancamento->data_emissao)->format('d/m/Y') : '-'  }} </td>
+              <td>{{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }} </td>
               <td>
                 {{ $lancamento->agenda_curso_id ? 'CURSO' : '' }}
                 {{ $lancamento->agenda_interlab_id ? 'PEP' : '' }}
@@ -127,10 +127,8 @@
                 <div class="collapse" id="{{"collapse".$lancamento->uid}}">
                   <div class="row gy-2 m-3 mt-2">
                     <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
-                    <div class="col-2"><b>Vencimento:</b> {{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }}</div>
-                    <div class="col-2"><b>Documento:</b> {{ $lancamento->documento ?? '-' }}</div>
-                    <div class="col-2"><b>Nº Documento:</b> {{ $lancamento->num_documento ?? '-' }}</div>
                     <div class="col-2"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
+                    <div class="col-2"><b>Centro Custo:</b> {{ $lancamento->centroCusto?->descricao ?? '-' }}</div>
                   </div>
                 </div>
               </td>
