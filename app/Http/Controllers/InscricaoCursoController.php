@@ -344,7 +344,7 @@ class InscricaoCursoController extends Controller
           'pessoa_id' => $empresa->id,
           'agenda_curso_id' => $agendacurso->id,
           'historico' => 'Inscrição no curso - ' . $agendacurso->curso->descricao,
-          'valor' => $valor,
+          'valor' => formataMoeda($valor),
           'centro_custo_id' => '3', // TREINAMENTO
           'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
           'data_emissao' => now(),
