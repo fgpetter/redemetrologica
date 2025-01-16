@@ -88,7 +88,15 @@ class LancamentoFinanceiro extends Model
         ->with('curso')
         ->where('status', 'PROVISIONADO')
         ->where('tipo_lancamento', 'CREDITO')
-        ->whereRelation('curso', fn($query) => $query->whereIn('status', ['CONFIRMADO','REALIZADO']))
+        ->where(function ($query) {
+          $query->whereNull('agenda_curso_id') // seleciona todos lancamentos que nao possuem agenda
+            ->orWhere(function ($query) {
+              $query->whereNotNull('agenda_curso_id') // se possui agenda
+                ->whereHas('curso', function ($query) {
+                  $query->whereIn('status', ['CONFIRMADO', 'REALIZADO']); // seleciona somente os confirmados ou realizados
+                });
+            });
+        })
         ->when($validated['data_inicial'] ?? null, function (Builder $query, $data_inicial) {
           $query->where('data_emissao', '>=', $data_inicial);
         })
