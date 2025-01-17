@@ -15,8 +15,9 @@
           <tr>
             <th scope="col" style="width: 5%; white-space: nowrap;">Mês</th>
             <th scope="col" style="width: 5%; white-space: nowrap;">ID</th>
-            <th scope="col" style="width: 10%; white-space: nowrap;">Status</th>
-            <th scope="col" style="width: 10%; white-space: nowrap;">Data Inicio</th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">Status</th>
+            <th scope="col" ></th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">Data Inicio</th>
             <th scope="col">Nome do Curso</th>
             <th scope="col">Tipo</th>
             <th scope="col" class="text-center">Inscritos</th>
@@ -36,6 +37,21 @@
                 @elseif ($agendacurso->status == 'CANCELADO') class="text-danger fw-bold" @endif>
                 {{ $agendacurso->status }}
               </td>
+
+              <td style="white-space: nowrap;">
+                @if ($agendacurso->site)
+                  <span data-bs-toggle="tooltip" data-bs-html="true" title="Visivel no site">
+                    <i class="ri-terminal-window-line label-icon text-primary" style="font-size: 1.4rem"></i> 
+                  </span>
+                  
+                @endif
+                @if ($agendacurso->inscricoes) &nbsp;
+                  <span data-bs-toggle="tooltip" data-bs-html="true" title="Inscrições abertas">
+                    <i class="ri-edit-2-fill label-icon text-success" style="font-size: 1.4rem"></i> 
+                  </span>
+                 @endif
+              </td>
+
               <td style="white-space: nowrap; margin: 10px 0 10px">
                 {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}</td>
               <td>{{ $agendacurso->curso->descricao ?? '' }}</td>
