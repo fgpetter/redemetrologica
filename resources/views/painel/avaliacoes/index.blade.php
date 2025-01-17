@@ -21,6 +21,8 @@
   if(element){
     const choices = new Choices(element,{
       searchFields: ['label'],
+      maxItemCount: -1,
+      allowHTML: true
     });
   }
 
