@@ -232,8 +232,10 @@
                 <span class="exception_title"><span title="ErrorException">ErrorException</span></span>
               </h3>
               <p class="break-long-words trace-message">{{ $content['message'] ?? '' }}</p>
+              <p class="break-long-words trace-message">{{ $content['body'] ?? '' }}</p>
               <p class="">URL: {{ $content['url'] ?? '' }}</p>
               <p class="">IP: {{ $content['ip'] ?? '' }}</p>
+              <p class="">User: {{ $content['user'] ?? '' }}</p>
             </th>
           </tr>
         </thead>

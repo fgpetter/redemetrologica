@@ -50,6 +50,7 @@ class Handler extends ExceptionHandler
             $content['url'] = request()->url();
             $content['body'] = request()->all();
             $content['ip'] = request()->ip();
+            $content['user'] = optional(auth()?->user()->email);
  
             Mail::to('ti@redemetrologica.com.br')->send(new ExceptionOccured($content));
  
