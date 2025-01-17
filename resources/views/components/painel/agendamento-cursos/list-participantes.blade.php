@@ -25,7 +25,7 @@
                 @if($inscrito->pessoa->tipo_pessoa === 'PF')
                     <tr>
                         <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
-                        <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
+                        <td class="text-truncate" style="max-width: 250px;">{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
                         <td>{{ $inscrito->pessoa->nome_razao }}</td>
                         <td> {{ $inscrito->valor }} </td>
                         <td>

@@ -12,7 +12,7 @@
             @forelse ($inscritos as $inscrito)
                 @if($inscrito->pessoa->tipo_pessoa === 'PJ')
                     <tr>
-                        <td>{{ $inscrito->pessoa->nome_razao }}</td>
+                        <td class="text-truncate" style="max-width: 350px;">{{ $inscrito->pessoa->nome_razao }}</td>
                         <td>{{ $inscritos->where('empresa_id', $inscrito->pessoa_id)->count() }}</td>
                         <td>{!! ($inscrito->pessoa->associado) 
                             ? '<span class="badge rounded-pill bg-success">Sim</span>' 
