@@ -24,7 +24,7 @@ class AgendaCursoController extends Controller
   public function index(): View
   {
     $data = [
-      'agenda_cursos' => AgendaCursos::orderBy('data_inicio')->get()
+      'agenda_cursos' => AgendaCursos::with('inscritos')->orderBy('data_inicio')->get()
     ];
     return view('painel.agendamento-cursos.index', $data);
   }
@@ -119,9 +119,9 @@ class AgendaCursoController extends Controller
     ]);
     $validated['uid'] = config('hashing.uid');
 
-    $validated['investimento'] = $this->formataMoeda($validated['investimento']) ?? null;
-    $validated['investimento_associado'] = $this->formataMoeda($validated['investimento_associado']) ?? null;
-    $validated['valor_orcamento'] = $this->formataMoeda($validated['valor_orcamento']) ?? null;
+    $validated['investimento'] = formataMoeda($validated['investimento']) ?? null;
+    $validated['investimento_associado'] = formataMoeda($validated['investimento_associado']) ?? null;
+    $validated['valor_orcamento'] = formataMoeda($validated['valor_orcamento']) ?? null;
 
     $agenda_curso = AgendaCursos::create($validated);
 
@@ -196,9 +196,9 @@ class AgendaCursoController extends Controller
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
 
-    $validated['investimento'] = $this->formataMoeda($validated['investimento']) ?? null;
-    $validated['investimento_associado'] = $this->formataMoeda($validated['investimento_associado']) ?? null;
-    $validated['valor_orcamento'] = $this->formataMoeda($validated['valor_orcamento']) ?? null;
+    $validated['investimento'] = formataMoeda($validated['investimento']) ?? null;
+    $validated['investimento_associado'] = formataMoeda($validated['investimento_associado']) ?? null;
+    $validated['valor_orcamento'] = formataMoeda($validated['valor_orcamento']) ?? null;
 
     if (!$request->destaque) {
       $validated['destaque'] = 0;
@@ -294,7 +294,7 @@ class AgendaCursoController extends Controller
       'material_padrao_id' => $request->material_padrao,
     ],[
       'quantidade' => $request->quantidade,
-      'valor' => $this->formataMoeda($request->valor),
+      'valor' => formataMoeda($request->valor),
       'total' => $request->total,
     ]);
 
@@ -313,29 +313,4 @@ class AgendaCursoController extends Controller
     return back()->with('success', 'Despesa removida com sucesso');
   }
 
-  /**
-   * Formata valor para BD
-   *
-   * @param string $valor
-   * @return string|null
-   */
-  private function formataMoeda($valor): ?string
-  {
-    if ($valor) {
-      if(str_contains($valor, '.') && str_contains($valor, ',') ) {
-        return str_replace(',', '.', str_replace('.', '', $valor));
-      }
-
-      if(str_contains($valor, '.') && !str_contains($valor, ',') ) {
-        return $valor;
-      }
-
-      if(str_contains($valor, ',') && !str_contains($valor, '.') ){
-        return str_replace(',', '.', $valor);
-      }
-
-    } else {
-      return null;
-    }
-  }
 }

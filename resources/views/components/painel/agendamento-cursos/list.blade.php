@@ -14,12 +14,12 @@
         <thead>
           <tr>
             <th scope="col" style="width: 5%; white-space: nowrap;">Mês</th>
-            <th scope="col" style="width: 5%; white-space: nowrap;">COD</th>
+            <th scope="col" style="width: 5%; white-space: nowrap;">ID</th>
             <th scope="col" style="width: 10%; white-space: nowrap;">Status</th>
             <th scope="col" style="width: 10%; white-space: nowrap;">Data Inicio</th>
             <th scope="col">Nome do Curso</th>
             <th scope="col">Tipo</th>
-            <th scope="col" class="text-center">Carga Horaria</th>
+            <th scope="col" class="text-center">Inscritos</th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
           </tr>
         </thead>
@@ -40,7 +40,7 @@
                 {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}</td>
               <td>{{ $agendacurso->curso->descricao ?? '' }}</td>
               <td>{{ $agendacurso->tipo_agendamento ?? '' }}</td>
-              <td class="text-center">{{ $agendacurso->carga_horaria }}</td>
+              <td class="text-center">{{ $agendacurso->inscritos->whereNotNull('valor')->count() }}</td>
               <td>
                 <div class="dropdown">
                   <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"

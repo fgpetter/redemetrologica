@@ -16,7 +16,7 @@
                 <th scope="col" style="width: 5%; white-space: nowrap;">Data Inscrição</th>
                 <th scope="col">Empresa</th>
                 <th scope="col">Nome</th>
-                <th scope="col" style="width: 5%; white-space: nowrap;">Confirmado</th>
+                <th scope="col" style="width: 5%; white-space: nowrap;">Valor</th>
                 <th scope="col" style="width: 5%; white-space: nowrap;"></th>
             </tr>
         </thead>
@@ -27,10 +27,7 @@
                         <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
                         <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
                         <td>{{ $inscrito->pessoa->nome_razao }}</td>
-                        <td> {!! $inscrito->data_confirmacao 
-                                ? \Carbon\Carbon::parse($inscrito->data_confirmacao)->format('d/m/Y') 
-                                : '<span class="badge rounded-pill bg-warning">Não</span>' !!}
-                        </td>
+                        <td> {{ $inscrito->valor }} </td>
                         <td>
                             <div class="dropdown">
                                 <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -56,7 +53,15 @@
                     <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>
                 </tr>
             @endforelse
-            
+            @if($inscritos->sum('valor') > 0)
+            <tfoot>
+                <tr>
+                    <td colspan="3"></td>
+                    <td><strong>Total:</strong> {{ $inscritos->sum('valor') }} </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+            @endif
         </tbody>
     </table>
 
