@@ -34,7 +34,7 @@
                       </p>
                     </div>
                     <div class="p-2 mt-3">
-                      <form class="needs-validation" id="signup" method="POST" novalidate action="{{ route('register') }}">
+                      <form class="needs-validation" id="signup" method="POST" action="{{ route('register') }}">
                       @csrf
                         <div class="mb-3">
                           <label for="username" class="form-label">Nome <span class="text-danger">*</span></label>
