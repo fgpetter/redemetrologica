@@ -49,7 +49,7 @@ trait RegistersUsers
 
                 $mail = obfuscate_email($pessoa->email);
 
-                if( !$pessoa->user?->exists ){ // se pessoa não possui usuário associado
+                if( !$pessoa->user?->exists || ( $pessoa->user?->temporary_password == 1 ) ){ // se pessoa não possui usuário associado
 
                     // cria um usuário e envia e-mail com dados para primeiro login
                     $this->associaUsuario($pessoa);
@@ -139,9 +139,10 @@ trait RegistersUsers
     {  
       $random_password = Str::random(8);
   
-      $user = User::create([
+      $user = User::firstOrCreate([
+        'email' => $pessoa->email
+      ],[
         'name' => $pessoa->nome_razao,
-        'email' => $pessoa->email,
         'password' => Hash::make($random_password),
         'temporary_password' => 1
       ]);
