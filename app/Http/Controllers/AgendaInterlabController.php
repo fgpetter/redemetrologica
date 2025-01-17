@@ -13,6 +13,7 @@ use App\Models\InterlabDespesa;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 use App\Models\InterlabRodadaParametro;
@@ -108,6 +109,14 @@ class AgendaInterlabController extends Controller
     ]);
 
     if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
       return back()
       ->withErrors($validator, 'principal')
       ->withInput()
@@ -180,10 +189,11 @@ class AgendaInterlabController extends Controller
 
     if ($validator->fails()) {
 
-      logger()->warning('VALIDATION ERROR', [ 
-        'METHOD' => __METHOD__, 
-        'REQUEST' => $request->all(),
-        'FAILED' => $validator->failed(),
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
       ]);
 
       return back()
@@ -269,10 +279,11 @@ class AgendaInterlabController extends Controller
 
     if ($validator->fails()) {
 
-      logger()->warning('VALIDATION ERROR', [ 
-        'METHOD' => __METHOD__, 
-        'REQUEST' => $request->all(),
-        'FAILED' => $validator->failed(),
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
       ]);
 
       return back()
@@ -367,6 +378,14 @@ class AgendaInterlabController extends Controller
     );
 
     if ($validator->fails()){
+
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
       return back()
         ->withErrors($validator, 'rodadas')
         ->withInput()
@@ -415,10 +434,11 @@ class AgendaInterlabController extends Controller
 
     if ($validator->fails()) {
 
-      logger()->warning('VALIDATION ERROR', [ 
-        'METHOD' => __METHOD__, 
-        'REQUEST' => $request->all(),
-        'FAILED' => $validator->failed(),
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
       ]);
 
       return back()

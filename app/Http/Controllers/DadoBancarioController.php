@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Avaliador;
-use App\Models\DadoBancario;
 use App\Models\Funcionario;
+use App\Models\DadoBancario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 
@@ -37,6 +38,14 @@ class DadoBancarioController extends Controller
     );
 
     if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
       return redirect()->back()
         ->with('unidade-error', 'Dados informados não são válidos')
         ->withErrors($validator);
@@ -85,6 +94,14 @@ class DadoBancarioController extends Controller
     );
 
     if ($validator->fails()) {
+      
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
       return redirect()->back()
         ->with('error', 'Dados informados não são válidos')
         ->withErrors($validator);

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{AgendaInterlab, Pessoa, CentroCusto, Interlab, InterlabInscrito, LancamentoFinanceiro};
-use Illuminate\Http\{Request, RedirectResponse};
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\{Request, RedirectResponse};
+use App\Models\{AgendaInterlab, Pessoa, CentroCusto, Interlab, InterlabInscrito, LancamentoFinanceiro};
 
 class InscricaoInterlabController extends Controller
 {
@@ -173,6 +174,13 @@ class InscricaoInterlabController extends Controller
       ]);
 
     if($validator->fails()){
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
       return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
     }
 
@@ -215,7 +223,7 @@ class InscricaoInterlabController extends Controller
    * @return RedirectResponse
    */
 
-  public function enviaConvite() : RedirectResponse
+  public function enviaConvite(Request $request) : RedirectResponse
   {
 
     $validator = Validator::make(request()->all(), [
@@ -233,6 +241,12 @@ class InscricaoInterlabController extends Controller
     ]);
 
     if($validator->fails()){
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
       return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
     }
 

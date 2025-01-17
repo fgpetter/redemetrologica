@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\ConfirmaInscricaoRequest;
 use Illuminate\Http\{Request, RedirectResponse};
@@ -193,6 +194,14 @@ class InscricaoCursoController extends Controller
       ]);
 
       if($validator->fails()) {
+        
+        Log::channel('validation')->info("Erro de validação", 
+        [
+            'user' => auth()->user() ?? null,
+            'request' => $request->all() ?? null,
+            'errors' => $validator->errors() ?? null,
+        ]);
+  
         return back()->with('error', $validator->errors()->first());
       }
 
@@ -225,6 +234,13 @@ class InscricaoCursoController extends Controller
     ]);
 
     if($validator->fails()) {
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
       return back()->with('error', $validator->errors()->first());
     }
 

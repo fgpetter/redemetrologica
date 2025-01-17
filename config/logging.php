@@ -138,6 +138,12 @@ return [
             'path' => storage_path('logs/emails_enviados.log'),
             'ignore_exceptions' => true,
         ],
+
+        'validation' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/validation_errors.log'),
+            'ignore_exceptions' => true,
+        ],
     ],
 
 ];

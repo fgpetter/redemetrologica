@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Endereco;
 use App\Models\Unidade;
+use App\Models\Endereco;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 
@@ -39,6 +40,13 @@ class UnidadeController extends Controller
     );
 
     if ($validator->fails()) {
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
       return redirect()->back()
         ->withInput()
         ->with('error', 'Dados informados não são válidos')
