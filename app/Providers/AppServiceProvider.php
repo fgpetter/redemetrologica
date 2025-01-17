@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         Paginator::useBootstrapFive();
         LogViewer::auth(function ($request) {
-            if( $request->user()?->hasPermissionTo('admin') ) {
+            if( env('APP_ENV','local') || $request->user()?->hasPermissionTo('admin') ) {
                 return true;
             } else {
                 abort(404);
