@@ -175,7 +175,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{agendacurso:uid}', [AgendaCursoController::class, 'update'])->name('agendamento-curso-update');
     Route::post('delete/{agendacurso:uid}', [AgendaCursoController::class, 'delete'])->name('agendamento-curso-delete');
     Route::post('salvar-despesa', [AgendaCursoController::class, 'salvaDespesa'])->name('curso-salvar-despesa');
-    Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('delete-despesa');
+    Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('curso-delete-despesa');
   });
 
   /* Matricula em cursos */

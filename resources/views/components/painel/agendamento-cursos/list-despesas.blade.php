@@ -40,7 +40,7 @@
                                     <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#despesaModal' . $despesa->id }}">Editar</a>
                                 </li>
                                 <li>
-                                    <x-painel.form-delete.delete route='delete-despesa' id="{{ $despesa->uid }}" />
+                                    <x-painel.form-delete.delete route='curso-delete-despesa' id="{{ $despesa->uid }}" />
                                 </li>
                             </ul>
                         </div>
