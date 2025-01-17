@@ -119,10 +119,10 @@ class AgendaInterlabController extends Controller
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
     $validated['inscricao'] = $request->inscricao ?? 0;
-    $validated['valor_rs'] = $this->formataMoeda($request->valor_s_se);
-    $validated['valor_s_se'] = $this->formataMoeda($request->valor_s_se);
-    $validated['valor_co'] = $this->formataMoeda($request->valor_co);
-    $validated['valor_n_ne'] = $this->formataMoeda($request->valor_n_ne);
+    $validated['valor_rs'] = formataMoeda($request->valor_s_se);
+    $validated['valor_s_se'] = formataMoeda($request->valor_s_se);
+    $validated['valor_co'] = formataMoeda($request->valor_co);
+    $validated['valor_n_ne'] = formataMoeda($request->valor_n_ne);
     $validated['descricao'] = $request->get('descricao') ? $this->salvaImagensTemporarias($request->get('descricao') ) : null;
 
     $agenda_interlab = AgendaInterlab::create($validated);
@@ -199,10 +199,10 @@ class AgendaInterlabController extends Controller
     $validated['site'] = $request->site ?? 0;
     $validated['destaque'] = $request->destaque ?? 0;
     $validated['inscricao'] = $request->inscricao ?? 0;
-    $validated['valor_rs'] = $this->formataMoeda($request->valor_s_se);
-    $validated['valor_s_se'] = $this->formataMoeda($request->valor_s_se);
-    $validated['valor_co'] = $this->formataMoeda($request->valor_co);
-    $validated['valor_n_ne'] = $this->formataMoeda($request->valor_n_ne);
+    $validated['valor_rs'] = formataMoeda($request->valor_s_se);
+    $validated['valor_s_se'] = formataMoeda($request->valor_s_se);
+    $validated['valor_co'] = formataMoeda($request->valor_co);
+    $validated['valor_n_ne'] = formataMoeda($request->valor_n_ne);
     $validated['descricao'] = $request->get('descricao') ? $this->salvaImagensTemporarias($request->get('descricao') ) : null;
 
     // adiciona condicional para que interlabs concluidos não apareçam no site
@@ -288,8 +288,8 @@ class AgendaInterlabController extends Controller
       'agenda_interlab_id' => $request->agenda_interlab_id,
       'material_padrao_id' => $request->material_padrao,
       'quantidade' => $request->quantidade,
-      'valor' => $this->formataMoeda($request->valor),
-      'total' => $this->formataMoeda($request->total),
+      'valor' => formataMoeda($request->valor),
+      'total' => formataMoeda($request->total),
       'lote' => $request->lote,
       'validade' => $request->validade,
       'data_compra' => $request->data_compra,
@@ -472,6 +472,7 @@ class AgendaInterlabController extends Controller
       if(str_contains($valor, ',') && !str_contains($valor, '.') ){
         return str_replace(',', '.', $valor);
       }
+      return $valor;
 
     } else {
       return null;

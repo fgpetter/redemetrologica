@@ -83,6 +83,7 @@ function formataMoeda($valor): ?string
     if(str_contains($valor, ',') && !str_contains($valor, '.') ){
       return str_replace(',', '.', $valor);
     }
+    return $valor;
 
   } else {
     return null;

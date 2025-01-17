@@ -157,7 +157,7 @@ class AgendaAvaliacaoController extends Controller
 
         ]);
 
-        $valor_proposta = $this->formataMoeda( $request->valor_proposta);
+        $valor_proposta = formataMoeda( $request->valor_proposta);
         $validate['valor_proposta'] = $valor_proposta;
         $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(10)->format('Y-m-d');
         $validate['data_proposta_acoes_corretivas'] = $request->data_proposta_acoes_corretivas ?? Carbon::parse($request->data_inicio)->addDays(7)->format('Y-m-d');
@@ -212,17 +212,17 @@ class AgendaAvaliacaoController extends Controller
             'num_ensaios.integer' => 'O dado enviado não é valido',
         ]);
 
-        $validate['valor_dia']  = $this->formataMoeda($request->valor_dia );
-        $validate['valor_estim_desloc']  = $this->formataMoeda($request->valor_estim_desloc );
-        $validate['valor_estim_alim']  = $this->formataMoeda($request->valor_estim_alim );
-        $validate['valor_estim_hosped']  = $this->formataMoeda($request->valor_estim_hosped );
-        $validate['valor_estim_extras'] = $this->formataMoeda($request->valor_estim_extras );
-        $validate['valor_lider'] = $this->formataMoeda($request->valor_lider );
-        $validate['valor_avaliador'] = $this->formataMoeda($request->valor_avaliador );
-        $validate['valor_real_desloc'] = $this->formataMoeda($request->valor_real_desloc );
-        $validate['valor_real_alim'] = $this->formataMoeda($request->valor_real_alim );
-        $validate['valor_real_hosped'] = $this->formataMoeda($request->valor_real_hosped );
-        $validate['valor_real_extras'] = $this->formataMoeda($request->valor_real_extras );
+        $validate['valor_dia']  = formataMoeda($request->valor_dia );
+        $validate['valor_estim_desloc']  = formataMoeda($request->valor_estim_desloc );
+        $validate['valor_estim_alim']  = formataMoeda($request->valor_estim_alim );
+        $validate['valor_estim_hosped']  = formataMoeda($request->valor_estim_hosped );
+        $validate['valor_estim_extras'] = formataMoeda($request->valor_estim_extras );
+        $validate['valor_lider'] = formataMoeda($request->valor_lider );
+        $validate['valor_avaliador'] = formataMoeda($request->valor_avaliador );
+        $validate['valor_real_desloc'] = formataMoeda($request->valor_real_desloc );
+        $validate['valor_real_alim'] = formataMoeda($request->valor_real_alim );
+        $validate['valor_real_hosped'] = formataMoeda($request->valor_real_hosped );
+        $validate['valor_real_extras'] = formataMoeda($request->valor_real_extras );
 
         $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'];
         $validate['total_gastos_reais'] = $validate['valor_lider'] + $validate['valor_avaliador'] + $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras'];
@@ -245,22 +245,4 @@ class AgendaAvaliacaoController extends Controller
         return redirect()->back()->with('warning', 'Area removida com sucesso');
     }
 
-    private function formataMoeda($valor): ?string
-    {
-        if ($valor) {
-            if (str_contains($valor, '.') && str_contains($valor, ',')) {
-                return str_replace(',', '.', str_replace('.', '', $valor));
-            }
-
-            if (str_contains($valor, '.') && !str_contains($valor, ',')) {
-                return $valor;
-            }
-
-            if (str_contains($valor, ',') && !str_contains($valor, '.')) {
-                return str_replace(',', '.', $valor);
-            }
-        } else {
-            return null;
-        }
-    }
 }

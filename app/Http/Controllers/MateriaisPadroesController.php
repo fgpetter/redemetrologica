@@ -44,7 +44,7 @@ class MateriaisPadroesController extends Controller
       ]
     );
 
-    ($validated['valor']) ? $validated['valor'] = $this->formataMoeda($validated['valor']) : null;
+    ($validated['valor']) ? $validated['valor'] = formataMoeda($validated['valor']) : null;
 
     $material_padrao = MaterialPadrao::create($validated);
 
@@ -79,7 +79,7 @@ class MateriaisPadroesController extends Controller
       ]
     );
 
-    ($validated['valor']) ? $validated['valor'] = $this->formataMoeda($validated['valor']) : null;
+    ($validated['valor']) ? $validated['valor'] = formataMoeda($validated['valor']) : null;
 
     $materiaisPadroes->update($validated);
 
