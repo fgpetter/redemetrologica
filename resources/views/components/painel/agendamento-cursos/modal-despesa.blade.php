@@ -13,7 +13,7 @@
       </div>
       <div class="modal-body">
         <div class="row gy-3">
-          <form method="POST" action="{{ route('salvar-despesa', $despesa?->id) }}">
+          <form method="POST" action="{{ route('curso-salvar-despesa', $despesa?->id) }}">
             @csrf
             <input type="hidden" name="agenda_curso_id" value="{{ $agendacurso->id }}">
             <div class="row gy-1">
