@@ -1,13 +1,13 @@
 @extends('layouts.master')
 @section('title')
-    Editar Agendamento de Interlab
+    @if ($agendainterlab->id) Editar Agendamento de Interlab @else Cadastrar Agendamento de Interlab @endif
 @endsection
 @section('content')
 
     <x-breadcrumb 
     li1="Agendamento de Interlab" 
     li1link="agenda-interlab-index"
-    title="Cadastrar Agendamento de Interlab"/>
+    :title="$agendainterlab->id ? 'Editar Agendamento de Interlab' : 'Cadastrar Agendamento de Interlab'"/>
 
     <div class="row">
         <div class="col-12">
