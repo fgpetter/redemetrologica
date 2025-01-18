@@ -13,7 +13,7 @@
 
 <div class="col-5 col-sm-4">
   <label for="cep" class="form-label">CEP<small class="text-danger-emphasis opacity-75"> * </small></label>
-  <input type="text" class="form-control input-cep" name="cep"
+  <input type="text" class="form-control cep" name="cep"
     value="{{ old('cep') ?? $endereco->cep ?? null }}" required>
     @error('cep') <div class="text-warning">{{ $message }}</div> @enderror
 </div>

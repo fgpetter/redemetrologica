@@ -55,7 +55,7 @@
 
         <div class="row">
           <div class="col-8">
-            <x-forms.input-field name="cep" label="CEP" class="input-cep"
+            <x-forms.input-field name="cep" label="CEP" class="cep"
             :value="old('cep') ?? $pessoa->enderecos->first()->cep ?? null" required />
             @error('cep') <div class="text-warning">{{ $message }}</div> @enderror
           </div>
