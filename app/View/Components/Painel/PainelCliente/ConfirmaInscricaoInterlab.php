@@ -7,24 +7,38 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use App\Models\Pessoa;
 use App\Models\AgendaInterlab;
-use App\Models\InterlabInscrito;
 
 class ConfirmaInscricaoInterlab extends Component
 {
+    public Pessoa $pessoa;
     public Pessoa|null $empresa;
     public AgendaInterlab $interlab;
-    public Pessoa $pessoa;
-    public bool $convite;
+    public bool $convidado;
+    public bool $inscrito;
 
     /**
      * Create a new component instance.
      */
     public function __construct()
     {
-        $this->empresa = session('empresa') ?? null;
+        /** @var Pessoa */
+        $this->pessoa = Pessoa::where('user_id', auth()->user()->id)
+            ->with('empresas')
+            ->with('interlabs')
+            ->firstOrFail();
+    
+        /** @var Pessoa */
+        $this->empresa = session('empresa') ?? $this->pessoa->empresas()->first() ?? null;
+
+        /** @var AgendaInterlab */
         $this->interlab = session('interlab') ?? null;
-        $this->pessoa = Pessoa::where('user_id', auth()->user()->id)->first();
-        $this->convite = session('convite') ?? false;
+
+        /** @var bool */
+        $this->convidado = session('convidado') ?? false;
+
+        /** @var bool */
+        $this->inscrito = $this->pessoa->interlabs->where('agenda_interlab_id', $this->interlab->id)->isNotEmpty();
+
     }
 
     /**
@@ -32,29 +46,6 @@ class ConfirmaInscricaoInterlab extends Component
      */
     public function render(): View|Closure|string
     {
-        // verifica se usuário tem uma pessoa associada
-        if(!$this->pessoa) {
-            logger()->error('Usuário não tem uma pessoa associada', ['user_id' => auth()->user()->id]);
-            abort(404);
-        }
-
-        // verifica se já está inscrita no interlab
-        if( InterlabInscrito::where('agenda_interlab_id', $this->interlab->id)->where('pessoa_id', $this->pessoa->id)->exists() ) {
-            session()->forget(['interlab', 'empresa']);
-            return redirect('painel');
-        }
-
-        // vincula novo cadastro a uma empresa se houver id de indicação
-        if(!session('empresa')){
-            $this->empresa = $this->pessoa->empresas()->first() ?? null;
-        } else {
-            $this->pessoa->empresas()->sync($this->empresa->id);
-        }
-
-        if($this->interlab->exists()) {
-            return view('components.painel.painel-cliente.confirma-inscricao-interlab');
-        }
-        abort(404);
-
+        return view('components.painel.painel-cliente.confirma-inscricao-interlab');
     }
 }

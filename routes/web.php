@@ -304,6 +304,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoInterlabController::class, 'cancelaInscricao'])->name('cancela-inscricao-interlab');
     Route::post('salvar-inscrito', [InscricaoInterlabController::class, 'salvaInscrito'])->name('salvar-inscrito-interlab');
     Route::post('envia-convite', [InscricaoInterlabController::class, 'enviaConvite'])->name('envia-convite-interlab');
+    Route::post('limpa-sessao', [InscricaoInterlabController::class, 'limpaSessao'])->name('limpa-sessao-interlab');
   });
 
 
