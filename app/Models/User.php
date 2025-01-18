@@ -26,16 +26,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'avatar',
+        'email_verified_at',
         'temporary_password'
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName('Usuários');
-    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,6 +48,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->useLogName('Usuários');
+    }
+
 
     /**
      * Carrega pesoa
