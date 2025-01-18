@@ -30,6 +30,7 @@ class InscricaoCursoController extends Controller
     if($request->referer) {
       session()->put('empresa', Pessoa::where('uid', $request->referer)->where('tipo_pessoa', 'PJ')->first() ?? null);
       session()->put('convidado', true);
+      session()->put('convite-email', true);
     }
 
     return redirect('painel');
