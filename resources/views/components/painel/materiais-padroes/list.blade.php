@@ -59,7 +59,7 @@
                     @endforelse
                 </tbody>
             </table>
-            <div class="mt-3">{!! $materiais->withQueryString()->links('pagination::bootstrap-5') !!}</div>
+            <div class="mt-3 w-100">{!! $materiais->withQueryString()->links('pagination::bootstrap-5') !!}</div>
         </div>
         <x-painel.materiais-padroes.modal-materiais-padroes />
 

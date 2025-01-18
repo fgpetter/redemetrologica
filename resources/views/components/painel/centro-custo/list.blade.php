@@ -58,9 +58,9 @@
                     @endforelse
                 </tbody>
             </table>
-            {{-- <div class="row mt-3">
-    {!! $padroes->withQueryString()->links('pagination::bootstrap-5') !!}
-    </div> --}}
+            {{-- <div class="row mt-3 w-100">
+            {!! $padroes->withQueryString()->links('pagination::bootstrap-5') !!}
+            </div> --}}
         </div>
         <x-painel.centro-custo.modal-centro-custo />
     </div>

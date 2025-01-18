@@ -138,7 +138,7 @@
           @endforelse
         </tbody>
       </table>
-      <div class="row mt-3">
+      <div class="row mt-3 w-100">
         {!! $lancamentosfinanceiros->withQueryString()->links('pagination::bootstrap-5') !!}
       </div>
     </div>

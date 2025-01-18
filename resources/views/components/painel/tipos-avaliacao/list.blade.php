@@ -56,9 +56,9 @@
                     @endforelse
                 </tbody>
             </table>
-            {{-- <div class="row mt-3">
-        {!! $avaliacoes->withQueryString()->links('pagination::bootstrap-5') !!}
-      </div> --}}
+            {{-- <div class="row mt-3 w-100">
+                {!! $avaliacoes->withQueryString()->links('pagination::bootstrap-5') !!}
+            </div> --}}
         </div>
         <x-painel.tipos-avaliacao.modal-avaliacao />
     </div>
