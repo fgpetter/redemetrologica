@@ -44,13 +44,10 @@ class AgendaInterlabController extends Controller
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
-    // loads despesas from agendainterlab
-    $agendainterlab->load('despesas');
-    $agendainterlab->load('parametros');
-    $agendainterlab->load('rodadas');
+    $agendainterlab->load(['despesas', 'parametros', 'rodadas','inscritos']);
 
     $data = [
-      'agendainterlab' => $agendainterlab, 
+      'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->orderBy('descricao')->get(),
       'interlabDespesa' => $agendainterlab->despesas,
@@ -59,6 +56,8 @@ class AgendaInterlabController extends Controller
       'interlabParametros' => $agendainterlab->parametros,
       'parametros' => Parametro::orderBy('descricao')->get(),
       'rodadas' => $agendainterlab->rodadas,
+      'empresasParticipantes' => $agendainterlab->inscritos->whereNull('empresa_id'),
+      'participantes' => $agendainterlab->inscritos->whereNotNull('empresa_id'),
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -420,7 +419,8 @@ class AgendaInterlabController extends Controller
     return back()->with('warning', 'Rodada removida')->withFragment('rodadas');
   }
 
-  public function salvaParametro(Request $request): RedirectResponse {
+  public function salvaParametro(Request $request): RedirectResponse 
+  {
     
     $validator = Validator::make($request->all(),[
       'parametro_id' => ['required', 'exists:parametros,id'],
@@ -455,7 +455,8 @@ class AgendaInterlabController extends Controller
     return back()->with('success', 'Parâmetro salvo com sucesso')->withFragment('despesas');
   }
 
-  public function deleteParametro(InterlabParametro $parametro, Request $request): RedirectResponse {
+  public function deleteParametro(InterlabParametro $parametro, Request $request): RedirectResponse 
+  {
 
     $request->validate([
       'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
@@ -471,33 +472,6 @@ class AgendaInterlabController extends Controller
     return back()->with('warning', 'Parâmetro removido')->withFragment('despesas');
   }
 
-
-  /**
-   * Formata valor para BD
-   *
-   * @param string $valor
-   * @return string|null
-   */
-  private function formataMoeda($valor): ?string
-  {
-    if ($valor) {
-      if(str_contains($valor, '.') && str_contains($valor, ',') ) {
-        return str_replace(',', '.', str_replace('.', '', $valor));
-      }
-
-      if(str_contains($valor, '.') && !str_contains($valor, ',') ) {
-        return $valor;
-      }
-
-      if(str_contains($valor, ',') && !str_contains($valor, '.') ){
-        return str_replace(',', '.', $valor);
-      }
-      return $valor;
-
-    } else {
-      return null;
-    }
-  }
 
   /**
    * 

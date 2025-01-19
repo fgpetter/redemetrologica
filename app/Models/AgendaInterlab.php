@@ -18,17 +18,17 @@ class AgendaInterlab extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
         ->logOnly(['*'])
         ->useLogName( get_class($this) );
     }
-
-    protected $casts = [
-        'data_inicio' => 'date',
-        'data_fim' => 'date',
-    ];
 
     /**
      * Retorna interlab associado
@@ -68,6 +68,11 @@ class AgendaInterlab extends Model
     public function rodadas(): HasMany
     {
         return $this->hasMany(InterlabRodada::class);
+    }
+
+    public function inscritos(): HasMany
+    {
+        return $this->hasMany(InterlabInscrito::class, 'agenda_interlab_id', 'id');
     }
 
 

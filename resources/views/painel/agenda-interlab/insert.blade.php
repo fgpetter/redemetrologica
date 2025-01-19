@@ -21,6 +21,8 @@
                 :interlabParametros="$interlabParametros"
                 :parametros="$parametros"
                 :rodadas="$rodadas"
+                :empresasParticipantes="$empresasParticipantes"
+                :participantes="$participantes"
             />
         </div>
     </div>
