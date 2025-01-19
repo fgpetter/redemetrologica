@@ -85,7 +85,7 @@ class AgendaInterlabController extends Controller
       'valor_s_se' => ['nullable', 'string'],
       'valor_co' => ['nullable', 'string'],
       'valor_n_ne' => ['nullable', 'string'],
-
+      'inscricao_manual' => ['nullable', 'string'],
       ], [
       'interlab_id.required' => 'Selecione um interlab',
       'interlab_id.exists' => 'Opção inválida',
@@ -103,8 +103,8 @@ class AgendaInterlabController extends Controller
       'valor_rs.string' => 'Valor inválido', 
       'valor_s_se.string' => 'Valor inválido', 
       'valor_co.string' => 'Valor inválido', 
-      'valor_n_ne.string' => 'Valor inválido', 
-
+      'valor_n_ne.string' => 'Valor inválido',
+      'inscricao_manual.string' => 'Permitido somente texto'
     ]);
 
     if ($validator->fails()) {
@@ -164,6 +164,7 @@ class AgendaInterlabController extends Controller
       'valor_s_se' => ['nullable', 'string'],
       'valor_co' => ['nullable', 'string'],
       'valor_n_ne' => ['nullable', 'string'],
+      'inscricao_manual' => ['nullable', 'string'],
     ],[
       'interlab_id.required' => 'Selecione um interlab',
       'interlab_id.exists' => 'Opção inválida',
@@ -182,7 +183,7 @@ class AgendaInterlabController extends Controller
       'valor_s_se.string' => 'Valor inválido',
       'valor_co.string' => 'Valor inválido',
       'valor_n_ne.string' => 'Valor inválido',
-
+      'inscricao_manual.string' => 'Permitido somente texto'
     ]);
 
 

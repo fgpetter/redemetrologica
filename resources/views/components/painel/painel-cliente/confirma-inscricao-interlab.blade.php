@@ -14,6 +14,12 @@
         <strong>Interlaboratorial:</strong> {{ $interlab->interlab->nome }} <br>
         <strong>Agenda:</strong> de {{ \Carbon\Carbon::parse($interlab->data_inicio)->format('d/m/Y') }} a {{ \Carbon\Carbon::parse($interlab->data_fim)->format('d/m/Y') }} <br>
       </p>
+      @if($interlab->inscricao_manual)
+        <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-primary rounded mb-5">
+          <i class="ri-information-fill text-primary fs-5"></i> Importante:
+          <p class="mb-2 text-black">{!! nl2br($interlab->inscricao_manual) !!}</p>
+        </blockquote>
+      @endif
 
       @if($empresa)
         <div class="mt-3 mb-5">

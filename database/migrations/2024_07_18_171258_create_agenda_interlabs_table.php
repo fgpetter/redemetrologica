@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('site')->default(0);
             $table->boolean('destaque')->default(0);
             $table->text('descricao')->nullable();
+            $table->text('inscricao_manual')->nullable();
             $table->date('data_inicio')->nullable();
             $table->date('data_fim')->nullable();
             $table->decimal('valor_rs')->nullable();
