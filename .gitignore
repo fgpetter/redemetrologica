@@ -19,3 +19,5 @@ yarn-error.log
 /.idea
 /.vscode
 public/vendor/log-viewer/*
+_ide_helper_models.php
+_ide_helper.php
