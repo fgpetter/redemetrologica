@@ -18,6 +18,7 @@ class EnderecoController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
+    
     $validated = $request->validate(
       [
         'pessoa_id' => ['required', 'integer'],
@@ -48,7 +49,7 @@ class EnderecoController extends Controller
     }
 
     if (isset($request->end_padrao)) {
-      Pessoa::find($request->pessoa)->update(['end_padrao' => $endereco->id]);
+      $endereco->pessoa->update(['end_padrao' => $endereco->id]);
     }
 
     return redirect()->back()->with('success', 'Endereço cadastrado com sucesso');
@@ -88,12 +89,10 @@ class EnderecoController extends Controller
       'uf' => $validated['uf']
     ]);
 
-    $pessoa = Pessoa::find($request->pessoa_id);
-
     if (isset($request->end_padrao)) {
-      $pessoa->update(['end_padrao' => $endereco->id]);
-    } elseif ($pessoa->end_padrao == $endereco->id) {
-      $pessoa->update(['end_padrao' => null]);
+      $endereco->pessoa->update(['end_padrao' => $endereco->id]);
+    } elseif ($endereco->pessoa->end_padrao == $endereco->id) {
+      $endereco->pessoa->update(['end_padrao' => null]);
     }
 
     return redirect()->back()->with('success', 'Endereço atualizado');
