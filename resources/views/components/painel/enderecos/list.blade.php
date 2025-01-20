@@ -47,11 +47,9 @@
                                     <a class="dropdown-item" data-bs-toggle="modal"
                                         data-bs-target="{{ "#modal_endereco_$endereco->uid" }}">Editar</a>
                                 </li>
-                                @if ($pessoa->end_padrao != $endereco->id)
-                                    {{-- Impede deletar endereço padrão --}}
-
+                                <li>
                                     <x-painel.form-delete.delete route='endereco-delete' id="{{ $endereco->uid }}" />
-                                @endif
+                                </li>
                             </ul>
                         </div>
                     </div>
