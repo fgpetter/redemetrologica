@@ -15,7 +15,7 @@
         <h6 class="h6 mt-3">Cursos habilitados:</h6>
         @foreach ($pessoa->instrutor->cursosHabilitados as $curso)
             <div class="mb-3 border border-dashed rounded px-2 pt-3">
-                <h5 class="h5 mb-1">{{ $curso->curso->descricao }}</h5>
+                <h6 class="h6 mb-1">{{ $curso->curso->descricao }}</h6>
                 <ul class="list-unstyled">
                     <li> <strong>Conhecimento: </strong> {{ $curso->conhecimento ? 'Sim' : 'Não' }}</li>
                     <li> <strong>Experiencia: </strong> {{ $curso->experiencia ? 'Sim' : 'Não' }}</li>
