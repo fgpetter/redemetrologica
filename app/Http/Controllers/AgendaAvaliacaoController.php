@@ -50,7 +50,6 @@ class AgendaAvaliacaoController extends Controller
 
         // cria uma avaliação vinculada a um laboratorio
         $avaliacao = AgendaAvaliacao::create([
-            'uid' => config('hashing.uid'),
             'laboratorio_id' => $laboratorio->id,
         ]);
 
