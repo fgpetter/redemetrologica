@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 class Pessoa extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use SoftDeletes, LogsActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -28,9 +29,8 @@ class Pessoa extends Model
     {
         return LogOptions::defaults()
         ->logOnly(['*'])
-        ->useLogName('Usuários');
+        ->useLogName( get_class($this) );
     }
-
 
     /**
      * Lista os endereços de uma pessoa.
