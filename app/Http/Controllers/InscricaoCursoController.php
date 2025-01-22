@@ -200,6 +200,7 @@ class InscricaoCursoController extends Controller
         [
             'user' => auth()->user() ?? null,
             'request' => $request->all() ?? null,
+            'uri' => request()->fullUrl() ?? null,
             'errors' => $validator->errors() ?? null,
         ]);
   
@@ -239,6 +240,7 @@ class InscricaoCursoController extends Controller
       [
           'user' => auth()->user() ?? null,
           'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
           'errors' => $validator->errors() ?? null,
       ]);
 
