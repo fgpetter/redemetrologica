@@ -8,10 +8,13 @@ use Illuminate\Support\Str;
 use App\Mail\UserRegistered;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
+
 
 class PessoaController extends Controller
 {
@@ -60,14 +63,16 @@ class PessoaController extends Controller
   public function create(Request $request): RedirectResponse
   {
     $request->merge( return_only_nunbers( $request->only('cpf_cnpj','telefone','telefone_alt','celular') ) );
-    $request['nome_razao'] = ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao')));
-    $request['nome_fantasia'] = strtoupper($request->get('nome_fantasia'));
+    $request->merge([
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
+      'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
+      'email' => strtolower($request->get('email')),
+    ]);
 
-    $validated = $request->validate(
-      [
+    $validator = Validator::make($request->all(), [
         'nome_razao' => ['required', 'string', 'max:191'],
         'nome_fantasia' => ['nullable', 'string', 'max:191'],
-        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj'], // TODO - adicionar validação de CPF/CNPJ
+        'cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191', 'unique:pessoas,cpf_cnpj'],
         'rg_ie' => ['nullable', 'string', 'max:191'],
         'insc_municipal' => ['nullable', 'string', 'max:191'],
         'codigo_contabil' => ['nullable', 'string', 'max:191'],
@@ -75,10 +80,9 @@ class PessoaController extends Controller
         'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
         'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
         'celular' => ['nullable', 'string', 'min:10', 'max:11'],
-        'email' => ['nullable', 'string', 'max:191'],
+        'email' => ['nullable', 'email', 'max:191'],
         'site' => ['nullable', 'string', 'max:191'],
-      ],
-      [
+      ],[
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
         'cpf_cnpj.unique' => 'Esse CPF/CNPJ ja foi registrado',
@@ -86,7 +90,24 @@ class PessoaController extends Controller
       ]
     );
 
-    $pessoa = Pessoa::create( $validated);
+    if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
+      return back()
+      ->withErrors($validator)
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
+
+    $pessoa = Pessoa::create( $validator->validated() );
 
     if (!$pessoa) {
       return redirect()->back()->with('error', 'Ocorreu um erro!');
@@ -117,18 +138,17 @@ class PessoaController extends Controller
    **/
   public function update(Request $request, Pessoa $pessoa): RedirectResponse
   {
-    $request['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $request->get('cpf_cnpj'));
-    $request['telefone'] = preg_replace('/[^0-9]/', '', $request->get('telefone'));
-    $request['telefone_alt'] = preg_replace('/[^0-9]/', '', $request->get('telefone_alt'));
-    $request['celular'] = preg_replace('/[^0-9]/', '', $request->get('celular'));
-    $request['nome_razao'] = ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao')));
-    $request['nome_fantasia'] = strtoupper($request->get('nome_fantasia'));
+    $request->merge( return_only_nunbers( $request->only('cpf_cnpj','telefone','telefone_alt','celular') ) );
+    $request->merge([
+      'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
+      'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
+      'email' => strtolower($request->get('email'))
+    ]);
 
-    $validated = $request->validate(
-      [
+    $validator = Validator::make($request->all(), [
         'nome_razao' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj'],
         'nome_fantasia' => ['nullable', 'string', 'max:191'],
-        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $pessoa->id], // TODO - adicionar validação de CPF/CNPJ
+        'cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191', 'unique:pessoas,cpf_cnpj,' . $pessoa->id],
         'rg_ie' => ['nullable', 'string', 'max:191'],
         'insc_municipal' => ['nullable', 'string', 'max:191'],
         'codigo_contabil' => ['nullable', 'string', 'max:191'],
@@ -136,7 +156,7 @@ class PessoaController extends Controller
         'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
         'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
         'celular' => ['nullable', 'string', 'min:10', 'max:11'],
-        'email' => ['nullable', 'string', 'max:191'],
+        'email' => ['nullable', 'email', 'max:191'],
         'site' => ['nullable', 'string', 'max:191'],
       ],
       [
@@ -146,7 +166,30 @@ class PessoaController extends Controller
       ]
     );
 
-    $pessoa->update( $validated );
+    if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
+      return back()
+      ->withErrors($validator)
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
+    $pessoa->update( $validator->validated() );
+
+    if( $pessoa->user() ) {
+      $pessoa->user()->update([
+        'name' => $validator->safe()->nome_razao,
+        'email' => $validator->safe()->email
+      ]);
+    }
 
     return back()->with('success', 'Pessoa atualizada com sucesso');
   }

@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
@@ -29,12 +33,15 @@ class UserController extends Controller
    **/
   public function create(Request $request)
   {
-    $request->validate(
-      [
+    $request->merge([
+      'nome' => ucwords(strtolower($request->get('nome'))),
+      'email' => strtolower($request->get('email'))
+    ]);
+
+    $validator = Validator::make($request->all(), [
         'nome' => ['required', 'string', 'max:191'],
-        'email' => ['unique:users', 'required', 'string', 'email'],
-      ],
-      [
+        'email' => ['required', 'email','unique:users'],
+      ],[
         'nome.required' => 'Preencha o campo nome',
         'email.required' => 'Preencha o campo email',
         'email.email' => 'Não é um email válido',
@@ -42,10 +49,24 @@ class UserController extends Controller
       ]
     );
 
+    if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", [
+        'user' => auth()->user() ?? null,
+        'request' => $request->all() ?? null,
+        'uri' => request()->fullUrl() ?? null,
+        'errors' => $validator->errors() ?? null,
+      ]);
+
+      return back()
+      ->withErrors($validator)
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
     $user = User::create([
-      'uid' => config('hashing.uid'),
-      'name' => ucwords( $request->nome ?? '' ),
-      'email' => strtolower( $request->email ?? '' ),
+      'name' => $validator->safe()->nome,
+      'email' => $validator->safe()->email,
       'password' => Hash::make('Password')
     ]);
 
@@ -81,32 +102,48 @@ class UserController extends Controller
    **/
   public function update(Request $request, User $user): RedirectResponse
   {
-    if( auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id) ) {
-      $request->merge( return_only_nunbers( $request->only('cpf_cnpj','telefone','telefone_alt','celular') ) );
+    if( auth()->user()->hasPermissionTo( ['admin', 'funcionario'] ) || ( $user->id == auth()->user()->id ) ) {
+
+      $request->merge( return_only_nunbers( $request->only('cpf_cnpj','telefone','telefone_alt','celular' ) ) );
+      $request->merge( ['nome' => ucwords( strtolower( $request->get('nome') ) ), 'email' =>strtolower( $request->get('email') ) ] );
       
-      $request->validate(
-        [
-          'nome' => ['required', 'string', 'max:191'],
-          'email' => ['required', 'string', 'email','unique:users,email,'.$user->id],
-          'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-          'cpf_cnpj' => ['required', 'cpf', 'unique:pessoas,cpf_cnpj,'.$user->pessoa->id],
-          'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
-          'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
-          'celular' => ['nullable', 'string', 'min:10', 'max:11'],
-          'cep' => ['nullable', 'string'],
-          'endereco' => ['nullable', 'string'],
-          'cidade' => ['nullable', 'string'],
-          'uf' => ['nullable', 'string'],
+      $validator = Validator::make($request->all(), [
+        'nome' => ['required', 'string', 'max:191'],
+        'email' => ['required', 'email','unique:users,email,'.$user->id],
+        'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        'cpf_cnpj' => [Rule::requiredIf($user->id == auth()->user()->id), 'cpf', 'unique:pessoas,cpf_cnpj,'.$user->pessoa->id],
+        'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
+        'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
+        'celular' => ['nullable', 'string', 'min:10', 'max:11'],
+        'cep' => ['nullable', 'string'],
+        'endereco' => ['nullable', 'string'],
+        'cidade' => ['nullable', 'string'],
+        'uf' => ['nullable', 'string'],
         ],[
-          'nome.required' => 'Preencha o campo nome',
-          'email.required' => 'Preencha o campo email',
-          'email.email' => 'Não é um email válido',
-          'email.unique' => 'Esse email já está em uso',
-          'password.confirmed' => 'As senhas não conferem',
-          'password.min' => 'A senha deve ter pelo menos 8 caracteres',
+        'nome.required' => 'Preencha o campo nome',
+        'email.required' => 'Preencha o campo email',
+        'email.email' => 'Não é um email válido',
+        'email.unique' => 'Esse email já está em uso',
+        'password.confirmed' => 'As senhas não conferem',
+        'password.min' => 'A senha deve ter pelo menos 8 caracteres',
         ]
       );
+
+      if ($validator->fails()) {
+
+        Log::channel('validation')->info("Erro de validação", [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'errors' => $validator->errors() ?? null,
+        ]);
   
+        return back()
+        ->withErrors($validator)
+        ->withInput()
+        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+      }
+
       $user->update([
         'name' => ucwords( $request->nome ?? '' ),
         'email' => strtolower( $request->email ?? '')

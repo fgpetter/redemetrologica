@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Foundation\Auth\RedirectsUsers;
 
 
@@ -39,7 +38,24 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
-        $this->validator($request->all())->validate();
+        Log::channel('register')->info("Tentativa de cadastro", $request->except('password'));
+
+        $validator = $this->validator($request->all());
+
+        if ($validator->fails()) {
+
+            Log::channel('validation')->info("Erro de validação", [
+                'user' => auth()->user() ?? null,
+                'request' => $request->all() ?? null,
+                'uri' => request()->fullUrl() ?? null,
+                'errors' => $validator->errors() ?? null,
+            ]);
+        
+            return back()
+            ->withErrors($validator)
+            ->withInput();
+        }
+
         $document = preg_replace('/[^0-9]/', '', $request['document']);
 
         // verifica se esse usuário foi importado do sistema antigo
