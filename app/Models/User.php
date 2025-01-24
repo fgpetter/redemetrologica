@@ -55,6 +55,7 @@ class User extends Authenticatable
     {
         return LogOptions::defaults()
         ->logOnly(['*'])
+        ->dontLogIfAttributesChangedOnly(['remember_token'])
         ->useLogName('Usuários');
     }
 

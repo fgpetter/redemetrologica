@@ -81,6 +81,12 @@
                  </div>
 
                  <div class="col-12">
+                  <x-forms.input-textarea name="observacoes" label="Observações">
+                    {{ old('observacoes') ?? ($pessoa->observacoes ?? null) }}
+                  </x-forms.input-textarea>
+                 </div>
+
+                 <div class="col-12">
                    <button type="submit"
                      class="btn btn-primary px-4">{{ $pessoa->id ? 'Atualizar' : 'Salvar' }}</button>
                  </div>

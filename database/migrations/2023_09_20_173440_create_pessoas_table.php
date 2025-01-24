@@ -29,6 +29,7 @@ return new class extends Migration
             $table->integer('end_padrao')->nullable();
             $table->integer('end_cobranca')->nullable();
             $table->boolean('associado')->default(0);
+            $table->text('observacoes')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

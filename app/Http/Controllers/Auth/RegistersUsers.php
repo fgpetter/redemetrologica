@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RedirectsUsers;
+use App\Exceptions\InvalidEmailRegisterException;
 
 
 trait RegistersUsers
@@ -38,7 +39,7 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
-        Log::channel('register')->info("Tentativa de cadastro", $request->except('password'));
+        Log::channel('register')->info("Tentativa de cadastro", $request->except(['password', 'password_confirmation']));
 
         $validator = $this->validator($request->all());
 
@@ -62,8 +63,11 @@ trait RegistersUsers
         if($pessoa = Pessoa::where('cpf_cnpj', $document)->first()){
 
             if($pessoa->email) { // se pessoa tem cadastro com e-mail
+                if( isInvalidEmail($pessoa->email) ){
+                    throw new InvalidEmailRegisterException($pessoa);
+                }
 
-                $mail = obfuscate_email($pessoa->email);
+                $mail = obfuscateEmail($pessoa->email);
 
                 if( !$pessoa->user?->exists || ( $pessoa->user?->temporary_password == 1 ) ){ // se pessoa não possui usuário associado
 
