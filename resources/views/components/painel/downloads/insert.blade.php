@@ -17,7 +17,7 @@
               @error('descricao') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             
-            <div class="col-10">
+            <div class="col-12 col-sm-6 col-xl-4">
               <x-forms.input-select name="categoria" label="Categoria">
                 <option value="">Selecione</option>
                 <option @selected( $download->categoria == 'CURSOS' ) value="CURSOS">CURSOS</option>
@@ -27,11 +27,13 @@
               </x-forms.input-select>
             </div>
 
-            <div class="col-sm-2">
-              <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
-                <input class="form-check-input" name="site" value="1" id="site" type="checkbox"
-                  @checked($download->site ?? false)>
-                <label class="form-check-label" for="site">SITE</label>
+            <div class="col-12 col-sm-6 col-xl-8">
+              <div class="form-check bg-light rounded check-bg" style="padding: 0.7rem 1.8rem 0.7rem; margin-top: 1.1rem">
+                <input class="form-check-input" name="site" value="1" id="site" type="checkbox" @checked($download->site ?? false)>
+                <label class="form-check-label" for="site" data-bs-toggle="tooltip" data-bs-html="true" 
+                  title="Ao marcar essa opção o arquivo será exibido na página que lista todos downloads publicos no site">
+                  MOSTRAR NA PÁGINA DE DOWNLOADS
+                </label>
               </div>
               @error('site') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
