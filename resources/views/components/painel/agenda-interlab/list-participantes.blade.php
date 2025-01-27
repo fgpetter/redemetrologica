@@ -8,35 +8,61 @@
     </ul>
   </div>
 @endif
-
 <div class="table-responsive" style="min-height: 180px">
   <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
-    @forelse ($empresasParticipantes as $empresaParticipante)
+    @forelse ($interlabempresasinscritas as $empresa)
+
       <thead class="bg-light">
         <tr>
-          <th scope="col" colspan="3"><strong>Empresa: </strong> &nbsp; {{ $empresaParticipante->pessoa->nome_razao }}</th>
+          <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp; {{ $empresa->empresa->nome_razao }}</th>
         </tr>
       </thead>
-        @foreach($participantes->where('empresa_id', $empresaParticipante->pessoa_id) as $participante)
+        @foreach($intelabinscritos->where('empresa_id', $empresa->empresa_id) as $participante)
           <tr>
-            <td style="width: 1%;">{{ Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}</td>
-            <td class="px-3">{{ $participante->pessoa->nome_razao }}</td>
+            <td style="width: 5%; white-space: nowrap;">
+            <a data-bs-toggle="collapse" href="{{"#collapse".$participante->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+              <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
+            </a>{{ Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}</td>
+            <td class="px-3"><b>Laboratório: </b>{{ $participante->laboratorio->nome }}</td>
+            <td style="width: 5%; white-space: nowrap;" class="px-3"><b>Valor: </b>{{ $participante->valor ?? '-' }}</td>
+            <td style="width: 1%; white-space: nowrap;">
+              <div class="dropdown">
+                <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                  <li>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#participanteModal' . $participante->uid }}">Editar</a>
+                  </li>
+                  <li>
+                    {{-- <x-painel.form-delete.delete route='delete-participante' id="{{ $participante->uid }}" /> --}}
+                  </li>
+                </ul>
+              </div>
+            </td>
+
           </tr>
+          <tr>
+            <td colspan="5" class="p-0">
+              <div class="collapse" id="{{"collapse".$participante->uid}}">
+                <div class="row gy-2 m-3 mt-2">
+                  <div class="col-12"><b>Inscrito por:</b> {{ $participante->pessoa->nome_razao }} </div>
+                  <div class="col-12"><b>Informacoes:</b> {{ $participante->informacoes_inscricao }} </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" />
         @endforeach
-      <tbody>
-
-      </tbody>
     @empty
-      <tr>
-        <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>
-      </tr>
+      <tr> <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td> </tr>
     @endforelse
-
-      @if($participantes->sum('valor') > 0)
+      @if($intelabinscritos->sum('valor') > 0)
         <tfoot>
           <tr>
-            <td colspan="3"></td>
-            <td><strong>Total:</strong> {{ $participantes->sum('valor') }} </td>
+            <td colspan="2"></td>
+            <td><strong>Total do interlab:</strong> {{ $intelabinscritos->sum('valor') }} </td>
             <td></td>
           </tr>
         </tfoot>

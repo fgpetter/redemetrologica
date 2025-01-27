@@ -45,8 +45,9 @@
         <div class="col-sm-8">
           <h5 class="h5 my-3">Inscritos</h5>
           <x-painel.agenda-interlab.list-participantes 
-            :empresasParticipantes="$empresasParticipantes"
-            :participantes="$participantes" />
+            :agendainterlab="$agendainterlab"
+            :intelabinscritos="$intelabinscritos"
+            :interlabempresasinscritas="$interlabempresasinscritas" />
         </div>
       </div>
 

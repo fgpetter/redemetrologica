@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{DB, Log, Validator};
 use Illuminate\Http\{Request, RedirectResponse};
-use App\Models\{AgendaInterlab, Pessoa, CentroCusto, Interlab, InterlabInscrito, LancamentoFinanceiro, Convite};
+use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco};
 
 class InscricaoInterlabController extends Controller
 {
@@ -25,34 +24,45 @@ class InscricaoInterlabController extends Controller
     // salva dados da inscrição na sessão
     session()->put('interlab', AgendaInterlab::where('uid', $request->target)->where('inscricao', 1)->firstOrFail() );
     
-    // verifica se é um convite e salva informações na sessão
-    if($request->referer) {
-      session()->put('empresa', Pessoa::where('uid', $request->referer)->where('tipo_pessoa', 'PJ')->firstOrfail());
-      session()->put('convidado', true);
-      session()->put('convite-email', true);
-    }
-
     // redireciona para o painel e carrega a lógica do componente em app\view\ConfirmaInscricao
     return redirect('painel');
-
   }
 
   /**
-   * Cadastra cliente no curso a partir da área do cliente
+   * Cadastra cliente no PEP a partir da área do cliente
    *
    * @param Request $request
    * @return RedirectResponse
    */
   public function confirmaInscricao(Request $request): RedirectResponse
   {
-    // valida dados
+    $request->merge( return_only_nunbers( $request->only('telefone') ) );
+
     $validator = Validator::make($request->all(), [
-      'interlab_uid' => ['required', 'string', 'exists:agenda_interlabs,uid'],
-      'inscrever_usuario_logado' => ['nullable', 'integer', 'in:1'],
-      'indicacao_nome' => ['nullable', 'array'],
-      'indicacao_nome.*' => ['nullable', 'string', 'max:190'],
-      'indicacao_email' => ['nullable', 'array'],
-      'indicacao_email.*' => ['nullable', 'email', 'max:190'],
+        "empresa_uid" => ['required', 'exists:pessoas,uid'],
+        "interlab_uid" => ['required', 'exists:agenda_interlabs,uid'],
+        "encerra_cadastro" => ['required', 'integer', 'max:1', 'in:0,1'],
+        "laboratorio" => ['required', 'string', 'max:191'],
+        "responsavel_tecnico" => ['required', 'string', 'max:191'],
+        "telefone" => ['nullable', 'string', 'min:10', 'max:11'],
+        "email" => ['nullable', 'email', 'max:191'],
+        "informacoes_inscricao" => ['nullable', 'string'],
+        "cep" => ['required', 'string'],
+        "endereco" => ['required', 'string'],
+        "complemento" => ['nullable', 'string'],
+        "bairro" => ['nullable', 'string'],
+        "cidade" => ['nullable', 'string'],
+        "uf" => ['required', 'string'],
+      ],[
+        'laboratorio.required' => 'Preencha o campo laboratório',
+        'laboratorio.max' => 'O campo laboratório deve ter no máximo :max caracteres',
+        'responsavel_tecnico.required' => 'Preencha o campo laboratório',
+        'responsavel_tecnico.max' => 'O campo laboratório deve ter no máximo :max caracteres',
+        'telefone.*' => 'O telefone informado é inválido',
+        'email.*' => 'O email informado é inválido',
+        'cep.required' => 'Preencha o campo CEP',
+        'endereco.required' => 'Preencha o campo endereço',
+        'uf.required' => 'Preencha o campo UF',
     ]);
 
     if($validator->fails()){
@@ -60,50 +70,55 @@ class InscricaoInterlabController extends Controller
       [
         'user' => auth()->user() ?? null,
         'request' => $request->all() ?? null,
+        'uri' => request()->fullUrl() ?? null,
         'errors' => $validator->errors() ?? null,
       ]);
 
-      return back()->with('error', 'Houve um erro a processar os dados, tente novamente')->with('errors', $validator->errors());
-    }
-
-    if( !$request->inscrever_usuario_logado && !$request->indicacao_nome[0] ) {
-      return back()->with('error', 'Impossivel enviar uma inscrição vazia');
+      return back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
     }
 
     $agenda_interlab = AgendaInterlab::where('uid', $request->interlab_uid)->first();
-    $empresa = auth()->user()->pessoa->empresas()->first() ?? null;
 
     // verifica se tem empresa atrelada
+    $empresa = auth()->user()->pessoa->empresas()->first() ?? null;
     if( !$empresa ) {
       return back()->with('error', 'Necessário informar uma empresa para inscrição');
     }
 
-    // verifica se a empresa já tem cadastrados no intelab, se não cria
-    InterlabInscrito::firstOrCreate([
-      'pessoa_id' => $empresa->id,
-      'agenda_interlab_id' => $agenda_interlab->id
-      ],[
-        'data_inscricao' => now()
+    DB::transaction(function () use ($validator, $empresa, $agenda_interlab) {
+
+      $endereco = Endereco::create([
+        'pessoa_id' => $empresa->id,
+        'info' => 'Laboratório: '.$validator->safe()->laboratorio,
+        'cep' => $validator->safe()->cep,
+        'endereco' => $validator->safe()->endereco,
+        'complemento' => $validator->safe()->complemento,
+        'bairro' => $validator->safe()->bairro,
+        'cidade' => $validator->safe()->cidade,
+        'uf' => $validator->safe()->uf,
+      ]);
+  
+      $laboratorio = InterlabLaboratorio::create([
+        'empresa_id' => $empresa->id,
+        'endereco_id' => $endereco->id,
+        'nome' => $validator->safe()->laboratorio,
+        'responsavel_tecnico' => $validator->safe()->responsavel_tecnico,
+        'telefone' => $validator->safe()->telefone,
+        'email' => $validator->safe()->email,
+      ]);
+  
+      InterlabInscrito::create([
+        'pessoa_id' => auth()->user()->pessoa->id,
+        'empresa_id' => $empresa->id,
+        'laboratorio_id' => $laboratorio->id,
+        'agenda_interlab_id' => $agenda_interlab->id,
+        'data_inscricao' => now(),
+        'informacoes_inscricao' => $validator->safe()->informacoes_inscricao,
       ]);
 
-    // verifica se usuario se inscreveu
-    if( $request->inscrever_usuario_logado == 1 ) {
-      // adiciona inscrito ao interlab
-      $inscrito = InterlabInscrito::create([
-          'pessoa_id' => auth()->user()->pessoa->id,
-          'agenda_interlab_id' => $agenda_interlab->id,
-          'empresa_id' => $empresa->id,
-          'data_inscricao' => now()
-        ]);
-  
-      // adiciona informacoes financeiras
-      $this->adicionaLancamentoFinanceiro($agenda_interlab, $empresa);
-    }
+    });
 
-    // envia convites se existir
-    $this->enviaConvite($request, $agenda_interlab);
-
-    if( isset($inscrito) && $inscrito ) {
+    if( $request->encerra_cadastro == 1 ) {
       // remove dados da sessão
       session()->forget(['interlab', 'empresa', 'convite']);
 
@@ -111,9 +126,7 @@ class InscricaoInterlabController extends Controller
       return redirect('painel')->with('success', 'Inscrição realizada com sucesso!');
 
     } else {
-      // adiciona informacao de convites enviados na sessão
-      session()->put('convites_enviados', true);
-      return redirect('painel')->with('success', 'Convites enviados com sucesso!');
+      return redirect('painel')->with('success', 'Laboratório cadastrado com sucesso!');
     }
   }
 
@@ -149,74 +162,39 @@ class InscricaoInterlabController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-  public function salvaInscrito(Request $request): RedirectResponse
+  public function salvaInscrito(Request $request, InterlabInscrito $inscrito): RedirectResponse
   {
+    // valida valor e informacoes_inscricao
     $validator = Validator::make($request->all(), [
-      'inscrito_uid' => ['nullable', 'exists:curso_inscritos,uid'],
-      'pessoa_uid' => ['nullable', 'exists:pessoas,uid'],
-      'nome' => ['required', 'string', 'max:190'],
-      'telefone' => ['required', 'celular_com_ddd'],
-      'email' => ['required', 'email', 'max:190'],
-      'cpf_cnpj' => ['required_if:pessoa_uid,null', 'cpf'],
-      'data_confirmacao' => ['nullable', 'date'],
-      'certificado_emitido' => ['nullable', 'date'],
-      'resposta_pesquisa' => ['nullable', 'date'],
-      ],[
-        'inscrito_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
-        'pessoa_uid.exists' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
-        'cpf_cnpj.required_if' => 'Foi enviado um dado inválido atualize a pagina e tente novamente',
-        'nome.required' => 'O nome precisa ser informado',
-        'nome.string' => 'O nome precisa ser umtexto válido',
-        'nome.max' => 'O nome deve ter no maximo 190 caracteres',
-        'email.required' => 'O email precisa ser informado',
-        'email.email' => 'O email precisa ser um email válido',
-        'email.max' => 'O email deve ter no maximo 190 caracteres',
-        'cpf_cnpj.required_if' => 'O documento precisa ser informado',
-        'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
-        'data_confirmacao.date' => 'O dado enviado não é uma data válida',
-        'certificado_emitido.date' => 'O dado enviado não é uma data válida',
-        'resposta_pesquisa.date' => 'O dado enviado não é uma data válida',
-      ]);
+      'valor' => ['nullable', 'string'],
+      'informacoes_inscricao' => ['nullable', 'string', 'max:1000'],
+    ],[
+      'valor.string' => 'O valor digitado é inválido',
+      'informacoes_inscricao.max' => 'As informações não podem ter mais que :max caracteres'
+    ]);
 
     if($validator->fails()){
       Log::channel('validation')->info("Erro de validação", 
       [
           'user' => auth()->user() ?? null,
           'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
           'errors' => $validator->errors() ?? null,
       ]);
 
       return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
     }
 
-    if($request->pessoa_uid) {
-      $pessoa = Pessoa::where('uid', $request->pessoa_uid)->first();
-      $pessoa->update([
-        'nome_razao' => $request->nome,
-        'email' => $request->email,
-        'telefone' => $request->telefone,
-      ]);
-    } else {
-      $pessoa = Pessoa::create([
-        'uid' => $request->pessoa_uid ?? config('hashing.uid'),
-        'nome_razao' => $request->nome,
-        'email' => $request->email,
-        'telefone' => $request->telefone,
-        'cpf' => $request->cpf_cnpj,
-        'tipo_pessoa' => 'PF',
-      ]);
-    }
-
-    $inscrito = InterlabInscrito::where('uid', $request->inscrito_uid)->first();
-    $this->adicionaInscrito([
-      'uid' => $request->inscrito_uid,
-      'pessoa_id' => $pessoa->id,
-      'empresa_id' => $inscrito?->empresa_id ?? null,
-      'agenda_curso_id' => $inscrito?->agenda_curso_id ?? null,
-      'data_inscricao' => $inscrito?->data_inscricao ?? null,
-      'certificado_emitido' => $request->certificado_emitido,
-      'resposta_pesquisa' => $request->resposta_pesquisa,
+    // atualiza dados de inscrito
+    $inscrito->update([
+      'valor' => formataMoeda( $request->valor ),
+      'informacoes_inscricao' => $validator->safe()->string('informacoes_inscricao')
     ]);
+
+    // se valor > 0 atualiza lancamento financeiro
+    if($request->valor > 0) {
+      $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $request->valor);
+    }
     
     return back()->with('success', 'Dados salvos com sucesso!');
   }
@@ -243,33 +221,6 @@ class InscricaoInterlabController extends Controller
     
   }
 
-    /**
-   * Salva informações de convites no banco
-   *
-   * @param Request $request
-   * @return void
-   */
-  private function enviaConvite(Request $request, $agenda_interlab): void
-  {
-    // salva convites no banco de dados
-    foreach($request['indicacao_nome'] as $key => $nome) {
-
-      // pula se o email não for revalidado
-      if(preg_match("/^[0-9a-z]([-_.]*?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-z]{2,9}$/", $request['indicacao_email'][$key], $matches) == 0) {
-        continue;
-      }
-      // evita envio de convite duplicado
-      Convite::firstOrCreate([
-        'agenda_interlab_id' => $agenda_interlab->id,
-        'email' => $request['indicacao_email'][$key],
-      ],[
-        'pessoa_id' => auth()->user()->pessoa->id,
-        'nome' => $nome,
-      ]);
-    }
-  }
-
-  
   /**
    * Adiciona / Edita lançamentos financeiros referentes a inscrição no interlab
    *
@@ -298,24 +249,23 @@ class InscricaoInterlabController extends Controller
       ]);
     } else { // se a empresa já possui inscritos nesse interlab, atualiza o valor
 
-      $inscritos_empresa = InterlabInscrito::where('empresa_id', $empresa->id)
+      $empresa_participante = InterlabInscrito::where('empresa_id', $empresa->id)
         ->where('agenda_interlab_id', $agenda_interlab->id)
         ->with('pessoa')
         ->get();
 
       $observacoes = '';
-      foreach($inscritos_empresa as $inscrito) {
-        $data = Carbon::parse($inscrito->data_inscricao)->format('d/m/Y H:i');
-        $observacoes .= "Inscrição de {$inscrito->pessoa->nome_razao}, com valor de R$ {$inscrito->valor}, em {$data} \n";
+      foreach($empresa_participante as $empresa) {
+        $data = Carbon::parse($empresa->data_inscricao)->format('d/m/Y H:i');
+        $observacoes .= "Inscrição de {$empresa->laboratorio->nome}, com valor de R$ {$empresa->valor}, em {$data} \n";
       }
 
       $lancamento->update([
-        'valor' => $inscritos_empresa->sum('valor'),
+        'valor' => $empresa_participante->sum('valor'),
         'observacoes' => $observacoes
       ]);
     }
 
   }
-
 
 }

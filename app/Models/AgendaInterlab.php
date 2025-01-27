@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use App\Models\Interlab;
+use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 
 
 class AgendaInterlab extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'agenda_interlabs';
 
@@ -74,6 +75,5 @@ class AgendaInterlab extends Model
     {
         return $this->hasMany(InterlabInscrito::class, 'agenda_interlab_id', 'id');
     }
-
 
 }

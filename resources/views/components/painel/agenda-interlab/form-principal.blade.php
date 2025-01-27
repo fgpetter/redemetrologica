@@ -75,8 +75,8 @@
         <div class="card-body">
 
           <h6 class="card-subtitle mb-2">Valores de inscrição preenchidos manualmente</h6>
-          <x-forms.input-textarea name="inscricao_manual" label="Instruções ao cliente:" 
-            tooltip="Informações que o cliente irá visualizar na tela de inscrição">{{ $agendainterlab->inscricao_manual ?? null }}
+          <x-forms.input-textarea name="instrucoes_inscricao" label="Instruções ao cliente:" 
+            tooltip="Informações que o cliente irá visualizar na tela de inscrição">{{ $agendainterlab->instrucoes_inscricao ?? null }}
           </x-forms.input-textarea>
 
           <h6 class="card-subtitle mt-3 mb-2">Valores de inscrição por rodada conforme região</h6>

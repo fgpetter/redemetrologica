@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -14,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('agenda_interlabs', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->foreignId('interlab_id')->constrained()->cascadeOnDelete();
             $table->enum('status', ['AGENDADO', 'CONFIRMADO', 'CONCLUIDO'])->nullable();
             $table->enum('certificado', ['EMPRESA', 'PARTICIPANTE'])->nullable();
@@ -22,13 +21,13 @@ return new class extends Migration
             $table->boolean('site')->default(0);
             $table->boolean('destaque')->default(0);
             $table->text('descricao')->nullable();
-            $table->text('inscricao_manual')->nullable();
             $table->date('data_inicio')->nullable();
             $table->date('data_fim')->nullable();
             $table->decimal('valor_rs')->nullable();
             $table->decimal('valor_s_se')->nullable();
             $table->decimal('valor_co')->nullable();
             $table->decimal('valor_n_ne')->nullable();
+            $table->text('instrucoes_inscricao')->nullable();
             $table->timestamps();
         });
     }

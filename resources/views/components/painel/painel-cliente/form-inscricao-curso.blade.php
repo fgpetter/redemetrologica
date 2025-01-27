@@ -62,7 +62,7 @@
           <div class="col-4">
             <label for="uf" class="form-label">Estado<span class="text-danger-emphasis"> * </span></label>
             <input type="text" class="form-control" name="uf" id="uf" 
-              value="{{ old('uf') ?? $endereco->uf ?? null }}" maxlength="2" pattern="[A-Z]{2}" 
+              value="{{ old('uf') ?? $pessoa->enderecos->first()->uf ?? null }}" maxlength="2" pattern="[A-Z]{2}" 
               title="Duas letras maiúsculo" required
               oninput="this.value = this.value.toUpperCase()">
               @error('uf') <div class="text-warning">{{ $message }}</div> @enderror
@@ -79,15 +79,15 @@
           <x-forms.input-field name="complemento" label="Complemento" placeholder="Ex. Sala 101"
           :value="old('complemento') ?? $pessoa->enderecos->first()->complemento ?? null" />
           @error('complemento') <div class="text-warning">{{ $message }}</div> @enderror
-          </div>
+        </div>
 
-          <div class="mt-2">
+        <div class="mt-2">
           <x-forms.input-field name="bairro" label="Bairro"
           :value="old('bairro') ?? $pessoa->enderecos->first()->bairro ?? null" />
           @error('bairro') <div class="text-warning">{{ $message }}</div> @enderror
-          </div>
+        </div>
 
-          <div class="mt-2">
+        <div class="mt-2">
           <x-forms.input-field name="cidade" label="Cidade"
           :value="old('cidade') ?? $pessoa->enderecos->first()->cidade ?? null" />
           @error('cidade') <div class="text-warning">{{ $message }}</div> @enderror

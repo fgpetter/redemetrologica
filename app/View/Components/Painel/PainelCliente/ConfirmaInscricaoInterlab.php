@@ -7,14 +7,14 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use App\Models\Pessoa;
 use App\Models\AgendaInterlab;
+use App\Models\InterlabInscrito;
 
 class ConfirmaInscricaoInterlab extends Component
 {
     public Pessoa $pessoa;
     public Pessoa|null $empresa;
     public AgendaInterlab $interlab;
-    public bool $convidado;
-    public bool $inscrito;
+    public $inscritos;
 
     /**
      * Create a new component instance.
@@ -33,12 +33,8 @@ class ConfirmaInscricaoInterlab extends Component
         /** @var AgendaInterlab */
         $this->interlab = session('interlab') ?? null;
 
-        /** @var bool */
-        $this->convidado = session('convidado') ?? false;
-
-        /** @var bool */
-        $this->inscrito = $this->pessoa->interlabs->where('agenda_interlab_id', $this->interlab->id)->isNotEmpty();
-
+        /** @var \App\Models\InterlabInscrito */
+        $this->inscritos = InterlabInscrito::with('laboratorio')->where('empresa_id', $this->empresa->id)->get();
     }
 
     /**

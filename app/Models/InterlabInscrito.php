@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 
 class InterlabInscrito extends Model
 {
 
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -22,6 +23,13 @@ class InterlabInscrito extends Model
      */
     protected $guarded = [];
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'interlab_inscritos';
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -29,13 +37,6 @@ class InterlabInscrito extends Model
         ->useLogName( get_class($this) );
     }
 
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'interlab_inscritos';
 
     /**
      * Carrega interlab
@@ -47,7 +48,7 @@ class InterlabInscrito extends Model
     }
 
     /**
-     * Carrega pessoa
+     * Pessoa que realizou a inscrição
      * @return BelongsTo
      */
     public function pessoa() : BelongsTo
@@ -56,13 +57,17 @@ class InterlabInscrito extends Model
     }
 
     /**
-     * Carrega Empresa associado
-     * @return HasOne
+     * Empresa relacionada nessa inscrição
+     * @return BelongsTo
      */
-    public function empresa(): HasOne
+    public function empresa(): BelongsTo
     {
-        return $this->hasOne(Pessoa::class, 'id', 'empresa_id');
+        return $this->belongsTo(Pessoa::class, 'empresa_id', 'id');
     }
 
+    public function laboratorio() : HasOne
+    {
+        return $this->hasOne(InterlabLaboratorio::class, 'id', 'laboratorio_id');
+    }
 
 }

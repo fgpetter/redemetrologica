@@ -117,6 +117,14 @@ class Pessoa extends Model
     }
 
     /**
+     * Retorna interlabs a qual a empresa participou
+     * @return HasMany
+     */
+    public function empresaInterlabs(): HasMany
+    {
+        return $this->hasMany(InterlabInscrito::class, 'empresa_id', 'id');
+    }
+    /**
      * Retorna interlabs a qual a pessoa participou
      * @return HasMany
      */
