@@ -34,7 +34,7 @@ class ConfirmaInscricaoInterlab extends Component
         $this->interlab = session('interlab') ?? null;
 
         /** @var \App\Models\InterlabInscrito */
-        $this->inscritos = InterlabInscrito::with('laboratorio')->where('empresa_id', $this->empresa->id)->get();
+        $this->inscritos = InterlabInscrito::with('laboratorio')->where('empresa_id', $this->empresa?->id)->get() ?? null;
     }
 
     /**
