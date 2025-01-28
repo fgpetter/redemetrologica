@@ -71,6 +71,7 @@ class InscricaoInterlabController extends Controller
         'user' => auth()->user() ?? null,
         'request' => $request->all() ?? null,
         'uri' => request()->fullUrl() ?? null,
+        'method' => get_class($this) .'::'. __FUNCTION__ ,
         'errors' => $validator->errors() ?? null,
       ]);
 
@@ -179,6 +180,7 @@ class InscricaoInterlabController extends Controller
           'user' => auth()->user() ?? null,
           'request' => $request->all() ?? null,
           'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
           'errors' => $validator->errors() ?? null,
       ]);
 
