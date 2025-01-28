@@ -159,4 +159,13 @@ class EnderecoController extends Controller
 
     return redirect()->back()->with('warning', 'Endereco removido');
   }
+
+  public function check(Request $request)
+  {
+    $endereco = Endereco::select(['endereco','bairro','cidade','uf'])
+      ->where( ['cep' => $request->cep ] )
+      ->firstOr( fn() => ['error' => 'No results'] );
+    return response()->json( $endereco );
+  }
+
 }

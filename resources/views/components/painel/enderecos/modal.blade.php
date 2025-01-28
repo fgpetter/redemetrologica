@@ -13,7 +13,9 @@
           @csrf
           <div class="row mb-4">
             <input type="hidden" name="pessoa_id" value="{{$pessoa->id}}">
-            <x-painel.enderecos.form-endereco :endereco="$endereco ?? null" :pessoa="$pessoa"/>
+            <div class="row gy-2">
+              <x-painel.enderecos.form-endereco :endereco="$endereco ?? null"/>
+            </div>
           </div>
             <div class="col-lg-12">
               <div class="hstack gap-2 justify-content-end">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Unidade;
 use App\Models\Endereco;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
@@ -13,24 +14,21 @@ class UnidadeController extends Controller
 {
 
   /**
-   * Adiciona usuários na base
+   * Adiciona unidade a empresa
    *
    * @param Request $request
    * @return RedirectResponse
    **/
   public function create(Request $request): RedirectResponse
   {
-    $validator = Validator::make(
-      $request->all(),
-      [
+    $validator = Validator::make($request->all(), [
         'nome' => ['required', 'string', 'max:191'],
-        'pessoa' => ['required', 'integer'],
+        'pessoa' => ['required', 'string', 'exists:pessoas,uid'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
         'cidade' => ['required', 'string'],
         'uf' => ['required', 'string'],
-      ],
-      [
+      ],[
         'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
@@ -55,35 +53,41 @@ class UnidadeController extends Controller
         ->withErrors($validator);
     }
 
+    $prepared_data = $validator->validate();
 
-    $endereco = Endereco::create([
-      'uid' => config('hashing.uid'),
-      'pessoa_id' => $request->get('pessoa'),
-      'endereco' => $request->get('endereco'),
-      'complemento' => $request->get('complemento'),
-      'bairro' => $request->get('bairro'),
-      'cep' => $request->get('cep'),
-      'cidade' => $request->get('cidade'),
-      'uf' => $request->get('uf')
-    ]);
+    $query = DB::transaction( function() use ($prepared_data) {
 
-    $unidade = Unidade::create([
-      'uid' => config('hashing.uid'),
-      'pessoa_id' => $request->get('pessoa'),
-      'endereco_id' => $endereco->id,
-      'nome' => strtoupper($request->get('nome')),
-      'telefone' => $request->get('telefone'),
-      'email' => $request->get('email'),
-      'cod_laboratorio' => $request->get('cod_laboratorio'),
-      'nome_responsavel' => $request->get('nome_responsavel'),
-      'responsavel_tecnico' => $request->get('responsavel_tecnico'),
-    ]);
+      $endereco = Endereco::create([
+        'uid' => config('hashing.uid'),
+        'pessoa_id' => $prepared_data['pessoa'],
+        'endereco' => $prepared_data['endereco'],
+        'complemento' => $prepared_data['complemento'] ?? null,
+        'bairro' => $prepared_data['bairro'] ?? null,
+        'cep' => $prepared_data['cep'],
+        'cidade' => $prepared_data['cidade'],
+        'uf' => $prepared_data['uf']
+      ]);
 
-    if (!$unidade) {
-      return redirect()->back()->with('error', 'Ocorreu um erro!');
-    }
+      $unidade = Unidade::create([
+        'uid' => config('hashing.uid'),
+        'pessoa_id' => $prepared_data['pessoa'],
+        'endereco_id' => $endereco->id,
+        'nome' => strtoupper($prepared_data['nome']),
+        'telefone' => $prepared_data['telefone'] ?? null,
+        'email' => $prepared_data['email'] ?? null,
+        'cod_laboratorio' => $prepared_data['cod_laboratorio'] ?? null,
+        'nome_responsavel' => $prepared_data['nome_responsavel'] ?? null,
+        'responsavel_tecnico' => $prepared_data['responsavel_tecnico'] ?? null,
+      ]);
 
-    $endereco->update(['unidade_id' => $unidade->id]);
+      if (!$unidade) {
+        return redirect()->back()->with('error', 'Ocorreu um erro!');
+      }  
+
+      return compact($endereco, $unidade);
+    });
+
+    $query->endereco->update(['unidade_id' => $query->unidade]);
 
     return redirect()->back()->with('success', 'Unidade cadastrada com sucesso');
   }

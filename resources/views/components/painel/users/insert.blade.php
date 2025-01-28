@@ -65,38 +65,10 @@
 
           <h6 class="mb-0 mt-4">ENDEREÇO</h6>
 
-          <div class="col-12 col-sm-3">
-            <x-forms.input-field :value="old('cep') ?? ( $endereco->cep ?? null)" name="cep" class="cep" label="CEP" />
-            @error('cep') <div class="text-warning">{{ $message }}</div> @enderror
+          <div class="row gy-2">
+            <x-painel.enderecos.form-endereco :endereco="$endereco ?? null" :nome="false" :padrao="false" :required="false" />
           </div>
 
-          <div class="col-12 col-sm-9">
-            <x-forms.input-field :value="old('endereco') ?? ( $endereco->endereco ?? null)" name="endereco" label="Endereço com número" placeholder="Ex. Av. Paulista, 1234" />
-            @error('endereco') <div class="text-warning">{{ $message }}</div> @enderror
-          </div>
-          
-          <div class="col-12 col-sm-6">
-            <x-forms.input-field :value="old('complemento') ?? ( $endereco->complemento ?? null)" name="complemento" label="Complemento" placeholder="Ex. Ap. 123 ou Sala 123" />
-            @error('complemento') <div class="text-warning">{{ $message }}</div> @enderror
-          </div>
-
-          <div class="col-12 col-sm-6">
-            <x-forms.input-field :value="old('bairro') ?? ( $endereco->bairro ?? null)" name="bairro" label="Bairro" />
-            @error('bairro') <div class="text-warning">{{ $message }}</div> @enderror
-          </div>
-
-          <div class="col-12 col-sm-6">
-            <x-forms.input-field :value="old('cidade') ?? ( $endereco->cidade ?? null)" name="cidade" label="Cidade" />
-            @error('cidade') <div class="text-warning">{{ $message }}</div> @enderror
-          </div>
-
-          <div class="col-12 col-sm-2">
-            <label for="uf" class="form-label">Estado</label>
-            <input type="text" class="form-control" name="uf" id="uf" 
-              value="{{ old('uf') ?? $endereco->uf ?? null }}" maxlength="2" pattern="[A-Z]{2}" 
-              title="Duas letras maiúsculo" oninput="this.value = this.value.toUpperCase()">
-              @error('uf') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
         @endcan {{-- cliente --}}
 
 
