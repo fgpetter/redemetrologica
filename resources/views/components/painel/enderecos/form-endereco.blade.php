@@ -58,50 +58,49 @@
   </div>
 @endif
 
-@section('script')
-  <script>
-    $(document).ready(function() {
-      var addressFields = $('input[name="endereco"], input[name="bairro"], input[name="cidade"], input[name="uf"],input[name="complemento"]');
+<script>
 
-      $('input[name="cep"]').keyup(function() {
-        const cep = $(this).val().replace(/\D/g, '');
-        
-        if (cep.length == 8) {
-          addressFields.prop('disabled', true);
-          $.ajax({
-            url: '/painel/endereco/check',
-            type: "GET", 
-            dataType: 'json',
-            data: { cep: cep },
-            success: function(response){
+  document.addEventListener('DOMContentLoaded', function() {
+    var addressFields = $('input[name="endereco"], input[name="bairro"], input[name="cidade"], input[name="uf"],input[name="complemento"]');
 
-              if(response.error){
-                $.ajax({
-                  url: "https://viacep.com.br/ws/"+cep+"/json/",
-                  success: function(viacepResponse){
-                    $('input[name="endereco"]').val(viacepResponse.logradouro);
-                    $('input[name="bairro"]').val(viacepResponse.bairro);
-                    $('input[name="cidade"]').val(viacepResponse.localidade);
-                    $('input[name="uf"]').val(viacepResponse.uf);
-                    addressFields.prop('disabled', false);
-                  }
-                });
+    $('input[name="cep"]').keyup(function() {
+      const cep = $(this).val().replace(/\D/g, '');
+      
+      if (cep.length == 8) {
+        addressFields.prop('disabled', true);
+        $.ajax({
+          url: '/painel/endereco/check',
+          type: "GET", 
+          dataType: 'json',
+          data: { cep: cep },
+          success: function(response){
 
-              } else {
-                $('input[name="endereco"]').val(response.endereco);
-                $('input[name="bairro"]').val(response.bairro);
-                $('input[name="cidade"]').val(response.cidade); 
-                $('input[name="uf"]').val(response.uf);
-                addressFields.prop('disabled', false);
-              }
-            },
-            error: function(data) {
-              console.log('error!', data);
+            if(response.error){
+              $.ajax({
+                url: "https://viacep.com.br/ws/"+cep+"/json/",
+                success: function(viacepResponse){
+                  $('input[name="endereco"]').val(viacepResponse.logradouro);
+                  $('input[name="bairro"]').val(viacepResponse.bairro);
+                  $('input[name="cidade"]').val(viacepResponse.localidade);
+                  $('input[name="uf"]').val(viacepResponse.uf);
+                  addressFields.prop('disabled', false);
+                }
+              });
+
+            } else {
+              $('input[name="endereco"]').val(response.endereco);
+              $('input[name="bairro"]').val(response.bairro);
+              $('input[name="cidade"]').val(response.cidade); 
+              $('input[name="uf"]').val(response.uf);
               addressFields.prop('disabled', false);
             }
-          });
-        }
-      });
+          },
+          error: function(data) {
+            console.log('error!', data);
+            addressFields.prop('disabled', false);
+          }
+        });
+      }
     });
-  </script>
-@endsection
+  });
+</script>
