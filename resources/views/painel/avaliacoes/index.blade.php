@@ -15,7 +15,6 @@
 @endsection
 
 @section('script')
-<script src="{{ URL::asset('build/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
 <script defer>
   const element = document.getElementById('choices-single-default')
   if(element){
@@ -25,6 +24,5 @@
       allowHTML: true
     });
   }
-
 </script>
 @endsection
