@@ -127,7 +127,12 @@ class PessoaController extends Controller
    **/
   public function insert(Pessoa $pessoa): View
   {
-    return view('painel.pessoas.insert', ['pessoa' => $pessoa]);
+    $empresas = Pessoa::where('tipo_pessoa', 'PJ')->whereNotIn('id', $pessoa->empresas->pluck('id'))->get();
+
+    return view('painel.pessoas.insert', [
+      'pessoa' => $pessoa,
+      'empresas' => $empresas
+    ]);
   }
 
   /**
@@ -219,13 +224,14 @@ class PessoaController extends Controller
    */
   public function associaEmpresa(Request $request, Pessoa $pessoa): RedirectResponse
   {
-    $pessoa->empresas()->sync($request->get('empresa_id'));
-    // if($request->get('detach')){
-    //   $pessoa->empresas()->detach($request->get('empresa_id'));
+    $empresa = Pessoa::where('uid', $request->empresa_id)->first();
+
+    if($request->get('detach')){
+      $pessoa->empresas()->detach( $empresa->id );
       
-    // } else {
-    //   $pessoa->empresas()->sync($request->get('empresa_id'));
-    // }
+    } else {
+      $pessoa->empresas()->attach( $empresa->id );
+    }
     
     return back()->with('success', 'Pessoa atualizada com sucesso');
   }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\{DB, Log, Validator};
 use Illuminate\Http\{Request, RedirectResponse};
-use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco};
+use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco, Laboratorio};
 
 class InscricaoInterlabController extends Controller
 {
@@ -22,14 +22,14 @@ class InscricaoInterlabController extends Controller
     session()->forget(['interlab','curso', 'empresa', 'convite']);
 
     // salva dados da inscrição na sessão
-    session()->put('interlab', AgendaInterlab::where('uid', $request->target)->where('inscricao', 1)->firstOrFail() );
+    session()->put('interlab', AgendaInterlab::where('uid', $request->target)->where('inscricao', 1)->firstOrFail());
     
     // redireciona para o painel e carrega a lógica do componente em app\view\ConfirmaInscricao
     return redirect('painel');
   }
 
   /**
-   * Cadastra cliente no PEP a partir da área do cliente
+   * Cadastra pessoa ou laboratório no PEP a partir da área do cliente
    *
    * @param Request $request
    * @return RedirectResponse
@@ -79,12 +79,7 @@ class InscricaoInterlabController extends Controller
     }
 
     $agenda_interlab = AgendaInterlab::where('uid', $request->interlab_uid)->first();
-
-    // verifica se tem empresa atrelada
-    $empresa = auth()->user()->pessoa->empresas()->first() ?? null;
-    if( !$empresa ) {
-      return back()->with('error', 'Necessário informar uma empresa para inscrição');
-    }
+    $empresa = Pessoa::where( 'uid', $validator->safe()->empresa_uid )->first();
 
     DB::transaction(function () use ($validator, $empresa, $agenda_interlab) {
 
@@ -120,10 +115,7 @@ class InscricaoInterlabController extends Controller
     });
 
     if( $request->encerra_cadastro == 1 ) {
-      // remove dados da sessão
       session()->forget(['interlab', 'empresa', 'convite']);
-
-      // redireciona para painel
       return redirect('painel')->with('success', 'Inscrição realizada com sucesso!');
 
     } else {
@@ -152,7 +144,7 @@ class InscricaoInterlabController extends Controller
       return back()->with('error', 'Empresa não encontrada');
     }
 
-    auth()->user()->pessoa->empresas()->sync($empresa->id);
+    auth()->user()->pessoa->empresas()->attach($empresa->id);
 
     return back()->with('success', 'Empresa adicionada com sucesso!');
   }
@@ -192,10 +184,9 @@ class InscricaoInterlabController extends Controller
       'valor' => formataMoeda( $request->valor ),
       'informacoes_inscricao' => $validator->safe()->string('informacoes_inscricao')
     ]);
-
     // se valor > 0 atualiza lancamento financeiro
     if($request->valor > 0) {
-      $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $request->valor);
+      $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio , $request->valor);
     }
     
     return back()->with('success', 'Dados salvos com sucesso!');
@@ -231,7 +222,7 @@ class InscricaoInterlabController extends Controller
    * @param float|null $valor
    * @return void
    */
-  private function adicionaLancamentoFinanceiro(AgendaInterlab $agenda_interlab, Pessoa $empresa, $valor = null)
+  private function adicionaLancamentoFinanceiro(AgendaInterlab $agenda_interlab, Pessoa $empresa, InterlabLaboratorio $laboratorio, $valor = null)
   {
     $lancamento = LancamentoFinanceiro::where('pessoa_id', $empresa->id)
       ->where('agenda_interlab_id', $agenda_interlab->id)
@@ -248,6 +239,7 @@ class InscricaoInterlabController extends Controller
         'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
         'data_emissao' => now(),
         'status' => 'PROVISIONADO',
+        'observacoes' => "Inscrição de {$laboratorio->nome}, com valor de R$ {$valor} \n"
       ]);
     } else { // se a empresa já possui inscritos nesse interlab, atualiza o valor
 
@@ -259,7 +251,7 @@ class InscricaoInterlabController extends Controller
       $observacoes = '';
       foreach($empresa_participante as $empresa) {
         $data = Carbon::parse($empresa->data_inscricao)->format('d/m/Y H:i');
-        $observacoes .= "Inscrição de {$empresa->laboratorio->nome}, com valor de R$ {$empresa->valor}, em {$data} \n";
+        $observacoes .= "Inscrição de {$laboratorio->nome}, com valor de R$ {$empresa->valor}, em {$data} \n";
       }
 
       $lancamento->update([

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('pessoa_id')->constrained();
             $table->unsignedBigInteger('empresa_id')->nullable();
             $table->unsignedBigInteger('laboratorio_id')->nullable();
+            $table->unsignedBigInteger('pessoa_inscrito_id')->nullable();
             $table->foreignId('agenda_interlab_id')->constrained()->onDelete('cascade');
             $table->dateTime('data_inscricao');
             $table->decimal('valor', 8, 2)->nullable();

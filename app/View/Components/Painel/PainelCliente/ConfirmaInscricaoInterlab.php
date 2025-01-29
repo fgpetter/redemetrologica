@@ -12,7 +12,6 @@ use App\Models\InterlabInscrito;
 class ConfirmaInscricaoInterlab extends Component
 {
     public Pessoa $pessoa;
-    public Pessoa|null $empresa;
     public AgendaInterlab $interlab;
     public $inscritos;
 
@@ -26,15 +25,12 @@ class ConfirmaInscricaoInterlab extends Component
             ->with('empresas')
             ->with('interlabs')
             ->firstOrFail();
-    
-        /** @var Pessoa */
-        $this->empresa = session('empresa') ?? $this->pessoa->empresas()->first() ?? null;
 
         /** @var AgendaInterlab */
         $this->interlab = session('interlab') ?? null;
 
         /** @var \App\Models\InterlabInscrito */
-        $this->inscritos = InterlabInscrito::with('laboratorio')->where('empresa_id', $this->empresa?->id)->get() ?? null;
+        $this->inscritos = InterlabInscrito::with('laboratorio')->whereIn('empresa_id', $this->pessoa->empresas->pluck('id'))->get() ?? null;
     }
 
     /**

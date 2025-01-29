@@ -39,7 +39,7 @@ class InterlabInscrito extends Model
 
 
     /**
-     * Carrega interlab
+     * Agenda interlab da inscrição
      * @return BelongsTo
      */
     public function agendaInterlab() : BelongsTo
@@ -57,7 +57,7 @@ class InterlabInscrito extends Model
     }
 
     /**
-     * Empresa relacionada nessa inscrição
+     * Empresa relacionada a inscrição, para cobrança
      * @return BelongsTo
      */
     public function empresa(): BelongsTo
@@ -65,9 +65,23 @@ class InterlabInscrito extends Model
         return $this->belongsTo(Pessoa::class, 'empresa_id', 'id');
     }
 
+    /**
+     * Laboratório inscrito no PEP
+     * @return BelongsTo
+     */
     public function laboratorio() : HasOne
     {
         return $this->hasOne(InterlabLaboratorio::class, 'id', 'laboratorio_id');
     }
+
+    /**
+     * Pessoa inscrita no PEP
+     * @return BelongsTo
+     */
+    public function pessoaInscrita(): BelongsTo
+    {
+        return $this->belongsTo(Pessoa::class, 'empresa_id', 'id');
+    }
+
 
 }
