@@ -194,7 +194,6 @@ class PessoaController extends Controller
     if( $pessoa->user() ) {
       $pessoa->user()->update([
         'name' => $validator->safe()->nome_razao,
-        'email' => $validator->safe()->email
       ]);
     }
 
