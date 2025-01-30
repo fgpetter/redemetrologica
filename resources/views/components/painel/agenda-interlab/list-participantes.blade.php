@@ -14,7 +14,7 @@
 
       <thead class="bg-light">
         <tr>
-          <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp; {{ $empresa->empresa->nome_razao }}</th>
+          <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp; {{ $empresa->empresa->nome_razao }} - CNPJ: {{ $empresa->empresa->cpf_cnpj }}</th>
         </tr>
       </thead>
         @foreach($intelabinscritos->where('empresa_id', $empresa->empresa_id) as $participante)
@@ -46,9 +46,20 @@
           <tr>
             <td colspan="5" class="p-0">
               <div class="collapse" id="{{"collapse".$participante->uid}}">
-                <div class="row gy-2 m-3 mt-2">
-                  <div class="col-12"><b>Inscrito por:</b> {{ $participante->pessoa->nome_razao }} </div>
-                  <div class="col-12"><b>Informacoes:</b> {{ $participante->informacoes_inscricao }} </div>
+                <div class="row m-3 pe-2">
+                  <div class="col-6 text-wrap">
+                    <b>Inscrito por:</b> {{ $participante->pessoa->nome_razao }} <br>
+                    <b>Informacoes:</b> {{ $participante->informacoes_inscricao }}
+                  </div>
+                  <div class="col-6 text-wrap">
+                    <b>Responsável técnico:</b> {{ $participante->laboratorio->responsavel_tecnico }} <br>
+                    <b>Telefone:</b> {{ $participante->laboratorio->telefone }} <b>Email:</b> {{ $participante->laboratorio->email }}<br>
+                    <b>Endereço:</b> {{ $participante->laboratorio->endereco->endereco }},
+                      {{ $participante->laboratorio->endereco->complemento }}, Bairro: {{ $participante->laboratorio->endereco->bairro }} <br>
+                      Cidade: {{ $participante->laboratorio->endereco->cidade }} / 
+                      {{ $participante->laboratorio->endereco->uf }}, 
+                      CEP: {{ $participante->laboratorio->endereco->cep }}
+                  </div>
                 </div>
               </div>
             </td>

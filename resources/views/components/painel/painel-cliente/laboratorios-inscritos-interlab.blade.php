@@ -1,37 +1,54 @@
 <div>
-  @if ($inscricao_interlab && !session()->has('interlab') )
-  <div class="col-12 col-xxl-6 col-xl-8">
+  @if ($inscricoes_interlab->count() > 0 && !session()->has('interlab') )
+  <div class="col-12 col-xxl-8">
     <div class="card">
       <div class="card-body">
-      <h5 class="h5 mb-3">PEPs e Interlaboratoriais inscrito:</h5>
+      <h5 class="h5 mb-3">PEPs e Interlaboratoriais inscritos por você:</h5>
 
-        <p>
-          <strong>Nome:</strong> {{ $inscricao_interlab->agendaInterlab->interlab->nome }} <br>
-          <strong>Início:</strong> {{ $inscricao_interlab->agendaInterlab->data_inicio }}
-        </p>
+        @foreach ($inscricoes_interlab->groupBy('agendaInterlab.id') as $agendaGroup)
           <div class="card bg-light shadow-none">
-            <h6 class="card-title mb-0 px-3 pt-2 pb-0">Laboratórios inscritos:</h6>
-            <div class="card-body pt-2">
-              @foreach ($lab_inscritos as $lab_inscrito)
-                @if($lab_inscrito->empresa_id == $inscricao_interlab->empresa_id)
-                  <div class="{{ ($loop->index > 0) ? "border-top border-dark pt-3" : ""}}" >
-                    <span class="fs-5">{{ $lab_inscrito->laboratorio->nome }}</span> <br>
-                    <strong>Responsável Técnico</strong> {{ $lab_inscrito->laboratorio->responsavel_tecnico }} <br>
-                    <strong>Telefone</strong> {{ $lab_inscrito->laboratorio->telefone }} <br>
-                    <strong>Email</strong> {{ $lab_inscrito->laboratorio->email }} <br>
-                    <strong>Informações de inscrição:</strong>
-                    <p class="ps-3" >{!! nl2br($lab_inscrito->informacoes_inscricao) !!}</p>
-                  </div>
-                @endif
+            <div class="card-header bg-light">
+              <h6 class="card-title pb-1">{{ $agendaGroup->first()->agendaInterlab->interlab->nome }}</h6>
+            </div>
+            <div class="card-body bg-light-subtle pt-0">
+              @foreach ($agendaGroup->groupBy('empresa.id') as $empresaGroup)
+                  <h6 class="my-3 text-primary-emphasis">Empresa: &nbsp; {{ $empresaGroup->first()->empresa->nome_razao }}</h6>
+
+                  @foreach ($empresaGroup->groupBy('laboratorio.id') as $labGroup)
+                    <div class="row">
+                      <div class="col-6">
+                        <p class="ps-1">
+                          <strong>Laboratório: &nbsp; </strong>{{ $labGroup->first()->laboratorio->nome }} <br>
+                          <strong>Responsável Técnico:</strong> {{ $labGroup->first()->laboratorio->responsavel_tecnico }} <br>
+                          <strong>Telefone: </strong> {{ $labGroup->first()->laboratorio->telefone }} <br>
+                          <strong>Email: </strong> {{ $labGroup->first()->laboratorio->email }} <br>
+                          <strong>Informações de inscrição:</strong> <br>
+                          <span class="ps-1" >{!! nl2br($labGroup->first()->informacoes_inscricao) !!}</span>
+                        </p>
+                      </div>
+                      <div class="col-6">
+                        <strong>Endereço: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->endereco }} <br>
+                        <strong>Complemento: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->complemento }} <br>
+                        <strong>Bairro: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->bairro }} <br>
+                        <strong>CEP: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cep }} <br>
+                        <strong>Cidade: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cidade .' / '. $labGroup->first()->laboratorio->endereco->uf }} <br>
+                      </div>
+                      <hr>
+                    </div>
+                  @endforeach
+
               @endforeach
             </div>
+
+            <div class="card-footer bg-light">
+              Para acessar mais informações sobre o interlab,
+              <a href="{{ route('site-single-interlaboratorial', $agendaGroup->first()->agendaInterlab->uid) }}" class="link-primary"> clique aqui</a>
+              <br>
+              Caso queira voltar a tela de inscrições,
+              <a href="{{ route('interlab-inscricao', ['target' => $agendaGroup->first()->agendaInterlab->uid]) }}" class="link-primary"> clique aqui</a>
+            </div>
           </div>
-        <p>Para acessar mais informações sobre o interlab,
-          <a href="{{ route('site-single-interlaboratorial', $inscricao_interlab->agendaInterlab->uid) }}" class="link-primary"> clique aqui</a>.
-        </p>
-        <p>Caso queira voltar a tela de inscrições,
-          <a href="{{ route('interlab-inscricao', ['target' => $inscricao_interlab->agendaInterlab->uid]) }}" class="link-primary"> clique aqui</a>.
-        </p>
+        @endforeach
 
       </div>
     </div>

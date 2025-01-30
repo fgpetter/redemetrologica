@@ -23,7 +23,7 @@
             <input type="hidden" name="interlab_uid" value="{{ $interlab->uid }}">
             <div class="card border overflow-hidden card-border-dark shadow-none">
               <div class="card-header">
-                <h6 class="card-title mb-0">Adicionar Laboratorio:</h6>
+                <h6 class="card-title mb-0">Informe os dados do Laboratório para envio de amostras:</h6>
               </div>
               <div class="card-body">
                 <div class="row">
@@ -59,8 +59,8 @@
                 @error('informacoes_inscricao') <div class="text-warning">{{ $message }}</div> @enderror
   
                 @if($pessoa->empresas->count() > 1 )
-                  <div class="mt-2">
-                    <x-forms.input-select name="empresa_uid" label="Selecione empresa para cobrança" required="true">
+                  <div class="mt-4">
+                    <x-forms.input-select name="empresa_uid" label="Selecione empresa para nota fiscal e cobrança:" required="true">
                       <option value=""> Selecione </option>
                         @foreach ($pessoa->empresas as $empresa)
                           <option value="{{ $empresa->uid }}"> {{ $empresa->cpf_cnpj .' - '.$empresa->nome_razao }} </option>
@@ -149,7 +149,7 @@
     
           @if( $inscritos->count() > 0 )
             <div class="card bg-light shadow-none">
-              <h6 class="card-title mb-0 px-3 pt-2 pb-0">Laboratórios inscritos:</h6>
+              <h6 class="card-title mb-0 px-3 pt-2 pb-0">Laboratórios inscritos nesse interlab:</h6>
               <div class="card-body pt-2">
                 @foreach ($inscritos as $inscrito)
                   <div class="{{ ($loop->index > 0) ? "border-top border-dark pt-3" : ""}}" >
