@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('laboratorios_internos', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->foreignId('laboratorio_id')->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('area_atuacao_id');
             $table->string('nome')->nullable();
@@ -26,6 +26,8 @@ return new class extends Migration
             $table->boolean('sebrae')->default(0);
             $table->boolean('site')->default(0);
             $table->string('certificado')->nullable();
+            $table->date('data_ultima_avaliacao')->nullable();
+            $table->text('conteudo_certificado')->nullable();
             $table->timestamps();
             
             $table->foreign('area_atuacao_id')->references('id')->on('areas_atuacao')->onDelete('cascade');
