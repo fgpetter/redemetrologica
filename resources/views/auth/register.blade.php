@@ -109,7 +109,7 @@
                         </div>
   
                         <div class="mt-4">
-                          <button class="btn btn-primary w-100" type="submit">Sign Up</button>
+                          <button class="btn btn-primary w-100" type="submit">Cadastrar-se</button>
                         </div>
   
                       </form>
