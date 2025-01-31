@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('app:envia-convites')->everyTenSeconds();
+        //$schedule->command('certificados:clean')->dailyAt('01:00');
     }
 
     /**

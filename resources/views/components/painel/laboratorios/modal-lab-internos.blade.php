@@ -71,7 +71,7 @@
               <div class="col-12">
                 @if ($labinterno->certificado ?? null)
                   <label class="form-label">Arquivo atual</label><br>
-                  <a href="{{ asset('downloads/' . $labinterno->certificado) }}">
+                  <a href="{{ asset('laboratorios-certificados/' . $labinterno->certificado) }}">
                     <span>
                       <i class="ph-file-arrow-down align-middle" style="font-size: 1rem"></i>
                     </span>
