@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\{DB, Log, Validator};
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NovoCadastroInterlabNotification;
 use Illuminate\Http\{Request, RedirectResponse};
+use Illuminate\Support\Facades\{DB, Log, Validator};
+use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco, Laboratorio};
 
 class InscricaoInterlabController extends Controller
@@ -81,7 +84,7 @@ class InscricaoInterlabController extends Controller
     $agenda_interlab = AgendaInterlab::where('uid', $request->interlab_uid)->first();
     $empresa = Pessoa::where( 'uid', $validator->safe()->empresa_uid )->first();
 
-    DB::transaction(function () use ($validator, $empresa, $agenda_interlab) {
+    $inscrito = DB::transaction(function () use ($validator, $empresa, $agenda_interlab) {
 
       $endereco = Endereco::create([
         'pessoa_id' => $empresa->id,
@@ -103,7 +106,7 @@ class InscricaoInterlabController extends Controller
         'email' => $validator->safe()->email,
       ]);
   
-      InterlabInscrito::create([
+      $inscrito = InterlabInscrito::create([
         'pessoa_id' => auth()->user()->pessoa->id,
         'empresa_id' => $empresa->id,
         'laboratorio_id' => $laboratorio->id,
@@ -112,7 +115,14 @@ class InscricaoInterlabController extends Controller
         'informacoes_inscricao' => $validator->safe()->informacoes_inscricao,
       ]);
 
+      return $inscrito;
+
     });
+
+    if($inscrito){
+      Mail::to('interlab@redemetrologica.com.br')->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
+      Mail::to($inscrito->pessoa->email)->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
+    }
 
     if( $request->encerra_cadastro == 1 ) {
       session()->forget(['interlab', 'empresa', 'convite']);
