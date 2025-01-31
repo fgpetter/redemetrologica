@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,6 +38,12 @@
             .title {
                 font-size: 36px;
                 padding: 20px;
+            }
+            .text-md{
+                font-size: 1.5rem
+            }
+            .text-sm{
+                font-size: 1rem
             }
         </style>
     </head>
