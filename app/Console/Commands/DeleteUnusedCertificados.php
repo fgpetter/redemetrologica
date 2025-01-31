@@ -22,7 +22,7 @@ class DeleteUnusedCertificados extends Command
             ->get();
 
         foreach ($laboratorios as $laboratorio) {
-            $certificadoPath = public_path('certificados-lab/' . $laboratorio->certificado);
+            $certificadoPath = public_path('laboratorios-certificados/' . $laboratorio->certificado);
             
             if (File::exists($certificadoPath)) {
                 File::delete($certificadoPath);
