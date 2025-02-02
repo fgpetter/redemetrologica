@@ -65,7 +65,7 @@ if(isset($_GET['laboratorio'])) {
             </td>
             <td>{{ $laboratorio_interno->area->descricao }}</td>
             <td>
-              {{ $laboratorio_interno->laboratorio->pessoa->enderecos->first()->cidade }}
+              {{ $laboratorio_interno->laboratorio->pessoa?->enderecos->first()->cidade ?? null }}
             </td>
             <td></td>
           </tr>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Validator;
 use App\Models\Pessoa;
 use App\Models\AreaAtuacao;
 use App\Models\Laboratorio;
@@ -9,10 +10,10 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\LaboratorioInterno;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
-use Validator;
 
 class LaboratorioController extends Controller
 {
@@ -243,10 +244,27 @@ class LaboratorioController extends Controller
    */
   public function siteIndex(Request $request): View
   {
-    Validator::make($request->all(),[
-      "area" => ['nullable', 'string'. 'exists:areas_atuacao,uid'],
-      "laboratorio" => ['nullable', 'string'. 'exists:laboratorios,uid']
+    if(!empty(request()->except('area', 'laboratorio', 'page'))){
+      return abort('404');
+    }
+
+    $validator = Validator::make($request->all(),[
+      "area" => ['nullable', 'string', 'exists:areas_atuacao,uid'],
+      "laboratorio" => ['nullable', 'string', 'exists:laboratorios,uid']
     ]);
+
+    if($validator->fails()){
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
+      return abort('404');
+    }
 
     $areas_atuacao = AreaAtuacao::select('uid', 'descricao')->get();
 
@@ -269,8 +287,8 @@ class LaboratorioController extends Controller
       })
       ->where('site', 1)
       ->where('reconhecido', 1)
+      ->whereHas('laboratorio')
       ->paginate(15);
-    
 
     return view('site.pages.laboratorios-reconhecidos', ['laboratorios_internos' => $laboratorios_internos,'laboratorios' => $laboratorios, 'areas_atuacao' => $areas_atuacao]);
   }
