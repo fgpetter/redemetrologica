@@ -22,8 +22,15 @@ class AgendaAvaliacaoController extends Controller
      */
     public function index(): View
     {
-        $avaliacoes = AgendaAvaliacao::with('laboratorio')->orderBy('data_inicio')->get();
-        $laboratorios = Laboratorio::with('pessoa')->get();
+        $avaliacoes = AgendaAvaliacao::with('laboratorio')
+            ->whereHas('laboratorio')
+            ->orderBy('data_inicio')
+            ->get();
+
+        $laboratorios = Laboratorio::with('pessoa')
+            ->whereHas('pessoa')
+            ->get();
+
         return view('painel.avaliacoes.index', ['avaliacoes' => $avaliacoes, 'laboratorios' => $laboratorios]);
     }
 
