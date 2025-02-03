@@ -120,8 +120,14 @@ class InscricaoInterlabController extends Controller
     });
 
     if($inscrito){
-      Mail::to('interlab@redemetrologica.com.br')->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
-      Mail::to($inscrito->pessoa->email)->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
+      Mail::to('interlab@redemetrologica.com.br')
+        ->cc('bonus@redemetrologica.com.br')
+        ->cc('sistema@redemetrologica.com.br')
+        ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
+
+      Mail::to($inscrito->pessoa->email)
+        ->cc('sistema@redemetrologica.com.br')
+        ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
     }
 
     if( $request->encerra_cadastro == 1 ) {
