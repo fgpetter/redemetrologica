@@ -1,16 +1,3 @@
-@if($errors->any())
-
-  @foreach ($errors->all() as $error)
-    <div class="alert alert-warning">
-      <strong>Erro ao salvar os dados!</strong> <br><br>
-      <ul>
-        <li>{{ $error }}</li>
-      </ul>
-    </div>
-  @endforeach
-  
-@endif
-
 <div class="card">
   <div class="card-body">
 
@@ -51,7 +38,7 @@
         </div>
 
         <div class="col-6">
-          <label class="form-label">Pessoa</label>
+          <label class="form-label">Pessoa <span class="text-danger">*</span> </label>
           <select class="form-select" name="pessoa_id" id="pessoa">
             <option value="" > Selecione uma pessoa </option>
             @if($lancamento->pessoa_id)
@@ -60,20 +47,18 @@
               </option>
             @endif
             @foreach ($pessoas as $pessoa)
-            <option @selected($lancamento->pessoa_id == $pessoa->id) value="{{ $pessoa->id }}">
+            <option @selected( old('pessoa_id') == $pessoa->id ) value="{{ $pessoa->id }}">
               {{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}
             </option>
             @endforeach
           </select>
-          @error('pessoa')
-          <div class="text-warning">{{ $message }}</div>
-          @enderror
+          @error('pessoa_id')<div class="text-warning">{{ $message }}</div>@enderror
         </div>
 
         <div class="col-3">
-          <label class="form-label">Centro Custo</label>
+          <label class="form-label">Centro Custo <span class="text-danger">*</span></label>
           <select class="form-select" name="centro_custo_id">
-            <option value=""> Selecione um centro de custo </option>
+            <option value=""> - </option>
             @foreach ($centrosdecusto as $centrodecusto)
             <option @selected($lancamento->centro_custo_id == $centrodecusto->id) value="{{ $centrodecusto->id }}">
               {{ $centrodecusto->descricao }}</option>
@@ -85,7 +70,7 @@
         </div>
 
         <div class="col-3">
-          <label class="form-label">Plano Conta</label>
+          <label class="form-label">Plano Conta <span class="text-danger">*</span></label>
           <select class="form-select" name="plano_conta_id" id="plano_conta">
             <option value=""> Selecione um plano de conta </option>
             @foreach ($planosconta as $planoconta)
@@ -171,7 +156,7 @@
         <div class="col-3">
           <label class="form-label">Modalidade de Pagamento</label>
           <select class="form-select" name="modalidade_pagamento_id">
-            <option> - </option>
+            <option value=""> - </option>
             @foreach ($modalidadepagamento as $modalidade)
             <option @selected($lancamento->modalidade_pagamento_id == $modalidade->id) value="{{ $modalidade->id }}">
               {{ $modalidade->descricao }}</option>
