@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -14,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pessoas', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('nome_razao');
             $table->string('nome_fantasia')->nullable();
@@ -30,6 +29,7 @@ return new class extends Migration
             $table->integer('end_padrao')->nullable();
             $table->integer('end_cobranca')->nullable();
             $table->boolean('associado')->default(0);
+            $table->text('observacoes')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

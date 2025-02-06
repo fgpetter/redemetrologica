@@ -30,6 +30,7 @@ class InscricaoCursoController extends Controller
     if($request->referer) {
       session()->put('empresa', Pessoa::where('uid', $request->referer)->where('tipo_pessoa', 'PJ')->first() ?? null);
       session()->put('convidado', true);
+      session()->put('convite-email', true);
     }
 
     return redirect('painel');
@@ -199,6 +200,8 @@ class InscricaoCursoController extends Controller
         [
             'user' => auth()->user() ?? null,
             'request' => $request->all() ?? null,
+            'uri' => request()->fullUrl() ?? null,
+            'method' => get_class($this) .'::'. __FUNCTION__ ,
             'errors' => $validator->errors() ?? null,
         ]);
   
@@ -238,6 +241,8 @@ class InscricaoCursoController extends Controller
       [
           'user' => auth()->user() ?? null,
           'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
           'errors' => $validator->errors() ?? null,
       ]);
 

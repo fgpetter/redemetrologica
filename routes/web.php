@@ -6,10 +6,8 @@ use App\Http\Controllers\{
   UserController,
   CursoController,
   BancosController,
-  PessoaController,
   UnidadeController,
   DownloadController,
-  EnderecoController,
   InterlabController,
   AvaliadorController,
   InstrutorController,
@@ -35,7 +33,6 @@ use App\Http\Controllers\{
   PainelController
 };
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use Illuminate\Http\Request;
 
 Auth::routes();
 Route::get('/forgot-password', [ForgotPasswordController::class, 'forgotPassword'])->name('password.request');
@@ -102,22 +99,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /**
    * Pessoas 
    */
-  Route::group(['prefix' => 'pessoa', 'middleware' => 'permission:funcionario,admin'], function () {
-    Route::get('index', [PessoaController::class, 'index'])->name('pessoa-index');
-    Route::get('insert/{pessoa:uid?}', [PessoaController::class, 'insert'])->name('pessoa-insert');
-    Route::post('create', [PessoaController::class, 'create'])->name('pessoa-create');
-    Route::post('update/{pessoa:uid}', [PessoaController::class, 'update'])->name('pessoa-update');
-    Route::post('delete/{pessoa:uid}', [PessoaController::class, 'delete'])->name('pessoa-delete');
-    Route::post('associa-empresa/{pessoa:uid}', [PessoaController::class, 'associaEmpresa'])->name('pessoa-associa-empresa');
-    Route::post('associa-usuario/{pessoa:uid}', [PessoaController::class, 'associaUsuario'])->name('pessoa-associa-usuario');
-  });
+  Route::prefix('pessoa')->group( base_path('routes/pessoas.php') )->middleware('permission:funcionario,admin');
 
   /* Endereços */
-  Route::group(['prefix' => 'endereco', 'middleware' => 'permission:funcionario,admin'], function () {
-    Route::post('create', [EnderecoController::class, 'create'])->name('endereco-create');
-    Route::post('update/{endereco:uid}', [EnderecoController::class, 'update'])->name('endereco-update');
-    Route::post('delete/{endereco:uid}', [EnderecoController::class, 'delete'])->name('endereco-delete');
-  });
+  Route::prefix('endereco')->group( base_path('routes/enderecos.php') )->middleware('permission:funcionario,admin');
 
   /* Unidades */
   Route::group(['prefix' => 'unidade', 'middleware' => 'permission:funcionario,admin'], function () {
@@ -304,8 +289,9 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('confirmacao', [InscricaoInterlabController::class, 'confirmaInscricao'])->name('confirma-inscricao-interlab');
     Route::post('informa-empresa', [InscricaoInterlabController::class, 'informaEmpresa'])->name('informa-empresa-interlab');
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoInterlabController::class, 'cancelaInscricao'])->name('cancela-inscricao-interlab');
-    Route::post('salvar-inscrito', [InscricaoInterlabController::class, 'salvaInscrito'])->name('salvar-inscrito-interlab');
+    Route::post('salvar-inscrito/{inscrito:uid}', [InscricaoInterlabController::class, 'salvaInscrito'])->name('salvar-inscrito-interlab');
     Route::post('envia-convite', [InscricaoInterlabController::class, 'enviaConvite'])->name('envia-convite-interlab');
+    Route::post('limpa-sessao', [InscricaoInterlabController::class, 'limpaSessao'])->name('limpa-sessao-interlab');
   });
 
 

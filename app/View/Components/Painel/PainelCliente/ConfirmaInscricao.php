@@ -4,16 +4,15 @@ namespace App\View\Components\Painel\PainelCliente;
 
 use App\Models\Pessoa;
 use App\Models\AgendaCursos;
-use App\Models\CursoInscrito;
 use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class ConfirmaInscricao extends Component
 {
+    public Pessoa $pessoa;
     public Pessoa|null $empresa;
     public AgendaCursos $curso;
-    public Pessoa $pessoa;
     public bool $convidado;
     public bool $inscrito;
 
@@ -22,14 +21,14 @@ class ConfirmaInscricao extends Component
     */
     public function __construct()
     {
-        /** @var Pessoas */
+        /** @var Pessoa */
         $this->pessoa = Pessoa::where('user_id', auth()->user()->id)
             ->with('empresas')
             ->with('enderecos')
             ->with('cursos')
             ->firstOrFail();
 
-        /** @var Pessoas */
+        /** @var Pessoa */
         $this->empresa = session('empresa') ?? $this->pessoa->empresas()->first() ?? null;
 
         /** @var AgendaCursos */

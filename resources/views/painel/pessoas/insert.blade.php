@@ -21,7 +21,7 @@
     {{-- Empresa associada --}}
     @if($pessoa->id && $pessoa->tipo_pessoa == 'PF')
       <x-painel.pessoas.usuario :pessoa="$pessoa"/>
-      <x-painel.pessoas.empresas :pessoa="$pessoa"/>
+      <x-painel.pessoas.empresas :pessoa="$pessoa" :empresas="$empresas"/>
     @endif
 
     {{-- Unidades --}}

@@ -1,6 +1,6 @@
 @props([
     'label',
-    'name',
+    'name' => null,
     'value' => null,
     'type' => 'text',
     'required' => null,
@@ -11,10 +11,11 @@
     'title' => null,
     'tooltip' => null,
     'readonly' => false,
+    'disabled' => false,
     'list' => null,
 ])
 
-<label class="form-label">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis"> * </span>' : '') !!}</label>
+<label class="form-label mb-0">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis"> * </span>' : '') !!}</label>
 @if ($tooltip)
   <span data-bs-toggle="tooltip" data-bs-html="true" title="{{ $tooltip }}">
   <i class="ri-information-line align-middle text-warning-emphasis" style="font-size: 1rem"></i></span>
@@ -27,4 +28,5 @@
     @if ($uppercase) oninput="this.value = this.value.toUpperCase()" @endif
     @if ($pattern) pattern='{{ $pattern }}' title="{{ $title }}" @endif
     @if ($list) list={{ $list }} @endif
-    @readonly($readonly) >
+    @readonly($readonly) 
+    @disabled($disabled) >

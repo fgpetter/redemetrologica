@@ -8,7 +8,6 @@ use App\Models\Instrutor;
 use App\Models\AgendaCursos;
 use App\Models\CursoDespesa;
 use Illuminate\Http\Request;
-use App\Models\CursoInscrito;
 use App\Models\MaterialPadrao;
 use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
@@ -117,7 +116,6 @@ class AgendaCursoController extends Controller
       'valor_orcamento.string' => 'O dado enviado não é valido',
       'observacoes.string' => 'O dado enviado não é valido',
     ]);
-    $validated['uid'] = config('hashing.uid');
 
     $validated['investimento'] = formataMoeda($validated['investimento']) ?? null;
     $validated['investimento_associado'] = formataMoeda($validated['investimento_associado']) ?? null;

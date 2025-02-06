@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Validator;
 use App\Models\Pessoa;
 use App\Models\AreaAtuacao;
 use App\Models\Laboratorio;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\LaboratorioInterno;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
-
 
 class LaboratorioController extends Controller
 {
@@ -196,21 +198,19 @@ class LaboratorioController extends Controller
       'site' => $validated['site'],
     ];
 
-    if ($request->hasFile('certificado')) { //certificado
-      $originName = $request->file('certificado')->getClientOriginalName();
-      $fileName = pathinfo($originName, PATHINFO_FILENAME);
-      $fileName = str_replace(' ', '-', $fileName);
-      $extension = $request->file('certificado')->getClientOriginalExtension();
-      $fileName = $fileName . '_' . time() . '.' . $extension;
-      $request->file('certificado')->move(public_path('certificados-lab'), $fileName);
-
+    if ($request->hasFile('certificado')) {
+      $file = $request->file('certificado');
+      $fileName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+      $fileName = $fileName . '_' . time() . '.' . $file->getClientOriginalExtension();
+      $file->move(public_path('laboratorios-certificados'), $fileName);
+      
       $data['certificado'] = $fileName;
     }
 
     if ($laboratorio_interno->exists) {
 
       if ($request->hasFile('certificado')) {
-        File::delete(public_path('certificados-lab/' . $laboratorio_interno->certificado));
+        File::delete(public_path('laboratorios-certificados/' . $laboratorio_interno->certificado));
       }
 
       $laboratorio_interno->update($data);
@@ -244,15 +244,52 @@ class LaboratorioController extends Controller
    */
   public function siteIndex(Request $request): View
   {
-    $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('categoria'));
-    $titulo = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('descricao'));
+    if(!empty(request()->except('area', 'laboratorio', 'page'))){
+      return abort('404');
+    }
 
-    $laboratorios = LaboratorioInterno::select('certificado', 'laboratorio_id', 'area_atuacao_id')
+    $validator = Validator::make($request->all(),[
+      "area" => ['nullable', 'string', 'exists:areas_atuacao,uid'],
+      "laboratorio" => ['nullable', 'string', 'exists:laboratorios,uid']
+    ]);
+
+    if($validator->fails()){
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
+      return abort('404');
+    }
+
+    $areas_atuacao = AreaAtuacao::select('uid', 'descricao')->get();
+
+    $laboratorios = Laboratorio::select('uid', 'nome_laboratorio')
+      ->whereHas('laboratoriosInternos', function($query) {
+        $query->whereNotNull('laboratorio_id')->where('site', 1);
+      })->get();
+
+    $laboratorios_internos = LaboratorioInterno::select('certificado', 'laboratorio_id', 'area_atuacao_id')
       ->with('area:id,descricao', 'laboratorio:id,pessoa_id,nome_laboratorio')
+      ->when($request->area, function($query) use ($request) {
+        $query->whereHas('area', function($q) use ($request) {
+          $q->where('uid', $request->area);
+        });
+      })
+      ->when($request->laboratorio, function($query) use ($request) {
+        $query->whereHas('laboratorio', function($q) use ($request) {
+          $q->where('uid', $request->laboratorio);
+        });
+      })
       ->where('site', 1)
       ->where('reconhecido', 1)
-      ->get();
+      ->whereHas('laboratorio')
+      ->paginate(15);
 
-    return view('site.pages.laboratorios-reconhecidos', ['laboratorios' => $laboratorios]);
+    return view('site.pages.laboratorios-reconhecidos', ['laboratorios_internos' => $laboratorios_internos,'laboratorios' => $laboratorios, 'areas_atuacao' => $areas_atuacao]);
   }
 }

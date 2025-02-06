@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 
 class InterlabInscrito extends Model
 {
 
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -21,6 +22,13 @@ class InterlabInscrito extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'interlab_inscritos';
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -31,14 +39,7 @@ class InterlabInscrito extends Model
 
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'interlab_inscritos';
-
-    /**
-     * Carrega interlab
+     * Agenda interlab da inscrição
      * @return BelongsTo
      */
     public function agendaInterlab() : BelongsTo
@@ -47,7 +48,7 @@ class InterlabInscrito extends Model
     }
 
     /**
-     * Carrega pessoa
+     * Pessoa que realizou a inscrição
      * @return BelongsTo
      */
     public function pessoa() : BelongsTo
@@ -56,12 +57,30 @@ class InterlabInscrito extends Model
     }
 
     /**
-     * Carrega Empresa associado
-     * @return HasOne
+     * Empresa relacionada a inscrição, para cobrança
+     * @return BelongsTo
      */
-    public function empresa(): HasOne
+    public function empresa(): BelongsTo
     {
-        return $this->hasOne(Pessoa::class, 'id', 'empresa_id');
+        return $this->belongsTo(Pessoa::class, 'empresa_id', 'id');
+    }
+
+    /**
+     * Laboratório inscrito no PEP
+     * @return BelongsTo
+     */
+    public function laboratorio() : HasOne
+    {
+        return $this->hasOne(InterlabLaboratorio::class, 'id', 'laboratorio_id');
+    }
+
+    /**
+     * Pessoa inscrita no PEP
+     * @return BelongsTo
+     */
+    public function pessoaInscrita(): BelongsTo
+    {
+        return $this->belongsTo(Pessoa::class, 'empresa_id', 'id');
     }
 
 

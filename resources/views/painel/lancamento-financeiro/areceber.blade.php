@@ -24,7 +24,6 @@
 @endsection
 
 @section('script')
-  <script src="{{ URL::asset('build/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
   <script defer>
     const pessoa = document.getElementById('pessoa')
     if(pessoa){

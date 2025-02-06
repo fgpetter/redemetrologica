@@ -43,12 +43,11 @@
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
         <div class="col-sm-8">
-          <h5 class="h5 mt-3">Inscritos</h5>
-          {{-- <x-painel.agenda-interlab.list-participantes :inscritos="$inscritos" />
-          <x-painel.agenda-interlab.modal-participante /> --}}
-  
-          <h5 class="h5 mt-5">Empresas participantes</h5>
-          {{-- <x-painel.agenda-interlab.list-empresas-participantes :inscritos="$inscritos" /> --}}
+          <h5 class="h5 my-3">Inscritos</h5>
+          <x-painel.agenda-interlab.list-participantes 
+            :agendainterlab="$agendainterlab"
+            :intelabinscritos="$intelabinscritos"
+            :interlabempresasinscritas="$interlabempresasinscritas" />
         </div>
       </div>
 

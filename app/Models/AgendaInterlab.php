@@ -3,20 +3,26 @@
 namespace App\Models;
 
 use App\Models\Interlab;
+use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 
 
 class AgendaInterlab extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'agenda_interlabs';
 
     protected $guarded = [];
+
+    protected $casts = [
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+    ];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -24,11 +30,6 @@ class AgendaInterlab extends Model
         ->logOnly(['*'])
         ->useLogName( get_class($this) );
     }
-
-    protected $casts = [
-        'data_inicio' => 'date',
-        'data_fim' => 'date',
-    ];
 
     /**
      * Retorna interlab associado
@@ -70,5 +71,9 @@ class AgendaInterlab extends Model
         return $this->hasMany(InterlabRodada::class);
     }
 
+    public function inscritos(): HasMany
+    {
+        return $this->hasMany(InterlabInscrito::class, 'agenda_interlab_id', 'id');
+    }
 
 }

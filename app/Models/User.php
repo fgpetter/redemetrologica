@@ -3,17 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\SetDefaultUid;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\{HasOne,BelongsTo, BelongsToMany};
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
+    use HasApiTokens, HasFactory, Notifiable, LogsActivity, SetDefaultUid;
 
 
     /**
@@ -26,16 +27,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'avatar',
+        'email_verified_at',
         'temporary_password'
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName('Usuários');
-    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,6 +49,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->dontLogIfAttributesChangedOnly(['remember_token'])
+        ->useLogName('Usuários');
+    }
+
 
     /**
      * Carrega pesoa

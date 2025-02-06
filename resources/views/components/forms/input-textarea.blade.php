@@ -5,14 +5,16 @@
   'required' => null, 
   'id' => null, 
   'uppercase' => false,
-  'helper' => null
+  'helper' => null,
+  'sublabel' => null,
 ])
 
-<label class="form-label">{{ $label }}</label>
+<label class="form-label mb-0 mt-2" >{{ $label }}</label>
 @if ($tooltip)
   <span data-bs-toggle="tooltip" data-bs-html="true" title="{{ $tooltip }}">
   <i class="ri-information-line align-middle text-warning-emphasis" style="font-size: 1rem"></i></span>
 @endif
+@if($sublabel) <br> <small class="form-text text-muted">{{ $sublabel }}</small> @endif
 
 <textarea {{ $attributes->class(['form-control']) }} name={{ $name }} rows="3"
 @if ($id) id={{ $id }} @endif

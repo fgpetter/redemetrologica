@@ -2,23 +2,35 @@
 
 namespace App\Mail;
 
+use App\Models\Convite;
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ConviteInterlab extends Mailable
 {
-    use Queueable, SerializesModels, ShouldQueue;
+    use Queueable, SerializesModels;
+
+    public $dados_email = [];
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(protected Convite $convite)
     {
-        //
+        $this->dados_email['pessoa_convidada'] = Str::title($this->convite->nome); // Pessoa Convidada
+        $this->dados_email['email_enviado'] = $this->convite->email; // email que foi convidado
+        $this->dados_email['pessoa_que_convida'] = Str::title($this->convite->pessoa->nome_razao); // Pessoa que convida
+        $this->dados_email['nome_interlab'] = Str::title($this->convite->agendaInterlab->interlab->nome); // Nome do PEP
+        $this->dados_email['link_interlab'] = "https://redemetrologica.com.br/interlaboratorial/{$this->convite->agendaInterlab->interlab->uid}"; // Link do PEP
+        $this->dados_email['data_inicio'] = ($this->convite->agendaInterlab->data_inicio) ? Carbon::parse($this->convite->agendaInterlab->data_inicio)->format('d/m/Y') : ''; // Data do Curso
+        $this->dados_email['link'] = "https://redemetrologica.com.br/interlab/inscricao?referer={$this->convite->empresaUid()}&target={$this->convite->agendaInterlab->uid}"; // Link para inscrição
     }
 
     /**
@@ -26,8 +38,12 @@ class ConviteInterlab extends Mailable
      */
     public function envelope(): Envelope
     {
+        logger('Enviando convite para ' . $this->convite->email);
         return new Envelope(
-            subject: 'Convite Interlab',
+            replyTo: [
+                new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            ],
+            subject: 'Inscrição em ' . Str::title($this->convite->agendaInterlab->interlab->nome),
         );
     }
 
@@ -37,7 +53,7 @@ class ConviteInterlab extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.convite-interlab',
         );
     }
 

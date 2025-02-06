@@ -16,60 +16,36 @@
       <div class="modal-body">
         <form action="{{ isset($unidade->uid) ? route('unidade-update', $unidade->uid) : route('unidade-create') }}" method="POST">
           @csrf
-          <input type="hidden" name="pessoa" value="{{ $pessoa->id }}">
+          <input type="hidden" name="pessoa" value="{{ $pessoa->uid }}">
           <div class="row g-3">
+
             <div class="col-12">
-              <div>
-                <label class="form-label">Nome <small class="text-danger-emphasis opacity-75"> * </small></label>
-                <input type="text" class="form-control" name="nome"
-                  value="{{old('nome') ?? $unidade->nome ?? ''}}" required>
-              </div>
+                <x-forms.input-field :value="old('nome') ?? $unidade->nome ?? ''" name="nome"
+                  label="Nome da unidade" placeholder="Ex. Filial Caxias" required/>
+                @error('nome') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
-            <div class="col-4">
-              <div>
-                <label class="form-label">Telefone</label>
-                <input type="text" class="form-control telefone" 
-                  pattern="^\(\d{2}\)\s(9\s)?\d{4}-\d{4}$" title="Telefone inválido" 
-                  name="telefone" value="{{old('telefone') ?? $unidade->telefone ?? ''}}">
-              </div>
+            <div class="col-6 col-md-4">
+              <x-forms.input-field :value="old('telefone') ?? $unidade->telefone ?? ''" name="telefone"
+                label="Telefone" class="telefone" />
+              @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             
-            <div class="col-5">
-              <div>
-                <label class="form-label">Email</label>
-                <input type="text" class="form-control" name="email"
-                  value="{{old('email') ?? $unidade->email ?? ''}}">
-              </div>
+            <div class="col-6 col-md-4">
+              <x-forms.input-field :value="old('email') ?? $unidade->email ?? ''" name="email"
+                label="E-mail" type="email" />
+              @error('email') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             
-            <div class="col-3">
-              <div>
-                <label class="form-label">Código de laboratório</label>
-                <input type="text" class="form-control" name="cod_laboratorio"
-                  value="{{old('cod_laboratorio') ?? $unidade->cod_laboratorio ?? ''}}">
-              </div>
+            <div class="col-6 col-md-4">
+              <x-forms.input-field :value="old('nome_responsavel') ?? $unidade->nome_responsavel ?? ''" name="nome_responsavel"
+                label="Pessoa de contato" type="nome_responsavel" />
+              @error('nome_responsavel') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
-            
-            <div class="col-6">
-              <div>
-                <label class="form-label">Responsável </label>
-                <input type="text" class="form-control" name="nome_responsavel"
-                  value="{{old('nome_responsavel') ?? $unidade->nome_responsavel ?? ''}}">
-              </div>
-            </div>
-            
-            <div class="col-6">
-              <div>
-                <label class="form-label">Responsável técnico <small class="text-muted"> (opcional) </small> </label>
-                <input type="text" class="form-control" name="responsavel_tecnico"
-                value="{{old('responsavel_tecnico') ?? $unidade->responsavel_tecnico ?? ''}}">
-              </div>
-            </div>
-              <div></div>
-              <x-painel.enderecos.form-endereco :endereco="$unidade->endereco ?? ''"/>
 
-            <div class="col-lg-12">
+            <x-painel.enderecos.form-endereco :endereco="$unidade?->endereco" :nome="false" :padrao="false" />
+
+            <div class="col-12">
               <div class="hstack gap-2 justify-content-end">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Sair</button>
                 <button type="submit" class="btn btn-primary">Salvar</button>

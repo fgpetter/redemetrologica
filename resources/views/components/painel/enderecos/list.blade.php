@@ -27,6 +27,7 @@
                 @if (!$endereco->unidade_id)
                     {{-- Lista somente endereços sem unidade atrelada --}}
                     <div class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ $endereco->info }} <br>
                         {{ $endereco->endereco }}, {{ $endereco->complemento }} <br>
                         {{ $endereco->bairro }}, {{ $endereco->cidade }} <br>
                         {{ $endereco->uf }} - CEP: {{ $endereco->cep }}
@@ -47,11 +48,9 @@
                                     <a class="dropdown-item" data-bs-toggle="modal"
                                         data-bs-target="{{ "#modal_endereco_$endereco->uid" }}">Editar</a>
                                 </li>
-                                @if ($pessoa->end_padrao != $endereco->id)
-                                    {{-- Impede deletar endereço padrão --}}
-
+                                <li>
                                     <x-painel.form-delete.delete route='endereco-delete' id="{{ $endereco->uid }}" />
-                                @endif
+                                </li>
                             </ul>
                         </div>
                     </div>

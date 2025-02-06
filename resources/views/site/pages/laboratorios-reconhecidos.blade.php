@@ -1,9 +1,9 @@
 @php
-if(isset($_GET['categoria'])) {
-  $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['categoria']);
+if(isset($_GET['area'])) {
+  $getarea = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['area']);
 }
-if(isset($_GET['descricao'])) {
-  $descricao = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['descricao']);
+if(isset($_GET['laboratorio'])) {
+  $getlab = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['laboratorio']);
 }
 @endphp
 
@@ -23,26 +23,28 @@ if(isset($_GET['descricao'])) {
   {{-- table --}}
   <div class="container mt-4">
     <table class="table table-responsive table-striped align-middle table-nowrap">
-      {{-- <thead>
+      <thead>
         <h5 class="h5">Filtros</h5>
         <tr>
           <th>
-            <select name="categoria" id="categoria" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'categoria')">
-              <option value="">Selecione uma categoria</option>
-              <option @selected( isset($categoria) && $categoria == "CURSOS") value="CURSOS">CURSOS</option>
-              <option @selected( isset($categoria) && $categoria == "QUALIDADE") value="QUALIDADE">QUALIDADE</option>
-              <option @selected( isset($categoria) && $categoria == "INTERLAB") value="INTERLAB">INTERLAB</option>
-              <option @selected( isset($categoria) && $categoria == "INSTITUCIONAL") value="INSTITUCIONAL">INSTITUCIONAL</option>
+            <select name="laboratorio" id="laboratorio" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'laboratorio')">
+            <option value="">Filtrar por laboratório</option>
+              @foreach ($laboratorios as $laboratorio)
+                <option @selected($laboratorio->uid == ($getlab ?? null)) value="{{ $laboratorio->uid }}">{{ $laboratorio->nome_laboratorio }}</option>
+              @endforeach
             </select>
           </th>
           <th scope="col">
-            <input type="text" class="form-control form-control-sm"
-              onkeypress="search(event, window.location.href, 'descricao')"
-              placeholder="Buscar por titulo ou descricao" value="{{ $descricao ?? null }}">
-          </th>
+            <select name="area_atuacao_id" id="area_atuacao_id" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'area')">
+              <option value="">Filtrar por área de atuação</option>
+              @foreach ($areas_atuacao as $area)
+                <option @selected($area->uid == ($getarea ?? null) ) value="{{ $area->uid }}">{{ $area->descricao }}</option>
+              @endforeach
+            </select>
+            </th>
           <th scope="col"></th>
         </tr>
-      </thead> --}}
+      </thead>
       <thead>
         <tr>
           <th scope="col">Entidade</th>
@@ -53,17 +55,17 @@ if(isset($_GET['descricao'])) {
       </thead>
 
       <tbody>
-        @forelse ($laboratorios as $laboratorio)
+        @forelse ($laboratorios_internos as $laboratorio_interno)
           <tr>
             <td>
-              <a href="{{ asset('laboratorios/' . $laboratorio->certificado) }}" target="_blank">
+              <a href="{{ asset('laboratorios-certificados/' . $laboratorio_interno->certificado) }}" target="_blank">
                 <i class="ph-file-arrow-down align-middle me-1" style="font-size: 1.4rem"></i>
-                {{ $laboratorio->laboratorio->nome_laboratorio }}
+                {{ $laboratorio_interno->laboratorio->nome_laboratorio }}
               </a>
             </td>
-            <td>{{ $laboratorio->area->descricao }}</td>
+            <td>{{ $laboratorio_interno->area->descricao }}</td>
             <td>
-              {{ $laboratorio->laboratorio->pessoa->enderecos->first()->cidade }}
+              {{ $laboratorio_interno->laboratorio->pessoa?->enderecos->first()->cidade ?? null }}
             </td>
             <td></td>
           </tr>
@@ -75,36 +77,11 @@ if(isset($_GET['descricao'])) {
       </tbody>
 
     </table>
+    <div class="row mt-3 w-100">
+      {!! $laboratorios_internos->withQueryString()->links('pagination::bootstrap-5') !!}
+    </div>
+
   </div>
   {{-- table --}}
-
-
-  <!-- helper modal -->
-  <div class="modal fade" id="labReconhecidosHelper" tabindex="-1" aria-labelledby="labReconhecidosHelperLabel" aria-modal="true">
-    <div class="modal-dialog modal-dialog-right">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="labReconhecidosHelperLabel">Estamos atualizando nosso sistema</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Estamos em processo de atualização de nosso sistema. <br>
-                  O cadastro de laboratórios reconhecidos está sendo atualizado e em breve estará completamente disponível. <br><br>
-                  Caso o laboratório que você procura não esteja listado, solicite informações através do e-mail:
-                  <a href="mailto:avaliacoes@redemetrologica.com.br">avaliacoes@redemetrologica.com.br</a>
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-            </div>
-        </div>
-    </div>
-  </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    new bootstrap.Modal('#labReconhecidosHelper').show()
-  })
-</script>
   
 @endsection

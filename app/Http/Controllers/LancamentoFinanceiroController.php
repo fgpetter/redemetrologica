@@ -6,6 +6,9 @@ use Illuminate\Support\Arr;
 use App\Models\AgendaInterlab;
 use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Http\{Request,RedirectResponse};
 use App\Models\{AgendaCursos,Pessoa,CentroCusto,LancamentoFinanceiro,ModalidadePagamento,PlanoConta};
 
@@ -48,35 +51,70 @@ class LancamentoFinanceiroController extends Controller
    **/
   public function store(Request $request): RedirectResponse
   {
-    $validated = $request->validate(
-      [
-        'data_emissao' => ['nullable'],
-        'consiliacao' => ['nullable'],
-        'documento' => ['nullable'],
-        'nota_fiscal' => ['nullable'],
+    $validator = Validator::make($request->all(), [
+        'data_emissao' => ['nullable', 'date'],
+        'nota_fiscal' => ['nullable', 'string','max:191'],
+        'consiliacao' => ['nullable', 'string' ,'max:191'],
+        'documento' => ['nullable', 'string' ,'max:191'],
         'pessoa_id' => ['required', 'exists:pessoas,id'],
         'centro_custo_id' => ['required', 'exists:centro_custos,id'],
-        'historico' => ['nullable'],
-        'banco_id' => ['nullable'],
+        'plano_conta_id' => ['required', 'exists:plano_contas,id'],
+        'historico' => ['nullable', 'string' ,'max:900'],
         'tipo_lancamento' => ['required', 'in:CREDITO,DEBITO'],
-        'valor' => ['nullable'],
-        'data_vencimento' => ['nullable'],
-        'data_pagamento' => ['nullable'],
+        'valor' => ['nullable', 'string' ,'max:11'],
+        'data_vencimento' => ['nullable', 'date'],
+        'data_pagamento' => ['nullable', 'date'],
         'status' => ['required', 'in:EFETIVADO,PROVISIONADO'],
-        'observacoes' => ['nullable'],
-      ],
-      [
-        'status.required' => 'O campo Status é obrigatório',
-        'status.in' => 'A opção selecionada é inválida',
-        'tippo_lancamento.required' => 'O campo Tipo de Lancamento é obrigatório',
-        'tipo_lancamento.in' => 'A opção selecionada é inválida',
+        'modalidade_pagamento_id' => ['nullable', 'exists:modalidade_pagamentos,id'],
+        'observacoes' => ['nullable', 'string'],
+      ],[
+        'data_emissao.date' => 'A data de emissão deve ser uma data válida',
+        'nota_fiscal.string' => 'O número da nota fiscal é inválido',
+        'nota_fiscal.max' => 'Máximo de caracteres excedido',
+        'consiliacao.string' => 'O número da consiliação é inválido', 
+        'consiliacao.max' => 'Máximo de caracteres excedido', 
+        'documento.string' => 'O número do documento é inválido',
+        'documento.max' => 'Máximo de caracteres excedido',
+        'pessoa_id.required' => 'É necessário selecionar uma pessoa',
+        'pessoa_id.exists' => 'A pessoa selecionada não existe no sistema',
+        'centro_custo_id.required' => 'É necessário selecionar um centro de custo',
+        'centro_custo_id.exists' => 'O centro de custo selecionado não existe no sistema',
+        'plano_conta_id.required' => 'É necessário selecionar um plano de conta',
+        'plano_conta_id.exists' => 'O plano de conta selecionado não existe no sistema',
+        'historico.string' => 'O histórico informado é inválido',
+        'historico.max' => 'Máximo de caracteres excedido',
+        'tipo_lancamento.required' => 'É necessário selecionar o tipo de lançamento',
+        'tipo_lancamento.in' => 'O tipo de lançamento selecionado é inválido',
+        'valor.numeric' => 'O valor deve ser um número válido',
+        'data_vencimento.date' => 'A data de vencimento deve ser uma data válida',
+        'data_pagamento.date' => 'A data de pagamento deve ser uma data válida',
+        'status.required' => 'É necessário selecionar um status',
+        'status.in' => 'O status selecionado é inválido',
+        'modalidade_pagamento_id.exists' => 'A modalidade de pagamento selecionada não existe no sistema',
+        'observacoes.string' => 'As observações informadas são inválidas',
+        'observacoes.max' => 'Máximo de caracteres excedido'
       ]
     );
-    $validated['valor'] = formataMoeda($validated['valor']) ?? null;
-    $validated['uid'] = config('hashing.uid');
 
+    if($validator->fails()) {
+        
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'errors' => $validator->errors() ?? null,
+      ]);
 
-    $lancamento_financeiro = LancamentoFinanceiro::create($validated);
+      return back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
+    }
+
+    $prepared_data = array_merge($validator->validate(),[
+      'valor' => formataMoeda($request->valor ),
+    ]);
+
+    $lancamento_financeiro = LancamentoFinanceiro::create($prepared_data);
 
     if (!$lancamento_financeiro) {
       return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
@@ -123,33 +161,71 @@ class LancamentoFinanceiroController extends Controller
   public function update(Request $request, LancamentoFinanceiro $lancamento): RedirectResponse
   {
 
-    $validated = $request->validate(
+    $validator = Validator::make($request->all(), 
       [
-        'data_emissao' => ['nullable'],
-        'consiliacao' => ['nullable'],
-        'documento' => ['nullable'],
-        'nota_fiscal' => ['nullable'],
+        'data_emissao' => ['nullable', 'date'],
+        'nota_fiscal' => ['nullable', 'string','max:191'],
+        'consiliacao' => ['nullable', 'string' ,'max:191'],
+        'documento' => ['nullable', 'string' ,'max:191'],
         'pessoa_id' => ['required', 'exists:pessoas,id'],
         'centro_custo_id' => ['required', 'exists:centro_custos,id'],
-        'historico' => ['nullable'],
-        'banco_id' => ['nullable'],
+        'plano_conta_id' => ['required', 'exists:plano_contas,id'],
+        'historico' => ['nullable', 'string' ,'max:900'],
         'tipo_lancamento' => ['required', 'in:CREDITO,DEBITO'],
-        'valor' => ['nullable'],
-        'data_vencimento' => ['nullable'],
-        'data_pagamento' => ['nullable'],
+        'valor' => ['nullable', 'string'],
+        'data_vencimento' => ['nullable', 'date'],
+        'data_pagamento' => ['nullable', 'date'],
         'status' => ['required', 'in:EFETIVADO,PROVISIONADO'],
-        'observacoes' => ['nullable'],
-      ],
-      [
-        'status.required' => 'O campo Status é obrigatório',
-        'status.in' => 'A opção selecionada é inválida',
-        'tippo_lancamento.required' => 'O campo Tipo de Lancamento é obrigatório',
-        'tipo_lancamento.in' => 'A opção selecionada é inválida',
+        'modalidade_pagamento_id' => ['nullable', 'exists:modalidade_pagamentos,id'],
+        'observacoes' => ['nullable', 'string'],
+      ],[
+        'data_emissao.date' => 'A data de emissão deve ser uma data válida',
+        'nota_fiscal.string' => 'O número da nota fiscal é inválido',
+        'consiliacao.string' => 'O número da consiliação é inválido', 
+        'documento.string' => 'O número do documento é inválido',
+        'pessoa_id.required' => 'É necessário selecionar uma pessoa',
+        'pessoa_id.exists' => 'A pessoa selecionada não existe no sistema',
+        'centro_custo_id.required' => 'É necessário selecionar um centro de custo',
+        'centro_custo_id.exists' => 'O centro de custo selecionado não existe no sistema',
+        'plano_conta_id.required' => 'É necessário selecionar um plano de conta',
+        'plano_conta_id.exists' => 'O plano de conta selecionado não existe no sistema',
+        'historico.string' => 'O histórico informado é inválido',
+        'tipo_lancamento.required' => 'É necessário selecionar o tipo de lançamento',
+        'tipo_lancamento.in' => 'O tipo de lançamento selecionado é inválido',
+        'valor.numeric' => 'O valor deve ser um número válido',
+        'data_vencimento.date' => 'A data de vencimento deve ser uma data válida',
+        'data_pagamento.date' => 'A data de pagamento deve ser uma data válida',
+        'status.required' => 'É necessário selecionar um status',
+        'status.in' => 'O status selecionado é inválido',
+        'modalidade_pagamento_id.exists' => 'A modalidade de pagamento selecionada não existe no sistema',
+        'observacoes.string' => 'As observações informadas são inválidas',
+        'nota_fiscal.max' => 'Máximo de caracteres excedido',
+        'consiliacao.max' => 'Máximo de caracteres excedido',
+        'documento.max' => 'Máximo de caracteres excedido',
+        'historico.max' => 'Máximo de caracteres excedido',
+        'observacoes.max' => 'Máximo de caracteres excedido'
       ]
     );
 
-    $validated['valor'] = formataMoeda($validated['valor']) ?? null;
-    $lancamento->update($validated);
+    if($validator->fails()) {
+        
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
+      return back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
+    }
+
+    $prepared_data = array_merge($validator->validate(),[
+      'valor' => formataMoeda($request->valor ),
+    ]);
+
+    $lancamento->update($prepared_data);
 
     return redirect()->back()->with('success', 'Lancamento atualizado com sucesso');
   }

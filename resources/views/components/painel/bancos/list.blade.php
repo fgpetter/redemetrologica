@@ -60,9 +60,9 @@
                     @endforelse
                 </tbody>
             </table>
-            {{-- <div class="row mt-3">
-    {!! $bancos->withQueryString()->links('pagination::bootstrap-5') !!}
-    </div> --}}
+            {{-- <div class="row mt-3 w-100">
+            {!! $bancos->withQueryString()->links('pagination::bootstrap-5') !!}
+            </div> --}}
         </div>
         <x-painel.bancos.modal-bancos />
 

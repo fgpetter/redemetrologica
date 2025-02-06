@@ -7,7 +7,7 @@
 
 <div class="row">
   <div class="col-12 col-sm-5">
-    <x-painel.users.insert :user="$user"/>
+    <x-painel.users.insert :user="$user" :endereco="$endereco"/>
   </div>
   @can('admin')
     <div class="col-12 col-sm-5">

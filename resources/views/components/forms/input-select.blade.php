@@ -8,7 +8,7 @@
   'errorBag' => null
 ])
 
-<label class="form-label">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis">*</span>' : '') !!}</label>
+<label class="form-label mb-0">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis">*</span>' : '') !!}</label>
 @if($tooltip)
   <span data-bs-toggle="tooltip" data-bs-html="true" title="{{ $tooltip }}">
   <i class="ri-information-line align-middle text-warning-emphasis" style="font-size: 1rem"></i></span>

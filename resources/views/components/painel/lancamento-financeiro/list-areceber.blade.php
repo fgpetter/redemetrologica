@@ -81,7 +81,6 @@
             <th scope="col">Vencimento</th>
             <th scope="col">Área</th>
             <th scope="col">Valor</th>
-            <th scope="col">Pagamento</th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
           </tr>
         </thead>
@@ -100,7 +99,6 @@
                 {{ $lancamento->agenda_avaliacao_id ? 'AVALIAÇÃO' : '' }}
               </td>
               <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
-              <td> {!! ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : "<span class='badge rounded-pill bg-warning'>Em Aberto</span>" !!} </td>
               <td>
                 <div class="dropdown">
                   <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
@@ -123,7 +121,7 @@
               </td>
             </tr>
             <tr>
-              <td colspan="6" class="p-0">
+              <td colspan="5" class="p-0">
                 <div class="collapse" id="{{"collapse".$lancamento->uid}}">
                   <div class="row gy-2 m-3 mt-2">
                     <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
@@ -140,7 +138,7 @@
           @endforelse
         </tbody>
       </table>
-      <div class="row mt-3">
+      <div class="row mt-3 w-100">
         {!! $lancamentosfinanceiros->withQueryString()->links('pagination::bootstrap-5') !!}
       </div>
     </div>

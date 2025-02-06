@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Foundation\Auth\RedirectsUsers;
+use App\Exceptions\InvalidEmailRegisterException;
 
 
 trait RegistersUsers
@@ -39,15 +39,36 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
-        $this->validator($request->all())->validate();
+        Log::channel('register')->info("Tentativa de cadastro", $request->except(['password', 'password_confirmation']));
+
+        $validator = $this->validator($request->all());
+
+        if ($validator->fails()) {
+
+            Log::channel('validation')->info("Erro de validação", [
+                'user' => auth()->user() ?? null,
+                'request' => $request->all() ?? null,
+                'uri' => request()->fullUrl() ?? null,
+                'method' => get_class($this) .'::'. __FUNCTION__ ,
+                'errors' => $validator->errors() ?? null,
+            ]);
+        
+            return back()
+            ->withErrors($validator)
+            ->withInput();
+        }
+
         $document = preg_replace('/[^0-9]/', '', $request['document']);
 
         // verifica se esse usuário foi importado do sistema antigo
         if($pessoa = Pessoa::where('cpf_cnpj', $document)->first()){
 
             if($pessoa->email) { // se pessoa tem cadastro com e-mail
+                if( isInvalidEmail($pessoa->email) ){
+                    throw new InvalidEmailRegisterException($pessoa);
+                }
 
-                $mail = obfuscate_email($pessoa->email);
+                $mail = obfuscateEmail($pessoa->email);
 
                 if( !$pessoa->user?->exists || ( $pessoa->user?->temporary_password == 1 ) ){ // se pessoa não possui usuário associado
 

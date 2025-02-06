@@ -47,6 +47,7 @@
                 </div>
               </td>
             </tr>
+            
           @empty
             <tr>
               <td colspan="5" class="text-center"> Não há usuários na base. </td>
@@ -54,6 +55,10 @@
           @endforelse
         </tbody>
       </table>
+      <div class="row mt-3 w-100">
+        {!! $users->withQueryString()->links('pagination::bootstrap-5') !!}
+      </div>
+
     </div>
 
   </div>

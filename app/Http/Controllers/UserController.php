@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
@@ -17,7 +21,7 @@ class UserController extends Controller
    **/
   public function index(): View
   {
-    $users = User::all();
+    $users = User::with(['permissions','pessoa'])->paginate(10);
     return view('painel.users.user-index', ['users' => $users]);
   }
 
@@ -29,12 +33,15 @@ class UserController extends Controller
    **/
   public function create(Request $request)
   {
-    $request->validate(
-      [
+    $request->merge([
+      'nome' => ucwords(strtolower($request->get('nome'))),
+      'email' => strtolower($request->get('email'))
+    ]);
+
+    $validator = Validator::make($request->all(), [
         'nome' => ['required', 'string', 'max:191'],
-        'email' => ['unique:users', 'required', 'string', 'email'],
-      ],
-      [
+        'email' => ['required', 'email','unique:users'],
+      ],[
         'nome.required' => 'Preencha o campo nome',
         'email.required' => 'Preencha o campo email',
         'email.email' => 'Não é um email válido',
@@ -42,10 +49,25 @@ class UserController extends Controller
       ]
     );
 
+    if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", [
+        'user' => auth()->user() ?? null,
+        'request' => $request->all() ?? null,
+        'uri' => request()->fullUrl() ?? null,
+        'method' => get_class($this) .'::'. __FUNCTION__ ,
+        'errors' => $validator->errors() ?? null,
+      ]);
+
+      return back()
+      ->withErrors($validator)
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
     $user = User::create([
-      'uid' => config('hashing.uid'),
-      'name' => $request->get('nome'),
-      'email' => $request->get('email'),
+      'name' => $validator->safe()->nome,
+      'email' => $validator->safe()->email,
       'password' => Hash::make('Password')
     ]);
 
@@ -66,7 +88,8 @@ class UserController extends Controller
   {
     if( auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id) ) {
       $permissions = $user->permissions()->pluck('permission')->toArray();
-      return view('painel.users.user-update', ['user' => $user , 'permissions' => $permissions]);
+      $endereco = $user->pessoa->enderecos()->first();
+      return view('painel.users.user-update', ['user' => $user , 'permissions' => $permissions, 'endereco' => $endereco]);
     }
     abort(404);
   }
@@ -80,35 +103,86 @@ class UserController extends Controller
    **/
   public function update(Request $request, User $user): RedirectResponse
   {
-    if( auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id) ) {
+    if( auth()->user()->hasPermissionTo( ['admin', 'funcionario'] ) || ( $user->id == auth()->user()->id ) ) {
 
-      $request->validate(
-        [
-          'nome' => ['required', 'string', 'max:191'],
-          'email' => ['unique:users,email,' . $user->id, 'required', 'string', 'email'],
-          'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-        ],
-        [
-          'nome.required' => 'Preencha o campo nome',
-          'email.required' => 'Preencha o campo email',
-          'email.email' => 'Não é um email válido',
-          'email.unique' => 'Esse email já está em uso',
-          'password.confirmed' => 'As senhas não conferem',
-          'password.min' => 'A senha deve ter pelo menos 8 caracteres',
+      $request->merge( return_only_nunbers( $request->only('cpf_cnpj','telefone','telefone_alt','celular' ) ) );
+      $request->merge( ['nome' => ucwords( strtolower( $request->get('nome') ) ), 'email' =>strtolower( $request->get('email') ) ] );
+      
+      $validator = Validator::make($request->all(), [
+        'nome' => ['required', 'string', 'max:191'],
+        'email' => ['required', 'email','unique:users,email,'.$user->id],
+        'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        'cpf_cnpj' => [Rule::requiredIf($user->id == auth()->user()->id), 'cpf', 'unique:pessoas,cpf_cnpj,'.$user->pessoa->id],
+        'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
+        'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
+        'celular' => ['nullable', 'string', 'min:10', 'max:11'],
+        'cep' => ['nullable', 'string'],
+        'endereco' => ['nullable', 'string'],
+        'cidade' => ['nullable', 'string'],
+        'uf' => ['nullable', 'string'],
+        ],[
+        'nome.required' => 'Preencha o campo nome',
+        'email.required' => 'Preencha o campo email',
+        'email.email' => 'Não é um email válido',
+        'email.unique' => 'Esse email já está em uso',
+        'password.confirmed' => 'As senhas não conferem',
+        'password.min' => 'A senha deve ter pelo menos 8 caracteres',
         ]
       );
+
+      if ($validator->fails()) {
+
+        Log::channel('validation')->info("Erro de validação", [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'errors' => $validator->errors() ?? null,
+        ]);
   
+        return back()
+        ->withErrors($validator)
+        ->withInput()
+        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+      }
+
       $user->update([
-        'name' => $request->get('nome'),
-        'email' => $request->get('email')
+        'name' => ucwords( $request->nome ?? '' ),
+        'email' => strtolower( $request->email ?? '')
       ]);
   
-      if($request->get('password')) {
+      if($request->password) {
         $user->update([
-          'password' => Hash::make($request->get('password')),
+          'password' => Hash::make($request->password),
           'temporary_password' => 0
         ]);
       }
+
+      // se cliente atualizar seus dados, atualiza também dados de pessoa e endereço
+      if($request->update_pessoa == 1){
+        $user->pessoa()->update([
+          'nome_razao' => ucwords( $request->nome ?? '' ),
+          'email' => strtolower( $request->email ?? ''),
+          'cpf_cnpj' => $request->cpf_cnpj,
+          'telefone' => $request->telefone,
+          'telefone_alt' => $request->telefone_alt,
+          'celular' => $request->celular,
+        ]);
+  
+        $user->pessoa->enderecos()->update([
+          'cep' => $request->cep,
+          'endereco' => $request->endereco,
+          'cidade' => $request->cidade,
+          'uf' => $request->uf,
+        ]);
+      } else { // mantem a consistencia dos dados pessoa -> usuario
+        $user->pessoa()->update([
+          'nome_razao' => ucwords( $request->nome ?? '' ),
+          'email' => strtolower( $request->email ?? ''),
+        ]);
+      }
+
+
       if(auth()->user()->hasPermissionTo(['admin', 'funcionario'])) {
         return redirect()->route('user-index')->with('success', 'Usuário atualizado');
       }

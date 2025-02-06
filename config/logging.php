@@ -139,6 +139,12 @@ return [
             'ignore_exceptions' => true,
         ],
 
+        'register' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/usuarios_registrados.log'),
+            'ignore_exceptions' => true,
+        ],
+
         'validation' => [
             'driver' => 'single',
             'path' => storage_path('logs/validation_errors.log'),

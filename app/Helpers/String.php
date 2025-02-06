@@ -32,13 +32,21 @@ function sanitizeFileName($file_name): string
  * @return string|null
  */
 
-function obfuscate_email($email)
+function obfuscateEmail($email)
 {
     $em   = explode("@",$email);
     $name = implode('@', array_slice($em, 0, count($em)-1));
     $len  = floor(strlen($name)/2);
 
     return substr($name,0, $len) . str_repeat('*', $len) . "@" . end($em);   
+}
+
+function isInvalidEmail($email)
+{
+  if(preg_match("/^[0-9a-z]([-_.]*?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-z]{2,9}$/", $email, $matches) == 0) {
+    return true;
+  }
+  return false;
 }
 
 /**

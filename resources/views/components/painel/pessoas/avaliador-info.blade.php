@@ -8,7 +8,7 @@
         <h4 class="card-title mb-0">Dados de Avaliador</h4>
     </div><!-- end card header -->
     <div class="card-body">
-        <table class="table table-sm" style="table-layout: auto; width: 150px;">
+        <table class="table table-sm">
         <tr>
             <td style="width: 1%; white-space: nowrap;" class="ps-4 pe-2">Data de Cadastro</td>
             <td class="px-4">{{ $pessoa->avaliador->data_ingresso }}</td>

@@ -58,9 +58,9 @@
                     @endforelse
                 </tbody>
             </table>
-            {{-- <div class="row mt-3">
-    {!! $areasAtuacao->withQueryString()->links('pagination::bootstrap-5') !!}
-    </div> --}}
+            {{-- <div class="row mt-3 w-100">
+            {!! $areasAtuacao->withQueryString()->links('pagination::bootstrap-5') !!}
+            </div> --}}
         </div>
         <x-painel.areas-atuacao.modal-area-atuacao />
     </div>
