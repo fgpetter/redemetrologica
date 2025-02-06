@@ -51,7 +51,7 @@ class Handler extends ExceptionHandler
             $content['body'] = json_encode(request()->except('_token'));
             $content['ip'] = request()->ip();
             $content['user'] = auth()->user()?->email ?? null;
-            
+
             Mail::to('ti@redemetrologica.com.br')->send(new ExceptionOccured($content));
  
          } catch (Throwable $exception) {

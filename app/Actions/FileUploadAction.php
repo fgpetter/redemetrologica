@@ -20,6 +20,7 @@ class FileUploadAction
    */
   public static function handle(Request $request, string $filename, string $path, bool|array $params = false): ?string
   {
+    //dd($request, $filename, $path, $params);
     if ($request->hasFile( $filename )) {
 
       $file = $request->file($filename);
@@ -31,44 +32,34 @@ class FileUploadAction
 
       // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
       if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'webp') {
-        try {
-          $img = Image::make($file);
-  
-            if ($params['height'] || $params['width']) {
 
-              $height = $params['height'] ?? null;
-              $width = $params['width'] ?? null;
+        $img = Image::make($file);
 
-              if($img->height() > $height || $img->width() > $width){
-                $img->resize($width, $height, function ($constraint) {
-                  $constraint->aspectRatio();
-                });
-              }
-            }
+        if ( isset($params['height']) || isset($params['width']) ) {
 
-            $file_name = $file_name . '_' . time() . '.jpg';
+          $height = $params['height'] ?? null;
+          $width = $params['width'] ?? null;
 
-            $img->save( public_path( $path.'/'.$file_name ), 75, 'jpg' );
-
-            return $file_name;
-
-        } catch (\Throwable $e) {
-          return false;
+          if($img->height() > $height || $img->width() > $width){
+            $img->resize($width, $height, function ($constraint) {
+              $constraint->aspectRatio();
+            });
+          }
         }
+
+        $file_name = $file_name . '_' . time() . '.jpg';
+
+        $img->save( public_path( $path.'/'.$file_name ), 75, 'jpg' );
+        return $file_name;
       }
 
       if ($extension == 'pdf' || $extension == 'doc' || $extension == 'docx') {
 
-        try {
-          $file_name = $file_name . '_' . time() . '.' . $extension;
+        $file_name = $file_name . '_' . time() . '.' . $extension;
 
-          $request->file($filename)->move( public_path($path), $file_name );
+        $request->file($filename)->move( public_path($path), $file_name );
 
-          return $file_name;
-
-        } catch (\Throwable $e) {
-          return false;
-        }
+        return $file_name;
 
       }
     }

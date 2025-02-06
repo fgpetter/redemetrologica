@@ -192,10 +192,8 @@ class CursoController extends Controller
         ->withInput();
     }
 
-
     if ($request->hasFile('arquivo')) {
       $file_name = FileUploadAction::handle($request, 'arquivo', 'curso-material');
-      $file_extension = pathinfo( $file_name, PATHINFO_EXTENSION );
     }
 
     CursoMaterial::create([
