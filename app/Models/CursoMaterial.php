@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-
-class Curso extends Model
+class CursoMaterial extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use HasFactory;
 
-    /**
+    protected $table = 'curso_materiais';
+        /**
      * The attributes that aren't mass assignable.
      *
      * @var array
@@ -27,9 +26,9 @@ class Curso extends Model
         ->useLogName( get_class($this) );
     }
 
-    public function materiais(): HasMany
+    public function curso(): BelongsTo
     {
-        return $this->hasMany(CursoMaterial::class);
+        return $this->belongsTo(Curso::class);
     }
 
 }
