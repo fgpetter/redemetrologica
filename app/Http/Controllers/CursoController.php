@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Validator;
 use App\Models\Curso;
 use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
-use App\Actions\FileUploadAction;
 use App\Models\CursoMaterial;
+use App\Actions\FileUploadAction;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Support\Facades\File as FileFacade;
-
 
 class CursoController extends Controller
 {
@@ -164,10 +165,9 @@ class CursoController extends Controller
    */
   public function uploadMaterial(Request $request, Curso $curso): RedirectResponse
   {
-    $validated = $request->validate(
-      [
+    $validator = Validator::make( $request->all(), [
         'descricao' => ['nullable', 'string', 'max:190'],
-        'arquivo' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
+        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document','max:2048'],
       ],[
         'descricao.string' => 'O campo aceita somente texto.',
         'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
@@ -175,9 +175,27 @@ class CursoController extends Controller
       ]
     );
 
+    if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'errors' => $validator->errors() ?? null,
+      ]);
+
+      return back()
+        ->with('error', 'Houve um erro a processar os dados, tente novamente')
+        ->withErrors($validator)
+        ->withInput();
+    }
+
+
     if ($request->hasFile('arquivo')) {
       $file_name = FileUploadAction::handle($request, 'arquivo', 'curso-material');
-      $validated['arquivo'] = $file_name;
+      $file_extension = pathinfo( $file_name, PATHINFO_EXTENSION );
     }
 
     CursoMaterial::create([

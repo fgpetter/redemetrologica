@@ -10,9 +10,10 @@
   <div class="col-xl-7 col-xxl-6">
     <x-painel.cursos.insert :curso="$curso"/>
   </div>
+
   <div class="col-xl-5 col-xxl-6">
     @if($curso->id)
-    <x-painel.cursos.arquivos-curso :curso="$curso"/>
+      <x-painel.cursos.arquivos-curso :curso="$curso"/>
     @endif
   </div>
 

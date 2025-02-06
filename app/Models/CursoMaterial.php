@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\SetDefaultUid;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CursoMaterial extends Model
 {
-    use HasFactory;
+    use HasFactory, SetDefaultUid;
 
     protected $table = 'curso_materiais';
         /**
