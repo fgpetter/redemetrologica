@@ -7,7 +7,6 @@ use App\Models\PlanoConta;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\Rule;
 
 
 class PlanoContaController extends Controller
@@ -22,7 +21,7 @@ class PlanoContaController extends Controller
       'planocontas' => PlanoConta::with(['centrocusto' => function ($query) {
         $query->withTrashed();
       }])->paginate(10),
-
+      
       'centrocustos' => CentroCusto::all()
     ];
     return view('painel.plano-conta.index', $data);

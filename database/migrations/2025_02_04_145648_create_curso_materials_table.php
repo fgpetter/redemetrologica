@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('uploads', function (Blueprint $table) {
+        Schema::create('curso_materiais', function (Blueprint $table) {
             $table->id();
-            $table->string('nome');
-            $table->string('caminho');
-            $table->enum('model', ['CURSO']);
-            $table->integer('model_id');
+            $table->string('uid')->unique();
+            $table->foreignId('curso_id');
+            $table->string('arquivo');
+            $table->string('descricao');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('uploads');
+        Schema::dropIfExists('curso_materiais');
     }
 };

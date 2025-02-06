@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AgendaCursos;
 use App\Models\Curso;
+use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
+use App\Actions\FileUploadAction;
+use App\Models\CursoMaterial;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Intervention\Image\Facades\Image;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Support\Facades\File as FileFacade;
 
@@ -48,8 +49,7 @@ class CursoController extends Controller
         'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
         'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)]
 
-      ],
-      [
+      ],[
         'descricao.string' => 'O campo aceita somente texto.',
         'tipo_curso.in' => 'A opção selecionada é inválida',
         'objetivo.string' => 'O campo aceita somente texto.',
@@ -68,54 +68,14 @@ class CursoController extends Controller
     $validated['uid'] = config('hashing.uid');
 
     if ($request->hasFile('folder')) {
-      $original_name = $request->file('folder')->getClientOriginalName();
-      $file_name = pathinfo($original_name, PATHINFO_FILENAME);
-      $file_name = str_replace(' ', '-', $file_name);
-      $extension = $request->file('folder')->getClientOriginalExtension();
-
-      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-      if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
-        $image = $request->file('thumb');
-        $img = Image::make($image);
-        $img->encode('jpg', 75);
-  
-        $file_name = $file_name . '_' . time() . '.jpg';
-  
-        $img->save(public_path('curso-thumb/' . $file_name));
-      } else {
-        
-        $file_name = $file_name . '_' . time() . '.' . $extension;
-        $request->file('folder')->move(public_path('curso-folder'), $file_name);
-      }
-
+      $file_name = FileUploadAction::handle($request, 'folder', 'curso-folder');
       $validated['folder'] = $file_name;
     }
 
-
     if ($request->hasFile('thumb')) {
-      $original_name = $request->file('thumb')->getClientOriginalName();
-      $file_name = pathinfo($original_name, PATHINFO_FILENAME);
-      $file_name = str_replace(' ', '-', $file_name);
-
-      $image = $request->file('thumb');
-      $img = Image::make($image);
-
-      if ($img->height() > 300) {
-        $img->resize(null, 300, function ($constraint) {
-          $constraint->aspectRatio();
-        });
-      }
-
-
-      $img->encode('jpg', 75);
-
-      $file_name = $file_name . '_' . time() . '.jpg';
-
-      $img->save(public_path('curso-thumb/' . $file_name));
-
+      $file_name = FileUploadAction::handle($request, 'thumb', 'curso-thumb', ['height' => 750]);
       $validated['thumb'] = $file_name;
     }
-
 
     $curso = Curso::create($validated);
 
@@ -136,6 +96,7 @@ class CursoController extends Controller
    **/
   public function insert(Curso $curso): View
   {
+    $curso->load('materiais');
     return view('painel.cursos.insert', ['curso' => $curso]);
   }
 
@@ -162,9 +123,7 @@ class CursoController extends Controller
         'observacoes_internas' => ['nullable', 'string'],
         'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
         'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)]
-
-      ],
-      [
+      ],[
         'descricao.string' => 'O campo aceita somente texto.',
         'tipo_curso.in' => 'A opção selecionada é inválida',
         'objetivo.string' => 'O campo aceita somente texto.',
@@ -181,65 +140,74 @@ class CursoController extends Controller
       ]
     );
 
-
-
     if ($request->hasFile('folder')) {
-      $original_name = $request->file('folder')->getClientOriginalName();
-      $file_name = pathinfo($original_name, PATHINFO_FILENAME);
-      $file_name = str_replace(' ', '-', $file_name);
-      $extension = $request->file('folder')->getClientOriginalExtension();
-
-      // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-      if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
-        $image = $request->file('thumb');
-        $img = Image::make($image);
-        $img->encode('jpg', 75);
-  
-        $file_name = $file_name . '_' . time() . '.jpg';
-  
-        $img->save(public_path('curso-thumb/' . $file_name));
-      } else {
-        
-        $file_name = $file_name . '_' . time() . '.' . $extension;
-        $request->file('folder')->move(public_path('curso-folder'), $file_name);
-      }
-
+      $file_name = FileUploadAction::handle($request, 'folder', 'curso-folder');
       $validated['folder'] = $file_name;
     }
 
-
     if ($request->hasFile('thumb')) {
-      $original_name = $request->file('thumb')->getClientOriginalName();
-      $file_name = pathinfo($original_name, PATHINFO_FILENAME);
-      $file_name = str_replace(' ', '-', $file_name);
-
-      $image = $request->file('thumb');
-      $img = Image::make($image);
-
-      if ($img->height() > 750) {
-        $img->resize(null, 750, function ($constraint) {
-          $constraint->aspectRatio();
-        });
-      }
-
-
-      $img->encode('jpg', 75);
-
-      $file_name = $file_name . '_' . time() . '.jpg';
-
-      $img->save(public_path('curso-thumb/' . $file_name));
-
+      $file_name = FileUploadAction::handle($request, 'thumb', 'curso-thumb', ['height' => 750]);
       $validated['thumb'] = $file_name;
     }
 
-
     $curso->update($validated);
 
-    return redirect()->back()
-      ->with('success', 'Curso atualizado com sucesso');
+    return redirect()->back()->with('success', 'Curso atualizado com sucesso');
   }
 
+  /**
+   * Adiciona materiais ao curso
+   *
+   * @param Request $request
+   * @param Curso $curso
+   * @return RedirectResponse
+   */
+  public function uploadMaterial(Request $request, Curso $curso): RedirectResponse
+  {
+    $validated = $request->validate(
+      [
+        'descricao' => ['nullable', 'string', 'max:190'],
+        'arquivo' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
+      ],[
+        'descricao.string' => 'O campo aceita somente texto.',
+        'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'arquivo.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+      ]
+    );
 
+    if ($request->hasFile('arquivo')) {
+      $file_name = FileUploadAction::handle($request, 'arquivo', 'curso-material');
+      $validated['arquivo'] = $file_name;
+    }
+
+    CursoMaterial::create([
+      'curso_id' => $curso->id,
+      'arquivo' => $file_name,
+      'descricao' => $request->descricao
+    ]);
+
+    return back()->with('success', 'Material adicionado com sucesso');
+
+  }
+
+  /**
+   * Remove materiais ao curso
+   *
+   * @param CursoMaterial $material
+   * @return RedirectResponse
+   **/
+  public function deleteMaterial(CursoMaterial $material): RedirectResponse
+  {
+
+    if (FileFacade::exists(public_path('curso-material/' . $material->arquivo))) {
+      FileFacade::delete(public_path('curso-material/' . $material->arquivo));
+    }
+
+    $material->delete();
+
+    return redirect()->back()->with('success', 'Material removido');
+  }
+  
   /**
    * Remove arquivo de curso
    *

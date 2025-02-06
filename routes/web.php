@@ -165,6 +165,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{curso:uid}', [CursoController::class, 'delete'])->name('curso-delete');
     Route::post('delete-folder/{curso:uid}', [CursoController::class, 'folderDelete'])->name('curso-folder-delete');
     Route::post('delete-thumb/{curso:uid}', [CursoController::class, 'thumbDelete'])->name('curso-thumb-delete');
+    Route::post('upload-material/{curso:uid}', [CursoController::class, 'uploadMaterial'])->name('curso-upload-material');
+    Route::post('delete-material/{material:uid}', [CursoController::class, 'deleteMaterial'])->name('curso-delete-material');
   });
 
   /* Agendamento de cursos*/
