@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('curso_materiais', function (Blueprint $table) {
-            $table->id();
-            $table->string('uid')->unique();
-            $table->foreignId('curso_id');
-            $table->string('arquivo');
-            $table->string('descricao')->nullable();
-            $table->timestamps();
+        Schema::create('agenda_curso_materiais', function (Blueprint $table) {
+            $table->unsignedBigInteger('agenda_curso_id');
+            $table->unsignedBigInteger('curso_material_id');
         });
     }
 
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('curso_materiais');
+        Schema::dropIfExists('agenda_curso_materiais');
     }
 };

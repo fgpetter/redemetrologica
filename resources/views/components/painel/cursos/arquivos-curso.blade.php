@@ -25,7 +25,7 @@
     <form method="POST" class="row g-2 my-3 border-top" action="{{ route('curso-upload-material', $curso->uid) }}" enctype="multipart/form-data">
       @csrf
       <div class="col-8 pt-2">
-        <x-forms.input-field value="{{ old('descricao') }}" name="descricao" label="Descrição" />
+        <x-forms.input-field value="{{ old('descricao') }}" name="descricao" label="Descrição" placeholder="Nome do documento" />
         @error('descricao')<div class="text-warning">{{ $message }}</div>@enderror
       </div>
       <div class="col-8">

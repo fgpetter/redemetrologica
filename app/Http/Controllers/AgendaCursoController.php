@@ -9,9 +9,9 @@ use App\Models\AgendaCursos;
 use App\Models\CursoDespesa;
 use Illuminate\Http\Request;
 use App\Models\MaterialPadrao;
-use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\AgendaCursoRequest;
 
 class AgendaCursoController extends Controller
 {
@@ -36,7 +36,7 @@ class AgendaCursoController extends Controller
    */
   public function insert(AgendaCursos $agendacurso): View
   {
-    $agendacurso->load('instrutor', 'instrutor.pessoa', 'curso', 'inscritos');
+    $agendacurso->load('instrutor.pessoa', 'curso.materiais', 'inscritos');
     $pessoas = Pessoa::select('id','uid', 'cpf_cnpj', 'tipo_pessoa' , 'nome_razao')->get();
 
     $data = [
@@ -58,72 +58,23 @@ class AgendaCursoController extends Controller
   /**
    * Adiciona um agendamento de curso
    * 
-   * @param Request $request
+   * @param AgendaCursoRequest $request
    * @return RedirectResponse
    */
-  public function create(Request $request): RedirectResponse
+  public function create(AgendaCursoRequest $request): RedirectResponse
   {
-    $validated = $request->validate([
-      'status' => ['required', Rule::in(['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR'])],
-      'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
-      'destaque' => ['nullable', 'integer'],
-      'tipo_agendamento' => ['required', Rule::in(['ONLINE', 'EVENTO', 'IN-COMPANY'])],
-      'curso_id' => ['required', 'exists:cursos,id'],
-      'instrutor_id' => ['required', 'exists:instrutores,id'],
-      'empresa_id' => ['nullable', 'exists:pessoas,id'],
-      'endereco_local' => ['nullable', 'string'],
-      'data_inicio' => ['required', 'date'],
-      'data_fim' => ['nullable', 'date'],
-      'validade_proposta' => ['nullable', 'date'],
-      'horario' => ['nullable', 'string'],
-      'inscricoes' => ['nullable', 'integer'],
-      'site' => ['nullable', 'integer'],
-      'num_participantes' => ['nullable', 'integer'],
-      'carga_horaria' => ['nullable', 'integer'],
-      'investimento' => ['nullable', 'string'],
-      'investimento_associado' => ['nullable', 'string'],
-      'observacoes' => ['nullable', 'string'],
-      'contato' => ['nullable', 'string'],
-      'contato_email' => ['nullable', 'string'],
-      'contato_telefone' => ['nullable', 'string'],
-      'valor_orcamento' => ['nullable', 'string'],
+    $validated = $request->validated();
 
-    ], [
-      'status.required' => 'Selecione uma opção válida',
-      'status.in' => 'Selecione uma opção válida',
-      'status_proposta.in' => 'Selecione uma opção válida',
-      'destaque.integer' => 'O dado enviado não é valido',
-      'tipo_agendamento.in' => 'Selecione uma opção válida',
-      'curso_id.required' => 'É necessário escolher um curso',
-      'curso_id.exists' => 'Selecione uma opção válida',
-      'empresa_id.exists' => 'Selecione uma opção válida',
-      'instrutor_id.required' => 'É necessário escolher um instrutor',
-      'instrutor_id.in' => 'Selecione uma opção válida',
-      'endereco_local.string' => 'O dado enviado não é valido',
-      'data_inicio.date' => 'O dado enviado não é uma data valida',
-      'data_fim.date' => 'O dado enviado não é uma data valida',
-      'validade_proposta.date' => 'O dado enviado não é uma data valida',
-      'horario.string' => 'O dado enviado não é valido',
-      'inscricoes.integer' => 'O dado enviado não é valido',
-      'site.integer' => 'O dado enviado não é valido',
-      'num_participantes.integer' => 'O dado enviado não é valido',
-      'carga_horaria.integer' => 'O dado enviado não é valido',
-      'investimento.string' => 'O dado enviado não é valido',
-      'investimento_associado.string' => 'O dado enviado não é valido',
-      'contato.string' => 'O dado enviado não é valido',
-      'contato_email.string' => 'O dado enviado não é valido',
-      'contato_telefone.string' => 'O dado enviado não é valido',
-      'valor_orcamento.string' => 'O dado enviado não é valido',
-      'observacoes.string' => 'O dado enviado não é valido',
-    ]);
+    $agendacurso = AgendaCursos::create($validated);
+    
+    if($request->material){
+      $agendacurso->cursoMateriais()->sync($request->material);
+      unset($validated['material']);
+    } else {
+      $agendacurso->cursoMateriais()->sync([]);
+    }
 
-    $validated['investimento'] = formataMoeda($validated['investimento']) ?? null;
-    $validated['investimento_associado'] = formataMoeda($validated['investimento_associado']) ?? null;
-    $validated['valor_orcamento'] = formataMoeda($validated['valor_orcamento']) ?? null;
-
-    $agenda_curso = AgendaCursos::create($validated);
-
-    if (!$agenda_curso) {
+    if (!$agendacurso) {
       return back()->with('agendamento-error', 'Houve um erro, tente novamente');
     }
 
@@ -135,77 +86,18 @@ class AgendaCursoController extends Controller
    * Atualiza dados de agenda de cursos
    * 
    * @param AgendaCursos $agendacurso
-   * @param Request $request
+   * @param AgendaCursoRequest $request
    * @return RedirectResponse
    */
-  public function update(AgendaCursos $agendacurso, Request $request): RedirectResponse
+  public function update(AgendaCursos $agendacurso, AgendaCursoRequest $request): RedirectResponse
   {
-    $validated = $request->validate([
-      'status' => ['required', Rule::in(['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR'])],
-      'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
-      'destaque' => ['nullable', 'integer'],
-      'tipo_agendamento' => ['required', Rule::in(['ONLINE', 'EVENTO', 'IN-COMPANY'])],
-      'curso_id' => ['required', 'exists:cursos,id'],
-      'instrutor_id' => ['required', 'exists:instrutores,id'],
-      'pessoa_id' => ['nullable', 'exists:pessoas,id'],
-      'endereco_local' => ['nullable', 'string'],
-      'data_inicio' => ['required', 'date'],
-      'data_fim' => ['nullable', 'date'],
-      'validade_proposta' => ['nullable', 'date'],
-      'horario' => ['nullable', 'string'],
-      'inscricoes' => ['nullable', 'integer'],
-      'site' => ['nullable', 'integer'],
-      'num_participantes' => ['nullable', 'integer'],
-      'carga_horaria' => ['nullable', 'integer'],
-      'investimento' => ['nullable', 'string'],
-      'investimento_associado' => ['nullable', 'string'],
-      'observacoes' => ['nullable', 'string'],
-      'contato' => ['nullable', 'string'],
-      'contato_email' => ['nullable', 'string'],
-      'contato_telefone' => ['nullable', 'string'],
-      'valor_orcamento' => ['nullable', 'string'],
+    $validated = $request->validated();
 
-    ], [
-      'status.required' => 'Selecione uma opção válida',
-      'status.in' => 'Selecione uma opção válida',
-      'status_proposta.in' => 'Selecione uma opção válida',
-      'destaque.integer' => 'O dado enviado não é valido',
-      'tipo_agendamento.in' => 'Selecione uma opção válida',
-      'curso_id.required' => 'Selecione uma opção válida',
-      'curso_id.exists' => 'Selecione uma opção válida',
-      'pessoa_id.exists' => 'Selecione uma opção válida',
-      'instrutor_id.required' => 'Selecione uma opção válida',
-      'instrutor_id.in' => 'Instrutor não cadastrado',
-      'endereco_local.string' => 'O dado enviado não é valido',
-      'data_inicio.date' => 'O dado enviado não é uma data valida',
-      'data_fim.date' => 'O dado enviado não é uma data valida',
-      'validade_proposta.date' => 'O dado enviado não é uma data valida',
-      'horario.string' => 'O dado enviado não é valido',
-      'inscricoes.integer' => 'O dado enviado não é valido',
-      'site.integer' => 'O dado enviado não é valido',
-      'num_participantes.integer' => 'O dado enviado não é valido',
-      'carga_horaria.integer' => 'O dado enviado não é valido',
-      'investimento.string' => 'O dado enviado não é valido',
-      'investimento_associado.string' => 'O dado enviado não é valido',
-      'contato.string' => 'O dado enviado não é valido',
-      'contato_email.string' => 'O dado enviado não é valido',
-      'contato_telefone.string' => 'O dado enviado não é valido',
-      'valor_orcamento.string' => 'O dado enviado não é valido',
-      'observacoes.string' => 'O dado enviado não é valido',
-    ]);
-
-    $validated['investimento'] = formataMoeda($validated['investimento']) ?? null;
-    $validated['investimento_associado'] = formataMoeda($validated['investimento_associado']) ?? null;
-    $validated['valor_orcamento'] = formataMoeda($validated['valor_orcamento']) ?? null;
-
-    if (!$request->destaque) {
-      $validated['destaque'] = 0;
-    }
-    if (!$request->site) {
-      $validated['site'] = 0;
-    }
-    if (!$request->inscricoes) {
-      $validated['inscricoes'] = 0;
+    if($request->material){
+      $agendacurso->cursoMateriais()->sync($request->material);
+      unset($validated['material']);
+    } else {
+      $agendacurso->cursoMateriais()->sync([]);
     }
 
     $agendacurso->update($validated);
