@@ -8,7 +8,7 @@
 <body>
 
   <div class="max-w-[800px] mx-auto pt-52 bg-right-top bg-contain bg-no-repeat" 
-    style="background-image: url('http://localhost/build/images/certificados/marcadagua.png')" >
+    style="background-image: url('{{ asset('build/images/certificados/marcadagua.png') }}')" >
     <!-- Certificate Title -->
     <div class="text-center mb-16">
       <h1 class="text-3xl font-semibold mb-8">Certificado</h1>
@@ -41,7 +41,7 @@
 
     <!-- Signature -->
     <div class="text-center mb-16 mx-auto">
-      <img src="http://localhost/build\images\certificados\assinatura.jpg" class="mx-auto">
+      <img src="{{ asset('build/images/certificados/assinatura.jpg') }}" class="mx-auto">
     </div>
 
     <!-- Footer -->
@@ -55,6 +55,30 @@
         +55 51 2200-3988 | contato@redemetrologica.com.br | www.redemetrologica.com.br
       </p>
     </div>
+
+    @pageBreak
+        <!-- Certificate Content -->
+        <div class="space-y-8 mb-16">
+          <div class="text-center">
+            <p class="text-xl font-semibold">"XXXXXXXX"</p>
+          </div>
+    
+          <div class="text-center">
+            <p class="mb-4">Participou do</p>
+            <p class="text-xl font-semibold mb-8">NOME DO CURSO</p>
+          </div>
+    
+          <div class="text-center">
+            <p class="mb-2">Realizado no (s) dia (s):</p>
+            <p class="font-semibold">Data do curso</p>
+          </div>
+        </div>
+    
+        <!-- Location and Date -->
+        <div class="text-center mb-16">
+          <p>Porto Alegre, 09 de janeiro de 2025</p>
+        </div>
+    
   </div>
 </body>
 

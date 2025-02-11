@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Validator;
 use App\Models\Curso;
 use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
+use App\Models\CursoInscrito;
 use App\Models\CursoMaterial;
 use App\Actions\FileUploadAction;
+use Spatie\LaravelPdf\Facades\Pdf;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Support\Facades\File as FileFacade;
+use Illuminate\Support\Facades\Validator;
 
 class CursoController extends Controller
 {
@@ -222,6 +224,19 @@ class CursoController extends Controller
     $material->delete();
 
     return redirect()->back()->with('success', 'Material removido');
+  }
+
+  /**
+   * Gera certificado para visualização
+   *
+   * @param CursoInscrito $inscrito
+   * @return void
+   */
+  public function viewCertificado(CursoInscrito $inscrito){
+    //return view('certificados.certificado');
+    return Pdf::view('certificados.certificado')
+      ->format('a4')
+      ->name('certificado'.$inscrito->uid.'.pdf');
   }
   
   /**

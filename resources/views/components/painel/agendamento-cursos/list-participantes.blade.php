@@ -39,6 +39,11 @@
                                     <li>
                                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
                                     </li>
+                                    @if(auth()->user()->email == 'fgpetter@gmail.com')
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('curso-visualizar-certificado', $inscrito->uid) }}">Certificado</a>
+                                    </li>
+                                    @endif
                                     <li>
                                         <x-painel.form-delete.delete route='cancela-inscricao' id="{{ $inscrito->uid }}" />
                                     </li>
