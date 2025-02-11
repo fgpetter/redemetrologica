@@ -1,5 +1,5 @@
-{{-- modal particpantes --}}
-<div class="modal fade" id="{{ isset($participante) ? 'participanteModal'.$participante->uid : 'participanteModal'}}" tabindex="-1" aria-labelledby="participanteModalLabel" >
+<div class="modal fade" id="{{ 'participanteModal'.$participante->uid }}" 
+  tabindex="-1" aria-labelledby="participanteModalLabel" >
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -62,4 +62,3 @@
     </div>
   </div>
 </div>
-{{-- endmodal --}}

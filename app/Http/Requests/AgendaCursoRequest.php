@@ -100,6 +100,8 @@ class AgendaCursoRequest extends FormRequest
             'errors' => $validator->errors() ?? null,
         ]);
 
-        parent::failedValidation($validator);
+        return back()->with('error', 'Houve um erro a processar os dados, tente novamente')
+            ->withErrors($validator)
+            ->withInput();
     }
 } 

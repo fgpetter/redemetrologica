@@ -9,7 +9,7 @@
     </div>
 
     <div class="table-responsive" style="min-height: 25vh">
-      <table class="table table-responsive table-striped align-middle mb-0">
+      <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
           <tr>
             <th scope="col" style="width: 5%; white-space: nowrap;">Mês/Ano</th>
@@ -18,7 +18,8 @@
             <th scope="col" ></th>
             <th scope="col" style="width: 7%; white-space: nowrap;">Data Inicio</th>
             <th scope="col" style="width: 7%; white-space: nowrap;">Data Fim</th>
-            <th scope="col">Nome do Interlab</th>
+            <th scope="col" >Nome do Interlab</th>
+            <th scope="col" style="width: 5%; white-space: nowrap;">Inscritos</th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
           </tr>
         </thead>
@@ -57,7 +58,8 @@
 
               <td> {{ $agendainterlab->data_fim?->format('d/m/Y') }} </td>
 
-              <td> {{ $agendainterlab->interlab->nome ?? '' }} </td>
+              <td class="text-truncate"> {{ $agendainterlab->interlab->nome ?? '' }} </td>
+              <td class="text-end pe-2"> {{ $agendainterlab->inscritos->count() }} </td>
 
               <td>
                 <div class="dropdown">

@@ -8,6 +8,7 @@ use App\Mail\NovoCadastroInterlabNotification;
 use Illuminate\Http\{Request, RedirectResponse};
 use Illuminate\Support\Facades\{DB, Log, Validator};
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
+use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
 use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco, Laboratorio};
 
 class InscricaoInterlabController extends Controller
@@ -37,73 +38,33 @@ class InscricaoInterlabController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-  public function confirmaInscricao(Request $request): RedirectResponse
+  public function confirmaInscricao(ConfirmaInscricaoInterlabRequest $request): RedirectResponse
   {
-    $request->merge( return_only_nunbers( $request->only('telefone') ) );
+    $validated = $request->validated();
 
-    $validator = Validator::make($request->all(), [
-        "empresa_uid" => ['required', 'exists:pessoas,uid'],
-        "interlab_uid" => ['required', 'exists:agenda_interlabs,uid'],
-        "encerra_cadastro" => ['required', 'integer', 'max:1', 'in:0,1'],
-        "laboratorio" => ['required', 'string', 'max:191'],
-        "responsavel_tecnico" => ['required', 'string', 'max:191'],
-        "telefone" => ['nullable', 'string', 'min:10', 'max:11'],
-        "email" => ['nullable', 'email', 'max:191'],
-        "informacoes_inscricao" => ['nullable', 'string'],
-        "cep" => ['required', 'string'],
-        "endereco" => ['required', 'string'],
-        "complemento" => ['nullable', 'string'],
-        "bairro" => ['nullable', 'string'],
-        "cidade" => ['nullable', 'string'],
-        "uf" => ['required', 'string'],
-      ],[
-        'laboratorio.required' => 'Preencha o campo laboratório',
-        'laboratorio.max' => 'O campo laboratório deve ter no máximo :max caracteres',
-        'responsavel_tecnico.required' => 'Preencha o campo laboratório',
-        'responsavel_tecnico.max' => 'O campo laboratório deve ter no máximo :max caracteres',
-        'telefone.*' => 'O telefone informado é inválido',
-        'email.*' => 'O email informado é inválido',
-        'cep.required' => 'Preencha o campo CEP',
-        'endereco.required' => 'Preencha o campo endereço',
-        'uf.required' => 'Preencha o campo UF',
-    ]);
+    $agenda_interlab = AgendaInterlab::where('uid', $validated['interlab_uid'])->first();
+    $empresa = Pessoa::where( 'uid', $validated['empresa_uid'] )->first();
 
-    if($validator->fails()){
-      Log::channel('validation')->info("Erro de validação", 
-      [
-        'user' => auth()->user() ?? null,
-        'request' => $request->all() ?? null,
-        'uri' => request()->fullUrl() ?? null,
-        'method' => get_class($this) .'::'. __FUNCTION__ ,
-        'errors' => $validator->errors() ?? null,
-      ]);
-
-      return back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
-    }
-
-    $agenda_interlab = AgendaInterlab::where('uid', $request->interlab_uid)->first();
-    $empresa = Pessoa::where( 'uid', $validator->safe()->empresa_uid )->first();
-
-    $inscrito = DB::transaction(function () use ($validator, $empresa, $agenda_interlab) {
+    $inscrito = DB::transaction(function () use ($validated, $empresa, $agenda_interlab) {
 
       $endereco = Endereco::create([
         'pessoa_id' => $empresa->id,
-        'info' => 'Laboratório: '.$validator->safe()->laboratorio,
-        'cep' => $validator->safe()->cep,
-        'endereco' => $validator->safe()->endereco,
-        'complemento' => $validator->safe()->complemento,
-        'bairro' => $validator->safe()->bairro,
-        'cidade' => $validator->safe()->cidade,
-        'uf' => $validator->safe()->uf,
+        'info' => 'Laboratório: '.$validated['laboratorio'],
+        'cep' => $validated['cep'],
+        'endereco' => $validated['endereco'],
+        'complemento' => $validated['complemento'],
+        'bairro' => $validated['bairro'],
+        'cidade' => $validated['cidade'],
+        'uf' => $validated['uf'],
       ]);
   
       $laboratorio = InterlabLaboratorio::create([
         'empresa_id' => $empresa->id,
         'endereco_id' => $endereco->id,
-        'nome' => $validator->safe()->laboratorio,
-        'responsavel_tecnico' => $validator->safe()->responsavel_tecnico,
-        'telefone' => $validator->safe()->telefone,
-        'email' => $validator->safe()->email,
+        'nome' => $validated['laboratorio'],
+        'responsavel_tecnico' => $validated['responsavel_tecnico'],
+        'telefone' => $validated['telefone'],
+        'email' => $validated['email'],
       ]);
   
       $inscrito = InterlabInscrito::create([
@@ -112,30 +73,37 @@ class InscricaoInterlabController extends Controller
         'laboratorio_id' => $laboratorio->id,
         'agenda_interlab_id' => $agenda_interlab->id,
         'data_inscricao' => now(),
-        'informacoes_inscricao' => $validator->safe()->informacoes_inscricao,
+        'valor' => $validated['valor'] ?? null,
+        'informacoes_inscricao' => $validated['informacoes_inscricao'],
       ]);
 
       return $inscrito;
 
     });
 
-    if($inscrito){
-      Mail::to('interlab@redemetrologica.com.br')
-        ->cc('bonus@redemetrologica.com.br')
-        ->cc('sistema@redemetrologica.com.br')
-        ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
-
-      Mail::to($inscrito->pessoa->email)
-        ->cc('sistema@redemetrologica.com.br')
-        ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
+    if(!$inscrito){
+      return back()->with('error', 'Erro ao processar os dados')->withFragment('participantes');
     }
+
+    if( isset($request->valor) && $request->valor > 0) {
+      $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio , $request->valor);
+    }
+
+    Mail::to('interlab@redemetrologica.com.br')
+      ->cc('bonus@redemetrologica.com.br')
+      ->cc('sistema@redemetrologica.com.br')
+      ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
+
+    Mail::to($inscrito->pessoa->email)
+      ->cc('sistema@redemetrologica.com.br')
+      ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
 
     if( $request->encerra_cadastro == 1 ) {
       session()->forget(['interlab', 'empresa', 'convite']);
-      return redirect('painel')->with('success', 'Inscrição realizada com sucesso!');
+      return back()->with('success', 'Inscrição realizada com sucesso!');
 
     } else {
-      return redirect('painel')->with('success', 'Laboratório cadastrado com sucesso!');
+      return back()->with('success', 'Laboratório cadastrado com sucesso!')->withFragment('participantes');
     }
   }
 
@@ -192,7 +160,7 @@ class InscricaoInterlabController extends Controller
           'errors' => $validator->errors() ?? null,
       ]);
 
-      return back()->with('error', 'Dados informados não são válidos')->withErrors($validator);
+      return back()->with('error', 'Dados informados não são válidos')->withErrors($validator)->withFragment('participantes');
     }
 
     // atualiza dados de inscrito
@@ -205,7 +173,7 @@ class InscricaoInterlabController extends Controller
       $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio , $request->valor);
     }
     
-    return back()->with('success', 'Dados salvos com sucesso!');
+    return back()->with('success', 'Dados salvos com sucesso!')->withFragment('participantes');
   }
 
   /**
@@ -217,9 +185,15 @@ class InscricaoInterlabController extends Controller
   public function cancelaInscricao(InterlabInscrito $inscrito)
   {
     $inscrito->delete();
-    return back()->with('success', 'Inscrição cancelada com sucesso!');
+    $this->atualizaFinanceiro($inscrito);
+    return back()->with('success', 'Inscrição cancelada com sucesso!')->withFragment('participantes');
   }
 
+  /**
+   * Reseta todos os dados da sessão e encerra a inscrição
+   *
+   * @return void
+   */
   public function limpaSessao()
   {
     // remove dados da sessão
@@ -259,23 +233,58 @@ class InscricaoInterlabController extends Controller
       ]);
     } else { // se a empresa já possui inscritos nesse interlab, atualiza o valor
 
-      $empresa_participante = InterlabInscrito::where('empresa_id', $empresa->id)
+      $inscricoes_empresa = InterlabInscrito::where('empresa_id', $empresa->id)
         ->where('agenda_interlab_id', $agenda_interlab->id)
+        ->whereNotNull('valor')
         ->with('pessoa')
         ->get();
 
       $observacoes = '';
-      foreach($empresa_participante as $empresa) {
-        $data = Carbon::parse($empresa->data_inscricao)->format('d/m/Y H:i');
-        $observacoes .= "Inscrição de {$laboratorio->nome}, com valor de R$ {$empresa->valor}, em {$data} \n";
+      foreach($inscricoes_empresa as $incricao) {
+        $data = Carbon::parse($incricao->data_inscricao)->format('d/m/Y H:i');
+        $observacoes .= "Inscrição de {$incricao->laboratorio->nome}, com valor de R$ {$incricao->valor}, em {$data} \n";
       }
 
       $lancamento->update([
-        'valor' => $empresa_participante->sum('valor'),
+        'valor' => $inscricoes_empresa->sum('valor'),
         'observacoes' => $observacoes
       ]);
     }
 
   }
+
+  /**
+   * Attualiza lançamento financeiro removendo o valor da inscrição
+   * deletada
+   *
+   * @param InterlabInscrito $inscrito
+   * @return void
+   */
+  private function atualizaFinanceiro(InterlabInscrito $inscrito): void
+  {
+    $lancamento = LancamentoFinanceiro::where('pessoa_id', $inscrito->empresa_id)
+      ->where('agenda_interlab_id', $inscrito->agenda_interlab_id)
+      ->first();
+
+    if( $lancamento ) {
+      $inscricoes_empresa = InterlabInscrito::where('empresa_id', $inscrito->empresa_id)
+        ->where('agenda_interlab_id', $inscrito->agenda_interlab_id)
+        ->whereNotNull('valor')
+        ->with('pessoa')
+        ->get();
+
+      $observacoes = '';
+      foreach($inscricoes_empresa as $incricao) {
+        $data = Carbon::parse($incricao->data_inscricao)->format('d/m/Y H:i');
+        $observacoes .= "Inscrição de {$incricao->laboratorio->nome}, com valor de R$ {$incricao->valor}, em {$data} \n";
+      }
+
+      $lancamento->update([
+        'valor' => $inscricoes_empresa->sum('valor'),
+        'observacoes' => $observacoes
+      ]);
+    }
+  }
+
 
 }

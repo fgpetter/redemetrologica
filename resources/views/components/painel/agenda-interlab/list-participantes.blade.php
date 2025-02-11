@@ -8,6 +8,8 @@
     </ul>
   </div>
 @endif
+
+
 <div class="table-responsive" style="min-height: 180px">
   <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
     @forelse ($interlabempresasinscritas as $empresa)
@@ -36,7 +38,7 @@
                     <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#participanteModal' . $participante->uid }}">Editar</a>
                   </li>
                   <li>
-                    {{-- <x-painel.form-delete.delete route='delete-participante' id="{{ $participante->uid }}" /> --}}
+                    <x-painel.form-delete.delete route='cancela-inscricao-interlab' id="{{ $participante->uid }}" />
                   </li>
                 </ul>
               </div>
@@ -79,5 +81,7 @@
         </tfoot>
       @endif
   </table>
+
+  <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :empresas="$empresas"/>
 
 </div>

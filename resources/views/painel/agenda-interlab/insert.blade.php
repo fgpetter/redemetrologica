@@ -12,6 +12,7 @@
     <div class="row">
         <div class="col-12">
             <x-painel.agenda-interlab.insert 
+                :empresas="$empresas" 
                 :agendainterlab="$agendainterlab" 
                 :interlabs="$interlabs"
                 :materiaisPadrao="$materiaisPadrao"

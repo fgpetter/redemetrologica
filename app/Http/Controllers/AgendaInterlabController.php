@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 use App\Models\InterlabRodadaParametro;
+use App\Models\Pessoa;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -50,6 +51,7 @@ class AgendaInterlabController extends Controller
       ->with(['empresa', 'pessoa', 'laboratorio']);
 
       $data = [
+      'empresas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao'])->where('tipo_pessoa', 'PJ')->orderBy('nome_razao')->get(),
       'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->orderBy('descricao')->get(),
