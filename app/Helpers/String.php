@@ -52,10 +52,10 @@ function isInvalidEmail($email)
 /**
  * Retorna apenas os números de uma string
  *
- * @param array|string $array
+ * @param $data
  * @return string|array|null
  */
-function return_only_nunbers(array|string $data)
+function return_only_nunbers($data)
 {
   if ( is_string($data) ) {
     return preg_replace("/[^0-9]/", "", $data);
