@@ -68,7 +68,7 @@ class InscricaoInterlabController extends Controller
       ]);
   
       $inscrito = InterlabInscrito::create([
-        'pessoa_id' => auth()->user()->pessoa->id,
+        'pessoa_id' => $validated['pessoa_id'] ?? auth()->user()->pessoa->id,
         'empresa_id' => $empresa->id,
         'laboratorio_id' => $laboratorio->id,
         'agenda_interlab_id' => $agenda_interlab->id,

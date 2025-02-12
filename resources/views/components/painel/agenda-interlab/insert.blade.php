@@ -56,7 +56,7 @@
           </div>
   
           <x-painel.agenda-interlab.list-participantes 
-            :empresas="$empresas"
+            :pessoas="$pessoas"
             :agendainterlab="$agendainterlab"
             :intelabinscritos="$intelabinscritos"
             :interlabempresasinscritas="$interlabempresasinscritas" />

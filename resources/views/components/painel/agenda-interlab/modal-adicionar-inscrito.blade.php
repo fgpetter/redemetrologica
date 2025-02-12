@@ -8,7 +8,7 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <form method="POST" action="{{ route('confirma-inscricao-interlab') }}">
+          <form method="POST" action="{{ route('confirma-inscricao-interlab') }}" id="confirma-inscricao-interlab">
             @csrf
             <input type="hidden" name="interlab_uid" value="{{ $agendainterlab->uid }}">
 
@@ -18,11 +18,24 @@
                 <label for="pessoa_id" class="form-label">Empresa para cobrança</label>
                 <select class="form-control" data-choices name="empresa_uid" id="empresa">
                   <option value="">Selecione na lista</option>
-                  @foreach($empresas as $empresa)
+                  @foreach($pessoas->where('tipo_pessoa', 'PJ') as $empresa)
                     <option value="{{ $empresa->uid }}">{{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}</option>
                   @endforeach
                 </select>
               </div>
+              <div class="text-danger d-none" id="invalid-empresa">Selecione uma opção válida</div>
+
+
+              <div class="col-12 my-1">
+                <label for="pessoa_id" class="form-label">Pessoa responsável</label>
+                <select class="form-control" data-choices name="pessoa_id" id="pessoa">
+                  <option value="">Selecione na lista</option>
+                  @foreach($pessoas->where('tipo_pessoa', 'PF') as $empresa)
+                    <option value="{{ $empresa->uid }}">{{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="text-danger d-none" id="invalid-pessoa">Selecione uma opção válida</div>
 
               <div class="col-12 col-xl-6">
                 <x-forms.input-field :value="old('laboratorio') ?? null" name="laboratorio" label="Laboratório" class="mb-2" required/>
@@ -66,7 +79,8 @@
             </div>
             <div class="modal-footer my-2">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-              <button type="submit" class="btn btn-primary">Salvar</button>
+              <button type="button" class="btn btn-primary" id="send-button" >Salvar</button>
+              <button type="submit" class="d-none" id="submit-button"></button>
             </div>
           </form>
 
@@ -76,3 +90,41 @@
     </div>
   </div>
 </div>
+
+@section('script')
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let selectedEmpresa = false
+      let selectedPessoa = false
+      const empresa = document.getElementById('empresa')
+      const pessoa = document.getElementById('pessoa')
+      const form = document.getElementById('confirma-inscricao-interlab')
+      const sendButton = document.getElementById('send-button')
+      const warningDiv = document.getElementsByClassName('invalid-input')
+      const invalidEmpresa = document.getElementById('invalid-empresa')
+      const invalidPessoa = document.getElementById('invalid-pessoa')
+
+      empresa.addEventListener('change', function(){
+        selectedEmpresa = empresa.value
+        invalidEmpresa.classList.add("d-none")
+      })
+      pessoa.addEventListener('change', function(){
+        selectedPessoa = pessoa.value
+        invalidPessoa.classList.add("d-none")
+      })
+
+      sendButton.addEventListener('click', function validFields() {
+        if(selectedEmpresa && selectedPessoa){
+          document.getElementById('submit-button').click()
+        }
+        if(!selectedEmpresa) { invalidEmpresa.classList.remove("d-none") }
+        if(!selectedPessoa) { invalidPessoa.classList.remove("d-none") }
+
+      })
+
+    })
+
+  </script>
+
+@endsection

@@ -23,6 +23,7 @@ class ConfirmaInscricaoInterlabRequest extends FormRequest
   public function rules(): array
   {
     return [
+      "pessoa_id" => ['nullable', 'exists:pessoas,id'],
       "empresa_uid" => ['required', 'exists:pessoas,uid'],
       "interlab_uid" => ['required', 'exists:agenda_interlabs,uid'],
       "encerra_cadastro" => ['nullable', 'integer', 'max:1', 'in:0,1'],
@@ -37,13 +38,14 @@ class ConfirmaInscricaoInterlabRequest extends FormRequest
       "bairro" => ['nullable', 'string'],
       "cidade" => ['nullable', 'string'],
       "uf" => ['required', 'string'],
-      'valor' => ['nullable', 'string'],
+      "valor" => ['nullable', 'string'],
     ];
   }
 
   public function messages(): array
   {
     return [
+      'pessoa_id.exists' => 'Essa pessaoa não existe na base de dados',
       'empresa_uid.required' => 'É necessário informar a empresa',
       'empresa_uid.exists' => 'Empresa não existe na base de dados',
       'laboratorio.required' => 'Preencha o campo laboratório',

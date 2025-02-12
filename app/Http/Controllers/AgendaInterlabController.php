@@ -51,7 +51,7 @@ class AgendaInterlabController extends Controller
       ->with(['empresa', 'pessoa', 'laboratorio']);
 
       $data = [
-      'empresas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao'])->where('tipo_pessoa', 'PJ')->orderBy('nome_razao')->get(),
+      'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get(),
       'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->orderBy('descricao')->get(),
