@@ -70,11 +70,11 @@
     @empty
       <tr> <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td> </tr>
     @endforelse
-      @if($intelabinscritos->sum('valor') > 0)
+      @if($intelabinscritos->count() > 0)
         <tfoot>
           <tr>
-            <td colspan="2"></td>
-            <td><strong>Total do interlab:</strong> {{ $intelabinscritos->sum('valor') }} </td>
+            <td colspan="2"><strong>Qtd Inscritos:</strong> {{ $intelabinscritos->count() }} </td></td>
+            <td><strong>Valor total:</strong> {{ $intelabinscritos->sum('valor') }} </td>
             <td></td>
           </tr>
         </tfoot>

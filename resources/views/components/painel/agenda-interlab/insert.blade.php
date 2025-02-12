@@ -42,7 +42,7 @@
       </div>
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
-        <div class="col-sm-8">
+        <div class="col-12">
           <div class="row px-1 align-items-between">
             <div class="col">
               <h5 class="h5 mt-3">Inscritos</h5>
