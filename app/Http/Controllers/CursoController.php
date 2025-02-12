@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Support\Facades\File as FileFacade;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Browsershot\Browsershot;
 
 class CursoController extends Controller
 {
@@ -233,8 +234,10 @@ class CursoController extends Controller
    * @return void
    */
   public function viewCertificado(CursoInscrito $inscrito){
-    //return view('certificados.certificado');
     return Pdf::view('certificados.certificado')
+      ->withBrowsershot(function (Browsershot $browsershot) {
+        $browsershot->setChromePath('/var/www/.cache/puppeteer/chrome/linux-133.0.6943.53/chrome-linux64/chrome');
+      })
       ->format('a4')
       ->name('certificado'.$inscrito->uid.'.pdf');
   }
