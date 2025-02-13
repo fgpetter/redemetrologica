@@ -33,7 +33,7 @@
           <td>{{ $inscrito->laboratorio->endereco->cep }}</td>
           <td>{{ $inscrito->laboratorio->endereco->bairro }}</td>
           <td>{{ $inscrito->laboratorio->endereco->cidade }}</td>
-          <td>{{ $inscrito->laboratorio->endereco->estado }}</td>
+          <td>{{ $inscrito->laboratorio->endereco->uf }}</td>
           <td>{{ $inscrito->laboratorio->responsavel_tecnico }}</td>
           <td>{{ $inscrito->laboratorio->email }}</td>
           <td>{{ $inscrito->laboratorio->telefone }}</td>
