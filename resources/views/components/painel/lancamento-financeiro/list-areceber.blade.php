@@ -27,9 +27,9 @@
         <div class="col-2">
           <x-forms.input-select name="area" label="Área" tooltip="Ao selecionar um curso ou PEP esse campo será desconsiderado">
             <option value=""> - </option>
-            <option value="CURSO">CURSO</option>
-            <option value="PEP">PEP</option>
-            <option value="AVALIACAO">AVALIAÇÃO</option>
+            <option @selected( isset( $_GET['area'] ) && $_GET['area'] == 'CURSO' ) value="CURSO">CURSO</option>
+            <option @selected( isset( $_GET['area'] ) && $_GET['area'] == 'PEP' ) value="PEP">PEP</option>
+            <option @selected( isset( $_GET['area'] ) && $_GET['area'] == 'AVALIACAO' ) value="AVALIACAO">AVALIAÇÃO</option>
           </x-forms.input-select>
         </div>
       </div>

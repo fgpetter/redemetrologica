@@ -85,23 +85,23 @@ class LancamentoFinanceiro extends Model
     {
         return self::select()
         ->with( ['pessoa' => fn($query) => $query->withTrashed()] )
-        ->with('curso')
+        ->with(['curso', 'interlab', 'avaliacao'])
         ->where('status', 'PROVISIONADO')
         ->where('tipo_lancamento', 'CREDITO')
-        ->where(function ($query) {
-          $query->whereNull('agenda_curso_id') // seleciona todos lancamentos que nao possuem agenda
-            ->orWhere(function ($query) {
-              $query->whereNotNull('agenda_curso_id') // se possui agenda
-                ->whereHas('curso', function ($query) {
-                  $query->whereIn('status', ['CONFIRMADO', 'REALIZADO']); // seleciona somente os confirmados ou realizados
-                });
-            });
-        })
+        // ->where(function ($query) {
+        //   $query->whereNull('agenda_curso_id') // seleciona todos lancamentos que nao possuem agenda
+        //     ->orWhere(function ($query) {
+        //       $query->whereNotNull('agenda_curso_id') // se possui agenda
+        //         ->whereHas('curso', function ($query) {
+        //           $query->whereIn('status', ['CONFIRMADO', 'REALIZADO']); // seleciona somente os confirmados ou realizados
+        //         });
+        //     });
+        // })
         ->when($validated['data_inicial'] ?? null, function (Builder $query, $data_inicial) {
-          $query->where('data_emissao', '>=', $data_inicial);
+          $query->where('data_vencimento', '>=', $data_inicial);
         })
         ->when($validated['data_final'] ?? null, function (Builder $query, $data_final) {
-          $query->where('data_emissao', '<=', $data_final);
+          $query->where('data_vencimento', '<=', $data_final);
         })
         ->when($validated['pessoa'] ?? null, function (Builder $query, $pessoa) {
           $query->where('pessoa_id', $pessoa);
@@ -129,12 +129,19 @@ class LancamentoFinanceiro extends Model
         ->with(['pessoa' => function ($query) {
           $query->withTrashed();
         }])
+
         ->when($validated['data_inicial'] ?? null, function (Builder $query, $data_inicial) {
-          $query->where('data_emissao', '>=', $data_inicial);
+          $query->where('data_vencimento', '>=', $data_inicial);
+        }, function(Builder $query){ 
+          $query->where('data_vencimento', '>=', today()); // default
         })
+
         ->when($validated['data_final'] ?? null, function (Builder $query, $data_final) {
-          $query->where('data_emissao', '<=', $data_final);
+          $query->where('data_vencimento', '<=', $data_final);
+        }, function(Builder $query){
+          $query->where('data_vencimento', '<=', $validated['data_final'] ?? today()->addDays(7)); // default
         })
+        
         ->when($validated['pessoa'] ?? null, function (Builder $query, $pessoa) {
           $query->where('pessoa_id', $pessoa);
         });

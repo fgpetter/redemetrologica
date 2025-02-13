@@ -48,16 +48,17 @@
             @endif
             @foreach ($pessoas as $pessoa)
             <option @selected( old('pessoa_id') == $pessoa->id ) value="{{ $pessoa->id }}">
-              {{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}
+              {{ $pessoa->cpf_cnpj }} - {{ Str::limit($pessoa->nome_razao, 50, '...') }}
             </option>
             @endforeach
           </select>
+          <div class="text-danger d-none" id="invalid-pessoa">Selecione uma opção válida</div>
           @error('pessoa_id')<div class="text-warning">{{ $message }}</div>@enderror
         </div>
 
         <div class="col-3">
           <label class="form-label">Centro Custo <span class="text-danger">*</span></label>
-          <select class="form-select" name="centro_custo_id">
+          <select class="form-select" name="centro_custo_id" required>
             <option value=""> - </option>
             @foreach ($centrosdecusto as $centrodecusto)
             <option @selected($lancamento->centro_custo_id == $centrodecusto->id) value="{{ $centrodecusto->id }}">
@@ -78,9 +79,8 @@
               {{ $planoconta->descricao }}</option>
             @endforeach
           </select>
-          @error('plano_conta_id')
-          <div class="text-warning">{{ $message }}</div>
-          @enderror
+          <div class="text-danger d-none" id="invalid-plano-conta">Selecione uma opção válida</div>
+          @error('plano_conta_id') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 
         <div class="col-8">
@@ -94,8 +94,8 @@
         <div class="col-3">
           <label class="form-label">Tipo</label>
           <select class="form-select" name="tipo_lancamento">
-            <option value="CREDITO"> CRÉDITO </option>
-            <option value="DEBITO"> DEBITO </option>
+            <option @selected( old('tipo_lancamento') ?? $lancamento?->tipo_lancamento == "CREDITO" ) value="CREDITO"> CRÉDITO </option>
+            <option @selected( old('tipo_lancamento') ?? $lancamento?->tipo_lancamento == "DEBITO" ) value="DEBITO"> DÉBITO </option>
           </select>
           @error('tipo_lancamento')
           <div class="text-warning">{{ $message }}</div>
@@ -110,7 +110,8 @@
               CPF ou CNPJ: {{ $lancamento->pessoa->cpf_cnpj }} <br>
               @if($lancamento->pessoa->enderecos->first())
               Endereço: {{$enderecocobranca->endereco }}, 
-              {{$enderecocobranca->complemento }} - {{$enderecocobranca->cidade }} / {{$enderecocobranca->uf }} - CEP: {{$enderecocobranca->cep }}
+              {{$enderecocobranca->complemento }} - {{$enderecocobranca->cidade }} / {{$enderecocobranca->uf }} - CEP: {{$enderecocobranca->cep }} <br>
+              E-mail: {{ $lancamento->pessoa->email }}
               @endif
               <div class="text-end">
                 <a href="{{ route('pessoa-insert', $lancamento->pessoa->uid) }}" class="link-primary fw-medium">
@@ -133,11 +134,9 @@
         </div>
 
         <div class="col-2">
-          <label class="form-label">Vencimento</label>
-          <input type="date" class="form-control" name="data_vencimento" value="{{ old('data_vencimento') ?? ($lancamento->data_vencimento ?? null) }}">
-          @error('data_vencimento')
-          <div class="text-warning">{{ $message }}</div>
-          @enderror
+          <label class="form-label">Vencimento <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" name="data_vencimento" value="{{ old('data_vencimento') ?? ($lancamento->data_vencimento ?? null) }}" required>
+          @error('data_vencimento') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 
         <div class="col-2">
@@ -173,7 +172,8 @@
         </div>
 
         <div class="col-12">
-          <button type="submit" class="btn btn-primary px-4">{{ $lancamento->id ? 'Atualizar' : 'Salvar' }}</button>
+          <button type="button" id="send-button" class="btn btn-primary px-4">{{ $lancamento->id ? 'Atualizar' : 'Salvar' }}</button>
+          <button type="submit" id="submit-button" class="d-none"></button>
         </div>
       </div>
     </form>

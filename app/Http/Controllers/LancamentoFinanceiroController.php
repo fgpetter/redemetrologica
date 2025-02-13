@@ -29,7 +29,7 @@ class LancamentoFinanceiroController extends Controller
     ]);
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)
-      ->orderBy('data_emissao', 'desc')
+      ->orderBy('data_vencimento')
       ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
@@ -64,7 +64,6 @@ class LancamentoFinanceiroController extends Controller
         'valor' => ['nullable', 'string' ,'max:11'],
         'data_vencimento' => ['nullable', 'date'],
         'data_pagamento' => ['nullable', 'date'],
-        'status' => ['required', 'in:EFETIVADO,PROVISIONADO'],
         'modalidade_pagamento_id' => ['nullable', 'exists:modalidade_pagamentos,id'],
         'observacoes' => ['nullable', 'string'],
       ],[
@@ -88,8 +87,6 @@ class LancamentoFinanceiroController extends Controller
         'valor.numeric' => 'O valor deve ser um número válido',
         'data_vencimento.date' => 'A data de vencimento deve ser uma data válida',
         'data_pagamento.date' => 'A data de pagamento deve ser uma data válida',
-        'status.required' => 'É necessário selecionar um status',
-        'status.in' => 'O status selecionado é inválido',
         'modalidade_pagamento_id.exists' => 'A modalidade de pagamento selecionada não existe no sistema',
         'observacoes.string' => 'As observações informadas são inválidas',
         'observacoes.max' => 'Máximo de caracteres excedido'
@@ -112,6 +109,7 @@ class LancamentoFinanceiroController extends Controller
 
     $prepared_data = array_merge($validator->validate(),[
       'valor' => formataMoeda($request->valor ),
+      'status' => $request->data_pagamento ? 'EFETIVADO' : 'PROVISIONADO'
     ]);
 
     $lancamento_financeiro = LancamentoFinanceiro::create($prepared_data);
@@ -175,7 +173,6 @@ class LancamentoFinanceiroController extends Controller
         'valor' => ['nullable', 'string'],
         'data_vencimento' => ['nullable', 'date'],
         'data_pagamento' => ['nullable', 'date'],
-        'status' => ['required', 'in:EFETIVADO,PROVISIONADO'],
         'modalidade_pagamento_id' => ['nullable', 'exists:modalidade_pagamentos,id'],
         'observacoes' => ['nullable', 'string'],
       ],[
@@ -195,8 +192,6 @@ class LancamentoFinanceiroController extends Controller
         'valor.numeric' => 'O valor deve ser um número válido',
         'data_vencimento.date' => 'A data de vencimento deve ser uma data válida',
         'data_pagamento.date' => 'A data de pagamento deve ser uma data válida',
-        'status.required' => 'É necessário selecionar um status',
-        'status.in' => 'O status selecionado é inválido',
         'modalidade_pagamento_id.exists' => 'A modalidade de pagamento selecionada não existe no sistema',
         'observacoes.string' => 'As observações informadas são inválidas',
         'nota_fiscal.max' => 'Máximo de caracteres excedido',
@@ -223,6 +218,7 @@ class LancamentoFinanceiroController extends Controller
 
     $prepared_data = array_merge($validator->validate(),[
       'valor' => formataMoeda($request->valor ),
+      'status' => $request->data_pagamento ? 'EFETIVADO' : 'PROVISIONADO'
     ]);
 
     $lancamento->update($prepared_data);
@@ -271,8 +267,8 @@ class LancamentoFinanceiroController extends Controller
     }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosAReceber($validated)
-      ->orderBy('data_emissao', 'desc')
-      ->paginate(15);
+      ->orderBy('data_vencimento')
+      ->paginate(10);
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
