@@ -43,15 +43,20 @@
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
         <div class="col-12">
-          <div class="row px-1 align-items-between">
+          <div class="row px-1 py-2 align-items-center">
             <div class="col">
               <h5 class="h5 mt-3">Inscritos</h5>
             </div>
-            <div class="col">
-              <a href="#" class="btn btn-sm btn-success float-end" data-bs-toggle="modal"
+            <div class="col d-flex justify-content-end gap-2">
+              <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
                 data-bs-target="#adicionaParticipanteModal">
-                <i class="ri-add-line align-bottom me-1"></i> Adicionar Laboratório
+                <i class="ri-add-line align-bottom"></i> Adicionar Laboratório
               </a>
+              @if($agendainterlab->inscritos->count() > 0)
+                <a href="{{ route('interlab-relatorio-inscritos', $agendainterlab->uid )}}" class="btn btn-sm btn-primary" >
+                  <i class="ri-file-excel-line align-bottom"></i> Baixar XLS
+                </a>
+              @endif
             </div>
           </div>
   

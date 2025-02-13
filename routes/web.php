@@ -281,7 +281,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     /* RodadascursoInscricao */
     Route::post('salva-rodada', [AgendaInterlabController::class, 'salvaRodada'])->name('salvar-rodada');
     Route::post('delete-rodada/{rodada:uid}', [AgendaInterlabController::class, 'deleteRodada'])->name('delete-rodada');
-
+    
+    Route::get('export/{agendainterlab:uid}', [AgendaInterlabController::class, 'exportLaboratoriosToXLS'])->name('interlab-relatorio-inscritos');
   });
 
   /* Inscricao em interlaboratoriais */

@@ -20,6 +20,8 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\InterlabRodadaParametro;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\Validator;
+use App\Exports\LabExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class AgendaInterlabController extends Controller
@@ -346,7 +348,7 @@ class AgendaInterlabController extends Controller
   }
 
   /**
-   * Salva rodada
+   * Adiciona rodadas no agendamento de PEP
    *
    * @param Request $request
    * @return RedirectResponse
@@ -423,6 +425,12 @@ class AgendaInterlabController extends Controller
     return back()->with('warning', 'Rodada removida')->withFragment('rodadas');
   }
 
+  /**
+   * Adiciona parametros no agendamento de PEP
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   */
   public function salvaParametro(Request $request): RedirectResponse 
   {
     
@@ -465,6 +473,13 @@ class AgendaInterlabController extends Controller
     return back()->with('success', 'Parâmetro salvo com sucesso')->withFragment('despesas');
   }
 
+  /**
+   * Remove parametros
+   *
+   * @param InterlabParametro $parametro
+   * @param Request $request
+   * @return RedirectResponse
+   */
   public function deleteParametro(InterlabParametro $parametro, Request $request): RedirectResponse 
   {
 
@@ -554,6 +569,17 @@ class AgendaInterlabController extends Controller
     $agendainterlab->load('interlab');
 
     return view('site.pages.single-interlaboratorial', compact('agendainterlab'));
+  }
+
+  /**
+   * Gera XLSX com dados dos laboratórios inscritos
+   *
+   * @param AgendaInterlab $agendainterlab
+   * @return void
+   */
+  public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab)
+  {
+    return Excel::download(new LabExport($agendainterlab), 'inscritos-interlab-ID'.$agendainterlab->id.'.xlsx');
   }
 
 }
