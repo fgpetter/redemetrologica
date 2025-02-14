@@ -23,7 +23,11 @@ class AgendaCursoController extends Controller
   public function index(): View
   {
     $data = [
-      'agenda_cursos' => AgendaCursos::with('inscritos')->orderBy('data_inicio')->get()
+      'agenda_cursos' => AgendaCursos::with('curso', 'inscritos')
+        ->orderBy(Curso::select('descricao')
+        ->whereColumn('agenda_cursos.curso_id', 'cursos.id')
+        )
+        ->get()
     ];
     return view('painel.agendamento-cursos.index', $data);
   }
@@ -140,9 +144,8 @@ class AgendaCursoController extends Controller
     return view('site.pages.cursos', ['agendacursos' => $agendacursos]);
   }
 
-
   /**
-   * mostra pagina da slug de cursos agendados
+   * Gera pagina single de curso agendado
    *
    * @return View
    **/
@@ -188,7 +191,7 @@ class AgendaCursoController extends Controller
       'total' => $request->total,
     ]);
 
-    return back()->with('success', 'Despesa salva com sucesso');
+    return back()->with('success', 'Despesa salva com sucesso')->withFragment('despesas');
   }
 
   /**

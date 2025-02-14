@@ -216,7 +216,7 @@ class InscricaoCursoController extends Controller
 
       $this->atualizaFinanceiro($inscrito);
 
-      return back()->with('success', 'Inscrito atualizado com sucesso');
+      return back()->with('success', 'Inscrito atualizado com sucesso')->withFragment('participantes');
     }
 
     $validator = Validator::make($request->all(), [
@@ -275,7 +275,7 @@ class InscricaoCursoController extends Controller
 
     $this->adicionaLancamentoFinanceiro($agendacurso, $inscrito, $empresa, false, $request->valor);
 
-    return back()->with('success', 'Inscrito adicionado com sucesso');
+    return back()->with('success', 'Inscrito adicionado com sucesso')->withFragment('participantes');
   }
 
   /**
