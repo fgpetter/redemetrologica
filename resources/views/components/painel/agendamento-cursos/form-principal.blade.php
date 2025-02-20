@@ -207,7 +207,8 @@
           <div class="row">
             @forelse ($agendacurso->curso->materiais as $material)
               <div class="form-check mb-2">
-                <input class="form-check-input" name="material[]" value="{{ $material->id }}" type="checkbox" id="{{ $material->uid }}">
+                <input class="form-check-input" name="material[]" value="{{ $material->id }}" type="checkbox" id="{{ $material->uid }}"
+                  @checked( $agendacurso->cursoMateriais->contains( $material ) ) >
                 <label class="form-check-label d-inline-flex align-items-center" for="{{ $material->uid }}">
                   {!! ($material->descricao) ? $material->descricao . '&nbsp; <i class="ph-arrow-right fs-5"></i> &nbsp;' : '' !!}
                   {{ $material->arquivo }}
