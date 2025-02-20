@@ -74,34 +74,4 @@
       @endforeach
     </div>
   </div>
-
-  <!-- helper modal -->
-  <div class="modal fade" id="cursosHelper" tabindex="-1" aria-labelledby="cursosHelperLabel" aria-modal="true">
-    <div class="modal-dialog modal-dialog-right">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="cursosHelperLabel">Estamos atualizando nosso sistema</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>Estamos em processo de atualização de nosso sistema. <br>
-            A agenda de cursos está sendo atualizado e em breve estará completamente disponível. <br><br>
-            Caso o curso que você procura não esteja listado, solicite informações através do e-mail:
-            <a href="mailto:contato@redemetrologica.com.br">contato@redemetrologica.com.br</a>
-          </p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="localStorage.setItem('cursosHelper', 'false')">Não mostrar novamente</button>
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('cursosHelper') !== 'false') { new bootstrap.Modal('#cursosHelper').show(); }
-  });
-  </script>
-
 @endsection
