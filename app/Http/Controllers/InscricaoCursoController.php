@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Imports\CursoInscritoImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\ConfirmaInscricaoRequest;
 use Illuminate\Http\{Request, RedirectResponse};
@@ -333,6 +335,12 @@ class InscricaoCursoController extends Controller
       'data_inscricao' => now(),
     ]);
 
+  }
+
+  public function adicionaInscritosPorLista(AgendaCursos $agendacurso, Request $request)
+  {
+    Excel::import(new CursoInscritoImport($agendacurso), $request->file('arquivo'));
+    return back()->with('success', 'Inscrição cancelada com sucesso!')->withFragment('participantes');
   }
 
   /**

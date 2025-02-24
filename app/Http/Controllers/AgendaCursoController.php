@@ -23,11 +23,13 @@ class AgendaCursoController extends Controller
   public function index(): View
   {
     $data = [
-      'agenda_cursos' => AgendaCursos::with('curso', 'inscritos')
+      'agendacursos' => AgendaCursos::with('curso', 'inscritos')
+        ->whereNot('tipo_agendamento', 'IN-COMPANY')
         ->orderBy(Curso::select('descricao')
         ->whereColumn('agenda_cursos.curso_id', 'cursos.id')
         )
-        ->get()
+        ->get(),
+        'tipoagenda' => 'ABERTO'
     ];
     return view('painel.agendamento-cursos.index', $data);
   }
@@ -53,7 +55,8 @@ class AgendaCursoController extends Controller
       'inscritos' => $agendacurso->inscritos()->with('pessoa')->get(),
       'despesas' => $agendacurso->despesas()->with('materialPadrao:id,descricao')->get(),
       'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
-      'agendacurso' => $agendacurso
+      'agendacurso' => $agendacurso,
+      'tipoagenda' => 'ABERTO'
     ];
 
     return view('painel.agendamento-cursos.insert', $data);

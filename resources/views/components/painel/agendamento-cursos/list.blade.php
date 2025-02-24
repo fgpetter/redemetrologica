@@ -2,7 +2,8 @@
   <div class="card-body">
     <div class="row">
       <div class="col-12 d-flex justify-content-end mb-3">
-        <a href="{{ route('agendamento-curso-insert') }}" class="btn btn-sm btn-success">
+        <a href="{{ ($tipoagenda == 'IN-COMPANY') ? route('agendamento-curso-in-company-insert') : route('agendamento-curso-insert') }}" 
+          class="btn btn-sm btn-success">
           <i class="ri-add-line align-bottom me-1"></i> Adicionar Agendamento de curso
         </a>
       </div>
@@ -30,7 +31,12 @@
               <th class="text-uppercase">
                 {{ Carbon\Carbon::parse($agendacurso->data_inicio)->locale('pt-BR')->translatedFormat('F') }}
               </th>
-              <td class="text-center"> <a href="{{ route('agendamento-curso-insert', $agendacurso->uid) }}"># {{ $agendacurso->id }}</a> </td>
+              <td class="text-center">
+                <a href="{{ ($tipoagenda == 'IN-COMPANY') 
+                  ? route('agendamento-curso-in-company-insert', $agendacurso->uid) 
+                  : route('agendamento-curso-insert', $agendacurso->uid) }}">
+                  # {{ $agendacurso->id }}</a> 
+                </td>
               <td
                 @if ($agendacurso->status == 'CONFIRMADO') class="text-success fw-bold"
                 @elseif ($agendacurso->status == 'REAGENDAR') class="text-primary fw-bold"
@@ -67,7 +73,10 @@
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                     <li><a class="dropdown-item"
-                        href="{{ route('agendamento-curso-insert', $agendacurso->uid) }}">Editar</a>
+                        href="{{ ($tipoagenda == 'IN-COMPANY') 
+                            ? route('agendamento-curso-in-company-insert', $agendacurso->uid) 
+                            : route('agendamento-curso-insert', $agendacurso->uid) }}">
+                        Editar</a>
                     </li>
                     <li>
 

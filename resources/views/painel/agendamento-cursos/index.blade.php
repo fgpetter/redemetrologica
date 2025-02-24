@@ -9,7 +9,7 @@
 
     <div class="row">
         <div class="col">
-            <x-painel.agendamento-cursos.list :agendacursos="$agenda_cursos"/>
+            <x-painel.agendamento-cursos.list :agendacursos="$agendacursos" :tipoagenda="$tipoagenda" />
         </div>
     </div>
 @endsection

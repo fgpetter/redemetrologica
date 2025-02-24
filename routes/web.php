@@ -30,7 +30,8 @@ use App\Http\Controllers\{
   ModalidadePagamentoController,
   LancamentoFinanceiroController,
   HomeController,
-  PainelController
+  PainelController,
+  AgendaCursoInCompanyController
 };
 use App\Http\Controllers\Auth\ForgotPasswordController;
 
@@ -165,6 +166,14 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('curso-delete-despesa');
   });
 
+  /* Agendamento de cursos in-company */
+  Route::group(['prefix' => 'agendamento-curso-in-company', 'middleware' => 'permission:funcionario,admin'], function () {
+    Route::get('index', [AgendaCursoInCompanyController::class, 'index'])->name('agendamento-curso-in-company-index');
+    Route::get('insert/{agendacurso:uid?}', [AgendaCursoInCompanyController::class, 'insert'])->name('agendamento-curso-in-company-insert');
+    Route::post('create', [AgendaCursoInCompanyController::class, 'create'])->name('agendamento-curso-in-company-create');
+    Route::post('update/{agendacurso:uid}', [AgendaCursoInCompanyController::class, 'update'])->name('agendamento-curso-in-company-update');
+  });
+  
   /* Matricula em cursos */
   Route::group(['prefix' => 'inscricao-curso'], function () {
     Route::post('confirmacao', [InscricaoCursoController::class, 'confirmaInscricao'])->name('confirma-inscricao');
@@ -173,6 +182,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
     Route::post('salvar-inscrito/{inscrito:uid?}', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
     Route::get('conclui-inscricao', [InscricaoCursoController::class, 'concluiInscricao'])->name('conclui-inscricao');
+    Route::post('envia-lista-inscritos/{agendacurso:uid}', [InscricaoCursoController::class, 'adicionaInscritosPorLista'])->name('envia-lista-inscritos');
   });
 
   /* Instrutores*/

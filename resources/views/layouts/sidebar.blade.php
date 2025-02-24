@@ -149,7 +149,7 @@
             aria-controls="sidebarCursos">
             <i class="ph-books-thin"></i> <span>CURSOS</span> 
           </a>
-          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso']) ? 'show' : '' }}"
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/curso', 'painel/agendamento-curso', 'painel/agendamento-curso-in-company']) ? 'show' : '' }}"
             id="sidebarCursos">
             <ul class="nav nav-sm flex-column">
             <li class="nav-item">
@@ -165,6 +165,13 @@
                 role="button" data-key="t-signin">
                 Agendamento de Cursos
               </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('agendamento-curso-in-company-index') }}"
+                  class="nav-link {{ request()->is('painel/agendamento-curso-in-company/*') ? 'active' : '' }}"
+                  role="button" data-key="t-signin" style="white-space: nowrap;">
+                  Agendamento In-Company
+                </a>
               </li>
             </ul>
           </div>

@@ -29,13 +29,25 @@
     <div class="tab-content">
 
       <div class="tab-pane active" id="principal" role="tabpanel"> <!-- Principal -->
-        <x-painel.agendamento-cursos.form-principal 
+        @if($tipoagenda == 'IN-COMPANY')
+          <x-painel.agendamento-cursos.form-principal-in-company
           :instrutores="$instrutores" 
           :cursos="$cursos" 
           :empresas="$empresas"
           :agendacurso="$agendacurso" 
           :cursoatual="$cursoatual" 
-          :instrutoratual="$instrutoratual"/>
+          :instrutoratual="$instrutoratual" />
+        @endif
+
+        @if($tipoagenda == 'ABERTO')
+          <x-painel.agendamento-cursos.form-principal 
+            :instrutores="$instrutores" 
+            :cursos="$cursos" 
+            :empresas="$empresas"
+            :agendacurso="$agendacurso" 
+            :cursoatual="$cursoatual" 
+            :instrutoratual="$instrutoratual" />
+        @endif
       </div>
 
       <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
@@ -43,22 +55,34 @@
           <div class="col">
             <h5 class="h5 mt-3">Inscritos</h5>
           </div>
-          <div class="col">
-            <a href="#" class="btn btn-sm btn-success float-end" data-bs-toggle="modal"
+          <div class="col d-flex justify-content-end align-items-center gap-1">
+            <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
               data-bs-target="#adicionaInscritoModal">
-              <i class="ri-add-line align-bottom me-1"></i> Adicionar inscrito
+              <i class="ri-add-line align-bottom"></i> Adicionar inscrito
             </a>
+
+            @if( $agendacurso?->tipo_agendamento == 'IN-COMPANY' )
+            <span data-bs-toggle="tooltip" data-bs-html="true" 
+              title="Somente se já tiver empresa atrelada ao curso In-Company">
+              <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                data-bs-target="#enviaXLSModal">
+                <i class="ri-file-excel-line align-bottom" sty></i> Adicionar por lista
+              </a>
+            </span>
+            @endif
+
           </div>
         </div>
         <x-painel.agendamento-cursos.list-participantes :inscritos="$inscritos" />
+
         <x-painel.agendamento-cursos.modal-insere-participante 
           :agendacurso="$agendacurso" 
           :empresas="$empresas" 
           :pessoas="$pessoas"/>
-      
 
-        <h5 class="h5 mt-5">Empresas participantes</h5>
-        <x-painel.agendamento-cursos.list-empresas-participantes :inscritos="$inscritos" />
+        @if($agendacurso?->tipo_agendamento == 'IN-COMPANY' && $agendacurso?->empresa_id )
+          <x-painel.agendamento-cursos.modal-upload-xls :agendacurso="$agendacurso"/>
+        @endif
       </div>
 
       <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->

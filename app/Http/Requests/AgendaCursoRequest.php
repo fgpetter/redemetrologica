@@ -17,6 +17,7 @@ class AgendaCursoRequest extends FormRequest
             'destaque' => $this->destaque ?: 0,
             'site' => $this->site ?: 0,
             'inscricoes' => $this->inscricoes ?: 0,
+            'status' => ($this->status_proposta == 'APROVADA' ) ? 'CONFIRMADO' : 'AGENDADO'
         ]);
     }
 
@@ -29,7 +30,6 @@ class AgendaCursoRequest extends FormRequest
     {
         return [
             'status' => ['required', Rule::in(['AGENDADO', 'CANCELADO', 'CONFIRMADO', 'REALIZADO', 'PROPOSTA ENVIADA', 'REAGENDAR'])],
-            'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
             'destaque' => ['nullable', 'integer'],
             'tipo_agendamento' => ['required', Rule::in(['ONLINE', 'EVENTO', 'IN-COMPANY'])],
             'curso_id' => ['required', 'exists:cursos,id'],
@@ -39,7 +39,6 @@ class AgendaCursoRequest extends FormRequest
             'endereco_local' => ['nullable', 'string'],
             'data_inicio' => ['required', 'date'],
             'data_fim' => ['nullable', 'date'],
-            'validade_proposta' => ['nullable', 'date'],
             'horario' => ['nullable', 'string'],
             'inscricoes' => ['nullable', 'integer'],
             'site' => ['nullable', 'integer'],
@@ -51,7 +50,9 @@ class AgendaCursoRequest extends FormRequest
             'contato' => ['nullable', 'string'],
             'contato_email' => ['nullable', 'string'],
             'contato_telefone' => ['nullable', 'string'],
+            'validade_proposta' => ['nullable', 'date'],
             'valor_orcamento' => ['nullable', 'string'],
+            'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
             'material' => ['nullable', 'array'],
             'material.*' => ['integer', 'exists:curso_materiais,id'],
         ];

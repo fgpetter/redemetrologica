@@ -21,6 +21,7 @@
             :instrutoratual="$instrutor_atual"
             :despesas="$despesas"
             :materiaispadrao="$materiaispadrao"
+            :tipoagenda="$tipoagenda"
             />
         </div>
     </div>
