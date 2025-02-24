@@ -10,6 +10,41 @@
 
   @if( auth()->user()->pessoa )
 
+    {{-- Habilita impersonamento --}}
+    @canany(['admin','funcionario'])
+      <div class="card mb-4">
+        <div class="card-body">
+          <strong>Selecione um usuário para assumir a visão de cliente:</strong>
+          <form action="{{ route('impersonate') }}" method="POST" class="d-flex align-items-center gap-2">
+            @csrf
+            <select name="user_id" class="form-select" style="max-width: 300px;">
+              <option value="">Selecione um usuário para impersonar</option>
+              @foreach(App\Models\User::whereHas('permissions', fn($q) => $q->where('permission', 'cliente'))
+                ->select('id', 'name', 'email')->get() as $user)
+                <option value="{{ $user->id }}">
+                  {{ $user->name .' - '. $user->email }}
+                </option>
+              @endforeach
+            </select>
+            <button type="submit" class="btn btn-primary">
+              Impersonar
+            </button>
+          </form>
+        </div>
+      </div>
+    @endcanany
+      @if(session('impersonator_id'))
+        <div class="alert alert-warning">
+          <form action="{{ route('impersonate-stop') }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-warning btn-sm">
+              Parar Impersonação
+            </button>
+          </form>
+        </div>
+      @endif
+
+
     @if(auth()->user()->pessoa->funcionario)
       {{-- carega componentes referentes ao funcionário e área --}}
       Painel de funcionários
@@ -63,7 +98,4 @@
 
   @endif
 
-@endsection
-
-@section('script')
 @endsection

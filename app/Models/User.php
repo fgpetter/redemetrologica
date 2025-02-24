@@ -57,6 +57,13 @@ class User extends Authenticatable
         ->logOnly(['*'])
         ->dontLogIfAttributesChangedOnly(['remember_token'])
         ->useLogName('Usuários');
+
+        if (session('impersonator_id')) {
+            $impersonator = User::find(session('impersonator_id'));
+            $options->setDescriptionForEvent(function(string $eventName) use ($impersonator) {
+                return "{$eventName} impersonated by {$impersonator->name}";
+            });
+        }
     }
 
 

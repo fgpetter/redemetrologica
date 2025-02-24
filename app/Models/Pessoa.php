@@ -30,6 +30,14 @@ class Pessoa extends Model
         return LogOptions::defaults()
         ->logOnly(['*'])
         ->useLogName( get_class($this) );
+
+        if (session('impersonator_id')) {
+            $impersonator = User::find(session('impersonator_id'));
+            $options->setDescriptionForEvent(function(string $eventName) use ($impersonator) {
+                return "{$eventName} impersonated by {$impersonator->name}";
+            });
+        }
+
     }
 
     /**

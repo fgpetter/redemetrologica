@@ -34,6 +34,7 @@ use App\Http\Controllers\{
   AgendaCursoInCompanyController
 };
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\ImpersonateController;
 
 Auth::routes();
 Route::get('/forgot-password', [ForgotPasswordController::class, 'forgotPassword'])->name('password.request');
@@ -414,5 +415,12 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('update/{download:uid}', [DownloadController::class, 'update'])->name('download-update');
     Route::post('delete/{download:uid}', [DownloadController::class, 'delete'])->name('download-delete');
   });
-
+  
+  Route::post('impersonate', [ImpersonateController::class, 'impersonate'])
+      ->name('impersonate')
+      ->middleware(['auth', 'can:admin']);
+  
+  Route::post('impersonate/stop', [ImpersonateController::class, 'stop'])
+      ->name('impersonate-stop')
+      ->middleware('auth');
 });

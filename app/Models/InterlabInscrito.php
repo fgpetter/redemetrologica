@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
+use App\Models\User;
 
 
 
@@ -32,9 +33,18 @@ class InterlabInscrito extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+        $options = LogOptions::defaults()
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
+
+        if (session('impersonator_id')) {
+            $impersonator = User::find(session('impersonator_id'));
+            $options->setDescriptionForEvent(function(string $eventName) use ($impersonator) {
+                return "{$eventName} impersonated by {$impersonator->name}";
+            });
+        }
+
+        return $options;
     }
 
 
