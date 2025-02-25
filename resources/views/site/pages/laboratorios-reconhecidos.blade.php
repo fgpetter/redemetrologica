@@ -29,7 +29,7 @@ if(isset($_GET['laboratorio'])) {
           <th>
             <select name="laboratorio" id="laboratorio" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'laboratorio')">
             <option value="">Filtrar por laboratório</option>
-              @foreach ($laboratorios as $laboratorio)
+              @foreach ($laboratorios->sortBy('nome_laboratorio') as $laboratorio)
                 <option @selected($laboratorio->uid == ($getlab ?? null)) value="{{ $laboratorio->uid }}">{{ $laboratorio->nome_laboratorio }}</option>
               @endforeach
             </select>
