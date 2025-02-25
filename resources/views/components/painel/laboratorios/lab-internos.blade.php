@@ -20,7 +20,7 @@
         <tbody>
             @forelse ($laboratorio->laboratoriosInternos as $lab_interno)
                 <tr>
-                    <td class="text-truncate" style="max-width: 50vw">{{ $lab_interno->area->descricao }}</td>
+                    <td class="text-truncate" style="max-width: 50vw">{{ Str::limit($lab_interno->area->descricao , 60, '...')  }}</td>
                     <td>{{ $lab_interno->nome }}</td>
                     <td>{!! ( $lab_interno->reconhecido )
                         ? '<span class="badge rounded-pill bg-success">Sim</span>'
