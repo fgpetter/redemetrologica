@@ -17,7 +17,6 @@ class AgendaCursoRequest extends FormRequest
             'destaque' => $this->destaque ?: 0,
             'site' => $this->site ?: 0,
             'inscricoes' => $this->inscricoes ?: 0,
-            'status' => ($this->status_proposta == 'APROVADA' ) ? 'CONFIRMADO' : 'AGENDADO'
         ]);
     }
 

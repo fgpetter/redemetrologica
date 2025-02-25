@@ -90,6 +90,20 @@
                 {{ $curso->agendaCurso->horario }} <br>
                 <strong>Status do agendamento:</strong> {{ $curso->agendaCurso->status }} <br>
                 <strong>Local: </strong> {{ $curso->agendaCurso->endereco_local }} <br>
+                
+                @if($curso->agendaCurso->cursoMateriais->count() > 0 && $curso->agendaCurso->status == 'CONFIRMADO')
+                  <strong>Materiais do curso:</strong>
+                  <ul class="list-unstyled ms-3 mt-2">
+                    @foreach($curso->agendaCurso->cursoMateriais as $material)
+                      <li class="mb-1">
+                        <i class="bx bx-file me-1"></i>
+                        <a href="{{ asset('storage/' . $material->arquivo) }}" target="_blank" class="text-primary">
+                          {{ $material->descricao ?: 'Material ' . $loop->iteration }}
+                        </a>
+                      </li>
+                    @endforeach
+                  </ul>
+                @endif
               @endforeach
       
             </div>
@@ -108,4 +122,17 @@
 
   @endif
 
+@endsection
+
+@section('script')
+  <script defer>
+    const element = document.getElementById('user_id')
+    if(element){
+      const choices = new Choices(element,{
+        searchFields: ['label'],
+        maxItemCount: -1,
+        allowHTML: true
+      });
+    }
+  </script>
 @endsection
