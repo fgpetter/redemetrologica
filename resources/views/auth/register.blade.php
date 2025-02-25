@@ -39,7 +39,7 @@
                         <div class="mb-3">
                           <label for="username" class="form-label">Nome <span class="text-danger">*</span></label>
                           <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" 
-                            id="username" required>
+                            id="username" required placeholder="Seu nome completo">
                           @error('name')
                           <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -49,7 +49,7 @@
                         <div class="mb-3">
                           <label for="document" class="form-label">CPF <span class="text-danger">*</span></label>
                           <input type="text" class="form-control table-cpf-cnpj @error('document') is-invalid @enderror" name="document" value="{{ old('document') }}" 
-                            id="document" required>
+                            id="document" required placeholder="Seu CPF">
                           @error('document')
                           <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -59,7 +59,7 @@
                         <div class="mb-3">
                           <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
                           <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" 
-                            id="useremail" required>
+                            id="useremail" required placeholder="Email para login">
                           @error('email')
                           <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -70,7 +70,7 @@
                           <div class="col-6">
                             <label for="password-input" class="form-label">Senha <span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" 
-                              id="password-input" required>
+                              id="password-input" required placeholder="Sua senha">
                             @error('password')
                             <span class="invalid-feedback" role="alert">
                               <strong>{{ $message }}</strong>
@@ -80,7 +80,7 @@
                           <div class="col-6">
                             <label for="confirm-password-input" class="form-label">Repita a senha <span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation" 
-                              id="confirm-password-input" required>
+                              id="confirm-password-input" required placeholder="Repita sua senha">
                             @error('password_confirmation')
                             <span class="invalid-feedback" role="alert">
                               <strong>{{ $message }}</strong>
