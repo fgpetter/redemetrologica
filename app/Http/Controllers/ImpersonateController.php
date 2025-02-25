@@ -21,7 +21,7 @@ class ImpersonateController extends Controller
     // Faz login como o usuário selecionado
     auth()->login($user);
 
-    return back()->with('success', 'Agora você está impersonando ' . ($user->name ?? $user->email));
+    return back()->with('success', 'Agora você está atuando como ' . ($user->name ?? $user->email));
   }
 
   public function stop()
@@ -34,7 +34,7 @@ class ImpersonateController extends Controller
       auth()->login($originalUser);
       session()->forget('impersonator_id');
 
-      return back()->with('success', 'Impersonação finalizada');
+      return back()->with('success', 'Personificação finalizada');
     }
 
     return back();

@@ -12,37 +12,47 @@
 
     {{-- Habilita impersonamento --}}
     @canany(['admin','funcionario'])
-      <div class="card mb-4">
-        <div class="card-body">
-          <strong>Selecione um usuário para assumir a visão de cliente:</strong>
-          <form action="{{ route('impersonate') }}" method="POST" class="d-flex align-items-center gap-2">
-            @csrf
-            <select name="user_id" class="form-select" style="max-width: 300px;">
-              <option value="">Selecione um usuário para impersonar</option>
-              @foreach(App\Models\User::whereHas('permissions', fn($q) => $q->where('permission', 'cliente'))
-                ->select('id', 'name', 'email')->get() as $user)
-                <option value="{{ $user->id }}">
-                  {{ $user->name .' - '. $user->email }}
-                </option>
-              @endforeach
-            </select>
-            <button type="submit" class="btn btn-primary">
-              Impersonar
-            </button>
-          </form>
+      <div class="col-6">
+        <div class="card mb-4">
+          <div class="card-body">
+            <strong>Selecione um usuário para assumir a visão de cliente:</strong>
+            <form action="{{ route('impersonate') }}" method="POST">
+              @csrf
+              <div class="row">
+                <div class="col">
+                  <select class="form-control" data-choices name="user_id" id="user_id">
+                    <option value="">Selecione um usuário</option>
+                    @foreach(App\Models\User::whereHas('permissions', fn($q) => $q->where('permission', 'cliente'))
+                      ->select('id', 'name', 'email')->orderBy('name')->get() as $user)
+                      <option value="{{ $user->id }}">
+                        {{ $user->name .' - '. $user->email }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+                <div class="col-2">
+                  <button type="submit" class="btn btn-primary">
+                    Personificar
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     @endcanany
-      @if(session('impersonator_id'))
-        <div class="alert alert-warning">
-          <form action="{{ route('impersonate-stop') }}" method="POST" class="d-inline">
-            @csrf
-            <button type="submit" class="btn btn-warning btn-sm">
-              Parar Impersonação
-            </button>
-          </form>
-        </div>
-      @endif
+
+    @if(session('impersonator_id'))
+      <div class="alert alert-warning">
+        <form action="{{ route('impersonate-stop') }}" method="POST" class="d-inline">
+          @csrf
+          <span class="text-secondary"> Atuando como: {{ auth()->user()->name }} </span>
+          <button type="submit" class="btn btn-warning btn-sm ms-4">
+            Parar Personificação
+          </button>
+        </form>
+      </div>
+    @endif
 
 
     @if(auth()->user()->pessoa->funcionario)
