@@ -337,8 +337,24 @@ class InscricaoCursoController extends Controller
 
   }
 
+  /**
+   * Adiciona inscritos por lista
+   *
+   * @param AgendaCursos $agendacurso
+   * @param Request $request
+   * @return RedirectResponse
+   */
   public function adicionaInscritosPorLista(AgendaCursos $agendacurso, Request $request)
   {
+    $request->validate(
+      [ 'arquivo' => ['required', 'file', 'mimes:xls,xlsx,csv'], ],
+      [
+        'arquivo.required' => 'O arquivo é obrigatório',
+        'arquivo.file' => 'O arquivo deve ser um arquivo válido',
+        'arquivo.mimes' => 'O arquivo deve ser um arquivo válido',
+      ]
+    );
+
     Excel::import(new CursoInscritoImport($agendacurso), $request->file('arquivo'));
     return back()->with('success', 'Inscrição cancelada com sucesso!')->withFragment('participantes');
   }

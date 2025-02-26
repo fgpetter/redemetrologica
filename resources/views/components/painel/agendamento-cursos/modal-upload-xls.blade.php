@@ -3,7 +3,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title mb-4" id="enviaXLSModalLabel">Enviar lista em Excell</h5>
+        <h5 class="modal-title mb-4" id="enviaXLSModalLabel">Enviar lista em Excel</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -43,7 +43,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <span class="text-muted" >A primeira linha da tabela dve ter os mesmos títulos da tabela de exemplo</span>
+                <span class="text-warning-emphasis" >A primeira linha da tabela dve ter os mesmos títulos da tabela de exemplo</span>
               </div>
 
             </div>
