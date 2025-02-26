@@ -130,7 +130,7 @@ class InscricaoCursoController extends Controller
       return back()->with('error', 'Empresa não encontrada');
     }
 
-    auth()->user()->pessoa->empresas()->sync($empresa->id);
+    auth()->user()->pessoa->empresas()->syncWithoutDetaching([$empresa->id]);
 
     return back()->with('success', 'Empresa adicionada com sucesso!');
   }
