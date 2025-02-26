@@ -43,7 +43,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <span class="text-warning-emphasis" >A primeira linha da tabela dve ter os mesmos títulos da tabela de exemplo</span>
+                <span class="text-warning-emphasis" >A primeira linha da tabela deve ter os mesmos títulos da tabela de exemplo</span>
               </div>
 
             </div>
