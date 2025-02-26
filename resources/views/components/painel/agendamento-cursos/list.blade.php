@@ -62,7 +62,7 @@
                 {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}</td>
               <td>{{ $agendacurso->curso->descricao ?? '' }}</td>
               <td>{{ $agendacurso->tipo_agendamento ?? '' }}</td>
-              <td class="text-center">{{ $agendacurso->inscritos->whereNotNull('valor')->count() }}</td>
+              <td class="text-center">{{ $agendacurso->inscritos->count() }}</td>
               <td>
                 <div class="dropdown">
                   <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
