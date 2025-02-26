@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
+use App\Actions\CreateUserForPessoaAction;
 
 
 class PessoaController extends Controller
@@ -238,36 +239,12 @@ class PessoaController extends Controller
   /**
    * Associa um usuário a uma pessoa
    *
-   * @param Request $request
    * @param Pessoa $pessoa
    * @return RedirectResponse
    */
-  public function associaUsuario(Request $request, Pessoa $pessoa): RedirectResponse
+  public function associaUsuario(Pessoa $pessoa): RedirectResponse
   {
-    $request->validate([
-      'nome' => ['required', 'string'],
-      'email' => ['required', 'string', 'email', 'unique:users,email'],
-    ]);
-
-    $random_password = Str::random(8);
-
-    $user = User::create([
-      'name' => $request->get('nome'),
-      'email' => $request->get('email'),
-      'password' => Hash::make($random_password),
-      'temporary_password' => 1
-    ]);
-    $user->givePermission('cliente');
-
-    $pessoa->update([ 'user_id' => $user->id ]);
-
-    $user_data = [
-      'name' => $user->name,
-      'email' => $user->email,
-      'password' => $random_password,
-    ];
-
-    Mail::to( $user->email )->send( new UserRegistered($user_data) );
+    CreateUserForPessoaAction::handle( $pessoa );
 
     return back()->with('success', 'Pessoa atualizada com sucesso');
   }
