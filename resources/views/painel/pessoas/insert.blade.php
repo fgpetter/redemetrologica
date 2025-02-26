@@ -24,6 +24,11 @@
       <x-painel.pessoas.empresas :pessoa="$pessoa" :empresas="$empresas"/>
     @endif
 
+    {{-- Dados bancários --}}
+    @if($pessoa->dadosBancarios()->exists())
+      <x-painel.dados-bancarios.list :pessoa="$pessoa"/>
+    @endif
+
     {{-- Unidades --}}
     @if($pessoa->id && $pessoa->tipo_pessoa == 'PJ')
       <x-painel.unidades.list :pessoa="$pessoa"/>

@@ -133,8 +133,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
   /* Dados bancários */
   Route::group(['prefix' => 'conta', 'middleware' => 'permission:funcionario,admin'], function () {
-    Route::post('create', [DadoBancarioController::class, 'create'])->name('conta-create');
-    Route::post('update/{conta:uid}', [DadoBancarioController::class, 'update'])->name('conta-update');
+    Route::post('save/{conta:uid?}', [DadoBancarioController::class, 'save'])->name('conta-save');
     Route::post('delete/{conta:uid}', [DadoBancarioController::class, 'delete'])->name('conta-delete');
   });
 
