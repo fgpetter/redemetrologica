@@ -9,7 +9,7 @@
     </div>
 
     <div class="table-responsive" style="min-height: 25vh">
-      <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
+      <table class="table table-responsive table-striped align-middle mb-0">
         <thead>
           <tr>
             <th scope="col" style="width: 5%; white-space: nowrap;">Mês/Ano</th>
@@ -31,7 +31,9 @@
                 {{ Carbon\Carbon::parse($agendainterlab->data_inicio)->format('m/Y') }}
               </th>
 
-              <td class="text-center"><a href="{{ route('agenda-interlab-insert', $agendainterlab->uid) }}">#{{ $agendainterlab->id }}</a></td>
+              <td class="text-center text-nowrap">
+                <a href="{{ route('agenda-interlab-insert', $agendainterlab->uid) }}">#{{ $agendainterlab->id }}</a>
+              </td>
 
               <td
                 @if ($agendainterlab->status == 'CONFIRMADO') class="text-success fw-bold"
@@ -58,7 +60,7 @@
 
               <td> {{ $agendainterlab->data_fim?->format('d/m/Y') }} </td>
 
-              <td class="text-truncate"> {{ $agendainterlab->interlab->nome ?? '' }} </td>
+              <td> {{ $agendainterlab->interlab->nome ?? '' }} </td>
               <td class="text-end pe-2"> {{ $agendainterlab->inscritos->count() }} </td>
 
               <td>

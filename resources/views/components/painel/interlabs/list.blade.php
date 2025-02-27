@@ -11,15 +11,13 @@
 
 
         <div class="table-responsive" style="min-height: 25vh">
-            <table class="table table-responsive table-striped align-middle table-nowrap mb-0"
+            <table class="table table-responsive table-striped align-middle mb-0"
                 style="table-layout: fixed">
                 <thead>
                     <tr>
-                        <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID
-                        </th>
-                        <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                        <th scope="col">descricao</th>
-                        <th scope="col">Tipo</th>
+                        <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col" style="width: 15%; white-space: nowrap;">Tipo</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
                 </thead>
@@ -31,9 +29,8 @@
                                     #{{ substr($interlab->uid, 7) }}
                                 </a>
                             </th>
-                            <td >{{ $interlab->nome }}</td>
-                            <td class="text-truncate">{{ $interlab->descricao }}</td>
-                            <td >{{ $interlab->tipo }}</td>
+                            <td>{{ $interlab->nome }}</td>
+                            <td class="text-nowrap">{{ $interlab->tipo }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"

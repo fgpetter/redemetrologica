@@ -11,15 +11,14 @@
 
 
         <div class="table-responsive" style="min-height: 25vh">
-            <table class="table table-responsive table-striped align-middle table-nowrap mb-0"
+            <table class="table table-responsive table-striped align-middle mb-0"
                 style="table-layout: fixed">
                 <thead>
                     <tr>
-                        <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID
-                        </th>
-                        <th scope="col" style="width: 50%; white-space: nowrap;">Descricao</th>
-                        <th scope="col">Tipo</th>
-                        <th scope="col">Carga Horária</th>
+                        <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID</th>
+                        <th >Descricao</th>
+                        <th scope="col" style="width: 10%; white-space: nowrap;">Tipo</th>
+                        <th scope="col" style="width: 10%; white-space: nowrap;">Carga Horária</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
                 </thead>
@@ -31,7 +30,7 @@
                                     #{{ substr($curso->uid, 7) }}
                                 </a>
                             </th>
-                            <td class="text-truncate">{{ $curso->descricao }}</td>
+                            <td>{{ $curso->descricao }}</td>
                             <td >{{ $curso->tipo_curso }}</td>
                             <td >{{ $curso->carga_horaria }}</td>
                             <td>

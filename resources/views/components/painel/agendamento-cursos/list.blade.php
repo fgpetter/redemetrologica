@@ -31,7 +31,7 @@
               <th class="text-uppercase">
                 {{ Carbon\Carbon::parse($agendacurso->data_inicio)->locale('pt-BR')->translatedFormat('F') }}
               </th>
-              <td class="text-center">
+              <td class="text-center text-nowrap">
                 <a href="{{ ($tipoagenda == 'IN-COMPANY') 
                   ? route('agendamento-curso-in-company-insert', $agendacurso->uid) 
                   : route('agendamento-curso-insert', $agendacurso->uid) }}">
@@ -44,7 +44,7 @@
                 {{ $agendacurso->status }}
               </td>
 
-              <td style="white-space: nowrap;">
+              <td class="text-center text-nowrap">
                 @if ($agendacurso->site)
                   <span data-bs-toggle="tooltip" data-bs-html="true" title="Visivel no site">
                     <i class="ri-terminal-window-line label-icon text-primary" style="font-size: 1.4rem"></i> 
@@ -58,7 +58,7 @@
                  @endif
               </td>
 
-              <td style="white-space: nowrap; margin: 10px 0 10px">
+              <td class="text-center text-nowrap mx-2">
                 {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}</td>
               <td>{{ $agendacurso->curso->descricao ?? '' }}</td>
               <td>{{ $agendacurso->tipo_agendamento ?? '' }}</td>
