@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('interlabs', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->string('nome');
             $table->string('descricao')->nullable();
             $table->enum('tipo', ['BILATERAL', 'INTERLABORATORIAL'])->nullable();

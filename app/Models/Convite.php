@@ -5,9 +5,12 @@ namespace App\Models;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\SetDefaultUid;
 
 class Convite extends Model
 {
+    use SetDefaultUid;
+
     protected $table = 'convites';
 
     protected $guarded = [];
@@ -15,8 +18,8 @@ class Convite extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
 

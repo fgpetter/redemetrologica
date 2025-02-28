@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 
 class FornecedorController extends Controller
 {
-    /**
+  /**
    * Gera pagina de listagem de usuários
    *
    * @return View
@@ -21,10 +21,10 @@ class FornecedorController extends Controller
   {
     $fornecedores = Fornecedor::with('pessoa')->paginate(10);
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
-    ->whereNotIn('id', function ($query) {
-      $query->select('pessoa_id')->from('fornecedores');
-    })
-    ->get();
+      ->whereNotIn('id', function ($query) {
+        $query->select('pessoa_id')->from('fornecedores');
+      })
+      ->get();
 
     return view('painel.fornecedores.index', ['fornecedores' => $fornecedores, 'pessoas' => $pessoas]);
   }
@@ -52,7 +52,6 @@ class FornecedorController extends Controller
 
     // cria um fornecedor vinculado a pessoa
     $fornecedor = Fornecedor::create([
-      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
     ]);
 
@@ -60,7 +59,7 @@ class FornecedorController extends Controller
       return redirect()->back()
         ->with('fornecedor-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
-    
+
     return redirect()->route('fornecedor-insert', $fornecedor->uid)
       ->with('success', 'Fornecedor cadastrado com sucesso');
   }
@@ -85,20 +84,22 @@ class FornecedorController extends Controller
    **/
   public function update(Request $request, Fornecedor $fornecedor): RedirectResponse
   {
-    $request->merge( return_only_nunbers( $request->only('cpf_cnpj','telefone','telefone_alt','celular') ) );
-    
-    $validated = $request->validate([
-      'nome_razao' => ['required', 'string', 'max:191'],
-      'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $fornecedor->pessoa->id],
-      'rg_ie' => ['nullable', 'string', 'max:191'],
-      'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
-      'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
-      'celular' => ['nullable', 'string', 'min:10', 'max:11'],
-      'email' => ['nullable', 'string', 'max:191'],
-      'site' => ['nullable', 'string', 'max:191'],
-      'observacoes' => ['nullable', 'string', 'max:1000'],
+    $request->merge(return_only_nunbers($request->only('cpf_cnpj', 'telefone', 'telefone_alt', 'celular')));
 
-      ],[
+    $validated = $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:191'],
+        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $fornecedor->pessoa->id],
+        'rg_ie' => ['nullable', 'string', 'max:191'],
+        'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
+        'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
+        'celular' => ['nullable', 'string', 'min:10', 'max:11'],
+        'email' => ['nullable', 'string', 'max:191'],
+        'site' => ['nullable', 'string', 'max:191'],
+        'observacoes' => ['nullable', 'string', 'max:1000'],
+
+      ],
+      [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo CPF',
         'cpf_cnpj.unique' => 'CPF ja cadastrado',
@@ -111,7 +112,7 @@ class FornecedorController extends Controller
         'email.max' => 'E-mail inválido',
         'site.max' => 'Site inválido',
         'observacoes.max' => 'Observações inválidas',
-        ]
+      ]
     );
 
     $fornecedor->update($request->only('obsercvacoes'));
@@ -127,12 +128,10 @@ class FornecedorController extends Controller
    * @param Fornecedor $fornecedor
    * @return RedirectResponse
    **/
-    public function delete(Fornecedor $fornecedor): RedirectResponse
-    {
-      $fornecedor->delete();
+  public function delete(Fornecedor $fornecedor): RedirectResponse
+  {
+    $fornecedor->delete();
 
-      return redirect()->route('fornecedor-index')->with('warning', 'Fornecedor removido');
-    }
-
-
+    return redirect()->route('fornecedor-index')->with('warning', 'Fornecedor removido');
+  }
 }

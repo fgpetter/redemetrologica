@@ -21,7 +21,7 @@ class PlanoContaController extends Controller
       'planocontas' => PlanoConta::with(['centrocusto' => function ($query) {
         $query->withTrashed();
       }])->paginate(10),
-      
+
       'centrocustos' => CentroCusto::all()
     ];
     return view('painel.plano-conta.index', $data);
@@ -52,7 +52,6 @@ class PlanoContaController extends Controller
       ]
     );
 
-    $validated['uid'] = config('hashing.uid');
 
     $planoconta = PlanoConta::create($validated);
 

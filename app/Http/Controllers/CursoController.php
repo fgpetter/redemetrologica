@@ -53,7 +53,8 @@ class CursoController extends Controller
         'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
         'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)]
 
-      ],[
+      ],
+      [
         'descricao.string' => 'O campo aceita somente texto.',
         'tipo_curso.in' => 'A opção selecionada é inválida',
         'objetivo.string' => 'O campo aceita somente texto.',
@@ -69,7 +70,6 @@ class CursoController extends Controller
         'thumb.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.tinyjpg.com.',
       ]
     );
-    $validated['uid'] = config('hashing.uid');
 
     if ($request->hasFile('folder')) {
       $file_name = FileUploadAction::handle($request, 'folder', 'curso-folder');
@@ -127,7 +127,8 @@ class CursoController extends Controller
         'observacoes_internas' => ['nullable', 'string'],
         'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
         'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)]
-      ],[
+      ],
+      [
         'descricao.string' => 'O campo aceita somente texto.',
         'tipo_curso.in' => 'A opção selecionada é inválida',
         'objetivo.string' => 'O campo aceita somente texto.',
@@ -168,10 +169,13 @@ class CursoController extends Controller
    */
   public function uploadMaterial(Request $request, Curso $curso): RedirectResponse
   {
-    $validator = Validator::make( $request->all(), [
+    $validator = Validator::make(
+      $request->all(),
+      [
         'descricao' => ['nullable', 'string', 'max:190'],
-        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document','max:2048'],
-      ],[
+        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:2048'],
+      ],
+      [
         'descricao.string' => 'O campo aceita somente texto.',
         'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
         'arquivo.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
@@ -180,14 +184,16 @@ class CursoController extends Controller
 
     if ($validator->fails()) {
 
-      Log::channel('validation')->info("Erro de validação", 
-      [
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
           'user' => auth()->user() ?? null,
           'request' => $request->all() ?? null,
           'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'method' => get_class($this) . '::' . __FUNCTION__,
           'errors' => $validator->errors() ?? null,
-      ]);
+        ]
+      );
 
       return back()
         ->with('error', 'Houve um erro a processar os dados, tente novamente')
@@ -206,7 +212,6 @@ class CursoController extends Controller
     ]);
 
     return back()->with('success', 'Material adicionado com sucesso');
-
   }
 
   /**
@@ -233,15 +238,16 @@ class CursoController extends Controller
    * @param CursoInscrito $inscrito
    * @return void
    */
-  public function viewCertificado(CursoInscrito $inscrito){
+  public function viewCertificado(CursoInscrito $inscrito)
+  {
     return Pdf::view('certificados.certificado')
       ->withBrowsershot(function (Browsershot $browsershot) {
         $browsershot->setChromePath('/var/www/.cache/puppeteer/chrome/linux-133.0.6943.53/chrome-linux64/chrome');
       })
       ->format('a4')
-      ->name('certificado'.$inscrito->uid.'.pdf');
+      ->name('certificado' . $inscrito->uid . '.pdf');
   }
-  
+
   /**
    * Remove arquivo de curso
    *

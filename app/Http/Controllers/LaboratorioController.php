@@ -33,9 +33,9 @@ class LaboratorioController extends Controller
           ->orderBy('pessoas.nome_razao', $nome);
       })
       ->when($busca_nome, function (Builder $query, $busca_nome) {
-          $query->whereHas('pessoa', function($q) use ($busca_nome) {
-            $q->where('nome_razao', 'LIKE', "%$busca_nome%");
-          });
+        $query->whereHas('pessoa', function ($q) use ($busca_nome) {
+          $q->where('nome_razao', 'LIKE', "%$busca_nome%");
+        });
       })
       ->paginate(15);
 
@@ -72,7 +72,6 @@ class LaboratorioController extends Controller
 
     // cria um laboratorio vinculado a pessoa
     $laboratorio = Laboratorio::create([
-      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
     ]);
 
@@ -105,7 +104,7 @@ class LaboratorioController extends Controller
    **/
   public function update(Request $request, Laboratorio $laboratorio): RedirectResponse
   {
-    $request->merge( return_only_nunbers( $request->only('telefone') ) );
+    $request->merge(return_only_nunbers($request->only('telefone')));
 
     $validated = $request->validate(
       [
@@ -128,7 +127,7 @@ class LaboratorioController extends Controller
         'cod_laboratorio.numeric' => 'Código inválido',
       ]
     );
-    
+
     $laboratorio->update($validated);
 
     return redirect()->back()->with('success', 'Laboratório atualizado com sucesso');
@@ -203,7 +202,7 @@ class LaboratorioController extends Controller
       $fileName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
       $fileName = $fileName . '_' . time() . '.' . $file->getClientOriginalExtension();
       $file->move(public_path('laboratorios-certificados'), $fileName);
-      
+
       $data['certificado'] = $fileName;
     }
 
@@ -244,24 +243,26 @@ class LaboratorioController extends Controller
    */
   public function siteIndex(Request $request): View
   {
-    if(!empty(request()->except('area', 'laboratorio', 'page'))){
+    if (!empty(request()->except('area', 'laboratorio', 'page'))) {
       return abort('404');
     }
 
-    $validator = Validator::make($request->all(),[
+    $validator = Validator::make($request->all(), [
       "area" => ['nullable', 'string', 'exists:areas_atuacao,uid'],
       "laboratorio" => ['nullable', 'string', 'exists:laboratorios,uid']
     ]);
 
-    if($validator->fails()){
-      Log::channel('validation')->info("Erro de validação", 
-      [
+    if ($validator->fails()) {
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
           'user' => auth()->user() ?? null,
           'request' => $request->all() ?? null,
           'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'method' => get_class($this) . '::' . __FUNCTION__,
           'errors' => $validator->errors() ?? null,
-      ]);
+        ]
+      );
 
       return abort('404');
     }
@@ -269,19 +270,19 @@ class LaboratorioController extends Controller
     $areas_atuacao = AreaAtuacao::select('uid', 'descricao')->get();
 
     $laboratorios = Laboratorio::select('uid', 'nome_laboratorio')
-      ->whereHas('laboratoriosInternos', function($query) {
+      ->whereHas('laboratoriosInternos', function ($query) {
         $query->whereNotNull('laboratorio_id')->where('site', 1);
       })->get();
 
     $laboratorios_internos = LaboratorioInterno::select('certificado', 'laboratorio_id', 'area_atuacao_id')
       ->with('area:id,descricao', 'laboratorio:id,pessoa_id,nome_laboratorio')
-      ->when($request->area, function($query) use ($request) {
-        $query->whereHas('area', function($q) use ($request) {
+      ->when($request->area, function ($query) use ($request) {
+        $query->whereHas('area', function ($q) use ($request) {
           $q->where('uid', $request->area);
         });
       })
-      ->when($request->laboratorio, function($query) use ($request) {
-        $query->whereHas('laboratorio', function($q) use ($request) {
+      ->when($request->laboratorio, function ($query) use ($request) {
+        $query->whereHas('laboratorio', function ($q) use ($request) {
           $q->where('uid', $request->laboratorio);
         });
       })
@@ -290,6 +291,6 @@ class LaboratorioController extends Controller
       ->whereHas('laboratorio')
       ->paginate(15);
 
-    return view('site.pages.laboratorios-reconhecidos', ['laboratorios_internos' => $laboratorios_internos,'laboratorios' => $laboratorios, 'areas_atuacao' => $areas_atuacao]);
+    return view('site.pages.laboratorios-reconhecidos', ['laboratorios_internos' => $laboratorios_internos, 'laboratorios' => $laboratorios, 'areas_atuacao' => $areas_atuacao]);
   }
 }

@@ -32,7 +32,6 @@ class ModalidadePagamentoController extends Controller
       ]
     );
 
-    $validated['uid'] = config('hashing.uid');
 
     $modalidade_pagamento = ModalidadePagamento::create($validated);
 

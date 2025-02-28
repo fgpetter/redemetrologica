@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
+use App\Traits\SetDefaultUid;
 
 class Fornecedor extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -29,8 +29,8 @@ class Fornecedor extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
 
@@ -38,9 +38,8 @@ class Fornecedor extends Model
      * Carrega pessoa
      * @return BelongsTo
      */
-    public function pessoa() : BelongsTo
+    public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class);
     }
-
 }

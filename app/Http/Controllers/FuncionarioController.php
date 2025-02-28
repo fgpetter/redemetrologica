@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\File;
 
 class FuncionarioController extends Controller
 {
-    /**
+  /**
    * Gera pagina de listagem de usuários
    *
    * @return View
@@ -32,16 +32,18 @@ class FuncionarioController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $request->validate([
-      'nome_razao' => ['required', 'string', 'max:191'],
-      'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'], // TODO - adicionar validação de CPF/CNPJ
-      'cep' => ['required', 'string', 'max:9', 'min:9'],
-      'endereco' => ['required', 'string', 'max:191'],
-      'cidade' => ['required', 'string', 'max:191'],
-      'uf' => ['required', 'string', 'max:2', 'min:2'],
-      'admissao' => ['required', 'date'],
-      'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'] //5mb
-      ],[
+    $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:191'],
+        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'], // TODO - adicionar validação de CPF/CNPJ
+        'cep' => ['required', 'string', 'max:9', 'min:9'],
+        'endereco' => ['required', 'string', 'max:191'],
+        'cidade' => ['required', 'string', 'max:191'],
+        'uf' => ['required', 'string', 'max:2', 'min:2'],
+        'admissao' => ['required', 'date'],
+        'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'] //5mb
+      ],
+      [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo CPF',
         'cpf_cnpj.min' => 'CPF inválido',
@@ -63,7 +65,6 @@ class FuncionarioController extends Controller
 
     // cria uma pessoa
     $pessoa = Pessoa::create([
-      'uid' => config('hashing.uid'),
       'tipo_pessoa' => 'PF',
       'nome_razao' => ucfirst($request->get('nome_razao')),
       'cpf_cnpj' => $request->get('cpf_cnpj'),
@@ -72,14 +73,13 @@ class FuncionarioController extends Controller
       'email' => $request->get('email'),
     ]);
 
-    if(!$pessoa){
+    if (!$pessoa) {
       return redirect()->back()
         ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     // cria um endereço vinculado a pessoa
     $endereco = Endereco::create([
-      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
       'endereco' => $request->get('endereco'),
       'complemento' => $request->get('complemento'),
@@ -90,18 +90,18 @@ class FuncionarioController extends Controller
     ]);
 
     // Adiciona endereço padrao
-    if($request->end_padrao){
+    if ($request->end_padrao) {
       $pessoa->update(['end_padrao' => $endereco->id]);
     }
 
-    if(!$endereco){
+    if (!$endereco) {
       return redirect()->back()
         ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     // se foi enviado currículo
     if ($request->hasFile('curriculo')) {
-      $fileName = sanitizeFileName( pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME) );
+      $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
       $extension = $request->file('curriculo')->getClientOriginalExtension();
       $fileName = $fileName . '_' . time() . '.' . $extension;
       $request->file('curriculo')->move(public_path('curriculos'), $fileName);
@@ -110,7 +110,6 @@ class FuncionarioController extends Controller
 
     // cria um funcionário vinculado a pessoa
     $funcionario = Funcionario::create([
-      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
       'cargo' => $request->get('cargo'),
       'setor' => $request->get('setor'),
@@ -120,9 +119,9 @@ class FuncionarioController extends Controller
       'curriculo' => $curriculo ?? null
     ]);
 
-    if(!$funcionario){
+    if (!$funcionario) {
       return redirect()->back()
-      ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('funcionario-index')
@@ -149,16 +148,18 @@ class FuncionarioController extends Controller
    **/
   public function update(Request $request, Funcionario $funcionario): RedirectResponse
   {
-    $request->validate([
-      'nome_razao' => ['required', 'string', 'max:191'],
-      'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $funcionario->pessoa->id], // TODO - adicionar validação de CPF/CNPJ
-      'cep' => ['required', 'string', 'max:9', 'min:9'],
-      'endereco' => ['required', 'string', 'max:191'],
-      'cidade' => ['required', 'string', 'max:191'],
-      'uf' => ['required', 'string', 'max:2', 'min:2'],
-      'admissao' => ['required', 'date'],
-      'curriculo' => ['file','mimes:doc,pdf,docx','max:5242880'] //5mb
-      ],[
+    $request->validate(
+      [
+        'nome_razao' => ['required', 'string', 'max:191'],
+        'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $funcionario->pessoa->id], // TODO - adicionar validação de CPF/CNPJ
+        'cep' => ['required', 'string', 'max:9', 'min:9'],
+        'endereco' => ['required', 'string', 'max:191'],
+        'cidade' => ['required', 'string', 'max:191'],
+        'uf' => ['required', 'string', 'max:2', 'min:2'],
+        'admissao' => ['required', 'date'],
+        'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'] //5mb
+      ],
+      [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo CPF',
         'cpf_cnpj.min' => 'CPF inválido',
@@ -180,13 +181,13 @@ class FuncionarioController extends Controller
 
     // se foi enviado currículo
     if ($request->hasFile('curriculo')) {
-      $fileName = sanitizeFileName( pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME) );
+      $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
       $extension = $request->file('curriculo')->getClientOriginalExtension();
       $fileName = $fileName . '_' . time() . '.' . $extension;
       $request->file('curriculo')->move(public_path('curriculos'), $fileName);
       $curriculo = 'curriculos/' . $fileName;
     }
-    
+
 
     $funcionario->update([
       'cargo' => $request->get('cargo'),
@@ -215,10 +216,10 @@ class FuncionarioController extends Controller
     ]);
 
     // Adiciona endereço padrao
-    if($request->end_padrao){
+    if ($request->end_padrao) {
       $funcionario->pessoa->update(['end_padrao' => $funcionario->pessoa->enderecos->first()->id]);
     }
-    
+
 
     return redirect()->back()->with('funcionario-success', 'Funcionario atualizado com sucesso');
   }
@@ -229,18 +230,18 @@ class FuncionarioController extends Controller
    * @param User $user
    * @return RedirectResponse
    **/
-    public function delete(Funcionario $funcionario): RedirectResponse
-    {
-      if (File::exists(public_path($funcionario->curriculo))) {
-        File::delete(public_path($funcionario->curriculo));
-      }
-
-      Pessoa::where('id', $funcionario->pessoa_id)->delete();
-
-      $funcionario->delete();
-
-      return redirect()->route('funcionario-index')->with('warning', 'Funcionario removido');
+  public function delete(Funcionario $funcionario): RedirectResponse
+  {
+    if (File::exists(public_path($funcionario->curriculo))) {
+      File::delete(public_path($funcionario->curriculo));
     }
+
+    Pessoa::where('id', $funcionario->pessoa_id)->delete();
+
+    $funcionario->delete();
+
+    return redirect()->route('funcionario-index')->with('warning', 'Funcionario removido');
+  }
 
   /**
    * Remove arquivo de curriculo
@@ -254,10 +255,9 @@ class FuncionarioController extends Controller
     if (File::exists(public_path($funcionario->curriculo))) {
       File::delete(public_path($funcionario->curriculo));
     }
-  
+
     $funcionario->update(['curriculo' => null]);
 
     return redirect()->back()->with('funcionario-success', 'Curriculo removido');
   }
-
 }

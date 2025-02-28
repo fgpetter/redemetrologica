@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 class AreaAvaliada extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'areas_avaliadas';
 
@@ -25,8 +26,8 @@ class AreaAvaliada extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
 
@@ -34,7 +35,7 @@ class AreaAvaliada extends Model
      * Carrega avaliacao
      * @return BelongsTo
      */
-    public function avaliacao() : BelongsTo
+    public function avaliacao(): BelongsTo
     {
         return $this->belongsTo(AgendaAvaliacao::class, 'id', 'avaliacao_id');
     }
@@ -43,7 +44,7 @@ class AreaAvaliada extends Model
      * Carrega avaliador
      * @return HasOne
      */
-    public function avaliador() : HasOne
+    public function avaliador(): HasOne
     {
         return $this->hasOne(Avaliador::class, 'id', 'avaliador_id');
     }
@@ -52,12 +53,8 @@ class AreaAvaliada extends Model
      * Carrega area atuacao
      * @return HasOne
      */
-    public function areaAtuacao() : HasOne
+    public function areaAtuacao(): HasOne
     {
         return $this->hasOne(AreaAtuacao::class, 'id', 'area_atuacao_id');
     }
-
-
-
-
 }

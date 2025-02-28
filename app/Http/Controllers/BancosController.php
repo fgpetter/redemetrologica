@@ -47,7 +47,6 @@ class BancosController extends Controller
       ]
     );
 
-    $validated['uid'] = config('hashing.uid');
 
     $banco = Banco::create($validated);
 

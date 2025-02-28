@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('certificados_avaliador', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->unsignedBigInteger('avaliador_id');
             $table->date('data')->nullable();
             $table->string('revisao')->nullable();
@@ -23,7 +23,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('avaliador_id')->references('id')->on('avaliadores')->onDelete('cascade');
-
         });
     }
 

@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
+use App\Traits\SetDefaultUid;
 
 class PlanoConta extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'plano_contas';
 
@@ -24,8 +24,8 @@ class PlanoConta extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName('Usuários');
+            ->logOnly(['*'])
+            ->useLogName('Usuários');
     }
 
 
@@ -37,6 +37,6 @@ class PlanoConta extends Model
      */
     public function centrocusto(): BelongsTo
     {
-        return $this->belongsTo(CentroCusto::class ,'centro_custo_id', 'id');
+        return $this->belongsTo(CentroCusto::class, 'centro_custo_id', 'id');
     }
 }

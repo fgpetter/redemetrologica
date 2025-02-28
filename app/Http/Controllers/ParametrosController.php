@@ -32,7 +32,6 @@ class ParametrosController extends Controller
       ]
     );
 
-    $validated['uid'] = config('hashing.uid');
 
     $material_padrao = Parametro::create($validated);
 

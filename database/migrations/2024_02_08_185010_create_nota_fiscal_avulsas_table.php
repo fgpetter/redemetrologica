@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('notas_fiscais_avulsas', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->string('cpf_cnpj');
             $table->string('rg_ie');
             $table->string('insc_munic');

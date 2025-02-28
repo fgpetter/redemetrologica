@@ -31,7 +31,6 @@ class TipoAvaliacaoController extends Controller
       ]
     );
 
-    $validated['uid'] = config('hashing.uid');
 
     $tipo_avaliacao = TipoAvaliacao::create($validated);
 
