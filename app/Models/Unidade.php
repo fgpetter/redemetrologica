@@ -41,7 +41,7 @@ class Unidade extends Model
      */
     public function endereco(): HasOne
     {
-        return $this->hasOne(Endereco::class, 'id', 'endereco_id');
+        return $this->hasOne(Endereco::class, 'unidade_id', 'id');
     }
 
 }
