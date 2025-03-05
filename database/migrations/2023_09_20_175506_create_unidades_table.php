@@ -16,9 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('uid')->unique();
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('endereco_id')->constrained()->cascadeOnDelete();
-            $table->string('cnpj')->nullable();
             $table->string('nome');
+            $table->string('cnpj')->nullable();
             $table->string('telefone')->nullable();
             $table->string('email')->nullable();
             $table->string('nome_responsavel')->nullable();
