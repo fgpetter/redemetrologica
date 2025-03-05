@@ -175,7 +175,7 @@
     {{-- associe-se --}}
 
     {{-- valores --}}
-    <div class="row d-flex justify-content-center text-center align-items-center SiteValores--bg">
+    {{-- <div class="row d-flex justify-content-center text-center align-items-center SiteValores--bg">
         <div class="col-md-4 my-5">
             <div class=" border">
                 <h1>R$<strong>100,00</strong> Ano</h1>
@@ -197,7 +197,7 @@
 
 
 
-    </div>
+    </div> --}}
     {{-- valores --}}
 
     {{-- BannerFinal --}}
