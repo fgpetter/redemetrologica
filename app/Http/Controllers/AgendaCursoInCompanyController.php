@@ -75,7 +75,6 @@ class AgendaCursoInCompanyController extends Controller
     $validated['site'] = 0;
     $validated['inscricoes'] = 0;
     $validated['destaque'] = 0;
-    $validated['status'] = ($request->status_proposta == 'APROVADA') ? 'CONFIRMADO' : 'AGENDADO';
 
     $agendacurso = AgendaCursos::create($validated);
 
@@ -119,7 +118,6 @@ class AgendaCursoInCompanyController extends Controller
     $validated['site'] = 0;
     $validated['inscricoes'] = 0;
     $validated['destaque'] = 0;
-    $validated['status'] = ($request->status_proposta == 'APROVADA') ? 'CONFIRMADO' : 'AGENDADO';
 
     if($request->material){
       $agendacurso->cursoMateriais()->sync($request->material);
