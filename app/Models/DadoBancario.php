@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 class DadoBancario extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'dados_bancarios';
 
@@ -24,8 +25,8 @@ class DadoBancario extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
 
@@ -36,6 +37,4 @@ class DadoBancario extends Model
     {
         return $this->belongsTo(Pessoa::class);
     }
-
-
 }

@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('dados_bancarios', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->foreignId('pessoa_id')->constrained();
             $table->string('nome_conta')->nullable();
             $table->string('nome_banco');

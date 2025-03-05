@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
+use App\Traits\SetDefaultUid;
 
 class CertificadoAvaliador extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'certificados_avaliador';
 
@@ -18,9 +18,7 @@ class CertificadoAvaliador extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
-
-
 }

@@ -6,24 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 class Category extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [ 'titulo', 'slug' ];
+    protected $fillable = ['titulo', 'slug'];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
 
@@ -31,10 +32,8 @@ class Category extends Model
      * Carrega posts
      * @return BelongsToMany
      */
-    public function posts() : BelongsToMany
+    public function posts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class);
     }
-
-    
 }

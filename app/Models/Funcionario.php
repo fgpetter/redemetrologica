@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 class Funcionario extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -23,8 +24,8 @@ class Funcionario extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
 
@@ -32,9 +33,8 @@ class Funcionario extends Model
      * Carrega pessoa
      * @return BelongsToMany
      */
-    public function pessoa() : BelongsTo
+    public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class);
     }
-
 }

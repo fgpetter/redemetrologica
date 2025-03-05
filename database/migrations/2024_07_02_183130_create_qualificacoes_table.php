@@ -16,14 +16,13 @@ return new class extends Migration
         Schema::create('qualificacoes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('avaliador_id');
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->string('ano')->nullable();
             $table->string('instrutor')->nullable();
             $table->string('atividade')->nullable();
             $table->timestamps();
 
             $table->foreign('avaliador_id')->references('id')->on('avaliadores')->onDelete('cascade');
-
         });
     }
 

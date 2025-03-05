@@ -21,14 +21,17 @@ class UnidadeController extends Controller
    **/
   public function create(Request $request): RedirectResponse
   {
-    $validator = Validator::make($request->all(), [
+    $validator = Validator::make(
+      $request->all(),
+      [
         'nome' => ['required', 'string', 'max:191'],
         'pessoa' => ['required', 'string', 'exists:pessoas,uid'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
         'cidade' => ['required', 'string'],
         'uf' => ['required', 'string'],
-      ],[
+      ],
+      [
         'nome.required' => 'Preencha o campo nome ou razão social',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
@@ -38,14 +41,16 @@ class UnidadeController extends Controller
     );
 
     if ($validator->fails()) {
-      Log::channel('validation')->info("Erro de validação", 
-      [
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
           'user' => auth()->user() ?? null,
           'request' => $request->all() ?? null,
           'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'method' => get_class($this) . '::' . __FUNCTION__,
           'errors' => $validator->errors() ?? null,
-      ]);
+        ]
+      );
 
       return redirect()->back()
         ->withInput()
@@ -55,10 +60,9 @@ class UnidadeController extends Controller
 
     $prepared_data = $validator->validate();
 
-    $query = DB::transaction( function() use ($prepared_data) {
+    $query = DB::transaction(function () use ($prepared_data) {
 
       $endereco = Endereco::create([
-        'uid' => config('hashing.uid'),
         'pessoa_id' => $prepared_data['pessoa'],
         'endereco' => $prepared_data['endereco'],
         'complemento' => $prepared_data['complemento'] ?? null,
@@ -69,7 +73,6 @@ class UnidadeController extends Controller
       ]);
 
       $unidade = Unidade::create([
-        'uid' => config('hashing.uid'),
         'pessoa_id' => $prepared_data['pessoa'],
         'endereco_id' => $endereco->id,
         'nome' => strtoupper($prepared_data['nome']),
@@ -82,7 +85,7 @@ class UnidadeController extends Controller
 
       if (!$unidade) {
         return redirect()->back()->with('error', 'Ocorreu um erro!');
-      }  
+      }
 
       return compact($endereco, $unidade);
     });

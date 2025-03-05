@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('enderecos', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->integer('unidade_id')->nullable();
             $table->foreignId('pessoa_id')->constrained()->cascadeOnDelete();
             $table->string('info')->nullable();

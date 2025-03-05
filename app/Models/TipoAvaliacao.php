@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
+use App\Traits\SetDefaultUid;
 
 class TipoAvaliacao extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'tipo_avaliacoes';
 
@@ -23,8 +23,7 @@ class TipoAvaliacao extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 }
-

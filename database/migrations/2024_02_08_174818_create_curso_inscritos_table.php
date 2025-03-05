@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('curso_inscritos', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->foreignId('pessoa_id')->constrained();
             $table->unsignedBigInteger('empresa_id')->nullable();
             $table->foreignId('agenda_curso_id')->constrained()->onDelete('cascade');

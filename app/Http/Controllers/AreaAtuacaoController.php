@@ -33,7 +33,6 @@ class AreaAtuacaoController extends Controller
       ]
     );
 
-    $validated['uid'] = config('hashing.uid');
 
     $material_padrao = AreaAtuacao::create($validated);
 

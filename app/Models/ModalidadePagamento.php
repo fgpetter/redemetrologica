@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
+use App\Traits\SetDefaultUid;
 
 class ModalidadePagamento extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'modalidade_pagamentos';
 
@@ -23,8 +23,7 @@ class ModalidadePagamento extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 }
-

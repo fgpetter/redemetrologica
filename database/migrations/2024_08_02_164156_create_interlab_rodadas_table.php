@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('interlab_rodadas', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->foreignIdFor(AgendaInterlab::class)->constrained()->onDelete('cascade');
             $table->string('descricao');
             $table->integer('vias');

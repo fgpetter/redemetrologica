@@ -34,7 +34,6 @@ class CentroCustoController extends Controller
       ]
     );
 
-    $validated['uid'] = config('hashing.uid');
 
     $centro_custo = CentroCusto::create($validated);
 

@@ -60,7 +60,6 @@ class AvaliadorController extends Controller
 
     // cria um avaliador vinculado a pessoa
     $avaliador = Avaliador::create([
-      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
     ]);
 
@@ -96,7 +95,6 @@ class AvaliadorController extends Controller
     );
 
     $avaliacao = AvaliacaoAvaliador::create([
-      'uid' => config('hashing.uid'),
       'avaliador_id' => $avaliador->id,
       'empresa' => $request->empresa,
       'data' => $request->sata,
@@ -154,7 +152,7 @@ class AvaliadorController extends Controller
    **/
   public function update(Request $request, Avaliador $avaliador): RedirectResponse
   {
-    $request->merge( return_only_nunbers( $request->only('cpf_cnpj') ) );
+    $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
     $request->validate(
       [
         'nome_razao' => ['required', 'string', 'max:191'],
@@ -292,7 +290,7 @@ class AvaliadorController extends Controller
     return redirect()->back()->with('success', 'Qualificação atualizada com sucesso');
   }
 
-    /**
+  /**
    * Remove avaliador
    *
    * @param User $user
@@ -433,7 +431,7 @@ class AvaliadorController extends Controller
     return redirect()->back()->with('success', 'Certificado atualizado com sucesso');
   }
 
-    /**
+  /**
    * Remove certificado
    *
    * @param User $user
@@ -516,8 +514,4 @@ class AvaliadorController extends Controller
 
     return redirect()->back()->with('warning', 'Status removido');
   }
-
-
-
-
 }

@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 
 class CursoInscrito extends Model
 {
-    use LogsActivity;
-    
+    use LogsActivity, SetDefaultUid;
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -23,16 +24,15 @@ class CursoInscrito extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
 
         if (session('impersonator_id')) {
             $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function(string $eventName) use ($impersonator) {
+            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
                 return "{$eventName} impersonated by {$impersonator->name}";
             });
         }
-
     }
 
 
@@ -40,7 +40,7 @@ class CursoInscrito extends Model
      * Carrega curso
      * @return BelongsTo
      */
-    public function agendaCurso() : BelongsTo
+    public function agendaCurso(): BelongsTo
     {
         return $this->belongsTo(AgendaCursos::class);
     }
@@ -49,7 +49,7 @@ class CursoInscrito extends Model
      * Carrega pessoa
      * @return BelongsTo
      */
-    public function pessoa() : BelongsTo
+    public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class)->withTrashed();
     }

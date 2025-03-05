@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('status_avaliador', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->unsignedBigInteger('avaliador_id');
             $table->date('data')->nullable();
             $table->enum('status', ['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])->nullable();

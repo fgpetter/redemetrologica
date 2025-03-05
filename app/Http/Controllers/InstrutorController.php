@@ -52,7 +52,6 @@ class InstrutorController extends Controller
 
     // Cria um instrutor vinculado a pessoa
     $instrutor = Instrutor::create([
-      'uid' => config('hashing.uid'),
       'pessoa_id' => $pessoa->id,
 
     ]);
@@ -191,7 +190,6 @@ class InstrutorController extends Controller
 
 
     $curso_habilitado = InstrutorCursoHabilitado::create([
-      'uid' => config('hashing.uid'),
       'instrutor_id' => $instrutor->id,
       'curso_id' => $request->curso,
       'habilitado' => $request->habilitado,

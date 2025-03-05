@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('instrutor_curso_habilitado', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->default(new Expression("(replace(left(uuid(),12),_utf8mb3'-',_utf8mb4'0'))"))->unique();
+            $table->string('uid')->unique();
             $table->foreignId('instrutor_id')->constrained('instrutores')->cascadeOnDelete();
             $table->foreignId('curso_id')->constrained()->cascadeOnDelete();
             $table->boolean('habilitado')->default(false);

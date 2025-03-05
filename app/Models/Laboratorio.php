@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SetDefaultUid;
 
 class Laboratorio extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $table = 'laboratorios';
 
@@ -24,8 +25,8 @@ class Laboratorio extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
 
@@ -33,21 +34,21 @@ class Laboratorio extends Model
      * Carrega pessoa
      * @return BelongsTo
      */
-    public function pessoa() : BelongsTo
+    public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class);
     }
-    
+
     /**
      * Carrega endereço
      * @return BelongsTo
      */
-    public function endereco() : BelongsTo
+    public function endereco(): BelongsTo
     {
         return $this->belongsTo(Endereco::class);
     }
 
-        /**
+    /**
      * Cursos habilitados
      * @return HasMany
      */
@@ -55,5 +56,4 @@ class Laboratorio extends Model
     {
         return $this->hasMany(LaboratorioInterno::class);
     }
-
 }
