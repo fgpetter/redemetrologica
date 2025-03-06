@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Curso;
 use App\Models\Pessoa;
 use App\Models\Instrutor;
+use Illuminate\Support\Str;
 use App\Models\AgendaCursos;
 use App\Models\CursoDespesa;
 use Illuminate\Http\Request;
 use App\Models\MaterialPadrao;
 use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CursoInscritosExport;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\AgendaCursoRequest;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AgendaCursoController extends Controller
 {
@@ -207,4 +211,16 @@ class AgendaCursoController extends Controller
     return back()->with('success', 'Despesa removida com sucesso');
   }
 
+  /**
+   * Baixa lista de presença de alunos
+   *
+   * @param AgendaCursos $agendacurso
+   * @return BinaryFileResponse
+   */
+  public function exportListaPresenca(AgendaCursos $agendacurso): BinaryFileResponse
+  {
+    $nome = Str::slug($agendacurso->curso->descricao);
+    $filename = "lista_presenca_{$nome}_{$agendacurso->data_inicio}.xlsx";
+    return Excel::download(new CursoInscritosExport($agendacurso), $filename );
+  }
 }

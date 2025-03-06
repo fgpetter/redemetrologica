@@ -164,6 +164,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{agendacurso:uid}', [AgendaCursoController::class, 'delete'])->name('agendamento-curso-delete');
     Route::post('salvar-despesa', [AgendaCursoController::class, 'salvaDespesa'])->name('curso-salvar-despesa');
     Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('curso-delete-despesa');
+    Route::get('export-lista-presenca/{agendacurso}/export-lista-presenca', [AgendaCursoController::class, 'exportListaPresenca'])
+        ->name('agendamento-curso.export-lista-presenca');
   });
 
   /* Agendamento de cursos in-company */
