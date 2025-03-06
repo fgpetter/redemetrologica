@@ -13,7 +13,7 @@
     </div>
     @if ($fornecedor->id)
       <div class="col-4">
-        <x-painel.fornecedores.dados-bancarios :fornecedor="$fornecedor"/>
+         <x-painel.dados-bancarios.list :pessoa="$fornecedor->pessoa" />
       </div>
     @endif
 
