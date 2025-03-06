@@ -25,9 +25,7 @@ class AgendaCursoController extends Controller
     $data = [
       'agendacursos' => AgendaCursos::with('curso', 'inscritos')
         ->whereNot('tipo_agendamento', 'IN-COMPANY')
-        ->orderBy(Curso::select('descricao')
-        ->whereColumn('agenda_cursos.curso_id', 'cursos.id')
-        )
+        ->orderBy('data_inicio')
         ->get(),
         'tipoagenda' => 'ABERTO'
     ];
