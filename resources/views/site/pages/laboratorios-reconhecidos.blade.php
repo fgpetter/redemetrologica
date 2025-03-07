@@ -1,18 +1,11 @@
-
-
 @php
-if (isset($_GET['area'])) {
-    $getarea = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['area']);
-}
-if (isset($_GET['laboratorio'])) {
-    $getlab = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['laboratorio']);
-}
-if (isset($_GET['buscalaboratorio'])) {
-    $buscalaboratorio = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['buscalaboratorio']);
-}
+  if (isset($_GET['area'])) {
+      $getarea = preg_replace('/[^a-zA-Zà-úÀ-Ú0-9\-\s\(\)\/]/', '', $_GET['area']);
+  }
+  if (isset($_GET['laboratorio'])) {
+      $getlab = preg_replace('/[^a-zA-Zà-úÀ-Ú0-9\-\s\(\)\/]/', '', $_GET['laboratorio']);
+  }
 @endphp
-
-
 
 @extends('site.layouts.layout-site')
 @section('title') Laboratórios Reconhecidos @endsection
@@ -29,15 +22,15 @@ if (isset($_GET['buscalaboratorio'])) {
 
   {{-- table --}}
   <div class="container mt-4">
-    <table class="table table-responsive table-striped align-middle table-nowrap">
+    <table class="table table-responsive table-striped align-middle">
       <thead>
         <h5 class="h5">Filtros</h5>
         <tr>
           
           <th>
-         <input type="text" name="laboratorio" id="laboratorio" class="form-control form-control-sm"
-       placeholder="Pesquisar laboratório" value="{{ $buscalaboratorio ?? '' }}"
-       onkeypress="if(event.keyCode === 13){ search(event, window.location.href, 'buscalaboratorio'); }">
+            <input type="text" name="laboratorio" id="laboratorio" class="form-control form-control-sm"
+              placeholder="Digite o nome do laboratório e pressione ENTER para buscar." value="{{ $getlab ?? '' }}"
+              onkeypress="if(event.keyCode === 13){ search(event, window.location.href, 'laboratorio'); }">
           </th>
           
           <th scope="col">
