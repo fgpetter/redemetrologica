@@ -1,11 +1,18 @@
+
+
 @php
-if(isset($_GET['area'])) {
-  $getarea = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['area']);
+if (isset($_GET['area'])) {
+    $getarea = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['area']);
 }
-if(isset($_GET['laboratorio'])) {
-  $getlab = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['laboratorio']);
+if (isset($_GET['laboratorio'])) {
+    $getlab = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['laboratorio']);
+}
+if (isset($_GET['buscalaboratorio'])) {
+    $buscalaboratorio = preg_replace('/[^A-Za-z0-9\-]/', '', $_GET['buscalaboratorio']);
 }
 @endphp
+
+
 
 @extends('site.layouts.layout-site')
 @section('title') Laboratórios Reconhecidos @endsection
@@ -26,14 +33,13 @@ if(isset($_GET['laboratorio'])) {
       <thead>
         <h5 class="h5">Filtros</h5>
         <tr>
+          
           <th>
-            <select name="laboratorio" id="laboratorio" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'laboratorio')">
-            <option value="">Filtrar por laboratório</option>
-              @foreach ($laboratorios->sortBy('nome_laboratorio') as $laboratorio)
-                <option @selected($laboratorio->uid == ($getlab ?? null)) value="{{ $laboratorio->uid }}">{{ $laboratorio->nome_laboratorio }}</option>
-              @endforeach
-            </select>
+         <input type="text" name="laboratorio" id="laboratorio" class="form-control form-control-sm"
+       placeholder="Pesquisar laboratório" value="{{ $buscalaboratorio ?? '' }}"
+       onkeypress="if(event.keyCode === 13){ search(event, window.location.href, 'buscalaboratorio'); }">
           </th>
+          
           <th scope="col">
             <select name="area_atuacao_id" id="area_atuacao_id" class="form-select form-select-sm" onchange="searchSelect(event, window.location.href, 'area')">
               <option value="">Filtrar por área de atuação</option>
