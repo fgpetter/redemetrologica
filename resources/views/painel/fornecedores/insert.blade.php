@@ -11,9 +11,14 @@
       <x-painel.fornecedores.insert :fornecedor="$fornecedor"/>
       <x-painel.enderecos.list :pessoa="$fornecedor->pessoa" />
     </div>
-    @if ($fornecedor->id)
+    {{-- @if ($fornecedor->id)
       <div class="col-4">
          <x-painel.dados-bancarios.list :pessoa="$fornecedor->pessoa" />
+      </div>
+    @endif --}}
+     @if ($fornecedor->id)
+      <div class="col-4">
+         <livewire:dados-bancarios.listview :pessoa="$fornecedor->pessoa" />
       </div>
     @endif
 
