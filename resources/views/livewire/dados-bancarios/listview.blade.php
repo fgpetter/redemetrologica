@@ -1,4 +1,4 @@
-<div class="card shadow-none border overflow-hidden card-border-info mt-3">
+<div class="card shadow-none border overflow-hidden card-border-info ">
     <div class="card-header d-flex justify-content-between align-items-start bg-info-subtle py-2">
         <div class="d-flex align-items-center gap-3">
             <div class="avatar-sm">
@@ -16,7 +16,7 @@
         </button>
     </div>
     
-    <div class="card-body px-1">
+    <div class="px-1">
         <ul class="list-group list-group-flush">
             @forelse ($contas as $conta)
                 <div wire:key="{{ $conta->id }}" class="list-group-item d-flex justify-content-between align-items-center">
@@ -49,7 +49,7 @@
                     </div>
                 </div>
             @empty
-                <p>Não há conta cadastrada</p>
+                <p class="m-3">Não há conta cadastrada</p>
             @endforelse
         </ul>
     </div>
