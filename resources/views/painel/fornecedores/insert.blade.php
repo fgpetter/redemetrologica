@@ -10,6 +10,7 @@
     <div class="col col-xxl-8">
       <x-painel.fornecedores.insert :fornecedor="$fornecedor"/>
       <x-painel.enderecos.list :pessoa="$fornecedor->pessoa" />
+      <livewire:enderecos.listview :pessoa="$fornecedor->pessoa" />
     </div>
     {{-- @if ($fornecedor->id)
       <div class="col-4">
