@@ -20,7 +20,7 @@
         <ul class="list-group list-group-flush">
             @forelse ($contas as $conta)
                 <div wire:key="{{ $conta->id }}" class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ $conta->nome_conta }} <br>
+                    {{-- {{ $conta->nome_conta }} <br>   nome_conta deveria receber um valor indicando de qual local ela foi adicionada? ex: Fornecedor, avaliador...--}}
                     {{ $conta->nome_banco }}, código: {{ $conta->cod_banco }} <br>
                     Agência:{{ $conta->agencia }}, {{ $conta->conta }}
                     
