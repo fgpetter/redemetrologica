@@ -68,7 +68,7 @@
 
     <!-- Modal Único -->
     <div wire:ignore.self class="modal fade" id="modalEndereco" tabindex="-1">
-        <div class="modal-dialog modal-dialog-right modal-md">
+        <div class="modal-dialog modal-dialog-left modal-lg"> 
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
