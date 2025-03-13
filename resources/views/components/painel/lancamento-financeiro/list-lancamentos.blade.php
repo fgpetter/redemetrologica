@@ -118,7 +118,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center"> Não há lançamentos na base. </td>
+                  <td colspan="6" class="text-center"> Não há lançamentos com vencimento nos próximos 7 dias, use o botão "Pesquisar" para atualizar a lista. </td>
                 </tr>
               @endforelse
               <tr>
@@ -201,7 +201,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center"> Não há lançamentos na base. </td>
+                  <td colspan="6" class="text-center"> Não há lançamentos com vencimento nos próximos 7 dias, use o botão "Pesquisar" para atualizar a lista. </td>
                 </tr>
               @endforelse
               <tr>

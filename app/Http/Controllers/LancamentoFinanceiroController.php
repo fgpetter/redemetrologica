@@ -267,8 +267,7 @@ class LancamentoFinanceiroController extends Controller
     }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosAReceber($validated)
-      ->orderBy('data_vencimento')
-      ->paginate(10);
+      ->orderBy('data_vencimento')->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
