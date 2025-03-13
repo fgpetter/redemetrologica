@@ -38,7 +38,7 @@
           <x-forms.input-select name="curso" id="curso" label="Curso">
             <option value=""> - </option>
             @foreach ($cursos as $curso)
-              <option @selected($curso->id == $busca_curso) value="{{ $curso->id }}">{{ $curso->id }} - {{ $curso->curso->descricao }}</option>
+              <option @selected($curso->id == $busca_curso) value="{{ $curso->id }}">{{ $curso->curso->descricao }}</option>
             @endforeach
           </x-forms.input-select>
         </div>
@@ -46,7 +46,7 @@
           <x-forms.input-select name="pep" id="pep" label="PEP">
             <option value=""> - </option>
             @foreach ($agendainterlabs as $agendainterlab)
-              <option @selected($agendainterlab->id == $busca_pep) value="{{ $agendainterlab->id }}">{{ $agendainterlab->id }} - {{ $agendainterlab->interlab->nome }}</option>
+              <option @selected($agendainterlab->id == $busca_pep) value="{{ $agendainterlab->id }}">{{ $agendainterlab->interlab->nome }}</option>
             @endforeach
 
           </x-forms.input-select>
