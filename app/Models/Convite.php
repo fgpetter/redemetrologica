@@ -4,13 +4,9 @@ namespace App\Models;
 
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\SetDefaultUid;
 
 class Convite extends Model
 {
-    use SetDefaultUid;
-
     protected $table = 'convites';
 
     protected $guarded = [];
