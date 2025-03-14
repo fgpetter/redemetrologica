@@ -58,6 +58,6 @@ class ModalForm extends Component
 
     public function render()
     {
-        return view('livewire.dados-bancarios.modal-form');
+        return view('livewire.dados-bancarios.modalform');
     }
 }

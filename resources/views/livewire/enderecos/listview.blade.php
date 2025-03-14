@@ -77,7 +77,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <livewire:enderecos.modal-form 
+                    <livewire:enderecos.modalform 
                         :pessoa="$pessoa" 
                         :enderecoUid="$enderecoAtivo"
                         key="{{ $enderecoAtivo ?? 'new' }}" />

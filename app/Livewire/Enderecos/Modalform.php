@@ -17,7 +17,7 @@ class ModalForm extends Component
     protected $rules = [
         'endereco.pessoa_id' => 'required|integer',
         'endereco.info' => 'nullable|string|max:255',
-        'endereco.cep' => 'required|string|min:8|max:9',
+        'endereco.cep' => 'required|string|size:9',
         'endereco.endereco' => 'required|string|max:255',
         'endereco.complemento' => 'nullable|string|max:255',
         'endereco.bairro' => 'nullable|string|max:255',
@@ -27,7 +27,7 @@ class ModalForm extends Component
 
     protected $messages = [
         'endereco.cep.required' => 'Preencha o campo CEP',
-        'endereco.cep.min' => 'O CEP precisa ter no minimo 8 caracteres',
+        'endereco.cep.size' => 'O CEP precisa ter 9 dígitos',
         'endereco.endereco.required' => 'Preencha o campo endereço',
         'endereco.cidade.required' => 'Preencha o campo cidade',
         'endereco.uf.required' => 'Preencha o campo UF',
@@ -63,11 +63,13 @@ class ModalForm extends Component
 
     public function buscaCep()
     {
-        $cep = preg_replace('/\D/', '', $this->endereco['cep']);
+        $cep = $this->endereco['cep'];
 
-        if (strlen($cep) === 8) {
+        if (strlen($cep) === 9) {
             // ao usar essa logica, nao corremos o risco de persistir dados incorretos em nosso BD?
-            $localEndereco = Endereco::where('cep', $cep)->first();
+            $localEndereco = Endereco::where('cep', $cep)
+                ->orderBy('id', 'desc')
+                ->first();
 
             if ($localEndereco) {
                 $this->endereco['endereco'] = $localEndereco->endereco;
@@ -105,14 +107,11 @@ class ModalForm extends Component
             }
         });
 
-
         return redirect()->to(url()->previous())->with('success', 'Endereço salvo com sucesso');
     }
 
-
-
     public function render()
     {
-        return view('livewire.enderecos.modal-form');
+        return view('livewire.enderecos.modalform');
     }
 }

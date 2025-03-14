@@ -65,7 +65,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <livewire:dados-bancarios.modal-form 
+                    <livewire:dados-bancarios.modalform 
                         :pessoa="$pessoa" 
                         :contaUid="$contaAtiva"
                         key="{{ $contaAtiva ?? 'new' }}" />
