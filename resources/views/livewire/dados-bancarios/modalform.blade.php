@@ -4,7 +4,7 @@
         <div class="row gy-2">
             <div class="col-8">
                 <x-forms.input-field
-                    wire:model="conta.nome_banco"
+                    wire:model.lazy="conta.nome_banco"
                     name="nome_banco"
                     label="Nome do banco"
                     placeholder="Ex. Banco do Brasil"
