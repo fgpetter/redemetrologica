@@ -44,7 +44,11 @@ class CursoInscritoImport implements ToCollection
       // Remove caracteres especiais e espaços extras
       $item['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $item['cpf_cnpj']);
       $item['nome_razao'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($item['nome_razao']));
-      $item['email'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', '', trim($item['email']));
+      
+      // Pula se o e-mail for inválido
+      if( isInvalidEmail( $item['email'] ) ){
+        continue;
+      }
 
       // Verifica se a pessoa já existe ou cria uma nova
       $pessoa = Pessoa::firstOrCreate(

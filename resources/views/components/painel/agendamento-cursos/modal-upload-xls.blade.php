@@ -16,7 +16,7 @@
                 <input class="form-control" name="arquivo" type="file" id="arquivo" accept=".xls, .xlsx, .csv">
                 @error('arquivo')
                   <div class="text-warning">{{ $message }}</div>
-                  <span class="text-muted">Alguns arquivos .xls e .xlsxx podem estar corrompidos mesmo que abram no Excell. Salve o arquivo em outra pasta ou com outro nome.</span>
+                  <span class="text-muted">Alguns arquivos .xls e .xlsx podem estar corrompidos mesmo que abram no Excel. Salve o arquivo em outra pasta ou com outro nome.</span>
                 @enderror
               </div>
 
