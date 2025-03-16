@@ -24,12 +24,21 @@ class CursoController extends Controller
    *
    * @return View
    **/
-  public function index(): View
+  public function index(Request $request)
   {
-    $cursos = Curso::orderBy('id', 'desc')->paginate(15);
+    $order = $request->input('ordem', 'desc');
+    $busca = $request->input('busca');
+
+    $cursos = Curso::when($busca, function ($query) use ($busca) {
+      $query->where('descricao', 'LIKE', "%{$busca}%");
+    })
+      ->orderBy('descricao', $order)
+      ->orderBy('id', 'desc') // Mantém ordenação secundária por ID
+      ->paginate(15)
+      ->withQueryString();
+
     return view('painel.cursos.index', ['cursos' => $cursos]);
   }
-
   /**
    * Adiciona curso na base
    *
