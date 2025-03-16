@@ -1,8 +1,14 @@
-  <div class="card">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-12">
-          <div class="hstack gap-2 flex-wrap mb-3 justify-content-end">
+ @php
+    $order = request('name', 'asc') == 'asc' ? 'desc' : 'asc';
+    $busca_nome = request('buscanome', '');
+@endphp
+
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-12">
+        
+        <div class="hstack gap-2 flex-wrap mb-3 justify-content-end">
             <button class="btn btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
               <i class="ri-add-line align-bottom me-1"></i> Adicionar Avaliador
             </button>
@@ -45,18 +51,39 @@
 
       <div class="table-responsive" style="min-height: 25vh">
         <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
+       <!-- Cabeçalho de busca -->
         <thead>
           <tr>
-            <th scope="col" style="width: 5%">ID</th>
-            <th scope="col" style="width: 50%">Nome</th>
-            <th scope="col">Experiencia</th>
-            <th scope="col">Incerteza</th>
-            <th scope="col">ISO</th>
-            <th scope="col">Audit Interna</th>
-            <th scope="col">Ingresso</th>
+            <th scope="col"></th>
+            <th scope="col">
+              <input type="text" class="form-control form-control-sm"
+                onkeypress="search(event, window.location.href, 'buscanome')"
+                placeholder="Buscar por nome" value="{{ $busca_nome ?? '' }}">
+            </th>
+            <th scope="col"></th>
+            <th scope="col"></th>
             <th scope="col"></th>
           </tr>
         </thead>
+        <!-- Cabeçalho de busca -->
+        <!-- Cabeçalho ordenável -->
+        <thead>
+          <tr>
+            <th scope="col" style="width: 5%">ID</th>
+            <th scope="col" style="width: 50%">
+              <a href="{{ route('avaliador-index', [
+                'name' => $order
+                ]) }}">
+                Nome 
+                {!! $order == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+              </a>
+            </th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <!-- Cabeçalho ordenável -->
         <tbody>
           @forelse ($avaliadores->where('pessoa' , '!=', null) as $avaliador)
             <tr>

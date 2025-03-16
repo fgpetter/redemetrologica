@@ -25,18 +25,35 @@ class AvaliadorController extends Controller
    *
    * @return View
    **/
-  public function index(): View
+  public function index(Request $request)
   {
-    $avaliadores = Avaliador::with('pessoa')->paginate(10);
+    $order = $request->input('name', 'asc');
+    $busca_nome = $request->input('buscanome');
+
+    $avaliadores = Avaliador::with('pessoa')
+      ->when($busca_nome, function ($query) use ($busca_nome) {
+        $query->whereHas('pessoa', function ($query) use ($busca_nome) {
+          $query->where('nome_razao', 'LIKE', "%{$busca_nome}%");
+        });
+      })
+      ->orderBy(
+        Pessoa::select('nome_razao')
+          ->whereColumn('pessoas.id', 'avaliadores.pessoa_id'),
+        $order
+      )
+      ->paginate(10);
+
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->whereNotIn('id', function ($query) {
         $query->select('pessoa_id')->from('avaliadores');
       })
       ->get();
 
-    return view('painel.avaliadores.index', ['avaliadores' => $avaliadores, 'pessoas' => $pessoas]);
+     return view('painel.avaliadores.index', [
+        'avaliadores' => $avaliadores,
+        'pessoas' => $pessoas
+    ]);
   }
-
   /**
    * Adiciona avaliadores na base
    *
