@@ -1,3 +1,8 @@
+@php
+    $order = request('name', 'asc') == 'asc' ? 'desc' : 'asc';
+    $busca_nome = request('buscanome', '');
+@endphp
+
 <div class="card">
   <div class="card-header">
     <h4 class="card-title mb-0">Usuários</h4>
@@ -7,8 +12,26 @@
       <table class="table table-striped align-middle table-nowrap mb-0">
         <thead>
           <tr>
+            <th scope="col"></th>
+            <th scope="col">
+              <input type="text" class="form-control form-control-sm"
+                onkeypress="search(event, window.location.href, 'buscanome')"
+                placeholder="Buscar por nome" value="{{ $busca_nome }}">
+            </th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <thead>
+          <tr>
             <th scope="col">ID</th>
-            <th scope="col">Nome</th>
+            <th scope="col">
+              <a href="{{ route('user-index', ['name' => $order, 'buscanome' => $busca_nome]) }}">
+                {!! $order == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                Nome
+              </a>
+            </th>
             <th scope="col">Perfil</th>
             <th scope="col">Permissões</th>
             <th scope="col"></th>
