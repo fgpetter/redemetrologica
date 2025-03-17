@@ -1,3 +1,8 @@
+@php
+    $order = request('order', 'asc') == 'asc' ? 'desc' : 'asc';
+    $currentOrderBy = request('orderBy', 'data_inicio');
+    $busca_nome = request('buscanome', '');
+@endphp
 <div class="card">
   <div class="card-body">
     <div class="row">
@@ -11,15 +16,39 @@
 
 
     <div class="table-responsive" style="min-height: 25vh">
+      <div>
+        <tr>
+          <th colspan="4"></th>
+          <th colspan="2">
+            <input type="text" class="form-control form-control-sm" 
+              onkeypress="search(event, window.location.href, 'buscanome')"
+              placeholder="Buscar por curso" value="{{ $busca_nome }}">
+          </th>
+          <th colspan="3"></th>
+        </tr>
+      </div>
       <table class="table table-responsive table-striped align-middle mb-0">
+        <!-- Cabeçalho ordenável -->
         <thead>
           <tr>
             <th scope="col" style="width: 5%; white-space: nowrap;">Mês</th>
             <th scope="col" style="width: 5%; white-space: nowrap;">ID</th>
-            <th scope="col" style="width: 7%; white-space: nowrap;">Status</th>
-            <th scope="col" ></th>
-            <th scope="col" style="width: 7%; white-space: nowrap;">Data Inicio</th>
-            <th scope="col">Nome do Curso</th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'status', 'order' => $order]) }}">
+                Status {!! $currentOrderBy == 'status' ? ($order == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
+            <th scope="col"></th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'data_inicio', 'order' => $order]) }}">
+                Data Inicio {!! $currentOrderBy == 'data_inicio' ? ($order == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
+            <th scope="col">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'curso', 'order' => $order]) }}">
+                Nome do Curso {!! $currentOrderBy == 'curso' ? ($order == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
             <th scope="col">Tipo</th>
             <th scope="col" class="text-center">Inscritos</th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
@@ -98,6 +127,9 @@
           @endforelse
         </tbody>
       </table>
+       <div class="row mt-3 w-100">
+        {!! $agendacursos->appends(request()->query())->links('pagination::bootstrap-5') !!}
+      </div>
     </div>
   </div>
 </div>
