@@ -4,16 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\AreaAtuacao;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+
 
 class AreaAtuacaoController extends Controller
 {
   /**
    * Display a listing of the resource.
    */
-  public function index()
-  {
-    return view('painel.area-atuacao.index', ['areas_atuacao' => AreaAtuacao::all()]);
-  }
+  public function index(Request $request): View
+{
+    $sortDirection = $request->input('order', 'asc');
+    $sortField     = $request->input('orderBy', 'descricao');
+    $searchTerm    = $request->input('buscadecricao');
+
+    $areas_atuacao = AreaAtuacao::when($searchTerm, function ($query) use ($searchTerm) {
+            $query->where('descricao', 'LIKE', "%{$searchTerm}%");
+        })
+        ->orderBy($sortField, $sortDirection)
+        ->paginate(15)
+        ->withQueryString();
+
+    return view('painel.area-atuacao.index', ['areas_atuacao' => $areas_atuacao]);
+}
+
 
 
   /**
