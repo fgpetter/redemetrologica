@@ -1,3 +1,8 @@
+@php
+    $sortDirection = request('order', 'asc') == 'asc' ? 'desc' : 'asc';
+    $currentSortField = request('orderBy', 'nome');
+    $searchTerm = request('buscanome', '');
+@endphp
 <div class="card">
     <div class="card-body">
         <div class="row">
@@ -11,13 +16,42 @@
 
 
         <div class="table-responsive" style="min-height: 25vh">
+            <div>
+                        <input type="text" class="form-control form-control-sm" 
+                            onkeypress="search(event, window.location.href, 'buscanome')"
+                            placeholder="Buscar por nome" value="{{ $searchTerm }}"> 
+            </div>
             <table class="table table-responsive table-striped align-middle mb-0"
                 style="table-layout: fixed">
                 <thead>
                     <tr>
                         <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID</th>
-                        <th scope="col">Nome</th>
-                        <th scope="col" style="width: 15%; white-space: nowrap;">Tipo</th>
+                        <th scope="col">
+                            <a href="{{ request()->fullUrlWithQuery([
+                                'orderBy' => 'nome', 
+                                'order' => $sortDirection
+                                ]) }}">
+                                Nome
+                                {!! $currentSortField == 'nome' 
+                                    ? ($sortDirection == 'asc' 
+                                        ? '<i class="ri-arrow-up-s-line"></i>' 
+                                        : '<i class="ri-arrow-down-s-line"></i>') 
+                                    : '' !!}
+                            </a>
+                        </th>
+                        <th scope="col" style="width: 15%; white-space: nowrap;">
+                            <a href="{{ request()->fullUrlWithQuery([
+                                'orderBy' => 'tipo', 
+                                'order' => $sortDirection
+                                ]) }}">
+                                Tipo
+                                {!! $currentSortField == 'tipo' 
+                                    ? ($sortDirection == 'asc' 
+                                        ? '<i class="ri-arrow-up-s-line"></i>' 
+                                        : '<i class="ri-arrow-down-s-line"></i>') 
+                                    : '' !!}
+                            </a>
+                        </th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
                 </thead>

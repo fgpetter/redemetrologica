@@ -14,11 +14,21 @@ class InterlabController extends Controller
    *
    * @return View
    **/
-  public function index(): View
-  {
-    $interlabs = Interlab::paginate(15);
+   public function index(Request $request): View
+{
+    $sortDirection = $request->input('order', 'asc');
+    $sortField = $request->input('orderBy', 'nome');
+    $searchTerm = $request->input('buscanome');
+
+    $interlabs = Interlab::when($searchTerm, function ($query) use ($searchTerm) {
+            $query->where('nome', 'LIKE', "%{$searchTerm}%");
+        })
+        ->orderBy($sortField, $sortDirection)
+        ->paginate(15)
+        ->withQueryString();
+
     return view('painel.interlabs.index', ['interlabs' => $interlabs]);
-  }
+}
 
   /**
    * Tela de edição de interlab
