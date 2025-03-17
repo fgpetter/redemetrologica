@@ -43,7 +43,8 @@ class InstrutorController extends Controller
         ->when($busca_doc, function ($query, $busca_doc) {
             $query->where('pessoas.cpf_cnpj', 'LIKE', "%{$busca_doc}%");
         })
-        ->paginate(10);
+        ->paginate(10)
+        ->withQueryString();
 
 
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')

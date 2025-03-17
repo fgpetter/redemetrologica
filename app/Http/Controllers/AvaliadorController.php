@@ -41,7 +41,8 @@ class AvaliadorController extends Controller
           ->whereColumn('pessoas.id', 'avaliadores.pessoa_id'),
         $order
       )
-      ->paginate(10);
+      ->paginate(10)
+      ->withQueryString();
 
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->whereNotIn('id', function ($query) {

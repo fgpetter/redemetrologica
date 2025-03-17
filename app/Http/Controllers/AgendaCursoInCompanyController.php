@@ -12,6 +12,7 @@ use App\Models\LancamentoFinanceiro;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\AgendaCursoRequest;
 use Illuminate\Http\Request;
+use Spatie\Browsershot\Browsershot;
 
 class AgendaCursoInCompanyController extends Controller
 {
@@ -21,7 +22,7 @@ class AgendaCursoInCompanyController extends Controller
    * 
    * @return View
    */
-  public function index(Request $request): View
+  public function index(Request $request)
 {
     $sortDirection = $request->input('order', 'asc'); // direção da ordenação
     $sortField = $request->input('orderBy', 'data_inicio'); // campo de ordenação
@@ -45,7 +46,8 @@ class AgendaCursoInCompanyController extends Controller
                 $query->orderBy($sortField, $sortDirection);
             }
         })
-        ->paginate(10);
+        ->paginate(10)
+        ->withQueryString();
 
     return view('painel.agendamento-cursos.index', [
         'agendacursos' => $agendacursos,
