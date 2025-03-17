@@ -15,10 +15,21 @@ class MateriaisPadroesController extends Controller
    * Display a listing of the resource.
    * @return View
    */
-  public function index(): View
-  {
-    return view('painel.materiais-padroes.index', ['materiais' => MaterialPadrao::paginate(10)]);
-  }
+  public function index(Request $request): View
+{
+    $sortDirection = $request->input('order', 'asc');
+    $sortField     = $request->input('orderBy', 'descricao');
+    $searchTerm    = $request->input('buscadecricao');
+
+    $materiais = MaterialPadrao::when($searchTerm, function ($query) use ($searchTerm) {
+            $query->where('descricao', 'LIKE', "%{$searchTerm}%");
+        })
+        ->orderBy($sortField, $sortDirection)
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('painel.materiais-padroes.index', ['materiais' => $materiais]);
+}
 
   /**
    * Store a newly created resource in storage.
