@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Parametro;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 
 class ParametrosController extends Controller
@@ -10,11 +11,21 @@ class ParametrosController extends Controller
   /**
    * Display a listing of the resource.
    */
-  public function index()
-  {
+  public function index(Request $request): View
+{
+    $sortDirection = $request->input('order', 'asc');
+    $sortField     = $request->input('orderBy', 'descricao');
+    $searchTerm    = $request->input('buscadecricao');
 
-    return view('painel.parametros.index', ['parametros' => Parametro::paginate(15)]);
-  }
+    $parametros = Parametro::when($searchTerm, function ($query) use ($searchTerm) {
+            $query->where('descricao', 'LIKE', "%{$searchTerm}%");
+        })
+        ->orderBy($sortField, $sortDirection)
+        ->paginate(15)
+        ->withQueryString();
+
+    return view('painel.parametros.index', ['parametros' => $parametros]);
+}
 
 
   /**
