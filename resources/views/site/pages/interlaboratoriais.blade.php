@@ -29,33 +29,37 @@
   {{-- baixar --}}
 
   {{-- interlab --}}
-  <div class="container">
-    <div class="row gy-5">
-      @foreach ($interlabs as $agendaInterlab)
-      <div class="col-3">
-          <div class="card ribbon-box border shadow-none mb-lg-0 card-interlab" style="width: 18rem;">
-            @if( $agendaInterlab->inscricao == 1 )
-              <div class="ribbon ribbon-primary round-shape">Inscrições abertas</div>
-            @endif
-            <img src="{{ url( asset('build/images/site/').'/'.$agendaInterlab->interlab->thumb ) }}" 
-              class="card-img-top align-self-center pt-2" alt="" style="max-width: 170px" >
-            <div class="card-body text-white" style="background-color: #405D71; margin-top: -15px">
-              <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" class="text-white bold">
-                <h5 class="card-title pb-2">{{ $agendaInterlab->interlab->nome }}</h5>
-              </a>
+<div class="container">
+  <div class="row gy-5">
+    @foreach ($interlabs as $agendaInterlab)
+    <div class="col-12 col-sm-6 col-lg-3"> 
+      <div class="card ribbon-box border shadow-none mb-lg-0 card-interlab h-100">
+        @if( $agendaInterlab->inscricao == 1 )
+          <div class="ribbon ribbon-primary round-shape">Inscrições abertas</div>
+        @endif
+        <img src="{{ url( asset('build/images/site/').'/'.$agendaInterlab->interlab->thumb ) }}" 
+          class="card-img-top align-self-center pt-2 img-fluid" alt="" style="max-width: 170px"> 
+        <div class="card-body text-white d-flex flex-column overflow-hidden" 
+             style="background-color: #405D71; margin-top: -15px; height: 150px;">
+          <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" 
+             class="text-white bold flex-grow-1 overflow-hidden">
+            <h5 class="card-title pb-2">{{ $agendaInterlab->interlab->nome }}</h5>
+          </a>
 
-              <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" class="text-start text-white bold">Visualizar <i
-                class="fa-solid fa-circle-chevron-right"></i></a>
-            </div>
-            <div class="card-footer py-2 border-0 text-white" style="background-color: #002C41">
-              <i class="bi bi-calendar2-event"></i> &nbsp; 
-                @if($agendaInterlab->data_inicio) {{ \Carbon\Carbon::parse($agendaInterlab->data_inicio)->format('d/m/Y') }} @endif 
-            </div>
-          </div>
+          <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" 
+             class="text-start text-white bold mt-auto">Visualizar <i
+            class="fa-solid fa-circle-chevron-right"></i></a>
         </div>
-        @endforeach
+
+        <div class="card-footer py-2 border-0 text-white" style="background-color: #002C41">
+          <i class="bi bi-calendar2-event"></i> &nbsp; 
+            @if($agendaInterlab->data_inicio) {{ \Carbon\Carbon::parse($agendaInterlab->data_inicio)->format('d/m/Y') }} @endif 
+        </div>
+      </div>
     </div>
+    @endforeach
   </div>
+</div>
   {{-- interlab --}}
 
 @endsection
