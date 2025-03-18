@@ -56,8 +56,8 @@
               <div class="ribbon ribbon-success round-shape">Inscrições abertas</div>
             @endif
             <div style="margin-top: 8rem">
-              <div class="card-body text-white" style="background-color: #405D71;">
-                <a href="{{ route('curso-agendado-show', $agendacurso->uid) }}" class="text-white bold">
+              <div class="card-body text-white d-flex flex-column overflow-hidden" style="background-color: #405D71; height: 150px;">
+                <a href="{{ route('curso-agendado-show', $agendacurso->uid) }}" class="text-white bold flex-grow-1 overflow-hidden">
                   <h5 class="card-title pb-2">{{ $agendacurso->curso->descricao }}</h5>
                 </a>
       
