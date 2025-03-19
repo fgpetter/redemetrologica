@@ -38,7 +38,9 @@
           <x-forms.input-select name="curso" id="curso" label="Curso">
             <option value=""> - </option>
             @foreach ($cursos as $curso)
-              <option @selected($curso->id == $busca_curso) value="{{ $curso->id }}">{{ $curso->curso->descricao }}</option>
+              <option @selected($curso->id == $busca_curso) value="{{ $curso->id }}">
+                ID: {{ $curso->id }} - {{ $curso->curso->descricao }}
+              </option>
             @endforeach
           </x-forms.input-select>
         </div>
@@ -63,7 +65,7 @@
         </div>
         <div class="col-auto">
           <button type="submit" class="btn btn-sm btn-primary px-3 py-2 ms-sm-3">Pesquisar</button>
-          <button type="reset" class="btn btn-sm btn-danger px-3 py-2">Limpar</button>
+          <a href="{{ route('a-receber-index') }}" class="btn btn-sm btn-danger px-3 py-2">Limpar</a>
         </div>
       </div>
     </form>
@@ -98,7 +100,7 @@
                 {{ $lancamento->agenda_interlab_id ? 'PEP' : '' }}
                 {{ $lancamento->agenda_avaliacao_id ? 'AVALIAÇÃO' : '' }}
               </td>
-              <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
+              <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor ?? ''}}"> </td>
               <td>
                 <div class="dropdown">
                   <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
@@ -138,6 +140,9 @@
           @endforelse
         </tbody>
       </table>
+      <div class="row mt-3 w-100">
+        {!! $lancamentosfinanceiros->withQueryString()->links('pagination::bootstrap-5') !!}
+      </div>
     </div>
 
   </div>

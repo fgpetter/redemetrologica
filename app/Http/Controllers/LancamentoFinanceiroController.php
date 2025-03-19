@@ -267,7 +267,7 @@ class LancamentoFinanceiroController extends Controller
     }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosAReceber($validated)
-      ->orderBy('data_vencimento')->get();
+      ->orderBy('data_vencimento')->paginate(10);
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
@@ -277,14 +277,12 @@ class LancamentoFinanceiroController extends Controller
     $cursos = AgendaCursos::select('agenda_cursos.id', 'agenda_cursos.uid', 'agenda_cursos.curso_id')
       ->join('cursos', 'agenda_cursos.curso_id', '=', 'cursos.id')
       ->whereNot('agenda_cursos.status', 'CANCELADO')
-      ->with('curso')
       ->orderBy('cursos.descricao')
       ->get();
 
     $agendainterlabs = AgendaInterlab::select('agenda_interlabs.id', 'agenda_interlabs.uid', 'agenda_interlabs.interlab_id')
       ->join('interlabs', 'agenda_interlabs.interlab_id', '=', 'interlabs.id')
       ->whereNot('agenda_interlabs.status', 'CANCELADO')
-      ->with('interlab')
       ->orderBy('interlabs.nome')
       ->get();
 

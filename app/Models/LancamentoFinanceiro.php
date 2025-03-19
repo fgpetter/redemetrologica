@@ -88,18 +88,15 @@ class LancamentoFinanceiro extends Model
       ->with(['pessoa' => fn($query) => $query->withTrashed()])
       ->with(['curso', 'interlab', 'avaliacao'])
       ->where('status', 'PROVISIONADO')
+      ->whereNull('data_pagamento')
       ->where('tipo_lancamento', 'CREDITO')
-      
+
       ->when($validated['data_inicial'] ?? null, function (Builder $query, $data_inicial) {
         $query->where('data_vencimento', '>=', $data_inicial);
-      }, function (Builder $query) {
-        $query->where('data_vencimento', '>=', today()); // default
       })
 
       ->when($validated['data_final'] ?? null, function (Builder $query, $data_final) {
         $query->where('data_vencimento', '<=', $data_final);
-      }, function (Builder $query) {
-        $query->where('data_vencimento', '<=', $validated['data_final'] ?? today()->addDays(7)); // default
       })
 
       ->when($validated['pessoa'] ?? null, function (Builder $query, $pessoa) {
