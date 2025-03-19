@@ -48,11 +48,11 @@
                         <p class="lead">Nossa equipe entrará em contato em breve.</p>
                         <p class="mt-3">Agradecemos seu contato e retornaremos o mais rápido possível.</p>
                         <div class="mt-4">
-                        <a href="{{ route('faleconosco.form') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-repeat me-2"></i>
-                            Enviar outra mensagem
-                        </a>
-                    </div>
+                            <a href="{{ route('faleconosco.form') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Enviar outra mensagem
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -120,15 +120,29 @@
     {{-- mapa --}}
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('faleConoscoForm');
-        const submitButton = document.getElementById('btnEnviar');
-        if (form) {
-            form.addEventListener('submit', function() {
-                submitButton.disabled = true;
-                submitButton.textContent = 'ENVIANDO...';
-            });
-        }
-    });
-</script>
+        //Sanitização básica front-end   
+        document.getElementById('faleConoscoForm').addEventListener('submit', function(event) {
+            const form = event.target;
+            form.name.value = form.name.value.trim().replace(/<[^>]*>?/gm, '');
+            form.email.value = form.email.value.trim();
+            form.phone.value = form.phone.value.trim().replace(/[^0-9().-\s]/g, '');
+            form.message.value = form.message.value.trim().replace(/<[^>]*>?/gm, '');
+            if (form.areas) {
+                form.areas.forEach(area => {
+                    area.value = area.value.trim().replace(/<[^>]*>?/gm, '');
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('faleConoscoForm');
+            const submitButton = document.getElementById('btnEnviar');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'ENVIANDO...';
+                });
+            }
+        });
+    </script>
 @endsection
