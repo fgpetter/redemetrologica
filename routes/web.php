@@ -31,7 +31,8 @@ use App\Http\Controllers\{
   LancamentoFinanceiroController,
   HomeController,
   PainelController,
-  AgendaCursoInCompanyController
+  AgendaCursoInCompanyController,
+  FaleconoscoController
 };
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ImpersonateController;
@@ -58,7 +59,11 @@ Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
 Route::get('laboratorios-reconhecidos', [LaboratorioController::class, 'siteIndex']);
 Route::view('bonus-metrologia', 'site.pages.bonus-metrologia');
 Route::get('laboratorios-downloads', [DownloadController::class, 'siteIndex']);
-Route::view('fale-conosco', 'site.pages.fale-conosco');
+
+// Rotas para fale-conosco e envio de formulario de contato
+Route::get('fale-conosco', [FaleconoscoController::class, 'index'])->name('faleconosco.form');
+Route::post('fale-conosco', [FaleconoscoController::class, 'enviar'])->name('faleconosco.submit');
+
 Route::view('slug-da-noticia', 'site.pages.slug-da-noticia');
 Route::view('slug-da-galeria', 'site.pages.slug-da-galeria');
 Route::view('sobre', 'site.pages.sobre');

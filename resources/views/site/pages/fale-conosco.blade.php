@@ -1,5 +1,7 @@
 @extends('site.layouts.layout-site')
-@section('title') Fale Conosco @endsection
+@section('title')
+    Fale Conosco
+@endsection
 @section('content')
     {{-- contatos --}}
     <div class="container my-5">
@@ -37,67 +39,74 @@
     {{-- formulario --}}
 
     <div class="container my-5">
-        <div class="row">
-            <div class="col-lg-6">
-                <input class="form-control mb-3" type="text" placeholder="Seu nome" aria-label="default input example">
-                <input class="form-control my-3" type="text" placeholder="E-mail*" aria-label="default input example">
-                <input class="form-control my-3" type="text" placeholder="Telefone para Contato"
-                    aria-label="default input example">
-                <p><strong>A Rede Metrológica conta com Data Protection Officer (DPO). O Usuário pode entrar em
-                        contato com o DPO no endereço físico ou através do e-mail
-                        lgpd@redemetrologica.com.br</strong></p>
+        @if (session('success'))
+            <div class="row justify-content-center">
+                <div class="col-md-8 text-center">
+                    <div class="alert alert-success p-5">
+                        <i class="bi bi-check-circle-fill display-4 text-success mb-3"></i>
+                        <h2 class="display-5 mb-3">Mensagem enviada com sucesso!</h2>
+                        <p class="lead">Nossa equipe entrará em contato em breve.</p>
+                        <p class="mt-3">Agradecemos seu contato e retornaremos o mais rápido possível.</p>
+                        <div class="mt-4">
+                        <a href="{{ route('faleconosco.form') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-repeat me-2"></i>
+                            Enviar outra mensagem
+                        </a>
+                    </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-lg-6">
-                {{-- <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label> --}}
-                <textarea class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Mensagem*"></textarea>
-                <p>Selecione as área(s) que deseja fazer contato</p>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault1">
-                    <label class="form-check-label" for="flexCheckDefault1">
-                        Avaliação de laboratórios
-                    </label>
-                </div>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault2">
-                    <label class="form-check-label" for="flexCheckDefault2">
-                        Cursos/Treinamentos
-                    </label>
-                </div>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault3">
-                    <label class="form-check-label" for="flexCheckDefault3">
-                        Material de Referência
-                    </label>
-                </div>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault4">
-                    <label class="form-check-label" for="flexCheckDefault4">
-                        Ensaios de Proficiência
-                    </label>
-                </div>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault5">
-                    <label class="form-check-label" for="flexCheckDefault5">
-                        Administrativo/Financeiro
-                    </label>
-                </div>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault6">
-                    <label class="form-check-label" for="flexCheckDefault6">
-                        Apoio Técnico
-                    </label>
-                </div>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault7">
-                    <label class="form-check-label" for="flexCheckDefault7">
-                        Bônus Metrologia
-                    </label>
-                </div>
-                <div class="my-2"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault8">
-                    <label class="form-check-label" for="flexCheckDefault8">
-                        Outros
-                    </label>
-                </div>
+        @else
+            <form id="faleConoscoForm" method="POST" action="{{ route('faleconosco.submit') }}">
+                @csrf
+                <div class="row">
+                    <div class="col-lg-6">
+                        <input class="form-control mb-3" name="name" type="text" placeholder="Seu nome"
+                            value="{{ old('name') }}" required>
 
-            </div>
-            <div class="d-grid my-3">
-                <button class="btn btn-primary" type="button">ENVIAR</button>
+                        <input class="form-control my-3" name="email" type="email" placeholder="E-mail*"
+                            value="{{ old('email') }}" required>
 
-            </div>
-        </div>
+                        <input class="form-control my-3" name="phone" type="text" placeholder="Telefone para Contato"
+                            value="{{ old('phone') }}" required>
+                        <p><strong>A Rede Metrológica conta com Data Protection Officer (DPO). O Usuário pode entrar em
+                                contato com o DPO no endereço físico ou através do e-mail
+                                lgpd@redemetrologica.com.br</strong></p>
+                    </div>
+                    <div class="col-lg-6">
+                        {{-- <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label> --}}
+                        <textarea class="form-control mb-3" name="message" rows="3" placeholder="Mensagem*">{{ old('message') }}</textarea>
+                        <p>Selecione as área(s) que deseja fazer contato</p>
+                        @foreach (['Avaliação de laboratórios', 'Cursos/Treinamentos', 'Material de Referência', 'Ensaios de Proficiência', 'Administrativo/Financeiro', 'Apoio Técnico', 'Bônus Metrologia', 'Outros'] as $key => $area)
+                            <div class="my-2">
+                                <input class="form-check-input" type="checkbox" name="areas[]" value="{{ $area }}"
+                                    id="area{{ $key }}" {{ in_array($area, old('areas', [])) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="area{{ $key }}">
+                                    {{ $area }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="d-grid my-3">
+                        <button id="btnEnviar" class="btn btn-primary" type="submit">ENVIAR</button>
+                    </div>
+                </div>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+            </form>
+        @endif
     </div>
     {{-- formulario --}}
 
@@ -109,4 +118,17 @@
             style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
     {{-- mapa --}}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('faleConoscoForm');
+        const submitButton = document.getElementById('btnEnviar');
+        if (form) {
+            form.addEventListener('submit', function() {
+                submitButton.disabled = true;
+                submitButton.textContent = 'ENVIANDO...';
+            });
+        }
+    });
+</script>
 @endsection
