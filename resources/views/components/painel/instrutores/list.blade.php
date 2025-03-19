@@ -1,5 +1,13 @@
 @props(['instrutores' => [], 'pessoas' => []])
 
+@php
+    $order_name = request('name', 'asc') == 'asc' ? 'desc' : 'asc';
+    $order_doc = request('doc', 'asc') == 'asc' ? 'desc' : 'asc';
+    $order_data = request('data', 'asc') == 'asc' ? 'desc' : 'asc';
+    $busca_nome = request('buscanome', '');
+    $busca_doc = request('buscadoc', '');
+@endphp
+
 <div class="card">
     <div class="card-body">
         <div class="row">
@@ -46,11 +54,56 @@
             <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
                 <thead>
                     <tr>
-                        <th scope="col" class=" d-sm-table-cell" style="width: 1%; white-space: nowrap;">Codigo
+                        <th scope="col"></th>
+                        <th scope="col">
+                            <input type="text" class="form-control form-control-sm"
+                                onkeypress="search(event, window.location.href, 'buscanome')"
+                                placeholder="Buscar por nome" value="{{ $busca_nome }}">
                         </th>
-                        <th scope="col">Nome</th>
-                        <th scope="col">CPF/CNPJ</th>
-                        <th scope="col">Data Cadastro</th>
+                        <th scope="col">
+                            <input type="text" class="form-control form-control-sm"
+                                onkeypress="search(event, window.location.href, 'buscadoc')"
+                                placeholder="Buscar por documento" value="{{ $busca_doc }}">
+                        </th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 1%;">Código</th>
+                        <th scope="col">
+                            <a href="{{ route('instrutor-index', [
+                                'name' => $order_name,
+                                'buscanome' => $busca_nome,
+                                'buscadoc' => $busca_doc,
+                                'data' => request('data')
+                            ]) }}">
+                                Nome 
+                                {!! $order_name == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="{{ route('instrutor-index', [
+                                'doc' => $order_doc,
+                                'buscanome' => $busca_nome,
+                                'buscadoc' => $busca_doc,
+                                'data' => request('data')
+                            ]) }}">
+                                CPF/CNPJ
+                                {!! $order_doc == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="{{ route('instrutor-index', [
+                                'data' => $order_data,
+                                'buscanome' => $busca_nome,
+                                'buscadoc' => $busca_doc
+                            ]) }}">
+                                Data Cadastro
+                                {!! $order_data == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                            </a>
+                        </th>
                         <th scope="col"></th>
                     </tr>
                 </thead>

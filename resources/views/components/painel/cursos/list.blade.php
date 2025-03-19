@@ -1,3 +1,7 @@
+@php
+    $ordem = request('ordem', 'desc') == 'desc' ? 'asc' : 'desc';
+    $busca = request('busca', '');
+@endphp
 <div class="card">
     <div class="card-body">
         <div class="row">
@@ -11,12 +15,36 @@
 
 
         <div class="table-responsive" style="min-height: 25vh">
+            <!-- Cabeçalho de Busca -->
+          <div>    
+            
+               <tr>
+                   <th scope="col"></th>
+                   <th scope="col">
+                       <input type="text" class="form-control form-control-sm" 
+                           placeholder="Buscar por descrição"
+                           value="{{ $busca }}"
+                           onkeypress="search(event, '{{ route('curso-index') }}', 'busca')">
+                   </th>
+                   <th scope="col"></th>
+                   <th scope="col"></th>
+                   <th scope="col"></th>
+               </tr>
+           
+       </div>
             <table class="table table-responsive table-striped align-middle mb-0"
                 style="table-layout: fixed">
+                
+                <!-- Cabeçalho da Tabela -->
                 <thead>
                     <tr>
                         <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID</th>
-                        <th >Descricao</th>
+                        <th>
+                            <a href="{{ route('curso-index', ['ordem' => $ordem, 'busca' => $busca]) }}">
+                                {!! $ordem == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                                Descrição
+                            </a>
+                        </th>
                         <th scope="col" style="width: 10%; white-space: nowrap;">Tipo</th>
                         <th scope="col" style="width: 10%; white-space: nowrap;">Carga Horária</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>

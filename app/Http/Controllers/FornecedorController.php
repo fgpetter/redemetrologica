@@ -17,17 +17,42 @@ class FornecedorController extends Controller
    *
    * @return View
    **/
-  public function index(): View
-  {
-    $fornecedores = Fornecedor::with('pessoa')->paginate(10);
-    $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
-      ->whereNotIn('id', function ($query) {
-        $query->select('pessoa_id')->from('fornecedores');
-      })
-      ->get();
+  public function index(Request $request)
+{
+    $name = $request->name;
+    $doc = $request->doc;
+    $busca_nome = $request->buscanome;
+    $busca_doc = preg_replace("/[^0-9]/", "", $request->buscadoc);
 
-    return view('painel.fornecedores.index', ['fornecedores' => $fornecedores, 'pessoas' => $pessoas]);
-  }
+    $fornecedores = Fornecedor::with('pessoa')
+        ->join('pessoas', 'fornecedores.pessoa_id', '=', 'pessoas.id')
+        ->select('fornecedores.*')
+        ->when($name, function ($query, $name) {
+            $query->orderBy('pessoas.nome_razao', $name);
+        })
+        ->when($doc, function ($query, $doc) {
+            $query->orderBy('pessoas.cpf_cnpj', $doc);
+        })
+        ->when($busca_nome, function ($query, $busca_nome) {
+            $query->where('pessoas.nome_razao', 'LIKE', "%{$busca_nome}%");
+        })
+        ->when($busca_doc, function ($query, $busca_doc) {
+            $query->where('pessoas.cpf_cnpj', 'LIKE', "%{$busca_doc}%");
+        })
+        ->paginate(10)
+        ->withQueryString();
+
+    $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
+        ->whereNotIn('id', function ($query) {
+            $query->select('pessoa_id')->from('fornecedores');
+        })
+        ->get();
+
+    return view('painel.fornecedores.index', [
+        'fornecedores' => $fornecedores,
+        'pessoas' => $pessoas
+    ]);
+}
 
   /**
    * Adiciona fornecedores na base

@@ -1,3 +1,8 @@
+@php
+    $sortDirection    = request('order', 'asc') == 'asc' ? 'desc' : 'asc';
+    $currentSortField = request('orderBy', 'data_inicio');
+    $searchTerm       = request('buscanome', '');
+@endphp
 <div class="card">
   <div class="card-body">
     <div class="row">
@@ -7,19 +12,45 @@
         </a>
       </div>
     </div>
-
+    <!-- Campo de busca -->
+    <div class="mb-3">
+      <input type="text" class="form-control form-control-sm" 
+             onkeypress="search(event, window.location.href, 'buscanome')" 
+             placeholder="Buscar por nome do interlab" 
+             value="{{ $searchTerm }}">
+    </div>
     <div class="table-responsive" style="min-height: 25vh">
       <table class="table table-responsive table-striped align-middle mb-0">
         <thead>
           <tr>
             <th scope="col" style="width: 5%; white-space: nowrap;">Mês/Ano</th>
             <th scope="col" style="width: 5%; white-space: nowrap;">COD</th>
-            <th scope="col" style="width: 7%; white-space: nowrap;">Status</th>
-            <th scope="col" ></th>
-            <th scope="col" style="width: 7%; white-space: nowrap;">Data Inicio</th>
-            <th scope="col" style="width: 7%; white-space: nowrap;">Data Fim</th>
-            <th scope="col" >Nome do Interlab</th>
-            <th scope="col" style="width: 5%; white-space: nowrap;">Inscritos</th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'status', 'order' => $sortDirection]) }}">
+                Status {!! $currentSortField == 'status' ? ($sortDirection == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
+            <th scope="col"></th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'data_inicio', 'order' => $sortDirection]) }}">
+                Data Inicio {!! $currentSortField == 'data_inicio' ? ($sortDirection == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
+            <th scope="col" style="width: 7%; white-space: nowrap;">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'data_fim', 'order' => $sortDirection]) }}">
+                Data Fim {!! $currentSortField == 'data_fim' ? ($sortDirection == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
+            <th scope="col">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'nome', 'order' => $sortDirection]) }}">
+                Nome do Interlab {!! $currentSortField == 'nome' ? ($sortDirection == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
+            <th scope="col" style="width: 5%; white-space: nowrap;">
+              <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'inscritos', 'order' => $sortDirection]) }}">
+                Inscritos {!! $currentSortField == 'inscritos' ? ($sortDirection == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>') : '' !!}
+              </a>
+            </th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
           </tr>
         </thead>
@@ -88,6 +119,9 @@
           @endforelse
         </tbody>
       </table>
+      <div class="row mt-3 w-100">
+        {!! $agendainterlabs->withQueryString()->links('pagination::bootstrap-5') !!}
+      </div>
     </div>
   </div>
 </div>

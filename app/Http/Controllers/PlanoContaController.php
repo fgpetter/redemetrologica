@@ -15,17 +15,54 @@ class PlanoContaController extends Controller
    * Display a listing of the resource.
    * @return View
    */
-  public function index(): View
-  {
-    $data = [
-      'planocontas' => PlanoConta::with(['centrocusto' => function ($query) {
-        $query->withTrashed();
-      }])->paginate(10),
+  public function index(Request $request): View
+{
+    $sortDirection = $request->input('order', 'asc');
+    $sortField     = $request->input('orderBy', 'descricao');
+    
+    $buscadecricao       = $request->input('buscadecricao');
+    $buscacodcontabil    = $request->input('buscacodcontabil');
+    $buscagrupocontas    = $request->input('buscagrupocontas');
+    $buscacentrocusto    = $request->input('buscacentrocusto');
 
-      'centrocustos' => CentroCusto::all()
-    ];
-    return view('painel.plano-conta.index', $data);
-  }
+    $planocontas = PlanoConta::with(['centrocusto' => function ($query) {
+            $query->withTrashed();
+        }])
+        ->when($buscadecricao, function ($query) use ($buscadecricao) {
+            $query->where('descricao', 'LIKE', "%{$buscadecricao}%");
+        })
+        ->when($buscacodcontabil, function ($query) use ($buscacodcontabil) {
+            $query->where('codigo_contabil', 'LIKE', "%{$buscacodcontabil}%");
+        })
+        ->when($buscagrupocontas, function ($query) use ($buscagrupocontas) {
+            $query->where('grupo_contas', 'LIKE', "%{$buscagrupocontas}%");
+        })
+        ->when($buscacentrocusto, function ($query) use ($buscacentrocusto) {
+            $query->whereHas('centrocusto', function ($q) use ($buscacentrocusto) {
+                $q->where('descricao', 'LIKE', "%{$buscacentrocusto}%");
+            });
+        })
+        ->when($sortField == 'centrocusto', function ($query) use ($sortDirection) {
+            $query->leftJoin('centro_custos', 'plano_contas.centro_custo_id', '=', 'centro_custos.id')
+                  ->orderBy('centro_custos.descricao', $sortDirection)
+                  ->addSelect('plano_contas.*');
+        })
+        ->when(in_array($sortField, ['descricao', 'codigo_contabil', 'grupo_contas']), function ($query) use ($sortField, $sortDirection) {
+            $query->orderBy($sortField, $sortDirection);
+        })
+        ->paginate(10)
+        ->withQueryString();
+
+    $centrocustos = CentroCusto::all();
+
+    return view('painel.plano-conta.index', [
+        'planocontas'  => $planocontas,
+        'centrocustos' => $centrocustos,
+    ]);
+}
+
+
+
 
   /**
    * Store a newly created resource in storage.

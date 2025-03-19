@@ -31,14 +31,38 @@ class AgendaInterlabController extends Controller
    * 
    * @return View
    */
-  public function index(): View
-  {
+  public function index(Request $request): View
+{
+    $sortDirection = $request->input('order', 'asc');
+    $sortField     = $request->input('orderBy', 'data_inicio');
+    $searchTerm    = $request->input('buscanome');
+
     $agenda_interlabs = AgendaInterlab::with('interlab')
-      ->orderBy('data_inicio', 'asc')
-      ->paginate(15);
+        ->withCount('inscritos')
+        ->when($searchTerm, function ($query) use ($searchTerm) {
+            $query->whereHas('interlab', function ($q) use ($searchTerm) {
+                $q->where('nome', 'LIKE', "%{$searchTerm}%");
+            });
+        })
+        ->when($sortField == 'nome', function ($query) use ($sortDirection) {
+            $query->join('interlabs', 'agenda_interlabs.interlab_id', '=', 'interlabs.id')
+                  ->orderBy('interlabs.nome', $sortDirection)
+                  ->select('agenda_interlabs.*');
+        })
+        ->when($sortField == 'inscritos', function ($query) use ($sortDirection) {
+            $query->orderBy('inscritos_count', $sortDirection);
+        })
+        ->when(in_array($sortField, ['status', 'data_inicio', 'data_fim']), function ($query) use ($sortField, $sortDirection) {
+            $query->orderBy("agenda_interlabs.{$sortField}", $sortDirection);
+        })
+        ->paginate(15)
+        ->withQueryString();
 
     return view('painel.agenda-interlab.index', ['agenda_interlabs' => $agenda_interlabs]);
-  }
+}
+
+
+
 
    /**
    * Tela de cadastro e ediçao de agenda de interlabs

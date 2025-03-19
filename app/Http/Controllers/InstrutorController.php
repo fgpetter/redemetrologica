@@ -17,16 +17,47 @@ class InstrutorController extends Controller
   /**
    * Display a listing of the resource.
    */
-  public function index()
-  {
-    $instrutores = Instrutor::with('pessoa')->paginate(10);
+  public function index(Request $request)
+{
+    $name = $request->name;
+    $data = $request->data;
+    $doc = $request->doc;
+    $busca_nome = $request->buscanome;
+    $busca_doc = preg_replace("/[^0-9]/", "", $request->buscadoc);
+
+    $instrutores = Instrutor::with('pessoa')
+        ->join('pessoas', 'instrutores.pessoa_id', '=', 'pessoas.id')
+        ->select('instrutores.*')
+        ->when($name, function ($query, $name) {
+            $query->orderBy('pessoas.nome_razao', $name);
+        })
+        ->when($doc, function ($query, $doc) {
+            $query->orderBy('pessoas.cpf_cnpj', $doc);
+        })
+        ->when($data, function ($query, $data) {
+            $query->orderBy('instrutores.created_at', $data);
+        })
+        ->when($busca_nome, function ($query, $busca_nome) {
+            $query->where('pessoas.nome_razao', 'LIKE', "%{$busca_nome}%");
+        })
+        ->when($busca_doc, function ($query, $busca_doc) {
+            $query->where('pessoas.cpf_cnpj', 'LIKE', "%{$busca_doc}%");
+        })
+        ->paginate(10)
+        ->withQueryString();
+
+
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
-      ->whereNotIn('id', function ($query) {
-        $query->select('pessoa_id')->from('instrutores');
-      })
-      ->get();
-    return view('painel.instrutores.index', ['instrutores' => $instrutores, 'pessoas' => $pessoas]);
-  }
+        ->whereNotIn('id', function ($query) {
+            $query->select('pessoa_id')->from('instrutores');
+        })
+        ->get();
+
+    return view('painel.instrutores.index', [
+        'instrutores' => $instrutores,
+        'pessoas' => $pessoas
+    ]);
+}
 
   /**
    * Cria um avaliador a partir de uma pessoa

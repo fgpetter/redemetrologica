@@ -1,4 +1,16 @@
-  <div class="card">
+ 
+ @php
+    $order_name = 'ASC';
+    if (request('name') == 'ASC') $order_name = 'DESC';
+    
+    $order_doc = 'ASC';
+    if (request('doc') == 'ASC') $order_doc = 'DESC';
+    
+    $busca_nome = request('buscanome', '');
+    $busca_doc = request('buscadoc', '');
+    
+@endphp
+ <div class="card">
       <div class="card-body">
 
         {{-- adiciona fornecedor --}}
@@ -40,15 +52,50 @@
 
           <div class="table-responsive" style="min-height: 25vh">
               <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
-                  <thead>
-                      <tr>
-                          <th scope="col" class="d-none d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID
-                          </th>
-                          <th scope="col">Razão Social</th>
-                          <th scope="col">CNPJ</th>
-                          <th scope="col"></th>
-                      </tr>
-                  </thead>
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">
+                            <input type="text" class="form-control form-control-sm"
+                                onkeypress="search(event, window.location.href, 'buscanome')"
+                                placeholder="Buscar por nome" value="{{ $busca_nome }}">
+                        </th>
+                        <th scope="col">
+                            <input type="text" class="form-control form-control-sm"
+                                onkeypress="search(event, window.location.href, 'buscadoc')"
+                                placeholder="Buscar por documento" value="{{ $busca_doc }}">
+                        </th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>  
+               <thead>
+                    <tr>
+                        <th scope="col" class="d-none d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID</th>
+                        <th scope="col">
+                            <a href="{{ route('fornecedor-index', [
+                                'name' => $order_name,
+                                'doc' => request('doc'),
+                                'buscanome' => $busca_nome,
+                                'buscadoc' => $busca_doc
+                            ]) }}">
+                                {!! $order_name == 'ASC' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                                Razão Social
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="{{ route('fornecedor-index', [
+                                'doc' => $order_doc,
+                                'name' => request('name'),
+                                'buscanome' => $busca_nome,
+                                'buscadoc' => $busca_doc
+                            ]) }}">
+                                {!! $order_doc == 'ASC' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                                CNPJ
+                            </a>
+                        </th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
                   <tbody>
                       @forelse ($fornecedores->where('pessoa' , '!=', null) as $fornecedor)
                           <tr>
@@ -59,7 +106,7 @@
                                   </a>
                               </th>
                               <td>{{ $fornecedor->pessoa->nome_razao }}</td>
-                              <td>{{ $fornecedor->cpf_cnpj }}</td>
+                              <td>{{ $fornecedor->pessoa->cpf_cnpj }}</td>
                               <td>
                                   <div class="dropdown">
                                       <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"

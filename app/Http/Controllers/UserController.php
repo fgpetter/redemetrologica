@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
@@ -19,12 +20,21 @@ class UserController extends Controller
    *
    * @return View
    **/
-  public function index(): View
-  {
-    $users = User::with(['permissions','pessoa'])->paginate(10);
-    return view('painel.users.user-index', ['users' => $users]);
-  }
+  public function index(Request $request)
+{
+    $order = $request->input('name', 'asc');
+    $busca_nome = $request->input('buscanome');
 
+    $users = User::with(['permissions', 'pessoa'])
+        ->when($busca_nome, function ($query) use ($busca_nome) {
+            $query->where('name', 'LIKE', "%{$busca_nome}%");
+        })
+        ->orderBy('name', $order)
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('painel.users.user-index', ['users' => $users]);
+}
   /**
    * Adiciona usuários na base
    *

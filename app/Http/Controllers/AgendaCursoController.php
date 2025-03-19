@@ -24,17 +24,39 @@ class AgendaCursoController extends Controller
    * 
    * @return View
    */
-  public function index(): View
-  {
-    $data = [
-      'agendacursos' => AgendaCursos::with('curso', 'inscritos')
+ public function index(Request $request): View
+{
+    $order = $request->input('order', 'asc');
+    $orderBy = $request->input('orderBy', 'data_inicio');
+    $busca_nome = $request->input('buscanome');
+
+    $agendacursos = AgendaCursos::with('curso', 'inscritos')
         ->whereNot('tipo_agendamento', 'IN-COMPANY')
-        ->orderBy('data_inicio')
-        ->get(),
+        ->when($busca_nome, function ($query) use ($busca_nome) {
+            $query->whereHas('curso', function ($query) use ($busca_nome) {
+                $query->where('descricao', 'LIKE', "%{$busca_nome}%");
+            });
+        })
+        ->when($orderBy, function ($query) use ($order, $orderBy) {
+            if ($orderBy === 'curso') {
+                $query->orderBy(
+                    Curso::select('descricao')
+                        ->whereColumn('cursos.id', 'agenda_cursos.curso_id'),
+                    $order
+                );
+            } else {
+                $query->orderBy($orderBy, $order);
+            }
+        })
+        ->paginate(10)
+        ->withQueryString();
+
+
+    return view('painel.agendamento-cursos.index', [
+        'agendacursos' => $agendacursos,
         'tipoagenda' => 'ABERTO'
-    ];
-    return view('painel.agendamento-cursos.index', $data);
-  }
+    ]);
+}
 
   /**
    * Tela de cadastro e ediçao de agenda de cursos
