@@ -3,9 +3,8 @@
     Fale Conosco
 @endsection
 @section('content')
-    {{-- contatos --}}
     <div class="container my-5">
-        <div class="row justify-content-center  text-center">
+        <div class="row">
             <div class="col-md-6 col-lg-4">
                 <i class="bi bi-buildings fs-1"></i>
                 <h2>ENDEREÇO</h2>
@@ -34,79 +33,69 @@
             </div>
         </div>
     </div>
-    {{-- contatos --}}
-
-    {{-- formulario --}}
 
     <div class="container my-5">
-        @if (session('success'))
-            <div class="row justify-content-center">
-                <div class="col-md-8 text-center">
-                    <div class="alert alert-success p-5">
-                        <i class="bi bi-check-circle-fill display-4 text-success mb-3"></i>
-                        <h2 class="display-5 mb-3">Mensagem enviada com sucesso!</h2>
-                        <p class="lead">Nossa equipe entrará em contato em breve.</p>
-                        <p class="mt-3">Agradecemos seu contato e retornaremos o mais rápido possível.</p>
-                        <div class="mt-4">
-                            <a href="{{ route('faleconosco.form') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-repeat me-2"></i>
-                                Enviar outra mensagem
-                            </a>
+        <div class="row">
+            <div class="col offset-xxl-1 col-xxl-10">
+                @if (session('success'))
+                <div class="alert alert-success alert-dismissible bg-body-secondary fade show" role="alert">
+                    <strong>Mensagem enviada com sucesso! </strong> <br>
+                    <span class="text-dark">Nossa equipe entrará em contato em breve.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+        
+                <form id="faleConoscoForm" method="POST" action="{{ route('faleconosco.submit') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input class="form-control mb-3" name="name" type="text" placeholder="Seu nome"
+                                value="{{ old('name') }}" required>
+        
+                            <input class="form-control my-3" name="email" type="email" placeholder="E-mail*"
+                                value="{{ old('email') }}" required>
+        
+                            <input class="form-control my-3" name="phone" type="text" placeholder="Telefone para Contato"
+                                value="{{ old('phone') }}" required>
+                            <p><strong>A Rede Metrológica conta com Data Protection Officer (DPO). O Usuário pode entrar em
+                                    contato com o DPO no endereço físico ou através do e-mail
+                                    lgpd@redemetrologica.com.br</strong></p>
+                        </div>
+                        <div class="col-lg-6">
+                            {{-- <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label> --}}
+                            <textarea class="form-control mb-3" name="message" rows="3" placeholder="Mensagem*">{{ old('message') }}</textarea>
+                            <p>Selecione as área(s) que deseja fazer contato</p>
+                            @foreach (['Avaliação de laboratórios', 'Cursos/Treinamentos', 'Material de Referência', 'Ensaios de Proficiência', 'Administrativo/Financeiro', 'Apoio Técnico', 'Bônus Metrologia', 'Outros'] as $key => $area)
+                                <div class="my-2">
+                                    <input class="form-check-input" type="checkbox" name="areas[]" value="{{ $area }}"
+                                        id="area{{ $key }}" {{ in_array($area, old('areas', [])) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="area{{ $key }}">
+                                        {{ $area }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="d-grid my-3">
+                            <button id="btnEnviar" class="btn btn-primary" type="submit">ENVIAR</button>
                         </div>
                     </div>
-                </div>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                </form>
             </div>
-        @else
-            <form id="faleConoscoForm" method="POST" action="{{ route('faleconosco.submit') }}">
-                @csrf
-                <div class="row">
-                    <div class="col-lg-6">
-                        <input class="form-control mb-3" name="name" type="text" placeholder="Seu nome"
-                            value="{{ old('name') }}" required>
-
-                        <input class="form-control my-3" name="email" type="email" placeholder="E-mail*"
-                            value="{{ old('email') }}" required>
-
-                        <input class="form-control my-3" name="phone" type="text" placeholder="Telefone para Contato"
-                            value="{{ old('phone') }}" required>
-                        <p><strong>A Rede Metrológica conta com Data Protection Officer (DPO). O Usuário pode entrar em
-                                contato com o DPO no endereço físico ou através do e-mail
-                                lgpd@redemetrologica.com.br</strong></p>
-                    </div>
-                    <div class="col-lg-6">
-                        {{-- <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label> --}}
-                        <textarea class="form-control mb-3" name="message" rows="3" placeholder="Mensagem*">{{ old('message') }}</textarea>
-                        <p>Selecione as área(s) que deseja fazer contato</p>
-                        @foreach (['Avaliação de laboratórios', 'Cursos/Treinamentos', 'Material de Referência', 'Ensaios de Proficiência', 'Administrativo/Financeiro', 'Apoio Técnico', 'Bônus Metrologia', 'Outros'] as $key => $area)
-                            <div class="my-2">
-                                <input class="form-check-input" type="checkbox" name="areas[]" value="{{ $area }}"
-                                    id="area{{ $key }}" {{ in_array($area, old('areas', [])) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="area{{ $key }}">
-                                    {{ $area }}
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="d-grid my-3">
-                        <button id="btnEnviar" class="btn btn-primary" type="submit">ENVIAR</button>
-                    </div>
-                </div>
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-            </form>
-        @endif
+        </div>
     </div>
     {{-- formulario --}}
 
@@ -118,31 +107,4 @@
             style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
     {{-- mapa --}}
-
-    <script>
-        //Sanitização básica front-end   
-        document.getElementById('faleConoscoForm').addEventListener('submit', function(event) {
-            const form = event.target;
-            form.name.value = form.name.value.trim().replace(/<[^>]*>?/gm, '');
-            form.email.value = form.email.value.trim();
-            form.phone.value = form.phone.value.trim().replace(/[^0-9().-\s]/g, '');
-            form.message.value = form.message.value.trim().replace(/<[^>]*>?/gm, '');
-            if (form.areas) {
-                form.areas.forEach(area => {
-                    area.value = area.value.trim().replace(/<[^>]*>?/gm, '');
-                });
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('faleConoscoForm');
-            const submitButton = document.getElementById('btnEnviar');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'ENVIANDO...';
-                });
-            }
-        });
-    </script>
 @endsection

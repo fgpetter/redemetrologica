@@ -45,7 +45,7 @@ class FaleconoscoController extends Controller
         }, $validated['areas']);
     }
 
-        Mail::to('representante@redemetrologica.com.br')->send(new FaleconoscoMail($validated));
+        Mail::to('contato@redemetrologica.com.br')->send(new FaleconoscoMail($validated));
 
         return redirect()->route('faleconosco.form')
             ->with('success', 'Mensagem enviada com sucesso!');

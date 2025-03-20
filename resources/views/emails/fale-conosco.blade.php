@@ -1,89 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Rede Metrológica RS - Novo Contato do Site</title>
-  <style type="text/css">
-
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f2f6fa; 
-    }
-
-    .header {
-      background-color: #003366;
-      color: #ffffff;
-      text-align: center;
-      padding: 20px;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: 1px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      background-color: #ffffff;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      overflow: hidden; 
-    }
-
-    .content {
-      padding: 20px;
-    }
-
-    h2 {
-      color: #005b99; 
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 20px;
-    }
-
-    p {
-      color: #333333;
-      line-height: 1.5;
-      margin: 10px 0;
-    }
-
-    strong {
-      color: #005b99; 
-    }
-
-    ul {
-      list-style-type: disc;
-      padding-left: 20px;
-      margin: 10px 0;
-    }
-    li {
-      margin-bottom: 5px;
-    }
-
-    .footer {
-      background-color: #005b99;
-      color: #ffffff;
-      text-align: center;
-      padding: 10px;
-    }
-    .footer p {
-      margin: 0;
-      font-size: 14px;
-    }
-  </style>
 </head>
-<body>
+<body style="background-color: #D4DADE; color: #5a6576; font: 14px/1.4 Helvetica, Arial, sans-serif; margin: 0; padding: 0;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="margin-top: 1.8rem; margin-bottom: 1.8rem;">
+      <figure style="text-align: center;">
+        <img src="http://localhost/build/images/site/LOGO_REDE_COLOR.png" alt="Rede Metrológica RS" width="140px" style="max-width: 50%">
+      </figure>
+    </div>
 
-  <div class="header">
-    <h1>Rede Metrológica RS</h1>
-  </div>
-
-  <div class="container">
-
-    <div class="content">
+    <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
       <h2>Novo contato recebido:</h2>
       <p><strong>Nome:</strong> {{ $dados['name'] }}</p>
       <p><strong>Email:</strong> {{ $dados['email'] }}</p>
@@ -99,11 +27,7 @@
         </ul>
       @endif
     </div>
+    <div style="text-align: center;"><span style="font-size: 12px;">© 2025 Sistema Rede Metrológica RS.</span></div>
   </div>
-
-  <div class="footer">
-    <p>&copy; {{ date('Y') }} Rede Metrológica RS. Todos os direitos reservados.</p>
-  </div>
-
 </body>
-</html>
+</html> 

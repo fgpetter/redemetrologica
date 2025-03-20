@@ -14,15 +14,10 @@ class FaleconoscoMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $dados;
-
     /**
      * Create a new message instance.
      */
-    public function __construct($dados)
-    {
-        $this->dados = $dados;
-    }
+    public function __construct( public array $dados ){}
 
     /**
      * Get the message envelope.
@@ -30,7 +25,7 @@ class FaleconoscoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from:new Address($this->dados['email'], $this->dados['name']),
+            from:new Address('contato@redemetrologica.com.br', 'Formulário Rede Metrológica'),
             subject: 'Novo Contato do Site: ' . ($this->dados['name']),
         );
     }
@@ -46,15 +41,5 @@ class FaleconoscoMail extends Mailable
                 'dados' => $this->dados,
             ]
         );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
     }
 }
