@@ -2,9 +2,9 @@
 
 namespace App\Livewire\DadosBancarios;
 
-use Livewire\Component;
 use App\Models\Pessoa;
-use App\Models\DadoBancario;
+use Livewire\Component;
+use Livewire\Attributes\On;
 
 class Listview extends Component
 {
@@ -16,7 +16,7 @@ class Listview extends Component
         $this->contaAtiva = $uid;
     }
 
-
+    #[On('refresh-list')]
     public function render()
     {
         return view('livewire.dados-bancarios.listview', [

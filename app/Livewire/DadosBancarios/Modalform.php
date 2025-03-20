@@ -2,32 +2,32 @@
 
 namespace App\Livewire\DadosBancarios;
 
+use App\Models\Pessoa;
 use Livewire\Component;
 use App\Models\DadoBancario;
-use App\Models\Pessoa;
 
 class ModalForm extends Component
 {
     public Pessoa $pessoa;
     public ?string $contaUid;
     public array $conta = [];
-    // adicionei essas validações para testar o comportamento do componente
+    public bool $saved = false;
+
     protected $rules = [
         'conta.nome_banco' => 'required|string|min:1|max:50',
         'conta.cod_banco' => 'nullable|string|max:20',
-        'conta.agencia' => 'nullable|string|max:20',
-        'conta.conta' => 'nullable|string|max:50',
+        'conta.agencia' => 'required|string|max:20',
+        'conta.conta' => 'required|string|max:50',
     ];
     protected $messages = [
         'conta.nome_banco.required' => 'O campo nome do banco é obrigatório',
         'conta.nome_banco.max' => 'Máximo de 50 caracteres permitido',
         'conta.nome_banco.min' => 'O nome do banco deve ter no mínimo 1 caracteres',
+        'conta.agencia.required' => 'O campo agência é obrigatório',
+        'conta.agencia.max' => 'Máximo de 20 caracteres permitido',
+        'conta.conta.required' => 'O campo conta é obrigatório',
+        'conta.conta.max' => 'Máximo de 50 caracteres permitido',
     ];
-       public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName);
-    }
-
 
     public function mount()
     {
@@ -42,18 +42,15 @@ class ModalForm extends Component
         }
     }
 
-
-
-       public function salvar()
+    public function salvar()
     {
         $this->validate();
-
         DadoBancario::updateOrCreate(
             ['uid' => $this->conta['uid']],
             $this->conta
         );
-            // falta colocar o registro de log 
-        return redirect()->to(url()->previous())->with('success', 'Conta cadastrada com sucesso');
+        $this->dispatch('refresh-list');
+        $this->saved = true;
     }
 
     public function render()

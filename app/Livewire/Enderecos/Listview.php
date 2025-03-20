@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Enderecos;
 
-use Livewire\Component;
 use App\Models\Pessoa;
-use App\Models\Endereco;
+use Livewire\Component;
+use Livewire\Attributes\On;
 
 class Listview extends Component
 {
@@ -16,7 +16,7 @@ class Listview extends Component
         $this->enderecoAtivo = $uid;
     }
 
-
+    #[On('refresh-enderecos-list')]
     public function render()
     {
         return view('livewire.enderecos.listview', [

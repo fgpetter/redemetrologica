@@ -44,7 +44,20 @@
     <div class="col-lg-12">
         <div class="hstack gap-2 justify-content-end">
             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Sair</button>
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="submit" class="btn {{ $saved ? 'btn-success' : 'btn-primary' }}">
+                {{ $saved ? 'Salvo' : 'Salvar' }}
+            </button>
         </div>
     </div>
 </form>
+
+@script
+    <script>
+        $wire.on('refresh-list', () => {
+            setTimeout(() => {
+            const modals = document.querySelectorAll('.modal.show');
+            modals.forEach(modal => { modal.querySelector('.btn-close').click() })
+            }, 1000)
+        })
+    </script>
+@endscript

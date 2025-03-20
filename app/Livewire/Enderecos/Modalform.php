@@ -13,6 +13,7 @@ class ModalForm extends Component
     public Pessoa $pessoa;
     public ?string $enderecoUid;
     public array $endereco = [];
+    public bool $saved = false;
 
     protected $rules = [
         'endereco.pessoa_id' => 'required|integer',
@@ -44,21 +45,9 @@ class ModalForm extends Component
             $this->endereco = [
                 'uid' => uniqid(),
                 'pessoa_id' => $this->pessoa->id,
-                'info' => null,
-                'cep' => null,
-                'endereco' => null,
-                'complemento' => null,
-                'bairro' => null,
-                'cidade' => null,
-                'uf' => null,
                 'end_padrao' => false,
             ];
         }
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName);
     }
 
     public function buscaCep()
@@ -66,7 +55,6 @@ class ModalForm extends Component
         $cep = $this->endereco['cep'];
 
         if (strlen($cep) === 9) {
-            // ao usar essa logica, nao corremos o risco de persistir dados incorretos em nosso BD?
             $localEndereco = Endereco::where('cep', $cep)
                 ->orderBy('id', 'desc')
                 ->first();
@@ -107,7 +95,8 @@ class ModalForm extends Component
             }
         });
 
-        return redirect()->to(url()->previous())->with('success', 'Endereço salvo com sucesso');
+        $this->saved = true;
+        $this->dispatch('refresh-enderecos-list');
     }
 
     public function render()
