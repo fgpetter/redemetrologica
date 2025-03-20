@@ -1,10 +1,14 @@
 @php
   if (isset($_GET['data_inicial']) && $_GET['data_inicial'] != "") {
     $data_inicial = \Carbon\Carbon::parse($_GET['data_inicial'])->format('Y-m-d');
+  } else {
+    $data_inicial = \Carbon\Carbon::now()->format('Y-m-d');
   }
 
   if (isset($_GET['data_final']) && $_GET['data_final'] != "") {
     $data_final = \Carbon\Carbon::parse($_GET['data_final'])->format('Y-m-d');
+  } else {
+    $data_final = \Carbon\Carbon::now()->addDays(7)->format('Y-m-d');
   }
 
   (isset($_GET['pessoa']) && $_GET['pessoa'] != "" ) ? $busca_pessoa = $_GET['pessoa'] : $busca_pessoa = null;
