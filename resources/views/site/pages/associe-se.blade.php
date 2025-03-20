@@ -1,31 +1,19 @@
 @extends('site.layouts.layout-site')
-@section('title') Associe-se @endsection
+@section('title')
+    Associe-se
+@endsection
 @section('content')
     {{-- banner inicial --}}
+    {{-- banner inicial --}}
     <div class="card text-bg-dark">
-        <img src="{{ asset('build\images\site\banner-associe-se.png') }}" class="card-img" alt="...">
-        <div class="container card-img-overlay d-flex row justify-content-around">
-            <div class="row align-items-end mx-5 mb-5">
-
-                <div class="col-12 col-md-6 ">
-                    <div class=" container  d-flex justify-content-center ">
-
-                        <div class="align-self-end text-start    ">
-                            <p class="SiteBanner--titulo"><strong>Associe-se</strong></p>
-                            <button type="button" class="btn btn-warning">VANTAGENS</button>
-                            <button type="button" class="btn btn-warning">VALORES</button>
-                        </div>
-
-                    </div>
-
-                </div>
-                <div class="col-12 col-md-6">
-
-                </div>
-
+        <img src="{{ asset('build/images/site/banner-associe-se.png') }}" class="card-img" alt="...">
+        <div class="container card-img-overlay d-flex justify-content-center align-items-center">
+            <div class="text-center">
+                <p class="SiteBanner--titulo"><strong>Associe-se</strong></p>
+                {{-- <button type="button" class="btn btn-warning">VANTAGENS</button>
+            <button type="button" class="btn btn-warning">VALORES</button> --}}
             </div>
         </div>
-
     </div>
     {{-- banner inicial --}}
 

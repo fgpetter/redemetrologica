@@ -68,7 +68,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="text-white" href="/downloads">
+                                        <a class="text-white" href="/laboratorios-downloads">
                                             Downloads
                                         </a>
                                     </li>
