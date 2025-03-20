@@ -25,7 +25,7 @@ class FaleconoscoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from:new Address('contato@redemetrologica.com.br', 'Formulário Rede Metrológica'),
+            from:new Address('sistema@redemetrologica.com.br', 'Formulário Rede Metrológica'),
             subject: 'Novo Contato do Site: ' . ($this->dados['name']),
         );
     }
