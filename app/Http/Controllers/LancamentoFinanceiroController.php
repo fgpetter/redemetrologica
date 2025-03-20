@@ -257,13 +257,17 @@ class LancamentoFinanceiroController extends Controller
         'curso.prohibited' => 'Essa seleção é conflituosa',
     ]);
 
-    if( Arr::exists( $validated, 'curso' ) || Arr::exists( $validated, 'pep' )) {
-      $validated['area'] = match( $validated['area'] ?? null ) {
+    if( $validated['area'] ?? false) {
+      $validated['area'] = match( $validated['area'] ) {
         'CURSO' => 'agenda_curso_id',
         'PEP' => 'agenda_interlab_id',
         'AVALIACAO' => 'agenda_avaliacao_id',
         default => null,
       };
+    }
+
+    if( ($validated['curso'] ?? false) || ($validated['pep'] ?? false) ) {
+      unset($validated['area']);
     }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosAReceber($validated)
