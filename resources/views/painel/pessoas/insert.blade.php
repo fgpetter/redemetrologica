@@ -12,7 +12,8 @@
 
     {{-- Endereços --}}
     @if($pessoa->id)
-      <x-painel.enderecos.list :pessoa="$pessoa"/>
+      {{-- <x-painel.enderecos.list :pessoa="$pessoa"/> --}}
+      <livewire:enderecos.listview :pessoa="$pessoa" />
     @endif
   </div>
   
@@ -26,7 +27,8 @@
 
     {{-- Dados bancários --}}
     @if($pessoa->dadosBancarios()->exists())
-      <x-painel.dados-bancarios.list :pessoa="$pessoa"/>
+      {{-- <x-painel.dados-bancarios.list :pessoa="$pessoa"/> --}}
+      <livewire:dados-bancarios.listview :pessoa="$pessoa" />
     @endif
 
     {{-- Unidades --}}

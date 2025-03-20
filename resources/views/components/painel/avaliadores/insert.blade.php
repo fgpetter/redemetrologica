@@ -53,7 +53,8 @@
                              @endif
 
                              <div class="col-12 mt-4 px-0">
-                                 <x-painel.enderecos.list :pessoa="$avaliador->pessoa" />
+                                 {{-- <x-painel.enderecos.list :pessoa="$avaliador->pessoa" /> --}}
+                                 <livewire:enderecos.listview :pessoa="$avaliador->pessoa" />
                              </div>
 
                          </div>

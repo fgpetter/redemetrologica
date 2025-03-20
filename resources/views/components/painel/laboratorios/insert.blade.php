@@ -38,7 +38,8 @@
             @endif
 
             <div class="col-12 mt-4 px-0">
-              <x-painel.enderecos.list class="shadow-none" :pessoa="$laboratorio->pessoa" />
+              {{-- <x-painel.enderecos.list class="shadow-none" :pessoa="$laboratorio->pessoa" /> --}}
+              <livewire:enderecos.listview :pessoa="$laboratorio->pessoa" />
             </div>
 
           </div>
