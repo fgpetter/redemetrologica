@@ -18,7 +18,6 @@ class FaleconoscoController extends Controller
         return view('site.pages.fale-conosco');
     }
 
-
     public function enviar(Request $request)
     {
         $validated = $request->validate([
@@ -48,6 +47,6 @@ class FaleconoscoController extends Controller
         Mail::to('contato@redemetrologica.com.br')->send(new FaleconoscoMail($validated));
 
         return redirect()->route('faleconosco.form')
-            ->with('success', 'Mensagem enviada com sucesso!');
+            ->with('success');
     }
 }
