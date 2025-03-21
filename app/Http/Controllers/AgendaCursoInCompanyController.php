@@ -46,8 +46,7 @@ class AgendaCursoInCompanyController extends Controller
                 $query->orderBy($sortField, $sortDirection);
             }
         })
-        ->paginate(10)
-        ->withQueryString();
+        ->paginate(10);
 
     return view('painel.agendamento-cursos.index', [
         'agendacursos' => $agendacursos,

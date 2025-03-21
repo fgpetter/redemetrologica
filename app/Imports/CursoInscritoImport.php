@@ -36,7 +36,7 @@ class CursoInscritoImport implements ToCollection
 
     foreach($data as $item){
 
-      // Pula se todos os campos obrigatórios não estão vazios
+      // Pula se todos os campos obrigatórios não estão preenchidos
       if(empty($item['cpf_cnpj']) || empty($item['nome_razao']) || empty($item['email'])){
         continue;
       }
@@ -50,8 +50,8 @@ class CursoInscritoImport implements ToCollection
         continue;
       }
 
-      // Verifica se a pessoa já existe ou cria uma nova
-      $pessoa = Pessoa::firstOrCreate(
+      //Verifica se a pessoa já existe ou cria uma nova
+      $pessoa = Pessoa::updateOrCreate(
         [ 'cpf_cnpj' => $item['cpf_cnpj'] ],
         [
           'nome_razao' => $item['nome_razao'],
