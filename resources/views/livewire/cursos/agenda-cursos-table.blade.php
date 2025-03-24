@@ -87,7 +87,6 @@
                 <!-- Cabeçalho ordenável -->
                 <thead>
                     <tr>
-                        <th></th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">Mês</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">ID</th>
                         <!-- Status -->
@@ -151,9 +150,6 @@
                 <tbody>
                     @forelse ($agendacursos as $agendacurso)
                         <tr wire:key="{{ $agendacurso->id }}">
-                            <td>
-                                <input wire:model.live="selectedRows" type="checkbox" value="{{ $agendacurso->id }}">
-                            </td>
                             <td class="text-uppercase ">
                                 {{ Carbon\Carbon::parse($agendacurso->data_inicio)->locale('pt-BR')->translatedFormat('F') }}
                             </td>
