@@ -60,10 +60,10 @@
               data-bs-target="#adicionaInscritoModal">
               <i class="ri-add-line align-bottom"></i> Adicionar inscrito
             </a>
-            @if($tipoagenda == 'ABERTO')
-            <a href="{{ route('agendamento-curso.export-lista-presenca', $agendacurso) }}" class="btn btn-sm btn-primary">
-                Baixar Lista de Presença
-            </a>
+            @if($tipoagenda == 'ABERTO' && $agendacurso?->id && $agendacurso?->inscritos()->count() > 0)
+              <a href="{{ route('agendamento-curso.export-lista-presenca', $agendacurso) }}" class="btn btn-sm btn-primary">
+                  Baixar Lista de Presença
+              </a>
             @endif
 
             @if( $agendacurso?->tipo_agendamento == 'IN-COMPANY' )
