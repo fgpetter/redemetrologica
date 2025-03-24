@@ -41,10 +41,13 @@
                     <div class="col-3">
                         <select wire:model.live="tipo_agendamento" name="tipoAgendamento"
                             class="form-select form-select-sm">
-                            <option value="">Tipo</option>
-                            <option value="ONLINE">ONLINE</option>
-                            <option value="EVENTO">EVENTO</option>
-                            <option value="IN-COMPANY">IN-COMPANY</option>
+                            @if ($tipoagenda == 'IN-COMPANY')
+                                <option value="IN-COMPANY">IN-COMPANY</option>
+                            @else
+                                <option value="">Tipo</option>
+                                <option value="ONLINE">ONLINE</option>
+                                <option value="EVENTO">EVENTO</option>
+                            @endif
                         </select>
                     </div>
 
