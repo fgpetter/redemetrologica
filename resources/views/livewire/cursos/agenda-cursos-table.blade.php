@@ -12,7 +12,7 @@
         <div class="card border shadow-sm mb-3">
             <div class="card-body p-2">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="card-title text-muted mb-0">Filtros</h6>
+                    <h6 class="card-title mb-0">Filtros</h6>
                 </div>
 
                 <div class="row gx-3 align-items-center">
@@ -33,30 +33,26 @@
                     <!-- Status -->
                     <div class="col-2">
                         <label class="form-label mb-0">Status</label>
-                        <select wire:model.live="status" 
-                            class="form-select form-select-sm">
-                                <option value="">Selecione...</option>
-                                <option value="AGENDADO">AGENDADO</option>
-                                <option value="CANCELADO">CANCELADO</option>
-                                <option value="CONFIRMADO">CONFIRMADO</option>
-                                <option value="REALIZADO">REALIZADO</option>
-                                <option value="REAGENDAR">REAGENDAR</option>
+                        <select wire:model.live="status" class="form-select form-select-sm">
+                            <option value="">Selecione...</option>
+                            <option value="AGENDADO">AGENDADO</option>
+                            <option value="CANCELADO">CANCELADO</option>
+                            <option value="CONFIRMADO">CONFIRMADO</option>
+                            <option value="REALIZADO">REALIZADO</option>
+                            <option value="REAGENDAR">REAGENDAR</option>
                         </select>
                     </div>
                     <!-- Tipo -->
-                    <div class="col-2">
-                        <label class="form-label mb-0">Tipo</label>
-                        <select wire:model.live="tipo_agendamento" name="tipoAgendamento" id="tipoAgendamento"
-                            class="form-select form-select-sm">
-                            @if ($tipoagenda == 'IN-COMPANY')
-                                <option value="IN-COMPANY">IN-COMPANY</option>
-                            @else
+                    @if ($tipoagenda != 'IN-COMPANY')
+                        <div class="col-2">
+                            <label class="form-label mb-0">Tipo</label>
+                            <select wire:model.live="tipo_agendamento" name="tipoAgendamento" id="tipoAgendamento" class="form-select form-select-sm">
                                 <option value="">Selecione...</option>
                                 <option value="ONLINE">ONLINE</option>
                                 <option value="EVENTO">EVENTO</option>
-                            @endif
-                        </select>
-                    </div>
+                            </select>
+                        </div>
+                    @endif
 
                     <!-- Pesquisa Global -->
                     <div class="col-3">
@@ -91,7 +87,7 @@
                         <th scope="col" style="width: 5%; white-space: nowrap;">ID</th>
                         <!-- Status -->
                         <th scope="col" style="width: 7%; white-space: nowrap;">
-                            <a href="#" wire:click.prevent="setSortBy('status')">
+                            <a href="" wire:click.prevent="setSortBy('status')">
                                 Status
                                 @if ($sortBy == 'status')
                                     @if ($sortDirection == 'ASC')
@@ -105,7 +101,7 @@
                         <th scope="col"></th>
                         <!-- Data Início -->
                         <th scope="col" style="width: 7%; white-space: nowrap;">
-                            <a href="#" wire:click.prevent="setSortBy('data_inicio')">
+                            <a href="" wire:click.prevent="setSortBy('data_inicio')">
                                 Data Início
                                 @if ($sortBy == 'data_inicio')
                                     @if ($sortDirection == 'ASC')
@@ -118,7 +114,7 @@
                         </th>
                         <!-- Nome do Curso -->
                         <th scope="col">
-                            <a href="#" wire:click.prevent="setSortBy('curso')">
+                            <a href="" wire:click.prevent="setSortBy('curso')">
                                 Nome do Curso
                                 @if ($sortBy == 'curso')
                                     @if ($sortDirection == 'ASC')
@@ -131,7 +127,7 @@
                         </th>
                         <!-- Tipo -->
                         <th scope="col" style="width: 10%; white-space: nowrap;">
-                            <a href="#" wire:click.prevent="setSortBy('tipo_agendamento')">
+                            <a href="" wire:click.prevent="setSortBy('tipo_agendamento')">
                                 Tipo
                                 @if ($sortBy == 'tipo_agendamento')
                                     @if ($sortDirection == 'ASC')
@@ -150,23 +146,22 @@
                 <tbody>
                     @forelse ($agendacursos as $agendacurso)
                         <tr wire:key="{{ $agendacurso->id }}">
-                            <td class="text-uppercase ">
+                            <td class="text-uppercase fw-bold">
                                 {{ Carbon\Carbon::parse($agendacurso->data_inicio)->locale('pt-BR')->translatedFormat('F') }}
                             </td>
                             <td class="text-center text-nowrap">
-                                <a
-                                    href="{{ $tipoagenda == 'IN-COMPANY'
-                                        ? route('agendamento-curso-in-company-insert', $agendacurso->uid)
-                                        : route('agendamento-curso-insert', $agendacurso->uid) }}">
-                                    # {{ $agendacurso->id }}</a>
+                                <a href="{{ $tipoagenda == 'IN-COMPANY'
+                                    ? route('agendamento-curso-in-company-insert', $agendacurso->uid)
+                                    : route('agendamento-curso-insert', $agendacurso->uid) }}">
+                                    # {{ $agendacurso->id }}
+                                </a>
                             </td>
-                            <td
-                                class="small text-nowrap align-middle p-1
+                            <td class="text-nowrap align-middle p-1
                                 @switch($agendacurso->status)
-                                    @case('CONFIRMADO') text-success  @break
-                                    @case('REAGENDAR') text-primary  @break
-                                    @case('CANCELADO') text-danger  @break
-                                @endswitch">
+                                    @case('CONFIRMADO') text-success fw-bold @break
+                                    @case('REAGENDAR') text-primary fw-bold @break
+                                    @case('CANCELADO') text-danger fw-bold @break
+                                @endswitch" >
                                 {{ $agendacurso->status }}
                             </td>
 
@@ -182,11 +177,11 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="text-center small text-nowrap mx-2">
+                            <td class="text-center text-nowrap mx-2">
                                 {{ \Carbon\Carbon::parse($agendacurso->data_inicio)->format('d/m/Y') }}</td>
-                            <td class="small  align-middle p-1">{{ $agendacurso->curso->descricao ?? '' }}</td>
-                            <td class="small align-middle p-1">{{ $agendacurso->tipo_agendamento ?? '' }}</td>
-                            <td class="text-center small text-nowrap align-middle p-1">
+                            <td class="align-middle p-1">{{ $agendacurso->curso->descricao ?? '' }}</td>
+                            <td class="align-middle p-1">{{ $agendacurso->tipo_agendamento ?? '' }}</td>
+                            <td class="text-center text-nowrap align-middle p-1">
                                 {{ $agendacurso->tipo_agendamento != 'IN-COMPANY'
                                     ? $agendacurso->inscritos->where('valor', '!=', null)->count()
                                     : $agendacurso->inscritos->count() }}
@@ -200,16 +195,15 @@
                                             title="Detalhes e edição"></i>
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                        <li><a class="dropdown-item"
-                                                href="{{ $tipoagenda == 'IN-COMPANY'
-                                                    ? route('agendamento-curso-in-company-insert', $agendacurso->uid)
-                                                    : route('agendamento-curso-insert', $agendacurso->uid) }}">
-                                                Editar</a>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ $tipoagenda == 'IN-COMPANY'
+                                                ? route('agendamento-curso-in-company-insert', $agendacurso->uid)
+                                                : route('agendamento-curso-insert', $agendacurso->uid) }}">
+                                                Editar
+                                            </a>
                                         </li>
                                         <li>
-
-                                            <x-painel.form-delete.delete route='agendamento-curso-delete'
-                                                id="{{ $agendacurso->uid }}" />
+                                            <x-painel.form-delete.delete route='agendamento-curso-delete' id="{{ $agendacurso->uid }}" />
                                         </li>
                                     </ul>
                                 </div>
@@ -217,17 +211,17 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center">Não há Agendamento de Cursos</td>
+                            <td colspan="9" class="text-center">Não há Agendamento de Cursos</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
 
             <div class="row mt-3 w-100 justify-content-between align-items-center">
-                <div class=" d-flex mb-3 align-items-center gap-2" style="width: 210px;">
+                <div class="d-flex mb-3 align-items-center gap-2" style="max-width: 210px;">
                     <!-- Itens por página -->
                     <label class="form-label mb-0 text-muted">Itens por página:</label>
-                    <select wire:model.live="perPage" class="form-select form-select-sm py-0" style="width: 70px;">
+                    <select wire:model.live="perPage" class="form-select form-select-sm" style="width: 70px;">
                         <option value="15">15</option>
                         <option value="30">30</option>
                         <option value="50">50</option>
