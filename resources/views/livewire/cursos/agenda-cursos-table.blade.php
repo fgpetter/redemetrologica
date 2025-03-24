@@ -1,8 +1,3 @@
-@php
-    $order = request('order', 'asc') == 'asc' ? 'desc' : 'asc';
-    $currentOrderBy = request('orderBy', 'data_inicio');
-    $busca_nome = request('buscanome', '');
-@endphp
 <div class="card">
     <div class="card-body">
         <div class="row">
@@ -255,7 +250,7 @@
             </div>
 
             <div class="row mt-1 w-100">
-                {{ $agendacursos->links('pagination::bootstrap-5') }}
+                {{ $agendacursos->links() }}
             </div>
         </div>
     </div>

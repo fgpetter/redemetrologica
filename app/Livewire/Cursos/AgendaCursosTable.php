@@ -77,63 +77,62 @@ class AgendaCursosTable extends Component
     {
         $this->tipoAgendaIni = $tipoagendaini;
     }
-    
 
     //Método para construir a query (reutilizável)
     protected function getQuery()
-{
-    $sortField = $this->sortBy;
-    $sortDirection = $this->sortDirection;
+    {
+        $sortField = $this->sortBy;
+        $sortDirection = $this->sortDirection;
 
-    $query = AgendaCursos::with('curso')
-        ->where(function ($query) {
-            $query->where('status', 'like', "%{$this->search}%")
-                ->orWhereHas('curso', function ($q) {
-                    $q->where('descricao', 'like', "%{$this->search}%");
-                })
-                ->orWhereRaw("DATE_FORMAT(data_inicio, '%d/%m/%Y') LIKE ?", ["%{$this->search}%"]);
-        })
-        ->when($this->status !== '', function ($query) {
-            $query->where('status', $this->status);
-        })
-         ->when($this->tipoAgendaIni !== '', function ($query) {
-            if ($this->tipoAgendaIni === 'ABERTA') {
-                $query->where('tipo_agendamento', '!=', 'IN-COMPANY');
-            } elseif ($this->tipoAgendaIni === 'IN-COMPANY') {
-                $query->where('tipo_agendamento', '=', 'IN-COMPANY');
-            }
-        })
-         ->when($this->tipo_agendamento !== '', function ($query) {  
-                $query->where('tipo_agendamento', $this->tipo_agendamento);
-        })
-        ->when($this->dataIni || $this->dataFim, function ($query) {
-            if ($this->dataIni && $this->dataFim) {
-                $query->whereBetween('data_inicio', [$this->dataIni, $this->dataFim]);
-            } elseif ($this->dataIni) {
-                $query->where('data_inicio', '>=', $this->dataIni);
-            } else {
-                $query->where('data_inicio', '<=', $this->dataFim);
-            }
-        })
-        ->when($sortField, function ($query) use ($sortDirection, $sortField) {
-            if ($sortField === 'curso') {
-                $query->orderBy(
-                    Curso::select('descricao')
-                        ->whereColumn('cursos.id', 'agenda_cursos.curso_id'),
-                    $sortDirection
-                );
-            } else {
-                $query->orderBy($sortField, $sortDirection);
-            }
-        });
+        $query = AgendaCursos::with('curso')
+            ->where(function ($query) {
+                $query->where('status', 'like', "%{$this->search}%")
+                    ->orWhereHas('curso', function ($q) {
+                        $q->where('descricao', 'like', "%{$this->search}%");
+                    })
+                    ->orWhereRaw("DATE_FORMAT(data_inicio, '%d/%m/%Y') LIKE ?", ["%{$this->search}%"]);
+            })
+            ->when($this->status !== '', function ($query) {
+                $query->where('status', $this->status);
+            })
+            ->when($this->tipoAgendaIni !== '', function ($query) {
+                if ($this->tipoAgendaIni === 'ABERTA') {
+                    $query->where('tipo_agendamento', '!=', 'IN-COMPANY');
+                } elseif ($this->tipoAgendaIni === 'IN-COMPANY') {
+                    $query->where('tipo_agendamento', '=', 'IN-COMPANY');
+                }
+            })
+            ->when($this->tipo_agendamento !== '', function ($query) {  
+                    $query->where('tipo_agendamento', $this->tipo_agendamento);
+            })
+            ->when($this->dataIni || $this->dataFim, function ($query) {
+                if ($this->dataIni && $this->dataFim) {
+                    $query->whereBetween('data_inicio', [$this->dataIni, $this->dataFim]);
+                } elseif ($this->dataIni) {
+                    $query->where('data_inicio', '>=', $this->dataIni);
+                } else {
+                    $query->where('data_inicio', '<=', $this->dataFim);
+                }
+            })
+            ->when($sortField, function ($query) use ($sortDirection, $sortField) {
+                if ($sortField === 'curso') {
+                    $query->orderBy(
+                        Curso::select('descricao')
+                            ->whereColumn('cursos.id', 'agenda_cursos.curso_id'),
+                        $sortDirection
+                    );
+                } else {
+                    $query->orderBy($sortField, $sortDirection);
+                }
+            });
 
-    return $query;
-}
+        return $query;
+    }
 
     //Método render
     public function render()
     {
-        
+
         $agendacursos = $this->getQuery()->paginate($this->perPage);
 
          // Totalizador de linhas $selectedRows
