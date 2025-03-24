@@ -8,93 +8,81 @@
                 </a>
             </div>
         </div>
-        {{-- debug
-        <div class="text-muted small">
-            Selecionados: {{ json_encode($selectedRows) }}
-        </div> --}}
         {{-- Filtros --}}
         <div class="card border shadow-sm mb-3">
             <div class="card-body p-2">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="card-title text-muted mb-0 ">Filtros</h6>
+                    <h6 class="card-title text-muted mb-0">Filtros</h6>
                 </div>
 
-                <div class="row g-2">
-                    <!-- Status -->
-                    <div class="col-3">
-                        <select wire:model.live="status" name="filtro" class="form-select form-select-sm">
-                            <option value="">Status</option>
-                            <option value="AGENDADO">AGENDADO</option>
-                            <option value="CANCELADO">CANCELADO</option>
-                            <option value="CONFIRMADO">CONFIRMADO</option>
-                            <option value="REALIZADO">REALIZADO</option>
-                            <option value="REAGENDAR">REAGENDAR</option>
-                        </select>
+                <div class="row gx-3 align-items-center">
+                    <!-- Data Inicial -->
+                    <div class="col-2">
+                        <label class="form-label mb-0">Data Inicial</label>
+                        <input wire:model.live="dataIni" class="form-control form-control-sm" type="date"
+                            name="data_inicial" id="data_inicial">
                     </div>
 
+                    <!-- Data Final -->
+                    <div class="col-2">
+                        <label class="form-label mb-0">Data Final</label>
+                        <input wire:model.live="dataFim" class="form-control form-control-sm" type="date"
+                            name="data_final" id="data_final">
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-2">
+                        <label class="form-label mb-0">Status</label>
+                        <select wire:model.live="status" 
+                            class="form-select form-select-sm">
+                                <option value="">Selecione...</option>
+                                <option value="AGENDADO">AGENDADO</option>
+                                <option value="CANCELADO">CANCELADO</option>
+                                <option value="CONFIRMADO">CONFIRMADO</option>
+                                <option value="REALIZADO">REALIZADO</option>
+                                <option value="REAGENDAR">REAGENDAR</option>
+                        </select>
+                    </div>
                     <!-- Tipo -->
-                    <div class="col-3">
-                        <select wire:model.live="tipo_agendamento" name="tipoAgendamento"
+                    <div class="col-2">
+                        <label class="form-label mb-0">Tipo</label>
+                        <select wire:model.live="tipo_agendamento" name="tipoAgendamento" id="tipoAgendamento"
                             class="form-select form-select-sm">
                             @if ($tipoagenda == 'IN-COMPANY')
                                 <option value="IN-COMPANY">IN-COMPANY</option>
                             @else
-                                <option value="">Tipo</option>
+                                <option value="">Selecione...</option>
                                 <option value="ONLINE">ONLINE</option>
                                 <option value="EVENTO">EVENTO</option>
                             @endif
                         </select>
                     </div>
 
-                    <div class=" col-1 d-flex align-items-center">
-                        <div class="vr  mx-auto"></div>
-                    </div>
-
-
-                    <!-- Datas -->
+                    <!-- Pesquisa Global -->
                     <div class="col-3">
+                        <label class="form-label mb-0">Pesquisar</label>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-transparent border-0 px-1">Data:</span>
-                            <input wire:model.live="dataIni" type="date" name="dataInicial"
-                                class="form-control form-control-sm" placeholder="Data Inicial">
-                            <span class="input-group-text bg-transparent border-0 px-1">até</span>
-                            <input wire:model.live="dataFim" type="date" name="dataFinal"
-                                class="form-control form-control-sm" placeholder="Data Final">
+                            <span class="input-group-text">
+                                <i class="ri-search-line"></i>
+                            </span>
+                            <input wire:model.live.debounce.300ms="search" class="form-control form-control-sm"
+                                type="text" name="search" id="search" placeholder="Pesquisar por nome do curso...">
                         </div>
                     </div>
-                    <div class="col-2 text-end ">
-                        <button wire:click="resetFilters" type="button" class="btn btn-sm btn-light text-danger"
-                            onclick="clearFilters()">
-                            <i class="ri-close-line"></i> Limpar Filtros
+
+                    <!-- Botão Limpar Filtros -->
+                    <div class="col-1">
+                        <!-- Label oculto para manter o alinhamento -->
+                        <label class="form-label mb-0 invisible">Limpar</label>
+                        <button wire:click="resetFilters" type="button" class="btn btn-sm btn-light text-danger">
+                            <i class="ri-close-line"></i> Limpar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
         {{-- Filtros --}}
-
         <div class="table-responsive" style="min-height: 25vh">
-
-
-            <!-- Totalizador -->
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <!-- Totalizador -->
-                <div>
-                    <strong>Total:</strong> R$ {{ number_format($totalValor, 2, ',', '.') }}
-                </div>
-                <!-- pesquisa global -->
-                <div class="col-md-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text">
-                            <i class="ri-search-line"></i>
-                        </span>
-                        <input wire:model.live.debounce.300ms="search" type="text"
-                            class="form-control form-control-sm" placeholder="Pesquisar...">
-                    </div>
-                </div>
-            </div>
-
-
             <table class="table table-responsive table-striped align-middle mb-0">
                 <!-- Cabeçalho ordenável -->
                 <thead>
@@ -238,20 +226,23 @@
                     @endforelse
                 </tbody>
             </table>
-            <!-- Paginação -->
-            <div class="d-inline-flex align-items-center gap-1 mt-3">
-                <label class="form-label mb-0 small text-muted me-1">Itens por página:</label>
-                <select wire:model.live='perPage' class="form-select form-select-sm w-auto py-0"
-                    style="width: 70px;">
-                    <option value="15">15</option>˝
-                    <option value="30">30</option>
-                    <option value="50">50</option>
-                </select>
+
+            <div class="row mt-3 w-100 justify-content-between align-items-center">
+                <div class=" d-flex mb-3 align-items-center gap-2" style="width: 210px;">
+                    <!-- Itens por página -->
+                    <label class="form-label mb-0 text-muted">Itens por página:</label>
+                    <select wire:model.live="perPage" class="form-select form-select-sm py-0" style="width: 70px;">
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+
+                <div class="col">
+                    {{ $agendacursos->links() }}
+                </div>
             </div>
 
-            <div class="row mt-1 w-100">
-                {{ $agendacursos->links() }}
-            </div>
         </div>
     </div>
 </div>

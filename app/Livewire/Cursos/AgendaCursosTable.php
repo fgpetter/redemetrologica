@@ -36,8 +36,6 @@ class AgendaCursosTable extends Component
     public $sortBy = 'data_inicio';
     #[Url(as : 'sd', history:false)]
     public $sortDirection = 'ASC';
-    //Linhas selecionadas
-    public $selectedRows = [];
 
     //Metodo sortBy
     public function setSortBy($sortByField){
@@ -52,7 +50,7 @@ class AgendaCursosTable extends Component
     //Método para resetar os filtros
     public function resetFilters()
     {
-        $this->reset(['search', 'selectedRows', 'status', 'dataIni', 'dataFim', 'tipo_agendamento']);
+        $this->reset(['search', 'status', 'dataIni', 'dataFim', 'tipo_agendamento']);
     }
 
     //Metodos para resetar paginação se alterar filtros
@@ -71,6 +69,9 @@ class AgendaCursosTable extends Component
     public function updatedDataFim(){
         $this->resetPage();
     }
+    public function updatedperPage(){
+        $this->resetPage();
+    }
 
     //Metodo mount para capturar tipoagendaini
     public function mount($tipoagendaini)
@@ -86,11 +87,9 @@ class AgendaCursosTable extends Component
 
         $query = AgendaCursos::with('curso')
             ->where(function ($query) {
-                $query->where('status', 'like', "%{$this->search}%")
-                    ->orWhereHas('curso', function ($q) {
-                        $q->where('descricao', 'like', "%{$this->search}%");
-                    })
-                    ->orWhereRaw("DATE_FORMAT(data_inicio, '%d/%m/%Y') LIKE ?", ["%{$this->search}%"]);
+                $query->whereHas('curso', function ($q) {
+                    $q->where('descricao', 'like', "%{$this->search}%");
+                });
             })
             ->when($this->status !== '', function ($query) {
                 $query->where('status', $this->status);
@@ -135,14 +134,9 @@ class AgendaCursosTable extends Component
 
         $agendacursos = $this->getQuery()->paginate($this->perPage);
 
-         // Totalizador de linhas $selectedRows
-        $totalValor = CursoInscrito::whereIn('agenda_curso_id', $this->selectedRows)
-            ->sum('valor');
-
         return view('livewire.cursos.agenda-cursos-table', [
             'agendacursos' => $agendacursos,
             'tipoagenda' => $this->tipoAgendaIni,
-            'totalValor'   => $totalValor,
         ]);
     }
 }
