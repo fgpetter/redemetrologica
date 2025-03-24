@@ -14,7 +14,7 @@
     </div> --}}
     <div class="row">
         <div class="col">
-            <livewire:cursos.agenda-cursos-table  :tipo_agendamento="$tipoagenda" />
+            <livewire:cursos.agenda-cursos-table  :tipoagendaini="$tipoagenda" />
         </div>
     </div>
 @endsection
