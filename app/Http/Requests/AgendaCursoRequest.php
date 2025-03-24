@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 
 class AgendaCursoRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class AgendaCursoRequest extends FormRequest
             'destaque' => $this->destaque ?: 0,
             'site' => $this->site ?: 0,
             'inscricoes' => $this->inscricoes ?: 0,
-            'status' => $this->status_proposta == 'APROVADA' ? 'CONFIRMADO' : 'AGENDADO',
+            'status' => $this->defineStatus(),
         ]);
     }
 
@@ -91,7 +92,7 @@ class AgendaCursoRequest extends FormRequest
         ];
     }
 
-    public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    public function failedValidation(Validator $validator)
     {
         Log::channel('validation')->info("Erro de validação", [
             'user' => auth()->user() ?? null,
@@ -104,5 +105,14 @@ class AgendaCursoRequest extends FormRequest
         return back()->with('error', 'Houve um erro a processar os dados, tente novamente')
             ->withErrors($validator)
             ->withInput();
+    }
+
+    private function defineStatus(): string
+    {
+        if($this->tipo_agendamento == 'IN-COMPANY'){
+            return $this->status_proposta == 'APROVADA' ? 'CONFIRMADO' : 'AGENDADO';
+        }
+
+        return $this->status;
     }
 } 
