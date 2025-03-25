@@ -22,36 +22,10 @@ class AgendaCursoInCompanyController extends Controller
    * 
    * @return View
    */
-  public function index(Request $request)
+  public function index(Request $request): View
 {
-    $sortDirection = $request->input('order', 'asc'); // direção da ordenação
-    $sortField = $request->input('orderBy', 'data_inicio'); // campo de ordenação
-    $searchTerm = $request->input('buscanome'); // termo de busca
-
-    $agendacursos = AgendaCursos::with('curso', 'inscritos')
-        ->where('tipo_agendamento', 'IN-COMPANY')
-        ->when($searchTerm, function ($query) use ($searchTerm) {
-            $query->whereHas('curso', function ($query) use ($searchTerm) {
-                $query->where('descricao', 'LIKE', "%{$searchTerm}%");
-            });
-        })
-        ->when($sortField, function ($query) use ($sortDirection, $sortField) {
-            if ($sortField === 'curso') {
-                $query->orderBy(
-                    Curso::select('descricao')
-                        ->whereColumn('cursos.id', 'agenda_cursos.curso_id'),
-                    $sortDirection
-                );
-            } else {
-                $query->orderBy($sortField, $sortDirection);
-            }
-        })
-        ->paginate(10);
-
-    return view('painel.agendamento-cursos.index', [
-        'agendacursos' => $agendacursos,
-        'tipoagenda' => 'IN-COMPANY'
-    ]);
+  $tipoagenda = 'IN-COMPANY';
+ return view('painel.agendamento-cursos.index', compact('tipoagenda'));
 }
 
   /**
