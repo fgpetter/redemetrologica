@@ -67,7 +67,8 @@
 
       @if ( session('interlab') )
         {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
-        <x-painel.painel-cliente.confirma-inscricao-interlab />
+        {{-- <x-painel.painel-cliente.confirma-inscricao-interlab /> --}}
+         <livewire:painel-cliente.confirm-inscricao-interlab />
       @endif
 
       @if ( auth()->user()->pessoa->cursos->count() > 0 )
