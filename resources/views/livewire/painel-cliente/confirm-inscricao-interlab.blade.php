@@ -598,7 +598,7 @@
                                 <label for="uf" class="form-label mb-0">UF<small
                                         class="text-danger-emphasis opacity-75"> * </small></label>
                                 <input type="text" class="form-control" wire:model="cobranca_uf" maxlength="2"
-                                    pattern="[A-Z]{2}" title="Duas letras maiúsculo"
+                                    title="Duas letras maiúsculo"
                                     style="text-transform: uppercase;">
                                 @error('uf')
                                     <div class="text-warning">{{ $message }}</div>
@@ -736,7 +736,7 @@
                             <label for="uf" class="form-label mb-0">UF<small
                                     class="text-danger-emphasis opacity-75"> * </small></label>
                             <input type="text" class="form-control" wire:model="uf" id="uf"
-                                maxlength="2" pattern="[A-Z]{2}" title="Duas letras maiúsculo"
+                                maxlength="2"  title="Duas letras maiúsculo"
                                 style="text-transform: uppercase;">
                             @error('uf')
                                 <div class="text-warning">{{ $message }}</div>
