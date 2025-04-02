@@ -28,7 +28,12 @@
                                     <small class="text-muted ms-2">CNPJ: {{ $empresa->cpf_cnpj }}</small>
                                 </div>
                                 <!-- Botão de editar empresa -->
-                                @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
+                                @if (
+                                    !$showSalvarEmpresa &&
+                                        !$showInscreveLab &&
+                                        $empresaEditadaId === null &&
+                                        $laboratorioEditadoId === null &&
+                                        $novaInscricaoEmpresaId === null)
                                     <div>
                                         <button class="btn btn-sm btn-outline-primary me-2"
                                             wire:click.prevent="{{ $empresaEditadaId === $empresa->id
@@ -177,7 +182,12 @@
                                                 </p>
                                             </div>
                                             <!-- Botão de editar laboratório -->
-                                            @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
+                                            @if (
+                                                !$showSalvarEmpresa &&
+                                                    !$showInscreveLab &&
+                                                    $empresaEditadaId === null &&
+                                                    $laboratorioEditadoId === null &&
+                                                    $novaInscricaoEmpresaId === null)
                                                 <div class="mt-2 text-end col-3">
                                                     <button class="btn btn-sm btn-outline-warning"
                                                         wire:click.prevent="{{ $laboratorioEditadoId === $inscrito->laboratorio->id
@@ -311,7 +321,12 @@
                                 @endif
                             @endforeach
                             <!-- Botão de adicionar novo laboratório -->
-                            @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
+                            @if (
+                                !$showSalvarEmpresa &&
+                                    !$showInscreveLab &&
+                                    $empresaEditadaId === null &&
+                                    $laboratorioEditadoId === null &&
+                                    $novaInscricaoEmpresaId === null)
                                 <div class="mt-3 text-end">
                                     <button class="btn btn-sm btn-success"
                                         wire:click.prevent="novoLaboratorio({{ $empresa->id }})">
@@ -415,8 +430,8 @@
                                                         <label for="uf" class="form-label mb-0">UF<small
                                                                 class="text-danger-emphasis opacity-75"> *
                                                             </small></label>
-                                                        <input type="text" class="form-control"
-                                                            wire:model="uf" id="uf" maxlength="2" pattern="[A-Z]{2}"
+                                                        <input type="text" class="form-control" wire:model="uf"
+                                                            id="uf" maxlength="2" pattern="[A-Z]{2}"
                                                             title="Duas letras maiúsculo"
                                                             style="text-transform: uppercase;">
                                                         @error('uf')
@@ -460,12 +475,17 @@
         </div>
     @endif
     <!-- Formulário de busca CNPJ -->
-    @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
+    @if (
+        !$showSalvarEmpresa &&
+            !$showInscreveLab &&
+            $empresaEditadaId === null &&
+            $laboratorioEditadoId === null &&
+            $novaInscricaoEmpresaId === null)
         <div class="row justify-content-center mb-5">
             <div class="col-md-6">
                 <label for="cnpj" class="fw-bold">
                     {{ $pessoa && $pessoa->isNotEmpty() ? 'Informe CNPJ caso queira cadastrar outro endereço de cobrança' : 'Informe o CNPJ para continuar' }}
-                   
+
                 </label>
                 <div class="input-group input-group-lg">
                     <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
@@ -523,18 +543,16 @@
                             @enderror
                         </div>
                         {{-- endereco cobranca --}}
+                        <!-- E-mail de Cobrança -->
+                        <div class="col-md-6">
+                            <label for="cobranca_email" class="form-label">E-mail de Cobrança</label>
+                            <input type="email" id="cobranca_email" wire:model="cobranca_email"
+                                class="form-control" placeholder="Digite o e-mail de cobrança">
+                            @error('cobranca_email')
+                                <span class="text-danger small">{{ $message }}</span>
+                            @enderror
+                        </div>
                         <div class="row my-3 gy-2">
-
-                            <!-- E-mail de Cobrança -->
-                            <div class="col-md-6">
-                                <label for="cobranca_email" class="form-label">E-mail de Cobrança</label>
-                                <input type="email" id="cobranca_email" wire:model="cobranca_email"
-                                    class="form-control" placeholder="Digite o e-mail de cobrança">
-                                @error('cobranca_email')
-                                    <span class="text-danger small">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6"></div>
 
                             <div class="col-5 col-sm-4">
                                 <x-forms.input-field wire:model="cobranca_cep" name="cobranca_cep" label="CEP"
