@@ -27,7 +27,8 @@
                                     <strong>{{ $empresa->nome_razao }}</strong>
                                     <small class="text-muted ms-2">CNPJ: {{ $empresa->cpf_cnpj }}</small>
                                 </div>
-                                @if ($laboratorioEditadoId === null && $novaInscricaoEmpresaId === null && $empresaEditadaId !== $empresa->id)
+                                <!-- Botão de editar empresa -->
+                                @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
                                     <div>
                                         <button class="btn btn-sm btn-outline-primary me-2"
                                             wire:click.prevent="{{ $empresaEditadaId === $empresa->id
@@ -133,7 +134,8 @@
                                     <div class="col-md-2">
                                         <label for="cobranca_uf" class="form-label">UF</label>
                                         <input type="text" id="cobranca_uf" wire:model="cobranca_uf"
-                                            class="form-control" maxlength="2" placeholder="UF" style="text-transform: uppercase;">
+                                            class="form-control" maxlength="2" placeholder="UF"
+                                            style="text-transform: uppercase;">
                                         @error('cobranca_uf')
                                             <span class="text-danger small">{{ $message }}</span>
                                         @enderror
@@ -174,10 +176,8 @@
                                                     {{ $inscrito->laboratorio->endereco->cidade }}/{{ $inscrito->laboratorio->endereco->uf }}
                                                 </p>
                                             </div>
-                                            @if (
-                                                $empresaEditadaId === null &&
-                                                    $novaInscricaoEmpresaId === null &&
-                                                    $laboratorioEditadoId !== $inscrito->laboratorio->id)
+                                            <!-- Botão de editar laboratório -->
+                                            @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
                                                 <div class="mt-2 text-end col-3">
                                                     <button class="btn btn-sm btn-outline-warning"
                                                         wire:click.prevent="{{ $laboratorioEditadoId === $inscrito->laboratorio->id
@@ -278,7 +278,8 @@
                                                         <div class="col-4 col-sm-2">
                                                             <label for="uf" class="form-label mb-0">UF</label>
                                                             <input type="text" class="form-control"
-                                                                wire:model="uf" id="uf" maxlength="2" style="text-transform: uppercase;">
+                                                                wire:model="uf" id="uf" maxlength="2"
+                                                                style="text-transform: uppercase;">
                                                             @error('uf')
                                                                 <div class="text-warning">{{ $message }}
                                                                 </div>
@@ -309,14 +310,15 @@
                                     </div>
                                 @endif
                             @endforeach
-                            <div class="mt-3 text-end">
-                                @if ($empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
+                            <!-- Botão de adicionar novo laboratório -->
+                            @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
+                                <div class="mt-3 text-end">
                                     <button class="btn btn-sm btn-success"
                                         wire:click.prevent="novoLaboratorio({{ $empresa->id }})">
                                         <i class="ri-add-line"></i> Adicionar Novo Laboratório
                                     </button>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                             <!-- Formulário de novo laboratório em empresa já inscrita -->
                             @if ($novaInscricaoEmpresaId === $empresa->id)
                                 <div class="mt-3 border-top pt-3">
@@ -413,9 +415,10 @@
                                                         <label for="uf" class="form-label mb-0">UF<small
                                                                 class="text-danger-emphasis opacity-75"> *
                                                             </small></label>
-                                                        <input type="text" class="form-control" wire:model="uf"
-                                                            id="uf" maxlength="2" pattern="[A-Z]{2}"
-                                                            title="Duas letras maiúsculo" style="text-transform: uppercase;">
+                                                        <input type="text" class="form-control"
+                                                            wire:model="uf" id="uf" maxlength="2" pattern="[A-Z]{2}"
+                                                            title="Duas letras maiúsculo"
+                                                            style="text-transform: uppercase;">
                                                         @error('uf')
                                                             <div class="text-warning">{{ $message }}</div>
                                                         @enderror
@@ -457,11 +460,12 @@
         </div>
     @endif
     <!-- Formulário de busca CNPJ -->
-    @if ($empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
+    @if (!$showSalvarEmpresa && !$showInscreveLab && $empresaEditadaId === null && $laboratorioEditadoId === null && $novaInscricaoEmpresaId === null)
         <div class="row justify-content-center mb-5">
             <div class="col-md-6">
                 <label for="cnpj" class="fw-bold">
-                    {{ $pessoa ? 'Informe outro CNPJ caso queira cadastrar outro endereço de cobrança' : 'Informe o CNPJ para continuar' }}
+                    {{ $pessoa && $pessoa->isNotEmpty() ? 'Informe CNPJ caso queira cadastrar outro endereço de cobrança' : 'Informe o CNPJ para continuar' }}
+                   
                 </label>
                 <div class="input-group input-group-lg">
                     <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
@@ -576,7 +580,8 @@
                                 <label for="uf" class="form-label mb-0">UF<small
                                         class="text-danger-emphasis opacity-75"> * </small></label>
                                 <input type="text" class="form-control" wire:model="cobranca_uf" maxlength="2"
-                                    pattern="[A-Z]{2}" title="Duas letras maiúsculo" style="text-transform: uppercase;">
+                                    pattern="[A-Z]{2}" title="Duas letras maiúsculo"
+                                    style="text-transform: uppercase;">
                                 @error('uf')
                                     <div class="text-warning">{{ $message }}</div>
                                 @enderror
@@ -713,7 +718,8 @@
                             <label for="uf" class="form-label mb-0">UF<small
                                     class="text-danger-emphasis opacity-75"> * </small></label>
                             <input type="text" class="form-control" wire:model="uf" id="uf"
-                                maxlength="2" pattern="[A-Z]{2}" title="Duas letras maiúsculo" style="text-transform: uppercase;">
+                                maxlength="2" pattern="[A-Z]{2}" title="Duas letras maiúsculo"
+                                style="text-transform: uppercase;">
                             @error('uf')
                                 <div class="text-warning">{{ $message }}</div>
                             @enderror

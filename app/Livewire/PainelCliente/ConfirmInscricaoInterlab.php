@@ -103,7 +103,8 @@ class ConfirmInscricaoInterlab extends Component
         $this->validate([
             'BuscaCnpj' => ['required', 'cnpj'],
         ], [
-            'BuscaCnpj.cnpj' => 'O dado enviado não é um CNPJ válido',
+            'BuscaCnpj.cnpj' => 'O dado enviado não é um CNPJ válido.',
+            'BuscaCnpj.required' => 'Digite um CNPJ para cadastro.',
         ]);
 
         $cnpjLimpo = preg_replace('/[^0-9]/', '', $this->BuscaCnpj);
