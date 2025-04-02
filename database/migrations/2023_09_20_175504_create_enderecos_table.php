@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('cep')->nullable();
             $table->string('cidade')->nullable();
             $table->string('uf', 2)->nullable();
+            $table->string('email')->nullable();
+            $table->boolean('cobranca')->default(false);
             $table->timestamps();
         });
     }
