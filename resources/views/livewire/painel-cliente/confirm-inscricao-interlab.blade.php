@@ -1,6 +1,6 @@
-<div class="col-9">
+<div class="col-12">
     <!-- Cabeçalho do interlaboratorial -->
-    <div>
+    <div class="card px-3 border border-primary" >
         <h5 class="card-subtitle mt-3 mb-2 text-primary-emphasis">Dados do interlaboratorial:</h5>
         <p class="pb-3">
             <strong>Interlaboratorial:</strong> {{ $interlab->interlab->nome }} <br>
@@ -475,27 +475,35 @@
         </div>
     @endif
     <!-- Formulário de busca CNPJ -->
-    @if (
-        !$showSalvarEmpresa &&
-            !$showInscreveLab &&
+    @if ( !$showSalvarEmpresa && !$showInscreveLab &&
             $empresaEditadaId === null &&
             $laboratorioEditadoId === null &&
             $novaInscricaoEmpresaId === null)
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-6">
-                <label for="cnpj" class="fw-bold">
-                    {{ $pessoa && $pessoa->isNotEmpty() ? 'Informe CNPJ caso queira cadastrar outro endereço de cobrança' : 'Informe o CNPJ para continuar' }}
 
-                </label>
-                <div class="input-group input-group-lg">
-                    <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
-                        placeholder="CNPJ">
-                    <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
+        <div class="card px-3 py-3 border border">
+            <div class="row">
+                @if ($pessoa && $pessoa->isNotEmpty())
+                    <button class="btn btn-warning" wire:click="encerrarInscricoes">ENCERRAR INSCRIÇÕES</button>
+                    <div class="d-flex align-items-center py-1">
+                        <hr class="flex-grow-1">
+                        <span class="mx-3">ou</span>
+                        <hr class="flex-grow-1">
+                      </div>
+                @endif
+                <div class="col-md-6">
+                    <h5>{{ ( $pessoa && $pessoa->isNotEmpty() ) 
+                        ? 'Informe outro CNPJ caso queira cadastrar outra empresa para cobrança' 
+                        : 'Informe o CNPJ para continuar' }}</h5>
+                    <p>Para prosseguir com a inscrição, é necessário informar um CNPJ para envio de nota Fiscal e Cobrança</p>
+                    <div class="input-group input-group-lg">
+                        <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
+                            placeholder="CNPJ">
+                        <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
+                    </div>
+                    @error('BuscaCnpj') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
-                @error('BuscaCnpj')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
             </div>
+    
         </div>
     @endif
     <!-- Formulário de edição/cadastro de NOVA empresa -->

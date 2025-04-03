@@ -79,17 +79,17 @@ class ConfirmInscricaoInterlab extends Component
             ->where('pessoa_id',  auth()->user()->pessoa->id)
             ->where('agenda_interlab_id', $this->interlab->id)
             ->get() ?? null;
+
         $empresaIds = $this->inscritos->pluck('empresa_id')->unique();
+
         /** @var Pessoa */
         $this->pessoa = Pessoa::whereIn('id', $empresaIds)
             ->with(['interlabs', 'enderecos' => function ($query) {
                 $query->where('cobranca', 1);
             }])
             ->get();
-        $this->reset([
-            'inscritoId',
-            'laboratorioId'
-        ]);
+
+        $this->reset([ 'inscritoId', 'laboratorioId' ]);
     }
 
     public function render()
@@ -166,15 +166,14 @@ class ConfirmInscricaoInterlab extends Component
             [
                 'nome_razao' => ['required', 'string', 'max:191'],
                 'cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191'],
-                'cobranca_email'    => ['required', 'email', 'max:191'],
+                'cobranca_email' => ['required', 'email', 'max:191'],
                 'cobranca_cep' => ['required', 'string'],
                 'cobranca_endereco' => ['required', 'string'],
                 "cobranca_email" => ['required', 'email', 'max:191'],
                 'cobranca_bairro' => ['required', 'string'],
                 'cobranca_cidade' => ['required', 'string'],
                 'cobranca_uf' => ['required', 'string', 'size:2'],
-            ],
-            [
+            ],[
                 'nome_razao.required' => 'Preencha o campo nome/razão social.',
                 'nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',
                 'cpf_cnpj.required' => 'Preencha o campo CPF/CNPJ.',
@@ -195,8 +194,6 @@ class ConfirmInscricaoInterlab extends Component
                 'cpf_cnpj'       => $this->cpf_cnpj,
                 'telefone'       => $this->telefone,
             ]);
-
-
 
             $this->empresa->enderecos()->updateOrCreate(
                 ['info' => 'Cobrança'],
@@ -243,7 +240,9 @@ class ConfirmInscricaoInterlab extends Component
 
             session()->flash('message', 'Empresa cadastrada com sucesso!');
         }
+
         $this->showSalvarEmpresa = false;
+
         //   atualizando  os dados necessários:
         $this->inscritos = InterlabInscrito::with('laboratorio')
             ->where('pessoa_id', auth()->user()->pessoa->id)
@@ -251,10 +250,13 @@ class ConfirmInscricaoInterlab extends Component
             ->get();
 
         $empresaIds = $this->inscritos->pluck('empresa_id')->unique();
+
         $this->pessoa = Pessoa::whereIn('id', $empresaIds)
             ->with('interlabs')
             ->get();
+
         $this->empresaEditadaId = null;
+
         if (in_array($this->empresa->id, $empresaIds->toArray())) {
             $this->showInscreveLab = false;
         } else {
@@ -304,6 +306,7 @@ class ConfirmInscricaoInterlab extends Component
             "valor" => ['nullable', 'string'],
         ];
     }
+
     public function messages(): array
     {
         return [
@@ -473,13 +476,15 @@ class ConfirmInscricaoInterlab extends Component
 
         $this->laboratorioEditadoId = $inscrito->laboratorio->id;
     }
-    // novo laboratorio praa empresa ja inscrita
+
+    // novo laboratorio para empresa ja inscrita
     public function novoLaboratorio($empresaId)
     {
         $this->novaInscricaoEmpresaId = $empresaId;
         $this->reset(['laboratorioEditadoId', 'inscritoEditadoId']);
         $this->cancelEdit();
     }
+
     // Cancelar edições
     public function cancelEdit()
     {
@@ -546,4 +551,11 @@ class ConfirmInscricaoInterlab extends Component
             session()->flash('error', 'CEP inválido. Certifique-se de que possui 8 dígitos.');
         }
     }
+
+    public function encerrarInscricoes()
+    {
+        session()->forget(['interlab', 'empresa', 'convite']);
+        return redirect('painel');
+    }
+    
 }
