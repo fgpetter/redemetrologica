@@ -26,7 +26,6 @@ return new class extends Migration
             $table->dateTime('certificado_emitido')->nullable();
             $table->string('certificado_path')->nullable();
             $table->text('informacoes_inscricao')->nullable();
-            $table->integer('end_cobranca')->nullable();
             $table->timestamps();
         });
     }

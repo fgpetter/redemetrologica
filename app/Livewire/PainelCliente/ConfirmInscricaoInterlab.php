@@ -33,13 +33,12 @@ class ConfirmInscricaoInterlab extends Component
     public $interlab; //vem da session com dados da agenda interlab
     public $BuscaCnpj; // cnpj para busca de pessoa
     public $empresa; //vem do ProcuraCnpj
-    public $pessoa; // empresas que o usuario ja tenha inscrito
+    public $empresas; // empresas que o usuario ja tenha inscrito
     public $inscritos; //interlabs que usuario ja esta inscrito
 
     // dados para update da empresa
     public $nome_razao;
     public $cpf_cnpj;
-    public $emailNF;
     public $telefone;
 
     // Dados da inscrição interlab
@@ -83,7 +82,7 @@ class ConfirmInscricaoInterlab extends Component
         $empresaIds = $this->inscritos->pluck('empresa_id')->unique();
 
         /** @var Pessoa */
-        $this->pessoa = Pessoa::whereIn('id', $empresaIds)
+        $this->empresas = Pessoa::whereIn('id', $empresaIds)
             ->with(['interlabs', 'enderecos' => function ($query) {
                 $query->where('cobranca', 1);
             }])
@@ -109,42 +108,25 @@ class ConfirmInscricaoInterlab extends Component
 
         $cnpjLimpo = preg_replace('/[^0-9]/', '', $this->BuscaCnpj);
 
-        $empresa = Pessoa::where('cpf_cnpj', $cnpjLimpo)
+        $empresa = Pessoa::with('enderecoCobranca') // Adiciona o relacionamento enderecoCobranca
+            ->where('cpf_cnpj', $cnpjLimpo)
             ->where('tipo_pessoa', 'PJ')
             ->first();
-
         if ($empresa) {
             $this->empresa       = $empresa;
             $this->nome_razao    = $empresa->nome_razao;
             $this->cpf_cnpj      = $empresa->cpf_cnpj;
             $this->telefone      = $empresa->telefone;
 
-            // Carregar informações de endereço conforme regra: ultimo endereço de cobrança, depois o padrão e por último o mais recente
-            $enderecos = DB::select("
-                SELECT `endereco`, `info`, `complemento`, `bairro`, `cep`, `cidade`, `uf`, `email`, `cobranca`, `updated_at`, 1 as tipo 
-                FROM enderecos
-                WHERE pessoa_id = ? AND cobranca = 1
-                UNION ALL
-                SELECT `endereco`, `info`, `complemento`, `bairro`, `cep`, `cidade`, `uf`, `email`, `cobranca`, `updated_at`, 2 as tipo 
-                FROM enderecos
-                WHERE id = (SELECT end_padrao FROM pessoas WHERE id = ?)
-                UNION ALL
-                SELECT `endereco`, `info`, `complemento`, `bairro`, `cep`, `cidade`, `uf`, `email`, `cobranca`, `updated_at`, 3 as tipo 
-                FROM enderecos
-                WHERE pessoa_id = ?
-                ORDER BY tipo, updated_at DESC
-                LIMIT 1
-            ", [$empresa->id, $empresa->id, $empresa->id]);
-
-            if (!empty($enderecos)) {
-                $endereco = $enderecos[0];
-                $this->cobranca_cep = $endereco->cep;
-                $this->cobranca_endereco = $endereco->endereco;
-                $this->cobranca_complemento = $endereco->complemento;
-                $this->cobranca_bairro = $endereco->bairro;
-                $this->cobranca_cidade = $endereco->cidade;
-                $this->cobranca_uf = $endereco->uf;
-                $this->cobranca_email = $endereco->email;
+            // Preenche os dados do endereço de cobrança, se existir
+            if ($empresa->enderecoCobranca) {
+                $this->cobranca_cep = $empresa->enderecoCobranca->cep;
+                $this->cobranca_endereco = $empresa->enderecoCobranca->endereco;
+                $this->cobranca_complemento = $empresa->enderecoCobranca->complemento;
+                $this->cobranca_bairro = $empresa->enderecoCobranca->bairro;
+                $this->cobranca_cidade = $empresa->enderecoCobranca->cidade;
+                $this->cobranca_uf = $empresa->enderecoCobranca->uf;
+                $this->cobranca_email = $empresa->enderecoCobranca->email;
             }
 
             $this->showSalvarEmpresa = true; // Mostra formulário de empresa
@@ -194,39 +176,19 @@ class ConfirmInscricaoInterlab extends Component
                 'cpf_cnpj'       => $this->cpf_cnpj,
                 'telefone'       => $this->telefone,
             ]);
-
-            $this->empresa->enderecos()->updateOrCreate(
-                ['info' => 'Cobrança'],
-                [
-                    'cep' => $this->cobranca_cep,
-                    'endereco' => $this->cobranca_endereco,
-                    'complemento' => $this->cobranca_complemento,
-                    'bairro' => $this->cobranca_bairro,
-                    'cidade' => $this->cobranca_cidade,
-                    'uf' => $this->cobranca_uf,
-                    'email' => $this->cobranca_email,
-                    'cobranca' => 1,
-                ]
-            );
-
-            session()->flash('message', 'Empresa atualizada com sucesso!');
-
-            // Reset dos campos de edição
-            $this->reset([
-                'nome_razao', 'cpf_cnpj', 'telefone', 'emailNF',
-                'cobranca_cep', 'cobranca_endereco', 'cobranca_complemento',
-                'cobranca_bairro', 'cobranca_cidade', 'cobranca_uf',
-            ]);
+            
         } else {
             $this->empresa = Pessoa::create([
                 'nome_razao'     => $this->nome_razao,
                 'cpf_cnpj'       => $this->cpf_cnpj,
                 'tipo_pessoa'    => 'PJ',
                 'telefone'       => $this->telefone,
-                'emailNF'          => $this->emailNF,
             ]);
+        }
 
-            $this->empresa->enderecos()->create([
+            $endereco = $this->empresa->enderecoCobranca()->updateOrCreate(
+            ['pessoa_id' => $this->empresa->id],
+            [
                 'info' => 'Cobrança',
                 'cep' => $this->cobranca_cep,
                 'endereco' => $this->cobranca_endereco,
@@ -237,9 +199,10 @@ class ConfirmInscricaoInterlab extends Component
                 'email' => $this->cobranca_email,
                 'cobranca' => 1,
             ]);
-
-            session()->flash('message', 'Empresa cadastrada com sucesso!');
-        }
+            $this->empresa->update([
+                'end_cobranca' => $endereco->id,
+            ]);
+        
 
         $this->showSalvarEmpresa = false;
 
@@ -251,7 +214,7 @@ class ConfirmInscricaoInterlab extends Component
 
         $empresaIds = $this->inscritos->pluck('empresa_id')->unique();
 
-        $this->pessoa = Pessoa::whereIn('id', $empresaIds)
+        $this->empresas = Pessoa::whereIn('id', $empresaIds)
             ->with('interlabs')
             ->get();
 
@@ -262,30 +225,51 @@ class ConfirmInscricaoInterlab extends Component
         } else {
             $this->showInscreveLab = true; // Mostra formulário de laboratório
         }
+        // Reset dos campos de edição
+        $this->reset([
+            'nome_razao',
+            'cpf_cnpj',
+            'telefone',
+            'cobranca_email',
+            'cobranca_cep',
+            'cobranca_endereco',
+            'cobranca_complemento',
+            'cobranca_bairro',
+            'cobranca_cidade',
+            'cobranca_uf',
+        ]);
     }
 
     //metodo para editar empresas (preenche os campos)
     public function editEmpresa($empresaId)
     {
         $this->empresaEditadaId = $empresaId;
-        $this->empresa = Pessoa::with(['enderecos' => function ($query) {
-            $query->where('cobranca', 1)->orderBy('updated_at', 'desc');
-        }])->find($empresaId);
+        $this->empresa = Pessoa::with('enderecoCobranca')->find($empresaId); // Carrega o relacionamento enderecoCobranca
 
         $this->nome_razao = $this->empresa->nome_razao;
         $this->cpf_cnpj = $this->empresa->cpf_cnpj;
         $this->telefone = $this->empresa->telefone;
-        $this->emailNF = $this->empresa->emailNF;
 
-        if ($this->empresa->enderecos->isNotEmpty()) {
-            $endereco = $this->empresa->enderecos->first();
-            $this->cobranca_cep = $endereco->cep;
-            $this->cobranca_endereco = $endereco->endereco;
-            $this->cobranca_complemento = $endereco->complemento;
-            $this->cobranca_bairro = $endereco->bairro;
-            $this->cobranca_cidade = $endereco->cidade;
-            $this->cobranca_uf = $endereco->uf;
-            $this->cobranca_email = $endereco->email;
+        // Preenche os campos do endereço de cobrança, se existir
+        if ($this->empresa->enderecoCobranca) {
+            $this->cobranca_cep = $this->empresa->enderecoCobranca->cep;
+            $this->cobranca_endereco = $this->empresa->enderecoCobranca->endereco;
+            $this->cobranca_complemento = $this->empresa->enderecoCobranca->complemento;
+            $this->cobranca_bairro = $this->empresa->enderecoCobranca->bairro;
+            $this->cobranca_cidade = $this->empresa->enderecoCobranca->cidade;
+            $this->cobranca_uf = $this->empresa->enderecoCobranca->uf;
+            $this->cobranca_email = $this->empresa->enderecoCobranca->email;
+        } else {
+            // Reseta os campos caso não exista endereço de cobrança
+            $this->reset([
+                'cobranca_cep',
+                'cobranca_endereco',
+                'cobranca_complemento',
+                'cobranca_bairro',
+                'cobranca_cidade',
+                'cobranca_uf',
+                'cobranca_email',
+            ]);
         }
     }
 
@@ -414,14 +398,14 @@ class ConfirmInscricaoInterlab extends Component
                         'end_cobranca' => $enderecoCobranca->id ?? null,
                     ]);
 
-                    Mail::to('interlab@redemetrologica.com.br')
-                        ->cc('bonus@redemetrologica.com.br')
-                        ->cc('sistema@redemetrologica.com.br')
-                        ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
+                    // Mail::to('interlab@redemetrologica.com.br')
+                    //     ->cc('bonus@redemetrologica.com.br')
+                    //     ->cc('sistema@redemetrologica.com.br')
+                    //     ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
 
-                    Mail::to($inscrito->pessoa->email)
-                        ->cc('sistema@redemetrologica.com.br')
-                        ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
+                    // Mail::to($inscrito->pessoa->email)
+                    //     ->cc('sistema@redemetrologica.com.br')
+                    //     ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
                 }
             });
 
@@ -506,7 +490,7 @@ class ConfirmInscricaoInterlab extends Component
         ]);
     }
 
-    public function buscaCep($campo)
+    public function buscaCep($campo) // Deve ser substituído por um método que traga apenas endereco de cobrança para empresas?
     {
         $cep = $campo === 'cobranca' ? $this->cobranca_cep : $this->cep;
         $cep = preg_replace('/\D/', '', $cep); 
