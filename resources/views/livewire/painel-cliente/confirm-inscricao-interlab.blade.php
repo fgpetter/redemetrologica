@@ -9,7 +9,7 @@
         </p>
     </div>
     <!-- Listagem de empresas com inscrições existentes -->
-    @if ($empresas && $empresas->isNotEmpty())
+    @if ($empresas_inscritas && $empresas_inscritas->isNotEmpty())
         @if ($interlab->instrucoes_inscricao)
             <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-primary rounded mb-5">
                 <i class="ri-information-fill text-primary fs-5"></i> Importante:
@@ -18,14 +18,14 @@
         @endif
         <div class="mb-5 border p-3 rounded">
             <h5 class="mb-3 text-primary">Laboratórios Inscritos:</h5>
-            @foreach ($empresas as $empresa)
-                <div class="card mb-3" wire:key="empresa-{{ $empresa->id }}">
-                    @if ($empresaEditadaId !== $empresa->id)
+            @foreach ($empresas_inscritas as $empresa_inscrita)
+                <div class="card mb-3" wire:key="empresa-{{ $empresa_inscrita->id }}">
+                    @if ($empresaEditadaId !== $empresa_inscrita->id)
                         <div class="card-header bg-light" style="min-height: 60px;">
                             <div class="d-flex justify-content-between align-items-center h-100">
                                 <div>
-                                    <strong>{{ $empresa->nome_razao }}</strong>
-                                    <small class="text-muted ms-2">CNPJ: {{ $empresa->cpf_cnpj }}</small>
+                                    <strong>{{ $empresa_inscrita->nome_razao }}</strong>
+                                    <small class="text-muted ms-2">CNPJ: {{ $empresa_inscrita->cpf_cnpj }}</small>
                                 </div>
                                 <!-- Botão de editar empresa -->
                                 @if (
@@ -36,11 +36,11 @@
                                         $novaInscricaoEmpresaId === null)
                                     <div>
                                         <button class="btn btn-sm btn-outline-primary me-2"
-                                            wire:click.prevent="{{ $empresaEditadaId === $empresa->id
+                                            wire:click.prevent="{{ $empresaEditadaId === $empresa_inscrita->id
                                                 ? '$set(\'empresaEditadaId\', null)'
-                                                : 'editEmpresa(' . $empresa->id . ')' }}">
+                                                : 'editEmpresa(' . $empresa_inscrita->id . ')' }}">
                                             <i class="ri-edit-line"></i>
-                                            {{ $empresaEditadaId === $empresa->id ? 'Cancelar' : 'Editar' }}
+                                            {{ $empresaEditadaId === $empresa_inscrita->id ? 'Cancelar' : 'Editar' }}
                                         </button>
                                     </div>
                                 @endif
@@ -48,90 +48,90 @@
                         </div>
                     @endif
                     {{-- editando empresa ja inscrita --}}
-                    @if ($empresaEditadaId === $empresa->id)
+                    @if ($empresaEditadaId === $empresa_inscrita->id)
                         <div class="card-body bg-light">
                             <form wire:submit.prevent="salvarEmpresa">
                                 <div class="row g-4">
                                     <div class="col-md-6">
-                                        <x-forms.input-field wire:model="nome_razao" name="nome_razao"
+                                        <x-forms.input-field wire:model="empresa.nome_razao" name="nome_razao"
                                             label="Razão Social" :required="true" />
-                                        @error('nome_razao')
+                                        @error('empresa.nome_razao')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-6">
-                                        <x-forms.input-field wire:model="cpf_cnpj" name="cpf_cnpj" label="CNPJ"
+                                        <x-forms.input-field wire:model="empresa.cpf_cnpj" name="cpf_cnpj" label="CNPJ"
                                             :readonly="true" />
-                                        @error('cpf_cnpj')
+                                        @error('empresa.cpf_cnpj')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-6">
-                                        <x-forms.input-field wire:model="telefone" name="telefone" label="Telefone"
+                                        <x-forms.input-field wire:model="empresa.telefone" name="telefone" label="Telefone"
                                             class="telefone" maxlength="15"
                                             x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
                                                 ? '(99) 99999-9999' 
                                                 : '(99) 9999-9999'" />
-                                        @error('telefone')
+                                        @error('empresa.telefone')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-6">
-                                        <x-forms.input-field wire:model="cobranca_email" name="cobranca_email"
+                                        <x-forms.input-field wire:model="empresa.endereco_cobranca.email" name="cobranca_email"
                                             label="E-mail de Cobrança" type="email" :required="true" />
-                                        @error('cobranca_email')
+                                        @error('empresa.endereco_cobranca.email')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-4">
-                                        <x-forms.input-field wire:model="cobranca_cep" name="cobranca_cep"
+                                        <x-forms.input-field wire:model="empresa.endereco_cobranca.cep" name="cobranca_cep"
                                             label="CEP" wire:blur="buscaCep('cobranca')" maxlength="9"
                                             x-mask="99999-999" :required="true" />
-                                        @error('cobranca_cep')
+                                        @error('empresa.endereco_cobranca.cep')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-8">
-                                        <x-forms.input-field wire:model="cobranca_endereco" name="cobranca_endereco"
+                                        <x-forms.input-field wire:model="empresa.endereco_cobranca.endereco" name="cobranca_endereco"
                                             label="Endereço" :required="true" />
-                                        @error('cobranca_endereco')
+                                        @error('empresa.endereco_cobranca.endereco')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-6">
-                                        <x-forms.input-field wire:model="cobranca_complemento"
+                                        <x-forms.input-field wire:model="empresa.endereco_cobranca.complemento"
                                             name="cobranca_complemento" label="Complemento" />
-                                        @error('cobranca_complemento')
+                                        @error('empresa.endereco_cobranca.complemento')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-6">
-                                        <x-forms.input-field wire:model="cobranca_bairro" name="cobranca_bairro"
+                                        <x-forms.input-field wire:model="empresa.endereco_cobranca.bairro" name="cobranca_bairro"
                                             label="Bairro" :required="true" />
-                                        @error('cobranca_bairro')
+                                        @error('empresa.endereco_cobranca.bairro')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-6">
-                                        <x-forms.input-field wire:model="cobranca_cidade" name="cobranca_cidade"
+                                        <x-forms.input-field wire:model="empresa.endereco_cobranca.cidade" name="cobranca_cidade"
                                             label="Cidade" :required="true" />
-                                        @error('cobranca_cidade')
+                                        @error('empresa.endereco_cobranca.cidade')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="col-md-2">
-                                        <x-forms.input-field wire:model="cobranca_uf" name="cobranca_uf" label="UF"
+                                        <x-forms.input-field wire:model="empresa.endereco_cobranca.uf" name="cobranca_uf" label="UF"
                                             maxlength="2" style="text-transform: uppercase;" :required="true" />
-                                        @error('cobranca_uf')
+                                        @error('empresa.endereco_cobranca.uf')
                                             <div class="text-warning">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -151,7 +151,7 @@
                     @else
                         <div class="card-body">
                             {{-- laboratorios inscritos --}}
-                            @foreach ($inscritos->where('empresa_id', $empresa->id) as $inscrito)
+                            @foreach ($inscritos->where('empresa_id', $empresa_inscrita->id) as $inscrito)
                                 @if ($laboratorioEditadoId !== $inscrito->laboratorio->id)
                                     <div class="mb-3 p-2 border rounded" wire:key="inscrito-{{ $inscrito->id }}">
                                         <div class="row">
@@ -323,13 +323,13 @@
                                     $novaInscricaoEmpresaId === null)
                                 <div class="mt-3 text-end">
                                     <button class="btn btn-sm btn-success"
-                                        wire:click.prevent="novoLaboratorio({{ $empresa->id }})">
+                                        wire:click.prevent="novoLaboratorio({{ $empresa_inscrita->id }})">
                                         <i class="ri-add-line"></i> Adicionar Novo Laboratório
                                     </button>
                                 </div>
                             @endif
                             <!-- Formulário de novo laboratório em empresa já inscrita -->
-                            @if ($novaInscricaoEmpresaId === $empresa->id)
+                            @if ($novaInscricaoEmpresaId === $empresa_inscrita->id)
                                 <div class="mt-3 border-top pt-3">
                                     <form wire:submit.prevent="InscreveLab" id="confirma-inscricao-interlab"
                                         class="mt-4">
@@ -479,7 +479,7 @@
         <div class="card px-3 py-3 border">
             <div class="row">
                 <div class="col-md-6 border-end pe-3">
-                    <h5>{{ $empresas && $empresas->isNotEmpty()
+                    <h5>{{ $empresas_inscritas && $empresas_inscritas->isNotEmpty()
                         ? 'Informe outro CNPJ caso queira cadastrar outra empresa para cobrança'
                         : 'Informe o CNPJ para continuar' }}
                     </h5>
@@ -502,7 +502,7 @@
     @endif
     <!-- Formulário de edição/cadastro de NOVA empresa -->
     @if ($showSalvarEmpresa)
-        @if (!$empresas)
+        @if (!$empresas_inscritas)
             @if ($interlab->instrucoes_inscricao)
                 <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-primary rounded mb-5">
                     <i class="ri-information-fill text-primary fs-5"></i> Importante:
@@ -521,85 +521,85 @@
                     <div class="row g-3">
 
                         <div class="col-md-6">
-                            <x-forms.input-field wire:model="nome_razao" name="nome_razao" label="Razão Social"
+                            <x-forms.input-field wire:model="empresa.nome_razao" name="nome_razao" label="Razão Social"
                                 :required="true" />
-                            @error('nome_razao')
+                            @error('empresa.nome_razao')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <x-forms.input-field wire:model="cpf_cnpj" name="cpf_cnpj" label="CNPJ"
+                            <x-forms.input-field wire:model="empresa.cpf_cnpj" name="cpf_cnpj" label="CNPJ"
                                 :readonly="true" />
-                            @error('cpf_cnpj')
+                            @error('empresa.cpf_cnpj')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <x-forms.input-field wire:model="telefone" name="telefone" label="Telefone"
+                            <x-forms.input-field wire:model="empresa.telefone" name="telefone" label="Telefone"
                                 class="telefone" maxlength="15"
                                 x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
                                                                 ? '(99) 99999-9999' 
                                                                 : '(99) 9999-9999'" />
-                            @error('telefone')
+                            @error('empresa.telefone')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <x-forms.input-field wire:model="cobranca_email" name="cobranca_email"
+                            <x-forms.input-field wire:model="empresa.endereco_cobranca.email" name="cobranca_email"
                                 label="E-mail de Cobrança" type="email" :required="true" />
-                            @error('cobranca_email')
+                            @error('empresa.endereco_cobranca.email')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-4">
-                            <x-forms.input-field wire:model="cobranca_cep" name="cobranca_cep" label="CEP"
+                            <x-forms.input-field wire:model="empresa.endereco_cobranca.cep" name="cobranca_cep" label="CEP"
                                 wire:blur="buscaCep('cobranca')" maxlength="9" x-mask="99999-999"
                                 :required="true" />
-                            @error('cobranca_cep')
+                            @error('empresa.endereco_cobranca.cep')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-8">
-                            <x-forms.input-field wire:model="cobranca_endereco" name="cobranca_endereco"
+                            <x-forms.input-field wire:model="empresa.endereco_cobranca.endereco" name="cobranca_endereco"
                                 label="Endereço" :required="true" />
-                            @error('cobranca_endereco')
+                            @error('empresa.endereco_cobranca.endereco')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <x-forms.input-field wire:model="cobranca_complemento" name="cobranca_complemento"
+                            <x-forms.input-field wire:model="empresa.endereco_cobranca.complemento" name="cobranca_complemento"
                                 label="Complemento" />
-                            @error('cobranca_complemento')
+                            @error('empresa.endereco_cobranca.complemento')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <x-forms.input-field wire:model="cobranca_bairro" name="cobranca_bairro" label="Bairro"
+                            <x-forms.input-field wire:model="empresa.endereco_cobranca.bairro" name="cobranca_bairro" label="Bairro"
                                 :required="true" />
-                            @error('cobranca_bairro')
+                            @error('empresa.endereco_cobranca.bairro')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <x-forms.input-field wire:model="cobranca_cidade" name="cobranca_cidade" label="Cidade"
+                            <x-forms.input-field wire:model="empresa.endereco_cobranca.cidade" name="cobranca_cidade" label="Cidade"
                                 :required="true" />
-                            @error('cobranca_cidade')
+                            @error('empresa.endereco_cobranca.cidade')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="col-md-2">
-                            <x-forms.input-field wire:model="cobranca_uf" name="cobranca_uf" label="UF"
+                            <x-forms.input-field wire:model="empresa.endereco_cobranca.uf" name="cobranca_uf" label="UF"
                                 maxlength="2" style="text-transform: uppercase;" :required="true" />
-                            @error('cobranca_uf')
+                            @error('empresa.endereco_cobranca.uf')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
@@ -620,7 +620,7 @@
     @endif
     <!-- Formulário de NOVO laboratório -->
     @if ($showInscreveLab)
-        @if (!$empresas)
+        @if (!$empresas_inscritas)
             @if ($interlab->instrucoes_inscricao)
                 <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-primary rounded mb-5">
                     <i class="ri-information-fill text-primary fs-5"></i> Importante:
@@ -633,8 +633,8 @@
                 <div class="card-header bg-light" style="min-height: 60px;">
                     <div class="d-flex justify-content-between align-items-center h-100">
                         <div>
-                            <strong>{{ $empresa->nome_razao }}</strong>
-                            <small class="text-muted ms-2">CNPJ: {{ $empresa->cpf_cnpj }}</small>
+                            <strong><span wire:text="empresa.nome_razao"></span></strong>
+                            <small class="text-muted ms-2">CNPJ: <span wire:text="empresa.cpf_cnpj"></span></small>
                         </div>
                     </div>
                 </div>
