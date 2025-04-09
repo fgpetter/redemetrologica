@@ -530,7 +530,7 @@
     @endif
     <!-- Formulário de edição/cadastro de NOVA empresa -->
     @if ($showSalvarEmpresa)
-        @if (!$empresas_inscritas)
+        @if (!$empresas_inscritas || $empresas_inscritas->isEmpty())
             @if ($interlab->instrucoes_inscricao)
                 <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-primary rounded mb-5">
                     <i class="ri-information-fill text-primary fs-5"></i> Importante:
@@ -632,7 +632,7 @@
 
     <!-- Formulário de edição/cadastro de laboratório -->
     @if ($showInscreveLab)
-        @if (!$empresas_inscritas)
+        @if (!$empresas_inscritas || $empresas_inscritas->isEmpty())
             @if ($interlab->instrucoes_inscricao)
                 <blockquote class="blockquote custom-blockquote blockquote-outline blockquote-primary rounded mb-5">
                     <i class="ri-information-fill text-primary fs-5"></i> Importante:
