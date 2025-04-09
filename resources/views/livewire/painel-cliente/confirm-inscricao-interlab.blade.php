@@ -305,8 +305,9 @@
                                                     </div>
 
                                                     <x-forms.input-textarea wire:model="informacoes_inscricao"
-                                                        name="informacoes_inscricao" label="Informações da inscrição:" 
-                                                        sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar.">
+                                                        name="informacoes_inscricao" label="Informações da inscrição" 
+                                                        sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar."
+                                                        required>
                                                         {{ old('informacoes_inscricao') ?? null }}
                                                     </x-forms.input-textarea>
                                                     @error('informacoes_inscricao')
@@ -462,8 +463,9 @@
                                                 </div>
 
                                                 <x-forms.input-textarea wire:model="informacoes_inscricao"
-                                                    name="informacoes_inscricao" label="Informações da inscrição:"
-                                                    sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar.">
+                                                    name="informacoes_inscricao" label="Informações da inscrição"
+                                                    sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar."
+                                                    required>
                                                     {{ old('informacoes_inscricao') ?? null }}
                                                 </x-forms.input-textarea>
                                                 @error('informacoes_inscricao')
@@ -737,8 +739,9 @@
                         </div>
                     </div>
                     <x-forms.input-textarea wire:model="informacoes_inscricao" name="informacoes_inscricao"
-                        label="Informações da inscrição:"
-                        sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar.">
+                        label="Informações da inscrição"
+                        sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar."
+                        required>
                         {{ old('informacoes_inscricao') ?? null }}
                     </x-forms.input-textarea>
                     @error('informacoes_inscricao')
