@@ -32,25 +32,14 @@ class ConfirmInscricaoInterlab extends Component
     public $pessoaId_usuario; //id da pessoa do usuario
     public $interlab; //vem da session com dados da agenda interlab
     public $BuscaCnpj; // cnpj para busca de pessoa
-    public $empresa; //vem do ProcuraCnpj
+    public $empresa; //empresa encontrada em ProcuraCnpj
     public $empresas_inscritas; // empresas que o usuario ja tenha inscrito
     public $inscritos; //interlabs que usuario ja esta inscrito
 
     // Dados da inscrição interlab
     public $laboratorio;
-    public $responsavel_tecnico;
-    public $lab_telefone;
-    public $lab_email;
     public $informacoes_inscricao;
     public $valor;
-
-    // Dados do endereço do Laboratorio 
-    public $cep;
-    public $endereco;
-    public $complemento;
-    public $bairro;
-    public $cidade;
-    public $uf;
 
     public function mount()
     {
@@ -73,6 +62,20 @@ class ConfirmInscricaoInterlab extends Component
                 $query->where('cobranca', 1);
             }])
             ->get();
+
+        $this->laboratorio = [
+            'nome' => '',
+            'responsavel_tecnico' => '',
+            'telefone' => '',
+            'email' => '',
+            'endereco' => [
+                'cep' => '',
+                'endereco' => '',
+                'complemento' => '',
+                'bairro' => '',
+                'cidade' => '',
+                'uf' => '',
+            ]];
 
         $this->reset([ 'inscritoId', 'laboratorioId' ]);
     }
@@ -140,7 +143,6 @@ class ConfirmInscricaoInterlab extends Component
             ]
         );
 
-        // Atualiza ou cria a empresa
         $empresa = Pessoa::updateOrCreate(
             ['id' => $this->empresa['id'] ?? null],
             [
@@ -151,7 +153,6 @@ class ConfirmInscricaoInterlab extends Component
             ]
         );
 
-        // Atualiza ou cria o endereço de cobrança
         $enderecoCobranca = $empresa->enderecoCobranca()->updateOrCreate(
             ['pessoa_id' => $empresa->id],
             [
@@ -167,7 +168,6 @@ class ConfirmInscricaoInterlab extends Component
             ]
         );
 
-        // Atualiza o campo end_cobranca na tabela Pessoa
         $empresa->update([
             'end_cobranca' => $enderecoCobranca->id,
         ]);
@@ -175,7 +175,6 @@ class ConfirmInscricaoInterlab extends Component
         $this->empresa = $empresa->toArray();
         $this->showSalvarEmpresa = false;
 
-        // Atualiza os dados necessários
         $this->inscritos = InterlabInscrito::with('laboratorio')
             ->where('pessoa_id', auth()->user()->pessoa->id)
             ->where('agenda_interlab_id', $this->interlab->id)
@@ -200,8 +199,6 @@ class ConfirmInscricaoInterlab extends Component
     public function editEmpresa($empresaId)
     {
         $this->empresaEditadaId = $empresaId;
-
-        // Carrega a empresa com o relacionamento enderecoCobranca
         $empresa = Pessoa::with('enderecoCobranca')->find($empresaId);
         $this->empresa = $empresa->toArray(); 
     }
@@ -209,17 +206,17 @@ class ConfirmInscricaoInterlab extends Component
     public function rules(): array
     {
         return [
-            "laboratorio" => ['required', 'string', 'max:191'],
-            "responsavel_tecnico" => ['required', 'string', 'max:191'],
-            "lab_telefone" => ['nullable', 'string', 'min:10', 'max:11'],
-            "lab_email" => ['required', 'email', 'max:191'],
-            "informacoes_inscricao" => ['nullable', 'string'],
-            "cep" => ['required', 'string'],
-            "endereco" => ['required', 'string'],
-            "complemento" => ['nullable', 'string'],
-            "bairro" => ['nullable', 'string'],
-            "cidade" => ['nullable', 'string'],
-            "uf" => ['required', 'string'],
+            "laboratorio.nome" => ['required', 'string', 'max:191'],
+            "laboratorio.responsavel_tecnico" => ['required', 'string', 'max:191'],
+            "laboratorio.telefone" => ['nullable', 'string', 'min:10', 'max:11'],
+            "laboratorio.email" => ['required', 'email', 'max:191'],
+            "laboratorio.endereco.cep" => ['required', 'string'],
+            "laboratorio.endereco.endereco" => ['required', 'string'],
+            "laboratorio.endereco.complemento" => ['nullable', 'string'],
+            "laboratorio.endereco.bairro" => ['required', 'string'],
+            "laboratorio.endereco.cidade" => ['nullable', 'string'],
+            "laboratorio.endereco.uf" => ['required', 'string', 'size:2'],
+            "informacoes_inscricao" => ['required', 'string'],
             "valor" => ['nullable', 'string'],
         ];
     }
@@ -227,52 +224,53 @@ class ConfirmInscricaoInterlab extends Component
     public function messages(): array
     {
         return [
-            'laboratorio.required' => 'Preencha o campo laboratório',
-            'laboratorio.max' => 'O campo laboratório deve ter no máximo :max caracteres',
-            'responsavel_tecnico.required' => 'Preencha o campo responsável técnico',
-            'responsavel_tecnico.max' => 'O campo responsável técnico deve ter no máximo :max caracteres',
-            'lab_telefone.*' => 'O telefone informado é inválido',
-            'lab_email.required' => 'O email  é obrigatório.',
-            'lab_email.email' => 'O email deve ser um endereço de email válido.',
-            'cep.required' => 'Preencha o campo CEP',
-            'endereco.required' => 'Preencha o campo endereço',
-            'uf.required' => 'Preencha o campo UF',
-            'valor.string' => 'O valor digitado é inválido',
+            'laboratorio.nome.required' => 'Preencha o campo laboratório.',
+            'laboratorio.nome.max' => 'O campo laboratório deve ter no máximo :max caracteres.',
+            'laboratorio.responsavel_tecnico.required' => 'Preencha o campo responsável técnico.',
+            'laboratorio.responsavel_tecnico.max' => 'O campo responsável técnico deve ter no máximo :max caracteres.',
+            'laboratorio.telefone.*' => 'O telefone informado é inválido.',
+            'laboratorio.email.required' => 'O email é obrigatório.',
+            'laboratorio.email.email' => 'O email deve ser um endereço de email válido.',
+            'laboratorio.endereco.cep.required' => 'Preencha o campo CEP.',
+            'laboratorio.endereco.endereco.required' => 'Preencha o campo endereço.',
+            'laboratorio.endereco.bairro.required' => 'Preencha o campo bairro.',
+            'laboratorio.endereco.uf.required' => 'Preencha o campo UF.',
+            'laboratorio.endereco.uf.size' => 'O campo UF deve ter exatamente 2 caracteres.',
+            'valor.string' => 'O valor digitado é inválido.',
+            'informacoes_inscricao.required' => 'Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar.',
         ];
     }
+
 
     // Metodo  salva interlab-inscritos
     public function InscreveLab()
     {
-        if (!empty($this->lab_telefone)) {
-            $this->lab_telefone = preg_replace('/\D/', '', $this->lab_telefone);
+        if (!empty($this->laboratorio['telefone'])) {
+            $this->laboratorio['telefone'] = preg_replace('/\D/', '', $this->laboratorio['telefone']);
         }
         $validated = $this->validate();
 
         try {
             $inscrito = DB::transaction(function () use ($validated) {
-
                 if ($this->laboratorioEditadoId) {
-                    // Obtém o ID da empresa associada ao laboratório
+                    // EDIÇÃO:
                     $laboratorio = InterlabLaboratorio::findOrFail($this->laboratorioEditadoId);
                     $empresaId = $laboratorio->empresa_id;
-
                     $endereco = Endereco::findOrFail($laboratorio->endereco_id);
-
                     $endereco->update([
-                        'cep' => $validated['cep'],
-                        'endereco' => $validated['endereco'],
-                        'complemento' => $validated['complemento'],
-                        'bairro' => $validated['bairro'],
-                        'cidade' => $validated['cidade'],
-                        'uf' => $validated['uf'],
+                        'cep' => $validated['laboratorio']['endereco']['cep'],
+                        'endereco' => $validated['laboratorio']['endereco']['endereco'],
+                        'complemento' => $validated['laboratorio']['endereco']['complemento'] ?? null,
+                        'bairro' => $validated['laboratorio']['endereco']['bairro'],
+                        'cidade' => $validated['laboratorio']['endereco']['cidade'],
+                        'uf' => $validated['laboratorio']['endereco']['uf'],
                     ]);
 
                     $laboratorio->update([
-                        'nome' => $validated['laboratorio'],
-                        'responsavel_tecnico' => $validated['responsavel_tecnico'],
-                        'telefone' => $validated['lab_telefone'],
-                        'email' => $validated['lab_email'],
+                        'nome' => $validated['laboratorio']['nome'],
+                        'responsavel_tecnico' => $validated['laboratorio']['responsavel_tecnico'],
+                        'telefone' => $validated['laboratorio']['telefone'],
+                        'email' => $validated['laboratorio']['email'],
                     ]);
 
                     InterlabInscrito::where('id', $this->inscritoEditadoId)->update([
@@ -280,27 +278,27 @@ class ConfirmInscricaoInterlab extends Component
                         'informacoes_inscricao' => $validated['informacoes_inscricao'],
                     ]);
                 } else {
-                    // NOVO CADASTRO
+                    // NOVO CADASTRO:
                     $empresaId = $this->novaInscricaoEmpresaId ?? $this->empresa['id'];
 
                     $endereco = Endereco::create([
                         'pessoa_id' => $empresaId,
-                        'info' => 'Laboratório: ' . $validated['laboratorio'],
-                        'cep' => $validated['cep'],
-                        'endereco' => $validated['endereco'],
-                        'complemento' => $validated['complemento'],
-                        'bairro' => $validated['bairro'],
-                        'cidade' => $validated['cidade'],
-                        'uf' => $validated['uf'],
+                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'],
+                        'cep' => $validated['laboratorio']['endereco']['cep'],
+                        'endereco' => $validated['laboratorio']['endereco']['endereco'],
+                        'complemento' => $validated['laboratorio']['endereco']['complemento'] ?? null,
+                        'bairro' => $validated['laboratorio']['endereco']['bairro'],
+                        'cidade' => $validated['laboratorio']['endereco']['cidade'],
+                        'uf' => $validated['laboratorio']['endereco']['uf'],
                     ]);
 
                     $laboratorio = InterlabLaboratorio::create([
                         'empresa_id' => $empresaId,
                         'endereco_id' => $endereco->id,
-                        'nome' => $validated['laboratorio'],
-                        'responsavel_tecnico' => $validated['responsavel_tecnico'],
-                        'telefone' => $validated['lab_telefone'],
-                        'email' => $validated['lab_email'],
+                        'nome' => $validated['laboratorio']['nome'],
+                        'responsavel_tecnico' => $validated['laboratorio']['responsavel_tecnico'],
+                        'telefone' => $validated['laboratorio']['telefone'],
+                        'email' => $validated['laboratorio']['email'],
                     ]);
 
                     $inscrito = InterlabInscrito::create([
@@ -313,15 +311,10 @@ class ConfirmInscricaoInterlab extends Component
                         'informacoes_inscricao' => $validated['informacoes_inscricao'],
                     ]);
 
-                    // Mail::to('interlab@redemetrologica.com.br')
-                    //     ->cc('bonus@redemetrologica.com.br')
-                    //     ->cc('sistema@redemetrologica.com.br')
-                    //     ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
-
-                    // Mail::to($inscrito->pessoa->email)
-                    //     ->cc('sistema@redemetrologica.com.br')
-                    //     ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
+                    // Mail::to('interlab@redemetrologica.com.br')->cc(...)->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
+                    // Mail::to($inscrito->pessoa->email)->cc(...)->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
                 }
+
             });
 
             session()->flash('success', $this->laboratorioEditadoId
@@ -334,16 +327,21 @@ class ConfirmInscricaoInterlab extends Component
                 'inscritoEditadoId'
             ]);
 
-            if (isset($request->valor) && $request->valor > 0) {
-                $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio, $request->valor);
+           
+            if (!empty($validated['valor']) && $validated['valor'] > 0) {
+                $this->adicionaLancamentoFinanceiro(
+                    $inscrito->agendaInterlab,
+                    $inscrito->empresa,
+                    $inscrito->laboratorio,
+                    $validated['valor']
+                );
             }
-
-
 
             $this->cancelEdit();
         } catch (\Exception $e) {
             session()->flash('error', 'Erro ao processar: ' . $e->getMessage());
         }
+
         $this->showInscreveLab = false; // Esconde formulários
         $this->showSalvarEmpresa = false;
         $this->mount();
@@ -354,31 +352,14 @@ class ConfirmInscricaoInterlab extends Component
     {
         $this->inscritoEditadoId = $inscritoId;
 
-        // Carrega o inscrito com o laboratório e endereço relacionados
         $inscrito = InterlabInscrito::with(['laboratorio.endereco'])->findOrFail($inscritoId);
 
-        if ($inscrito) {
-            // Preenche os campos do laboratório
-            $this->laboratorio = $inscrito->laboratorio->nome;
-            $this->responsavel_tecnico = $inscrito->laboratorio->responsavel_tecnico;
-            $this->lab_telefone = $inscrito->laboratorio->telefone;
-            $this->lab_email = $inscrito->laboratorio->email;
-            $this->informacoes_inscricao = $inscrito->informacoes_inscricao;
-            $this->valor = $inscrito->valor;
-
-            // Preenche os campos do endereço do laboratório
-            $this->cep = $inscrito->laboratorio->endereco->cep;
-            $this->endereco = $inscrito->laboratorio->endereco->endereco;
-            $this->complemento = $inscrito->laboratorio->endereco->complemento;
-            $this->bairro = $inscrito->laboratorio->endereco->bairro;
-            $this->cidade = $inscrito->laboratorio->endereco->cidade;
-            $this->uf = $inscrito->laboratorio->endereco->uf;
-
-            // Define o ID do laboratório que está sendo editado
-            $this->laboratorioEditadoId = $inscrito->laboratorio->id;
-        } else {
-            session()->flash('error', 'Laboratório não encontrado.');
-        }
+        $this->laboratorio = $inscrito->laboratorio->toArray();
+        $this->laboratorio['endereco'] = $inscrito->laboratorio->endereco
+            ? $inscrito->laboratorio->endereco->toArray()
+            : [];
+        $this->laboratorioEditadoId = $inscrito->laboratorio->id;
+        $this->informacoes_inscricao = $inscrito->informacoes_inscricao;
     }
 
     // novo laboratorio para empresa ja inscrita
@@ -387,6 +368,20 @@ class ConfirmInscricaoInterlab extends Component
         $this->novaInscricaoEmpresaId = $empresaId;
         $this->reset(['laboratorioEditadoId', 'inscritoEditadoId']);
         $this->cancelEdit();
+        $this->laboratorio = [
+            'nome' => '',
+            'responsavel_tecnico' => '',
+            'telefone' => '',
+            'email' => '',
+            'endereco' => [
+                'cep' => '',
+                'endereco' => '',
+                'complemento' => '',
+                'bairro' => '',
+                'cidade' => '',
+                'uf' => '',
+            ],
+        ];
     }
 
     // Cancelar edições
@@ -396,23 +391,15 @@ class ConfirmInscricaoInterlab extends Component
             'laboratorioEditadoId',
             'inscritoEditadoId',
             'laboratorio',
-            'responsavel_tecnico',
-            'lab_telefone',
-            'lab_email',
             'informacoes_inscricao',
-            'valor',
-            'cep',
-            'endereco',
-            'complemento',
-            'bairro',
-            'cidade',
-            'uf'
         ]);
     }
 
     public function buscaCep($campo)
     {
-        $cep = $campo === 'cobranca' ? $this->empresa['endereco_cobranca']['cep'] : $this->cep;
+        $cep = $campo === 'cobranca' 
+        ? ($this->empresa['endereco_cobranca']['cep'] ?? '')
+        : ($this->laboratorio['endereco']['cep'] ?? '');
         $cep = preg_replace('/\D/', '', $cep);
 
         if (strlen($cep) === 8) {
@@ -427,10 +414,10 @@ class ConfirmInscricaoInterlab extends Component
                     $this->empresa['endereco_cobranca']['cidade'] = $localEndereco->cidade;
                     $this->empresa['endereco_cobranca']['uf'] = $localEndereco->uf;
                 } else {
-                    $this->endereco = $localEndereco->endereco;
-                    $this->bairro = $localEndereco->bairro;
-                    $this->cidade = $localEndereco->cidade;
-                    $this->uf = $localEndereco->uf;
+                    $this->laboratorio['endereco']['endereco'] = $localEndereco->endereco;
+                    $this->laboratorio['endereco']['bairro'] = $localEndereco->bairro;
+                    $this->laboratorio['endereco']['cidade'] = $localEndereco->cidade;
+                    $this->laboratorio['endereco']['uf'] = $localEndereco->uf;
                 }
             } else {
                 $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
@@ -443,10 +430,10 @@ class ConfirmInscricaoInterlab extends Component
                         $this->empresa['endereco_cobranca']['cidade'] = $data['localidade'] ?? '';
                         $this->empresa['endereco_cobranca']['uf'] = $data['uf'] ?? '';
                     } else {
-                        $this->endereco = $data['logradouro'] ?? '';
-                        $this->bairro = $data['bairro'] ?? '';
-                        $this->cidade = $data['localidade'] ?? '';
-                        $this->uf = $data['uf'] ?? '';
+                        $this->laboratorio['endereco']['endereco'] = $data['logradouro'] ?? '';
+                        $this->laboratorio['endereco']['bairro'] = $data['bairro'] ?? '';
+                        $this->laboratorio['endereco']['cidade'] = $data['localidade'] ?? '';
+                        $this->laboratorio['endereco']['uf'] = $data['uf'] ?? '';
                     }
                 } else {
                     session()->flash('error', 'CEP não encontrado.');
@@ -462,5 +449,4 @@ class ConfirmInscricaoInterlab extends Component
         session()->forget(['interlab', 'empresa', 'convite']);
         return redirect('painel');
     }
-    
 }
