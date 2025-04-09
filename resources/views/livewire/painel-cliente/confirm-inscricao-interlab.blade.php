@@ -519,7 +519,7 @@
                         <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
                     </div>
                     @error('BuscaCnpj')
-                        <span class="text-danger">{{ $message }}</span>
+                        <span class="text-warning">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="col-md-6 d-flex justify-content-end align-items-end">
@@ -550,14 +550,14 @@
                             <x-forms.input-field wire:model="empresa.nome_razao" name="nome_razao"
                                 label="Razão Social" :required="true" />
                             @error('empresa.nome_razao')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.cpf_cnpj" name="cpf_cnpj" label="CNPJ"
                                 :readonly="true" />
                             @error('empresa.cpf_cnpj')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
@@ -565,14 +565,14 @@
                                 class="telefone" maxlength="15"
                                 x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'" />
                             @error('empresa.telefone')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.email" name="cobranca_email"
                                 label="E-mail de Cobrança" type="email" :required="true" />
                             @error('empresa.endereco_cobranca.email')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-4">
@@ -580,35 +580,35 @@
                                 label="CEP" wire:blur="buscaCep('cobranca')" maxlength="9" x-mask="99999-999"
                                 :required="true" />
                             @error('empresa.endereco_cobranca.cep')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-8">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.endereco"
                                 name="cobranca_endereco" label="Endereço" :required="true" />
                             @error('empresa.endereco_cobranca.endereco')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.complemento"
                                 name="cobranca_complemento" label="Complemento" />
                             @error('empresa.endereco_cobranca.complemento')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.bairro" name="cobranca_bairro"
                                 label="Bairro" :required="true" />
                             @error('empresa.endereco_cobranca.bairro')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.cidade" name="cobranca_cidade"
                                 label="Cidade" :required="true" />
                             @error('empresa.endereco_cobranca.cidade')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-2">
@@ -616,7 +616,7 @@
                                 label="UF" maxlength="2" style="text-transform: uppercase;"
                                 :required="true" />
                             @error('empresa.endereco_cobranca.uf')
-                                <span class="text-danger small">{{ $message }}</span>
+                                <span class="text-warning small">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
