@@ -44,11 +44,11 @@
                 <div class="col-12 col-sm-6 col-xl-4 px-2 d-none d-xl-block">
                     <h5 class="text-white">Acesso Rápido</h5>
                         <ul style="list-style-type: none">
-                            <li><a class="text-white" href="/noticias">Notícias</a></li>
+                            {{-- <li><a class="text-white" href="/noticias">Notícias</a></li> --}}
                             <li><a class="text-white" href="/associe-se">Associe-se</a></li>
                             <li><a class="text-white" href="/cursos">Cursos</a></li>
                             <li><a class="text-white"
-                                    href="/interlaboratoriais">Interlaboratoriais</a>
+                                    href="/interlaboratoriais">Ensaios de Proficiência</a>
                             </li>
                             <li>Laboratórios
                                 <ul style="list-style-type: none; padding-left: 1rem">
@@ -67,16 +67,16 @@
                                             Bônus Metrologia
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="text-white" href="/laboratorios-downloads">
-                                            Downloads
-                                        </a>
-                                    </li>
                                 </ul>
                             </li>
                             <li>
                                 <a class="text-white" href="/fale-conosco">
                                     Fale Conosco
+                                </a>
+                            </li>
+                            <li>
+                                <a class="text-white" href="/laboratorios-downloads">
+                                    Downloads
                                 </a>
                             </li>
                         </ul>

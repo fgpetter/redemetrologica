@@ -14,9 +14,9 @@
                     <x-nav.link nome='{{$menu_item->nome}}' link='{{$menu_item->item}}'/>
                 @endforeach --}}
 
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link d-none d-xl-block" href="/noticias">Notícias</a>
-                </li>
+                </li> --}}
 
                 <li class="nav-item">
                     <a class="nav-link d-none d-xl-block" href="/associe-se">Associe-se</a>
@@ -24,11 +24,12 @@
 
                 <x-site.nav.link nome='Cursos' link='cursos' />
 
-                <x-site.nav.link nome='Interlaboratoriais' link='interlaboratoriais' />
+                <x-site.nav.link nome='Ensaios de Proficiência' link='interlaboratoriais' />
 
                 <x-site.nav.link_dropdown />
 
                 <x-site.nav.link nome='Fale Conosco' link='fale-conosco' />
+                <x-site.nav.link nome='Downloads' link='laboratorios-downloads' />
                 
                 <li class="nav-item">
                     @if( auth()->check() )
