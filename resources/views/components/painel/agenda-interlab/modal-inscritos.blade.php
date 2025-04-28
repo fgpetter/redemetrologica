@@ -8,26 +8,44 @@
       </div>
       <div class="modal-body">
         <div class="row mb-3">
-          <div class="col-8">
-            <h6 class="card-title mb-0">{{ $participante->laboratorio->nome ?? null }}</h6>
-            <p class="card-text">
-              <strong>Empresa:</strong> {{ $participante->empresa->nome_razao ?? null }}
-              <stron>Responsável:</stron> {{ $participante->laboratorio->responsavel_tecnico ?? null }} <brg>
-              <stron>cargo:</stron> {{ $participante->laboratorio->cargo ?? null }} <brg>
-              <strong>Email:</strong> {{ $participante->laboratorio->email ?? null }} <br>
-              <strong>Telefone:</strong> {{ $participante->laboratorio->telefone ?? null }}
-            </p>
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Empresa:</strong> {{ $participante->empresa->nome_razao ?? null }} <br>
+                <strong>Email:</strong> {{ $participante->laboratorio->email ?? null }} <br>
+                <strong>Telefone:</strong> {{ $participante->laboratorio->telefone ?? null }}
+              </div>
+              <div class="text-end">
+                @if ($participante->empresa->deleted_at !== null)
+                  <span class="text-secondary">Empresa excluída, somente leitura</span>
+                @else
+                  <a href="{{ route('pessoa-insert', $participante->empresa->uid) }}" class="link-primary fw-medium">
+                    Editar Empresa 
+                    <i class="ri-arrow-right-line align-middle"></i>
+                  </a>
+                @endif
+              </div>
+            </div>
           </div>
-          <div class="col-4">
-            <div class="text-end">
-              @if ($participante->pessoa->deleted_at !== null)
-                <span class="text-secondary">Pessoa excluida, somente leitura</span>
-              @else
-                <a href="{{ route('pessoa-insert', $participante->empresa->uid) }}" class="link-primary fw-medium">
-                  Editar Empresa 
-                  <i class="ri-arrow-right-line align-middle"></i>
-                </a>
-              @endif
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Inscrito por:</strong> {{ $participante->pessoa->nome_razao }} <br>
+                <strong>Email:</strong> {{ $participante->pessoa->email ?? 'N/A' }}
+              </div>
+              <div class="text-end">
+                @if ($participante->pessoa->deleted_at !== null)
+                  <span class="text-secondary">Pessoa excluída, somente leitura</span>
+                @else
+                  <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="link-primary fw-medium">
+                    Editar responsável pela Inscrição
+                    <i class="ri-arrow-right-line align-middle"></i>
+                  </a>
+                @endif
+              </div>
             </div>
           </div>
         </div>
@@ -55,7 +73,6 @@
               <button type="submit" class="btn btn-primary">Salvar</button>
             </div>
           </form>
-
         </div>
 
       </div>

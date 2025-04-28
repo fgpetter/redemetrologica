@@ -149,7 +149,7 @@
                 </thead>
                 <tbody>
                     @forelse ($agendainterlabs as $agendainterlab)
-                        <tr>
+                        <tr wire:key="agendainterlab-{{ $agendainterlab->id }}">
                             <td class="text-uppercase">
                                 {{ Carbon\Carbon::parse($agendainterlab->data_inicio)->format('m/Y') }}
                             </td>

@@ -3,12 +3,13 @@
 namespace App\Livewire\Interlab;
 
 use DB;
+use App\Models\Pessoa;
 use Livewire\Component;
 use App\Models\Interlab;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
 use App\Models\AgendaInterlab;
-use App\Models\Pessoa;
+use App\Models\InterlabInscrito;
 
 class AgendaInterlabTable extends Component
 {
@@ -137,11 +138,15 @@ class AgendaInterlabTable extends Component
 
     public function getEmpresasProperty()
     {
-        return Pessoa::whereIn('id', function ($query) {
-            $query->select('empresa_id')
-                  ->from('interlab_inscritos')
-                  ->whereNotNull('empresa_id');
-        })->get(['id', 'cpf_cnpj', 'nome_razao']);
+        return Pessoa::query()
+            ->select(['id', 'cpf_cnpj', 'nome_razao'])
+            ->whereIn('id', InterlabInscrito::query()
+                ->select('empresa_id')
+                ->whereNotNull('empresa_id')
+                ->distinct()
+            )
+            ->orderBy('nome_razao')
+            ->get();
     }
 
     public function render()

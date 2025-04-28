@@ -48,10 +48,11 @@
             <td colspan="5" class="p-0">
               <div class="collapse" id="{{"collapse".$participante->uid}}">
                 <div class="row m-3 pe-2">
-                  <div class="col-6 text-wrap">
-                    <b>Inscrito por:</b> {{ $participante->pessoa->nome_razao }} <br>
+                    <div class="col-6 text-wrap">
+                    <b>Inscrito por:</b> 
+                    {{ $participante->pessoa->nome_razao }}  <br>
                     <b>Informacoes:</b> {{ $participante->informacoes_inscricao }}
-                  </div>
+                    </div>
                   <div class="col-6 text-wrap">
                     <b>Responsável técnico:</b> {{ $participante->laboratorio->responsavel_tecnico }} <br>
                     <b>Telefone:</b> {{ $participante->laboratorio->telefone }} <b>Email:</b> {{ $participante->laboratorio->email }}<br>
