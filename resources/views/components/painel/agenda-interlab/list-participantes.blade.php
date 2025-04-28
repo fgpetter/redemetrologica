@@ -55,11 +55,11 @@
                   <div class="col-6 text-wrap">
                     <b>Responsável técnico:</b> {{ $participante->laboratorio->responsavel_tecnico }} <br>
                     <b>Telefone:</b> {{ $participante->laboratorio->telefone }} <b>Email:</b> {{ $participante->laboratorio->email }}<br>
-                    <b>Endereço:</b> {{ $participante->laboratorio->endereco->endereco }},
-                      {{ $participante->laboratorio->endereco->complemento }}, Bairro: {{ $participante->laboratorio->endereco->bairro }} <br>
-                      Cidade: {{ $participante->laboratorio->endereco->cidade }} / 
-                      {{ $participante->laboratorio->endereco->uf }}, 
-                      CEP: {{ $participante->laboratorio->endereco->cep }}
+                    <b>Endereço:</b> {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
+                      {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }}, Bairro: {{ $participante->laboratorio->endereco->bairro ?? 'N/A' }} <br>
+                      Cidade: {{ $participante->laboratorio->endereco->cidade ?? 'N/A' }} / 
+                      {{ $participante->laboratorio->endereco->uf ?? 'N/A' }}, 
+                      CEP: {{ $participante->laboratorio->endereco->cep ?? 'N/A' }}
                   </div>
                 </div>
               </div>
