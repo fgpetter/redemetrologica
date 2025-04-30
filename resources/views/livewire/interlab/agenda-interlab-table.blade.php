@@ -48,16 +48,16 @@
                             </span>
                             <input wire:model.live.debounce.300ms="search" class="form-control form-control-sm"
                                 type="text" name="search" id="search"
-                                placeholder="Pesquisar por nome do interlab ou empresa...">
+                                placeholder="Pesquisar por nome do interlab...">
                         </div>
                     </div>
-
                     <!-- Checkbox Inscrição s/ valor -->
-                    <div class="col-2 d-flex flex-column align-items-center">
-                        <label class="form-label mb-0 text-center">Inscrição s/ valor</label>
-                        <div class="form-check">
-                            <input wire:model.live="inscricaoSemValor" class="form-check-input" type="checkbox"
-                                value="1" id="inscricaoSemValor">
+                    <div class="col-2 d-flex flex-column align-items-start">
+                        <label class="form-label mb-0 invisible text-start">Inscrição s/ valor</label>
+                        <div class="form-check d-flex align-items-start">
+                            <input wire:model.live="inscricaoSemValor" class="form-check-input me-2" type="checkbox"
+                            value="1" id="inscricaoSemValor">
+                            <label class="form-label mb-0 text-end" for="inscricaoSemValor" style="cursor: pointer;">Inscrição s/ valor</label>
                         </div>
                     </div>
 

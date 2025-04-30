@@ -84,10 +84,6 @@ class AgendaInterlabTable extends Component
                 $q->orWhereHas('interlab', function ($subQuery) use ($search) {
                     $subQuery->where('nome', 'like', "%{$search}%");
                 });
-
-                $q->orWhereHas('inscritos.empresa', function ($subQuery) use ($search) {
-                    $subQuery->where('nome_razao', 'like', "%{$search}%");
-                });
             });
         });
     }
