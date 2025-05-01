@@ -53,6 +53,8 @@
                   @error('dias') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
+              
+
               <div class="col-5">
                 <x-forms.input-select name="avaliador_id" label="Avaliador" required>
                   <option value="">Selecione</option>
@@ -81,9 +83,11 @@
               </div>
 
               <div class="col-3">
-                <x-forms.input-field name="valor_avaliador" label="Valor Avaliador" class="money" 
-                  value="{{ old('valor_avaliador') ?? $areaavaliada->valor_avaliador ?? null }}" />
-                  @error('valor_avaliador') <div class="text-warning">{{ $message }}</div> @enderror
+                <x-forms.input-field name="valor_avaliador" value="{{ $areaavaliada->valor_avaliador ?? null}}" 
+                  label="Valor Avaliador" 
+                  class="money"
+                  placeholder="Calculado ao salvar"
+                  readonly />
               </div>
 
               <div class="col-3">
