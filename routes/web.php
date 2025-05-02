@@ -277,7 +277,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{interlab:uid}', [InterlabController::class, 'delete'])->name('interlab-delete');
     Route::post('delete-folder/{interlab:uid}', [InterlabController::class, 'folderDelete'])->name('interlab-folder-delete');
   });
-
+  
   /* Agenda de interlab */
   Route::group(['prefix' => 'agenda-interlab', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [AgendaInterlabController::class, 'index'])->name('agenda-interlab-index');
@@ -285,6 +285,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('create', [AgendaInterlabController::class, 'create'])->name('agenda-interlab-create');
     Route::post('update/{agendainterlab:uid}', [AgendaInterlabController::class, 'update'])->name('agenda-interlab-update');
     Route::post('delete/{agendainterlab:uid}', [AgendaInterlabController::class, 'delete'])->name('agenda-interlab-delete');
+    Route::post('upload-material/{agendainterlab:uid}',[AgendaInterlabController::class, 'uploadMaterial'])->name('agenda-interlab-upload-material');
+    Route::post('delete-material/{material:uid}',[AgendaInterlabController::class, 'deleteMaterial'])->name('agenda-interlab-delete-material');
     
     /* Despesas */
     Route::post('salva-despesa', [AgendaInterlabController::class, 'salvaDespesa'])->name('salvar-despesa');

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pessoa;
 use App\Models\Interlab;
 use App\Models\Parametro;
+use App\Exports\LabExport;
 use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabRodada;
@@ -11,17 +13,17 @@ use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
+use App\Actions\FileUploadAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-use Illuminate\Http\RedirectResponse;
-use App\Models\InterlabRodadaParametro;
-use App\Models\Pessoa;
-use Illuminate\Support\Facades\Validator;
-use App\Exports\LabExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\RedirectResponse;
+use App\Models\AgendainterlabMaterial;
+use App\Models\InterlabRodadaParametro;
+use Illuminate\Support\Facades\Validator;
 
 
 class AgendaInterlabController extends Controller
@@ -55,8 +57,7 @@ class AgendaInterlabController extends Controller
         ->when(in_array($sortField, ['status', 'data_inicio', 'data_fim']), function ($query) use ($sortField, $sortDirection) {
             $query->orderBy("agenda_interlabs.{$sortField}", $sortDirection);
         })
-        ->paginate(15)
-        ->withQueryString();
+        ->paginate(15);
 
     return view('painel.agenda-interlab.index', ['agenda_interlabs' => $agenda_interlabs]);
 }
@@ -604,6 +605,75 @@ class AgendaInterlabController extends Controller
   public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab)
   {
     return Excel::download(new LabExport($agendainterlab), 'inscritos-interlab-ID'.$agendainterlab->id.'.xlsx');
+  }
+
+  /**
+   * Adiciona materiais ao interlab
+   *
+   * @param Request $request
+   * @param AgendaInterlab $agendainterlab
+   * @return RedirectResponse
+   */
+  public function uploadMaterial(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
+  {
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'descricao' => ['nullable', 'string', 'max:190'],
+        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:2048'],
+      ],
+      [
+        'descricao.string' => 'O campo aceita somente texto.',
+        'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'arquivo.max' => 'O arquivo é muito grande, diminua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+      ]
+    );
+
+    if ($validator->fails()) {
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) . '::' . __FUNCTION__,
+          'errors' => $validator->errors() ?? null,
+        ]
+      );
+
+      return back()
+        ->with('error', 'Houve um erro ao processar os dados, tente novamente')
+        ->withErrors($validator)
+        ->withInput();
+    }
+
+    if ($request->hasFile('arquivo')) {
+      $file_name = FileUploadAction::handle($request, 'arquivo', 'interlab-material');
+    }
+
+    $agendainterlab->materiais()->create([
+      'arquivo' => $file_name,
+      'descricao' => $request->descricao
+    ]);
+
+    return back()->with('success', 'Material adicionado com sucesso');
+  }
+
+  /**
+   * Remove materiais do interlab
+   *
+   * @param AgendainterlabMaterial $material
+   * @return RedirectResponse
+   */
+  public function deleteMaterial(AgendainterlabMaterial $material): RedirectResponse
+  {
+    if (File::exists(public_path('interlab-material/' . $material->arquivo))) {
+      File::delete(public_path('interlab-material/' . $material->arquivo));
+    }
+
+    $material->delete();
+
+    return redirect()->back()->with('success', 'Material removido');
   }
 
 }

@@ -9,6 +9,19 @@
           <div class="card bg-light shadow-none">
             <div class="card-header bg-light">
               <h6 class="card-title pb-1">{{ $agendaGroup->first()->agendaInterlab->interlab->nome }}</h6>
+              @if($agendaGroup->first()->agendaInterlab->materiais->count() > 0)
+                <strong>Materiais disponíveis:</strong>
+                <ul class="list-unstyled ms-3 mt-2">
+                  @foreach($agendaGroup->first()->agendaInterlab->materiais as $material)
+                    <li class="mb-1">
+                      <i class="bx bx-file me-1"></i>
+                      <a href="{{ asset('storage/' . $material->arquivo) }}" target="_blank" class="text-primary">
+                        {{ $material->descricao ?: 'Material ' . $loop->iteration }}
+                      </a>
+                    </li>
+                  @endforeach
+                </ul>
+              @endif
             </div>
             <div class="card-body bg-light-subtle pt-0">
               @foreach ($agendaGroup->groupBy('empresa.id') as $empresaGroup)
