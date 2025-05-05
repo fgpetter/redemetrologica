@@ -112,7 +112,7 @@
             </div>
           </div>
 
-          <div class="modal-footer border-top pt-3">
+          <div class="modal-footer  pt-3">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             <button type="submit" class="btn btn-primary">Salvar</button>
           </div>

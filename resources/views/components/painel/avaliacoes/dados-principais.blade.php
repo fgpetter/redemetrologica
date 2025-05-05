@@ -256,10 +256,10 @@
     </div>
   </div>
 
-  <hr class="my-3">
+ 
 
   {{-- Ações finais: Salvar & Delete --}}
-  <div class="row">
+  <div class="row mt-4" >
     <div class="col-12 d-flex justify-content-between">
       <button type="submit" class="btn btn-primary px-4">Salvar</button>
       <x-painel.laboratorios.form-delete route="avaliacao-delete" id="{{ $avaliacao->uid }}" />
