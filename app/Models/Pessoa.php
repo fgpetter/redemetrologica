@@ -89,6 +89,14 @@ class Pessoa extends Model
     }
 
     /**
+     * Retorna endereço de cobrança da pessoa.
+     */
+    public function enderecoCobranca(): HasOne
+    {
+        return $this->hasOne(Endereco::class, 'id', 'end_cobranca');
+    }
+
+    /**
      * Retorna quando essa pessoa é um fornecedor.
      */
     public function fornecedor(): HasOne

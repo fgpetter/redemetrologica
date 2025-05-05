@@ -63,6 +63,7 @@
       @if ( session('curso') )
         {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
         <x-painel.painel-cliente.confirma-inscricao />
+        <livewire:painel-cliente.confirm-inscricao-curso />
       @endif
 
       @if ( session('interlab') )
