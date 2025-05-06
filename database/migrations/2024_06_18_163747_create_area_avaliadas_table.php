@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('num_ensaios')->nullable();
             $table->date('data_inicial')->nullable();
             $table->date('data_final')->nullable();
-            $table->decimal('dias')->nullable();
+            $table->integer('dias')->nullable(); //dias deve ser int
             $table->decimal('valor_dia')->nullable();
             $table->decimal('valor_lider')->nullable();
             $table->decimal('valor_avaliador')->nullable();

@@ -1,5 +1,5 @@
 @extends('site.layouts.layout-site')
-@section('title') Interlaboratoriais @endsection
+@section('title') Ensaios de Proficiência @endsection
 @section('content')
   {{-- banner inicial --}}
   <div class="card text-bg-dark">
@@ -7,7 +7,7 @@
 
     <div class="card-img-overlay d-flex justify-content-center">
       <div class="align-self-center text-center ">
-        <p class="SiteBanner--interlab"><strong>INTERLABORATORIAIS</strong></p>
+        <p class="SiteBanner--interlab"><strong>ENSAIOS DE PROFICIÊNCIA</strong></p>
       </div>
     </div>
 
