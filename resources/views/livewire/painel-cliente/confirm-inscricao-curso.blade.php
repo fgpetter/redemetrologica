@@ -200,10 +200,10 @@
                                         <strong class="card-title ">Confirme os dados para a sua inscrição:</strong>
                                     </div>
                                     <div class=" mt-2">
-                                        <div class="row gx-0">
-                                            <div class="col-10">
+                                        <div class="row gx-1">
+                                            <div class="col">
                                                 <div class="card-body bg-light px-3 py-2">
-                                                    <div class="row  mt-1 gx-1 align-items-center">
+                                                    <div class="row  mt-1 gx-2 align-items-center">
                                                         <div class="col-6">
                                                             <x-forms.input-field
                                                                 wire:model.lazy="inscricoes.{{ $index }}.email"
@@ -222,7 +222,7 @@
                                                             @enderror
                                                         </div>
                                                     </div>
-                                                    <div class="row  mt-1 gx-1">
+                                                    <div class="row  mt-1 gx-2">
                                                         <div class="col-6">
                                                             <x-forms.input-field
                                                                 wire:model.live="inscricoes.{{ $index }}.telefone"
@@ -247,7 +247,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-2 d-flex gap-1 align-items-end p-1">
+                                            <div class="col-auto d-flex gap-2 align-items-end p-1" style="width: 90px;">
                                                 @if ($loop->last)
                                                     <button type="button" class="btn btn-primary"
                                                         wire:click="adicionarInscricao">+</button>
@@ -270,8 +270,8 @@
                                             Adicionar inscrições:
                                         </h6>
                                     @endif
-                                    <div class="row row-invite mt-1 gx-1">
-                                        <div class="col-5">
+                                    <div class="row mt-1 gx-2">
+                                        <div class="col">
                                             <input type="email" class="form-control"
                                                 name="inscricoes[{{ $index }}][email]" placeholder="Email"
                                                 wire:model.lazy="inscricoes.{{ $index }}.email" required
@@ -280,7 +280,7 @@
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                        <div class="col-5">
+                                        <div class="col">
                                             <input type="text" class="form-control"
                                                 name="inscricoes[{{ $index }}][nome]" placeholder="Nome"
                                                 wire:model.live="inscricoes.{{ $index }}.nome" required>
@@ -288,7 +288,7 @@
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-auto" style="width: 90px;">
                                             @if ($loop->last)
                                                 <button type="button" class="btn btn-primary"
                                                     wire:click="adicionarInscricao">+</button>
@@ -335,9 +335,9 @@
                         </div>
                         <div class=" mt-2">
                             <div class="row gx-0">
-                                <div class="col-10">
+                                <div class="col">
                                     <div class="card-body bg-light px-3 py-2">
-                                        <div class="row  mt-1 gx-1 align-items-center">
+                                        <div class="row  mt-1 gx-2 align-items-center">
                                             <div class="col-6">
                                                 <x-forms.input-field wire:model.lazy="inscricoes.0.email"
                                                     name="email" label="Email" type="email" required
@@ -354,7 +354,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="row  mt-1 gx-1">
+                                        <div class="row  mt-1 gx-2">
                                             <div class="col-6">
                                                 <x-forms.input-field wire:model.live="inscricoes.0.telefone"
                                                     name="telefone" label="Telefone" class="telefone" required
