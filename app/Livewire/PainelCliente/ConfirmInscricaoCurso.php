@@ -18,12 +18,11 @@ class ConfirmInscricaoCurso extends Component
     public $tipoInscricao = '';
     public $BuscaCnpj;
     public $empresa;
-    public $empresa_inscrita;
     public $showSalvarEmpresa = false;
+    public $editandoEmpresa = false;
     public $showBuscaCnpj = false;
-    public $cep;
     public $inscricoes = [
-        ['nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => ''],
+        ['nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0],
     ];
 
     public function mount()
@@ -124,9 +123,14 @@ class ConfirmInscricaoCurso extends Component
             'end_cobranca' => $enderecoCobranca->id,
         ]);
         
-        // $this->empresa = $empresa->toArray();
         $this->showSalvarEmpresa = false;
 
+    }
+
+    public function editarEmpresa()
+    {
+        $this->editandoEmpresa = true;
+        $this->showSalvarEmpresa = true;
     }
 
     public function buscaCep()
@@ -168,10 +172,35 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
+    public function inscreverCNPJ()
+    {
+        $this->tipoInscricao = 'CNPJ';
+        $this->showBuscaCnpj = true;
+        $this->showTipoInscricao = false;
+    }
+
+    public function inscreverCPF()
+    {
+        $this->tipoInscricao = 'CPF';
+        $this->showTipoInscricao = false;
+
+        $usuario = auth()->user();
+        if ($usuario && $usuario->pessoa) {
+            $pessoa = $usuario->pessoa;
+            $this->inscricoes[0] = [
+                'nome' => $pessoa->nome_razao ?? '',
+                'email' => strtolower(trim($usuario->email)),
+                'telefone' => $pessoa->telefone ?? '',
+                'cpf_cnpj' => $pessoa->cpf_cnpj ?? '',
+                'responsavel' => 1,
+            ];
+        }
+    }
+
     public function adicionarInscricao()
     {
         $this->validateInscricao();
-        $this->inscricoes[] = ['nome' => '', 'email' => ''];
+        $this->inscricoes[] = ['nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0];
     }
 
     public function removerInscricao($index)
@@ -180,6 +209,7 @@ class ConfirmInscricaoCurso extends Component
             unset($this->inscricoes[$index]);
             $this->inscricoes = array_values($this->inscricoes);
         }
+        $this->validateInscricao();
     }
 
     private function validateInscricao()
@@ -187,6 +217,8 @@ class ConfirmInscricaoCurso extends Component
         $this->validate([
             'inscricoes.*.nome' => 'required|string|max:191',
             'inscricoes.*.email' => 'required|email|max:191|distinct',
+            'inscricoes.*.telefone' => 'required_if:inscricoes.*.responsavel,1|string|min:10|max:15',
+            'inscricoes.*.cpf_cnpj' => 'required_if:inscricoes.*.responsavel,1|string|min:11|max:14',
         ], [
             'inscricoes.*.nome.required' => 'O campo nome é obrigatório.',
             'inscricoes.*.nome.max' => 'O campo nome deve ter no máximo 191 caracteres.',
@@ -194,6 +226,12 @@ class ConfirmInscricaoCurso extends Component
             'inscricoes.*.email.email' => 'O campo email deve ser um endereço válido.',
             'inscricoes.*.email.max' => 'O campo email deve ter no máximo 191 caracteres.',
             'inscricoes.*.email.distinct' => 'Não é permitido cadastrar e-mails duplicados.',
+            'inscricoes.*.telefone.required_if' => 'O campo telefone é obrigatório.',
+            'inscricoes.*.telefone.min' => 'O telefone deve ter no mínimo 10 caracteres.',
+            'inscricoes.*.telefone.max' => 'O telefone deve ter no máximo 15 caracteres.',
+            'inscricoes.*.cpf_cnpj.required_if' => 'O campo CPF/CNPJ é obrigatório.',
+            'inscricoes.*.cpf_cnpj.min' => 'O CPF/CNPJ deve ter no mínimo 11 caracteres.',
+            'inscricoes.*.cpf_cnpj.max' => 'O CPF/CNPJ deve ter no máximo 14 caracteres.',
         ]);
     }
 
@@ -211,6 +249,15 @@ class ConfirmInscricaoCurso extends Component
 
                 $emailInformado = $this->inscricoes[$index]['email'];
 
+                // Verifica se já existe um responsável na lista
+                $responsavelExistente = collect($this->inscricoes)->contains('responsavel', 1);
+                // Define o responsável apenas se ainda não houver um
+                if (!$responsavelExistente && $emailInformado === auth()->user()->email) {
+                    $this->inscricoes[$index]['responsavel'] = 1;
+                                } else {
+                    $this->inscricoes[$index]['responsavel'] = 0;
+                }
+
                 // Verifica se existe um usuário com o e-mail informado
                 $usuario = User::where('email', $emailInformado)->first();
 
@@ -220,39 +267,28 @@ class ConfirmInscricaoCurso extends Component
                     $this->inscricoes[$index]['nome'] = $pessoa->nome_razao ?? '';
                     $this->inscricoes[$index]['telefone'] = $pessoa->telefone ?? '';
                     $this->inscricoes[$index]['cpf_cnpj'] = $pessoa->cpf_cnpj ?? '';
-                } else {
-                    // Caso não encontre correspondência, limpa os campos
-                    $this->inscricoes[$index]['nome'] = '';
-                    $this->inscricoes[$index]['telefone'] = '';
-                    $this->inscricoes[$index]['cpf_cnpj'] = '';
-                }
+                                }
             }
         }
     }
 
-    public function inscreverCNPJ()
+    public function salvarInscricoes()
     {
-        $this->tipoInscricao = 'CNPJ';
-        $this->showBuscaCnpj = true;
-        $this->showTipoInscricao = false;
+        $this->validateInscricao();
+        dd($this->inscricoes);
+    //    continuar
     }
 
-    public function inscreverCPF()
+    public function cancelarInscricao()
     {
-        $this->tipoInscricao = 'CPF';
-        $this->showTipoInscricao = false;
-
-        // Adiciona automaticamente os dados do usuário logado na lista de inscrições
-        $usuario = auth()->user();
-        if ($usuario && $usuario->pessoa) {
-            $pessoa = $usuario->pessoa;
-            $this->inscricoes[0] = [
-                'nome' => $pessoa->nome_razao ?? '',
-                'email' => strtolower(trim($usuario->email)),
-                'telefone' => $pessoa->telefone ?? '',
-                'cpf_cnpj' => $pessoa->cpf_cnpj ?? '',
-            ];
-        }
+        $this->showTipoInscricao = true;
+        $this->showBuscaCnpj = false;
+        $this->showSalvarEmpresa = false;
+        $this->editandoEmpresa = false;
+        $this->empresa = null;
+        $this->inscricoes = [
+            ['nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0],
+        ];
     }
 
     public function render()
