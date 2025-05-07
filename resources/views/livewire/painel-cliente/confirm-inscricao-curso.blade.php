@@ -161,7 +161,7 @@
                 </form>
             @endif
             <div class="row"> {{-- Exibe informações para inscrição --}}
-                <div class="col-9">
+                <div class="col-12">
                     @if ($showSalvarEmpresa === false && !empty($empresa) && isset($empresa['nome_razao'], $empresa['cpf_cnpj']))
                         <div class="card-header bg-light" style="min-height: 60px;">
                             <div class="d-flex justify-content-between align-items-center h-100">
@@ -288,7 +288,7 @@
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                        <div class="col-auto" style="width: 90px;">
+                                        <div class="col-auto" style="width: 92px;">
                                             @if ($loop->last)
                                                 <button type="button" class="btn btn-primary"
                                                     wire:click="adicionarInscricao">+</button>
@@ -315,7 +315,7 @@
             </div>
         @elseif ($tipoInscricao === 'CPF'){{-- Exibe informações para inscrição pelo CPF --}}
             <div class="row">
-                <div class="col-9">
+                <div class="col-12">
                     {{-- <h4 class="m-4">Confirmação de Inscrição pelo CPF:</h4> --}}
                     <div class="alert alert-secondary alert-dismissible bg-body-secondary fade show mt-3"
                         role="alert">
