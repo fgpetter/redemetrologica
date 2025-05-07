@@ -7,29 +7,6 @@
                 <x-painel.painel-cliente.dados-curso :curso="$curso" />
             </div>
         </div>
-        @if ($showBuscaCnpj) {{-- Procurar por CNPJ --}}
-            <div class="card px-3 py-3 mt-3 border">
-                <div class="row">
-                    <div class="col-md-6 border-end pe-3">
-                        <h5>Informe o CNPJ da empresa:</h5>
-                        <p>Para prosseguir com a inscrição, é necessário informar um CNPJ para envio de nota Fiscal e
-                            Cobrança</p>
-                        <div class="input-group">
-                            <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
-                                placeholder="CNPJ">
-                            <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
-                        </div>
-                        @error('BuscaCnpj')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div class="col-md-6 d-flex justify-content-end align-items-end">
-                        <button class="btn btn-warning" wire:click="cancelarInscricao">ENCERRAR INSCRIÇÕES</button>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if ($showSalvarEmpresa) {{-- Exibe e corrije informações da empresa --}}
         @if ($showTipoInscricao) {{-- Exibe opções de inscrição --}}
             <div class="row mt-4">
                 <div class="col-6">
@@ -48,7 +25,142 @@
                 </div>
             </div>
         @elseif ($tipoInscricao === 'CNPJ') {{-- Exibe informações para inscrição pelo CNPJ --}}
-            <div class="row">
+            @if ($showBuscaCnpj) {{-- Procurar por CNPJ --}}
+                <div class="card px-3 py-3 mt-3 border">
+                    <div class="row">
+                        <div class="col-md-6 border-end pe-3">
+                            <h5>Informe o CNPJ da empresa:</h5>
+                            <p>Para prosseguir com a inscrição, é necessário informar um CNPJ para envio de nota Fiscal
+                                e
+                                Cobrança</p>
+                            <div class="input-group">
+                                <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
+                                    placeholder="CNPJ" x-mask="99.999.999/9999-99">
+                                <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
+                            </div>
+                            @error('BuscaCnpj')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-end align-items-end">
+                            <button class="btn btn-warning" wire:click="cancelarInscricao">ENCERRAR INSCRIÇÕES</button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            @if ($showSalvarEmpresa) {{-- Formulário para salvar empresa --}}
+                <form wire:submit.prevent="salvarEmpresa" class="mt-4">
+                    <div class="card border overflow-hidden card-border-dark shadow-none">
+
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">Complete os dados abaixo para emissão e envio de NF</h6>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <x-forms.input-field wire:model="empresa.nome_razao" name="nome_razao"
+                                        label="Razão Social" :required="true" />
+                                    @error('empresa.nome_razao')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <x-forms.input-field wire:model="empresa.cpf_cnpj" name="cpf_cnpj" label="CNPJ"
+                                        :readonly="true" />
+                                    @error('empresa.cpf_cnpj')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <x-forms.input-field wire:model="empresa.telefone" name="telefone" label="Telefone"
+                                        class="telefone" maxlength="15"
+                                        x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
+                                                                    ? '(99) 99999-9999' 
+                                                                    : '(99) 9999-9999'" />
+                                    @error('empresa.telefone')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <x-forms.input-field wire:model="empresa.endereco_cobranca.email"
+                                        name="cobranca_email" label="E-mail de Cobrança" type="email"
+                                        :required="true" />
+                                    @error('empresa.endereco_cobranca.email')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <x-forms.input-field wire:model="empresa.endereco_cobranca.cep" name="cobranca_cep"
+                                        label="CEP" wire:blur="buscaCep" maxlength="9" x-mask="99999-999"
+                                        :required="true" />
+                                    @error('empresa.endereco_cobranca.cep')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-8">
+                                    <x-forms.input-field wire:model="empresa.endereco_cobranca.endereco"
+                                        name="cobranca_endereco" label="Endereço" :required="true" />
+                                    @error('empresa.endereco_cobranca.endereco')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <x-forms.input-field wire:model="empresa.endereco_cobranca.complemento"
+                                        name="cobranca_complemento" label="Complemento" />
+                                    @error('empresa.endereco_cobranca.complemento')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <x-forms.input-field wire:model="empresa.endereco_cobranca.bairro"
+                                        name="cobranca_bairro" label="Bairro" :required="true" />
+                                    @error('empresa.endereco_cobranca.bairro')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <x-forms.input-field wire:model="empresa.endereco_cobranca.cidade"
+                                        name="cobranca_cidade" label="Cidade" :required="true" />
+                                    @error('empresa.endereco_cobranca.cidade')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-2">
+                                    <x-forms.input-field wire:model="empresa.endereco_cobranca.uf" name="cobranca_uf"
+                                        label="UF" maxlength="2" style="text-transform: uppercase;"
+                                        :required="true" />
+                                    @error('empresa.endereco_cobranca.uf')
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    Continuar
+                                </button>
+                                @if ($editandoEmpresa === false)
+                                    <button type="button" class="btn btn-warning" wire:click="cancelarInscricao">
+                                        Cancelar
+                                    </button>
+                                @endif
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            @endif
+            <div class="row"> {{-- Exibe informações para inscrição --}}
                 <div class="col-9">
                     @if ($showSalvarEmpresa === false && !empty($empresa) && isset($empresa['nome_razao'], $empresa['cpf_cnpj']))
                         <div class="card-header bg-light" style="min-height: 60px;">
@@ -58,8 +170,7 @@
                                     <small class="text-muted ms-2">CNPJ: {{ $empresa['cpf_cnpj'] }}</small>
                                 </div>
                                 <div>
-                                    <button class="btn btn-sm btn-outline-primary me-2"
-                                        wire:click="editarEmpresa">
+                                    <button class="btn btn-sm btn-outline-primary me-2" wire:click="editarEmpresa">
                                         <i class="ri-edit-line"></i>
                                         Editar
                                     </button>
@@ -202,8 +313,7 @@
                     @endif
                 </div>
             </div>
-        @elseif ($tipoInscricao === 'CPF') {{-- Exibe informações para inscrição pelo CPF --}}
-            {{-- Exibe informações para inscrição pelo CPF --}}
+        @elseif ($tipoInscricao === 'CPF'){{-- Exibe informações para inscrição pelo CPF --}}
             <div class="row">
                 <div class="col-9">
                     {{-- <h4 class="m-4">Confirmação de Inscrição pelo CPF:</h4> --}}
