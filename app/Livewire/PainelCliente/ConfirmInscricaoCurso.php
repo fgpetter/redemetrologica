@@ -8,10 +8,13 @@ use Livewire\Component;
 use App\Models\Endereco;
 use App\Models\AgendaCursos;
 use Illuminate\Http\Request;
+use App\Models\CursoInscrito;
+use App\Models\LancamentoFinanceiro;
 use Illuminate\Support\Facades\Http;
 
 class ConfirmInscricaoCurso extends Component
 {
+    public $agendacurso;
     public $curso;
     public $pessoaId_usuario;
     public $showTipoInscricao = true;
@@ -22,13 +25,14 @@ class ConfirmInscricaoCurso extends Component
     public $editandoEmpresa = false;
     public $showBuscaCnpj = false;
     public $inscricoes = [
-        ['nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0],
+        ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0],
     ];
 
     public function mount()
     {
         $this->pessoaId_usuario = auth()->user()->pessoa->id;
-        $this->curso = session('curso') ?? null;
+        $this->curso = session('curso');
+        $this->agendacurso = AgendaCursos::where('id', session('curso')->id ?? null)->with('curso')->first();
     }
 
     public function ProcuraCnpj()
@@ -57,7 +61,7 @@ class ConfirmInscricaoCurso extends Component
         // Inicializa o array endereco_cobranca se não existir
         if (!isset($this->empresa['endereco_cobranca'])) {
             $this->empresa['endereco_cobranca'] = [];
-        } 
+        }
         $this->showSalvarEmpresa = true;
         $this->showBuscaCnpj = null;
         $this->BuscaCnpj = null;
@@ -122,9 +126,8 @@ class ConfirmInscricaoCurso extends Component
         $empresa->update([
             'end_cobranca' => $enderecoCobranca->id,
         ]);
-        
-        $this->showSalvarEmpresa = false;
 
+        $this->showSalvarEmpresa = false;
     }
 
     public function editarEmpresa()
@@ -135,7 +138,11 @@ class ConfirmInscricaoCurso extends Component
 
     public function buscaCep()
     {
-        $cep = $this->empresa['endereco_cobranca']['cep'] ?? $this->cep;
+        if ($this->tipoInscricao === 'CNPJ') {
+            $cep = $this->empresa['endereco_cobranca']['cep'] ?? $this->cep;
+        } elseif ($this->tipoInscricao === 'CPF') {
+            $cep = $this->inscricoes[0]['cep'] ?? '';
+        }
         $cep = preg_replace('/\D/', '', $cep);
 
         if (empty($cep)) {
@@ -149,20 +156,34 @@ class ConfirmInscricaoCurso extends Component
                 ->first();
 
             if ($localEndereco) {
-                $this->empresa['endereco_cobranca']['endereco'] = $localEndereco->endereco;
-                $this->empresa['endereco_cobranca']['bairro'] = $localEndereco->bairro;
-                $this->empresa['endereco_cobranca']['cidade'] = $localEndereco->cidade;
-                $this->empresa['endereco_cobranca']['uf'] = $localEndereco->uf;
+                if ($this->tipoInscricao === 'CNPJ') {
+                    $this->empresa['endereco_cobranca']['endereco'] = $localEndereco->endereco;
+                    $this->empresa['endereco_cobranca']['bairro'] = $localEndereco->bairro;
+                    $this->empresa['endereco_cobranca']['cidade'] = $localEndereco->cidade;
+                    $this->empresa['endereco_cobranca']['uf'] = $localEndereco->uf;
+                } elseif ($this->tipoInscricao === 'CPF') {
+                    $this->inscricoes[0]['endereco'] = $localEndereco->endereco;
+                    $this->inscricoes[0]['bairro'] = $localEndereco->bairro;
+                    $this->inscricoes[0]['cidade'] = $localEndereco->cidade;
+                    $this->inscricoes[0]['uf'] = $localEndereco->uf;
+                }
             } else {
                 $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
 
                 if ($response->successful() && !isset($response->json()['erro'])) {
                     $data = $response->json();
 
-                    $this->empresa['endereco_cobranca']['endereco'] = $data['logradouro'] ?? '';
-                    $this->empresa['endereco_cobranca']['bairro'] = $data['bairro'] ?? '';
-                    $this->empresa['endereco_cobranca']['cidade'] = $data['localidade'] ?? '';
-                    $this->empresa['endereco_cobranca']['uf'] = $data['uf'] ?? '';
+                    if ($this->tipoInscricao === 'CNPJ') {
+                        $this->empresa['endereco_cobranca']['endereco'] = $data['logradouro'] ?? '';
+                        $this->empresa['endereco_cobranca']['bairro'] = $data['bairro'] ?? '';
+                        $this->empresa['endereco_cobranca']['cidade'] = $data['localidade'] ?? '';
+                        $this->empresa['endereco_cobranca']['uf'] = $data['uf'] ?? '';
+                    } elseif ($this->tipoInscricao === 'CPF') {
+                        $this->inscricoes[0]['endereco'] = $data['logradouro'] ?? '';
+                        $this->inscricoes[0]['bairro'] = $data['bairro'] ?? '';
+                        $this->inscricoes[0]['cidade'] = $data['localidade'] ?? '';
+                        $this->inscricoes[0]['uf'] = $data['uf'] ?? '';
+                    }
                 } else {
                     session()->flash('error', 'CEP não encontrado.');
                 }
@@ -187,11 +208,20 @@ class ConfirmInscricaoCurso extends Component
         $usuario = auth()->user();
         if ($usuario && $usuario->pessoa) {
             $pessoa = $usuario->pessoa;
+            $endereco = $pessoa->enderecos->first();
+
             $this->inscricoes[0] = [
+                'id_pessoa' => $pessoa->id,
                 'nome' => $pessoa->nome_razao ?? '',
                 'email' => strtolower(trim($usuario->email)),
                 'telefone' => $pessoa->telefone ?? '',
                 'cpf_cnpj' => $pessoa->cpf_cnpj ?? '',
+                'cep' => $endereco->cep ?? '',
+                'endereco' => $endereco->endereco ?? '',
+                'complemento' => $endereco->complemento ?? '',
+                'bairro' => $endereco->bairro ?? '',
+                'cidade' => $endereco->cidade ?? '',
+                'uf' => $endereco->uf ?? '',
                 'responsavel' => 1,
             ];
         }
@@ -200,7 +230,7 @@ class ConfirmInscricaoCurso extends Component
     public function adicionarInscricao()
     {
         $this->validateInscricao();
-        $this->inscricoes[] = ['nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0];
+        $this->inscricoes[] = ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0];
     }
 
     public function removerInscricao($index)
@@ -254,7 +284,7 @@ class ConfirmInscricaoCurso extends Component
                 // Define o responsável apenas se ainda não houver um
                 if (!$responsavelExistente && $emailInformado === auth()->user()->email) {
                     $this->inscricoes[$index]['responsavel'] = 1;
-                                } else {
+                } else {
                     $this->inscricoes[$index]['responsavel'] = 0;
                 }
 
@@ -263,20 +293,79 @@ class ConfirmInscricaoCurso extends Component
 
                 if ($usuario && $usuario->pessoa) {
                     $pessoa = $usuario->pessoa;
-
+                    $this->inscricoes[$index]['id_pessoa'] = $pessoa->id ?? '';
                     $this->inscricoes[$index]['nome'] = $pessoa->nome_razao ?? '';
                     $this->inscricoes[$index]['telefone'] = $pessoa->telefone ?? '';
                     $this->inscricoes[$index]['cpf_cnpj'] = $pessoa->cpf_cnpj ?? '';
-                                }
+                }
             }
+        }
+    }
+
+    public function salvarInscricaoCPF()
+    {
+        $inscricao = $this->inscricoes[0];
+        $inscrito = Pessoa::where('id', $inscricao['id_pessoa'])
+            ->where('tipo_pessoa', 'PF')
+            ->first();
+        if ($inscrito) {
+            $inscrito->update([
+                'nome_razao' => $inscricao['nome'],
+                'email' => $inscricao['email'],
+                'telefone' => $inscricao['telefone'],
+            ]);
+        }
+        if ($inscrito) {
+            Endereco::updateOrCreate(
+                [
+                    'pessoa_id' => $inscrito->id
+                ],
+                [
+                    'cep' => $inscricao['cep'],
+                    'uf' => $inscricao['uf'],
+                    'endereco' => $inscricao['endereco'],
+                    'complemento' => $inscricao['complemento'],
+                    'bairro' => $inscricao['bairro'],
+                    'cidade' => $inscricao['cidade'],
+                ]
+            );
+            CursoInscrito::updateOrCreate(
+                [
+                    'pessoa_id' => $inscrito->id,
+                    'agenda_curso_id' => $this->agendacurso->id,
+                ],
+                [
+                    'valor' => $this->agendacurso->investimento,
+                    'data_inscricao' => now(),
+                ]
+            );
+            // Adiciona lançamento financeiro
+            $lancamento = LancamentoFinanceiro::create([
+                'pessoa_id' => $inscrito->id,
+                'agenda_curso_id' => $this->agendacurso->id,
+                'historico' => 'Inscrição no curso - ' . $this->agendacurso->curso->descricao,
+                'valor' => formataMoeda($this->agendacurso->investimento),
+                'centro_custo_id' => '3', // TREINAMENTO
+                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+                'data_emissao' => now(),
+                'status' => 'PROVISIONADO',
+            ]);
         }
     }
 
     public function salvarInscricoes()
     {
         $this->validateInscricao();
-        dd($this->inscricoes);
-    //    continuar
+
+        if ($this->tipoInscricao === 'CNPJ') {
+            $this->salvarInscricaoCNPJ();
+        } elseif ($this->tipoInscricao === 'CPF') {
+            $this->salvarInscricaoCPF();
+        }
+        
+        // limpa os dados da sessão e volta para o painel
+        session()->forget(['curso', 'empresa', 'convite']);
+        return redirect('painel');
     }
 
     public function cancelarInscricao()
@@ -287,13 +376,12 @@ class ConfirmInscricaoCurso extends Component
         $this->editandoEmpresa = false;
         $this->empresa = null;
         $this->inscricoes = [
-            ['nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0],
+            ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '', 'responsavel' => 0],
         ];
     }
 
     public function render()
     {
-        return view('livewire.painel-cliente.confirm-inscricao-curso', [
-        ]);
+        return view('livewire.painel-cliente.confirm-inscricao-curso', []);
     }
 }
