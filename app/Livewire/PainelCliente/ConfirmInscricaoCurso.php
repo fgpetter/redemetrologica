@@ -17,6 +17,7 @@ class ConfirmInscricaoCurso extends Component
     public $agendacurso;
     public $curso;
     public $pessoaId_usuario;
+    public $jaInscrito = false;
     public $showTipoInscricao = true;
     public $tipoInscricao = '';
     public $BuscaCnpj;
@@ -33,6 +34,10 @@ class ConfirmInscricaoCurso extends Component
         $this->pessoaId_usuario = auth()->user()->pessoa->id;
         $this->curso = session('curso');
         $this->agendacurso = AgendaCursos::where('id', session('curso')->id ?? null)->with('curso')->first();
+        // Verifica se o usuário já está inscrito no agendacurso
+        $this->jaInscrito = CursoInscrito::where('agenda_curso_id', $this->agendacurso->id ?? null)
+            ->where('pessoa_id', $this->pessoaId_usuario)
+            ->exists();
     }
 
     public function ProcuraCnpj()
@@ -279,6 +284,16 @@ class ConfirmInscricaoCurso extends Component
 
                 $emailInformado = $this->inscricoes[$index]['email'];
 
+                if ($emailInformado === auth()->user()->email && $this->jaInscrito) {
+                    session()->flash("error_$index", 'Você já está cadastrado neste curso.');
+                    $this->inscricoes[$index]['email'] =  '';
+                    $this->inscricoes[$index]['id_pessoa'] =  '';
+                    $this->inscricoes[$index]['nome'] =  '';
+                    $this->inscricoes[$index]['telefone'] = '';
+                    $this->inscricoes[$index]['cpf_cnpj'] =  '';
+                    return;
+                }
+
                 // Verifica se já existe um responsável na lista
                 $responsavelExistente = collect($this->inscricoes)->contains('responsavel', 1);
                 // Define o responsável apenas se ainda não houver um
@@ -367,6 +382,7 @@ class ConfirmInscricaoCurso extends Component
         session()->forget(['curso', 'empresa', 'convite']);
         return redirect('painel');
     }
+    
 
     public function cancelarInscricao()
     {
@@ -385,3 +401,5 @@ class ConfirmInscricaoCurso extends Component
         return view('livewire.painel-cliente.confirm-inscricao-curso', []);
     }
 }
+
+  

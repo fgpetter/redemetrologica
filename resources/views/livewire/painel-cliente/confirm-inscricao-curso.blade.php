@@ -24,8 +24,10 @@
                     </button>
                 </div>
             </div>
-        @elseif ($tipoInscricao === 'CNPJ') {{-- Exibe informações para inscrição pelo CNPJ --}}
-            @if ($showBuscaCnpj){{-- Procurar por CNPJ --}}
+        @elseif ($tipoInscricao === 'CNPJ')
+            {{-- Exibe informações para inscrição pelo CNPJ --}}
+            @if ($showBuscaCnpj)
+                {{-- Procurar por CNPJ --}}
                 <div class="card px-3 py-3 mt-3 border">
                     <div class="row">
                         <div class="col-md-6 border-end pe-3">
@@ -177,19 +179,41 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="alert alert-secondary alert-dismissible bg-body-secondary fade show mt-3"
-                            role="alert">
-                            <strong>IMPORTANTE: </strong> <br>
-                            <p>
-                                Para <strong>inscrever-se</strong> e/ou convidar <strong> outras pessoas</strong> neste
-                                curso, adicione os dados de e-mail e nome nos campos abaixo. <br>
-                                As demais pessoas adicionadas nessa lista receberão um email com link para confirmarem
-                                suas
-                                inscrições. <br>
-                            </p>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                aria-label="Close"></button>
-                        </div>
+                        {{-- colocar if de jainscrito --}}
+
+                        @if ($jaInscrito)
+                            <div class="alert alert-secondary alert-dismissible bg-body-secondary fade show mt-3"
+                                role="alert">
+                                <strong class="text-success">VOCÊ JÁ ESTÁ INSCRITO: </strong> <br>
+                                <p>
+                                    Para convidar <strong> outras pessoas</strong>
+                                    neste
+                                    curso, adicione os dados de e-mail e nome nos campos abaixo. <br>
+                                    As demais pessoas adicionadas nessa lista receberão um email com link para
+                                    confirmarem
+                                    suas
+                                    inscrições. <br>
+                                </p>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @else
+                            <div class="alert alert-secondary alert-dismissible bg-body-secondary fade show mt-3"
+                                role="alert">
+                                <strong>IMPORTANTE: </strong> <br>
+                                <p>
+                                    Para <strong>inscrever-se</strong> e/ou convidar <strong> outras pessoas</strong>
+                                    neste
+                                    curso, adicione os dados de e-mail e nome nos campos abaixo. <br>
+                                    As demais pessoas adicionadas nessa lista receberão um email com link para
+                                    confirmarem
+                                    suas
+                                    inscrições. <br>
+                                </p>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
                         <form wire:submit.prevent="salvarInscricoes" id="form-convite">
                             @csrf
                             <input type="hidden" name="id_pessoa" value="{{ auth()->user()->pessoa->id }}">
@@ -280,6 +304,9 @@
                                             @error('inscricoes.' . $index . '.email')
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
+                                            @if (session()->has("error_$index"))
+                                                <span class="text-danger small">{{ session("error_$index") }}</span>
+                                            @endif
                                         </div>
                                         <div class="col">
                                             <input type="text" class="form-control"
@@ -314,136 +341,154 @@
                     @endif
                 </div>
             </div>
-        @elseif ($tipoInscricao === 'CPF') {{-- Exibe informações para inscrição pelo CPF --}}
-            <div class="row">
-                <div class="col-12">
-                    {{-- <h4 class="m-4">Confirmação de Inscrição pelo CPF:</h4> --}}
-                    <div class="alert alert-secondary alert-dismissible bg-body-secondary fade show mt-3"
-                        role="alert">
-                        <strong>IMPORTANTE: </strong> <br>
-                        <p>
-                            Confirme os dados abaixo para prosseguir com a inscrição. <br>
-                            Caso necessário, você pode editar as informações antes de enviar.
-                        </p>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"
-                            aria-label="Close"></button>
-                    </div>
-
-                    <form wire:submit.prevent="salvarInscricoes" id="form-inscricao-cpf">
-                        @csrf
-                        <div class="mt-3">
-                            <h6 class="card-title">Confirme os dados para a sua inscrição:</h6>
+        @elseif ($tipoInscricao === 'CPF')
+            {{-- Exibe informações para inscrição pelo CPF --}}
+            @if ($jaInscrito)
+                <div class="alert alert-success alert-dismissible bg-body-secondary fade show text-dark"
+                    role="alert">
+                    <strong>Tudo certo!</strong> <br>
+                    <p><strong>Você já está inscrito</strong> no curso {{ $curso->curso->descricao }}.</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <button wire:click="cancelarInscricao" class="btn btn-success">
+                        Fechar Inscrição
+                    </button>
+                </div>
+            @else
+                <div class="row">
+                    <div class="col-12">
+                        {{-- <h4 class="m-4">Confirmação de Inscrição pelo CPF:</h4> --}}
+                        <div class="alert alert-secondary alert-dismissible bg-body-secondary fade show mt-3"
+                            role="alert">
+                            <strong>IMPORTANTE: </strong> <br>
+                            <p>
+                                Confirme os dados abaixo para prosseguir com a inscrição. <br>
+                                Caso necessário, você pode editar as informações antes de enviar.
+                            </p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
                         </div>
-                        <div class="card mt-3 border shadow-sm">
-                            <div class="card-body bg-light">
-                                <div class="row gx-3">
-                                    <div class="col-md-6">
-                                        <x-forms.input-field wire:model.lazy="inscricoes.0.email"
-                                            name="email" label="Email" type="email" required
-                                            style="text-transform: lowercase;" />
-                                        @error('inscricoes.0.email')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
+
+                        <form wire:submit.prevent="salvarInscricoes" id="form-inscricao-cpf">
+                            @csrf
+                            <div class="mt-3">
+                                <h6 class="card-title">Confirme os dados para a sua inscrição:</h6>
+                            </div>
+                            <div class="card mt-3 border shadow-sm">
+                                <div class="card-body bg-light">
+                                    <div class="row gx-3">
+                                        <div class="col-md-6">
+                                            <x-forms.input-field wire:model.lazy="inscricoes.0.email" name="email"
+                                                label="Email" type="email" required
+                                                style="text-transform: lowercase;" />
+                                            @error('inscricoes.0.email')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                            @if (session()->has('error'))
+                                                <span class="text-danger small">{{ session('error') }}</span>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-6">
+                                            <x-forms.input-field wire:model.live="inscricoes.0.nome" name="nome"
+                                                label="Nome" required />
+                                            @error('inscricoes.0.nome')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <x-forms.input-field wire:model.live="inscricoes.0.nome"
-                                            name="nome" label="Nome" required />
-                                        @error('inscricoes.0.nome')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="row gx-3 mt-3">
-                                    <div class="col-md-6">
-                                        <x-forms.input-field wire:model.live="inscricoes.0.telefone"
-                                            name="telefone" label="Telefone" class="telefone" required
-                                            maxlength="15"
-                                            x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
+                                    <div class="row gx-3 mt-3">
+                                        <div class="col-md-6">
+                                            <x-forms.input-field wire:model.live="inscricoes.0.telefone"
+                                                name="telefone" label="Telefone" class="telefone" required
+                                                maxlength="15"
+                                                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
                                                         ? '(99) 99999-9999' 
                                                         : '(99) 9999-9999'" />
-                                        @error('inscricoes.0.telefone')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6">
-                                        <x-forms.input-field wire:model.live="inscricoes.0.cpf_cnpj"
-                                            name="cpf_cnpj" label="CPF" id="input-cpf"
-                                            x-mask="999.999.999-99" required />
-                                        @error('inscricoes.0.cpf_cnpj')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <h6 class="card-title">Endereço para emissão da Nota Fiscal:</h6>
-                        </div>
-                        <div class="card mt-3 border shadow-sm">
-                            <div class="card-body bg-light">
-                                <div class="row gx-3">
-                                    <div class="col-md-4">
-                                        <x-forms.input-field wire:model="inscricoes.0.cep"
-                                            name="cobranca_cep" label="CEP" wire:blur="buscaCep"
-                                            maxlength="9" x-mask="99999-999" :required="true" />
-                                        @error('inscricoes.0.cep')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-8">
-                                        <x-forms.input-field wire:model="inscricoes.0.endereco"
-                                            name="cobranca_endereco" label="Endereço" :required="true" />
-                                        @error('inscricoes.0.endereco')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="row gx-3 mt-3">
-                                    <div class="col-md-6">
-                                        <x-forms.input-field wire:model="inscricoes.0.complemento"
-                                            name="cobranca_complemento" label="Complemento" />
-                                        @error('inscricoes.0.complemento')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6">
-                                        <x-forms.input-field wire:model="inscricoes.0.bairro"
-                                            name="cobranca_bairro" label="Bairro" :required="true" />
-                                        @error('inscricoes.0.bairro')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="row gx-3 mt-3">
-                                    <div class="col-md-6">
-                                        <x-forms.input-field wire:model="inscricoes.0.cidade"
-                                            name="cobranca_cidade" label="Cidade" :required="true" />
-                                        @error('inscricoes.0.cidade')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-2">
-                                        <x-forms.input-field wire:model="inscricoes.0.uf"
-                                            name="cobranca_uf" label="UF" maxlength="2"
-                                            style="text-transform: uppercase;" :required="true" />
-                                        @error('inscricoes.0.uf')
-                                            <span class="text-danger small">{{ $message }}</span>
-                                        @enderror
+                                            @error('inscricoes.0.telefone')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <x-forms.input-field wire:model.live="inscricoes.0.cpf_cnpj"
+                                                name="cpf_cnpj" label="CPF" id="input-cpf"
+                                                x-mask="999.999.999-99" required />
+                                            @error('inscricoes.0.cpf_cnpj')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mt-4 d-flex justify-content-end gap-2">
-                            <button type="submit" class="btn btn-success">
-                                Concluir Inscrição
-                            </button>
-                            <button type="button" class="btn btn-warning" wire:click="cancelarInscricao">
-                                Cancelar
-                            </button>
-                        </div>
-                    </form>
+                            <div class="mt-4">
+                                <h6 class="card-title">Endereço para emissão da Nota Fiscal:</h6>
+                            </div>
+                            <div class="card mt-3 border shadow-sm">
+                                <div class="card-body bg-light">
+                                    <div class="row gx-3">
+                                        <div class="col-md-4">
+                                            <x-forms.input-field wire:model="inscricoes.0.cep" name="cobranca_cep"
+                                                label="CEP" wire:blur="buscaCep" maxlength="9"
+                                                x-mask="99999-999" :required="true" />
+                                            @error('inscricoes.0.cep')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-8">
+                                            <x-forms.input-field wire:model="inscricoes.0.endereco"
+                                                name="cobranca_endereco" label="Endereço" :required="true" />
+                                            @error('inscricoes.0.endereco')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row gx-3 mt-3">
+                                        <div class="col-md-6">
+                                            <x-forms.input-field wire:model="inscricoes.0.complemento"
+                                                name="cobranca_complemento" label="Complemento" />
+                                            @error('inscricoes.0.complemento')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <x-forms.input-field wire:model="inscricoes.0.bairro"
+                                                name="cobranca_bairro" label="Bairro" :required="true" />
+                                            @error('inscricoes.0.bairro')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row gx-3 mt-3">
+                                        <div class="col-md-6">
+                                            <x-forms.input-field wire:model="inscricoes.0.cidade"
+                                                name="cobranca_cidade" label="Cidade" :required="true" />
+                                            @error('inscricoes.0.cidade')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-2">
+                                            <x-forms.input-field wire:model="inscricoes.0.uf" name="cobranca_uf"
+                                                label="UF" maxlength="2" style="text-transform: uppercase;"
+                                                :required="true" />
+                                            @error('inscricoes.0.uf')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    Concluir Inscrição
+                                </button>
+                                <button type="button" class="btn btn-warning" wire:click="cancelarInscricao">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            @endif
         @endif
     </div>
 </div>
