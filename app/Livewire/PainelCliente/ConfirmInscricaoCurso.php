@@ -29,7 +29,7 @@ class ConfirmInscricaoCurso extends Component
         ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0],
     ];
 
-    public function mount()
+    public function mount() //metodo chamado quando o componente é montado
     {
         $this->pessoaId_usuario = auth()->user()->pessoa->id;
         $this->curso = session('curso');
@@ -40,7 +40,7 @@ class ConfirmInscricaoCurso extends Component
             ->exists();
     }
 
-    public function ProcuraCnpj()
+    public function ProcuraCnpj() // Método chamado quando o usuário clica no botão de busca de CNPJ
     {
         $this->validate([
             'BuscaCnpj' => ['required', 'cnpj'],
@@ -72,7 +72,7 @@ class ConfirmInscricaoCurso extends Component
         $this->BuscaCnpj = null;
     }
 
-    public function salvarEmpresa()
+    public function salvarEmpresa() // Método chamado quando o usuário clica no botão de salvar empresa
     {
         $this->validate(
             [
@@ -135,13 +135,13 @@ class ConfirmInscricaoCurso extends Component
         $this->showSalvarEmpresa = false;
     }
 
-    public function editarEmpresa()
+    public function editarEmpresa() // Método chamado quando o usuário clica no botão de editar empresa
     {
         $this->editandoEmpresa = true;
         $this->showSalvarEmpresa = true;
     }
 
-    public function buscaCep()
+    public function buscaCep() // Método chamado quando o digita CEP
     {
         if ($this->tipoInscricao === 'CNPJ') {
             $cep = $this->empresa['endereco_cobranca']['cep'] ?? $this->cep;
@@ -198,14 +198,14 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
-    public function inscreverCNPJ()
+    public function inscreverCNPJ() // Método chamado quando o usuário clica no botão de inscrever CNPJ
     {
         $this->tipoInscricao = 'CNPJ';
         $this->showBuscaCnpj = true;
         $this->showTipoInscricao = false;
     }
 
-    public function inscreverCPF()
+    public function inscreverCPF() // Método chamado quando o usuário clica no botão de inscrever CPF
     {
         $this->tipoInscricao = 'CPF';
         $this->showTipoInscricao = false;
@@ -232,13 +232,13 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
-    public function adicionarInscricao()
+    public function adicionarInscricao() // Método chamado quando o usuário clica no +
     {
         $this->validateInscricao();
         $this->inscricoes[] = ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0];
     }
 
-    public function removerInscricao($index)
+    public function removerInscricao($index) // Método chamado quando o usuário clica no -
     {
         if (count($this->inscricoes) > 1) {
             unset($this->inscricoes[$index]);
@@ -247,7 +247,7 @@ class ConfirmInscricaoCurso extends Component
         $this->validateInscricao();
     }
 
-    private function validateInscricao()
+    private function validateInscricao() // Método para validar os dados da inscrição
     {
         $this->validate([
             'inscricoes.*.nome' => 'required|string|max:191',
@@ -270,7 +270,7 @@ class ConfirmInscricaoCurso extends Component
         ]);
     }
 
-    public function updatedInscricoes($value, $name)
+    public function updatedInscricoes($value, $name) // Método chamado quando um campo da inscrição é atualizado
     {
         // Verifica se o campo alterado é um e-mail
         if (str_contains($name, '.email')) {
@@ -317,7 +317,17 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
-    public function salvarInscricaoCPF()
+    public function salvarInscricaoCNPJ() // Método com regras para salvar inscrição de CNPJ
+    {
+        // atualizar dados do inscrito responsavel na tabela de pessoa (nome, email, telefone e cpf_cnpj)
+        // para cada inscricao adicionar em cursoinscrito this->empresa em empresa_id ee id_pessoa  inscrita em pressoa_id (?ou só o responsavel = 1)
+        // procura lançamento financeiro da empresa, se não criar um novo 
+        //se ja existir, atualizar o valor com todos inscritos da mesma agendacurso
+        //salvar no banco convite para inscritos com responsavel = 0
+        //LEMBRAR de editar o app/mail/ConviteCurso.php para enviar o email com o reffer do usuario que fez o convite.
+    }
+
+    public function salvarInscricaoCPF() // Método com regras para salvar inscrição de CPF
     {
         $inscricao = $this->inscricoes[0];
         $inscrito = Pessoa::where('id', $inscricao['id_pessoa'])
@@ -368,7 +378,7 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
-    public function salvarInscricoes()
+    public function salvarInscricoes() // método que consolida e conclui a inscrição
     {
         $this->validateInscricao();
 
@@ -377,14 +387,13 @@ class ConfirmInscricaoCurso extends Component
         } elseif ($this->tipoInscricao === 'CPF') {
             $this->salvarInscricaoCPF();
         }
-        
+
         // limpa os dados da sessão e volta para o painel
         session()->forget(['curso', 'empresa', 'convite']);
         return redirect('painel');
     }
-    
 
-    public function cancelarInscricao()
+    public function cancelarInscricao() // método que cancela a inscrição
     {
         $this->showTipoInscricao = true;
         $this->showBuscaCnpj = false;
@@ -399,10 +408,8 @@ class ConfirmInscricaoCurso extends Component
         return redirect('painel');
     }
 
-    public function render()
+    public function render() // método que renderiza a view
     {
         return view('livewire.painel-cliente.confirm-inscricao-curso', []);
     }
 }
-
-  
