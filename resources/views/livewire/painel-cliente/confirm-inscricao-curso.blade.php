@@ -24,10 +24,8 @@
                     </button>
                 </div>
             </div>
-        @elseif ($tipoInscricao === 'CNPJ')
-            {{-- Exibe informações para inscrição pelo CNPJ --}}
-            @if ($showBuscaCnpj)
-                {{-- Procurar por CNPJ --}}
+        @elseif ($tipoInscricao === 'CNPJ') {{-- Exibe informações para inscrição pelo CNPJ --}}
+            @if ($showBuscaCnpj) {{-- Procurar por CNPJ --}}
                 <div class="card px-3 py-3 mt-3 border">
                     <div class="row">
                         <div class="col-md-6 border-end pe-3">
@@ -179,8 +177,6 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- colocar if de jainscrito --}}
-
                         @if ($jaInscrito)
                             <div class="alert alert-secondary alert-dismissible bg-body-secondary fade show mt-3"
                                 role="alert">
@@ -341,8 +337,7 @@
                     @endif
                 </div>
             </div>
-        @elseif ($tipoInscricao === 'CPF')
-            {{-- Exibe informações para inscrição pelo CPF --}}
+        @elseif ($tipoInscricao === 'CPF') {{-- Exibe informações para inscrição pelo CPF --}}
             @if ($jaInscrito)
                 <div class="alert alert-success alert-dismissible bg-body-secondary fade show text-dark"
                     role="alert">

@@ -285,7 +285,7 @@ class ConfirmInscricaoCurso extends Component
                 $emailInformado = $this->inscricoes[$index]['email'];
 
                 if ($emailInformado === auth()->user()->email && $this->jaInscrito) {
-                    session()->flash("error_$index", 'Você já está cadastrado neste curso.');
+                    session()->flash("error_$index", 'Você já está inscrito neste curso.');
                     $this->inscricoes[$index]['email'] =  '';
                     $this->inscricoes[$index]['id_pessoa'] =  '';
                     $this->inscricoes[$index]['nome'] =  '';
@@ -350,7 +350,7 @@ class ConfirmInscricaoCurso extends Component
                     'agenda_curso_id' => $this->agendacurso->id,
                 ],
                 [
-                    'valor' => $this->agendacurso->investimento,
+                    'valor' => $inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
                     'data_inscricao' => now(),
                 ]
             );
@@ -359,7 +359,7 @@ class ConfirmInscricaoCurso extends Component
                 'pessoa_id' => $inscrito->id,
                 'agenda_curso_id' => $this->agendacurso->id,
                 'historico' => 'Inscrição no curso - ' . $this->agendacurso->curso->descricao,
-                'valor' => formataMoeda($this->agendacurso->investimento),
+                'valor' => formataMoeda($inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento),
                 'centro_custo_id' => '3', // TREINAMENTO
                 'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
                 'data_emissao' => now(),
@@ -394,6 +394,9 @@ class ConfirmInscricaoCurso extends Component
         $this->inscricoes = [
             ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '', 'responsavel' => 0],
         ];
+        // limpa os dados da sessão e volta para o painel
+        session()->forget(['curso', 'empresa', 'convite']);
+        return redirect('painel');
     }
 
     public function render()
