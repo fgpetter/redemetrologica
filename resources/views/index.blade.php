@@ -160,7 +160,7 @@
                 <div class="col-12 col-xxl-6 col-xl-8 mt-4">
                     <div class="card">
                         <div class="card-body lh-lg">
-                            <h5 class="h5 mb-3">Outros convites realizados por você:</h5>
+                            <h5 class="h5 mb-3">Convites realizados por você:</h5>
                             <ul class="list-group">
                                 @foreach ($convitesAgrupadosPorCurso as $cursoDescricao => $convites)
                                     <li class="list-group-item">
