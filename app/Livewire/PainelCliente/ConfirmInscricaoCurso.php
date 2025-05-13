@@ -62,7 +62,7 @@ class ConfirmInscricaoCurso extends Component
             $this->empresa = $empresa->toArray();
         } else {
             $this->empresa = [
-                'cpf_cnpj' => $cnpjLimpo,
+                'cpf_cnpj' => $this->BuscaCnpj,
             ];
         }
         // Inicializa o array endereco_cobranca se não existir
@@ -133,6 +133,10 @@ class ConfirmInscricaoCurso extends Component
         $empresa->update([
             'end_cobranca' => $enderecoCobranca->id,
         ]);
+
+        //atualizar $empresa para mostrar os dados atualizados
+        $this->empresa = $empresa->toArray();
+        $this->empresa['endereco_cobranca'] = $enderecoCobranca->toArray();
 
         $this->showSalvarEmpresa = false;
     }
@@ -368,6 +372,7 @@ class ConfirmInscricaoCurso extends Component
                     'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
                     'data_emissao' => now(),
                     'status' => 'PROVISIONADO',
+                    'observacoes' => 'Inscrição de ' . $inscrito->nome_razao . ', com valor de R$ ' . formataMoeda($inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento) . ', em ' . now()->format('d/m/Y H:i'),
                 ]);
             } else { // se a empresa já possui inscritos nesse curso, atualiza o valor
 
