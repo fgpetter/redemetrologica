@@ -1,139 +1,232 @@
 @extends('layouts.master')
 
-@section('title') Painel @endsection
+@section('title')
+    Painel
+@endsection
 
 @section('content')
-  @component('components.breadcrumb')
-    @slot('li_1') Inicio @endslot
-    @slot('title') Painel @endslot
-  @endcomponent
+    @component('components.breadcrumb')
+        @slot('li_1')
+            Inicio
+        @endslot
+        @slot('title')
+            Painel
+        @endslot
+    @endcomponent
 
-  @if( auth()->user()->pessoa )
+    @if (auth()->user()->pessoa)
 
-    {{-- Habilita impersonamento --}}
-    @canany(['admin','funcionario'])
-      <div class="col-6">
-        <div class="card mb-4">
-          <div class="card-body">
-            <strong>Selecione um usuário para assumir a visão de cliente:</strong>
-            <form action="{{ route('impersonate') }}" method="POST">
-              @csrf
-              <div class="row">
-                <div class="col">
-                  <select class="form-control" data-choices name="user_id" id="user_id">
-                    <option value="">Selecione um usuário</option>
-                    @foreach(App\Models\User::whereHas('permissions', fn($q) => $q->where('permission', 'cliente'))
-                      ->select('id', 'name', 'email')->orderBy('name')->get() as $user)
-                      <option value="{{ $user->id }}">
-                        {{ $user->name .' - '. $user->email }}
-                      </option>
-                    @endforeach
-                  </select>
+        {{-- Habilita impersonamento --}}
+        @canany(['admin', 'funcionario'])
+            <div class="col-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <strong>Selecione um usuário para assumir a visão de cliente:</strong>
+                        <form action="{{ route('impersonate') }}" method="POST">
+                            @csrf
+                            <div class="row">
+                                <div class="col">
+                                    <select class="form-control" data-choices name="user_id" id="user_id">
+                                        <option value="">Selecione um usuário</option>
+                                        @foreach (App\Models\User::whereHas('permissions', fn($q) => $q->where('permission', 'cliente'))->select('id', 'name', 'email')->orderBy('name')->get() as $user)
+                                            <option value="{{ $user->id }}">
+                                                {{ $user->name . ' - ' . $user->email }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        Personificar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="col-2">
-                  <button type="submit" class="btn btn-primary">
-                    Personificar
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    @endcanany
-
-    @if(session('impersonator_id'))
-      <div class="alert alert-warning">
-        <form action="{{ route('impersonate-stop') }}" method="POST" class="d-inline">
-          @csrf
-          <span class="text-secondary"> Atuando como: {{ auth()->user()->name }} </span>
-          <button type="submit" class="btn btn-warning btn-sm ms-4">
-            Parar Personificação
-          </button>
-        </form>
-      </div>
-    @endif
-
-
-    @if(auth()->user()->pessoa->funcionario)
-      {{-- carega componentes referentes ao funcionário e área --}}
-      Painel de funcionários
-    @else
-
-      @if ( session('curso') )
-        {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
-        <x-painel.painel-cliente.confirma-inscricao />
-        <livewire:painel-cliente.confirm-inscricao-curso />
-      @endif
-
-      @if ( session('interlab') )
-        {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
-        <x-painel.painel-cliente.confirma-inscricao-interlab />
-      @endif
-
-      @if ( auth()->user()->pessoa->cursos->count() > 0 )
-        <div class="col-12 col-xxl-6 col-xl-8">
-          <div class="card">
-            <div class="card-body lh-lg">
-              <h5 class="h5 mb-3">Você está inscrito no seguinte curso:</h5>
-      
-              @foreach ( auth()->user()->pessoa?->cursos as $curso )
-                <strong>Nome:</strong> {{ $curso->agendaCurso->curso->descricao }} <br>
-                <strong>Período:</strong>
-                de
-                @if($curso->agendaCurso->data_inicio)
-                {{ \Carbon\Carbon::parse($curso->agendaCurso->data_inicio)->format('d/m/Y') }} 
-                @endif
-                até 
-                @if($curso->agendaCurso->data_fim)
-                {{ \Carbon\Carbon::parse($curso->agendaCurso->data_fim)->format('d/m/Y') }} 
-                @endif
-                {{ $curso->agendaCurso->horario }} <br>
-                <strong>Status do agendamento:</strong> {{ $curso->agendaCurso->status }} <br>
-                <strong>Local: </strong> {{ $curso->agendaCurso->endereco_local }} <br>
-                
-                @if($curso->agendaCurso->cursoMateriais->count() > 0 && $curso->agendaCurso->status == 'CONFIRMADO')
-                  <strong>Materiais do curso:</strong>
-                  <ul class="list-unstyled ms-3 mt-2">
-                    @foreach($curso->agendaCurso->cursoMateriais as $material)
-                      <li class="mb-1">
-                        <i class="bx bx-file me-1"></i>
-                        <a href="{{ asset('storage/' . $material->arquivo) }}" target="_blank" class="text-primary">
-                          {{ $material->descricao ?: 'Material ' . $loop->iteration }}
-                        </a>
-                      </li>
-                    @endforeach
-                  </ul>
-                @endif
-              @endforeach
-      
             </div>
-          </div>
-        </div>
-      @endif
+        @endcanany
 
-      @if ( $empresas = auth()->user()->pessoa->empresas->first() )
-        @if($empresas->empresaInterlabs->count() > 0)
-          {{-- carrega componente em app\View\Components\Painel\PainelCliente\LaboratoriosInscritosInterlab --}}
-          <x-painel.painel-cliente.laboratorios-inscritos-interlab />
+        @if (session('impersonator_id'))
+            <div class="alert alert-warning">
+                <form action="{{ route('impersonate-stop') }}" method="POST" class="d-inline">
+                    @csrf
+                    <span class="text-secondary"> Atuando como: {{ auth()->user()->name }} </span>
+                    <button type="submit" class="btn btn-warning btn-sm ms-4">
+                        Parar Personificação
+                    </button>
+                </form>
+            </div>
         @endif
-      @endif
+
+
+        @if (auth()->user()->pessoa->funcionario)
+            {{-- carega componentes referentes ao funcionário e área --}}
+            Painel de funcionários
+        @else
+            @if (session('curso'))
+                {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
+                <x-painel.painel-cliente.confirma-inscricao />
+                <livewire:painel-cliente.confirm-inscricao-curso />
+            @endif
+
+            @if (session('interlab'))
+                {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
+                <x-painel.painel-cliente.confirma-inscricao-interlab />
+            @endif
+
+            @if (auth()->user()->pessoa->cursos->isNotEmpty())
+                <div class="col-12 col-xxl-6 col-xl-8">
+                    <div class="card">
+                        <div class="card-body lh-lg">
+                            <h5 class="h5 mb-3">Você está inscrito nos seguintes cursos:</h5>
+                            <ul class="list-group">
+                                @foreach (auth()->user()->pessoa->cursos as $curso)
+                                    <li class="list-group-item">
+                                        <strong>Nome:</strong>
+                                        {{ $curso->agendaCurso->curso->descricao }} <br>
+
+                                        <strong>Período:</strong>
+                                        de
+                                        @if ($curso->agendaCurso->data_inicio)
+                                            {{ \Carbon\Carbon::parse($curso->agendaCurso->data_inicio)->format('d/m/Y') }}
+                                        @endif
+                                        até
+                                        @if ($curso->agendaCurso->data_fim)
+                                            {{ \Carbon\Carbon::parse($curso->agendaCurso->data_fim)->format('d/m/Y') }}
+                                        @endif
+                                        {{ $curso->agendaCurso->horario }} <br>
+
+                                        <strong>Status do agendamento:</strong>
+                                        {{ $curso->agendaCurso->status }} <br>
+
+                                        <strong>Local:</strong>
+                                        {{ $curso->agendaCurso->endereco_local }} <br>
+
+                                        @if ($curso->empresa)
+                                            <strong>Empresa vinculada:</strong>
+                                            {{ $curso->empresa->nome_razao }} <br>
+                                        @endif
+
+                                        @if ($curso->agendaCurso->cursoMateriais->count() > 0 && $curso->agendaCurso->status === 'CONFIRMADO')
+                                            <strong>Materiais do curso:</strong>
+                                            <ul class="list-unstyled ms-3 mt-2">
+                                                @foreach ($curso->agendaCurso->cursoMateriais as $material)
+                                                    <li class="mb-1">
+                                                        <i class="bx bx-file me-1"></i>
+                                                        <a href="{{ asset('storage/' . $material->arquivo) }}"
+                                                            target="_blank" class="text-primary">
+                                                            {{ $material->descricao ?: 'Material ' . $loop->iteration }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+
+                                        @if ($curso->agendaCurso->convites->where('pessoa_id', auth()->user()->pessoa->id)->isNotEmpty())
+                                            <strong>Convidados por você:</strong>
+                                            <ul class="list-unstyled ms-3 mt-2">
+                                                @foreach ($curso->agendaCurso->convites->where('pessoa_id', auth()->user()->pessoa->id) as $convite)
+                                                    <li>
+                                                        <i class="bx bx-user me-1"></i>
+                                                        {{ $convite->nome }} ({{ $convite->email }})
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @php
+                $convitesSemInscricao = \App\Models\Convite::where('pessoa_id', auth()->user()->pessoa->id)
+                    ->whereHas('agendaCurso', function ($query) {
+                        $query->whereIn('status', ['AGENDADO', 'CONFIRMADO']);
+                    })
+                    ->whereDoesntHave('agendaCurso.cursoInscritos', function ($query) {
+                        $query->where('pessoa_id', auth()->user()->pessoa->id);
+                    })
+                    ->get();
+
+                $convitesAgrupadosPorCurso = $convitesSemInscricao->groupBy('agendaCurso.curso.descricao');
+            @endphp
+
+            @if ($convitesAgrupadosPorCurso->isNotEmpty())
+                <div class="col-12 col-xxl-6 col-xl-8 mt-4">
+                    <div class="card">
+                        <div class="card-body lh-lg">
+                            <h5 class="h5 mb-3">Outros convites realizados por você:</h5>
+                            <ul class="list-group">
+                                @foreach ($convitesAgrupadosPorCurso as $cursoDescricao => $convites)
+                                    <li class="list-group-item">
+                                        <strong>Nome:</strong> {{ $cursoDescricao }} <br>
+
+                                        <strong>Período:</strong>
+                                        de
+                                        @if ($convites->first()->agendaCurso->data_inicio)
+                                            {{ \Carbon\Carbon::parse($convites->first()->agendaCurso->data_inicio)->format('d/m/Y') }}
+                                        @endif
+                                        até
+                                        @if ($convites->first()->agendaCurso->data_fim)
+                                            {{ \Carbon\Carbon::parse($convites->first()->agendaCurso->data_fim)->format('d/m/Y') }}
+                                        @endif
+                                        {{ $convites->first()->agendaCurso->horario }} <br>
+
+                                        <strong>Status do agendamento:</strong>
+                                        {{ $convites->first()->agendaCurso->status }} <br>
+
+                                        <strong>Local:</strong>
+                                        {{ $convites->first()->agendaCurso->endereco_local }} <br>
+
+                                        @if ($convites->first()->empresa)
+                                            <strong>Empresa vinculada:</strong>
+                                            {{ $convites->first()->empresa->nome_razao }} <br>
+                                        @endif
+
+                                        <strong>Convidados:</strong>
+                                        <ul class="list-unstyled ms-3 mt-2">
+                                            @foreach ($convites as $convite)
+                                                <li>
+                                                    <i class="bx bx-user me-1"></i>
+                                                    {{ $convite->nome }} ({{ $convite->email }})
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if ($empresas = auth()->user()->pessoa->empresas->first())
+                @if ($empresas->empresaInterlabs->count() > 0)
+                    {{-- carrega componente em app\View\Components\Painel\PainelCliente\LaboratoriosInscritosInterlab --}}
+                    <x-painel.painel-cliente.laboratorios-inscritos-interlab />
+                @endif
+            @endif
+
+        @endif
 
     @endif
-
-  @endif
 
 @endsection
 
 @section('script')
-  <script defer>
-    const element = document.getElementById('user_id')
-    if(element){
-      const choices = new Choices(element,{
-        searchFields: ['label'],
-        maxItemCount: -1,
-        allowHTML: true
-      });
-    }
-  </script>
+    <script defer>
+        const element = document.getElementById('user_id')
+        if (element) {
+            const choices = new Choices(element, {
+                searchFields: ['label'],
+                maxItemCount: -1,
+                allowHTML: true
+            });
+        }
+    </script>
 @endsection

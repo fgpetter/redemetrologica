@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('convites', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pessoa_id')->constrained();
+            $table->foreignId('empresa_id')->nullable()->constrained();
             $table->foreignId('agenda_curso_id')->nullable()->constrained();
             $table->foreignId('agenda_interlab_id')->nullable()->constrained();
             $table->string('nome');

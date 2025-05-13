@@ -457,6 +457,7 @@ class ConfirmInscricaoCurso extends Component
 
                 Convite::firstOrCreate([
                 'pessoa_id' => $this->pessoaId_usuario,
+                'empresa_id' => $this->empresa['id'],
                 'agenda_curso_id' => $this->agendacurso->id,
                 'email' => $email,
                 'nome' => $inscricao['nome'],

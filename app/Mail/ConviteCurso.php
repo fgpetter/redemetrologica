@@ -32,7 +32,7 @@ class ConviteCurso extends Mailable
         $this->dados_email['data_inicio'] = ($this->convite->agendaCurso->data_inicio) ? Carbon::parse($this->convite->agendaCurso->data_inicio)->format('d/m/Y') : ''; // Data do Curso
         $this->dados_email['data_fim'] = ($this->convite->agendaCurso->data_fim) ? Carbon::parse($this->convite->agendaCurso->data_fim)->format('d/m/Y') : ''; // Data do Curso
         $this->dados_email['horario'] = $this->convite->agendaCurso->horario; // Data do Curso
-        $this->dados_email['link'] = "https://redemetrologica.com.br/curso/inscricao?referer={$this->convite->pessoa->uid()}&target={$this->convite->agendaCurso->uid}"; // Link para inscrição
+        $this->dados_email['link'] = "https://redemetrologica.com.br/curso/inscricao?referer={$this->convite->pessoa->uid}&target={$this->convite->agendaCurso->uid}"; // Link para inscrição
     }
 
     /**
