@@ -492,7 +492,18 @@ class ConfirmInscricaoCurso extends Component
         $this->inscricoes = [
             ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '', 'responsavel' => 0],
         ];
-        // limpa os dados da sessão e volta para o painel
+    }
+
+    public function fecharInscricao() // método que fecha a inscrição
+    {
+        $this->showTipoInscricao = true;
+        $this->showBuscaCnpj = false;
+        $this->showSalvarEmpresa = false;
+        $this->editandoEmpresa = false;
+        $this->empresa = null;
+        $this->inscricoes = [
+            ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '', 'responsavel' => 0],
+        ];
         session()->forget(['curso', 'empresa', 'convite']);
         return redirect('painel');
     }

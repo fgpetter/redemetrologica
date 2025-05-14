@@ -23,6 +23,11 @@
                             style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
                     </button>
                 </div>
+                <div class="col-6 d-flex justify-content-end align-items-end">
+                    <button wire:click="fecharInscricao" class="btn btn-warning">
+                        Fechar Inscrição
+                    </button>
+                </div>
             </div>
         @elseif ($tipoInscricao === 'CNPJ') {{-- Exibe informações para inscrição pelo CNPJ --}}
             @if ($showBuscaCnpj) {{-- Procurar por CNPJ --}}
@@ -43,7 +48,7 @@
                             @enderror
                         </div>
                         <div class="col-md-6 d-flex justify-content-end align-items-end">
-                            <button class="btn btn-warning" wire:click="cancelarInscricao">ENCERRAR INSCRIÇÕES</button>
+                            <button class="btn btn-warning" wire:click="cancelarInscricao">Cancelar</button>
                         </div>
                     </div>
                 </div>
@@ -346,7 +351,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 <div class="mt-4 d-flex justify-content-end gap-2">
-                    <button wire:click="cancelarInscricao" class="btn btn-success">
+                    <button wire:click="fecharInscricao" class="btn btn-success">
                         Fechar Inscrição
                     </button>
                 </div>
