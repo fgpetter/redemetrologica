@@ -66,7 +66,7 @@
         @else
             @if (session('curso'))
                 {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
-                <x-painel.painel-cliente.confirma-inscricao />
+                {{-- <x-painel.painel-cliente.confirma-inscricao /> --}}
                 <livewire:painel-cliente.confirm-inscricao-curso />
             @endif
 
@@ -74,7 +74,7 @@
                 {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
                 <x-painel.painel-cliente.confirma-inscricao-interlab />
             @endif
-
+            {{-- todo - melhorar lista de cursos inscritos e convites --}}
             @if (auth()->user()->pessoa->cursos->isNotEmpty())
                 <div class="col-12 col-xxl-6 col-xl-8">
                     <div class="card">
@@ -155,7 +155,7 @@
 
                 $convitesAgrupadosPorCurso = $convitesSemInscricao->groupBy('agendaCurso.curso.descricao');
             @endphp
-
+            {{-- lista de convites enviados sem inscrição do usuario --}}
             @if ($convitesAgrupadosPorCurso->isNotEmpty())
                 <div class="col-12 col-xxl-6 col-xl-8 mt-4">
                     <div class="card">
@@ -204,6 +204,7 @@
                     </div>
                 </div>
             @endif
+            {{-- todo - melhorar lista de cursos inscritos e convites --}}
 
             @if ($empresas = auth()->user()->pessoa->empresas->first())
                 @if ($empresas->empresaInterlabs->count() > 0)
