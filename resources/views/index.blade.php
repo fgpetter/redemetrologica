@@ -148,7 +148,7 @@
                     ->whereHas('agendaCurso', function ($query) {
                         $query->whereIn('status', ['AGENDADO', 'CONFIRMADO']);
                     })
-                    ->whereDoesntHave('agendaCurso.cursoInscritos', function ($query) {
+                    ->whereDoesntHave('agendaCurso.inscritos', function ($query) {
                         $query->where('pessoa_id', auth()->user()->pessoa->id);
                     })
                     ->get();

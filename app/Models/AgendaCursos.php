@@ -66,9 +66,4 @@ class AgendaCursos extends Model
     {
         return $this->hasMany(Convite::class, 'agenda_curso_id', 'id');
     }
-
-    public function cursoInscritos(): HasMany
-    {
-        return $this->hasMany(CursoInscrito::class, 'agenda_curso_id');
-    }
 }
