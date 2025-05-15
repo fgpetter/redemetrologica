@@ -165,7 +165,7 @@ class AgendaAvaliacaoController extends Controller
 
         $valor_proposta = formataMoeda( $request->valor_proposta);
         $validate['valor_proposta'] = $valor_proposta;
-        $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(10)->format('Y-m-d');
+        $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(-10)->format('Y-m-d');
         $validate['data_proposta_acoes_corretivas'] = $request->data_proposta_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(7)->format('Y-m-d');
         $validate['data_acoes_corretivas'] = $request->data_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(45)->format('Y-m-d');
 
@@ -232,11 +232,11 @@ class AgendaAvaliacaoController extends Controller
 
         $validate['valor_avaliador'] = ($validate['dias'] * $validate['valor_dia']) + ($validate['valor_lider']); // verificar regra correta
         
-        $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'];
+        $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'] + $validate['valor_avaliador'];
         // como estava
         // $validate['total_gastos_reais'] = $validate['valor_lider'] + $validate['valor_avaliador'] + $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras']; //como estava
        
-        $validate['total_gastos_reais'] = $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras']; //Regra conforme card no trello, validar.
+        $validate['total_gastos_reais'] = $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras'] + $validate['valor_avaliador'];
 
         if($area->uid){
 

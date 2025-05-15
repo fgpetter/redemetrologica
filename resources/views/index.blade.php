@@ -66,8 +66,9 @@
       @endif
 
       @if ( session('interlab') )
-        {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
-        <x-painel.painel-cliente.confirma-inscricao-interlab />
+         <livewire:painel-cliente.confirm-inscricao-interlab />
+      @elseif( auth()->user()->pessoa->interlabs()->count() > 0 )
+        <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->get()" />
       @endif
 
       @if ( auth()->user()->pessoa->cursos->count() > 0 )
@@ -111,28 +112,9 @@
         </div>
       @endif
 
-      @if ( $empresas = auth()->user()->pessoa->empresas->first() )
-        @if($empresas->empresaInterlabs->count() > 0)
-          {{-- carrega componente em app\View\Components\Painel\PainelCliente\LaboratoriosInscritosInterlab --}}
-          <x-painel.painel-cliente.laboratorios-inscritos-interlab />
-        @endif
-      @endif
-
     @endif
 
   @endif
 
 @endsection
 
-@section('script')
-  <script defer>
-    const element = document.getElementById('user_id')
-    if(element){
-      const choices = new Choices(element,{
-        searchFields: ['label'],
-        maxItemCount: -1,
-        allowHTML: true
-      });
-    }
-  </script>
-@endsection
