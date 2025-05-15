@@ -79,7 +79,7 @@
             tooltip="Informações que o cliente irá visualizar na tela de inscrição">{{ $agendainterlab->instrucoes_inscricao ?? null }}
           </x-forms.input-textarea>
 
-          <h6 class="card-subtitle mt-3 mb-2">Valores de inscrição por rodada conforme região</h6>
+          {{-- <h6 class="card-subtitle mt-3 mb-2">Valores de inscrição por rodada conforme região</h6>
           <div class="row">
 
             <div class="col-12 col-lg-3">
@@ -106,7 +106,7 @@
               @error('valor_n_ne','principal') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
-          </div>
+          </div> --}}
         </div>
       </div>
     </div>
