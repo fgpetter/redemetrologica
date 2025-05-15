@@ -7,6 +7,7 @@
           <div class="card-header bg-light">
             <h6 class="card-title pb-1">{{ $agendaGroup->first()->agendaInterlab->interlab->nome }}</h6>
           </div>
+
           <div class="card-body bg-light-subtle pt-0">
             @foreach ($agendaGroup->groupBy('empresa.id') as $empresaGroup)
                 <h6 class="my-3 text-primary-emphasis">Empresa: &nbsp; {{ $empresaGroup->first()->empresa->nome_razao }}</h6>
@@ -38,6 +39,26 @@
           </div>
 
           <div class="card-footer bg-light">
+            @if($agendaGroup->first()->agendaInterlab->materiais->count() > 0)
+            <!-- Primary Alert -->
+            <div class="alert alert-primary alert-border-left" role="alert">
+              <div class="text-dark">
+                <i class="ri-attachment-line me-3 align-middle "></i>
+                <strong class="fs-5">Materiais de apoio para o interlab:</strong>
+                  <ul class="list-unstyled ms-3 mt-2">
+                    @foreach($agendaGroup->first()->agendaInterlab->materiais as $material)
+                      <li class="mb-1">
+                        <i class="bx bx-file me-1"></i>
+                        <a href="{{ asset('storage/' . $material->arquivo) }}" target="_blank" class="text-primary">
+                          {{ $material->descricao ?: 'Material ' . $loop->iteration }}
+                        </a>
+                      </li>
+                    @endforeach
+                  </ul>
+  
+              </div>
+            </div>
+            @endif
             Para acessar mais informações sobre o interlab,
             <a href="{{ route('site-single-interlaboratorial', $agendaGroup->first()->agendaInterlab->uid) }}" class="link-primary"> clique aqui</a>
             <br>
