@@ -118,15 +118,3 @@
 
 @endsection
 
-@section('script')
-  <script defer>
-    const element = document.getElementById('user_id')
-    if(element){
-      const choices = new Choices(element,{
-        searchFields: ['label'],
-        maxItemCount: -1,
-        allowHTML: true
-      });
-    }
-  </script>
-@endsection

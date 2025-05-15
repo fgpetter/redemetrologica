@@ -164,7 +164,10 @@ File: Main Js File
          */
         var choicesExamples = document.querySelectorAll("[data-choices]");
         Array.from(choicesExamples).forEach(function (item) {
-            var choiceData = {};
+            var choiceData = {
+                searchResultLimit: 50,
+                maxItemCount: 50,
+            };
             var isChoicesVal = item.attributes;
             if (isChoicesVal["data-choices-groups"])
                 choiceData.placeholderValue =
