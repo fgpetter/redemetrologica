@@ -40,7 +40,7 @@
                     </div>
 
                     <!-- Pesquisa Global -->
-                    <div class="col-3">
+                    <div class="col-5">
                         <label class="form-label mb-0">Pesquisar</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text">
@@ -51,18 +51,9 @@
                                 placeholder="Pesquisar por nome do interlab...">
                         </div>
                     </div>
-                    <!-- Checkbox Inscrição s/ valor -->
-                    <div class="col-2 d-flex flex-column align-items-start">
-                        <label class="form-label mb-0 invisible text-start">Inscrição s/ valor</label>
-                        <div class="form-check d-flex align-items-start">
-                            <input wire:model.live="inscricaoSemValor" class="form-check-input me-2" type="checkbox"
-                            value="1" id="inscricaoSemValor">
-                            <label class="form-label mb-0 text-end" for="inscricaoSemValor" style="cursor: pointer;">Inscrição s/ valor</label>
-                        </div>
-                    </div>
 
                     <!-- Botão Limpar Filtros -->
-                    <div class="col-2 text-end">
+                    <div class="col text-end">
                         <div class="d-flex flex-column align-items-end">
                             <label class="form-label invisible mb-0">Limpar</label>
                             <button wire:click="resetFilters" type="button" class="btn btn-sm btn-light text-danger">
