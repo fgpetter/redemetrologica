@@ -325,33 +325,26 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarInscricaoCNPJ() // Método com regras para salvar inscrição de CNPJ
     {
-        // atualizar dados do inscrito responsavel na tabela de pessoa (nome, email, telefone e cpf_cnpj)
-        // para cada inscricao adicionar em cursoinscrito this->empresa em empresa_id ee id_pessoa  inscrita em pressoa_id (?ou só o responsavel = 1)
-        // procura lançamento financeiro da empresa, se não criar um novo 
-        //se ja existir, atualizar o valor com todos inscritos da mesma agendacurso
-        //salvar no banco convite para inscritos com responsavel = 0
-        //LEMBRAR de editar o app/mail/ConviteCurso.php para enviar o email com o reffer do usuario que fez o convite.
-
-
         $inscricao = collect($this->inscricoes)->firstWhere('responsavel', 1);
         if ($inscricao) {
             $inscrito = Pessoa::where('id', $inscricao['id_pessoa'])
-            ->where('tipo_pessoa', 'PF')
-            ->first();
+                ->where('tipo_pessoa', 'PF')
+                ->first();
             if ($inscrito) {
-            $inscrito->update([
-                'nome_razao' => $inscricao['nome'],
-                'email' => $inscricao['email'],
-                'telefone' => $inscricao['telefone'],
-                'cpf_cnpj' => $inscricao['cpf_cnpj'],
-            ]);
+                $inscrito->update([
+                    'nome_razao' => $inscricao['nome'],
+                    'email' => $inscricao['email'],
+                    'telefone' => $inscricao['telefone'],
+                    'cpf_cnpj' => $inscricao['cpf_cnpj'],
+                ]);
             }
 
             CursoInscrito::updateOrCreate(
                 [
                     'pessoa_id' => $inscrito->id,
-                    'empresa_id' => $this->empresa['id'],
                     'agenda_curso_id' => $this->agendacurso->id,
+                ],[
+                    'empresa_id' => $this->empresa['id'],
                     'valor' => $inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
                     'data_inscricao' => now(),
                 ]
@@ -427,6 +420,8 @@ class ConfirmInscricaoCurso extends Component
                 [
                     'pessoa_id' => $inscrito->id,
                     'agenda_curso_id' => $this->agendacurso->id,
+                ],
+                [
                     'valor' => $inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
                     'data_inscricao' => now(),
                 ]
@@ -456,12 +451,13 @@ class ConfirmInscricaoCurso extends Component
                 }
 
                 Convite::firstOrCreate([
-                'pessoa_id' => $this->pessoaId_usuario,
-                'empresa_id' => $this->empresa['id'],
-                'agenda_curso_id' => $this->agendacurso->id,
-                'email' => $email,
-                'nome' => $inscricao['nome'],
-            ]);
+                    'agenda_curso_id' => $this->agendacurso->id,
+                    'email' => $email,
+                ], [
+                    'pessoa_id' => $this->pessoaId_usuario,
+                    'empresa_id' => $this->empresa['id'],
+                    'nome' => $inscricao['nome'],
+                ]);
             }
         }
     }
