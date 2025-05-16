@@ -77,6 +77,7 @@ class ConfirmInscricaoInterlab extends Component
                 'uf' => '',
             ]];
 
+
         $this->reset([ 'inscritoId', 'laboratorioId' ]);
     }
 
@@ -104,9 +105,31 @@ class ConfirmInscricaoInterlab extends Component
 
         if ($empresa) {
             $this->empresa = $empresa->toArray();
+
+            if (empty($this->empresa['endereco_cobranca'])) {
+                $this->empresa['endereco_cobranca'] = [
+                    'cep' => '',
+                    'endereco' => '',
+                    'complemento' => '',
+                    'bairro' => '',
+                    'cidade' => '',
+                    'uf' => '',
+                    'email' => '',
+                ];
+            }
         } else {
             $this->empresa = [
                 'cpf_cnpj' => $cnpjLimpo,
+                'telefone' => '',
+                'endereco_cobranca' => [
+                    'cep' => '',
+                    'endereco' => '',
+                    'complemento' => '',
+                    'bairro' => '',
+                    'cidade' => '',
+                    'uf' => '',
+                    'email' => '',
+                ],
             ];
         }
         $this->showSalvarEmpresa = true;
