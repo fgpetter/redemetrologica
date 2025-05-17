@@ -31,6 +31,7 @@
       <div class="col-8">
         <input class="form-control" name="arquivo" type="file" id="arquivo"
           accept=".doc, .pdf, .docx, .jpeg, .jpg, .png">
+          <div id="file-error" class="text-warning mt-1"></div>
         @error('arquivo')
           <div class="text-warning">{{ $message }}</div>
           <span class="text-warning">Alguns arquivos .doc e .docx podem estar corrompidos mesmo que abram no Word. Salve o arquivo em outra pasta ou com outro nome.</span>
@@ -43,3 +44,22 @@
 
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.getElementById('arquivo');
+    const errorContainer = document.getElementById('file-error');
+    const maxFileSize = 5 * 1024 * 1024; // 5MB em bytes
+
+    fileInput.addEventListener('change', function () {
+      const file = fileInput.files[0];
+
+      if (file && file.size > maxFileSize) {
+        errorContainer.textContent = 'O arquivo é muito grande, diminua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.';
+        fileInput.value = ''; 
+      } else {
+        errorContainer.textContent = ''; 
+      }
+    });
+  });
+</script>
