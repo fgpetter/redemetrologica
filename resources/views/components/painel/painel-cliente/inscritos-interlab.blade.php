@@ -49,7 +49,7 @@
                     @foreach($agendaGroup->first()->agendaInterlab->materiais as $material)
                       <li class="mb-1">
                         <i class="bx bx-file me-1"></i>
-                        <a href="{{ asset('storage/' . $material->arquivo) }}" target="_blank" class="text-primary">
+                        <a href="{{ asset('interlab-material/' . $material->arquivo) }}" target="_blank" class="text-primary">
                           {{ $material->descricao ?: 'Material ' . $loop->iteration }}
                         </a>
                       </li>

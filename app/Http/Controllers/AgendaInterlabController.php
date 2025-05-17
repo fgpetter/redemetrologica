@@ -592,12 +592,13 @@ class AgendaInterlabController extends Controller
       $request->all(),
       [
         'descricao' => ['nullable', 'string', 'max:190'],
-        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:2048'],
+        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:5120'],
       ],
       [
         'descricao.string' => 'O campo aceita somente texto.',
         'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
         'arquivo.max' => 'O arquivo é muito grande, diminua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+        'arquivo.required' => 'Selecione um arquivo para enviar.',
       ]
     );
 

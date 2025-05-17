@@ -33,7 +33,7 @@
           accept=".doc, .pdf, .docx, .jpeg, .jpg, .png">
         @error('arquivo')
           <div class="text-warning">{{ $message }}</div>
-          <span class="text-muted">Alguns arquivos .doc e .docx podem estar corrompidos mesmo que abram no Word. Salve o arquivo em outra pasta ou com outro nome.</span>
+          <span class="text-warning">Alguns arquivos .doc e .docx podem estar corrompidos mesmo que abram no Word. Salve o arquivo em outra pasta ou com outro nome.</span>
         @enderror
       </div>
       <div class="col-2">
