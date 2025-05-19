@@ -70,7 +70,7 @@
 
                     <!-- Email -->
                     <div class="col-4">
-                        <label class="form-label mb-0">Email</label>
+                        <label class="form-label mb-0">E-mail</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text">
                                 <i class="ri-mail-line"></i>
