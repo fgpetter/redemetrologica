@@ -28,7 +28,7 @@
                     </div>
 
                     <!-- Filtro por Empresa -->
-                    <div class="col-3">
+                    <div class="col-2">
                         <label class="form-label mb-0">Empresa</label>
                         <select wire:model.live="empresaSelecionada" class="form-select form-select-sm">
                             <option value="">Selecione...</option>
@@ -40,8 +40,8 @@
                     </div>
 
                     <!-- Pesquisa Global -->
-                    <div class="col-5">
-                        <label class="form-label mb-0">Pesquisar</label>
+                    <div class="col-3">
+                        <label class="form-label mb-0">Nome Interlab</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text">
                                 <i class="ri-search-line"></i>
@@ -49,6 +49,19 @@
                             <input wire:model.live.debounce.300ms="search" class="form-control form-control-sm"
                                 type="text" name="search" id="search"
                                 placeholder="Pesquisar por nome do interlab...">
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Email -->
+                    <div class="col-3">
+                        <label class="form-label mb-0">E-mail</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">
+                                <i class="ri-mail-line"></i>
+                            </span>
+                            <input wire:model.live.debounce.300ms="email" class="form-control form-control-sm"
+                                type="text" name="email" id="email"
+                                placeholder="Pesquisar por email...">
                         </div>
                     </div>
 

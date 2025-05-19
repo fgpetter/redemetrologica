@@ -36,6 +36,9 @@ class AgendaInterlabTable extends Component
     #[Url(as: 'empresa', history: false)]
     public $empresaSelecionada = '';
 
+    #[Url(as: 'email', history: false)]
+    public $email = '';
+
     public function setSortBy($field)
     {
         if ($this->sortBy === $field) {
@@ -60,12 +63,13 @@ class AgendaInterlabTable extends Component
 
     protected function getQuery()
     {
-        $query = AgendaInterlab::with(['interlab', 'inscritos'])
+        $query = AgendaInterlab::with(['interlab', 'inscritos.pessoa'])
             ->withCount('inscritos');
 
         $query = $this->applySearchFilter($query);
         $query = $this->applyStatusFilter($query);
         $query = $this->applyEmpresaFilter($query);
+        $query = $this->applyEmailFilter($query);
         $query = $this->applySorting($query);
 
         return $query;
@@ -96,6 +100,15 @@ class AgendaInterlabTable extends Component
         return $query->when($this->empresaSelecionada, function ($query) {
             $query->whereHas('inscritos.empresa', function ($subQuery) {
                 $subQuery->where('id', $this->empresaSelecionada);
+            });
+        });
+    }
+
+    protected function applyEmailFilter($query)
+    {
+        return $query->when($this->email, function ($query) {
+            $query->whereHas('inscritos.pessoa', function ($subQuery) {
+                $subQuery->where('email', 'like', "%{$this->email}%");
             });
         });
     }
