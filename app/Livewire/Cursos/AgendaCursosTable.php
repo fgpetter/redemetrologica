@@ -36,6 +36,8 @@ class AgendaCursosTable extends Component
     public $sortBy = 'data_inicio';
     #[Url(as : 'sd', history:false)]
     public $sortDirection = 'ASC';
+    #[Url(as: 'email', history: false)]
+    public $email = '';
 
     //Metodo sortBy
     public function setSortBy($sortByField){
@@ -85,7 +87,7 @@ class AgendaCursosTable extends Component
         $sortField = $this->sortBy;
         $sortDirection = $this->sortDirection;
 
-        $query = AgendaCursos::with('curso')
+        $query = AgendaCursos::with('curso', 'inscritos.pessoa')
             ->where(function ($query) {
                 $query->whereHas('curso', function ($q) {
                     $q->where('descricao', 'like', "%{$this->search}%");
@@ -112,6 +114,11 @@ class AgendaCursosTable extends Component
                 } else {
                     $query->where('data_inicio', '<=', $this->dataFim);
                 }
+            })
+            ->when($this->email !== '', function ($query) {
+                $query->whereHas('inscritos.pessoa', function ($subQuery) {
+                    $subQuery->where('email', 'like', "%{$this->email}%");
+                });
             })
             ->when($sortField, function ($query) use ($sortDirection, $sortField) {
                 if ($sortField === 'curso') {
@@ -140,4 +147,4 @@ class AgendaCursosTable extends Component
         ]);
     }
 }
-    
+

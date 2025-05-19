@@ -54,15 +54,28 @@
                         </div>
                     @endif
 
-                    <!-- Pesquisa Global -->
-                    <div class="col-3">
-                        <label class="form-label mb-0">Pesquisar</label>
+                    <div class="col-1"></div>
+
+                    <!-- Pesquisa curso -->
+                    <div class="col-4">
+                        <label class="form-label mb-0">Curso</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text">
                                 <i class="ri-search-line"></i>
                             </span>
                             <input wire:model.live.debounce.300ms="search" class="form-control form-control-sm"
                                 type="text" name="search" id="search" placeholder="Pesquisar por nome do curso...">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-4">
+                        <label class="form-label mb-0">Email</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">
+                                <i class="ri-mail-line"></i>
+                            </span>
+                            <input wire:model.live.debounce.300ms="email" class="form-control form-control-sm" type="text" name="email" id="email" placeholder="Pesquisar por email...">
                         </div>
                     </div>
 
