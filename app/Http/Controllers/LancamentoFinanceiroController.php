@@ -44,6 +44,16 @@ class LancamentoFinanceiroController extends Controller
   }
 
   /**
+   * Gera pagina de BBPAG
+   *
+   * @return View
+   **/
+  public function bbpag(): View
+  {
+    return view( 'painel.lancamento-financeiro.bbpag');
+  }
+
+  /**
    * Adiciona lancamento financeiro
    *
    * @param Request $request

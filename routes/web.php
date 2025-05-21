@@ -388,9 +388,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('lancamento/store', [LancamentoFinanceiroController::class, 'store'])->name('lancamento-financeiro-store');
     Route::post('lancamento/update/{lancamento:uid}', [LancamentoFinanceiroController::class, 'update'])->name('lancamento-financeiro-update');
     Route::post('lancamento/delete/{lancamento:uid}', [LancamentoFinanceiroController::class, 'delete'])->name('lancamento-financeiro-delete');
-
+    
     Route::get('areceber/index', [LancamentoFinanceiroController::class, 'areceber'])->name('a-receber-index');
-
+    
+    Route::get('lancamento/bbpag', [LancamentoFinanceiroController::class, 'bbpag'])->name('BBPAG'); //BBPAG
   });
 
 
