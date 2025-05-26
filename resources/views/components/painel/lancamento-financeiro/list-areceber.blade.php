@@ -59,7 +59,7 @@
           <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
             <option value="" > - </option>
             @foreach ($pessoas as $pessoa)
-              <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
+              <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{ $pessoa->nome_razao }} - {{ $pessoa->cpf_cnpj }}</option>
             @endforeach
           </x-forms.input-select>
         </div>
