@@ -18,15 +18,22 @@
     {{-- Área com uma lista com os lançamentos financeiros filtrados e seus totais --}}
     <div class="mb-3">
         <h5>Lançamentos Filtrados</h5>
-        @if(count($lancamentos) > 0)
+        @if(is_countable($lancamentos) && count($lancamentos) > 0)
             <div style="max-height: 300px; overflow-y: auto;">
                 <ul class="list-group">
                     @foreach($lancamentos as $lancamento)
                         <li class="list-group-item">
-                            <strong>ID:</strong> {{ $lancamento['id'] }} | 
-                            <strong>Histórico:</strong> {{ $lancamento['historico'] }} | 
-                            <strong>Valor:</strong> R$ {{ number_format($lancamento['valor'], 2, ',', '.') }} | 
-                            <strong>Data de Vencimento:</strong> {{ $lancamento['data_vencimento'] }}
+                            <strong>ID:</strong> {{ $lancamento->id }} |
+                            <strong>Histórico:</strong> {{ $lancamento->historico ?? 'N/A' }} |
+                            <strong>Valor:</strong> R$ {{ number_format($lancamento->valor, 2, ',', '.') }} |
+                            <strong>Data de Vencimento:</strong> {{ $lancamento->data_vencimento ?? 'N/A' }} |
+                            @if($lancamento->pessoa && $lancamento->pessoa->dadoBancario)
+                                <strong>Banco:</strong> {{ $lancamento->pessoa->dadoBancario->cod_banco ?? 'N/A' }} |
+                                <strong>Agência:</strong> {{ $lancamento->pessoa->dadoBancario->agencia ?? 'N/A' }} |
+                                <strong>Conta:</strong> {{ $lancamento->pessoa->dadoBancario->conta ?? 'N/A' }}
+                            @else
+                                <strong>Dados Bancários:</strong> Não disponíveis
+                            @endif
                         </li>
                     @endforeach
                 </ul>

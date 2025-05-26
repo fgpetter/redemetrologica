@@ -65,6 +65,14 @@ class Pessoa extends Model
     }
 
     /**
+     * Retorna o dado bancário mais novo de uma pessoa.
+     */
+    public function dadoBancario(): HasOne
+    {
+        return $this->hasOne(DadoBancario::class)->latestOfMany();
+    }
+
+    /**
      * Retorna quando essa pessoa é um funcionário.
      */
     public function funcionario(): HasOne
