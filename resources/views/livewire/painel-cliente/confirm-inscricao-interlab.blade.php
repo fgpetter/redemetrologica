@@ -522,8 +522,8 @@
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
                 </div>
-                <div class="col-md-6 d-flex justify-content-end align-items-end" >
-                    <button class="btn btn-warning" wire:click="encerrarInscricoes" id="step-7" > ENCERRAR
+                <div class="col-md-6 d-flex justify-content-end align-items-end">
+                    <button class="btn btn-warning" wire:click="encerrarInscricoes" id="step-7"> ENCERRAR
                         INSCRIÇÕES</button>
                 </div>
             </div>
@@ -767,6 +767,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('tourDone') === 'true') return;
 
+
         const createDriver = window.driver.js.driver;
 
         function createDriver1() {
@@ -781,6 +782,8 @@
                     }
                 }],
                 showButtons: [close],
+                allowClose: true,
+
             });
         }
 
@@ -813,9 +816,10 @@
                 showButtons: [close],
             });
         }
+        
 
         function createDriver4() {
-            const driver = createDriver({
+            const driver = window.driver.js.driver({
                 steps: [{
                         element: '#step-4',
                         popover: {
@@ -853,22 +857,18 @@
                         }
                     }
                 ],
-                showButtons: ['next'],
-                onPopoverRender: (popover, {
-                    currentStep
-                }) => {
-
-
-                        const disableButton = document.createElement("button");
-                        disableButton.innerText = "Não mostrar novamente";
-                        popover.footerButtons.appendChild(disableButton);
-                        disableButton.addEventListener("click", () => {
-                            localStorage.setItem('tourDone', 'true');
-                            driver.destroy(); // encerra o tour
-                        });
-                    
+                showButtons: ['next', 'prev'],
+                nextBtnText: '→',
+                prevBtnText: '←',
+                doneBtnText: 'Fechar',
+                allowClose: false,
+                onDestroyStarted: () => {
+                    // Marca no localStorage que o tour já foi visto
+                    localStorage.setItem('tourDone', 'true');
+                    driver.destroy();
                 }
             });
+
 
             return driver;
         }
@@ -903,10 +903,5 @@
 
         });
 
-
-
-        Livewire.hook('message.processed', () => {
-            // Aqui você pode limpar os locais se quiser resetar tours, mas evite recriar drivers diretamente
-        });
     });
 </script>
