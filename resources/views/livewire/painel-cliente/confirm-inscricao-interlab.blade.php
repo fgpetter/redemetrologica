@@ -1,8 +1,8 @@
 <div class="col-12">
     <!-- Cabeçalho do interlaboratorial -->
-    <div class="card px-3 border border-primary" id="step-interlab-dados">
+    <div class="card px-3 border border-primary" >
         <h5 class="card-subtitle mt-3 mb-2 text-primary-emphasis">Dados do interlaboratorial:</h5>
-        <p class="pb-3" id="step-interlab-dados2">
+        <p class="pb-3">
             <strong>Interlaboratorial:</strong> {{ $interlab->interlab->nome }} <br>
             <strong>Agenda:</strong> de {{ \Carbon\Carbon::parse($interlab->data_inicio)->format('d/m/Y') }} a
             {{ \Carbon\Carbon::parse($interlab->data_fim)->format('d/m/Y') }} <br>
@@ -17,7 +17,7 @@
             </blockquote>
         @endif
         <div class="mb-5 border p-3 rounded">
-            <h5 class="mb-3 text-primary">Laboratórios Inscritos:</h5>
+            <h5 class="mb-3 text-primary" id="step-4"  >Laboratórios Inscritos:</h5>
             @foreach ($empresas_inscritas as $empresa_inscrita)
                 <div class="card mb-3" wire:key="empresa-{{ $empresa_inscrita->id }}">
                     @if ($empresaEditadaId !== $empresa_inscrita->id)
@@ -513,7 +513,7 @@
                     </h5>
                     <p>Para prosseguir com a inscrição, é necessário informar um CNPJ para envio de nota Fiscal e
                         Cobrança</p>
-                    <div class="input-group">
+                    <div class="input-group" id="step-1">
                         <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
                             placeholder="CNPJ">
                         <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
@@ -541,7 +541,7 @@
 
         <form wire:submit.prevent="salvarEmpresa" class="mt-4">
             <div class="card border overflow-hidden card-border-dark shadow-none">
-                <div class="card-header">
+                <div class="card-header" id="step-2">
                     <h6 class="card-title mb-0">Complete os dados abaixo para emissão e envio de NF</h6>
                 </div>
                 <div class="card-body">
@@ -644,15 +644,15 @@
                 <div class="card-header bg-light" style="min-height: 60px;">
                     <div class="d-flex justify-content-between align-items-center h-100">
                         <div>
-                            <strong><span wire:text="empresa.nome_razao"></span></strong>
-                            <small class="text-muted ms-2">CNPJ: <span wire:text="empresa.cpf_cnpj"></span></small>
+                            <strong>{{ $empresa['nome_razao'] }}</strong>
+                            <small class="text-muted ms-2">CNPJ: {{ $empresa['cpf_cnpj'] }}</small>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card border overflow-hidden card-border-dark shadow-none">
-                <div class="card-header">
+                <div class="card-header" id="step-3">
                     <h6 class="card-title mb-0">Informe os dados do Laboratório para envio de amostras:</h6>
                 </div>
                 <div class="card-body">
@@ -763,73 +763,111 @@
     @endif
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 1) Se já fez o tour, nada a fazer
+    document.addEventListener('DOMContentLoaded', function () {
         if (localStorage.getItem('tourDone') === 'true') return;
 
-        // 2) Puxamos a fábrica via window
         const createDriver = window.driver.js.driver;
 
-        // 3) Definimos os passos
-        const steps = [{
-                element: '#step-interlab-dados',
-                popover: {
-                    title: 'Área de Dados',
-                    description: 'Aqui estão as informações principais do interlaboratorial.',
-                    position: 'bottom'
+        function createDriver1() {
+            return createDriver({
+                steps: [
+                    {
+                        element: '#step-1',
+                        popover: {
+                            title: 'CNPJ da Empresa',
+                            description: 'Informe o CNPJ corretamente.',
+                            position: 'top'
+                        }
+                    }
+                ],
+            });
+        }
+
+        function createDriver2() {
+            return createDriver({
+                steps: [
+                    {
+                        element: '#step-2',
+                        popover: {
+                            title: 'Salvar empresa',
+                            description: 'Preencha os dados para inscrição no laboratório.',
+                            position: 'right'
+                        }
+                    }
+                ],
+            });
+        }
+        function createDriver3() {
+            return createDriver({
+                steps: [
+                    {
+                        element: '#step-3',
+                        popover: {
+                            title: 'Salvar laboratório',
+                            description: 'Preencha os dados para inscrição no laboratório.',
+                            position: 'right'
+                        }
+                    }
+                ],
+            });
+        }
+
+        function createDriver4() {
+            return createDriver({
+                steps: [
+                    {
+                        element: '#step-4',
+                        popover: {
+                            title: 'tour final',
+                            description: 'Finalize o processo de pagamento.',
+                            position: 'bottom'
+                        }
+                    }
+                ],
+                onPopoverRender: (popover) => {
+                    const disableButton = document.createElement("button");
+                    disableButton.innerText = "Não mostrar novamente";
+                    popover.footerButtons.appendChild(disableButton);
+                    disableButton.addEventListener("click", () => {
+                        localStorage.setItem('tourDone', 'true');
+                        driver.destroy();
+                    });
                 }
-            },
-            {
-                element: '#step-interlab-dados2',
-                popover: {
-                    title: 'Pronto!',
-                    description: 'Fim.',
-                    position: 'bottom'
-                }
+            });
+        }
+
+        // Escutando os eventos Livewire emitidos
+        window.addEventListener('start-tour-1', () => {
+            if (!localStorage.getItem('driver1_done')) {
+                const driver = createDriver1();
+                setTimeout(() => driver.drive(), 500);
             }
-        ];
-
-        // 4) Criamos o driverObj já passando tudo no config
-        const driverObj = createDriver({
-            steps,
-            animate: true,
-            overlayOpacity: 0.5,
-            stagePadding: 10,
-            allowClose: true,
-            showButtons: ['next'],
-            onPopoverRender: (popover, {
-                config,
-                state
-            }) => {
-                const disableButton = document.createElement("button");
-                disableButton.innerText = "Não mostrar novamente";
-                popover.footerButtons.appendChild(disableButton);
-
-                disableButton.addEventListener("click", () => {
-                    localStorage.setItem('tourDone', 'true');
-                    driverObj.destroy();
-                });
-            },
-
         });
 
-
-
-        // 6) Listener para o botão "Não mostrar novamente"
-        document.addEventListener('click', function(e) {
-            if (e.target && e.target.id === 'disable-tour') {
-                localStorage.setItem('tourDone', 'true');
-                driverObj.reset();
+        window.addEventListener('start-tour-2', () => {
+            if (!localStorage.getItem('driver2_done')) {
+                const driver = createDriver2();
+                setTimeout(() => driver.drive(), 500);
             }
         });
 
-        // 7) Dispara o tour após 3 segundos
-        setTimeout(() => driverObj.drive(), 1000);
+        window.addEventListener('start-tour-3', () => {
+            if (!localStorage.getItem('driver3_done') ) {
+                const driver = createDriver3();
+                setTimeout(() => driver.drive(), 500);
+            }
+        });
+        window.addEventListener('start-tour-4', () => {
+            if (!localStorage.getItem('driver4_done') ) {
+                const driver = createDriver4();
+                setTimeout(() => driver.drive(), 500);
+            }
+        });
 
-        // 8) Re-define steps após Livewire re-renderizar
         Livewire.hook('message.processed', () => {
-            driverObj.reset(true);
-            driverObj.defineSteps(steps);
+            // Aqui você pode limpar os locais se quiser resetar tours, mas evite recriar drivers diretamente
         });
     });
 </script>
+
+

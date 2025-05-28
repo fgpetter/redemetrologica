@@ -59,9 +59,16 @@ class ConfirmInscricaoInterlab extends Component
         /** @var Pessoa */
         $this->empresas_inscritas = Pessoa::whereIn('id', $empresaIds)
             ->with(['interlabs', 'enderecos' => function ($query) {
-                $query->where('cobranca', 1);
+            $query->where('cobranca', 1);
             }])
             ->get();
+        
+        // chama eventos do tour
+        if ($this->empresas_inscritas->isEmpty()) {
+            $this->dispatch('start-tour-1'); //primeira inscrição
+        } else {
+            $this->dispatch('start-tour-4'); //tour final
+        }
 
         $this->laboratorio = [
             'nome' => '',
@@ -79,6 +86,7 @@ class ConfirmInscricaoInterlab extends Component
 
 
         $this->reset([ 'inscritoId', 'laboratorioId' ]);
+       
     }
 
     public function render()
@@ -135,6 +143,8 @@ class ConfirmInscricaoInterlab extends Component
         $this->showSalvarEmpresa = true;
         $this->showInscreveLab = false;
         $this->BuscaCnpj = null;
+        // chama tour de cadastro de empresa
+        $this->dispatch('start-tour-2');
     }
 
     //metodo para salvar empresa
@@ -210,13 +220,17 @@ class ConfirmInscricaoInterlab extends Component
             ->with('interlabs')
             ->get();
 
-        $this->empresaEditadaId = null;
+        
 
         if (in_array($empresa->id, $empresaIds->toArray())) {
             $this->showInscreveLab = false;
         } else {
             $this->showInscreveLab = true; // Mostra formulário de laboratório
+            $this->dispatch('start-tour-3'); //chama tour de inscricao de laboratorio
         }
+        
+        
+        $this->empresaEditadaId = null;
     }
 
     //metodo para editar empresas (preenche os campos)
