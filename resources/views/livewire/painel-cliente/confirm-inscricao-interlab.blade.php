@@ -1,8 +1,8 @@
 <div class="col-12">
     <!-- Cabeçalho do interlaboratorial -->
-    <div class="card px-3 border border-primary">
+    <div class="card px-3 border border-primary" id="step-interlab-dados">
         <h5 class="card-subtitle mt-3 mb-2 text-primary-emphasis">Dados do interlaboratorial:</h5>
-        <p class="pb-3">
+        <p class="pb-3" id="step-interlab-dados2">
             <strong>Interlaboratorial:</strong> {{ $interlab->interlab->nome }} <br>
             <strong>Agenda:</strong> de {{ \Carbon\Carbon::parse($interlab->data_inicio)->format('d/m/Y') }} a
             {{ \Carbon\Carbon::parse($interlab->data_fim)->format('d/m/Y') }} <br>
@@ -629,7 +629,6 @@
             </div>
         </form>
     @endif
-
     <!-- Formulário de edição/cadastro de laboratório -->
     @if ($showInscreveLab)
         @if (!$empresas_inscritas || $empresas_inscritas->isEmpty())
@@ -763,3 +762,74 @@
         </form>
     @endif
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1) Se já fez o tour, nada a fazer
+        if (localStorage.getItem('tourDone') === 'true') return;
+
+        // 2) Puxamos a fábrica via window
+        const createDriver = window.driver.js.driver;
+
+        // 3) Definimos os passos
+        const steps = [{
+                element: '#step-interlab-dados',
+                popover: {
+                    title: 'Área de Dados',
+                    description: 'Aqui estão as informações principais do interlaboratorial.',
+                    position: 'bottom'
+                }
+            },
+            {
+                element: '#step-interlab-dados2',
+                popover: {
+                    title: 'Pronto!',
+                    description: 'Fim.',
+                    position: 'bottom'
+                }
+            }
+        ];
+
+        // 4) Criamos o driverObj já passando tudo no config
+        const driverObj = createDriver({
+            steps,
+            animate: true,
+            overlayOpacity: 0.5,
+            stagePadding: 10,
+            allowClose: true,
+            showButtons: ['next'],
+            onPopoverRender: (popover, {
+                config,
+                state
+            }) => {
+                const disableButton = document.createElement("button");
+                disableButton.innerText = "Não mostrar novamente";
+                popover.footerButtons.appendChild(disableButton);
+
+                disableButton.addEventListener("click", () => {
+                    localStorage.setItem('tourDone', 'true');
+                    driverObj.destroy();
+                });
+            },
+
+        });
+
+
+
+        // 6) Listener para o botão "Não mostrar novamente"
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'disable-tour') {
+                localStorage.setItem('tourDone', 'true');
+                driverObj.reset();
+            }
+        });
+
+        // 7) Dispara o tour após 3 segundos
+        setTimeout(() => driverObj.drive(), 1000);
+
+        // 8) Re-define steps após Livewire re-renderizar
+        Livewire.hook('message.processed', () => {
+            driverObj.reset(true);
+            driverObj.defineSteps(steps);
+        });
+    });
+</script>
