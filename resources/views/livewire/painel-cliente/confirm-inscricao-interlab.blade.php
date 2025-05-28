@@ -1,6 +1,6 @@
 <div class="col-12">
     <!-- Cabeçalho do interlaboratorial -->
-    <div class="card px-3 border border-primary" >
+    <div class="card px-3 border border-primary">
         <h5 class="card-subtitle mt-3 mb-2 text-primary-emphasis">Dados do interlaboratorial:</h5>
         <p class="pb-3">
             <strong>Interlaboratorial:</strong> {{ $interlab->interlab->nome }} <br>
@@ -16,8 +16,8 @@
                 <p class="mb-2 text-black fs-6 fs-sm-5">{!! nl2br($interlab->instrucoes_inscricao) !!}</p>
             </blockquote>
         @endif
-        <div class="mb-5 border p-3 rounded">
-            <h5 class="mb-3 text-primary" id="step-4"  >Laboratórios Inscritos:</h5>
+        <div class="mb-5 border p-3 rounded" id="step-4">
+            <h5 class="mb-3 text-primary">Laboratórios Inscritos:</h5>
             @foreach ($empresas_inscritas as $empresa_inscrita)
                 <div class="card mb-3" wire:key="empresa-{{ $empresa_inscrita->id }}">
                     @if ($empresaEditadaId !== $empresa_inscrita->id)
@@ -341,7 +341,7 @@
                                     $laboratorioEditadoId === null &&
                                     $novaInscricaoEmpresaId === null)
                                 <div class="mt-3 text-end">
-                                    <button class="btn btn-sm btn-success"
+                                    <button class="btn btn-sm btn-success" id="step-5"
                                         wire:click.prevent="novoLaboratorio({{ $empresa_inscrita->id }})">
                                         <i class="ri-add-line"></i> Adicionar Novo Laboratório
                                     </button>
@@ -506,7 +506,7 @@
             $novaInscricaoEmpresaId === null)
         <div class="card px-3 py-3 border">
             <div class="row">
-                <div class="col-md-6 border-end pe-3">
+                <div class="col-md-6 border-end pe-3" id="step-6">
                     <h5>{{ $empresas_inscritas && $empresas_inscritas->isNotEmpty()
                         ? 'Informe outro CNPJ caso queira cadastrar outra empresa para cobrança'
                         : 'Informe o CNPJ para continuar' }}
@@ -522,8 +522,9 @@
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
                 </div>
-                <div class="col-md-6 d-flex justify-content-end align-items-end">
-                    <button class="btn btn-warning" wire:click="encerrarInscricoes">ENCERRAR INSCRIÇÕES</button>
+                <div class="col-md-6 d-flex justify-content-end align-items-end" >
+                    <button class="btn btn-warning" wire:click="encerrarInscricoes" id="step-7" > ENCERRAR
+                        INSCRIÇÕES</button>
                 </div>
             </div>
         </div>
@@ -540,8 +541,8 @@
         @endif
 
         <form wire:submit.prevent="salvarEmpresa" class="mt-4">
-            <div class="card border overflow-hidden card-border-dark shadow-none">
-                <div class="card-header" id="step-2">
+            <div class="card border overflow-hidden card-border-dark shadow-none" id="step-2">
+                <div class="card-header">
                     <h6 class="card-title mb-0">Complete os dados abaixo para emissão e envio de NF</h6>
                 </div>
                 <div class="card-body">
@@ -651,8 +652,8 @@
                 </div>
             </div>
 
-            <div class="card border overflow-hidden card-border-dark shadow-none">
-                <div class="card-header" id="step-3">
+            <div class="card border overflow-hidden card-border-dark shadow-none" id="step-3">
+                <div class="card-header">
                     <h6 class="card-title mb-0">Informe os dados do Laboratório para envio de amostras:</h6>
                 </div>
                 <div class="card-body">
@@ -763,111 +764,149 @@
     @endif
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('tourDone') === 'true') return;
 
         const createDriver = window.driver.js.driver;
 
         function createDriver1() {
             return createDriver({
-                steps: [
-                    {
-                        element: '#step-1',
-                        popover: {
-                            title: 'CNPJ da Empresa',
-                            description: 'Informe o CNPJ corretamente.',
-                            position: 'top'
-                        }
+                steps: [{
+                    element: '#step-1',
+                    popover: {
+                        title: 'CNPJ da Empresa',
+                        description: 'Informe o CNPJ corretamente.',
+                        side: 'top',
+                        align: 'start',
                     }
-                ],
+                }],
+                showButtons: [close],
             });
         }
 
         function createDriver2() {
             return createDriver({
-                steps: [
-                    {
-                        element: '#step-2',
-                        popover: {
-                            title: 'Salvar empresa',
-                            description: 'Preencha os dados para inscrição no laboratório.',
-                            position: 'right'
-                        }
+                steps: [{
+                    element: '#step-2',
+                    popover: {
+                        title: 'Salvar empresa',
+                        description: 'Preencha os dados para inscrição no laboratório.',
+                        side: 'top',
+                        align: 'start',
                     }
-                ],
+                }],
+                showButtons: [close],
             });
         }
+
         function createDriver3() {
             return createDriver({
-                steps: [
-                    {
-                        element: '#step-3',
-                        popover: {
-                            title: 'Salvar laboratório',
-                            description: 'Preencha os dados para inscrição no laboratório.',
-                            position: 'right'
-                        }
+                steps: [{
+                    element: '#step-3',
+                    popover: {
+                        title: 'Salvar laboratório',
+                        description: 'Preencha os dados para inscrição no laboratório.',
+                        side: 'top',
+                        align: 'start',
                     }
-                ],
+                }],
+                showButtons: [close],
             });
         }
 
         function createDriver4() {
-            return createDriver({
-                steps: [
-                    {
+            const driver = createDriver({
+                steps: [{
                         element: '#step-4',
                         popover: {
-                            title: 'tour final',
-                            description: 'Finalize o processo de pagamento.',
-                            position: 'bottom'
+                            title: 'Conferir inscrição',
+                            description: 'Aqui você pode conferir as inscrições feitas e editar os dados da empresa e dos laboratórios.',
+                            side: 'top',
+                            align: 'start',
+                        }
+                    },
+                    {
+                        element: '#step-5',
+                        popover: {
+                            title: 'Adicionar novo laboratório',
+                            description: 'Aqui você pode adicionar um novo laboratório à inscrição.',
+                            side: 'top',
+                            align: 'start',
+                        }
+                    },
+                    {
+                        element: '#step-6',
+                        popover: {
+                            title: 'Incluir nova empresa',
+                            description: 'Aqui você pode cadastrar uma nova empresa para a inscrição.',
+                            side: 'top',
+                            align: 'start',
+                        }
+                    },
+                    {
+                        element: '#step-7',
+                        popover: {
+                            title: 'Encerrar inscrições',
+                            description: 'Clique aqui quando desejar encerrar as inscrições.',
+                            side: 'top',
+                            align: 'start',
                         }
                     }
                 ],
-                onPopoverRender: (popover) => {
-                    const disableButton = document.createElement("button");
-                    disableButton.innerText = "Não mostrar novamente";
-                    popover.footerButtons.appendChild(disableButton);
-                    disableButton.addEventListener("click", () => {
-                        localStorage.setItem('tourDone', 'true');
-                        driver.destroy();
-                    });
+                showButtons: ['next'],
+                onPopoverRender: (popover, {
+                    currentStep
+                }) => {
+
+
+                        const disableButton = document.createElement("button");
+                        disableButton.innerText = "Não mostrar novamente";
+                        popover.footerButtons.appendChild(disableButton);
+                        disableButton.addEventListener("click", () => {
+                            localStorage.setItem('tourDone', 'true');
+                            driver.destroy(); // encerra o tour
+                        });
+                    
                 }
             });
+
+            return driver;
         }
+
+
+
 
         // Escutando os eventos Livewire emitidos
         window.addEventListener('start-tour-1', () => {
-            if (!localStorage.getItem('driver1_done')) {
-                const driver = createDriver1();
-                setTimeout(() => driver.drive(), 500);
-            }
+
+            const driver = createDriver1();
+            setTimeout(() => driver.drive(), 500);
+
         });
 
         window.addEventListener('start-tour-2', () => {
-            if (!localStorage.getItem('driver2_done')) {
-                const driver = createDriver2();
-                setTimeout(() => driver.drive(), 500);
-            }
+
+            const driver = createDriver2();
+            setTimeout(() => driver.drive(), 100);
+
         });
 
         window.addEventListener('start-tour-3', () => {
-            if (!localStorage.getItem('driver3_done') ) {
-                const driver = createDriver3();
-                setTimeout(() => driver.drive(), 500);
-            }
+
+            const driver = createDriver3();
+            setTimeout(() => driver.drive(), 100);
+
         });
         window.addEventListener('start-tour-4', () => {
-            if (!localStorage.getItem('driver4_done') ) {
-                const driver = createDriver4();
-                setTimeout(() => driver.drive(), 500);
-            }
+            const driver = createDriver4();
+            setTimeout(() => driver.drive(), 100);
+
         });
+
+
 
         Livewire.hook('message.processed', () => {
             // Aqui você pode limpar os locais se quiser resetar tours, mas evite recriar drivers diretamente
         });
     });
 </script>
-
-
