@@ -778,7 +778,7 @@
                         title: 'CNPJ da Empresa',
                         description: 'Informe o CNPJ corretamente.',
                         side: 'top',
-                        align: 'start',
+                        // align: 'auto',
                     }
                 }],
                 showButtons: [close],
@@ -795,7 +795,7 @@
                         title: 'Salvar empresa',
                         description: 'Preencha os dados para inscrição no laboratório.',
                         side: 'top',
-                        align: 'start',
+                        // align: 'auto',
                     }
                 }],
                 showButtons: [close],
@@ -810,13 +810,13 @@
                         title: 'Salvar laboratório',
                         description: 'Preencha os dados para inscrição no laboratório.',
                         side: 'top',
-                        align: 'start',
+                        // align: 'auto',
                     }
                 }],
                 showButtons: [close],
             });
         }
-        
+
 
         function createDriver4() {
             const driver = window.driver.js.driver({
@@ -878,28 +878,51 @@
 
         // Escutando os eventos Livewire emitidos
         window.addEventListener('start-tour-1', () => {
+            const driver1 = createDriver1();
 
-            const driver = createDriver1();
-            setTimeout(() => driver.drive(), 500);
+            // Função para destruir o tour ao clicar
+            const handleClick = () => {
+                driver1.destroy();
+                document.removeEventListener('click', handleClick); 
+            };
 
+            setTimeout(() => {
+                driver1.drive();
+                document.addEventListener('click', handleClick);
+            }, 200); // Atraso de 200ms para garantir que o DOM esteja pronto
         });
 
         window.addEventListener('start-tour-2', () => {
+            const driver2 = createDriver2();
 
-            const driver = createDriver2();
-            setTimeout(() => driver.drive(), 100);
+            const handleClick = () => {
+                driver2.destroy();
+                document.removeEventListener('click', handleClick);
+            };
 
+            setTimeout(() => {
+                driver2.drive();
+                document.addEventListener('click', handleClick);
+            }, 200);
         });
 
         window.addEventListener('start-tour-3', () => {
+            const driver3 = createDriver3();
 
-            const driver = createDriver3();
-            setTimeout(() => driver.drive(), 100);
+            const handleClick = () => {
+                driver3.destroy();
+                document.removeEventListener('click', handleClick);
+            };
 
+            setTimeout(() => {
+                driver3.drive();
+                document.addEventListener('click', handleClick);
+            }, 200);
         });
+
         window.addEventListener('start-tour-4', () => {
             const driver = createDriver4();
-            setTimeout(() => driver.drive(), 100);
+            setTimeout(() => driver.drive(), 200);
 
         });
 
