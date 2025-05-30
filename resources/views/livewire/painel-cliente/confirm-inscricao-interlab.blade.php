@@ -645,8 +645,8 @@
                 <div class="card-header bg-light" style="min-height: 60px;">
                     <div class="d-flex justify-content-between align-items-center h-100">
                         <div>
-                            <strong><span wire:text="empresa.nome_razao"></span></strong>
-                            <small class="text-muted ms-2">CNPJ: <span wire:text="empresa.cpf_cnpj"></span></small>
+                            <strong>{{ $empresa['nome_razao'] }}</strong>
+                            <small class="text-muted ms-2">CNPJ: {{ $empresa['cpf_cnpj'] }}</small>
                         </div>
                     </div>
                 </div>
