@@ -640,7 +640,8 @@
                 </blockquote>
             @endif
         @endif
-        <form wire:submit.prevent="InscreveLab" id="confirma-inscricao-interlab" class="mt-4">
+        <form wire:submit.prevent="InscreveLab" id="confirma-inscricao-interlab" class="mt-4"
+            id="form-inscreve-lab">
             <div class="card mb-3">
                 <div class="card-header bg-light" style="min-height: 60px;">
                     <div class="d-flex justify-content-between align-items-center h-100">
@@ -760,10 +761,39 @@
                     </div>
                 </div>
             </div>
+
         </form>
     @endif
 </div>
 <script>
+    // Função para centralizar conteudo do step-3 antes do driver.js iniciar o tour evitando de bugar o local do popup.
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ajuste esse seletor para o wrapper principal onde o Livewire injeta o passo 4
+        const wrapper = document.querySelector('#form-inscreve-lab') || document.body;
+
+        const observer = new MutationObserver((mutations, obs) => {
+            const el = document.getElementById('step-3');
+            if (!el) return;
+
+            // Encontrou: centraliza e para de observar
+            const rect = el.getBoundingClientRect();
+            const elTop = window.pageYOffset + rect.top;
+            const targetY = elTop - (window.innerHeight / 2) + (rect.height / 2);
+
+            window.scrollTo({
+                top: targetY,
+                behavior: 'smooth'
+            });
+            obs.disconnect();
+        });
+
+        observer.observe(wrapper, {
+            childList: true,
+            subtree: true
+        });
+    });
+
+    // script com passos do driver.js
     document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('tourDone') === 'true') return;
 
@@ -883,13 +913,13 @@
             // Função para destruir o tour ao clicar
             const handleClick = () => {
                 driver1.destroy();
-                document.removeEventListener('click', handleClick); 
+                document.removeEventListener('click', handleClick);
             };
 
             setTimeout(() => {
                 driver1.drive();
                 document.addEventListener('click', handleClick);
-            }, 200); // Atraso de 200ms para garantir que o DOM esteja pronto
+            }, 500); // Atraso de 500ms para garantir que o DOM esteja pronto
         });
 
         window.addEventListener('start-tour-2', () => {
@@ -903,7 +933,7 @@
             setTimeout(() => {
                 driver2.drive();
                 document.addEventListener('click', handleClick);
-            }, 200);
+            }, 500);
         });
 
         window.addEventListener('start-tour-3', () => {
@@ -917,7 +947,7 @@
             setTimeout(() => {
                 driver3.drive();
                 document.addEventListener('click', handleClick);
-            }, 200);
+            }, 500);
         });
 
         window.addEventListener('start-tour-4', () => {
