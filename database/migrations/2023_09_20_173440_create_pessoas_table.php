@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('telefone_alt')->nullable();
             $table->string('celular')->nullable();
             $table->string('email')->nullable();
+            $table->string('email_cobranca')->nullable();
             $table->string('site')->nullable();
             $table->integer('end_padrao')->nullable();
             $table->integer('end_cobranca')->nullable();
