@@ -46,6 +46,17 @@
               </div>
             </div>
           </div>
+  
+          {{-- <x-painel.agenda-interlab.list-participantes 
+            :pessoas="$pessoas"
+            :agendainterlab="$agendainterlab"
+            :intelabinscritos="$intelabinscritos"
+            :interlabempresasinscritas="$interlabempresasinscritas" /> --}}
+
+            <livewire:interlab.list-participantes :idinterlab="$idinterlab"/>
+
+        </div>
+      </div>
 
           <div class="tab-pane" id="participantes" role="tabpanel"> <!-- participantes -->
               <div class="col-12">
