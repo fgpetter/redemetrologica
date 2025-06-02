@@ -21,11 +21,11 @@
             @foreach ($empresas_inscritas as $empresa_inscrita)
                 <div class="card mb-3" wire:key="empresa-{{ $empresa_inscrita->id }}">
                     @if ($empresaEditadaId !== $empresa_inscrita->id)
-                        <div class="card-header bg-light" style="min-height: 60px;">
+                        <div class="card-header bg-primary text-white" style="min-height: 60px;">
                             <div class="d-flex justify-content-between align-items-center h-100">
                                 <div>
                                     <strong>{{ $empresa_inscrita->nome_razao }}</strong>
-                                    <small class="text-muted ms-2">CNPJ: {{ $empresa_inscrita->cpf_cnpj }}</small>
+                                    <small class=" ms-2">- CNPJ: {{ $empresa_inscrita->cpf_cnpj }}</small>
                                 </div>
                                 <!-- Botão de editar empresa -->
                                 @if (
@@ -35,7 +35,7 @@
                                         $laboratorioEditadoId === null &&
                                         $novaInscricaoEmpresaId === null)
                                     <div>
-                                        <button class="btn btn-sm btn-outline-primary me-2"
+                                        <button class="btn btn-sm btn-outline-light me-2"
                                             wire:click.prevent="{{ $empresaEditadaId === $empresa_inscrita->id
                                                 ? '$set(\'empresaEditadaId\', null)'
                                                 : 'editEmpresa(' . $empresa_inscrita->id . ')' }}">
@@ -56,7 +56,7 @@
                                         <x-forms.input-field wire:model="empresa.nome_razao" name="nome_razao"
                                             label="Razão Social" :required="true" />
                                         @error('empresa.nome_razao')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -64,7 +64,7 @@
                                         <x-forms.input-field wire:model="empresa.cpf_cnpj" name="cpf_cnpj"
                                             label="CNPJ" :readonly="true" />
                                         @error('empresa.cpf_cnpj')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -75,7 +75,7 @@
                                                 ? '(99) 99999-9999' 
                                                 : '(99) 9999-9999'" />
                                         @error('empresa.telefone')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -84,7 +84,7 @@
                                             name="cobranca_email" label="E-mail de Cobrança" type="email"
                                             :required="true" />
                                         @error('empresa.endereco_cobranca.email')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -93,7 +93,7 @@
                                             name="cobranca_cep" label="CEP" wire:blur="buscaCep('cobranca')"
                                             maxlength="9" x-mask="99999-999" :required="true" />
                                         @error('empresa.endereco_cobranca.cep')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -101,7 +101,7 @@
                                         <x-forms.input-field wire:model="empresa.endereco_cobranca.endereco"
                                             name="cobranca_endereco" label="Endereço" :required="true" />
                                         @error('empresa.endereco_cobranca.endereco')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -109,7 +109,7 @@
                                         <x-forms.input-field wire:model="empresa.endereco_cobranca.complemento"
                                             name="cobranca_complemento" label="Complemento" />
                                         @error('empresa.endereco_cobranca.complemento')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -117,7 +117,7 @@
                                         <x-forms.input-field wire:model="empresa.endereco_cobranca.bairro"
                                             name="cobranca_bairro" label="Bairro" :required="true" />
                                         @error('empresa.endereco_cobranca.bairro')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -125,7 +125,7 @@
                                         <x-forms.input-field wire:model="empresa.endereco_cobranca.cidade"
                                             name="cobranca_cidade" label="Cidade" :required="true" />
                                         @error('empresa.endereco_cobranca.cidade')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -134,7 +134,7 @@
                                             name="cobranca_uf" label="UF" maxlength="2"
                                             style="text-transform: uppercase;" :required="true" />
                                         @error('empresa.endereco_cobranca.uf')
-                                            <div class="text-warning">{{ $message }}</div>
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -205,7 +205,7 @@
                                                                 name="laboratorio.nome" label="Laboratório"
                                                                 required />
                                                             @error('laboratorio.nome')
-                                                                <div class="text-warning">{{ $message }}</div>
+                                                                <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
                                                         <div class="col-12 col-xl-6">
@@ -214,7 +214,7 @@
                                                                 name="laboratorio.responsavel_tecnico"
                                                                 label="Responsável Técnico" required />
                                                             @error('laboratorio.responsavel_tecnico')
-                                                                <div class="text-warning">{{ $message }}</div>
+                                                                <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
                                                     </div>
@@ -229,7 +229,7 @@
                                                                 : '(99) 9999-9999'"
                                                                 wire:ignore />
                                                             @error('laboratorio.telefone')
-                                                                <div class="text-warning">{{ $message }}</div>
+                                                                <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
                                                         <div class="col-12 col-sm-6">
@@ -237,7 +237,7 @@
                                                                 name="laboratorio.email" type="email"
                                                                 label="E-mail" :required="true" />
                                                             @error('laboratorio.email')
-                                                                <div class="text-warning">{{ $message }}</div>
+                                                                <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
                                                     </div>
@@ -249,7 +249,7 @@
                                                                 class="cep" wire:blur="buscaCep('laboratorio')"
                                                                 maxlength="9" x-mask="99999-999" required />
                                                             @error('laboratorio.endereco.cep')
-                                                                <div class="text-warning">{{ $message }}
+                                                                <div class="text-danger">{{ $message }}
                                                                 </div>
                                                             @enderror
                                                         </div>
@@ -259,7 +259,7 @@
                                                                 name="laboratorio.endereco.endereco" label="Endereço"
                                                                 required />
                                                             @error('laboratorio.endereco.endereco')
-                                                                <div class="text-warning">{{ $message }}
+                                                                <div class="text-danger">{{ $message }}
                                                                 </div>
                                                             @enderror
                                                         </div>
@@ -269,7 +269,7 @@
                                                                 name="laboratorio.endereco.complemento"
                                                                 label="Complemento" />
                                                             @error('laboratorio.endereco.complemento')
-                                                                <div class="text-warning">{{ $message }}
+                                                                <div class="text-danger">{{ $message }}
                                                                 </div>
                                                             @enderror
                                                         </div>
@@ -279,7 +279,7 @@
                                                                 name="laboratorio.endereco.bairro" label="Bairro"
                                                                 required />
                                                             @error('laboratorio.endereco.bairro')
-                                                                <div class="text-warning">{{ $message }}
+                                                                <div class="text-danger">{{ $message }}
                                                                 </div>
                                                             @enderror
                                                         </div>
@@ -289,7 +289,7 @@
                                                                 name="laboratorio.endereco.cidade" label="Cidade"
                                                                 required />
                                                             @error('laboratorio.endereco.cidade')
-                                                                <div class="text-warning">{{ $message }}
+                                                                <div class="text-danger">{{ $message }}
                                                                 </div>
                                                             @enderror
                                                         </div>
@@ -299,19 +299,19 @@
                                                                 maxlength="2" style="text-transform: uppercase;"
                                                                 :required="true" />
                                                             @error('laboratorio.endereco.uf')
-                                                                <div class="text-warning">{{ $message }}</div>
+                                                                <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </div>
                                                     </div>
 
                                                     <x-forms.input-textarea wire:model="informacoes_inscricao"
-                                                        name="informacoes_inscricao" label="Informações da inscrição" 
+                                                        name="informacoes_inscricao" label="Informações da inscrição"
                                                         sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar."
                                                         required>
                                                         {{ old('informacoes_inscricao') ?? null }}
                                                     </x-forms.input-textarea>
                                                     @error('informacoes_inscricao')
-                                                        <div class="text-warning">{{ $message }}</div>
+                                                        <div class="text-danger">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
@@ -365,7 +365,7 @@
                                                             name="laboratorio.nome" label="Laboratório"
                                                             class="mb-2" required />
                                                         @error('laboratorio.nome')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                     <div class="col-12 col-xl-6">
@@ -374,7 +374,7 @@
                                                             name="laboratorio.responsavel_tecnico"
                                                             label="Responsável Técnico" class="mb-2" required />
                                                         @error('laboratorio.responsavel_tecnico')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>
@@ -389,7 +389,7 @@
                                                                 : '(99) 9999-9999'"
                                                             wire:ignore />
                                                         @error('laboratorio.telefone')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                     <div class="col-12 col-sm-6">
@@ -397,7 +397,7 @@
                                                             name="laboratorio.email" type="email" label="E-mail"
                                                             required />
                                                         @error('laboratorio.email')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>
@@ -409,7 +409,7 @@
                                                             class="cep" wire:blur="buscaCep('laboratorio')"
                                                             maxlength="9" x-mask="99999-999" required />
                                                         @error('laboratorio.endereco.cep')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
@@ -419,7 +419,7 @@
                                                             label="Endereço com número"
                                                             placeholder="Ex. Av. Brasil, 1234" required />
                                                         @error('laboratorio.endereco.endereco')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
@@ -429,7 +429,7 @@
                                                             name="laboratorio.endereco.complemento"
                                                             label="Complemento" placeholder="Ex. Sala 101" />
                                                         @error('laboratorio.endereco.complemento')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
@@ -438,7 +438,7 @@
                                                             name="laboratorio.endereco.bairro" label="Bairro"
                                                             required />
                                                         @error('laboratorio.endereco.bairro')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
@@ -447,7 +447,7 @@
                                                             name="laboratorio.endereco.cidade" label="Cidade"
                                                             required />
                                                         @error('laboratorio.endereco.cidade')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
 
@@ -457,7 +457,7 @@
                                                             maxlength="2" style="text-transform: uppercase;"
                                                             :required="true" />
                                                         @error('laboratorio.endereco.uf')
-                                                            <div class="text-warning">{{ $message }}</div>
+                                                            <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>
@@ -469,7 +469,7 @@
                                                     {{ old('informacoes_inscricao') ?? null }}
                                                 </x-forms.input-textarea>
                                                 @error('informacoes_inscricao')
-                                                    <div class="text-warning">{{ $message }}</div>
+                                                    <div class="text-danger">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -519,7 +519,7 @@
                         <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
                     </div>
                     @error('BuscaCnpj')
-                        <span class="text-warning">{{ $message }}</span>
+                        <span class="text-danger">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="col-md-6 d-flex justify-content-end align-items-end">
@@ -550,14 +550,14 @@
                             <x-forms.input-field wire:model="empresa.nome_razao" name="nome_razao"
                                 label="Razão Social" :required="true" />
                             @error('empresa.nome_razao')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.cpf_cnpj" name="cpf_cnpj" label="CNPJ"
                                 :readonly="true" />
                             @error('empresa.cpf_cnpj')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
@@ -565,14 +565,14 @@
                                 class="telefone" maxlength="15"
                                 x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'" />
                             @error('empresa.telefone')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.email" name="cobranca_email"
                                 label="E-mail de Cobrança" type="email" :required="true" />
                             @error('empresa.endereco_cobranca.email')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-4">
@@ -580,35 +580,35 @@
                                 label="CEP" wire:blur="buscaCep('cobranca')" maxlength="9" x-mask="99999-999"
                                 :required="true" />
                             @error('empresa.endereco_cobranca.cep')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-8">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.endereco"
                                 name="cobranca_endereco" label="Endereço" :required="true" />
                             @error('empresa.endereco_cobranca.endereco')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.complemento"
                                 name="cobranca_complemento" label="Complemento" />
                             @error('empresa.endereco_cobranca.complemento')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.bairro" name="cobranca_bairro"
                                 label="Bairro" :required="true" />
                             @error('empresa.endereco_cobranca.bairro')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.endereco_cobranca.cidade" name="cobranca_cidade"
                                 label="Cidade" :required="true" />
                             @error('empresa.endereco_cobranca.cidade')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-2">
@@ -616,7 +616,7 @@
                                 label="UF" maxlength="2" style="text-transform: uppercase;"
                                 :required="true" />
                             @error('empresa.endereco_cobranca.uf')
-                                <span class="text-warning small">{{ $message }}</span>
+                                <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -642,11 +642,11 @@
         @endif
         <form wire:submit.prevent="InscreveLab" id="confirma-inscricao-interlab" class="mt-4">
             <div class="card mb-3">
-                <div class="card-header bg-light" style="min-height: 60px;">
-                    <div class="d-flex justify-content-between align-items-center h-100">
+                <div class="card-header bg-primary" style="min-height: 60px;">
+                    <div class="d-flex text-white justify-content-between align-items-center h-100">
                         <div>
-                            <strong><span wire:text="empresa.nome_razao"></span></strong>
-                            <small class="text-muted ms-2">CNPJ: <span wire:text="empresa.cpf_cnpj"></span></small>
+                            <strong>{{ $empresa['nome_razao'] }}</strong>
+                            <small class=" ms-2">- CNPJ: {{ $empresa['cpf_cnpj'] }}</small>
                         </div>
                     </div>
                 </div>
@@ -662,7 +662,7 @@
                             <x-forms.input-field wire:model="laboratorio.nome" name="laboratorio.nome"
                                 label="Laboratório" class="mb-2" required />
                             @error('laboratorio.nome')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-12 col-xl-6">
@@ -670,7 +670,7 @@
                                 name="laboratorio.responsavel_tecnico" label="Responsável Técnico" class="mb-2"
                                 required />
                             @error('laboratorio.responsavel_tecnico')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -680,14 +680,14 @@
                                 label="Telefone" class="telefone" maxlength="15"
                                 x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'" />
                             @error('laboratorio.telefone')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-12 col-sm-6">
                             <x-forms.input-field wire:model="laboratorio.email" name="laboratorio.email"
                                 type="email" label="E-mail" required />
                             @error('laboratorio.email')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -697,7 +697,7 @@
                                 label="CEP" class="cep" wire:blur="buscaCep('laboratorio')" maxlength="9"
                                 x-mask="99999-999" required />
                             @error('laboratorio.endereco.cep')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-12 col-sm-8">
@@ -705,7 +705,7 @@
                                 name="laboratorio.endereco.endereco" label="Endereço com número"
                                 placeholder="Ex. Av. Brasil, 1234" required />
                             @error('laboratorio.endereco.endereco')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-12 col-sm-6">
@@ -713,28 +713,28 @@
                                 name="laboratorio.endereco.complemento" label="Complemento"
                                 placeholder="Ex. Sala 101" />
                             @error('laboratorio.endereco.complemento')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-12 col-sm-6">
                             <x-forms.input-field wire:model="laboratorio.endereco.bairro"
                                 name="laboratorio.endereco.bairro" label="Bairro" required />
                             @error('laboratorio.endereco.bairro')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-12 col-sm-6">
                             <x-forms.input-field wire:model="laboratorio.endereco.cidade"
                                 name="laboratorio.endereco.cidade" label="Cidade" required />
                             @error('laboratorio.endereco.cidade')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-2">
                             <x-forms.input-field wire:model="laboratorio.endereco.uf" name="laboratorio.endereco.uf"
                                 label="UF" maxlength="2" style="text-transform: uppercase;" required />
                             @error('laboratorio.endereco.uf')
-                                <div class="text-warning">{{ $message }}</div>
+                                <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -745,7 +745,7 @@
                         {{ old('informacoes_inscricao') ?? null }}
                     </x-forms.input-textarea>
                     @error('informacoes_inscricao')
-                        <div class="text-warning">{{ $message }}</div>
+                        <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
                 <div>

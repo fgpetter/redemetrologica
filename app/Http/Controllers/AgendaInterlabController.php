@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pessoa;
 use App\Models\Interlab;
 use App\Models\Parametro;
+use App\Exports\LabExport;
 use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabRodada;
@@ -11,17 +13,17 @@ use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
+use App\Actions\FileUploadAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-use Illuminate\Http\RedirectResponse;
-use App\Models\InterlabRodadaParametro;
-use App\Models\Pessoa;
-use Illuminate\Support\Facades\Validator;
-use App\Exports\LabExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\RedirectResponse;
+use App\Models\AgendainterlabMaterial;
+use App\Models\InterlabRodadaParametro;
+use Illuminate\Support\Facades\Validator;
 
 
 class AgendaInterlabController extends Controller
@@ -32,36 +34,9 @@ class AgendaInterlabController extends Controller
    * @return View
    */
   public function index(Request $request): View
-{
-    // $sortDirection = $request->input('order', 'asc');
-    // $sortField     = $request->input('orderBy', 'data_inicio');
-    // $searchTerm    = $request->input('buscanome');
-
-    // $agenda_interlabs = AgendaInterlab::with('interlab')
-    //     ->withCount('inscritos')
-    //     ->when($searchTerm, function ($query) use ($searchTerm) {
-    //         $query->whereHas('interlab', function ($q) use ($searchTerm) {
-    //             $q->where('nome', 'LIKE', "%{$searchTerm}%");
-    //         });
-    //     })
-    //     ->when($sortField == 'nome', function ($query) use ($sortDirection) {
-    //         $query->join('interlabs', 'agenda_interlabs.interlab_id', '=', 'interlabs.id')
-    //               ->orderBy('interlabs.nome', $sortDirection)
-    //               ->select('agenda_interlabs.*');
-    //     })
-    //     ->when($sortField == 'inscritos', function ($query) use ($sortDirection) {
-    //         $query->orderBy('inscritos_count', $sortDirection);
-    //     })
-    //     ->when(in_array($sortField, ['status', 'data_inicio', 'data_fim']), function ($query) use ($sortField, $sortDirection) {
-    //         $query->orderBy("agenda_interlabs.{$sortField}", $sortDirection);
-    //     })
-    //     ->paginate(15);
-
+  {
     return view('painel.agenda-interlab.index');
-}
-
-
-
+  }
 
    /**
    * Tela de cadastro e ediçao de agenda de interlabs
@@ -340,13 +315,13 @@ class AgendaInterlabController extends Controller
     return back()->with('success', 'Material salvo com sucesso')->withFragment('despesas');
   }
 
-/**
- * Duplica despesa do agendamento de interlab removendo campos 
- * que não devem sere duplicados como id, uid, and timestamps.
- *
- * @param InterlabDespesa $despesa
- * @return \Illuminate\Http\RedirectResponse
- */
+  /**
+   * Duplica despesa do agendamento de interlab removendo campos 
+   * que não devem sere duplicados como id, uid, and timestamps.
+   *
+   * @param InterlabDespesa $despesa
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function duplicarDespesa(InterlabDespesa $despesa): RedirectResponse 
   {
     $despesa = collect($despesa)->forget(['id','uid', 'created_at', 'updated_at', 'deleted_at'])->toArray();
@@ -377,7 +352,6 @@ class AgendaInterlabController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-
   public function salvaRodada(Request $request): RedirectResponse
   {
     $validator = Validator::make($request->all(), 
@@ -604,6 +578,76 @@ class AgendaInterlabController extends Controller
   public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab)
   {
     return Excel::download(new LabExport($agendainterlab), 'inscritos-interlab-ID'.$agendainterlab->id.'.xlsx');
+  }
+
+  /**
+   * Adiciona materiais ao interlab
+   *
+   * @param Request $request
+   * @param AgendaInterlab $agendainterlab
+   * @return RedirectResponse
+   */
+  public function uploadMaterial(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
+  {
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'descricao' => ['nullable', 'string', 'max:190'],
+        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:5120'],
+      ],
+      [
+        'descricao.string' => 'O campo aceita somente texto.',
+        'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'arquivo.max' => 'O arquivo é muito grande, diminua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+        'arquivo.required' => 'Selecione um arquivo para enviar.',
+      ]
+    );
+
+    if ($validator->fails()) {
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) . '::' . __FUNCTION__,
+          'errors' => $validator->errors() ?? null,
+        ]
+      );
+
+      return back()
+        ->with('error', 'Houve um erro ao processar os dados, tente novamente')
+        ->withErrors($validator)
+        ->withInput();
+    }
+
+    if ($request->hasFile('arquivo')) {
+      $file_name = FileUploadAction::handle($request, 'arquivo', 'interlab-material');
+    }
+
+    $agendainterlab->materiais()->create([
+      'arquivo' => $file_name,
+      'descricao' => $request->descricao
+    ]);
+
+    return back()->with('success', 'Material adicionado com sucesso');
+  }
+
+  /**
+   * Remove materiais do interlab
+   *
+   * @param AgendainterlabMaterial $material
+   * @return RedirectResponse
+   */
+  public function deleteMaterial(AgendainterlabMaterial $material): RedirectResponse
+  {
+    if (File::exists(public_path('interlab-material/' . $material->arquivo))) {
+      File::delete(public_path('interlab-material/' . $material->arquivo));
+    }
+
+    $material->delete();
+
+    return redirect()->back()->with('success', 'Material removido');
   }
 
 }

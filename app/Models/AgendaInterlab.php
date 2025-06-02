@@ -76,4 +76,9 @@ class AgendaInterlab extends Model
         return $this->hasMany(InterlabInscrito::class, 'agenda_interlab_id', 'id');
     }
 
+    public function materiais(): HasMany
+    {
+        return $this->hasMany(AgendainterlabMaterial::class);
+    }
+
 }

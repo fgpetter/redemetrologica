@@ -77,6 +77,7 @@ class ConfirmInscricaoInterlab extends Component
                 'uf' => '',
             ]];
 
+
         $this->reset([ 'inscritoId', 'laboratorioId' ]);
     }
 
@@ -96,7 +97,7 @@ class ConfirmInscricaoInterlab extends Component
         ]);
 
         $cnpjLimpo = preg_replace('/[^0-9]/', '', $this->BuscaCnpj);
-
+        //carrega endereço de cobrança
         $empresa = Pessoa::with('enderecoCobranca')
             ->where('cpf_cnpj', $cnpjLimpo)
             ->where('tipo_pessoa', 'PJ')
@@ -104,11 +105,56 @@ class ConfirmInscricaoInterlab extends Component
 
         if ($empresa) {
             $this->empresa = $empresa->toArray();
+
+
+            if (empty($this->empresa['endereco_cobranca'])) {
+                // Se não tem endereço de cobrança, busca o endereço cadastrado
+                $empresa_end = Pessoa::with('enderecos')
+                    ->where('cpf_cnpj', $cnpjLimpo)
+                    ->where('tipo_pessoa', 'PJ')
+                    ->first();
+                // Se tem apenas 1 endereço cadastrado, usa ele como cobrança
+                if ($empresa_end && $empresa_end->enderecos->count() === 1) {
+                    $endereco = $empresa_end->enderecos->first();
+                    $this->empresa['endereco_cobranca'] = [
+                        'cep' => $endereco['cep'],
+                        'endereco' => $endereco['endereco'],
+                        'complemento' => $endereco['complemento'] ?? '',
+                        'bairro' => $endereco['bairro'],
+                        'cidade' => $endereco['cidade'],
+                        'uf' => $endereco['uf'],
+                        'email' => $this->empresa['email'] ?? '',
+                    ];
+                } else {
+                    // Se tem mais de 1 endereço cadastrado, deixa em branco
+                    $this->empresa['endereco_cobranca'] = [
+                        'cep' => '',
+                        'endereco' => '',
+                        'complemento' => '',
+                        'bairro' => '',
+                        'cidade' => '',
+                        'uf' => '',
+                        'email' => '',
+                    ];
+                }
+            }
         } else {
             $this->empresa = [
                 'cpf_cnpj' => $cnpjLimpo,
+                'telefone' => '',
+                'enderecos' => [],
+                'endereco_cobranca' => [
+                    'cep' => '',
+                    'endereco' => '',
+                    'complemento' => '',
+                    'bairro' => '',
+                    'cidade' => '',
+                    'uf' => '',
+                    'email' => '',
+                ],
             ];
         }
+
         $this->showSalvarEmpresa = true;
         $this->showInscreveLab = false;
         $this->BuscaCnpj = null;
@@ -171,6 +217,7 @@ class ConfirmInscricaoInterlab extends Component
 
         $empresa->update([
             'end_cobranca' => $enderecoCobranca->id,
+            'email_cobranca' => $enderecoCobranca->email, //registra na tabela de pessoas o email de cobrança
         ]);
         
         $this->empresa = $empresa->toArray();
