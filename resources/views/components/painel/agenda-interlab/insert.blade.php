@@ -65,12 +65,8 @@
             :agendainterlab="$agendainterlab"
             :intelabinscritos="$intelabinscritos"
             :interlabempresasinscritas="$interlabempresasinscritas" /> --}}
-            <livewire:interlab.list-participantes
-            :pessoas="$pessoas"
-            :agendainterlab="$agendainterlab"
-            :intelabinscritos="$intelabinscritos"
-            :interlabempresasinscritas="$interlabempresasinscritas"
-        />
+
+            <livewire:interlab.list-participantes :idinterlab="$idinterlab"/>
 
         </div>
       </div>

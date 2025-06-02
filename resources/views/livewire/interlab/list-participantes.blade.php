@@ -16,10 +16,11 @@
             <thead class="bg-light">
                 <tr>
                     <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp;
-                        {{ $empresa->empresa->nome_razao }} - CNPJ: {{ $empresa->empresa->cpf_cnpj }}</th>
+                        {{ $empresa->nome_razao }} - CNPJ: {{ $empresa->cpf_cnpj }}</th>
                 </tr>
             </thead>
-            @foreach ($intelabinscritos->where('empresa_id', $empresa->empresa_id) as $participante)
+
+            @foreach ($intelabinscritos->where('empresa_id', $empresa->id) as $participante)
                 <tr wire:key="participante-{{ $participante->id }}">
                     <td style="width: 1%; white-space: nowrap;">
                         <a data-bs-toggle="collapse" href="{{ '#collapse' . $participante->uid }}" role="button"
@@ -31,34 +32,37 @@
                     </td>
                     <td>
                         <b>Laboratório: </b>{{ $participante->laboratorio->nome }}
+                        {{-- UF E RT
                         <b><span
                                 style="font-size: smaller;">({{ $participante->laboratorio->endereco->uf ?? 'N/A' }})</span></b>
                         &nbsp;&nbsp;
-                        <b>RT: </b>{{ $participante->laboratorio->responsavel_tecnico }}
+                        <b>RT: </b>{{ $participante->laboratorio->responsavel_tecnico }} --}}
+
+                        &nbsp;&nbsp;
+                        <b>Inscrito por:</b>
+                        {{ $participante->pessoa->nome_razao }} - {{ $participante->pessoa->email }} <br>
                     </td>
                     <!-- ====== Célula de VALOR ====== -->
-                    <td>
-                        @if ($editandoValor === $participante->id)
-                            {{-- Se estivermos editando este participante, exibimos o <input> e botões --}}
-                            apareceu
-                            {{-- <input type="text" wire:model.defer="novoValor" class="form-control"
-                                placeholder="Digite o valor" />
+                    <td class="text-start"  style="width: 200px; white-space: nowrap;">
+                      @if ($editandoValor === $participante->id)
+                        <input type="number" wire:model.defer="novoValor" class="form-control form-control-sm"
+                          style="width: 100px; display: inline;" placeholder="Valor" />
 
-                            <button class="btn btn-success btn-sm mt-1"
-                                wire:click="atualizarValorParticipante({{ $participante->id }})">
-                                Salvar
-                            </button>
-                            <button class="btn btn-secondary btn-sm mt-1" wire:click="cancelarEdicao()">
-                                Cancelar
-                            </button> --}}
-                        @else
-                            {{-- Se não estivermos editando, mostramos o texto e um clique ativa o modo edição --}}
-                            <b>Valor: </b>
-                            <span wire:click="editarValorParticipante({{ $participante->id }})"
-                                style="cursor: pointer; color: #0d6efd;" title="Clique para editar">
-                                {{ $participante->valor !== null ? 'R$ ' . number_format($participante->valor, 2, ',', '.') : 'R$ 0,00' }}
-                            </span>
-                        @endif
+                        <button class="btn btn-success btn-sm ms-1" style="padding: 0.25rem 0.5rem;"
+                          wire:click="atualizarValorParticipante({{ $participante->id }})" title="Salvar">
+                          ✔
+                        </button>
+                        <button class="btn btn-warning btn-sm ms-1" style="padding: 0.25rem 0.5rem;"
+                          wire:click="cancelarEdicao()" title="Cancelar">
+                          ✖
+                        </button>
+                      @else
+                        <b>Valor: </b>
+                        <span wire:click="editarValorParticipante({{ $participante->id }})"
+                          style="cursor: pointer; color: #0d6efd;" title="Clique para editar">
+                          {{ $participante->valor !== null ? 'R$ ' . number_format($participante->valor, 2, ',', '.') : 'R$ 0,00' }}
+                        </span>
+                      @endif
                     </td>
                     <!-- ====== FIM da Célula de VALOR ====== -->
                     <td style="width: 1%; white-space: nowrap;">
@@ -119,7 +123,7 @@
                 <tr>
                     <td colspan="2"><strong>Qtd Inscritos:</strong> {{ $intelabinscritos->count() }} </td>
                     </td>
-                    <td><strong>Valor total:</strong> {{ $intelabinscritos->sum('valor') }} </td>
+                    <td><strong>Valor total:</strong> R$ {{ number_format($intelabinscritos->sum('valor'), 2, ',', '.') }} </td>
                     <td></td>
                 </tr>
             </tfoot>

@@ -24,6 +24,7 @@
                 :rodadas="$rodadas"
                 :intelabinscritos="$intelabinscritos"
                 :interlabempresasinscritas="$interlabempresasinscritas"
+                :idinterlab="$idinterlab"
             />
         </div>
     </div>

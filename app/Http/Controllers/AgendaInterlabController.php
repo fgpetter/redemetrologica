@@ -88,6 +88,7 @@ class AgendaInterlabController extends Controller
       'rodadas' => $agendainterlab->rodadas,
       'intelabinscritos' => $intelabinscritos->get(),
       'interlabempresasinscritas' => $intelabinscritos->distinct()->get(['empresa_id']),
+      'idinterlab' => $agendainterlab->id, // id da agenda para uso no componente Livewire ListParticipantes
     ];
 
     return view('painel.agenda-interlab.insert', $data);
