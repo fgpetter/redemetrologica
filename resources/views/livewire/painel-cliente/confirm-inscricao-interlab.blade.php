@@ -21,11 +21,11 @@
             @foreach ($empresas_inscritas as $empresa_inscrita)
                 <div class="card mb-3" wire:key="empresa-{{ $empresa_inscrita->id }}">
                     @if ($empresaEditadaId !== $empresa_inscrita->id)
-                        <div class="card-header bg-light" style="min-height: 60px;">
+                        <div class="card-header bg-primary text-white" style="min-height: 60px;">
                             <div class="d-flex justify-content-between align-items-center h-100">
                                 <div>
                                     <strong>{{ $empresa_inscrita->nome_razao }}</strong>
-                                    <small class="text-muted ms-2">CNPJ: {{ $empresa_inscrita->cpf_cnpj }}</small>
+                                    <small class=" ms-2">- CNPJ: {{ $empresa_inscrita->cpf_cnpj }}</small>
                                 </div>
                                 <!-- Botão de editar empresa -->
                                 @if (
@@ -35,7 +35,7 @@
                                         $laboratorioEditadoId === null &&
                                         $novaInscricaoEmpresaId === null)
                                     <div>
-                                        <button class="btn btn-sm btn-outline-primary me-2"
+                                        <button class="btn btn-sm btn-outline-light me-2"
                                             wire:click.prevent="{{ $empresaEditadaId === $empresa_inscrita->id
                                                 ? '$set(\'empresaEditadaId\', null)'
                                                 : 'editEmpresa(' . $empresa_inscrita->id . ')' }}">
@@ -643,10 +643,11 @@
         <form wire:submit.prevent="InscreveLab" id="confirma-inscricao-interlab" class="mt-4"
             id="form-inscreve-lab">
             <div class="card mb-3">
-                <div class="card-header bg-light" style="min-height: 60px;">
-                    <div class="d-flex justify-content-between align-items-center h-100">
+                <div class="card-header bg-primary" style="min-height: 60px;">
+                    <div class="d-flex text-white justify-content-between align-items-center h-100">
                         <div>
                             <strong>{{ $empresa['nome_razao'] }}</strong>
+
                             <small class="text-muted ms-2">CNPJ: {{ $empresa['cpf_cnpj'] }}</small>
                         </div>
                     </div>
