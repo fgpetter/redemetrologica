@@ -393,6 +393,9 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
     Route::get('areceber/index', [LancamentoFinanceiroController::class, 'areceber'])->name('a-receber-index');
 
+    Route::get('lancamento/export/{mes}/{ano}', [LancamentoFinanceiroController::class, 'exportLancamentosMes'])
+      ->name('financeiro-export-mes');
+
   });
 
 
