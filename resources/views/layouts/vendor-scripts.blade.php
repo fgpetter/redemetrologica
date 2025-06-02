@@ -6,6 +6,8 @@
 <script src="{{ URL::asset('build/js/jquery-3.7.1.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/jquery.mask.min.js') }}"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
+{{-- Driver.js --}}
+<script src="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.js.iife.js"></script>
 
 @if( !in_array(\Request::getRequestUri(), ['/register', '/login', '/forgot-password']) )
 <script src="{{ URL::asset('build/libs/simplebar/simplebar.min.js') }}"></script>

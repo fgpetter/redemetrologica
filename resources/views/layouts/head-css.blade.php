@@ -13,4 +13,6 @@
 <link rel="stylesheet" href="{{ URL::asset('build/css/app.min.css') }}" type="text/css" />
 <!-- custom Css-->
 <link rel="stylesheet" href="{{ URL::asset('build/css/custom.min.css') }}" type="text/css" />
+{{-- Driver.JS --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.css"/>
 

@@ -16,7 +16,7 @@
                 <p class="mb-2 text-black fs-6 fs-sm-5">{!! nl2br($interlab->instrucoes_inscricao) !!}</p>
             </blockquote>
         @endif
-        <div class="mb-5 border p-3 rounded">
+        <div class="mb-5 border p-3 rounded" id="step-4">
             <h5 class="mb-3 text-primary">Laboratórios Inscritos:</h5>
             @foreach ($empresas_inscritas as $empresa_inscrita)
                 <div class="card mb-3" wire:key="empresa-{{ $empresa_inscrita->id }}">
@@ -341,7 +341,7 @@
                                     $laboratorioEditadoId === null &&
                                     $novaInscricaoEmpresaId === null)
                                 <div class="mt-3 text-end">
-                                    <button class="btn btn-sm btn-success"
+                                    <button class="btn btn-sm btn-success" id="step-5"
                                         wire:click.prevent="novoLaboratorio({{ $empresa_inscrita->id }})">
                                         <i class="ri-add-line"></i> Adicionar Novo Laboratório
                                     </button>
@@ -506,14 +506,14 @@
             $novaInscricaoEmpresaId === null)
         <div class="card px-3 py-3 border">
             <div class="row">
-                <div class="col-md-6 border-end pe-3">
+                <div class="col-md-6 border-end pe-3" id="step-6">
                     <h5>{{ $empresas_inscritas && $empresas_inscritas->isNotEmpty()
                         ? 'Informe outro CNPJ caso queira cadastrar outra empresa para cobrança'
                         : 'Informe o CNPJ para continuar' }}
                     </h5>
                     <p>Para prosseguir com a inscrição, é necessário informar um CNPJ para envio de nota Fiscal e
                         Cobrança</p>
-                    <div class="input-group">
+                    <div class="input-group" id="step-1">
                         <input type="text" id="cnpj" wire:model="BuscaCnpj" class="form-control"
                             placeholder="CNPJ">
                         <button type="button" wire:click="ProcuraCnpj" class="btn btn-primary">Buscar</button>
@@ -523,7 +523,8 @@
                     @enderror
                 </div>
                 <div class="col-md-6 d-flex justify-content-end align-items-end">
-                    <button class="btn btn-warning" wire:click="encerrarInscricoes">ENCERRAR INSCRIÇÕES</button>
+                    <button class="btn btn-warning" wire:click="encerrarInscricoes" id="step-7"> ENCERRAR
+                        INSCRIÇÕES</button>
                 </div>
             </div>
         </div>
@@ -540,7 +541,7 @@
         @endif
 
         <form wire:submit.prevent="salvarEmpresa" class="mt-4">
-            <div class="card border overflow-hidden card-border-dark shadow-none">
+            <div class="card border overflow-hidden card-border-dark shadow-none" id="step-2">
                 <div class="card-header">
                     <h6 class="card-title mb-0">Complete os dados abaixo para emissão e envio de NF</h6>
                 </div>
@@ -629,7 +630,6 @@
             </div>
         </form>
     @endif
-
     <!-- Formulário de edição/cadastro de laboratório -->
     @if ($showInscreveLab)
         @if (!$empresas_inscritas || $empresas_inscritas->isEmpty())
@@ -640,19 +640,21 @@
                 </blockquote>
             @endif
         @endif
-        <form wire:submit.prevent="InscreveLab" id="confirma-inscricao-interlab" class="mt-4">
+        <form wire:submit.prevent="InscreveLab" id="confirma-inscricao-interlab" class="mt-4"
+            id="form-inscreve-lab">
             <div class="card mb-3">
                 <div class="card-header bg-primary" style="min-height: 60px;">
                     <div class="d-flex text-white justify-content-between align-items-center h-100">
                         <div>
                             <strong>{{ $empresa['nome_razao'] }}</strong>
-                            <small class=" ms-2">- CNPJ: {{ $empresa['cpf_cnpj'] }}</small>
+
+                            <small class="text-muted ms-2">CNPJ: {{ $empresa['cpf_cnpj'] }}</small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card border overflow-hidden card-border-dark shadow-none">
+            <div class="card border overflow-hidden card-border-dark shadow-none" id="step-3">
                 <div class="card-header">
                     <h6 class="card-title mb-0">Informe os dados do Laboratório para envio de amostras:</h6>
                 </div>
@@ -760,6 +762,200 @@
                     </div>
                 </div>
             </div>
+
         </form>
     @endif
 </div>
+<script>
+    // Função para centralizar conteudo do step-3 antes do driver.js iniciar o tour evitando de bugar o local do popup.
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ajuste esse seletor para o wrapper principal onde o Livewire injeta o passo 4
+        const wrapper = document.querySelector('#form-inscreve-lab') || document.body;
+
+        const observer = new MutationObserver((mutations, obs) => {
+            const el = document.getElementById('step-3');
+            if (!el) return;
+
+            // Encontrou: centraliza e para de observar
+            const rect = el.getBoundingClientRect();
+            const elTop = window.pageYOffset + rect.top;
+            const targetY = elTop - (window.innerHeight / 2) + (rect.height / 2);
+
+            window.scrollTo({
+                top: targetY,
+                behavior: 'smooth'
+            });
+            obs.disconnect();
+        });
+
+        observer.observe(wrapper, {
+            childList: true,
+            subtree: true
+        });
+    });
+
+    // script com passos do driver.js
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('tourDone') === 'true') return;
+
+
+        const createDriver = window.driver.js.driver;
+
+        function createDriver1() {
+            return createDriver({
+                steps: [{
+                    element: '#step-1',
+                    popover: {
+                        title: 'CNPJ da Empresa',
+                        description: 'Informe o CNPJ corretamente.',
+                        side: 'top',
+                        // align: 'auto',
+                    }
+                }],
+                showButtons: [close],
+                allowClose: true,
+
+            });
+        }
+
+        function createDriver2() {
+            return createDriver({
+                steps: [{
+                    element: '#step-2',
+                    popover: {
+                        title: 'Salvar empresa',
+                        description: 'Preencha os dados para inscrição no laboratório.',
+                        side: 'top',
+                        // align: 'auto',
+                    }
+                }],
+                showButtons: [close],
+            });
+        }
+
+        function createDriver3() {
+            return createDriver({
+                steps: [{
+                    element: '#step-3',
+                    popover: {
+                        title: 'Salvar laboratório',
+                        description: 'Preencha os dados para inscrição no laboratório.',
+                        side: 'top',
+                        // align: 'auto',
+                    }
+                }],
+                showButtons: [close],
+            });
+        }
+
+
+        function createDriver4() {
+            const driver = window.driver.js.driver({
+                steps: [{
+                        element: '#step-4',
+                        popover: {
+                            title: 'Conferir inscrição',
+                            description: 'Aqui você pode conferir as inscrições feitas e editar os dados da empresa e dos laboratórios.',
+                            side: 'top',
+                            align: 'start',
+                        }
+                    },
+                    {
+                        element: '#step-5',
+                        popover: {
+                            title: 'Adicionar novo laboratório',
+                            description: 'Aqui você pode adicionar um novo laboratório à inscrição.',
+                            side: 'top',
+                            align: 'start',
+                        }
+                    },
+                    {
+                        element: '#step-6',
+                        popover: {
+                            title: 'Incluir nova empresa',
+                            description: 'Aqui você pode cadastrar uma nova empresa para a inscrição.',
+                            side: 'top',
+                            align: 'start',
+                        }
+                    },
+                    {
+                        element: '#step-7',
+                        popover: {
+                            title: 'Encerrar inscrições',
+                            description: 'Clique aqui quando desejar encerrar as inscrições.',
+                            side: 'top',
+                            align: 'start',
+                        }
+                    }
+                ],
+                showButtons: ['next', 'prev'],
+                nextBtnText: '→',
+                prevBtnText: '←',
+                doneBtnText: 'Fechar',
+                allowClose: false,
+                onDestroyStarted: () => {
+                    // Marca no localStorage que o tour já foi visto
+                    localStorage.setItem('tourDone', 'true');
+                    driver.destroy();
+                }
+            });
+
+
+            return driver;
+        }
+
+
+
+
+        // Escutando os eventos Livewire emitidos
+        window.addEventListener('start-tour-1', () => {
+            const driver1 = createDriver1();
+
+            // Função para destruir o tour ao clicar
+            const handleClick = () => {
+                driver1.destroy();
+                document.removeEventListener('click', handleClick);
+            };
+
+            setTimeout(() => {
+                driver1.drive();
+                document.addEventListener('click', handleClick);
+            }, 500); // Atraso de 500ms para garantir que o DOM esteja pronto
+        });
+
+        window.addEventListener('start-tour-2', () => {
+            const driver2 = createDriver2();
+
+            const handleClick = () => {
+                driver2.destroy();
+                document.removeEventListener('click', handleClick);
+            };
+
+            setTimeout(() => {
+                driver2.drive();
+                document.addEventListener('click', handleClick);
+            }, 500);
+        });
+
+        window.addEventListener('start-tour-3', () => {
+            const driver3 = createDriver3();
+
+            const handleClick = () => {
+                driver3.destroy();
+                document.removeEventListener('click', handleClick);
+            };
+
+            setTimeout(() => {
+                driver3.drive();
+                document.addEventListener('click', handleClick);
+            }, 500);
+        });
+
+        window.addEventListener('start-tour-4', () => {
+            const driver = createDriver4();
+            setTimeout(() => driver.drive(), 200);
+
+        });
+
+    });
+</script>
