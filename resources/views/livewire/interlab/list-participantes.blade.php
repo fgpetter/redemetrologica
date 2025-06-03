@@ -31,16 +31,15 @@
                             style="font-size: smaller;">{{ Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}</span>
                     </td>
                     <td>
-                        <b>Laboratório: </b>{{ $participante->laboratorio->nome }}
-                        {{-- UF E RT
-                        <b><span
-                                style="font-size: smaller;">({{ $participante->laboratorio->endereco->uf ?? 'N/A' }})</span></b>
-                        &nbsp;&nbsp;
-                        <b>RT: </b>{{ $participante->laboratorio->responsavel_tecnico }} --}}
-
-                        &nbsp;&nbsp;
-                        <b>Inscrito por:</b>
-                        {{ $participante->pessoa->nome_razao }} - {{ $participante->pessoa->email }} <br>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <div class="me-3">
+                                <b>Laboratório: </b>{{ $participante->laboratorio->nome }}
+                            </div>
+                            <div class="flex-grow-1 ">
+                                <b>Inscrito por:</b>
+                                {{ $participante->pessoa->nome_razao }} - {{ $participante->pessoa->email }}
+                            </div>
+                        </div>
                     </td>
                     <!-- ====== Célula de VALOR ====== -->
                     <td class="text-start"  style="width: 200px; white-space: nowrap;">
