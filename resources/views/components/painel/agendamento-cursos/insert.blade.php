@@ -10,11 +10,13 @@
     </li>
     
     @if($agendacurso->id)
+    @if ($tipoagenda == 'ABERTO' || $agendacurso?->empresa_id)
       <li class="nav-item">
         <a class="nav-link" data-bs-toggle="tab" href="#participantes" role="tab" aria-selected="false">
           Participantes
         </a>
       </li>
+      @endif
 
       <li class="nav-item">
         <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
