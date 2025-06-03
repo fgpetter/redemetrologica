@@ -1,4 +1,5 @@
 <div class="modal fade" id="{{ 'participanteModal'.$participante->uid }}" 
+  wire:key="modal-{{ $participante->id }}-valor-{{ $participante->valor }}" 
   tabindex="-1" aria-labelledby="participanteModalLabel" >
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
