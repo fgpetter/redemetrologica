@@ -10,20 +10,13 @@ use Illuminate\Support\Facades\Validator;
 
 class ListParticipantes extends Component
 {
-
-
     public $idinterlab;
-
-
     public $pessoas;
     public $agendainterlab;
     public $intelabinscritos;
     public $interlabempresasinscritas;
 
 
-    /**
-     * mount recebe  id do interlab e faz todo o carregamento.
-     */
     public function mount(int $idinterlab)
     {
         $this->idinterlab = $idinterlab;
@@ -59,21 +52,20 @@ class ListParticipantes extends Component
     }
 
 
-
     public function atualizarValor($id, $valor)
     {
         Validator::make(
             ['id' => $id, 'valor' => $valor],
             [
-            'id'    => ['required', 'exists:interlab_inscritos,id'],
-            'valor' => ['required', 'numeric', 'min:0'],
+                'id'    => ['required', 'exists:interlab_inscritos,id'],
+                'valor' => ['required', 'numeric', 'min:0'],
             ],
             [
-            'id.required'    => 'O ID é obrigatório.',
-            'id.exists'      => 'Participante não encontrado.',
-            'valor.required' => 'O valor é obrigatório.',
-            'valor.numeric'  => 'O valor deve ser numérico.',
-            'valor.min'      => 'O valor deve ser maior ou igual a zero.',
+                'id.required'    => 'O ID é obrigatório.',
+                'id.exists'      => 'Participante não encontrado.',
+                'valor.required' => 'O valor é obrigatório.',
+                'valor.numeric'  => 'O valor deve ser numérico.',
+                'valor.min'      => 'O valor deve ser maior ou igual a zero.',
             ]
         )->validate();
 
@@ -81,11 +73,11 @@ class ListParticipantes extends Component
         $participante->valor = $valor;
         $participante->save();
 
-        if ($item = $this->intelabinscritos->firstWhere('id', $id)) {
-            $item->valor = $valor;
-        }
+        // 2) Recarrega toda a coleção, forçando o Livewire a re-renderizar
+        $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
+            ->with(['empresa', 'pessoa', 'laboratorio'])
+            ->get();
     }
-
 
     public function render()
     {

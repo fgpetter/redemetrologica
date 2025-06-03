@@ -21,14 +21,16 @@
             </thead>
 
             @foreach ($intelabinscritos->where('empresa_id', $empresa->id) as $participante)
-                <tr wire:key="participante-{{ $participante->id }}">
+                <tr wire:key="participante-{{ $participante->id }}-valor-{{ $participante->valor }}">
+
                     <td style="width: 1%; white-space: nowrap;">
                         <a data-bs-toggle="collapse" href="{{ '#collapse' . $participante->uid }}" role="button"
                             aria-expanded="false" aria-controls="collapseExample">
                             <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
                         </a>
-                        <span
-                            style="font-size: smaller;">{{ Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}</span>
+                        <span style="font-size: smaller;">
+                            {{ \Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}
+                        </span>
                     </td>
                     <td>
                         <div class="d-flex flex-wrap align-items-center">
@@ -41,6 +43,7 @@
                             </div>
                         </div>
                     </td>
+
                     <!-- ====== Célula de VALOR ====== -->
                     <td class="text-start" style="width: 200px; white-space: nowrap;">
                         <template x-if="editandoId !== {{ $participante->id }}">
@@ -49,11 +52,19 @@
                             </span>
                         </template>
                         <template x-if="editandoId === {{ $participante->id }}">
-                            <div class="d-flex align-items-center" x-data="{ valor: '{{ $participante->valor }}' }">
-                                <input type="number" x-model="valor" class="form-control form-control-sm" style="width: 100px;"
-                                    @keydown.enter.prevent="$wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor)); editandoId = null;">
+                            <div class="d-flex align-items-center" x-data="{ valor: '{{ $participante->valor }}' }"
+                                x-bind:key="'participante-valor-{{ $participante->id }}-{{ $participante->valor }}'">
+                                <input type="number" x-model="valor" class="form-control form-control-sm"
+                                    style="width: 100px;"
+                                    @keydown.enter.prevent="
+                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
+                                        editandoId = null;
+                                    ">
                                 <button class="btn btn-success btn-sm ms-1"
-                                    @click="$wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor)); editandoId = null;">
+                                    @click="
+                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
+                                        editandoId = null;
+                                    ">
                                     ✔
                                 </button>
                                 <button class="btn btn-warning btn-sm ms-1" @click="editandoId = null">
@@ -63,6 +74,7 @@
                         </template>
                     </td>
                     <!-- ====== FIM da Célula de VALOR ====== -->
+
                     <td style="width: 1%; white-space: nowrap;">
                         <div class="dropdown">
                             <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -73,7 +85,9 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                                 <li>
                                     <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                        data-bs-target="{{ '#participanteModal' . $participante->uid }}">Editar</a>
+                                        data-bs-target="{{ '#participanteModal' . $participante->uid }}">
+                                        Editar
+                                    </a>
                                 </li>
                                 <li>
                                     <x-painel.form-delete.delete route='cancela-inscricao-interlab'
@@ -82,8 +96,8 @@
                             </ul>
                         </div>
                     </td>
-
                 </tr>
+
                 <tr>
                     <td colspan="5" class="p-0">
                         <div class="collapse" id="{{ 'collapse' . $participante->uid }}">
@@ -91,24 +105,26 @@
                                 <div class="col-6 text-wrap">
                                     <b>Inscrito por:</b>
                                     {{ $participante->pessoa->nome_razao }} <br>
-                                    <b>Informacoes:</b> {{ $participante->informacoes_inscricao }}
+                                    <b>Informações:</b> {{ $participante->informacoes_inscricao }}
                                 </div>
                                 <div class="col-6 text-wrap">
                                     <b>Responsável técnico:</b> {{ $participante->laboratorio->responsavel_tecnico }}
                                     <br>
                                     <b>Telefone:</b> {{ $participante->laboratorio->telefone }} <b>Email:</b>
                                     {{ $participante->laboratorio->email }}<br>
-                                    <b>Endereço:</b> {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
-                                    {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }}, Bairro:
-                                    {{ $participante->laboratorio->endereco->bairro ?? 'N/A' }} <br>
-                                    Cidade: {{ $participante->laboratorio->endereco->cidade ?? 'N/A' }} /
-                                    {{ $participante->laboratorio->endereco->uf ?? 'N/A' }},
-                                    CEP: {{ $participante->laboratorio->endereco->cep ?? 'N/A' }}
+                                    <b>Endereço:</b>
+                                    {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
+                                    {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }},
+                                    Bairro: {{ $participante->laboratorio->endereco->bairro ?? 'N/A' }} <br>
+                                    Cidade: {{ $participante->laboratorio->endereco->cidade ?? 'N/A' }}
+                                    / {{ $participante->laboratorio->endereco->uf ?? 'N/A' }}, CEP:
+                                    {{ $participante->laboratorio->endereco->cep ?? 'N/A' }}
                                 </div>
                             </div>
                         </div>
                     </td>
                 </tr>
+
                 <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" />
             @endforeach
         @empty
@@ -116,18 +132,21 @@
                 <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>
             </tr>
         @endforelse
+
         @if ($intelabinscritos->count() > 0)
             <tfoot>
                 <tr>
-                    <td colspan="2"><strong>Qtd Inscritos:</strong> {{ $intelabinscritos->count() }} </td>
+                    <td colspan="2"><strong>Qtd Inscritos:</strong> {{ $intelabinscritos->count() }}</td>
+                    <td>
+                        <strong>Valor total:</strong>
+                        R$ {{ number_format($intelabinscritos->sum('valor'), 2, ',', '.') }}
                     </td>
-                    <td><strong>Valor total:</strong> R$ {{ number_format($intelabinscritos->sum('valor'), 2, ',', '.') }} </td>
                     <td></td>
                 </tr>
             </tfoot>
         @endif
     </table>
 
+    {{-- Botão/modal de adicionar novo inscrito --}}
     <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
-
 </div>
