@@ -2,10 +2,11 @@
 
 namespace App\Livewire\Interlab;
 
+use App\Models\Pessoa;
 use Livewire\Component;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabInscrito;
-use App\Models\Pessoa;
+use Illuminate\Support\Facades\Validator;
 
 class ListParticipantes extends Component
 {
@@ -20,11 +21,8 @@ class ListParticipantes extends Component
     public $interlabempresasinscritas;
 
 
-    public $editandoValor = null;
-    public $novoValor;
-
     /**
-     * mount recebe  id e faz todo o carregamento.
+     * mount recebe  id do interlab e faz todo o carregamento.
      */
     public function mount(int $idinterlab)
     {
@@ -60,41 +58,34 @@ class ListParticipantes extends Component
             ->get();
     }
 
-    public function editarValorParticipante($participanteId)
+
+
+    public function atualizarValor($id, $valor)
     {
-        $this->editandoValor = $participanteId;
-        $participante = InterlabInscrito::findOrFail($participanteId);
-        $this->novoValor = $participante->valor;
-    }
+        Validator::make(
+            ['id' => $id, 'valor' => $valor],
+            [
+            'id'    => ['required', 'exists:interlab_inscritos,id'],
+            'valor' => ['required', 'numeric', 'min:0'],
+            ],
+            [
+            'id.required'    => 'O ID é obrigatório.',
+            'id.exists'      => 'Participante não encontrado.',
+            'valor.required' => 'O valor é obrigatório.',
+            'valor.numeric'  => 'O valor deve ser numérico.',
+            'valor.min'      => 'O valor deve ser maior ou igual a zero.',
+            ]
+        )->validate();
 
+        $participante = InterlabInscrito::findOrFail($id);
+        $participante->valor = $valor;
+        $participante->save();
 
-    public function atualizarValorParticipante($participanteId)
-    {
-        $this->validate([
-            'novoValor' => ['required', 'numeric', 'min:0'],
-        ], [
-            'novoValor.required' => 'O valor é obrigatório.',
-            'novoValor.numeric'  => 'O valor deve ser numérico.',
-            'novoValor.min'      => 'O valor deve ser maior ou igual a zero.',
-        ]);
-
-        $participante = InterlabInscrito::findOrFail($participanteId);
-        $participante->update(['valor' => $this->novoValor]);
-
-        $itemNaColecao = $this->intelabinscritos->firstWhere('id', $participanteId);
-        if ($itemNaColecao) {
-            $itemNaColecao->valor = $this->novoValor;
+        if ($item = $this->intelabinscritos->firstWhere('id', $id)) {
+            $item->valor = $valor;
         }
-
-        $this->editandoValor = null;
-        $this->novoValor     = null;
     }
 
-    public function cancelarEdicao()
-    {
-        $this->editandoValor = null;
-        $this->novoValor     = null;
-    }
 
     public function render()
     {

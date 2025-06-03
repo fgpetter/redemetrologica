@@ -42,26 +42,32 @@
                         </div>
                     </td>
                     <!-- ====== Célula de VALOR ====== -->
-                    <td class="text-start"  style="width: 200px; white-space: nowrap;">
-                      @if ($editandoValor === $participante->id)
-                        <input type="number" wire:model.defer="novoValor" class="form-control form-control-sm"
-                          style="width: 100px; display: inline;" placeholder="Valor" />
-
-                        <button class="btn btn-success btn-sm ms-1" style="padding: 0.25rem 0.5rem;"
-                          wire:click="atualizarValorParticipante({{ $participante->id }})" title="Salvar">
-                          ✔
-                        </button>
-                        <button class="btn btn-warning btn-sm ms-1" style="padding: 0.25rem 0.5rem;"
-                          wire:click="cancelarEdicao()" title="Cancelar">
-                          ✖
-                        </button>
-                      @else
-                        <b>Valor: </b>
-                        <span wire:click="editarValorParticipante({{ $participante->id }})"
-                          style="cursor: pointer; color: #0d6efd;" title="Clique para editar">
-                          {{ $participante->valor !== null ? 'R$ ' . number_format($participante->valor, 2, ',', '.') : 'R$ 0,00' }}
-                        </span>
-                      @endif
+                    <td class="text-start" style="width: 200px; white-space: nowrap;" x-data="{ editando: false, valor: '{{ $participante->valor }}' }">
+                        <template x-if="!editando">
+                            <span @click="editando = true" style="cursor: pointer; color: #000;">
+                                <b>Valor:</b> R$ {{ number_format($participante->valor ?? 0, 2, ',', '.') }}
+                            </span>
+                        </template>
+                    
+                        <template x-if="editando">
+                            <div class="d-flex align-items-center">
+                                <input type="number" x-model="valor" class="form-control form-control-sm" style="width: 100px;"
+                                    @keydown.enter.prevent="
+                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
+                                        editando = false;
+                                    ">
+                                <button class="btn btn-success btn-sm ms-1"
+                                    @click="
+                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
+                                        editando = false;
+                                    ">
+                                    ✔
+                                </button>
+                                <button class="btn btn-warning btn-sm ms-1" @click="editando = false">
+                                    ✖
+                                </button>
+                            </div>
+                        </template>
                     </td>
                     <!-- ====== FIM da Célula de VALOR ====== -->
                     <td style="width: 1%; white-space: nowrap;">
