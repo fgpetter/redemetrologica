@@ -74,9 +74,13 @@ class ListParticipantes extends Component
         $participante->save();
 
         // 2) Recarrega toda a coleção, forçando o Livewire a re-renderizar
-        $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-            ->with(['empresa', 'pessoa', 'laboratorio'])
-            ->get();
+        // $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
+        //     ->with(['empresa', 'pessoa', 'laboratorio'])
+        //     ->get();
+
+        if ($item = $this->intelabinscritos->firstWhere('id', $id)) {
+            $item->valor = $valor;
+        }
     }
 
     public function render()
