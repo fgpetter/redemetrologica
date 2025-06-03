@@ -9,7 +9,7 @@
     </div>
 @endif
 
-<div class="table-responsive" style="min-height: 180px">
+<div class="table-responsive" style="min-height: 180px" x-data="{ editandoId: null }">
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         @forelse ($interlabempresasinscritas as $empresa)
 
@@ -42,28 +42,21 @@
                         </div>
                     </td>
                     <!-- ====== Célula de VALOR ====== -->
-                    <td class="text-start" style="width: 200px; white-space: nowrap;" x-data="{ editando: false, valor: '{{ $participante->valor }}' }">
-                        <template x-if="!editando">
-                            <span @click="editando = true" style="cursor: pointer; color: #000;">
+                    <td class="text-start" style="width: 200px; white-space: nowrap;">
+                        <template x-if="editandoId !== {{ $participante->id }}">
+                            <span @click="editandoId = {{ $participante->id }}" style="cursor: pointer; color: #000;">
                                 <b>Valor:</b> R$ {{ number_format($participante->valor ?? 0, 2, ',', '.') }}
                             </span>
                         </template>
-                    
-                        <template x-if="editando">
-                            <div class="d-flex align-items-center">
+                        <template x-if="editandoId === {{ $participante->id }}">
+                            <div class="d-flex align-items-center" x-data="{ valor: '{{ $participante->valor }}' }">
                                 <input type="number" x-model="valor" class="form-control form-control-sm" style="width: 100px;"
-                                    @keydown.enter.prevent="
-                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
-                                        editando = false;
-                                    ">
+                                    @keydown.enter.prevent="$wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor)); editandoId = null;">
                                 <button class="btn btn-success btn-sm ms-1"
-                                    @click="
-                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
-                                        editando = false;
-                                    ">
+                                    @click="$wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor)); editandoId = null;">
                                     ✔
                                 </button>
-                                <button class="btn btn-warning btn-sm ms-1" @click="editando = false">
+                                <button class="btn btn-warning btn-sm ms-1" @click="editandoId = null">
                                     ✖
                                 </button>
                             </div>
