@@ -1,6 +1,5 @@
 <div class="modal fade" id="{{ 'participanteModal'.$participante->uid }}" 
-  wire:key="modal-{{ $participante->id }}-valor-{{ $participante->valor }}" 
-  tabindex="-1" aria-labelledby="participanteModalLabel" >
+  tabindex="-1" aria-labelledby="participanteModalLabel">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -52,13 +51,14 @@
         </div>
 
         <div class="row">
-          <form method="POST" action="{{ route('salvar-inscrito-interlab', $participante->uid) }}">
+          <form method="POST" action="{{ route('salvar-inscrito-interlab', $participante->uid) }}" id="form-{{ $participante->uid }}">
             @csrf
             <input type="hidden" name="agenda_interlab_id" value="{{ $agendainterlab->id }}">
             <div class="row">
 
               <div class="col-4 py-2">
-                <x-forms.input-field name="valor" label="Valor" class="money" :value="old('valor') ?? ($participante->valor ?? null)"/>
+                <label for="valor-{{ $participante->uid }}" class="form-label">Valor</label>
+                <input type="text" name="valor"  id="valor-{{ $participante->uid }}"  class="form-control money" value="{{ old('valor') ?? (isset($participante->valor) ? number_format($participante->valor, 2, ',', '') : null) }}">
                 @error('valor') <span class="invalid-feedback" role="alert">{{ $message }}</span> @enderror
               </div>
 
