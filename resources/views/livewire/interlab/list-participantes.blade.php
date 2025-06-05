@@ -44,36 +44,48 @@
                         </div>
                     </td>
 
-                    <!-- ====== Célula de VALOR ====== -->
-                    <td class="text-start" style="width: 200px; white-space: nowrap;">
+                    {{-- ====== Célula de VALOR (otimizada p/ atualização instantânea) ====== --}}
+                    <td class="text-start" style="width: 200px; white-space: nowrap;" 
+                        x-data="{
+                        valorLocal: {{ $participante->valor ?? 0 }},
+                        participanteId: {{ $participante->id }},
+                        formatarValor(valor) {
+                            let numero = Number(valor).toFixed(2);
+                            return numero.replace('.', ',');
+                        }
+                    }">
                         <template x-if="editandoId !== {{ $participante->id }}">
                             <span @click="editandoId = {{ $participante->id }}" style="cursor: pointer; color: #000;">
-                                <b>Valor:</b> R$ {{ number_format($participante->valor ?? 0, 2, ',', '.') }}
+                                <b>Valor:</b> R$ <span x-text="formatarValor(valorLocal)"></span>
                             </span>
                         </template>
                         <template x-if="editandoId === {{ $participante->id }}">
-                            <div class="d-flex align-items-center" x-data="{ valor: '{{ $participante->valor }}' }"
-                                x-bind:key="'participante-valor-{{ $participante->id }}-{{ $participante->valor }}'">
-                                <input type="number" x-model="valor" class="form-control form-control-sm"
+                            <div class="d-flex align-items-center">
+                                <input type="number" x-model.number="valorLocal" class="form-control form-control-sm"
                                     style="width: 100px;"
                                     @keydown.enter.prevent="
-                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
+                                        $wire.call('atualizarValor', participanteId, valorLocal);
                                         editandoId = null;
                                     ">
                                 <button class="btn btn-success btn-sm ms-1"
                                     @click="
-                                        $wire.call('atualizarValor', {{ $participante->id }}, parseFloat(valor));
+                                        $wire.call('atualizarValor', participanteId, valorLocal);
                                         editandoId = null;
                                     ">
                                     ✔
                                 </button>
-                                <button class="btn btn-warning btn-sm ms-1" @click="editandoId = null">
+                                <button class="btn btn-warning btn-sm ms-1"
+                                    @click="
+                                        valorLocal = {{ $participante->valor ?? 0 }};
+                                        editandoId = null;
+                                    ">
                                     ✖
                                 </button>
                             </div>
                         </template>
                     </td>
-                    <!-- ====== FIM da Célula de VALOR ====== -->
+                    {{-- ====== FIM da Célula de VALOR ====== --}}
+
 
                     <td style="width: 1%; white-space: nowrap;">
                         <div class="dropdown">

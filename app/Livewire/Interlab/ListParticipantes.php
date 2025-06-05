@@ -58,7 +58,7 @@ class ListParticipantes extends Component
             ['id' => $id, 'valor' => $valor],
             [
                 'id'    => ['required', 'exists:interlab_inscritos,id'],
-                'valor' => ['required', 'numeric', 'min:0'],
+                'valor' => ['required', 'numeric', 'min:0', 'max:999999.99'], // Limite máximo para evitar erro SQL
             ],
             [
                 'id.required'    => 'O ID é obrigatório.',
@@ -66,6 +66,7 @@ class ListParticipantes extends Component
                 'valor.required' => 'O valor é obrigatório.',
                 'valor.numeric'  => 'O valor deve ser numérico.',
                 'valor.min'      => 'O valor deve ser maior ou igual a zero.',
+                'valor.max'      => 'O valor máximo permitido é 999.999,99.',
             ]
         )->validate();
 
