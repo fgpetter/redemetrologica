@@ -823,8 +823,8 @@
                 steps: [{
                     element: '#step-2',
                     popover: {
-                        title: 'Salvar empresa',
-                        description: 'Preencha os dados para inscrição no laboratório.',
+                        title: 'Dados para emissão de NF',
+                        description: 'Preencha os dados da empresa para emissão da nota fiscal.',
                         side: 'top',
                         // align: 'auto',
                     }
@@ -838,8 +838,8 @@
                 steps: [{
                     element: '#step-3',
                     popover: {
-                        title: 'Salvar laboratório',
-                        description: 'Preencha os dados para inscrição no laboratório.',
+                        title: 'Dados do laboratório',
+                        description: 'Preencha os dados do laboratório para envio de amostras.',
                         side: 'top',
                         // align: 'auto',
                     }
@@ -873,7 +873,7 @@
                         element: '#step-6',
                         popover: {
                             title: 'Incluir nova empresa',
-                            description: 'Aqui você pode cadastrar uma nova empresa para a inscrição.',
+                            description: 'Aqui você pode cadastrar uma nova empresa para a emissão da nota fiscal a um CNPJ diferente.',
                             side: 'top',
                             align: 'start',
                         }

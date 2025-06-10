@@ -62,11 +62,6 @@
                                             Laboratórios Reconhecidos
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="text-white" href="/bonus-metrologia">
-                                            Bônus Metrologia
-                                        </a>
-                                    </li>
                                 </ul>
                             </li>
                             <li>
