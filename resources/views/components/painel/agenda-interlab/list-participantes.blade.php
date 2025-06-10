@@ -25,7 +25,7 @@
               <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
             </a>{{ Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}</td>
             <td class="px-3"><b>Laboratório: </b>{{ $participante->laboratorio->nome }}</td>
-            <td style="width: 5%; white-space: nowrap;" class="px-3"><b>Valor: </b>{{ $participante->valor ?? '-' }}</td>
+            <td style="width: 5%; white-space: nowrap;" class="px-3"><b>Valor: </b>{{ $participante->valor ? number_format($participante->valor, 2, ',', '.') : '-' }}</td>
             <td style="width: 1%; white-space: nowrap;">
               <div class="dropdown">
                 <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">

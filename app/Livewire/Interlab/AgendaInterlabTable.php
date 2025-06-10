@@ -33,9 +33,6 @@ class AgendaInterlabTable extends Component
     #[Url(as: 'sd', history: false)]
     public $sortDirection = 'ASC';
 
-    #[Url(as: 'isv', history: false)]
-    public $inscricaoSemValor = false;
-
     #[Url(as: 'empresa', history: false)]
     public $empresaSelecionada = '';
 
@@ -51,12 +48,12 @@ class AgendaInterlabTable extends Component
 
     public function resetFilters()
     {
-        $this->reset(['search', 'status', 'inscricaoSemValor', 'empresaSelecionada']);
+        $this->reset(['search', 'status', 'empresaSelecionada']);
     }
 
     public function updated($propertyName)
     {
-        if (in_array($propertyName, ['search', 'status', 'perPage', 'inscricaoSemValor', 'empresaSelecionada'])) {
+        if (in_array($propertyName, ['search', 'status', 'perPage', 'empresaSelecionada'])) {
             $this->resetPage();
         }
     }
@@ -68,7 +65,6 @@ class AgendaInterlabTable extends Component
 
         $query = $this->applySearchFilter($query);
         $query = $this->applyStatusFilter($query);
-        $query = $this->applyInscricaoSemValorFilter($query);
         $query = $this->applyEmpresaFilter($query);
         $query = $this->applySorting($query);
 
@@ -93,17 +89,6 @@ class AgendaInterlabTable extends Component
         return $query->when($this->status, fn($query) =>
             $query->where('status', $this->status)
         );
-    }
-
-    protected function applyInscricaoSemValorFilter($query)
-    {
-        return $query->when($this->inscricaoSemValor, function ($query) {
-            $query->whereHas('inscritos', function ($subQuery) {
-                $subQuery->where(function ($q) {
-                    $q->whereNull('valor')->orWhere('valor', 0);
-                });
-            });
-        });
     }
 
     protected function applyEmpresaFilter($query)

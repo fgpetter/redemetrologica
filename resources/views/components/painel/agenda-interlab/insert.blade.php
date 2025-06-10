@@ -60,11 +60,14 @@
             </div>
           </div>
   
-          <x-painel.agenda-interlab.list-participantes 
+          {{-- <x-painel.agenda-interlab.list-participantes 
             :pessoas="$pessoas"
             :agendainterlab="$agendainterlab"
             :intelabinscritos="$intelabinscritos"
-            :interlabempresasinscritas="$interlabempresasinscritas" />
+            :interlabempresasinscritas="$interlabempresasinscritas" /> --}}
+
+            <livewire:interlab.list-participantes :idinterlab="$idinterlab"/>
+
         </div>
       </div>
 

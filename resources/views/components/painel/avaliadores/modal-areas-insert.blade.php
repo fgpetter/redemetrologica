@@ -11,14 +11,14 @@
             @csrf
             <div class="row gy-3 mb-3">
 
-              <div class="col-12">
+                <div class="col-12">
                 <x-forms.input-select name="area_id" label="Area" required>
                   <option value="">Selecione</option>
-                  @foreach ($areasatuacao as $area_atuacao)
-                    <option value="{{ $area_atuacao->id }}" @selected( isset($area) && $area->area_id == $area_atuacao->id )>{{ $area_atuacao->descricao }}</option>
+                  @foreach ($areasatuacao->sortBy('descricao') as $area_atuacao)
+                  <option value="{{ $area_atuacao->id }}" @selected( isset($area) && $area->area_id == $area_atuacao->id )>{{ $area_atuacao->descricao }}</option>
                   @endforeach
                 </x-forms.input-select>
-              </div>
+                </div>
 
               <div class="col-8">
                 <x-forms.input-select name="situacao" label="Situação">
