@@ -374,8 +374,8 @@ class ConfirmInscricaoInterlab extends Component
                         'informacoes_inscricao' => $validated['informacoes_inscricao'],
                     ]);
 
-                    // Mail::to('interlab@redemetrologica.com.br')->cc(...)->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
-                    // Mail::to($inscrito->pessoa->email)->cc(...)->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
+                     Mail::to('interlab@redemetrologica.com.br')->cc(...)->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
+                     Mail::to($inscrito->pessoa->email)->cc(...)->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
                 }
 
             });
