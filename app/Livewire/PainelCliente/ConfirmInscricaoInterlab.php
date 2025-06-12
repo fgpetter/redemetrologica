@@ -59,10 +59,10 @@ class ConfirmInscricaoInterlab extends Component
         /** @var Pessoa */
         $this->empresas_inscritas = Pessoa::whereIn('id', $empresaIds)
             ->with(['interlabs', 'enderecos' => function ($query) {
-            $query->where('cobranca', 1);
+                $query->where('cobranca', 1);
             }])
             ->get();
-        
+
         // chama eventos do tour
         if ($this->empresas_inscritas->isEmpty()) {
             $this->dispatch('start-tour-1'); //primeira inscrição
@@ -82,11 +82,11 @@ class ConfirmInscricaoInterlab extends Component
                 'bairro' => '',
                 'cidade' => '',
                 'uf' => '',
-            ]];
+            ]
+        ];
 
 
-        $this->reset([ 'inscritoId', 'laboratorioId' ]);
-       
+        $this->reset(['inscritoId', 'laboratorioId']);
     }
 
     public function render()
@@ -175,28 +175,28 @@ class ConfirmInscricaoInterlab extends Component
     {
         $this->validate(
             [
-            'empresa.nome_razao' => ['required', 'string', 'max:191'],
-            'empresa.cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191'],
-            'empresa.endereco_cobranca.email' => ['required', 'email', 'max:191'],
-            'empresa.endereco_cobranca.cep' => ['required', 'string', 'min:9'],
-            'empresa.endereco_cobranca.endereco' => ['required', 'string'],
-            'empresa.endereco_cobranca.bairro' => ['required', 'string'],
-            'empresa.endereco_cobranca.cidade' => ['required', 'string'],
-            'empresa.endereco_cobranca.uf' => ['required', 'string', 'size:2'],
+                'empresa.nome_razao' => ['required', 'string', 'max:191'],
+                'empresa.cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191'],
+                'empresa.endereco_cobranca.email' => ['required', 'email', 'max:191'],
+                'empresa.endereco_cobranca.cep' => ['required', 'string', 'min:9'],
+                'empresa.endereco_cobranca.endereco' => ['required', 'string'],
+                'empresa.endereco_cobranca.bairro' => ['required', 'string'],
+                'empresa.endereco_cobranca.cidade' => ['required', 'string'],
+                'empresa.endereco_cobranca.uf' => ['required', 'string', 'size:2'],
             ],
             [
-            'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
-            'empresa.nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',
-            'empresa.cpf_cnpj.required' => 'Preencha o campo CPF/CNPJ.',
-            'empresa.endereco_cobranca.cep.required' => 'Preencha o campo CEP de cobrança.',
-            'empresa.endereco_cobranca.cep.min' => 'O campo CEP de cobrança deve ter no mínimo :min caracteres.',
-            'empresa.endereco_cobranca.endereco.required' => 'Preencha o campo endereço de cobrança.',
-            'empresa.endereco_cobranca.bairro.required' => 'Preencha o campo bairro de cobrança.',
-            'empresa.endereco_cobranca.email.required' => 'O email de cobrança é obrigatório.',
-            'empresa.endereco_cobranca.email.email' => 'O email de cobrança deve ser um endereço de email válido.',
-            'empresa.endereco_cobranca.cidade.required' => 'Preencha o campo cidade de cobrança.',
-            'empresa.endereco_cobranca.uf.required' => 'Preencha o campo UF de cobrança.',
-            'empresa.endereco_cobranca.uf.size' => 'O campo UF de cobrança deve ter exatamente 2 caracteres.',
+                'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
+                'empresa.nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',
+                'empresa.cpf_cnpj.required' => 'Preencha o campo CPF/CNPJ.',
+                'empresa.endereco_cobranca.cep.required' => 'Preencha o campo CEP de cobrança.',
+                'empresa.endereco_cobranca.cep.min' => 'O campo CEP de cobrança deve ter no mínimo :min caracteres.',
+                'empresa.endereco_cobranca.endereco.required' => 'Preencha o campo endereço de cobrança.',
+                'empresa.endereco_cobranca.bairro.required' => 'Preencha o campo bairro de cobrança.',
+                'empresa.endereco_cobranca.email.required' => 'O email de cobrança é obrigatório.',
+                'empresa.endereco_cobranca.email.email' => 'O email de cobrança deve ser um endereço de email válido.',
+                'empresa.endereco_cobranca.cidade.required' => 'Preencha o campo cidade de cobrança.',
+                'empresa.endereco_cobranca.uf.required' => 'Preencha o campo UF de cobrança.',
+                'empresa.endereco_cobranca.uf.size' => 'O campo UF de cobrança deve ter exatamente 2 caracteres.',
             ]
         );
 
@@ -229,7 +229,7 @@ class ConfirmInscricaoInterlab extends Component
             'end_cobranca' => $enderecoCobranca->id,
             'email_cobranca' => $enderecoCobranca->email, //registra na tabela de pessoas o email de cobrança
         ]);
-        
+
         $this->empresa = $empresa->toArray();
         $this->showSalvarEmpresa = false;
 
@@ -244,7 +244,7 @@ class ConfirmInscricaoInterlab extends Component
             ->with('interlabs')
             ->get();
 
-        
+
 
         if (in_array($empresa->id, $empresaIds->toArray())) {
             $this->showInscreveLab = false;
@@ -252,8 +252,8 @@ class ConfirmInscricaoInterlab extends Component
             $this->showInscreveLab = true; // Mostra formulário de laboratório
             $this->dispatch('start-tour-3'); //chama tour de inscricao de laboratorio
         }
-        
-        
+
+
         $this->empresaEditadaId = null;
     }
 
@@ -262,7 +262,7 @@ class ConfirmInscricaoInterlab extends Component
     {
         $this->empresaEditadaId = $empresaId;
         $empresa = Pessoa::with('enderecoCobranca')->find($empresaId);
-        $this->empresa = $empresa->toArray(); 
+        $this->empresa = $empresa->toArray();
     }
 
     public function rules(): array
@@ -374,10 +374,14 @@ class ConfirmInscricaoInterlab extends Component
                         'informacoes_inscricao' => $validated['informacoes_inscricao'],
                     ]);
 
-                     Mail::to('interlab@redemetrologica.com.br')->cc(...)->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
-                     Mail::to($inscrito->pessoa->email)->cc(...)->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
+                    Mail::to('interlab@redemetrologica.com.br')
+                        ->cc('bonus@redemetrologica.com.br')
+                        ->cc('sistema@redemetrologica.com.br')
+                        ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
+                    Mail::to($inscrito->pessoa->email)
+                        ->cc('sistema@redemetrologica.com.br')
+                        ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
                 }
-
             });
 
             session()->flash('success', $this->laboratorioEditadoId
@@ -390,7 +394,7 @@ class ConfirmInscricaoInterlab extends Component
                 'inscritoEditadoId'
             ]);
 
-           
+
             if (!empty($validated['valor']) && $validated['valor'] > 0) {
                 $this->adicionaLancamentoFinanceiro(
                     $inscrito->agendaInterlab,
@@ -460,9 +464,9 @@ class ConfirmInscricaoInterlab extends Component
 
     public function buscaCep($campo)
     {
-        $cep = $campo === 'cobranca' 
-        ? ($this->empresa['endereco_cobranca']['cep'] ?? '')
-        : ($this->laboratorio['endereco']['cep'] ?? '');
+        $cep = $campo === 'cobranca'
+            ? ($this->empresa['endereco_cobranca']['cep'] ?? '')
+            : ($this->laboratorio['endereco']['cep'] ?? '');
         $cep = preg_replace('/\D/', '', $cep);
 
         if (strlen($cep) === 8) {
