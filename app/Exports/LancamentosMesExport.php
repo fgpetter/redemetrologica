@@ -19,7 +19,7 @@ class LancamentosMesExport implements FromView
 
         $lancamentos = DB::table('lancamentos_financeiros')
             ->selectRaw("
-                data_vencimento,
+                data_pagamento,
                 nota_fiscal,
                 pessoas.nome_razao,
                 plano_contas.descricao as plano_conta,
@@ -31,8 +31,9 @@ class LancamentosMesExport implements FromView
             ->join('pessoas', 'pessoa_id', '=', 'pessoas.id')
             ->join('plano_contas', 'plano_conta_id', '=', 'plano_contas.id')
             ->join('centro_custos', 'lancamentos_financeiros.centro_custo_id', '=', 'centro_custos.id')
-            ->whereBetween('data_vencimento', [$inicio, $fim])
-            ->orderBy('data_vencimento')
+            ->whereNotNull('data_pagamento')
+            ->whereBetween('data_pagamento', [$inicio, $fim])
+            ->orderBy('data_pagamento')
             ->get();
 
         return view('excel.lancamentos-financeiros-mes', [
