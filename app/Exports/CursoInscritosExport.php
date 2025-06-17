@@ -13,7 +13,7 @@ class CursoInscritosExport implements FromView
   public function view(): View
   {
     return view('excel.lista-presenca-curso', [
-      'agendacurso' => $this->agendacurso->load(['curso', 'inscritos.pessoa'])
+      'agendacurso' => $this->agendacurso->load(['curso', 'inscritos.pessoa', 'inscritos.empresa'])
     ]);
   }
 } 
