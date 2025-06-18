@@ -1,9 +1,9 @@
 <table>
     <tr>
         <td><strong>Tipo: Fluxo Realizado </strong> </td>
-        <td><strong>Data Inicial: {{ isset($inicio) ? \Carbon\Carbon::parse($inicio)->format('d/m/Y') : '' }} </strong>
+        <td><strong>Período: {{ filled($inicio) ? $inicio : '' }} </strong>
         </td>
-        <td><strong>Data Final: {{ isset($fim) ? \Carbon\Carbon::parse($fim)->format('d/m/Y') : '' }} </strong> </td>
+        <td></td>
     </tr>
     <tr>
         <td><strong>Banco: BANCO DO BRASIL - 5023-7 </strong> </td>

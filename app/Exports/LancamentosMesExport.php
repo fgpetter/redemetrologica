@@ -13,10 +13,6 @@ class LancamentosMesExport implements FromView
 
     public function view(): View
     {
-        // Calcula datas de início e fim do mês
-        $inicio = "{$this->ano}-" . str_pad($this->mes, 2, '0', STR_PAD_LEFT) . "-01";
-        $fim = date('Y-m-d', strtotime("+1 month -1 day", strtotime($inicio)));
-
         $lancamentos = DB::table('lancamentos_financeiros')
             ->selectRaw("
                 data_pagamento,
@@ -32,14 +28,14 @@ class LancamentosMesExport implements FromView
             ->join('plano_contas', 'plano_conta_id', '=', 'plano_contas.id')
             ->join('centro_custos', 'lancamentos_financeiros.centro_custo_id', '=', 'centro_custos.id')
             ->whereNotNull('data_pagamento')
-            ->whereBetween('data_pagamento', [$inicio, $fim])
+            ->whereMonth('data_pagamento', $this->mes)
+            ->whereYear('data_pagamento', $this->ano)
             ->orderBy('data_pagamento')
             ->get();
 
         return view('excel.lancamentos-financeiros-mes', [
             'lancamentos' => $lancamentos,
-            'inicio' => $inicio,
-            'fim' => $fim
+            'inicio' => $this->mes . '/' . $this->ano,
         ]);
     }
 }

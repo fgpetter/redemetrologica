@@ -40,9 +40,16 @@ class LancamentoFinanceiroController extends Controller
       ->withTrashed()
       ->get();
 
-    return view( 'painel.lancamento-financeiro.index', [
+    $meses_anos = LancamentoFinanceiro::whereNotNull('data_pagamento')
+      ->selectRaw("DATE_FORMAT(data_pagamento, '%m-%Y') as mes_ano")
+      ->distinct()
+      ->pluck('mes_ano')
+      ->reverse();
+
+      return view( 'painel.lancamento-financeiro.index', [
       'lancamentosfinanceiros' => $lancamentosfinanceiros, 
-      'pessoas' => $pessoas
+      'pessoas' => $pessoas,
+      'mesesanos' => $meses_anos
     ]);
   }
 
@@ -308,8 +315,11 @@ class LancamentoFinanceiroController extends Controller
    * @param int $ano
    * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
    */
-  public function exportLancamentosMes(int $mes, int $ano)
+  public function exportLancamentosMes(Request $request)
   {
+    $mes_ano = explode('-', $request->mesano);
+    $mes = $mes_ano[0];
+    $ano = $mes_ano[1];
     $nomeArquivo = "lancamentos-financeiros-{$mes}-{$ano}.xlsx";
     return Excel::download(new LancamentosMesExport($mes, $ano), $nomeArquivo);
   }
