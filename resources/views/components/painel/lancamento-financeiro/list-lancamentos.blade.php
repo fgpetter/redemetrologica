@@ -48,25 +48,33 @@
             {{-- Exibe mes/ano dos ultimos 12 meses --}}
             <div class="col-3">
               <label for="mesAnoExport" class="form-label mt-2">Exportar Lançamentos do Mês</label>
-              <div class="input-group">
-                  <select class="form-select" id="mesAnoExport" name="mesAnoExport">
-                      <option value="">Selecione...</option>
-                      @for($i = 0; $i < 12; $i++)
-                          @php
-                              $data = \Carbon\Carbon::now()->subMonths($i);
-                              $mes = str_pad($data->month, 2, '0', STR_PAD_LEFT);
-                              $ano = $data->year;
-                              // só exibe o mês/ano se o último dia do mês já tiver passado
-                              $ultimoDiaMes = \Carbon\Carbon::create($ano, $mes, 1)->endOfMonth();
-                              if ($i === 0 && $ultimoDiaMes->isFuture()) continue;
-                          @endphp
-                          <option value="{{ $mes }}/{{ $ano }}">{{ $mes }}/{{ $ano }}</option>
-                      @endfor
-                  </select>
-                  <button type="button" class="btn btn-outline-success" onclick="baixarLancamentosMes()">
-                      <i class="ri-download-2-line"></i> Baixar
-                  </button>
-              </div>
+              <form id="formExportLancamentos" method="GET" action="">
+                <div class="input-group">
+                    <select class="form-select" id="mesAnoExport" name="mesAnoExport" onchange="
+                      if(this.value) {
+                        var [mes,ano] = this.value.split('/');
+                        this.form.action = '{{ route('financeiro-export-mes', ['mes' => '__MES__', 'ano' => '__ANO__']) }}'.replace('__MES__', mes).replace('__ANO__', ano);
+                      } else {
+                        this.form.action = '';
+                      }
+                    ">
+                        <option value="">Selecione...</option>
+                        @for($i = 0; $i < 12; $i++)
+                            @php
+                                $data = \Carbon\Carbon::now()->subMonths($i);
+                                $mes = str_pad($data->month, 2, '0', STR_PAD_LEFT);
+                                $ano = $data->year;
+                                $ultimoDiaMes = \Carbon\Carbon::create($ano, $mes, 1)->endOfMonth();
+                                if ($i === 0 && $ultimoDiaMes->isFuture()) continue;
+                            @endphp
+                            <option value="{{ $mes }}/{{ $ano }}">{{ $mes }}/{{ $ano }}</option>
+                        @endfor
+                    </select>
+                    <button type="submit" class="btn btn-outline-success" id="btnExportLancamentos" disabled>
+                        <i class="ri-download-2-line"></i> Baixar
+                    </button>
+                </div>
+              </form>
           </div>
           </div>
           </div>
@@ -246,17 +254,16 @@
     </div>
   </div>
 </div>
+
 <script>
-function baixarLancamentosMes() {
-    var select = document.getElementById('mesAnoExport');
-    if(select.value) {
-        var [mes,ano] = select.value.split('/');
-        var url = "{{ route('financeiro-export-mes', ['mes' => '__MES__', 'ano' => '__ANO__']) }}";
-        url = url.replace('__MES__', mes).replace('__ANO__', ano);
-        window.open(url, '_blank');
-    } else {
-        alert('Selecione o mês/ano para exportar!');
-    }
-}
+document.addEventListener('DOMContentLoaded', function() {
+  var select = document.getElementById('mesAnoExport');
+  var btn = document.getElementById('btnExportLancamentos');
+  function toggleBtn() {
+    btn.disabled = !select.value;
+  }
+  select.addEventListener('change', toggleBtn);
+  toggleBtn(); 
+});
 </script>
 
