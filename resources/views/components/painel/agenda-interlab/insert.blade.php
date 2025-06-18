@@ -67,13 +67,9 @@
                         </div>
                     </div>
 
-                    {{-- <x-painel.agenda-interlab.list-participantes 
-            :pessoas="$pessoas"
-            :agendainterlab="$agendainterlab"
-            :intelabinscritos="$intelabinscritos"
-            :interlabempresasinscritas="$interlabempresasinscritas" /> --}}
-
+                @if ($agendainterlab->id)
                     <livewire:interlab.list-participantes :idinterlab="$idinterlab" />
+                @endif
 
                 </div>
             </div>
