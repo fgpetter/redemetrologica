@@ -16,7 +16,7 @@
               <th scope="col">Titulo</th>
               <th scope="col">Descriçao</th>
               <th scope="col">Categoria</th>
-              <th scope="col" style="width: 5%;">Data</th>
+              <th scope="col" style="width: 5%; text-align: center;">Data</th>
               <th scope="col" style="width: 5%;">Baixar</th>
               <th scope="col" style="width: 5%;"></th>
             </tr>
