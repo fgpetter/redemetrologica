@@ -31,6 +31,11 @@ class InterlabInscrito extends Model
      */
     protected $table = 'interlab_inscritos';
 
+    // cast data inscrição as date and valor as money BRL
+    protected $casts = [
+        'data_inscricao' => 'date',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         $options = LogOptions::defaults()

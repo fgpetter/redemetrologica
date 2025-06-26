@@ -30,7 +30,7 @@
                                 <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
                             </a>
                             <span style="font-size: smaller;">
-                                {{ \Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}
+                                {{ $participante->data_inscricao->format('d/m/Y') }}
                             </span>
                         </td>
                         <td>
@@ -46,27 +46,31 @@
                         </td>
 
                         {{-- ====== Célula de VALOR (otimizada p/ atualização instantânea) ====== --}}
-                        <td class="text-start" style="width: 200px; white-space: nowrap;" x-data="{
-                            valorLocal: {{ $participante->valor ?? 0 }},
-                            participanteId: {{ $participante->id }},
-                            formatarValor(valor) {
-                                let numero = Number(valor).toFixed(2);
-                                return numero.replace('.', ',');
-                            },
-                            
-                            atualizarModal() {
-                                const novoValorFormatado = this.formatarValor(this.valorLocal);
-                                const modalValorInput = document.getElementById('valor-{{ $participante->uid }}');
-                                if (modalValorInput) {
-                                    modalValorInput.value = novoValorFormatado;
+                        <td class="text-start" style="width: 200px; white-space: nowrap;" 
+                            x-data="{
+                                valorLocal: {{ $participante->valor ?? 0 }},
+                                participanteId: {{ $participante->id }},
+                                formatarValor(valor) {
+                                    if (valor === 0) {
+                                        return 'Sem valor';
+                                    } else {
+                                        let numero = Number(valor).toFixed(2);
+                                        return 'R$ ' + numero.replace('.', ',');
+                                    }
+                                },
+                                atualizarModal() {
+                                    const novoValorFormatado = this.formatarValor(this.valorLocal);
+                                    const modalValorInput = document.getElementById('valor-{{ $participante->uid }}');
+                                    if (modalValorInput) {
+                                        modalValorInput.value = novoValorFormatado;
+                                    }
                                 }
-                            }
-                        
-                        }">
+                            }"
+                        >
                             <template x-if="editandoId !== {{ $participante->id }}">
                                 <span @click="editandoId = {{ $participante->id }}"
                                     style="cursor: pointer; color: #000;">
-                                    <b>Valor:</b> R$ <span x-text="formatarValor(valorLocal)"></span>
+                                    <b>Valor:</b> <span x-text="formatarValor(valorLocal)"></span>
                                 </span>
                             </template>
                             <template x-if="editandoId === {{ $participante->id }}">
