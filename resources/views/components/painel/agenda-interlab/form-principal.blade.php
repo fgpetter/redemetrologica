@@ -13,7 +13,7 @@
   </div>
 
   <div class="row mt-3">
-    <div class="col-lg-3">
+    <div class="col-6 col-xl-3">
       <x-forms.input-select name="status" label="Status" errorBag="principal">
         <option @selected($agendainterlab->status == 'AGENDADO') value="AGENDADO">AGENDADO</option>
         <option @selected($agendainterlab->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
@@ -21,19 +21,19 @@
       </x-forms.input-select>
     </div>
 
-    <div class="col-6 col-lg-4 col-xl-2">
+    <div class="col-6 col-xl-3 col-xxl-2">
       <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
         label="Data Inicio" required/>
       @error('data_inicio','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
-    <div class="col-6 col-lg-4 col-xl-2">
+    <div class="col-6 col-xl-3 col-xxl-2">
       <x-forms.input-field :value="old('data_fim') ?? ($agendainterlab->data_fim?->format('Y-m-d') ?? null)" type="date" name="data_fim"
         label="Data Final"/>
       @error('data_fim','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
-    <div class="col-6 col-lg-3">
+    <div class="col-6 col-xl-3">
       <x-forms.input-select name="certificado" label="Emitir certificado por:" errorBag="principal">
         <option @selected($agendainterlab->certificado == 'EMPRESA') value="EMPRESA">EMPRESA</option>
         <option @selected($agendainterlab->certificado == 'PARTICIPANTE') value="PARTICIPANTE">PARTICIPANTE</option>
