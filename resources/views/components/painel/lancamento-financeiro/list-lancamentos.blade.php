@@ -64,14 +64,14 @@
             
     
         <div class="table-responsive" style="min-height: 25vh">
-          <table class="table table-responsive border-1" style="table-layout: fixed">
+          <table class="table border-1" style="table-layout: fixed">
             <thead>
               <tr>
-                <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                <th scope="col" style="white-space: nowrap;">Vencimento</th>
-                <th scope="col" style="white-space: nowrap;">Valor</th>
-                <th scope="col" style="white-space: nowrap;">Pagamento</th>
-                <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+                <th scope="col" >Nome</th>
+                <th scope="col" style="width: 20%;">Vencimento</th>
+                <th scope="col" style="width: 15%;">Valor</th>
+                <th scope="col" style="width: 15%;">NF</th>
+                <th scope="col" style="width: 5%;"></th>
               </tr>
             </thead>
             <tbody>
@@ -79,13 +79,13 @@
                 <tr>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
-                      <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
+                      <i class="ri-file-text-line btn-ghost  pe-1 fs-5"></i>
                     </a> {{ $lancamento->pessoa->nome_razao }}
                   </td>
                   <td>{{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }} </td>
                   
                   <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
-                  <td> {!! ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : "<span class='badge rounded-pill bg-warning'>Em Aberto</span>" !!} </td>
+                  <td>  {{ $lancamento->nota_fiscal ?? '-' }} </td>
                   <td>
                     <div class="dropdown">
                       <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
@@ -147,14 +147,14 @@
       <div class="card-body">
     
         <div class="table-responsive" style="min-height: 25vh">
-          <table class="table table-responsive border-1" style="table-layout: fixed">
+          <table class="table border-1" style="table-layout: fixed">
             <thead>
               <tr>
-                <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                <th scope="col" style="white-space: nowrap;">Emissão</th>
-                <th scope="col" style="white-space: nowrap;">Valor</th>
-                <th scope="col" style="white-space: nowrap;">Pagamento</th>
-                <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+                <th scope="col" >Nome</th>
+                <th scope="col" style="width: 20%;">Vencimento</th>
+                <th scope="col" style="width: 15%;">Valor</th>
+                <th scope="col" style="width: 20%;">Pagamento</th>
+                <th scope="col" style="width: 5%;"></th>
               </tr>
             </thead>
             <tbody>
@@ -162,10 +162,10 @@
                 <tr>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
-                      <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
+                      <i class="ri-file-text-line btn-ghost  pe-1 fs-5"></i>
                     </a> {{ $lancamento->pessoa->nome_razao }}
                   </td>
-                  <td>{{ ($lancamento->data_emissao) ? Carbon\Carbon::parse($lancamento->data_emissao)->format('d/m/Y') : '-'  }} </td>
+                  <td>{{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }} </td>
                   
                   <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
                   <td> {!! ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : "<span class='badge rounded-pill bg-warning'>Em Aberto</span>" !!} </td>
@@ -198,7 +198,8 @@
                         <div class="col-3"><b>Vencimento:</b> {{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }}</div>
                         <div class="col-3"><b>Documento:</b> {{ $lancamento->documento ?? '-' }}</div>
                         <div class="col-3"><b>Nº Documento:</b> {{ $lancamento->num_documento ?? '-' }}</div>
-                        <div class="col-3"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
+                        <div class="col-6"><b>Nota Fiscal:</b> {{ $lancamento->nota_fiscal ?? '-' }}</div>
+                        <div class="col-6"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
                       </div>
                     </div>
                   </td>
