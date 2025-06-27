@@ -78,15 +78,14 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive" style="min-height: 25vh">
-            <table class="table table-responsive table-striped align-middle table-nowrap mb-0"
-                style="table-layout: fixed">
+            <table class="table table-striped align-middle mb-0" style="table-layout: fixed;">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                        <th scope="col">Vencimento</th>
-                        <th scope="col">Área</th>
-                        <th scope="col">Valor</th>
-                        <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+                        <th scope="col" style="width: 25%;">Nome</th>
+                        <th scope="col" style="width: 10%;">Vencimento</th>
+                        <th scope="col" style="width: 45%;">Historico</th>
+                        <th scope="col" style="width: 10%;">Valor</th>
+                        <th scope="col" style="width: 5%;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -101,9 +100,7 @@
                             <td>{{ $lancamento->data_vencimento ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-' }}
                             </td>
                             <td>
-                                {{ $lancamento->agenda_curso_id ? 'CURSO' : '' }}
-                                {{ $lancamento->agenda_interlab_id ? 'PEP' : '' }}
-                                {{ $lancamento->agenda_avaliacao_id ? 'AVALIAÇÃO' : '' }}
+                                {{ $lancamento->historico ?? '-' }}
                             </td>
                             <td>
                                 <input type="text" class=" border-0 bg-transparent"
