@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Traits\SetDefaultUid;
+use App\Models\LaboratorioInterno;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
 
 
 class AreaAtuacao extends Model
@@ -25,5 +26,13 @@ class AreaAtuacao extends Model
         return LogOptions::defaults()
             ->logOnly(['*'])
             ->useLogName(get_class($this));
+    }
+
+    /**
+     * Define a relação com os laboratórios internos.
+     */
+    public function laboratoriosInternos()
+    {
+        return $this->hasMany(LaboratorioInterno::class, 'area_atuacao_id', 'id');
     }
 }

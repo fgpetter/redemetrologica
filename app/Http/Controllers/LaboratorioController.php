@@ -270,9 +270,10 @@ class LaboratorioController extends Controller
   }
 
   $areas_atuacao = AreaAtuacao::select('uid', 'descricao')
-    ->orderBy('descricao', 'asc')
-    ->get();
-
+    ->whereHas('laboratoriosInternos', function ($query) {
+      $query->where('site', 1)->where('reconhecido', 1);
+    })
+    ->orderBy('descricao', 'asc')->get();
 
   $laboratorios = Laboratorio::select('uid', 'nome_laboratorio')
       ->whereHas('laboratoriosInternos', function ($query) {
@@ -289,7 +290,7 @@ class LaboratorioController extends Controller
       ->when($request->laboratorio, function ($query) use ($request) {
           $busca = $request->laboratorio;
           $query->whereHas('laboratorio', function ($q) use ($busca) {
-              $q->where('nome_laboratorio', 'like', "%{$busca}%");
+              $q->where('conteudo_certificado', 'like', "%{$busca}%");
           });
       })
       ->where('site', 1)
