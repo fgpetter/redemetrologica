@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Smalot\PdfParser\Parser;
 use Validator;
 use App\Models\Pessoa;
 use App\Models\AreaAtuacao;
@@ -200,17 +201,32 @@ class LaboratorioController extends Controller
     ];
 
     if ($request->hasFile('certificado')) {
-      $file = $request->file('certificado');
-      $fileName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-      $fileName = $fileName . '_' . time() . '.' . $file->getClientOriginalExtension();
-      $file->move(public_path('laboratorios-certificados'), $fileName);
+        $file = $request->file('certificado');
+        $destinationPath = public_path('laboratorios-certificados');
+        $fileName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $fileName = $fileName . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $file->move($destinationPath, $fileName);
 
-      $data['certificado'] = $fileName;
+        $data['certificado'] = $fileName;
+
+        // Extrai o texto do PDF, se for um PDF
+        if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+            $parser = new Parser();
+            try {
+                $pdf = $parser->parseFile($destinationPath . '/' . $fileName);
+                $data['conteudo_certificado'] = $pdf->getText();
+            } catch (\Exception $e) {
+                Log::error('Falha ao extrair texto do PDF: ' . $e->getMessage(), ['file' => $fileName]);
+                $data['conteudo_certificado'] = null;
+            }
+        } else {
+            $data['conteudo_certificado'] = null;
+        }
     }
 
     if ($laboratorio_interno->exists) {
-
-      if ($request->hasFile('certificado')) {
+      // Se um novo certificado foi enviado e um antigo existia, remove o antigo.
+      if ($request->hasFile('certificado') && $laboratorio_interno->certificado) {
         File::delete(public_path('laboratorios-certificados/' . $laboratorio_interno->certificado));
       }
 
@@ -218,6 +234,10 @@ class LaboratorioController extends Controller
     } else {
       $created = LaboratorioInterno::create($data);
       if (!$created) {
+        // Se a criação falhar, remove o arquivo que foi enviado para não deixar órfãos.
+        if (isset($data['certificado'])) {
+            File::delete(public_path('laboratorios-certificados/' . $data['certificado']));
+        }
         return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
       }
     }
