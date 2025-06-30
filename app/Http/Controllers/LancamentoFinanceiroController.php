@@ -26,6 +26,7 @@ class LancamentoFinanceiroController extends Controller
       'data_inicial' => ['nullable', 'date'],
       'data_final' => ['nullable', 'date'],
       'pessoa' => ['nullable', 'exists:pessoas,id'],
+      'tipo_data' => ['nullable', 'in:data_vencimento,data_pagamento'],
     ]);
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)

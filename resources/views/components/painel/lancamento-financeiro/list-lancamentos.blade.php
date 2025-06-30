@@ -13,44 +13,49 @@
 
   (isset($_GET['pessoa']) && $_GET['pessoa'] != "" ) ? $busca_pessoa = $_GET['pessoa'] : $busca_pessoa = null;
 
+  isset($_GET['tipo_data']) && $_GET['tipo_data'] != '' ? ($tipo_data = $_GET['tipo_data']) : ($tipo_data = null);
 @endphp
-
 <div class="row my-3">
-  <div class="col">
-    <div class="card">
-      <div class="card-body">
-        <form method="GET">
-          <div class="row align-items-end">
-            <div class="col-2">
-              <x-forms.input-field :value="$data_inicial ?? null"
-                type="date" name="data_inicial" id="data_inicial" label="Data Inicial" />
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-lg-2">
+                            <x-forms.input-field :value="$data_inicial ?? null" type="date" name="data_inicial" id="data_inicial"
+                                label="Data Inicial" />
+                        </div>
+                        <div class="col-12 col-lg-2">
+                            <x-forms.input-field :value="$data_final ?? null" type="date" name="data_final" id="data_final"
+                                label="Data Final" />
+                        </div>
+                        <div class="col-12 col-lg-2">
+                            <x-forms.input-select name="tipo_data" label="Filtrar por">
+                                <option @selected($tipo_data == 'data_vencimento') value="data_vencimento">Vencimento</option>
+                                <option @selected($tipo_data == 'data_pagamento') value="data_pagamento">Pagamento</option>
+                            </x-forms.input-select>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
+                                <option value=""> - </option>
+                                @foreach ($pessoas as $pessoa)
+                                    <option @selected($busca_pessoa == $pessoa->id) value="{{ $pessoa->id }}">
+                                        {{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}
+                                    </option>
+                                @endforeach
+                            </x-forms.input-select>
+                        </div>
+                        <div class="col-12 col-lg-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-primary w-100">Pesquisar</button>
+                            <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-sm btn-success w-100">
+                                <i class="ri-add-line align-bottom me-1"></i> Adicionar
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="col-2">
-              <x-forms.input-field :value="$data_final ?? null"
-                type="date" name="data_final" id="data_final" label="Data Final" />
-            </div>
-            <div class="col-12 col-sm-5 col-xxl-6">
-              <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
-                <option value=""> - </option>
-                @foreach ($pessoas as $pessoa)
-                  <option @selected( $busca_pessoa == $pessoa->id ) value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
-                @endforeach
-              </x-forms.input-select>
-            </div>
-            <div class="col-3 col-xxl-2 d-inline-flex">
-              <button type="submit" class="btn btn-sm btn-primary px-3 py-2 me-sm-2">Pesquisar</button>
-
-              <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-sm btn-success px-3 py-2">
-                <i class="ri-add-line align-bottom me-1"></i> Adicionar
-              </a>
-            </div>
-          </div>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
-
 </div>
 <div class="row">
 
