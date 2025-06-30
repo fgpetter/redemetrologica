@@ -277,10 +277,12 @@ class LancamentoFinanceiroController extends Controller
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
       ->withTrashed()
+      ->orderBy('nome_razao')
       ->get();
 
-    $cursos = AgendaCursos::select('agenda_cursos.id', 'agenda_cursos.uid', 'agenda_cursos.curso_id')
+    $cursos = AgendaCursos::select('agenda_cursos.id', 'agenda_cursos.uid', 'agenda_cursos.curso_id', 'agenda_cursos.data_inicio')
       ->join('cursos', 'agenda_cursos.curso_id', '=', 'cursos.id')
+      ->whereIn('agenda_cursos.id', LancamentoFinanceiro::whereNull('data_pagamento')->select('agenda_curso_id'))
       ->whereNot('agenda_cursos.status', 'CANCELADO')
       ->orderBy('cursos.descricao')
       ->get();

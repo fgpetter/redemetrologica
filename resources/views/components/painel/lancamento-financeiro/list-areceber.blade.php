@@ -40,7 +40,7 @@
                         <option value=""> - </option>
                         @foreach ($cursos as $curso)
                             <option @selected($curso->id == $busca_curso) value="{{ $curso->id }}">
-                                ID: {{ $curso->id }} - {{ $curso->curso->descricao }}
+                                 {{ \Carbon\Carbon::parse($curso->data_inicio)->format('d/m/y') }} - {{ $curso->curso->descricao }}
                             </option>
                         @endforeach
                     </x-forms.input-select>
@@ -61,14 +61,16 @@
                     <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
                         <option value=""> - </option>
                         @foreach ($pessoas as $pessoa)
-                            <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{ $pessoa->nome_razao }} -
-                                {{ $pessoa->cpf_cnpj }}</option>
+                            <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{$pessoa->cpf_cnpj }} -
+                                {{ $pessoa->nome_razao }}</option>
                         @endforeach
                     </x-forms.input-select>
                 </div>
                 <div class="col-2 d-flex flex-nowrap gap-2">
                     <button type="submit" class="btn btn-sm btn-primary px-3 py-2">Pesquisar</button>
-                    <button type="reset" class="btn btn-sm btn-danger px-3 py-2">Limpar</button>
+                    <a href="{{ route('a-receber-index') }}" class="btn btn-sm btn-danger px-3 py-2">
+                        Limpar
+                    </a>
                 </div>
             </div>
         </form>
