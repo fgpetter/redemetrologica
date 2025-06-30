@@ -639,7 +639,17 @@
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
                         <h6 class="dropdown-header">Olá {{ auth()->user()->name }}!</h6>
-                        <a class="dropdown-item" href="{{ route('user-edit', auth()->user()->id)}}"><i class="mdi mdi-account-circle text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Editar perfil </span></a>
+                        <a class="dropdown-item" href="{{ route('user-edit', auth()->user()->id)}}">
+                            <i class="mdi mdi-account-circle text-muted fs-lg align-middle me-1"></i> 
+                            <span class="align-middle">Editar perfil </span>
+                        </a>
+                        <span class="dropdown-item">
+                            <span class="align-middle">Alterar Fonte</span> 
+                            <span class="text-muted fs-4 align-middle">
+                                <i class="mdi mdi-format-annotation-plus mx-2" id="font-plus"></i>
+                                <i class="mdi mdi-format-annotation-minus" id="font-minus"></i>
+                            </span>
+                        </span>
                         {{-- <a class="dropdown-item" href="#"><i class="mdi mdi-message-text-outline text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Messages</span></a>
                         <a class="dropdown-item" href="#"><i class="mdi mdi-calendar-check-outline text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Taskboard</span></a>
                         <a class="dropdown-item" href="#"><i class="mdi mdi-lifebuoy text-muted fs-lg align-middle me-1"></i> <span class="align-middle">Help</span></a> --}}
