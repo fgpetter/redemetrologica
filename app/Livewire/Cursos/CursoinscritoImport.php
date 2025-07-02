@@ -43,7 +43,7 @@ class CursoinscritoImport extends Component
         ]);
 
         $collection = Excel::toCollection(null, $this->arquivo)->first();
-        $this->headers = $collection->first()->map(fn ($item) => strtolower(trim($item)))->toArray();
+        $this->headers = $collection->first()->map(fn($item) => strtolower(trim($item)))->toArray();
 
         $required = ['cpf_cnpj', 'nome_razao', 'email'];
         if (count(array_intersect($required, $this->headers)) !== count($required)) {
@@ -94,7 +94,7 @@ class CursoinscritoImport extends Component
         return $validator->fails() ? $validator->errors()->first() : null;
     }
 
-   
+
 
     public function removeRow($index)
     {
@@ -104,7 +104,7 @@ class CursoinscritoImport extends Component
         $this->rowErrors = array_values($this->rowErrors);
     }
 
-    
+
     public function addRow()
     {
         $newRow = [
@@ -126,38 +126,45 @@ class CursoinscritoImport extends Component
             return;
         }
 
-        DB::transaction(function () {
-            foreach ($this->preview as $index => $item) {
-                if ($this->rowErrors[$index]) {
-                    continue;
-                }
 
-                $item['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $item['cpf_cnpj']);
-                $item['nome_razao'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($item['nome_razao']));
+        foreach ($this->preview as $item) {
 
-                $pessoa = Pessoa::updateOrCreate(
-                    ['cpf_cnpj' => $item['cpf_cnpj']],
-                    [
-                        'nome_razao' => $item['nome_razao'],
-                        'email' => $item['email'],
-                        'tipo_pessoa' => 'PF'
-                    ]
-                );
-
-                CreateUserForPessoaAction::handle($pessoa);
-
-                CursoInscrito::updateOrCreate([
-                    'pessoa_id' => $pessoa->id,
-                    'agenda_curso_id' => $this->agendacurso->id,
-                ], [
-                    'empresa_id' => $this->agendacurso->empresa_id,
-                    'data_inscricao' => now()
-                ]);
+            // Remove caracteres especiais e espaços extras
+            $item['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $item['cpf_cnpj']);
+            $item['nome_razao'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($item['nome_razao']));
+            // Pula se o e-mail for inválido
+            if (isInvalidEmail($item['email'])) {
+                continue;
             }
-        });
+
+            //Verifica se a pessoa já existe ou cria uma nova
+            $pessoa = Pessoa::updateOrCreate(
+                ['cpf_cnpj' => $item['cpf_cnpj']],
+                [
+                    'nome_razao' => $item['nome_razao'],
+                    'email' => $item['email'],
+                    'tipo_pessoa' => 'PF'
+                ]
+            );
+
+            // Cria o usuário para a pessoa
+            CreateUserForPessoaAction::handle($pessoa);
+
+            // Cria ou atualiza o registro de inscrição
+            CursoInscrito::updateOrCreate([
+                'pessoa_id' => $pessoa->id,
+                'agenda_curso_id' => $this->agendacurso->id,
+            ], [
+                'empresa_id' => $this->agendacurso->empresa_id,
+                'data_inscricao' => now()
+            ]);
+
+
+        }
+        
 
         session()->flash('success', 'Inscrições importadas com sucesso!');
-        return redirect(route('agendamento-curso-in-company-insert', $this->agendacurso->uid) . '#participantes');
+        return redirect()->to(route('agendamento-curso-in-company-insert', [$this->agendacurso->uid]) . '#participantes');
     }
 
     public function render()
