@@ -2,23 +2,24 @@
     <div class="mb-3">
         <label for="arquivo" class="form-label">Selecione o arquivo (.xls, .xlsx, .csv)</label>
         <input type="file" id="arquivo" class="form-control" wire:model="arquivo" accept=".xls,.xlsx,.csv">
-        @error('arquivo') <span class="text-danger">{{ $message }}</span> @enderror
+        @error('arquivo')
+            <span class="text-danger">{{ $message }}</span>
+        @enderror
     </div>
-
     <div wire:loading wire:target="arquivo" class="text-center my-3">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Carregando...</span>
         </div>
         <p>Analisando o arquivo, aguarde...</p>
     </div>
-    @if(!empty($preview))
+    @if (!empty($preview))
         @php
             $errorCount = count(array_filter($rowErrors));
             $totalRecords = count($preview);
         @endphp
 
-      
-        @if($errorCount > 0)
+
+        @if ($errorCount > 0)
             <h6 class="mt-4">Pré-visualização dos dados para correção</h6>
             <p class="text-muted">Corrija os campos com erro antes de importar.</p>
 
@@ -46,47 +47,45 @@
             <table class="table table-bordered table-striped align-middle">
                 <thead>
                     <tr>
-                        <th>Cpf_Cnpj</th>
-                        <th>Nome_Razao</th>
-                        <th>Email</th>
-                        <th style="width: 250px;">Status</th>
-                        <th style="width: 80px;">Ações</th>
+                        <th class="text-center" style="width: 20%;">Cpf_Cnpj</th>
+                        <th class="text-center" style="width: 25%;">Nome_Razao</th>
+                        <th class="text-center" style="width: 25%;">Email</th>
+                        <th class="text-center" style="width: 20%;">Status</th>
+                        <th class="text-center" style="width: 5%;"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($preview as $index => $row)
+                    @foreach ($preview as $index => $row)
                         <tr>
 
                             <td>
-                                <input type="text"
-                                       class="form-control form-control-sm @if($rowErrors[$index] && str_contains(strtolower($rowErrors[$index]), 'cpf_cnpj')) is-invalid @endif"
-                                       wire:model.live.debounce.500ms="preview.{{ $index }}.cpf_cnpj"
-                                       data-mask="cpf-cnpj">
+                                <input type="text" class="form-control form-control-sm"
+                                    wire:model.live.debounce.500ms="preview.{{ $index }}.cpf_cnpj"
+                                    data-mask="cpf-cnpj">
                             </td>
                             <td>
-                                <input type="text"
-                                       class="form-control form-control-sm @if($rowErrors[$index] && str_contains(strtolower($rowErrors[$index]), 'nome_razao')) is-invalid @endif"
-                                       wire:model.live.debounce.500ms="preview.{{ $index }}.nome_razao">
+                                <input type="text" class="form-control form-control-sm"
+                                    wire:model.live.debounce.500ms="preview.{{ $index }}.nome_razao">
                             </td>
                             <td>
-                                <input type="text"
-                                       class="form-control form-control-sm @if($rowErrors[$index] && str_contains(strtolower($rowErrors[$index]), 'email')) is-invalid @endif"
-                                       wire:model.live.debounce.500ms="preview.{{ $index }}.email">
+                                <input type="text" class="form-control form-control-sm"
+                                    wire:model.live.debounce.500ms="preview.{{ $index }}.email">
                             </td>
-                            <td>
-                                @if($rowErrors[$index])
+                            <td class="text-center">
+                                @if ($rowErrors[$index])
                                     <span class="text-danger" style="white-space: normal; word-wrap: break-word;">
                                         <i class="ri-error-warning-line me-1 align-middle"></i> {{ $rowErrors[$index] }}
                                     </span>
                                 @else
-                                    <span class="text-success d-flex align-items-center">
+                                    <span class="text-success d-flex align-items-center justify-content-center">
                                         <i class="ri-check-line me-1"></i> OK
                                     </span>
                                 @endif
                             </td>
                             <td class="text-center">
 
-                                <button type="button" class="btn btn-danger btn-sm" wire:click="removerLinha({{ $index }})">
+                                <button type="button" class="btn btn-danger btn-sm"
+                                    wire:click="removeRow({{ $index }})">
                                     <i class="ri-delete-bin-line"></i>
                                 </button>
                             </td>
@@ -104,12 +103,14 @@
             @php
                 $hasErrors = count(array_filter($rowErrors)) > 0;
             @endphp
-            <button wire:click="importar" class="btn btn-primary" wire:loading.attr="disabled" @if($hasErrors) disabled @endif>
-                <span wire:loading.remove wire:target="importar">
+            <button wire:click="importInscritos" class="btn btn-primary" wire:loading.attr="disabled"
+                @if ($hasErrors) disabled @endif>
+                <span wire:loading.remove wire:target="importInscritos">
                     <i class="ri-upload-2-line align-bottom"></i> Confirmar Importação
                 </span>
-                <span wire:loading wire:target="importar">
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Importando...
+                <span wire:loading wire:target="importInscritos">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Importando...
                 </span>
             </button>
         </div>

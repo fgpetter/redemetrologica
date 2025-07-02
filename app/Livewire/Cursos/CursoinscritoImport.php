@@ -55,6 +55,12 @@ class CursoinscritoImport extends Component
             return array_combine($this->headers, $row->toArray());
         })->values();
 
+
+        if ($data->isEmpty()) {
+            $this->addError('arquivo', 'A planilha não contém dados para importação.');
+            return;
+        }
+
         foreach ($data as $index => $item) {
             $this->preview[] = $item;
             $this->rowErrors[$index] = $this->validateRow($item);
@@ -76,13 +82,50 @@ class CursoinscritoImport extends Component
             'cpf_cnpj' => ['required', new CpfOuCnpj],
             'nome_razao' => 'required|string|min:3',
             'email' => 'required|email',
+        ], [
+            'cpf_cnpj.required' => 'O CPF/CNPJ é obrigatório.',
+            'cpf_cnpj.CpfOuCnpj' => 'O CPF/CNPJ informado é inválido.',
+            'nome_razao.required' => 'O nome/razão social é obrigatório.',
+            'nome_razao.min' => 'O nome/razão social deve ter no mínimo 3 caracteres.',
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email' => 'O e-mail informado é inválido.',
         ]);
 
         return $validator->fails() ? $validator->errors()->first() : null;
     }
 
-    public function importar()
+   
+
+    public function removeRow($index)
     {
+        unset($this->preview[$index]);
+        unset($this->rowErrors[$index]);
+        $this->preview = array_values($this->preview);
+        $this->rowErrors = array_values($this->rowErrors);
+    }
+
+    
+    public function addRow()
+    {
+        $newRow = [
+            'cpf_cnpj' => '',
+            'nome_razao' => '',
+            'email' => '',
+            'telefone' => '',
+        ];
+        $this->preview[] = $newRow;
+        $newIndex = count($this->preview) - 1;
+        $this->rowErrors[$newIndex] = $this->validateRow($newRow);
+    }
+
+    public function importInscritos()
+    {
+
+        if ($this->hasErrors) {
+            session()->flash('error', 'Não é possível importar enquanto houver erros nos registros.');
+            return;
+        }
+
         DB::transaction(function () {
             foreach ($this->preview as $index => $item) {
                 if ($this->rowErrors[$index]) {
@@ -115,28 +158,6 @@ class CursoinscritoImport extends Component
 
         session()->flash('success', 'Inscrições importadas com sucesso!');
         return redirect(route('agendamento-curso-in-company-insert', $this->agendacurso->uid) . '#participantes');
-    }
-
-    public function removerLinha($index)
-    {
-        unset($this->preview[$index]);
-        unset($this->rowErrors[$index]);
-        $this->preview = array_values($this->preview);
-        $this->rowErrors = array_values($this->rowErrors);
-    }
-
-    
-    public function addRow()
-    {
-        $newRow = [
-            'cpf_cnpj' => '',
-            'nome_razao' => '',
-            'email' => '',
-            'telefone' => '',
-        ];
-        $this->preview[] = $newRow;
-        $newIndex = count($this->preview) - 1;
-        $this->rowErrors[$newIndex] = $this->validateRow($newRow);
     }
 
     public function render()
