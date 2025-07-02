@@ -2,15 +2,16 @@
 
 namespace App\Livewire\Cursos;
 
-use Livewire\Component;
-use Livewire\WithFileUploads;
-use App\Models\AgendaCursos;
 use App\Models\Pessoa;
+use Livewire\Component;
+use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
-use App\Actions\CreateUserForPessoaAction;
-use Illuminate\Support\Facades\Validator;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
+use App\Actions\CreateUserForPessoaAction;
+use LaravelLegends\PtBrValidator\Rules\CpfOuCnpj;
 
 class CursoinscritoImport extends Component
 {
@@ -72,7 +73,7 @@ class CursoinscritoImport extends Component
     private function validateRow(array $item): ?string
     {
         $validator = Validator::make($item, [
-            'cpf_cnpj' => ['required', new \LaravelLegends\PtBrValidator\Rules\CpfOuCnpj],
+            'cpf_cnpj' => ['required', new CpfOuCnpj],
             'nome_razao' => 'required|string|min:3',
             'email' => 'required|email',
         ]);
@@ -102,10 +103,11 @@ class CursoinscritoImport extends Component
 
                 CreateUserForPessoaAction::handle($pessoa);
 
-                CursoInscrito::create([
+                CursoInscrito::updateOrCreate([
                     'pessoa_id' => $pessoa->id,
-                    'empresa_id' => $this->agendacurso->empresa_id,
                     'agenda_curso_id' => $this->agendacurso->id,
+                ], [
+                    'empresa_id' => $this->agendacurso->empresa_id,
                     'data_inscricao' => now()
                 ]);
             }
@@ -113,6 +115,28 @@ class CursoinscritoImport extends Component
 
         session()->flash('success', 'Inscrições importadas com sucesso!');
         return redirect(route('agendamento-curso-in-company-insert', $this->agendacurso->uid) . '#participantes');
+    }
+
+    public function removerLinha($index)
+    {
+        unset($this->preview[$index]);
+        unset($this->rowErrors[$index]);
+        $this->preview = array_values($this->preview);
+        $this->rowErrors = array_values($this->rowErrors);
+    }
+
+    
+    public function addRow()
+    {
+        $newRow = [
+            'cpf_cnpj' => '',
+            'nome_razao' => '',
+            'email' => '',
+            'telefone' => '',
+        ];
+        $this->preview[] = $newRow;
+        $newIndex = count($this->preview) - 1;
+        $this->rowErrors[$newIndex] = $this->validateRow($newRow);
     }
 
     public function render()

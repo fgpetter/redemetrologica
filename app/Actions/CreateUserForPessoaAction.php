@@ -49,7 +49,7 @@ class CreateUserForPessoaAction
     ];
 
     // Envia email com as credenciais
-    // Mail::to($user->email)->send(new UserRegistered($user_data));
+    Mail::to($user->email)->send(new UserRegistered($user_data));
 
     return $user;
   }
