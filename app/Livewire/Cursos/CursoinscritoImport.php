@@ -129,36 +129,37 @@ class CursoinscritoImport extends Component
 
         foreach ($this->preview as $item) {
 
-            // Remove caracteres especiais e espaços extras
-            $item['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $item['cpf_cnpj']);
-            $item['nome_razao'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($item['nome_razao']));
-            // Pula se o e-mail for inválido
-            if (isInvalidEmail($item['email'])) {
-                continue;
-            }
+            DB::transaction(function () use ($item) {
+                // Remove caracteres especiais e espaços extras
+                $item['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $item['cpf_cnpj']);
+                $item['nome_razao'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($item['nome_razao']));
+                // Pula se o e-mail for inválido
+                if (isInvalidEmail($item['email'])) {
+                    return;
+                }
 
-            //Verifica se a pessoa já existe ou cria uma nova
-            $pessoa = Pessoa::updateOrCreate(
-                ['cpf_cnpj' => $item['cpf_cnpj']],
-                [
-                    'nome_razao' => $item['nome_razao'],
-                    'email' => $item['email'],
-                    'tipo_pessoa' => 'PF'
-                ]
-            );
+                //Verifica se a pessoa já existe ou cria uma nova
+                $pessoa = Pessoa::updateOrCreate(
+                    ['cpf_cnpj' => $item['cpf_cnpj']],
+                    [
+                        'nome_razao' => $item['nome_razao'],
+                        'email' => $item['email'],
+                        'tipo_pessoa' => 'PF'
+                    ]
+                );
 
-            // Cria o usuário para a pessoa
-            CreateUserForPessoaAction::handle($pessoa);
+                // Cria o usuário para a pessoa
+                CreateUserForPessoaAction::handle($pessoa);
 
-            // Cria ou atualiza o registro de inscrição
-            CursoInscrito::updateOrCreate([
-                'pessoa_id' => $pessoa->id,
-                'agenda_curso_id' => $this->agendacurso->id,
-            ], [
-                'empresa_id' => $this->agendacurso->empresa_id,
-                'data_inscricao' => now()
-            ]);
-
+                // Cria ou atualiza o registro de inscrição
+                CursoInscrito::updateOrCreate([
+                    'pessoa_id' => $pessoa->id,
+                    'agenda_curso_id' => $this->agendacurso->id,
+                ], [
+                    'empresa_id' => $this->agendacurso->empresa_id,
+                    'data_inscricao' => now()
+                ]);
+            });
 
         }
         

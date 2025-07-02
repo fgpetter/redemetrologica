@@ -104,11 +104,11 @@
                 $hasErrors = count(array_filter($rowErrors)) > 0;
             @endphp
             <button wire:click="importInscritos" class="btn btn-primary" wire:loading.attr="disabled"
-                @if ($hasErrors) disabled @endif>
+                @if ($hasErrors) disabled @endif data-bs-dismiss="modal">
                 <span wire:loading.remove wire:target="importInscritos">
                     <i class="ri-upload-2-line align-bottom"></i> Confirmar Importação
                 </span>
-                <span wire:loading wire:target="importInscritos">
+                <span wire:loading wire:target="importInscritos" >
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     Importando...
                 </span>
