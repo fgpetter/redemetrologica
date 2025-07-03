@@ -64,19 +64,8 @@
                             <span data-bs-toggle="tooltip" data-bs-html="true"
                                 title="Somente se já tiver empresa atrelada ao curso In-Company">
                                 <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#enviaXLSModal">
-                                    <i class="ri-file-excel-line align-bottom" sty></i> Adicionar por lista
-                                </a>
-                            </span>
-                        @endif
-
-                        {{-- livewire --}}
-                        @if ($agendacurso?->tipo_agendamento == 'IN-COMPANY')
-                            <span data-bs-toggle="tooltip" data-bs-html="true"
-                                title="Somente se já tiver empresa atrelada ao curso In-Company">
-                                <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#importaInscritosModal">
-                                    <i class="ri-file-excel-line align-bottom"></i> Adicionar livewire
+                                    <i class="ri-file-excel-line align-bottom"></i> Adicionar por lista
                                 </a>
                             </span>
                         @endif
@@ -88,27 +77,26 @@
 
                 <x-painel.agendamento-cursos.modal-insere-participante :agendacurso="$agendacurso" :empresas="$empresas"
                     :pessoas="$pessoas" />
-
+                {{-- Modal: importaInscritosModal --}}
                 @if ($agendacurso?->tipo_agendamento == 'IN-COMPANY' && $agendacurso?->empresa_id)
-                    
-                    
-                    <div wire:ignore.self class="modal fade" id="importaInscritosModal" tabindex="-1" aria-labelledby="importaInscritosModalLabel" aria-hidden="true">
+                    <div wire:ignore.self class="modal fade" id="importaInscritosModal" tabindex="-1"
+                        aria-labelledby="importaInscritosModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title">Importar inscritos</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                            </div>
-                            <div class="modal-body">
-                                <livewire:cursos.cursoinscrito-import :agendacurso="$agendacurso" :key="$agendacurso->id" />
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Importar inscritos</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <livewire:cursos.cursoinscrito-import :agendacurso="$agendacurso" :key="$agendacurso->id" />
 
+                                </div>
                             </div>
-                          </div>
                         </div>
-                      </div>
-                      
-
+                    </div>
                 @endif
+                {{-- Modal: importaInscritosModal --}}
             </div>
 
             <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->

@@ -133,6 +133,8 @@ class CursoinscritoImport extends Component
                 // Remove caracteres especiais e espaços extras
                 $item['cpf_cnpj'] = preg_replace('/[^0-9]/', '', $item['cpf_cnpj']);
                 $item['nome_razao'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($item['nome_razao']));
+                $item['email'] = strtolower($item['email']);
+
                 // Pula se o e-mail for inválido
                 if (isInvalidEmail($item['email'])) {
                     return;
@@ -162,10 +164,11 @@ class CursoinscritoImport extends Component
             });
 
         }
-        
 
-        session()->flash('success', 'Inscrições importadas com sucesso!');
-        return redirect()->to(route('agendamento-curso-in-company-insert', [$this->agendacurso->uid]) . '#participantes');
+       
+        return redirect()
+            ->route('agendamento-curso-in-company-insert', [$this->agendacurso->uid, '#participantes'])
+            ->with('success', 'Inscrições importadas com sucesso!');
     }
 
     public function render()
