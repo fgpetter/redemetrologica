@@ -1,5 +1,6 @@
 <header id="page-topbar">
     <div class="layout-width">
+        <x-layouts.homologation-banner />
         <div class="navbar-header">
             <div class="d-flex">
                 <!-- LOGO -->
@@ -30,6 +31,8 @@
                         <span></span>
                     </span>
                 </button>
+                
+
 
                 {{-- <form class="app-search d-none d-md-inline-flex">
                     <div class="position-relative">
@@ -116,7 +119,7 @@
                     </div>
                 </form> --}}
             </div>
-
+            
             <div class="d-flex align-items-center">
 
                 {{-- <div class="dropdown topbar-head-dropdown ms-1 header-item">
@@ -623,7 +626,6 @@
                         </div>
                     </div>
                 </div> --}}
-
                 <div class="dropdown ms-sm-3 header-item topbar-user">
                     <button type="button" class="btn shadow-none" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
@@ -666,6 +668,7 @@
             </div>
         </div>
     </div>
+   
 </header>
 
 <!-- removeNotificationModal -->

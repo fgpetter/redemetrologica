@@ -31,6 +31,7 @@
 </head>
 
 <body>
+    <x-layouts.homologation-banner />
     <x-site.nav />
     @yield('content')
 
