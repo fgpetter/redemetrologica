@@ -62,7 +62,7 @@
                                     const novoValorFormatado = this.formatarValor(this.valorLocal);
                                     const modalValorInput = document.getElementById('valor-{{ $participante->uid }}');
                                     if (modalValorInput) {
-                                        modalValorInput.value = novoValorFormatado;
+                                        modalValorInput.value = Number(novoValorFormatado.replace(/[^\d,]/g, '').replace(',', '.'));
                                     }
                                 }
                             }"
