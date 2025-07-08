@@ -41,8 +41,8 @@
                 @if ($participante->pessoa->deleted_at !== null)
                   <span class="text-secondary">Pessoa excluída, somente leitura</span>
                 @else
-                {{-- Ao clicar em Editar ou Substituir, perguntar ao usuário a ação desejada --}}
-                <a href="#" class="link-primary fw-medium" onclick="event.preventDefault(); showResponsavelActionModal('{{ $participante->uid }}');">
+                {{-- SUBSTITUIR --}}
+                <a href="#" class="link-primary fw-medium" onclick="Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
                   Editar / Substituir Responsável
                   <i class="ri-arrow-right-line align-middle"></i>
                 </a>
@@ -82,98 +82,3 @@
   </div>
 </div>
 
-<!-- Modal de ação para Editar/Substituir Responsável -->
-<div class="modal fade" id="responsavelActionModal-{{ $participante->uid }}" tabindex="-1" aria-labelledby="responsavelActionModalLabel-{{ $participante->uid }}" aria-hidden="true">
-  <div class="modal-dialog">
-  <div class="modal-content">
-    <div class="modal-header">
-    <h5 class="modal-title" id="responsavelActionModalLabel-{{ $participante->uid }}">Escolha a ação</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-    </div>
-    <div class="modal-body">
-    O que deseja fazer com o responsável?
-    </div>
-    <div class="modal-footer">
-    <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="btn btn-primary">
-      Editar Responsável
-    </a>
-    <button type="button" class="btn btn-warning" onclick="substituirResponsavel('{{ $participante->uid }}')">
-      Substituir Responsável
-    </button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-    </div>
-  </div>
-  </div>
-</div>
-
-<!-- Troca Resp Modal -->
-<div class="modal fade" id="trocaRespModal-{{ $participante->uid }}" tabindex="-1" aria-labelledby="trocaRespModalLabel-{{ $participante->uid }}" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      
-      <form wire:submit.prevent="atualizarResponsavel('{{ $participante->id }}', document.getElementById('novo_responsavel_id-{{ $participante->uid }}').value)">
-        @csrf
-        <div class="modal-header">
-          <h5 class="modal-title" id="trocaRespModalLabel-{{ $participante->uid }}">Substituir Responsável</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row mb-3">
-            <div class="col-12">
-              <p>Selecione o novo responsável para a inscrição de <strong>{{ $participante->laboratorio->nome }}</strong>.</p>
-              <label for="novo_responsavel_id-{{ $participante->uid }}" class="form-label">Novo Responsável</label>
-              <select class="form-select" id="novo_responsavel_id-{{ $participante->uid }}" name="novo_responsavel_id" required data-choices>
-                <option value="">Selecione...</option>
-                @foreach($pessoas as $pessoa)
-                <option value="{{ $pessoa->id }}">{{ $pessoa->nome_razao }}</option>
-                @endforeach
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
-        </div>
-      </form>
-      
-    </div>
-  </div>
-</div>
-
-<script>
-  function showResponsavelActionModal(uid) {
-    // Hide the main participanteModal
-    var participanteModal = bootstrap.Modal.getInstance(document.getElementById('participanteModal' + uid));
-    if (participanteModal) {
-      participanteModal.hide();
-    }
-
-    var modal = new bootstrap.Modal(document.getElementById('responsavelActionModal-' + uid));
-    modal.show();
-  }
-
-  function substituirResponsavel(uid) {
-    // Hide the responsavelActionModal
-    var responsavelActionModal = bootstrap.Modal.getInstance(document.getElementById('responsavelActionModal-' + uid));
-    if (responsavelActionModal) {
-      responsavelActionModal.hide();
-    }
-
-    // Hide the main participanteModal
-    var participanteModal = bootstrap.Modal.getInstance(document.getElementById('participanteModal' + uid));
-    if (participanteModal) {
-      participanteModal.hide();
-    }
-
-    // Show the target modal (trocaRespModal)
-    var trocaRespModal = new bootstrap.Modal(document.getElementById('trocaRespModal-' + uid));
-    trocaRespModal.show();
-  }
-
-  // Listen for when trocaRespModal is hidden to re-show participanteModal
-  document.getElementById('trocaRespModal-{{ $participante->uid }}').addEventListener('hidden.bs.modal', function () {
-    var participanteModal = new bootstrap.Modal(document.getElementById('participanteModal' + '{{ $participante->uid }}'));
-    participanteModal.show();
-  });
-</script>

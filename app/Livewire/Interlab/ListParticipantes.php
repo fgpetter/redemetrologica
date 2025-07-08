@@ -37,7 +37,6 @@ class ListParticipantes extends Component
         ])
             ->orderBy('nome_razao')
             ->get();
-
         $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
             ->with(['empresa', 'pessoa', 'laboratorio'])
             ->get();
@@ -78,29 +77,6 @@ class ListParticipantes extends Component
         if ($item = $this->intelabinscritos->firstWhere('id', $id)) {
             $item->valor = $valor;
         }
-    }
-
-    public function atualizarResponsavel($id, $responsavelId)
-    {
-        Validator::make(
-            ['id' => $id, 'responsavel_id' => $responsavelId],
-            [
-                'id' => ['required', 'exists:interlab_inscritos,id'],
-                'responsavel_id' => ['required', 'exists:pessoas,id'],
-            ],
-            [
-                'id.required' => 'O ID é obrigatório.',
-                'id.exists' => 'Participante não encontrado.',
-                'responsavel_id.required' => 'O responsável é obrigatório.',
-                'responsavel_id.exists' => 'Responsável não encontrado.',
-            ]
-        )->validate();
-
-        $participante = InterlabInscrito::findOrFail($id);
-        $participante->pessoa_id = $responsavelId;
-        $participante->save();
-
-        return redirect()->back()->with('success', 'Responsável atualizado com sucesso.');
     }
 
     public function render()

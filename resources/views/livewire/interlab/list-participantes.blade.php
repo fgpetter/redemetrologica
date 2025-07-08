@@ -153,8 +153,9 @@
                             </div>
                         </td>
                     </tr>
-
-                    <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
+           
+                    
+                    <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" />
                 @endforeach
             @empty
                 <tr>
@@ -175,9 +176,12 @@
                 </tfoot>
             @endif
         </table>
+        {{-- substituir responsavel --}}
+        <livewire:interlab.substituir-responsavel />
 
-        {{-- Botão/modal de adicionar novo inscrito --}}
         <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
 
     </div>
 </div>
+
+
