@@ -1,3 +1,4 @@
+@props(['participante', 'agendainterlab', 'testevalormodal'])
 <div class="modal fade" id="{{ 'participanteModal'.$participante->uid }}" 
   tabindex="-1" aria-labelledby="participanteModalLabel">
   <div class="modal-dialog modal-lg">
@@ -40,16 +41,16 @@
                 @if ($participante->pessoa->deleted_at !== null)
                   <span class="text-secondary">Pessoa excluída, somente leitura</span>
                 @else
-                  <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="link-primary fw-medium">
-                    Editar responsável pela Inscrição
-                    <i class="ri-arrow-right-line align-middle"></i>
-                  </a>
+                {{-- Ao clicar em Editar ou Substituir, perguntar ao usuário a ação desejada --}}
+                <a href="#" class="link-primary fw-medium" onclick="event.preventDefault(); showResponsavelActionModal('{{ $participante->uid }}');">
+                  Editar / Substituir Responsável
+                  <i class="ri-arrow-right-line align-middle"></i>
+                </a>
                 @endif
               </div>
             </div>
           </div>
         </div>
-
         <div class="row">
           <form method="POST" action="{{ route('salvar-inscrito-interlab', $participante->uid) }}" id="form-{{ $participante->uid }}">
             @csrf
@@ -80,3 +81,88 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de ação para Editar/Substituir Responsável -->
+<div class="modal fade" id="responsavelActionModal-{{ $participante->uid }}" tabindex="-1" aria-labelledby="responsavelActionModalLabel-{{ $participante->uid }}" aria-hidden="true">
+  <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+    <h5 class="modal-title" id="responsavelActionModalLabel-{{ $participante->uid }}">Escolha a ação</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+    </div>
+    <div class="modal-body">
+    O que deseja fazer com o responsável?
+    </div>
+    <div class="modal-footer">
+    <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="btn btn-primary">
+      Editar Responsável
+    </a>
+    <button type="button" class="btn btn-warning" onclick="substituirResponsavel('{{ $participante->uid }}')">
+      Substituir Responsável
+    </button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- Outro Modal -->
+<div class="modal fade" id="outroModal-{{ $participante->uid }}" tabindex="-1" aria-labelledby="outroModalLabel-{{ $participante->uid }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="outroModalLabel-{{ $participante->uid }}">Outro Modal</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+            <div class="col-12">
+              <strong>Teste valor modal:</strong>
+                {{ $testevalormodal . "-" . $participante->uid }}
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showResponsavelActionModal(uid) {
+    // Hide the main participanteModal
+    var participanteModal = bootstrap.Modal.getInstance(document.getElementById('participanteModal' + uid));
+    if (participanteModal) {
+      participanteModal.hide();
+    }
+
+    var modal = new bootstrap.Modal(document.getElementById('responsavelActionModal-' + uid));
+    modal.show();
+  }
+
+  function substituirResponsavel(uid) {
+    // Hide the responsavelActionModal
+    var responsavelActionModal = bootstrap.Modal.getInstance(document.getElementById('responsavelActionModal-' + uid));
+    if (responsavelActionModal) {
+      responsavelActionModal.hide();
+    }
+
+    // Hide the main participanteModal
+    var participanteModal = bootstrap.Modal.getInstance(document.getElementById('participanteModal' + uid));
+    if (participanteModal) {
+      participanteModal.hide();
+    }
+
+    // Show the target modal (outroModal)
+    var outroModal = new bootstrap.Modal(document.getElementById('outroModal-' + uid));
+    outroModal.show();
+  }
+
+  // Listen for when outroModal is hidden to re-show participanteModal
+  document.getElementById('outroModal-{{ $participante->uid }}').addEventListener('hidden.bs.modal', function () {
+    var participanteModal = new bootstrap.Modal(document.getElementById('participanteModal' + '{{ $participante->uid }}'));
+    participanteModal.show();
+  });
+</script>

@@ -15,6 +15,7 @@ class ListParticipantes extends Component
     public $agendainterlab;
     public $intelabinscritos;
     public $interlabempresasinscritas;
+    public $testevalormodal = 'teste valor modal';
 
 
     public function mount(int $idinterlab)
