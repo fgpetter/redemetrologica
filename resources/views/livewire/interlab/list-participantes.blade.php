@@ -154,7 +154,7 @@
                         </td>
                     </tr>
 
-                    <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" :testevalormodal="$testevalormodal" />
+                    <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
                 @endforeach
             @empty
                 <tr>

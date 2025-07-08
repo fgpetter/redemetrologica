@@ -15,7 +15,7 @@ class ListParticipantes extends Component
     public $agendainterlab;
     public $intelabinscritos;
     public $interlabempresasinscritas;
-    public $testevalormodal = 'teste valor modal';
+    
 
 
     public function mount(int $idinterlab)
@@ -75,14 +75,32 @@ class ListParticipantes extends Component
         $participante->valor = $valor;
         $participante->save();
 
-        // 2) Recarrega toda a coleção, forçando o Livewire a re-renderizar
-        // $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-        //     ->with(['empresa', 'pessoa', 'laboratorio'])
-        //     ->get();
-
         if ($item = $this->intelabinscritos->firstWhere('id', $id)) {
             $item->valor = $valor;
         }
+    }
+
+    public function atualizarResponsavel($id, $responsavelId)
+    {
+        Validator::make(
+            ['id' => $id, 'responsavel_id' => $responsavelId],
+            [
+                'id' => ['required', 'exists:interlab_inscritos,id'],
+                'responsavel_id' => ['required', 'exists:pessoas,id'],
+            ],
+            [
+                'id.required' => 'O ID é obrigatório.',
+                'id.exists' => 'Participante não encontrado.',
+                'responsavel_id.required' => 'O responsável é obrigatório.',
+                'responsavel_id.exists' => 'Responsável não encontrado.',
+            ]
+        )->validate();
+
+        $participante = InterlabInscrito::findOrFail($id);
+        $participante->pessoa_id = $responsavelId;
+        $participante->save();
+
+        return redirect()->back()->with('success', 'Responsável atualizado com sucesso.');
     }
 
     public function render()

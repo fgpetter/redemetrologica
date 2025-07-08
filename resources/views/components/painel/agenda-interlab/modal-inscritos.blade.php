@@ -1,4 +1,4 @@
-@props(['participante', 'agendainterlab', 'testevalormodal'])
+@props(['participante', 'agendainterlab', 'pessoas'])
 <div class="modal fade" id="{{ 'participanteModal'.$participante->uid }}" 
   tabindex="-1" aria-labelledby="participanteModalLabel">
   <div class="modal-dialog modal-lg">
@@ -66,7 +66,7 @@
               <div class="col-12 py-2">
                 <x-forms.input-textarea name="informacoes_inscricao" label="Informações do inscrito"
                 >{{ old('informacoes_inscricao') ?? ($participante->informacoes_inscricao ?? null)}}
-                </x-forms.input-textarea>
+              </x-forms.input-textarea>
               </div>
 
             </div>
@@ -106,26 +106,37 @@
   </div>
 </div>
 
-<!-- Outro Modal -->
-<div class="modal fade" id="outroModal-{{ $participante->uid }}" tabindex="-1" aria-labelledby="outroModalLabel-{{ $participante->uid }}" aria-hidden="true">
+<!-- Troca Resp Modal -->
+<div class="modal fade" id="trocaRespModal-{{ $participante->uid }}" tabindex="-1" aria-labelledby="trocaRespModalLabel-{{ $participante->uid }}" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="outroModalLabel-{{ $participante->uid }}">Outro Modal</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row mb-3">
-            <div class="col-12">
-              <strong>Teste valor modal:</strong>
-                {{ $testevalormodal . "-" . $participante->uid }}
-            </div>
+      
+      <form wire:submit.prevent="atualizarResponsavel('{{ $participante->id }}', document.getElementById('novo_responsavel_id-{{ $participante->uid }}').value)">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="trocaRespModalLabel-{{ $participante->uid }}">Substituir Responsável</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-        <button type="button" class="btn btn-primary">Salvar</button>
-      </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-12">
+              <p>Selecione o novo responsável para a inscrição de <strong>{{ $participante->laboratorio->nome }}</strong>.</p>
+              <label for="novo_responsavel_id-{{ $participante->uid }}" class="form-label">Novo Responsável</label>
+              <select class="form-select" id="novo_responsavel_id-{{ $participante->uid }}" name="novo_responsavel_id" required data-choices>
+                <option value="">Selecione...</option>
+                @foreach($pessoas as $pessoa)
+                <option value="{{ $pessoa->id }}">{{ $pessoa->nome_razao }}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+      
     </div>
   </div>
 </div>
@@ -155,13 +166,13 @@
       participanteModal.hide();
     }
 
-    // Show the target modal (outroModal)
-    var outroModal = new bootstrap.Modal(document.getElementById('outroModal-' + uid));
-    outroModal.show();
+    // Show the target modal (trocaRespModal)
+    var trocaRespModal = new bootstrap.Modal(document.getElementById('trocaRespModal-' + uid));
+    trocaRespModal.show();
   }
 
-  // Listen for when outroModal is hidden to re-show participanteModal
-  document.getElementById('outroModal-{{ $participante->uid }}').addEventListener('hidden.bs.modal', function () {
+  // Listen for when trocaRespModal is hidden to re-show participanteModal
+  document.getElementById('trocaRespModal-{{ $participante->uid }}').addEventListener('hidden.bs.modal', function () {
     var participanteModal = new bootstrap.Modal(document.getElementById('participanteModal' + '{{ $participante->uid }}'));
     participanteModal.show();
   });
