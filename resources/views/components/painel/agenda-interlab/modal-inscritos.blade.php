@@ -43,12 +43,12 @@
                 @else
                   {{-- Editar ou Substituir Responsável --}}
                   <div class="d-flex flex-column align-items-end">
-                    <a href="#" class="link-primary fw-medium mb-1" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
-                      Substituir Responsável
-                      <i class="ri-arrow-right-line align-middle"></i>
-                    </a>
                     <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="link-primary fw-medium">
                       Editar Responsável
+                      <i class="ri-arrow-right-line align-middle"></i>
+                    </a>
+                    <a href="#" class="link-primary fw-medium mb-1" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
+                      Substituir Responsável
                       <i class="ri-arrow-right-line align-middle"></i>
                     </a>
                   </div>
