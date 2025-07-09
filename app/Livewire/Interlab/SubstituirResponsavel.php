@@ -34,6 +34,10 @@ class SubstituirResponsavel extends Component
 
     public function substituir()
     {
+        if (is_array($this->novo_responsavel_id) && isset($this->novo_responsavel_id['value'])) {
+            $this->novo_responsavel_id = $this->novo_responsavel_id['value'];
+        }
+        
         $validated = Validator::make(
             ['novo_responsavel_id' => $this->novo_responsavel_id],
             [
@@ -44,13 +48,16 @@ class SubstituirResponsavel extends Component
                 'novo_responsavel_id.exists' => 'Responsável não encontrado.',
             ]
         )->validate();
-
+                
         if ($this->interlabInscrito) {
             $this->interlabInscrito->pessoa_id = $validated['novo_responsavel_id'];
             $this->interlabInscrito->save();
-            
+
             $this->closeModal();
             return redirect(request()->header('Referer'))->with('success', 'Responsável atualizado com sucesso.');
+            // return redirect()
+            //     ->route('agenda-interlab-insert', [$this->interlabInscrito->uid, '#participantes'])
+            //     ->with('success', 'Inscrições importadas com sucesso!');
         }
     }
 

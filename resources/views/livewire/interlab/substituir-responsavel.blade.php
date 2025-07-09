@@ -16,7 +16,7 @@
                                 <select class="form-control"  data-choices  wire:model="novo_responsavel_id" id="novo_responsavel_id"required>
                                     <option value="">Selecione...</option>
                                     @foreach($pessoas->where('tipo_pessoa', 'PF') as $pessoa)
-                                        <option value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} |{{ $pessoa->nome_razao }}</option>
+                                        <option value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
                                     @endforeach
                                 </select>
                                 @error('novo_responsavel_id') <span class="text-danger">{{ $message }}</span> @enderror

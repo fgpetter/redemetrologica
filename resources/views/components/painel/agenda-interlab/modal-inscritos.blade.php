@@ -41,8 +41,8 @@
                 @if ($participante->pessoa->deleted_at !== null)
                   <span class="text-secondary">Pessoa excluída, somente leitura</span>
                 @else
-                {{-- SUBSTITUIR --}}
-                <a href="#" class="link-primary fw-medium" onclick="Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
+                {{-- Melhorar, aqui precisa passar o id da agenda interlab tbm. --}}
+                <a href="#" class="link-primary fw-medium" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
                   Editar / Substituir Responsável
                   <i class="ri-arrow-right-line align-middle"></i>
                 </a>
