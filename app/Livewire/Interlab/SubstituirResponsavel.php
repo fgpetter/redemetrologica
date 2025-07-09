@@ -28,7 +28,7 @@ class SubstituirResponsavel extends Component
                 ->orderBy('nome_razao')
                 ->get();
             $this->showModal = true;
- 
+            $this->dispatch('choices:init');
         }
     }
 
