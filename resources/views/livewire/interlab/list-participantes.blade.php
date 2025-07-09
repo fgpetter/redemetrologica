@@ -176,7 +176,7 @@
                 </tfoot>
             @endif
         </table>
-        {{-- substituir responsavel --}}
+        {{-- Componente p/ substituir responsavel pela inscrição--}}
         <livewire:interlab.substituir-responsavel />
 
         <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :pessoas="$pessoas" />

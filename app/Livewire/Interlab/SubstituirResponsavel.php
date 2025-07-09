@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Interlab;
 
+
 use App\Models\InterlabInscrito;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\Validator;
@@ -55,9 +56,7 @@ class SubstituirResponsavel extends Component
 
             $this->closeModal();
             return redirect(request()->header('Referer'))->with('success', 'Responsável atualizado com sucesso.');
-            // return redirect()
-            //     ->route('agenda-interlab-insert', [$this->interlabInscrito->uid, '#participantes'])
-            //     ->with('success', 'Inscrições importadas com sucesso!');
+            
         }
     }
 

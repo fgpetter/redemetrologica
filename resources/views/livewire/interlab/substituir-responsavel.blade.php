@@ -37,39 +37,20 @@
 </div>
 
 <script>
-    // Escuta o evento disparado pelo Livewire
-    window.addEventListener('choices:init', () => {
-            console.log('Iniciando Choices no componente SubstituirResponsavel');
-            // Aguarda a renderização do DOM
-            setTimeout(() => {
-                const select = document.getElementById('novo_responsavel_id');
-                
-                if (select && !select.choicesInstanciado) {
-                    console.log('Elemento select encontrado, inicializando Choices');
-                    // Carrega o Choices se necessário
-                    if (typeof Choices === 'undefined') {
-                        const script = document.createElement('script');
-                        script.src = "{{ asset('build/libs/choices.js/public/assets/scripts/choices.min.js') }}";
-                        script.onload = () => initSelect(select);
-                        document.head.appendChild(script);
-                    } else {
-                        initSelect(select);
-                    }
-                }
-            }, 100);
-        });
-    
 
+    window.addEventListener('choices:init', () => {
+        setTimeout(() => {      
+                        const select = document.getElementById('novo_responsavel_id');
+                        if (select && !select.choicesInstanciado) {
+                                initSelect(select);
+                        }
+            }, 50);
+        });
     function initSelect(element) {
         new Choices(element, {
             searchEnabled: true,
             searchFields: ['label'],
             removeItemButton: true,
-
         });
-        
-        // Marca como instanciado para evitar duplicação
-        element.choicesInstanciado = true;
-        console.log('Choices inicializado no componente');
     }
 </script>

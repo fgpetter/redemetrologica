@@ -41,11 +41,17 @@
                 @if ($participante->pessoa->deleted_at !== null)
                   <span class="text-secondary">Pessoa excluída, somente leitura</span>
                 @else
-                {{-- Melhorar, aqui precisa passar o id da agenda interlab tbm. --}}
-                <a href="#" class="link-primary fw-medium" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
-                  Editar / Substituir Responsável
-                  <i class="ri-arrow-right-line align-middle"></i>
-                </a>
+                  {{-- Editar ou Substituir Responsável --}}
+                  <div class="d-flex flex-column align-items-end">
+                    <a href="#" class="link-primary fw-medium mb-1" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
+                      Substituir Responsável
+                      <i class="ri-arrow-right-line align-middle"></i>
+                    </a>
+                    <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="link-primary fw-medium">
+                      Editar Responsável
+                      <i class="ri-arrow-right-line align-middle"></i>
+                    </a>
+                  </div>
                 @endif
               </div>
             </div>
