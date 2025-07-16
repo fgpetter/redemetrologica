@@ -62,7 +62,7 @@
                                     const novoValorFormatado = this.formatarValor(this.valorLocal);
                                     const modalValorInput = document.getElementById('valor-{{ $participante->uid }}');
                                     if (modalValorInput) {
-                                        modalValorInput.value = novoValorFormatado;
+                                        modalValorInput.value = Number(novoValorFormatado.replace(/[^\d,]/g, '').replace(',', '.'));
                                     }
                                 }
                             }"
@@ -153,7 +153,8 @@
                             </div>
                         </td>
                     </tr>
-
+           
+                    
                     <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" />
                 @endforeach
             @empty
@@ -175,9 +176,12 @@
                 </tfoot>
             @endif
         </table>
+        {{-- Componente p/ substituir responsavel pela inscrição--}}
+        <livewire:interlab.substituir-responsavel />
 
-        {{-- Botão/modal de adicionar novo inscrito --}}
         <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
 
     </div>
 </div>
+
+
