@@ -28,13 +28,27 @@ class LancamentoFinanceiroController extends Controller
       'pessoa' => ['nullable', 'exists:pessoas,id'],
       'tipo_data' => ['nullable', 'in:data_vencimento,data_pagamento'],
     ]);
+    
+    if( empty($validated['data_inicial']) ) {
+      $validated['data_inicial'] = today();
+    }
+    
+    if( empty($validated['data_final']) ) {
+      $validated['data_final'] = today()->addDays(7);
+    }
+
+    if( $validated['pessoa'] ?? false ) {
+      unset($validated['data_inicial']);
+      unset($validated['data_final']);
+      unset($validated['tipo_data']);
+    }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)
       ->orderBy('data_vencimento')
       ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id')->where('status', 'EFETIVADO'))
       ->withTrashed()
       ->get();
 
@@ -275,7 +289,7 @@ class LancamentoFinanceiroController extends Controller
       ->orderBy('data_vencimento')->paginate(10);
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id')->whereNot('status', 'EFETIVADO'))
       ->withTrashed()
       ->orderBy('nome_razao')
       ->get();

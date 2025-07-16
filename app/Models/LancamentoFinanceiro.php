@@ -130,14 +130,10 @@ class LancamentoFinanceiro extends Model
 
       ->when($validated['data_inicial'] ?? null, function (Builder $query, $data_inicial) use ($tipoData) {
         $query->where($tipoData, '>=', $data_inicial);
-      }, function (Builder $query) use ($tipoData) {
-        $query->where($tipoData, '>=', today()); // default
       })
 
       ->when($validated['data_final'] ?? null, function (Builder $query, $data_final) use ($tipoData, $validated) {
         $query->where($tipoData, '<=', $data_final);
-      }, function (Builder $query) use ($tipoData, $validated) {
-        $query->where($tipoData, '<=', $validated['data_final'] ?? today()->addDays(7)); // default
       })
 
       ->when($validated['pessoa'] ?? null, function (Builder $query, $pessoa) {
