@@ -6,7 +6,7 @@
     <ul class="list-group list-group-flush">
       @foreach($agendainterlab->materiais as $material)
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="pe-4">
+          <div class="pe-2 pe-xxl-4">
             {{ $material->descricao }} <br>
             <a href="{{ asset('interlab-material/' . $material->arquivo) }}">
               <i class="ph-file-arrow-down align-middle" style="font-size: 1.4rem"></i> 
@@ -15,7 +15,10 @@
           </div>
           <form method="POST" action="{{ route('agenda-interlab-delete-material', $material->uid) }}" >
             @csrf
-            <button type="submit" class="btn btn-danger py-0 px-1">REMOVER</button>
+            <button type="submit" class="btn btn-danger py-0 px-1">
+              <i class="ph-trash align-middle d-block d-xxl-none" style="font-size: 1.4rem"></i>
+              <span class="d-none d-xxl-block">REMOVER</span>
+            </button>
           </form>
         </li>
       @endforeach
@@ -24,11 +27,11 @@
 
     <form method="POST" class="row g-2 my-3 border-top" action="{{ route('agenda-interlab-upload-material', $agendainterlab->uid) }}" enctype="multipart/form-data">
       @csrf
-      <div class="col-8 pt-2">
+      <div class="col-12 col-xxl-8 pt-2">
         <x-forms.input-field value="{{ old('descricao') }}" name="descricao" label="Descrição" placeholder="Nome do documento" />
         @error('descricao')<div class="text-warning">{{ $message }}</div>@enderror
       </div>
-      <div class="col-8">
+      <div class="col-12 col-xxl-8">
         <input class="form-control" name="arquivo" type="file" id="arquivo"
           accept=".doc, .pdf, .docx, .jpeg, .jpg, .png">
           <div id="file-error" class="text-warning mt-1"></div>

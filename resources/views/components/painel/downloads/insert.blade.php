@@ -56,7 +56,7 @@
                   <i class="ri-information-line align-middle text-warning-emphasis" style="font-size: 1rem"></i>
                 </span>
               </label>
-              <input type="file" class="form-control" name ="arquivo" id="formFile" accept="doc,pdf,docx" >
+              <input type="file" class="form-control" name ="arquivo" id="formFile" accept="doc, docx, pdf, xls, xlsx" >
               @error('arquivo') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 

@@ -124,8 +124,7 @@
                     <p> <i class="fa-solid fa-circle-check"></i> Poder divulgar sua condição de membro da RMRS
                         conforme regras vigentes.</p>
                     <p> <i class="fa-solid fa-circle-check"></i> Para laboratórios reconhecidos, divulgação do
-                        escopo de serviços no site da Rede Metrológica RS e disponibilização do Bônus Metrologia
-                        para seus clientes.</p>
+                        escopo de serviços no site da Rede Metrológica RS.</p>
                 </div>
                 <div class="col-12 col-lg-6">
                     <p> <i class="fa-solid fa-circle-check"></i> Espaço para publicação de matérias sobre metrologia

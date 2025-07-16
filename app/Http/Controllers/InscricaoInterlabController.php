@@ -41,11 +41,12 @@ class InscricaoInterlabController extends Controller
   public function confirmaInscricao(ConfirmaInscricaoInterlabRequest $request): RedirectResponse
   {
     $validated = $request->validated();
+    
 
     $agenda_interlab = AgendaInterlab::where('uid', $validated['interlab_uid'])->first();
     $empresa = Pessoa::where( 'uid', $validated['empresa_uid'] )->first();
-
-    $inscrito = DB::transaction(function () use ($validated, $empresa, $agenda_interlab) {
+    $responsavel = Pessoa::where( 'uid', $validated['pessoa_uid'] )->first();
+    $inscrito = DB::transaction(function () use ($validated, $empresa, $agenda_interlab, $responsavel) {
 
       $endereco = Endereco::create([
         'pessoa_id' => $empresa->id,
@@ -68,7 +69,7 @@ class InscricaoInterlabController extends Controller
       ]);
   
       $inscrito = InterlabInscrito::create([
-        'pessoa_id' => $validated['pessoa_id'] ?? auth()->user()->pessoa->id,
+        'pessoa_id' => $responsavel->id ?? auth()->user()->pessoa->id,
         'empresa_id' => $empresa->id,
         'laboratorio_id' => $laboratorio->id,
         'agenda_interlab_id' => $agenda_interlab->id,

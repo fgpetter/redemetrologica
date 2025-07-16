@@ -15,11 +15,11 @@
                         Qualidade e Sustentabilidade
                         <br>
                         <br>
-                        <a class="text-white" href="https://redemetrologica.com.br/politica-de-privacidade/">
+                        <a class="text-white" href="/politica-de-privacidade/">
                             Política de Privacidade
                         </a>
                         <br>
-                        <a class="text-white" href="https://redemetrologica.com.br/politica-de-cookies/">
+                        <a class="text-white" href="/politica-de-cookies/">
                             Política de Cookies
                         </a>
                     </div>
@@ -60,11 +60,6 @@
                                     <li>
                                         <a class="text-white" href="/laboratorios-reconhecidos">
                                             Laboratórios Reconhecidos
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="text-white" href="/bonus-metrologia">
-                                            Bônus Metrologia
                                         </a>
                                     </li>
                                 </ul>

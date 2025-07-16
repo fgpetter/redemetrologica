@@ -65,7 +65,7 @@
                             {{-- <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label> --}}
                             <textarea class="form-control mb-3" name="message" rows="3" placeholder="Mensagem*">{{ old('message') }}</textarea>
                             <p>Selecione as área(s) que deseja fazer contato</p>
-                            @foreach (['Avaliação de laboratórios', 'Cursos/Treinamentos', 'Material de Referência', 'Ensaios de Proficiência', 'Administrativo/Financeiro', 'Apoio Técnico', 'Bônus Metrologia', 'Outros'] as $key => $area)
+                            @foreach (['Avaliação de laboratórios', 'Cursos/Treinamentos', 'Material de Referência', 'Ensaios de Proficiência', 'Administrativo/Financeiro', 'Apoio Técnico', 'Outros'] as $key => $area)
                                 <div class="my-2">
                                     <input class="form-check-input" type="checkbox" name="areas[]" value="{{ $area }}"
                                         id="area{{ $key }}" {{ in_array($area, old('areas', [])) ? 'checked' : '' }}>

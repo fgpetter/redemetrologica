@@ -218,5 +218,23 @@ window.onload = function(){
     })
   }
 
+/**
+ * Alterar fonte
+ */
+  const fontPlus = document.getElementById('font-plus')
+  const fontMinus = document.getElementById('font-minus')
+  const fontSize = document.body.style.fontSize
+  if(!fontSize){
+    document.body.style.fontSize = localStorage.getItem('fontSize') || '0.8rem'
+  }
+  fontPlus.addEventListener('click', function(){
+    document.body.style.fontSize = parseFloat(localStorage.getItem('fontSize')) + 0.1 + 'rem'
+    localStorage.setItem('fontSize', document.body.style.fontSize)
+  })
+  fontMinus.addEventListener('click', function(){
+    document.body.style.fontSize = parseFloat(localStorage.getItem('fontSize')) - 0.1 + 'rem'
+    localStorage.setItem('fontSize', document.body.style.fontSize)
+  })
+
 };
 console.log('Custom JS loaded!')
