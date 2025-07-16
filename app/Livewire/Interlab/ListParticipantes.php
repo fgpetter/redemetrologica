@@ -15,6 +15,7 @@ class ListParticipantes extends Component
     public $agendainterlab;
     public $intelabinscritos;
     public $interlabempresasinscritas;
+    
 
 
     public function mount(int $idinterlab)
@@ -36,7 +37,6 @@ class ListParticipantes extends Component
         ])
             ->orderBy('nome_razao')
             ->get();
-
         $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
             ->with(['empresa', 'pessoa', 'laboratorio'])
             ->get();
@@ -73,11 +73,6 @@ class ListParticipantes extends Component
         $participante = InterlabInscrito::findOrFail($id);
         $participante->valor = $valor;
         $participante->save();
-
-        // 2) Recarrega toda a coleção, forçando o Livewire a re-renderizar
-        // $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-        //     ->with(['empresa', 'pessoa', 'laboratorio'])
-        //     ->get();
 
         if ($item = $this->intelabinscritos->firstWhere('id', $id)) {
             $item->valor = $valor;
