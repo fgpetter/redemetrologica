@@ -1,3 +1,4 @@
+@props(['participante', 'agendainterlab', 'pessoas'])
 <div class="modal fade" id="{{ 'participanteModal'.$participante->uid }}" 
   tabindex="-1" aria-labelledby="participanteModalLabel">
   <div class="modal-dialog modal-lg">
@@ -40,16 +41,22 @@
                 @if ($participante->pessoa->deleted_at !== null)
                   <span class="text-secondary">Pessoa excluída, somente leitura</span>
                 @else
-                  <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="link-primary fw-medium">
-                    Editar responsável pela Inscrição
-                    <i class="ri-arrow-right-line align-middle"></i>
-                  </a>
+                  {{-- Editar ou Substituir Responsável --}}
+                  <div class="d-flex flex-column align-items-end">
+                    <a href="{{ route('pessoa-insert', $participante->pessoa->uid) }}" class="link-primary fw-medium">
+                      Editar Responsável
+                      <i class="ri-arrow-right-line align-middle"></i>
+                    </a>
+                    <a href="#" class="link-primary fw-medium mb-1" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
+                      Substituir Responsável
+                      <i class="ri-arrow-right-line align-middle"></i>
+                    </a>
+                  </div>
                 @endif
               </div>
             </div>
           </div>
         </div>
-
         <div class="row">
           <form method="POST" action="{{ route('salvar-inscrito-interlab', $participante->uid) }}" id="form-{{ $participante->uid }}">
             @csrf
@@ -65,7 +72,7 @@
               <div class="col-12 py-2">
                 <x-forms.input-textarea name="informacoes_inscricao" label="Informações do inscrito"
                 >{{ old('informacoes_inscricao') ?? ($participante->informacoes_inscricao ?? null)}}
-                </x-forms.input-textarea>
+              </x-forms.input-textarea>
               </div>
 
             </div>
@@ -80,3 +87,4 @@
     </div>
   </div>
 </div>
+
