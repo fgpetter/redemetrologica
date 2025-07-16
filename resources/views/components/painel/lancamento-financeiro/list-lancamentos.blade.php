@@ -13,44 +13,49 @@
 
   (isset($_GET['pessoa']) && $_GET['pessoa'] != "" ) ? $busca_pessoa = $_GET['pessoa'] : $busca_pessoa = null;
 
+  isset($_GET['tipo_data']) && $_GET['tipo_data'] != '' ? ($tipo_data = $_GET['tipo_data']) : ($tipo_data = null);
 @endphp
-
 <div class="row my-3">
-  <div class="col">
-    <div class="card">
-      <div class="card-body">
-        <form method="GET">
-          <div class="row align-items-end">
-            <div class="col-2">
-              <x-forms.input-field :value="$data_inicial ?? null"
-                type="date" name="data_inicial" id="data_inicial" label="Data Inicial" />
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-lg-2">
+                            <x-forms.input-field :value="$data_inicial ?? null" type="date" name="data_inicial" id="data_inicial"
+                                label="Data Inicial" />
+                        </div>
+                        <div class="col-12 col-lg-2">
+                            <x-forms.input-field :value="$data_final ?? null" type="date" name="data_final" id="data_final"
+                                label="Data Final" />
+                        </div>
+                        <div class="col-12 col-lg-2">
+                            <x-forms.input-select name="tipo_data" label="Filtrar por">
+                                <option @selected($tipo_data == 'data_vencimento') value="data_vencimento">Vencimento</option>
+                                <option @selected($tipo_data == 'data_pagamento') value="data_pagamento">Pagamento</option>
+                            </x-forms.input-select>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
+                                <option value=""> - </option>
+                                @foreach ($pessoas as $pessoa)
+                                    <option @selected($busca_pessoa == $pessoa->id) value="{{ $pessoa->id }}">
+                                        {{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}
+                                    </option>
+                                @endforeach
+                            </x-forms.input-select>
+                        </div>
+                        <div class="col-12 col-lg-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Pesquisar</button>
+                            <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-success w-100">
+                                <i class="ri-add-line align-bottom me-1"></i> Adicionar
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="col-2">
-              <x-forms.input-field :value="$data_final ?? null"
-                type="date" name="data_final" id="data_final" label="Data Final" />
-            </div>
-            <div class="col-12 col-sm-5 col-xxl-6">
-              <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
-                <option value=""> - </option>
-                @foreach ($pessoas as $pessoa)
-                  <option @selected( $busca_pessoa == $pessoa->id ) value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
-                @endforeach
-              </x-forms.input-select>
-            </div>
-            <div class="col-3 col-xxl-2 d-inline-flex">
-              <button type="submit" class="btn btn-sm btn-primary px-3 py-2 me-sm-2">Pesquisar</button>
-
-              <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-sm btn-success px-3 py-2">
-                <i class="ri-add-line align-bottom me-1"></i> Adicionar
-              </a>
-            </div>
-          </div>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
-
 </div>
 <div class="row">
 
@@ -64,14 +69,14 @@
             
     
         <div class="table-responsive" style="min-height: 25vh">
-          <table class="table table-responsive border-1" style="table-layout: fixed">
+          <table class="table border-1" style="table-layout: fixed">
             <thead>
               <tr>
-                <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                <th scope="col" style="white-space: nowrap;">Vencimento</th>
-                <th scope="col" style="white-space: nowrap;">Valor</th>
-                <th scope="col" style="white-space: nowrap;">Pagamento</th>
-                <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+                <th scope="col" >Nome</th>
+                <th scope="col" style="width: 20%;">Vencimento</th>
+                <th scope="col" style="width: 15%;">Valor</th>
+                <th scope="col" style="width: 15%;">NF</th>
+                <th scope="col" style="width: 5%;"></th>
               </tr>
             </thead>
             <tbody>
@@ -79,13 +84,13 @@
                 <tr>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
-                      <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
+                      <i class="ri-file-text-line btn-ghost  pe-1 fs-5"></i>
                     </a> {{ $lancamento->pessoa->nome_razao }}
                   </td>
                   <td>{{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }} </td>
                   
                   <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
-                  <td> {!! ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : "<span class='badge rounded-pill bg-warning'>Em Aberto</span>" !!} </td>
+                  <td>  {{ $lancamento->nota_fiscal ?? '-' }} </td>
                   <td>
                     <div class="dropdown">
                       <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
@@ -147,14 +152,14 @@
       <div class="card-body">
     
         <div class="table-responsive" style="min-height: 25vh">
-          <table class="table table-responsive border-1" style="table-layout: fixed">
+          <table class="table border-1" style="table-layout: fixed">
             <thead>
               <tr>
-                <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                <th scope="col" style="white-space: nowrap;">Emissão</th>
-                <th scope="col" style="white-space: nowrap;">Valor</th>
-                <th scope="col" style="white-space: nowrap;">Pagamento</th>
-                <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+                <th scope="col" >Nome</th>
+                <th scope="col" style="width: 20%;">Vencimento</th>
+                <th scope="col" style="width: 15%;">Valor</th>
+                <th scope="col" style="width: 20%;">Pagamento</th>
+                <th scope="col" style="width: 5%;"></th>
               </tr>
             </thead>
             <tbody>
@@ -162,10 +167,10 @@
                 <tr>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
-                      <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
+                      <i class="ri-file-text-line btn-ghost  pe-1 fs-5"></i>
                     </a> {{ $lancamento->pessoa->nome_razao }}
                   </td>
-                  <td>{{ ($lancamento->data_emissao) ? Carbon\Carbon::parse($lancamento->data_emissao)->format('d/m/Y') : '-'  }} </td>
+                  <td>{{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }} </td>
                   
                   <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
                   <td> {!! ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : "<span class='badge rounded-pill bg-warning'>Em Aberto</span>" !!} </td>
@@ -198,7 +203,8 @@
                         <div class="col-3"><b>Vencimento:</b> {{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }}</div>
                         <div class="col-3"><b>Documento:</b> {{ $lancamento->documento ?? '-' }}</div>
                         <div class="col-3"><b>Nº Documento:</b> {{ $lancamento->num_documento ?? '-' }}</div>
-                        <div class="col-3"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
+                        <div class="col-6"><b>Nota Fiscal:</b> {{ $lancamento->nota_fiscal ?? '-' }}</div>
+                        <div class="col-6"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
                       </div>
                     </div>
                   </td>

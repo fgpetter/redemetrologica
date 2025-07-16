@@ -13,7 +13,7 @@
   <span data-bs-toggle="tooltip" data-bs-html="true" title="{{ $tooltip }}">
   <i class="ri-information-line align-middle text-warning-emphasis" style="font-size: 1rem"></i></span>
 @endif
-<select class="form-select" name={{ $name }} 
+<select {{ $attributes->class(['form-select']) }}" name={{ $name }} 
   @if ($id) id={{ $id }} @endif 
   @if ($required) required @endif>
     {{ $slot }}
