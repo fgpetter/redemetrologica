@@ -3,8 +3,33 @@
         <label for="arquivo" class="form-label">Selecione o arquivo (.xls, .xlsx, .csv)</label>
         <input type="file" id="arquivo" class="form-control" wire:model="arquivo" accept=".xls,.xlsx,.csv">
         @error('arquivo')
-            <span class="text-danger">{{ $message }}</span>
+            <span class="text-danger">{{ $message }} </span>
         @enderror
+        <div class="col-12 mt-3">
+            <h6>Siga o modelo abaixo para criar sua planilha</h6>
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>cpf_cnpj</th>
+                  <th>nome_razao</th>
+                  <th>email</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td> 12345678901 </td>
+                  <td> João da Silva </td>
+                  <td> email@empresa.com.br </td>
+                </tr>
+                <tr>
+                  <td class="text-muted" > CPF sem pontuação </td>
+                  <td class="text-muted" > Nome Completo </td>
+                  <td class="text-muted" > Email para contato </td>
+                </tr>
+              </tbody>
+            </table>
+            <span class="text-warning-emphasis" >A primeira linha da tabela deve ter os mesmos títulos da tabela de exemplo</span>
+          </div>
     </div>
     <div wire:loading wire:target="arquivo" class="text-center my-3">
         <div class="spinner-border text-primary" role="status">
