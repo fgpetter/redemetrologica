@@ -66,9 +66,9 @@
                         @endforeach
                     </x-forms.input-select>
                 </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary px-3 py-2 ms-sm-3">Pesquisar</button>
-                    <a href="{{ route('a-receber-index') }}" class="btn btn-sm btn-danger px-3 py-2">Limpar</a>
+                <div class="col-2 d-flex flex-nowrap gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary px-3 py-2">Pesquisar</button>
+                    <button type="reset" class="btn btn-sm btn-danger px-3 py-2">Limpar</button>
                 </div>
             </div>
         </form>

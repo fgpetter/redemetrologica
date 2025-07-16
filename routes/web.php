@@ -49,6 +49,20 @@ Route::get('home', [HomeController::class, 'root'])->name('root');
 Route::view('noticias', 'site.pages.noticias');
 Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
+Route::view('termos-de-uso', 'site.pages.termos-de-uso');
+
+Route::get('politica-de-privacidade', function () {
+  return response()->file(base_path('public/docs/Politica_de_Privacidade.pdf'), [
+    'Content-Type' => 'application/pdf',
+    'Content-Disposition' => 'inline; filename="Politica_de_Privacidade.pdf"',
+  ]);
+});
+Route::get('politica-de-cookies', function () {
+  return response()->file(base_path('public/docs/Política_de_Cookies.pdf'), [
+    'Content-Type' => 'application/pdf',
+    'Content-Disposition' => 'inline; filename="Política_de_Cookies.pdf"',
+  ]);
+});
 
 /*Rotas de interlabs */
 Route::get('interlaboratoriais', [AgendaInterlabController::class,'exibeInterlabsSite'])->name('site-list-interlaboratoriais');

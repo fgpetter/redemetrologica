@@ -164,10 +164,7 @@ File: Main Js File
          */
         var choicesExamples = document.querySelectorAll("[data-choices]");
         Array.from(choicesExamples).forEach(function (item) {
-            var choiceData = {
-                searchResultLimit: 50,
-                maxItemCount: 50,
-            };
+            var choiceData = {};
             var isChoicesVal = item.attributes;
             if (isChoicesVal["data-choices-groups"])
                 choiceData.placeholderValue =
@@ -845,7 +842,7 @@ File: Main Js File
 
     function windowResizeHover() {
         var windowSize = document.documentElement.clientWidth;
-        if (windowSize < 1025 && windowSize > 767) {
+        if (windowSize < 1337 && windowSize > 767) {
             document.body.classList.remove("twocolumn-panel");
             if (sessionStorage.getItem("data-layout") == "twocolumn") {
                 document.documentElement.setAttribute(

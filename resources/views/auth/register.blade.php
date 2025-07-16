@@ -91,7 +91,7 @@
   
                         <div class="mb-4">
                           <p class="mb-0 fs-xs text-muted fst-italic">Ao se registrar, você declara que leu e concorda com os
-                            <a href="#" class="text-primary text-decoration-underline fst-normal fw-medium">Termos de uso</a>
+                            <a href="/termos-de-uso" class="text-primary text-decoration-underline fst-normal fw-medium">Termos de uso</a>
                           </p>
                           <br>
                           <p class="mb-0 fs-xs text-muted fst-italic">
