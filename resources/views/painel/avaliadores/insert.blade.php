@@ -20,6 +20,8 @@
         :qualificacoes="$qualificacoes"
         :qualificacoeslist="$qualificacoes_list"
         :areasatuacao="$areas_atuacao"
+        :enderecopessoal="$endereco_pessoal"
+        :enderecocomercial="$endereco_comercial"
       />
     </div>
     @if ($avaliador->id)

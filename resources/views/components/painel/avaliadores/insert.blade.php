@@ -13,6 +13,12 @@
                          </a>
                      </li>
                      <li class="nav-item">
+                         <a class="nav-link" data-bs-toggle="tab" href="#enderecos" role="tab"
+                             aria-selected="true">
+                             Endereços
+                         </a>
+                     </li>
+                     <li class="nav-item">
                          <a class="nav-link" data-bs-toggle="tab" href="#avaliacoes" role="tab"
                              aria-selected="false">
                              Avaliações
@@ -53,6 +59,10 @@
                              @endif
                          </div>
                      </div>
+                     <div class="tab-pane" id="enderecos" role="tabpanel">
+                         <x-painel.avaliadores.enderecos :enderecopessoal="$enderecopessoal"
+                         :enderecocomercial="$enderecocomercial" :avaliador="$avaliador" />
+                     </div> 
 
                      <div class="tab-pane" id="avaliacoes" role="tabpanel">
                          <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" />

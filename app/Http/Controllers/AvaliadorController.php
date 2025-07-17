@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pessoa;
+use App\Models\Endereco;
 use App\Models\Avaliador;
 use App\Models\AreaAtuacao;
 use App\Models\Qualificacao;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use App\Models\CertificadoAvaliador;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\RedirectResponse;
 
 
@@ -149,6 +151,15 @@ class AvaliadorController extends Controller
     // carrega areas de atuação do avaliador
     $areas_atuacao = AreaAtuacao::select('id', 'uid', 'descricao')->get();
 
+    // carrega endereço pessoal do avaliador
+    $endereco_pessoal = $avaliador->pessoa->enderecos()
+      ->where('pessoa_id', $avaliador->pessoa_id)
+      ->whereNull('avaliador_id')
+      ->first();
+
+    // carrega endereço comercial do avaliador
+    $endereco_comercial = $avaliador->pessoa->enderecos()->where('avaliador_id', $avaliador->id)->first(); 
+    
     return view(
       'painel.avaliadores.insert',
       [
@@ -157,6 +168,8 @@ class AvaliadorController extends Controller
         'qualificacoes' => $qualificacoes,
         'qualificacoes_list' => $qualificacoes_list,
         'areas_atuacao' => $areas_atuacao,
+        'endereco_pessoal' => $endereco_pessoal,
+        'endereco_comercial' => $endereco_comercial,
       ]
     );
   }
@@ -171,6 +184,7 @@ class AvaliadorController extends Controller
   public function update(Request $request, Avaliador $avaliador): RedirectResponse
   {
     $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
+   
     $request->validate(
       [
         'nome_razao' => ['required', 'string', 'max:191'],
@@ -219,6 +233,115 @@ class AvaliadorController extends Controller
 
     return redirect()->back()->with('success', 'Avaliador atualizado com sucesso');
   }
+
+  /**
+   * Atualiza endereços do avaliador
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function updateEnderecos(Request $request, Avaliador $avaliador): RedirectResponse
+  {
+
+    $pessoalFields = [
+        'pessoal_cep', 'pessoal_endereco', 'pessoal_bairro', 'pessoal_cidade', 'pessoal_uf'
+    ];
+
+    $comercialFields = [
+        'comercial_cep', 'comercial_endereco', 'comercial_bairro', 'comercial_cidade', 'comercial_uf'
+    ];
+
+    $isPessoalGroupFilled = false;
+    foreach ($pessoalFields as $field) {
+        if ($request->filled($field)) {
+            $isPessoalGroupFilled = true;
+            break;
+        }
+    }
+
+    $isComercialGroupFilled = false;
+    foreach ($comercialFields as $field) {
+        if ($request->filled($field)) {
+            $isComercialGroupFilled = true;
+            break;
+        }
+    }
+
+    $rules = [
+        'pessoal_cep' => ['nullable', 'string', 'max:9', 'min:9', Rule::requiredIf($isPessoalGroupFilled)],
+        'pessoal_endereco' => ['nullable', 'string', 'max:255', Rule::requiredIf($isPessoalGroupFilled)],
+        'pessoal_complemento' => 'nullable|string|max:255',
+        'pessoal_bairro' => ['nullable', 'string', 'max:255', Rule::requiredIf($isPessoalGroupFilled)],
+        'pessoal_cidade' => ['nullable', 'string', 'max:255', Rule::requiredIf($isPessoalGroupFilled)],
+        'pessoal_uf' => ['nullable', 'string', 'max:2', Rule::requiredIf($isPessoalGroupFilled)],
+        'comercial_cep' => ['nullable', 'string', 'max:9', 'min:9', Rule::requiredIf($isComercialGroupFilled)],
+        'comercial_endereco' => ['nullable', 'string', 'max:255', Rule::requiredIf($isComercialGroupFilled)],
+        'comercial_complemento' => 'nullable|string|max:255',
+        'comercial_bairro' => ['nullable', 'string', 'max:255', Rule::requiredIf($isComercialGroupFilled)],
+        'comercial_cidade' => ['nullable', 'string', 'max:255', Rule::requiredIf($isComercialGroupFilled)],
+        'comercial_uf' => ['nullable', 'string', 'max:2', Rule::requiredIf($isComercialGroupFilled)],
+    ];
+
+    $messages = [
+        'pessoal_cep.required' => 'O CEP  é obrigatório.',
+        'pessoal_endereco.required' => 'O endereço é obrigatório.',
+        'pessoal_bairro.required' => 'O bairro é obrigatório.',
+        'pessoal_cidade.required' => 'A cidade é obrigatória.',
+        'pessoal_uf.required' => 'O UF é obrigatório.',
+        'comercial_cep.required' => 'O CEP é obrigatório.',
+        'comercial_endereco.required' => 'O endereço comercial é obrigatório.',
+        'comercial_bairro.required' => 'O bairro é obrigatório.',
+        'comercial_cidade.required' => 'A cidade é obrigatória.',
+        'comercial_uf.required' => 'O UF é obrigatório.',
+        'pessoal_cep.min'     => 'O CEP deve conter exatamente 9 caracteres (incluindo o hífen).',
+        'comercial_cep.min'   => 'O CEP deve conter exatamente 9 caracteres (incluindo o hífen).',
+    ];
+
+    $validator = Validator::make($request->all(), $rules, $messages);
+
+    if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput()->withFragment('enderecos');
+    }
+
+    if ($isPessoalGroupFilled) {
+        $avaliador->pessoa->enderecos()->updateOrCreate(
+            [
+                'pessoa_id' => $avaliador->pessoa->id,
+                'avaliador_id' => null
+            ],
+            [   
+                'info' => 'Endereço pessoal',
+                'cep' => $request->pessoal_cep,
+                'endereco' => $request->pessoal_endereco,
+                'complemento' => $request->pessoal_complemento,
+                'bairro' => $request->pessoal_bairro,
+                'cidade' => $request->pessoal_cidade,
+                'uf' => $request->pessoal_uf,
+            ]
+        );
+    }
+
+    if ($isComercialGroupFilled) {
+        $avaliador->pessoa->enderecos()->updateOrCreate(
+            [
+                'pessoa_id' => $avaliador->pessoa->id,
+                'avaliador_id' => $avaliador->id
+            ],
+            [
+                'info' => 'Endereço comercial',
+                'cep' => $request->comercial_cep,
+                'endereco' => $request->comercial_endereco,
+                'complemento' => $request->comercial_complemento,
+                'bairro' => $request->comercial_bairro,
+                'cidade' => $request->comercial_cidade,
+                'uf' => $request->comercial_uf,
+            ]
+        );
+    }
+
+    return redirect()->back()->with('success', 'Endereços atualizados com sucesso')->withFragment('enderecos');
+  }
+
 
   /**
    * Remove avaliador
