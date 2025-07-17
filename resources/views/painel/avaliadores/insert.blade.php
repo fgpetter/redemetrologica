@@ -23,11 +23,10 @@
       />
     </div>
     @if ($avaliador->id)
-      <div class="col-4">
+      <div class="col-8">
         <x-painel.dados-bancarios.list :pessoa="$avaliador->pessoa" />
       </div>
     @endif
-
   </div>
 
 @endsection
