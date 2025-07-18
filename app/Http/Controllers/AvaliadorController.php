@@ -524,12 +524,10 @@ class AvaliadorController extends Controller
       'data' => ['nullable', 'date'],
       'status' => ['nullable', 'in:ATIVO,AVALIADOR,AVALIADOR EM TREINAMENTO,AVALIADOR LIDER,ESPECIALISTA,INATIVO'],
       'parecer_positivo' => ['nullable', 'in:0,1'],
-      'seminario' => ['nullable', 'in:0,1'],
     ], [
       'data.date' => ' Data inválida',
       'status.in' => 'Selecione uma opção válida',
       'parecer_positivo.in' => 'Selecione uma opção válida',
-      'seminario.in' => 'Selecione uma opção válida',
     ]);
 
     if (!$avaliador) {
@@ -556,12 +554,10 @@ class AvaliadorController extends Controller
       'data' => ['nullable', 'date'],
       'status' => ['nullable', 'in:ATIVO,AVALIADOR,AVALIADOR EM TREINAMENTO,AVALIADOR LIDER,ESPECIALISTA,INATIVO'],
       'parecer_positivo' => ['nullable', 'in:0,1'],
-      'seminario' => ['nullable', 'in:0,1'],
     ], [
       'data.date' => ' Data inválida',
       'status.in' => 'Selecione uma opção válida',
       'parecer_positivo.in' => 'Selecione uma opção válida',
-      'seminario.in' => 'Selecione uma opção válida',
     ]);
 
     $status->update($validatedData);
