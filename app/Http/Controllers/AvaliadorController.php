@@ -389,11 +389,9 @@ class AvaliadorController extends Controller
     $validatedData = $request->validate([
       'ano' => ['nullable', 'string'],
       'atividade' => ['nullable', 'string'],
-      'instrutor' => ['nullable', 'string'],
     ], [
       'ano.string' => 'O campo Ano deve ser uma string.',
       'atividade.string' => 'O campo Atividade deve ser uma string.',
-      'instrutor.string' => 'O campo Instrutor deve ser uma string.',
     ]);
 
     if (!$avaliador) {
@@ -419,11 +417,9 @@ class AvaliadorController extends Controller
     $validatedData = $request->validate([
       'ano' => 'nullable|string',
       'atividade' => 'nullable|string',
-      'instrutor' => 'nullable|string',
     ], [
       'ano.string' => 'O campo Ano deve ser uma string.',
       'atividade.string' => 'O campo Atividade deve ser uma string.',
-      'instrutor.string' => 'O campo Instrutor deve ser uma string.',
     ]);
 
     $qualificacao->update($validatedData);
@@ -432,7 +428,7 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Remove avaliador
+   * Remove qualificacao do avaliador
    *
    * @param User $user
    * @return RedirectResponse
@@ -477,7 +473,7 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Atualiza qualificação
+   * Atualiza area de atuação do avaliador
    *
    * @param AvaliadorArea $area
    * @param Request $request
@@ -502,7 +498,7 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Remove avaliador
+   * Remove area de atuação do avaliador
    *
    * @param User $user
    * @return RedirectResponse
@@ -514,77 +510,7 @@ class AvaliadorController extends Controller
     return redirect()->back()->with('warning', 'Qualificação removida');
   }
 
-  /**
-   * Adiciona certificado
-   *
-   * @param Avaliador $avaliador
-   * @param Request $request
-   * @return RedirectResponse
-   **/
-  public function createCertificado(Avaliador $avaliador, Request $request): RedirectResponse
-  {
-    $validatedData = $request->validate([
-      'data' => ['nullable', 'date'],
-      'revisao' => ['nullable', 'string'],
-      'responsavel' => ['nullable', 'string'],
-      'motivo' => ['nullable', 'string'],
-    ], [
-      'data.date' => ' Data inválida',
-      'revisao.string' => 'Dado inválido',
-      'responsavel.string' => 'Dado inválido',
-      'motivo.string' => 'Dado inválido',
-    ]);
-
-    if (!$avaliador) {
-      return redirect()->back()->with('error', 'Houve um erro, tente novamente');
-    }
-
-    $validatedData['avaliador_id'] = $avaliador->id;
-
-    CertificadoAvaliador::create($validatedData);
-
-    return redirect()->back()->with('success', 'Certificado cadastrado com sucesso');
-  }
-
-  /**
-   * Atualiza certificado
-   *
-   * @param CertificadoAvaliador $certificado
-   * @param Request $request
-   * @return RedirectResponse
-   **/
-  public function updateCertificado(Request $request, CertificadoAvaliador $certificado): RedirectResponse
-  {
-    $validatedData = $request->validate([
-      'data' => ['nullable', 'date'],
-      'revisao' => ['nullable', 'string'],
-      'responsavel' => ['nullable', 'string'],
-      'motivo' => ['nullable', 'string'],
-    ], [
-      'data.date' => ' Data inválida',
-      'revisao.string' => 'Dado inválido',
-      'responsavel.string' => 'Dado inválido',
-      'motivo.string' => 'Dado inválido',
-    ]);
-
-    $certificado->update($validatedData);
-
-    return redirect()->back()->with('success', 'Certificado atualizado com sucesso');
-  }
-
-  /**
-   * Remove certificado
-   *
-   * @param User $user
-   * @return RedirectResponse
-   **/
-  public function deleteCertificado(CertificadoAvaliador $certificado): RedirectResponse
-  {
-    $certificado->delete();
-
-    return redirect()->back()->with('warning', 'Certificado removido');
-  }
-
+  
   /**
    * Adiciona status
    *
