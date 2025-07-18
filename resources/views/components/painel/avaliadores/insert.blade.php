@@ -25,9 +25,9 @@
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a class="nav-link" data-bs-toggle="tab" href="#qualificacoes" role="tab"
+                         <a class="nav-link" data-bs-toggle="tab" href="#areasatuacao" role="tab"
                              aria-selected="false">
-                             Qualificações e Áreas
+                             Áreas de atuação
                          </a>
                      </li>
                      <li class="nav-item">
@@ -68,8 +68,8 @@
                          <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" />
                      </div>
 
-                     <div class="tab-pane" id="qualificacoes" role="tabpanel">
-                         <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>
+                     <div class="tab-pane" id="areasatuacao" role="tabpanel">
+                         {{-- <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/> --}}
                          <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador"/>
                      </div>
 

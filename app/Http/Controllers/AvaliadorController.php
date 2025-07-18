@@ -144,8 +144,8 @@ class AvaliadorController extends Controller
     // carrega qualificações do avaliador
     $qualificacoes = Qualificacao::where('avaliador_id', $avaliador->id)->get();
     $qualificacoes_list = [
-      'atividades' => DB::table('qualificacoes')->distinct()->get(['atividade']),
-      'instrutores' => DB::table('qualificacoes')->distinct()->get(['instrutor']),
+      'atividades' => DB::table('avaliador_qualificacoes')->distinct()->get(['atividade']),
+      'instrutores' => DB::table('avaliador_qualificacoes')->distinct()->get(['instrutor']),
     ];
 
     // carrega areas de atuação do avaliador
