@@ -14,7 +14,6 @@ use Illuminate\Validation\Rule;
 use App\Models\AvaliacaoAvaliador;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
-use App\Models\CertificadoAvaliador;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\RedirectResponse;
@@ -31,12 +30,22 @@ class AvaliadorController extends Controller
   {
     $order = $request->input('name', 'asc');
     $busca_nome = $request->input('buscanome');
+    $busca_area = $request->input('buscaarea');
+    $busca_situacao = $request->input('buscasituacao');
 
-    $avaliadores = Avaliador::with('pessoa')
+    $avaliadores = Avaliador::with('pessoa', 'areas.area')
       ->when($busca_nome, function ($query) use ($busca_nome) {
         $query->whereHas('pessoa', function ($query) use ($busca_nome) {
           $query->where('nome_razao', 'LIKE', "%{$busca_nome}%");
         });
+      })
+      ->when($busca_area, function ($query) use ($busca_area) {
+        $query->whereHas('areas.area', function ($query) use ($busca_area) {
+          $query->where('descricao', 'LIKE', "%{$busca_area}%");
+        });
+      })
+      ->when($busca_situacao, function ($query) use ($busca_situacao) {
+        $query->where('situacao', $busca_situacao);
       })
       ->orderBy(
         Pessoa::select('nome_razao')
@@ -45,7 +54,7 @@ class AvaliadorController extends Controller
       )
       ->paginate(10)
       ->withQueryString();
-
+        
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
       ->whereNotIn('id', function ($query) {
         $query->select('pessoa_id')->from('avaliadores');
@@ -191,6 +200,7 @@ class AvaliadorController extends Controller
         'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $avaliador->pessoa->id], // TODO - adicionar validação de CPF/CNPJ
         'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], //5mb
         'data_ingresso' => ['nullable', 'date'],
+        'situacao' => ['required', 'string', Rule::in(['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])],
       ],
       [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
@@ -198,7 +208,9 @@ class AvaliadorController extends Controller
         'cpf_cnpj.min' => 'CPF inválido',
         'cpf_cnpj.max' => 'CPF inválido',
         'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
-        'curriculo.max' => 'Tamanho máximo 5MB'
+        'curriculo.max' => 'Tamanho máximo 5MB',
+        'situacao.required' => 'Selecione uma situação.',
+        'situacao.in' => 'Selecione uma situação válida.',
       ]
     );
 
@@ -221,6 +233,7 @@ class AvaliadorController extends Controller
       'curso_aud_interna' => $request->get('curso_aud_interna') ?? 0,
       'parecer_psicologico' => $request->get('parecer_psicologico') ?? 0,
       'data_ingresso' => $request->get('data_ingresso'),
+      'situacao' => $request->get('situacao'),
     ]);
 
     $avaliador->pessoa->update([
