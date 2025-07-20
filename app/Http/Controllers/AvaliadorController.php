@@ -126,7 +126,7 @@ class AvaliadorController extends Controller
     $avaliacao = AvaliacaoAvaliador::create([
       'avaliador_id' => $avaliador->id,
       'empresa' => $request->empresa,
-      'data' => $request->sata,
+      'data' => $request->data,
       'situacao' => $request->situacao,
     ]);
 
@@ -137,6 +137,52 @@ class AvaliadorController extends Controller
 
     return redirect()->route('avaliador-insert', $avaliador->uid)
       ->with('success', 'Avaliação cadastrada com sucesso');
+  }
+
+  /**
+   * atualiza avaliacao
+   *
+   * @param Request $request
+   * @param AvaliacaoAvaliador $avaliacao
+   * @return RedirectResponse
+   **/
+  public function updateAvaliacao(Request $request, AvaliacaoAvaliador $avaliacao): RedirectResponse
+  {
+    $request->validate(
+      [
+        'empresa' => ['nullable', 'string'],
+        'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],
+        'data' => ['nullable', 'date'],
+      ],
+      [
+        'empresa.string' => 'Dado inváido.',
+        'situacao.required' => 'Selecione uma opção válida',
+        'situacao.in' => 'Selecione uma opção válida',
+        'data.date' => 'Dado inváido.',
+      ]
+    );
+
+    $avaliacao->update([
+      'empresa' => $request->empresa,
+      'data' => $request->data,
+      'situacao' => $request->situacao,
+    ]);
+
+    return redirect()->back()->with('success', 'Avaliaçãp atualizada com sucesso');
+  }
+
+  /**
+   * Remove avaliacao
+   *
+   * @param AvaliacaoAvaliador $avaliacao
+   * @return RedirectResponse
+   **/
+  public function deleteAvaliacao(AvaliacaoAvaliador $avaliacao): RedirectResponse
+  {
+
+    $avaliacao->delete();
+
+    return redirect()->back()->with('warning', 'Avaliação removida');
   }
 
   /**
@@ -167,7 +213,9 @@ class AvaliadorController extends Controller
       ->first();
 
     // carrega endereço comercial do avaliador
-    $endereco_comercial = $avaliador->pessoa->enderecos()->where('avaliador_id', $avaliador->id)->first(); 
+    $endereco_comercial = $avaliador->pessoa->enderecos()
+    ->where('avaliador_id', $avaliador->id)
+    ->first(); 
     
     return view(
       'painel.avaliadores.insert',

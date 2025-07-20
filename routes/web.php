@@ -247,6 +247,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     
     Route::post('create-avaliacao/{avaliador:uid}', [AvaliadorController::class, 'createAvaliacao'])->name('avaliador-create-avaliacao');
     Route::post('update-avaliacao/{avaliacao:uid}', [AvaliadorController::class, 'updateAvaliacao'])->name('avaliador-update-avaliacao');
+    Route::post('delete-avaliacao/{avaliacao:uid}', [AvaliadorController::class, 'deleteAvaliacao'])->name('avaliador-delete-avaliacao');
 
     Route::post('create-qualificacao/{avaliador:uid}', [AvaliadorController::class, 'createQualificacao'])->name('avaliador-create-qualificacao');
     Route::post('update-qualificacao/{qualificacao:uid}', [AvaliadorController::class, 'updateQualificacao'])->name('avaliador-update-qualificacao');

@@ -11,7 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // GEMINI: Alteração feita para adicionar a coluna situacao na tabela avaliadores
         Schema::table('avaliadores', function (Blueprint $table) {
             $table->enum('situacao', ['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])->nullable();
         });
