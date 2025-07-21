@@ -13,8 +13,7 @@
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a class="nav-link" data-bs-toggle="tab" href="#enderecos" role="tab"
-                             aria-selected="true">
+                         <a class="nav-link" data-bs-toggle="tab" href="#enderecos" role="tab" aria-selected="true">
                              Endereços
                          </a>
                      </li>
@@ -58,26 +57,32 @@
                                  </div>
                              @endif
                          </div>
+                         <div>
+                             @if ($avaliador->id)
+                                 <div>
+                                     <x-painel.dados-bancarios.list :pessoa="$avaliador->pessoa" />
+                                 </div>
+                             @endif
+                         </div>
                      </div>
                      <div class="tab-pane" id="enderecos" role="tabpanel">
-                         <x-painel.avaliadores.enderecos :enderecopessoal="$enderecopessoal"
-                         :enderecocomercial="$enderecocomercial" :avaliador="$avaliador" />
-                     </div> 
+                         <x-painel.avaliadores.enderecos :enderecopessoal="$enderecopessoal" :enderecocomercial="$enderecocomercial" :avaliador="$avaliador" />
+                     </div>
 
                      <div class="tab-pane" id="avaliacoes" role="tabpanel">
-                         <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" />
+                         <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" :empresas="$empresas" />
                      </div>
 
                      <div class="tab-pane" id="areasatuacao" role="tabpanel">
-                         <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador"/>
+                         <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador" />
                      </div>
 
                      <div class="tab-pane" id="qualificacoes" role="tabpanel">
-                         <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>
+                         <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador" />
                      </div>
 
                      <div class="tab-pane" id="controlestatus" role="tabpanel">
-                        <x-painel.avaliadores.status :avaliador="$avaliador"/>
+                         <x-painel.avaliadores.status :avaliador="$avaliador" />
                      </div>
 
                  </div>

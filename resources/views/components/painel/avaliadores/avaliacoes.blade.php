@@ -24,7 +24,11 @@
                         <a href="#" data-bs-toggle="modal"
                             data-bs-target="#avaliacaoModal{{ $avaliacao->uid }}">#{{ substr($avaliacao->uid, 7) }} </a>
                     </th>
-                    <td class="text-truncate" style="max-width: 50vw">{{ $avaliacao->empresa }}</td>
+                    
+                    
+                    <td class="text-truncate" style="max-width: 300px;">
+                       {{ $empresas->firstWhere('id', $avaliacao->empresa)->nome_razao ?? 'N/A' }}
+                    </td> 
                     <td>{{ $avaliacao->data ? Carbon\Carbon::parse($avaliacao->data)->format('d/m/Y') : '' }}</td>
                     <td>{{ $avaliacao->situacao }}</td>
                     <td>
@@ -46,7 +50,7 @@
                         </div>
                     </td>
                 </tr>
-                <x-painel.avaliadores.modal-avaliacoes-insert :avaliador="$avaliador" :avaliacao="$avaliacao" />
+                <x-painel.avaliadores.modal-avaliacoes-insert :avaliador="$avaliador" :avaliacao="$avaliacao" :empresas="$empresas" />
             @empty
                 <tr>
                     <td colspan="5" class="text-center">Não há avaliações cadastradas.</td>
@@ -55,4 +59,4 @@
         </tbody>
     </table>
 </div>
-<x-painel.avaliadores.modal-avaliacoes-insert :avaliador="$avaliador" />
+<x-painel.avaliadores.modal-avaliacoes-insert :avaliador="$avaliador"  :empresas="$empresas" />

@@ -22,13 +22,10 @@
         :areasatuacao="$areas_atuacao"
         :enderecopessoal="$endereco_pessoal"
         :enderecocomercial="$endereco_comercial"
+        :empresas="$empresas"
       />
     </div>
-    @if ($avaliador->id)
-      <div class="col-8">
-        <x-painel.dados-bancarios.list :pessoa="$avaliador->pessoa" />
-      </div>
-    @endif
+
   </div>
 
 @endsection

@@ -12,6 +12,7 @@ use App\Models\AvaliadorArea;
 use App\Models\StatusAvaliador;
 use Illuminate\Validation\Rule;
 use App\Models\AvaliacaoAvaliador;
+use App\Models\AgendaAvaliacao;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\File;
@@ -102,90 +103,6 @@ class AvaliadorController extends Controller
   }
 
   /**
-   * Adiciona avaliacao
-   *
-   * @param Request $request
-   * @return RedirectResponse
-   **/
-  public function createAvaliacao(Request $request, Avaliador $avaliador): RedirectResponse
-  {
-    $request->validate(
-      [
-        'empresa' => ['nullable', 'string'],
-        'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],
-        'data' => ['nullable', 'date'],
-      ],
-      [
-        'empresa.string' => 'Dado inváido.',
-        'situacao.required' => 'Selecione uma opção válida',
-        'situacao.in' => 'Selecione uma opção válida',
-        'data.date' => 'Dado inváido.',
-      ]
-    );
-
-    $avaliacao = AvaliacaoAvaliador::create([
-      'avaliador_id' => $avaliador->id,
-      'empresa' => $request->empresa,
-      'data' => $request->data,
-      'situacao' => $request->situacao,
-    ]);
-
-    if (!$avaliacao) {
-      return redirect()->back()
-        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
-    }
-
-    return redirect()->route('avaliador-insert', $avaliador->uid)
-      ->with('success', 'Avaliação cadastrada com sucesso');
-  }
-
-  /**
-   * atualiza avaliacao
-   *
-   * @param Request $request
-   * @param AvaliacaoAvaliador $avaliacao
-   * @return RedirectResponse
-   **/
-  public function updateAvaliacao(Request $request, AvaliacaoAvaliador $avaliacao): RedirectResponse
-  {
-    $request->validate(
-      [
-        'empresa' => ['nullable', 'string'],
-        'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],
-        'data' => ['nullable', 'date'],
-      ],
-      [
-        'empresa.string' => 'Dado inváido.',
-        'situacao.required' => 'Selecione uma opção válida',
-        'situacao.in' => 'Selecione uma opção válida',
-        'data.date' => 'Dado inváido.',
-      ]
-    );
-
-    $avaliacao->update([
-      'empresa' => $request->empresa,
-      'data' => $request->data,
-      'situacao' => $request->situacao,
-    ]);
-
-    return redirect()->back()->with('success', 'Avaliaçãp atualizada com sucesso');
-  }
-
-  /**
-   * Remove avaliacao
-   *
-   * @param AvaliacaoAvaliador $avaliacao
-   * @return RedirectResponse
-   **/
-  public function deleteAvaliacao(AvaliacaoAvaliador $avaliacao): RedirectResponse
-  {
-
-    $avaliacao->delete();
-
-    return redirect()->back()->with('warning', 'Avaliação removida');
-  }
-
-  /**
    * Tela de edição de avaliador
    *
    * @param Avaliador $avaliador
@@ -193,8 +110,14 @@ class AvaliadorController extends Controller
    **/
   public function insert(Avaliador $avaliador): View
   {
-    // carrega avaliações que esse avaliador realizou
-    $avaliacoes = AvaliacaoAvaliador::where('avaliador_id', $avaliador->id)->get();
+    // carrega avaliações que esse avaliador realizou e suas respectivas agendas_uid
+    $avaliacoes = AvaliacaoAvaliador::where('avaliador_id', $avaliador->id)->get()->map(function ($avaliacao) {
+        if ($avaliacao->agenda_avaliacao_id) {
+            $agenda = AgendaAvaliacao::find($avaliacao->agenda_avaliacao_id);
+            $avaliacao->agenda_avaliacao_uid = $agenda ? $agenda->uid : null;
+        }
+        return $avaliacao;
+    });
 
     // carrega qualificações do avaliador
     $qualificacoes = Qualificacao::where('avaliador_id', $avaliador->id)->get();
@@ -216,6 +139,12 @@ class AvaliadorController extends Controller
     $endereco_comercial = $avaliador->pessoa->enderecos()
     ->where('avaliador_id', $avaliador->id)
     ->first(); 
+
+    //carrega lista com empresas
+    $empresas = Pessoa::select('id', 'uid', 'nome_razao', 'cpf_cnpj')
+      ->where('tipo_pessoa', 'PJ')
+      ->orderBy('nome_razao')
+      ->get();
     
     return view(
       'painel.avaliadores.insert',
@@ -227,6 +156,7 @@ class AvaliadorController extends Controller
         'areas_atuacao' => $areas_atuacao,
         'endereco_pessoal' => $endereco_pessoal,
         'endereco_comercial' => $endereco_comercial,
+        'empresas' => $empresas,
       ]
     );
   }
@@ -437,6 +367,100 @@ class AvaliadorController extends Controller
 
     return redirect()->back()->with('success', 'Curriculo removido');
   }
+
+
+  /**
+   * Adiciona avaliacao
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   **/
+  public function createAvaliacao(Request $request, Avaliador $avaliador): RedirectResponse
+  {
+    $request->validate(
+      [
+        'empresa' => ['required', 'integer', 'exists:pessoas,id'],
+        'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],
+        'data' => ['required', 'date'],
+      ],
+      [
+        'empresa.required' => 'O campo empresa é obrigatório.',
+        'empresa.integer' => 'O campo empresa deve ser um número inteiro.',
+        'empresa.exists' => 'A empresa selecionada é inválida.',
+        'situacao.required' => 'Selecione uma situação válida.',
+        'situacao.in' => 'A situação selecionada é inválida.',
+        'data.required' => 'O campo data é obrigatório.',
+        'data.date' => 'O campo data não é uma data válida.',
+      ]
+    );
+
+    $avaliacao = AvaliacaoAvaliador::create([
+      'avaliador_id' => $avaliador->id,
+      'empresa' => $request->empresa,
+      'data' => $request->data,
+      'situacao' => $request->situacao,
+      'inserido_por' => auth()->user()->name,
+    ]);
+
+    if (!$avaliacao) {
+      return redirect()->back()
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+
+    return redirect()->route('avaliador-insert', $avaliador->uid)
+      ->with('success', 'Avaliação cadastrada com sucesso');
+  }
+
+  /**
+   * atualiza avaliacao
+   *
+   * @param Request $request
+   * @param AvaliacaoAvaliador $avaliacao
+   * @return RedirectResponse
+   **/
+  public function updateAvaliacao(Request $request, AvaliacaoAvaliador $avaliacao): RedirectResponse
+  {
+    $request->validate(
+      [
+        'empresa' => ['required', 'integer', 'exists:pessoas,id'],
+        'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],
+        'data' => ['required', 'date'],
+      ],
+      [
+        'empresa.required' => 'O campo empresa é obrigatório.',
+        'empresa.integer' => 'O campo empresa deve ser um número inteiro.',
+        'empresa.exists' => 'A empresa selecionada é inválida.',
+        'situacao.required' => 'Selecione uma situação válida.',
+        'situacao.in' => 'A situação selecionada é inválida.',
+        'data.required' => 'O campo data é obrigatório.',
+        'data.date' => 'O campo data não é uma data válida.',
+      ]
+    );
+
+    $avaliacao->update([
+      'empresa' => $request->empresa,
+      'data' => $request->data,
+      'situacao' => $request->situacao,
+      'inserido_por' => auth()->user()->name,
+    ]);
+
+    return redirect()->back()->with('success', 'Avaliaçãp atualizada com sucesso');
+  }
+
+  /**
+   * Remove avaliacao
+   *
+   * @param AvaliacaoAvaliador $avaliacao
+   * @return RedirectResponse
+   **/
+  public function deleteAvaliacao(AvaliacaoAvaliador $avaliacao): RedirectResponse
+  {
+
+    $avaliacao->delete();
+
+    return redirect()->back()->with('warning', 'Avaliação removida');
+  }
+
 
   /**
    * Adiciona qualificação
