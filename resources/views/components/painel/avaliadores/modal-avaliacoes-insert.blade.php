@@ -14,7 +14,7 @@
                     <div class="row gy-3 mb-3">
                         <div class="col-12">
                             <label for="empresa" class="form-label">Empresa</label>
-                            <select  name="empresa"  id="empresa-{{ $avaliacao->uid ?? 'novo' }}" class="form-select"  required>
+                            <select  name="empresa"  id="empresa" class="form-select"  required>
                                 <option value="">Selecione uma empresa</option>
                                 @if (isset($empresas))
                                     @foreach ($empresas as $empresa)
@@ -57,14 +57,14 @@
                         </div>
 
                         @if (isset($avaliacao))
-                            @if (isset($avaliacao->agenda_avaliacao_uid))
+                            @if (isset($avaliacao->agenda_avaliacao_id))
                                 <div class="col-12">
                                     <p>
                                         <strong>Avaliação realizada:</strong><br>
                                         {{ $empresas->firstWhere('id', $avaliacao->empresa)->nome_razao ?? 'N/A' }} -
                                         {{ $avaliacao->data ? Carbon\Carbon::parse($avaliacao->data)->format('d/m/Y') : '' }}
                                         <br>
-                                        <a href="{{ route('avaliacao-insert', $avaliacao->agenda_avaliacao_uid) }}">
+                                        <a href="{{ route('avaliacao-insert', $avaliacao->agendaAvaliacao->uid) }}">
                                             Mais informações </a>
                                     </p>
                                 </div>
@@ -82,7 +82,9 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        @if (! isset($avaliacao->agenda_avaliacao_id))
                         <button type="submit" class="btn btn-primary">Salvar</button>
+                        @endif
                     </div>
                 </form>
             </div>

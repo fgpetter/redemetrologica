@@ -110,14 +110,8 @@ class AvaliadorController extends Controller
    **/
   public function insert(Avaliador $avaliador): View
   {
-    // carrega avaliações que esse avaliador realizou e suas respectivas agendas_uid
-    $avaliacoes = AvaliacaoAvaliador::where('avaliador_id', $avaliador->id)->get()->map(function ($avaliacao) {
-        if ($avaliacao->agenda_avaliacao_id) {
-            $agenda = AgendaAvaliacao::find($avaliacao->agenda_avaliacao_id);
-            $avaliacao->agenda_avaliacao_uid = $agenda ? $agenda->uid : null;
-        }
-        return $avaliacao;
-    });
+    // carrega avaliações que esse avaliador realizou
+    $avaliacoes = AvaliacaoAvaliador::with('agendaAvaliacao')->where('avaliador_id', $avaliador->id)->get();
 
     // carrega qualificações do avaliador
     $qualificacoes = Qualificacao::where('avaliador_id', $avaliador->id)->get();
