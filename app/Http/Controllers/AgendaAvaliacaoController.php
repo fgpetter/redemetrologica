@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Avaliador;
 use App\Models\Laboratorio;
-use App\Models\TipoAvaliacao;
-use App\Models\AgendaAvaliacao;
 use App\Models\AreaAvaliada;
 use Illuminate\Http\Request;
+use App\Models\TipoAvaliacao;
+use Illuminate\Support\Carbon;
+use App\Models\AgendaAvaliacao;
 use Illuminate\Validation\Rule;
+use App\Models\AvaliacaoAvaliador;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Carbon;
 
 class AgendaAvaliacaoController extends Controller
 {
@@ -157,7 +158,7 @@ class AgendaAvaliacaoController extends Controller
 
         $valor_proposta = formataMoeda( $request->valor_proposta);
         $validate['valor_proposta'] = $valor_proposta;
-        
+
         $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(-10)->format('Y-m-d');
         $validate['data_proposta_acoes_corretivas'] = $request->data_proposta_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(7)->format('Y-m-d');
         $validate['data_acoes_corretivas'] = $request->data_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(45)->format('Y-m-d');
@@ -165,6 +166,28 @@ class AgendaAvaliacaoController extends Controller
 
         $avaliacao->update($validate);
 
+
+            // SE CARTA RECONHECIMENTO = SIM adiciona AvaliacaoAvaliador para cada avaliador
+            if ($request->carta_reconhecimento == 1) {
+
+                $avaliacao_avaliadores = AreaAvaliada::where('avaliacao_id', $avaliacao->id)->get();
+
+                foreach ($avaliacao_avaliadores as $avaliacao_avaliador) {
+                AvaliacaoAvaliador::updateorcreate(
+                    [
+                    'agenda_avaliacao_id'=> $avaliacao->id, 
+                    'avaliador_id' => $avaliacao_avaliador->avaliador_id, 
+                    'empresa' => $avaliacao->laboratorio_id, 
+                    ],[
+                    'data' => $avaliacao->data_inicio, 
+                    'situacao' => $avaliacao_avaliador->situacao,
+                    'inserido_por' => 'Inserido pelo sistema'
+                    ]
+                );
+            }
+            
+
+        }
         return redirect()->back()->with('success', 'Dados atualizados com sucesso');
     }
 

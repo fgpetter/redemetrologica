@@ -35,7 +35,7 @@
                             <select id="situacao" name="situacao" class="form-select">
                                 <option value="">Selecione uma situação</option>
 
-                                @foreach (['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'] as $sit)
+                                @foreach (['ATIVO','AVALIADOR','AVALIADOR EM TREINAMENTO','AVALIADOR LIDER','ESPECIALISTA','INATIVO'] as $sit)
                                     <option value="{{ $sit }}" @selected(old('situacao', $avaliacao->situacao ?? '') === $sit)>
                                         {{ $sit }}
                                     </option>
@@ -64,7 +64,7 @@
                                         {{ $empresas->firstWhere('id', $avaliacao->empresa)->nome_razao ?? 'N/A' }} -
                                         {{ $avaliacao->data ? Carbon\Carbon::parse($avaliacao->data)->format('d/m/Y') : '' }}
                                         <br>
-                                        <a href="{{ route('avaliacao-insert', $avaliacao->agendaAvaliacao->uid) }}">
+                                        <a href="{{ route('avaliacao-insert', $avaliacao->agendaAvaliacao->uid ) }}">
                                             Mais informações </a>
                                     </p>
                                 </div>
