@@ -89,12 +89,13 @@ class AgendaAvaliacaoController extends Controller
      * @return RedirectResponse
      */
     public function update(Request $request, AgendaAvaliacao $avaliacao): RedirectResponse
-    {        
+    {
         $validate = $request->validate([
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date'],
             'tipo_avaliacao_id' => ['nullable', 'numeric', 'exists:tipo_avaliacoes,id'],
             'laboratorio_interno_id' => ['nullable', 'numeric', 'exists:laboratorios_internos,id'],
+            'status_proposta' => ['nullable', 'string', Rule::in(['PENDENTE', 'AGUARDANDO', 'APROVADA', 'REPROVADA'])], 
             'fr_28' => ['nullable', 'numeric', 'in:0,1'],
             'fr_41' => ['nullable', 'numeric', 'in:0,1'],
             'fr_101' => ['nullable', 'numeric', 'in:0,1'],
@@ -156,9 +157,11 @@ class AgendaAvaliacaoController extends Controller
 
         $valor_proposta = formataMoeda( $request->valor_proposta);
         $validate['valor_proposta'] = $valor_proposta;
+        
         $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(-10)->format('Y-m-d');
         $validate['data_proposta_acoes_corretivas'] = $request->data_proposta_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(7)->format('Y-m-d');
         $validate['data_acoes_corretivas'] = $request->data_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(45)->format('Y-m-d');
+        $validate['validade_certificado'] = $request->validade_certificado ?? Carbon::parse($request->data_fim)->addYears(1)->addMonths(3)->format('Y-m-d');
 
         $avaliacao->update($validate);
 

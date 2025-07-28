@@ -45,15 +45,16 @@
   <div class="row mt-3">
     <div class="col-md-3">
       <label for="contato" class="form-label">Contato</label>
-      <input type="text" class="form-control" id="contato" name="contato" value="{{ $laboratorio->contato }}">
+      <input type="text" class="form-control" id="contato" name="contato" value="{{ $laboratorio->contato }}" readonly>
     </div>
     <div class="col-md-3">
       <label for="fone" class="form-label">Telefone</label>
-      <input type="text" class="form-control" id="fone" name="fone" value="{{ $laboratorio->telefone }}">
+      <input type="text" class="form-control" id="fone" name="fone" value="{{ $laboratorio->telefone }}" readonly>
     </div>
     <div class="col-md-3">
       <label for="email" class="form-label">E-mail</label>
-      <input type="email" class="form-control" id="email" name="email" value="{{ $laboratorio->email }}">
+      <input type="email" class="form-control" id="email" name="email" value="{{ $laboratorio->email }}" readonly>
+      @error('email') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">&nbsp;</div>
   </div>
