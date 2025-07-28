@@ -37,10 +37,7 @@
             <input type="number" class="form-control" id="num_aval_treinamento" wire:model="num_aval_treinamento">
             @error('num_aval_treinamento') <span class="text-danger">{{ $message }}</span> @enderror
         </div>
-        <div class="col-md-3">
-            <label for="valor_proposta" class="form-label">valor proposta</label>
-            <input type="number" class="form-control" id="valor_proposta" wire:model="valor_proposta" readonly>
-        </div>
+       
     </div>
     <div class="row mt-3">
         <div class="col-md-12">
