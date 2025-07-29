@@ -27,9 +27,9 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#analises" role="tab"
+        <a class="nav-link" data-bs-toggle="tab" href="#valavaliadores" role="tab"
           aria-selected="false">
-          Análises realizadas
+          Valor Avaliadores
         </a>
       </li>
     </ul>
@@ -47,12 +47,14 @@
         <livewire:avaliacoes.agenda-avaliacoes-orcamentos :avaliacao="$avaliacao" />
       </div>
       
-      <div class="tab-pane" id="cartas" role="tabpanel"> <!-- Orçamentos -->
+      <div class="tab-pane" id="cartas" role="tabpanel"> <!-- Cartas -->
         <livewire:avaliacoes.agenda-avaliacoes-cartas :avaliacao="$avaliacao" /> 
       </div>
 
-      <div class="tab-pane" id="analises" role="tabpanel"> <!-- Análises realizadas -->
+      <div class="tab-pane" id="valavaliadores" role="tabpanel"> <!-- Valor Avaliadores -->
+        <livewire:avaliacoes.agenda-avaliacoes-val-avaliadores :avaliacao="$avaliacao" /> 
       </div>
+
     </div>
 
   </div>
