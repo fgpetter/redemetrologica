@@ -6,15 +6,15 @@
         </div>
         <div class="col-md-3">
             <label for="soma_avaliadores" class="form-label">Soma Avaliadores</label>
-            <input type="text" class="form-control" id="soma_avaliadores" wire:model="soma_avaliadores" readonly>
+            <input type="text" class="form-control money" id="soma_avaliadores" wire:model="soma_avaliadores" readonly>
         </div>
         <div class="col-md-3">
             <label for="soma_despesas_estimadas" class="form-label">Soma Despesas Estimadas</label>
-            <input type="text" class="form-control" id="soma_despesas_estimadas" wire:model="soma_despesas_estimadas" readonly>
+            <input type="text" class="form-control money" id="soma_despesas_estimadas" wire:model="soma_despesas_estimadas" readonly>
         </div>
         <div class="col-md-3">
             <label for="soma_despesas_reais" class="form-label">Soma Despesas Reais</label>
-            <input type="text" class="form-control"  id="soma_despesas_reais" wire:model="soma_despesas_reais" readonly>
+            <input type="text" class="form-control money"  id="soma_despesas_reais" wire:model="soma_despesas_reais" readonly>
         </div>
     </div>
     <div class="row mt-3">
@@ -25,7 +25,7 @@
         </div>
         <div class="col-md-3">
             <label for="superavit" class="form-label">Superavit</label>
-            <input type="text" class="form-control" id="superavit" wire:model="superavit">
+            <input type="text" class="form-control money" id="superavit" wire:model="superavit" readonly>
         </div>
         <div class="col-md-3">
             <label for="data_envio_proposta" class="form-label">Data Envio Proposta</label>
@@ -37,7 +37,6 @@
             <input type="number" class="form-control" id="num_aval_treinamento" wire:model="num_aval_treinamento">
             @error('num_aval_treinamento') <span class="text-danger">{{ $message }}</span> @enderror
         </div>
-       
     </div>
     <div class="row mt-3">
         <div class="col-md-12">
