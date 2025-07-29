@@ -21,6 +21,12 @@
         </a>
       </li>
       <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#cartas" role="tab"
+          aria-selected="false">
+          Cartas
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link" data-bs-toggle="tab" href="#analises" role="tab"
           aria-selected="false">
           Análises realizadas
@@ -39,6 +45,10 @@
       
       <div class="tab-pane" id="orcamentos" role="tabpanel"> <!-- Orçamentos -->
         <livewire:avaliacoes.agenda-avaliacoes-orcamentos :avaliacao="$avaliacao" />
+      </div>
+      
+      <div class="tab-pane" id="cartas" role="tabpanel"> <!-- Orçamentos -->
+        <livewire:avaliacoes.agenda-avaliacoes-cartas :avaliacao="$avaliacao" /> 
       </div>
 
       <div class="tab-pane" id="analises" role="tabpanel"> <!-- Análises realizadas -->
