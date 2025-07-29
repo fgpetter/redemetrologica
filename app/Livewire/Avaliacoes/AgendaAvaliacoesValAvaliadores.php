@@ -1,5 +1,4 @@
 <?php
-// GEMINI: Alteração feita para adicionar a lógica de exibição dos valores dos avaliadores.
 namespace App\Livewire\Avaliacoes;
 
 use App\Models\AgendaAvaliacao;
