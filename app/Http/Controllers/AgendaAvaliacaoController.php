@@ -249,11 +249,11 @@ class AgendaAvaliacaoController extends Controller
 
         $validate['valor_avaliador'] = ($validate['dias'] * $validate['valor_dia']) + ($validate['valor_lider']); // verificar regra correta
         
-        $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'] + $validate['valor_avaliador'];
+        $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'] ;
         // como estava
         // $validate['total_gastos_reais'] = $validate['valor_lider'] + $validate['valor_avaliador'] + $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras']; //como estava
        
-        $validate['total_gastos_reais'] = $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras'] + $validate['valor_avaliador'];
+        $validate['total_gastos_reais'] = $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras'] ;
 
         if($area->uid){
 
