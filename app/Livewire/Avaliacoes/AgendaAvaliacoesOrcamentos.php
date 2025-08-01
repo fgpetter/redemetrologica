@@ -2,8 +2,11 @@
 
 namespace App\Livewire\Avaliacoes;
 
-use App\Models\AgendaAvaliacao;
 use Livewire\Component;
+use Illuminate\Support\Str;
+use App\Models\AgendaAvaliacao;
+use Illuminate\Support\Facades\Storage;
+use App\Actions\GenerateDocxFromTemplateAction;
 
 class AgendaAvaliacoesOrcamentos extends Component
 {
@@ -80,6 +83,59 @@ class AgendaAvaliacoesOrcamentos extends Component
             $this->valor_proposta - $this->soma_avaliadores - $this->soma_despesas_reais, 2);
     }
 
+    public function imprimirOrcamento()
+    {
+        $this->avaliacao->load('areas.avaliador.pessoa', 'TipoAvaliacao' ,'laboratorio.pessoa.enderecos');
+        $data = [
+            'nome_laboratorio' => $this->avaliacao->laboratorio->nome_laboratorio ?? 'Não informado',
+
+            'areas' => $this->avaliacao
+                            ->areas
+                            ->map(fn($area) => $area->areaAtuacao->descricao ?? 'Não informado')
+                            ->sort() 
+                            ->unique() 
+                            ->implode(', '),
+
+            'tipo_avaliacao' => $this->avaliacao->tipoAvaliacao->descricao ?? 'Não informado',
+            'data_envio_proposta' => $this->avaliacao->data_envio_proposta ? \Carbon\Carbon::parse($this->avaliacao->data_envio_proposta)->format('d/m/Y') : 'Não informado',
+            'data_inicio' => $this->avaliacao->data_inicio ? \Carbon\Carbon::parse($this->avaliacao->data_inicio)->format('d/m/Y') : 'Não informado',
+            'data_fim' => $this->avaliacao->data_fim ? \Carbon\Carbon::parse($this->avaliacao->data_fim)->format('d/m/Y') : 'Não informado',
+            'num_ensaios' => $this->avaliacao->num_ensaios ?? 'Não informado',
+            'num_avaliadores' => $this->avaliacao->areas->pluck('avaliador_id')->unique()->count() ?? 'Não informado',
+            'num_aval_treinamento' => $this->avaliacao->num_aval_treinamento ?? 'Não informado',
+            'dias_trabalho' => $this->avaliacao->areas->sum('dias') ?? 'Não informado',
+            'valor_proposta' => $this->avaliacao->valor_proposta ?? 'Não informado',
+            'responsavel_tecnico' => $this->avaliacao->laboratorio->responsavel_tecnico ?? 'Não informado',
+        ];
+
+        //garante a repetição de linhas no template
+        $blocks = [];
+
+        // define entradas e saidas
+        $labSlug = Str::slug($this->avaliacao->laboratorio->nome_laboratorio ?? 'laboratorio');
+        $templatePath = storage_path('app/templates/Orçamento.docx');
+        $outputRelativePath = "docs/Orçamento_{$labSlug}_" . now()->timestamp . ".docx";
+
+         try {
+        // Gera o arquivo e devolve o path relativo
+        $gerar = (new GenerateDocxFromTemplateAction())
+            ->execute($templatePath, $data, $blocks, $outputRelativePath);
+
+        // Caminho absoluto dentro de storage/app/public
+        $fullPath = Storage::disk('public')->path($gerar);
+
+        // Resposta de download que deleta após enviar
+        return response()
+            ->download($fullPath, basename($fullPath))
+            ->deleteFileAfterSend(true); //deleta o arquivo após enviar e mantem o action idempotente???
+
+    } catch (\Exception $e) {
+        $this->addError('template', 'Erro ao gerar documento: ' . $e->getMessage());
+    }
+
+
+    }
+
     public function gerarOrcamento()
     {
         
@@ -98,9 +154,7 @@ class AgendaAvaliacoesOrcamentos extends Component
             'observacoes_orcamento' => $this->observacoes_orcamento,
         ]);
 
-        
-        session()->flash('success', 'Orçamento gerado com sucesso');
-        $this->redirect(url()->previous());
+         return $this->imprimirOrcamento();
     }
 
     public function render()
