@@ -47,9 +47,8 @@
       <thead>
         <tr>
           <th scope="col">Entidade</th>
-          <th scope="col">Laboratório</th>
-          <th scope="col">Cidade</th>
-          <th scope="col">Outras informações</th>
+          <th scope="col">Área de Atuação</th>
+          <th scope="col">Nome do Laboratório</th>
         </tr>
       </thead>
 
@@ -57,20 +56,16 @@
         @forelse ($laboratorios_internos as $laboratorio_interno)
           <tr>
             <td>
-              <a href="{{ asset('laboratorios-certificados/' . $laboratorio_interno->certificado) }}" target="_blank">
-                <i class="ph-file-arrow-down align-middle me-1" style="font-size: 1.4rem"></i>
-                {{ $laboratorio_interno->laboratorio->nome_laboratorio }}
+              <a href="{{ route('lab-interno-show', $laboratorio_interno->uid) }}">
+                {{ $laboratorio_interno->laboratorio->pessoa->nome_razao }}
               </a>
             </td>
             <td>{{ $laboratorio_interno->area->descricao }}</td>
-            <td>
-              {{ $laboratorio_interno->laboratorio->pessoa?->enderecos->first()->cidade ?? null }}
-            </td>
-            <td></td>
+            <td>{{ $laboratorio_interno->laboratorio->nome_laboratorio }}</td>
           </tr>
         @empty
           <tr>
-            <td colspan="5" class="text-center">Não há laboratorios cadastrados</td>
+            <td colspan="3" class="text-center">Não há laboratorios cadastrados</td>
           </tr>
         @endforelse
       </tbody>

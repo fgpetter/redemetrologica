@@ -49,6 +49,8 @@ class LaboratorioController extends Controller
     return view('painel.laboratorios.index', ['laboratorios' => $laboratorios, 'pessoas' => $pessoas]);
   }
 
+
+
   /**
    * Adiciona um laboratorio
    *
@@ -277,7 +279,7 @@ class LaboratorioController extends Controller
           $query->whereNotNull('laboratorio_id')->where('site', 1);
       })->get();
 
-  $laboratorios_internos = LaboratorioInterno::select('certificado', 'laboratorio_id', 'area_atuacao_id')
+  $laboratorios_internos = LaboratorioInterno::select('uid','certificado', 'laboratorio_id', 'area_atuacao_id')
       ->with('area:id,descricao', 'laboratorio:id,pessoa_id,nome_laboratorio')
       ->when($request->area, function ($query) use ($request) {
           $query->whereHas('area', function ($q) use ($request) {
@@ -302,4 +304,16 @@ class LaboratorioController extends Controller
       'areas_atuacao'         => $areas_atuacao,
   ]);
 }
+  /**
+   * Gera pagina single de curso agendado
+   *
+   * @return View
+   **/
+  public function showLabInterno($uid): View
+  {
+    $laboratorio_interno = LaboratorioInterno::where('uid', $uid)->with('area')->firstOrFail();
+
+    return view('site.pages.slug-labinterno', ['laboratorio_interno' => $laboratorio_interno]);
+  }
+
 }
