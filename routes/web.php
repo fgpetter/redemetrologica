@@ -205,7 +205,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
     Route::post('salvar-inscrito/{inscrito:uid?}', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
     Route::get('conclui-inscricao', [InscricaoCursoController::class, 'concluiInscricao'])->name('conclui-inscricao');
-    Route::post('envia-lista-inscritos/{agendacurso:uid}', [InscricaoCursoController::class, 'adicionaInscritosPorLista'])->name('envia-lista-inscritos');
   });
 
   /* Instrutores*/
@@ -221,8 +220,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('deletecursoshabilitado/{cursohabilitado:uid}', [InstrutorController::class, 'deleteCursoHabilitado'])->name('instrutor-delete-curso-habilitado');
     Route::post('delete-curriculo/{instrutor:uid}', [InstrutorController::class, 'curriculoDelete'])->name('instrutor-curriculo-delete');
   });
-
-
 
   /**
    * Avalições

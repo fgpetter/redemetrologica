@@ -26,14 +26,29 @@ class LancamentoFinanceiroController extends Controller
       'data_inicial' => ['nullable', 'date'],
       'data_final' => ['nullable', 'date'],
       'pessoa' => ['nullable', 'exists:pessoas,id'],
+      'tipo_data' => ['nullable', 'in:data_vencimento,data_pagamento'],
     ]);
+    
+    if( empty($validated['data_inicial']) ) {
+      $validated['data_inicial'] = today();
+    }
+    
+    if( empty($validated['data_final']) ) {
+      $validated['data_final'] = today()->addDays(7);
+    }
+
+    if( $validated['pessoa'] ?? false ) {
+      unset($validated['data_inicial']);
+      unset($validated['data_final']);
+      unset($validated['tipo_data']);
+    }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)
       ->orderBy('data_vencimento')
       ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id')->where('status', 'EFETIVADO'))
       ->withTrashed()
       ->get();
 
@@ -274,12 +289,14 @@ class LancamentoFinanceiroController extends Controller
       ->orderBy('data_vencimento')->paginate(10);
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id')->whereNot('status', 'EFETIVADO'))
       ->withTrashed()
+      ->orderBy('nome_razao')
       ->get();
 
-    $cursos = AgendaCursos::select('agenda_cursos.id', 'agenda_cursos.uid', 'agenda_cursos.curso_id')
+    $cursos = AgendaCursos::select('agenda_cursos.id', 'agenda_cursos.uid', 'agenda_cursos.curso_id', 'agenda_cursos.data_inicio')
       ->join('cursos', 'agenda_cursos.curso_id', '=', 'cursos.id')
+      ->whereIn('agenda_cursos.id', LancamentoFinanceiro::whereNull('data_pagamento')->select('agenda_curso_id'))
       ->whereNot('agenda_cursos.status', 'CANCELADO')
       ->orderBy('cursos.descricao')
       ->get();
