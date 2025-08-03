@@ -1,3 +1,4 @@
+
 @extends('site.layouts.layout-site')
 @section('title') {{ $laboratorio_interno->laboratorio->pessoa->nome_razao }} @endsection
 @section('content')
@@ -18,26 +19,112 @@
           <div class="card-header bg-light py-3">
             <h5 class="card-title mb-0">Detalhes do Laboratório</h5>
           </div>
+
           <div class="card-body p-4">
-            <dl class="row">
-              <dt class="col-sm-4">Área de Atuação:</dt>
-              <dd class="col-sm-8">{{ $laboratorio_interno->area->descricao }}</dd>
+            <div class="row">
+
+              <div class="col-sm-4">
+                <h6>Laboratório:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>{{ $laboratorio_interno->laboratorio->nome_laboratorio ?? $laboratorio_interno->laboratorio->pessoa->nome_razao }}</p>
+              </div>
+
+              <div class="col-sm-4">
+                <h6>Endereço:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>
+                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->endereco }},
+                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->numero }} - 
+                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->complemento }} 
+                <br>
+                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->bairro }}, 
+                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cidade }} /
+                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->uf }} -
+                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cep }}
+                </p>
+              </div>
+
+              <div class="col-sm-4">
+                <h6>Contato:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>
+                  {{ $laboratorio_interno->laboratorio->contato }}
+                </p>
+              </div>
+
+              <div class="col-sm-4">
+                <h6>Responsável Técnico:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>
+                  {{ $laboratorio_interno->laboratorio->responsavel_tecnico }}
+                </p>
+              </div>
+
+              <div class="col-sm-4">
+                <h6>Telefone:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>
+                  {{ $laboratorio_interno->laboratorio->telefone }}
+                </p>
+              </div>
+
+              <div class="col-sm-4">
+                <h6>E-mail:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>
+                  {{ $laboratorio_interno->laboratorio->email }}
+                </p>
+              </div>
+
+              <div class="col-sm-4">
+                <h6>CNPJ:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>{{ $laboratorio_interno->laboratorio->pessoa->cpf_cnpj }}</p>
+              </div>
+
+              <hr class="my-4">
+              <h5>LABORATÓRIO INTERNO</h5>
+              <div class="col-sm-4">
+                <h6>Área de Atuação:</h6>
+              </div>
+              <div class="col-sm-8">
+                <p>{{ $laboratorio_interno->area->descricao }}</p>
+              </div>
 
               @if ($laboratorio_interno->responsavel_tecnico)
-                <dt class="col-sm-4">Responsável Técnico:</dt>
-                <dd class="col-sm-8">{{ $laboratorio_interno->responsavel_tecnico }}</dd>
+                <div class="col-sm-4">
+                  <h6>Responsável Técnico:</h6>
+                </div>
+                <div class="col-sm-8">
+                  <p>{{ $laboratorio_interno->responsavel_tecnico }}</p>
+                </div>
               @endif
 
               @if ($laboratorio_interno->telefone)
-                <dt class="col-sm-4">Telefone:</dt>
-                <dd class="col-sm-8">{{ $laboratorio_interno->telefone }}</dd>
+                <div class="col-sm-4">
+                  <h6>Telefone:</h6>
+                </div>
+                <div class="col-sm-8">
+                  <p>{{ $laboratorio_interno->telefone }}</p>
+                </div>
               @endif
 
               @if ($laboratorio_interno->email)
-                <dt class="col-sm-4">E-mail:</dt>
-                <dd class="col-sm-8">{{ $laboratorio_interno->email }}</dd>
+                <div class="col-sm-4">
+                  <h6>E-mail:</h6>
+                </div>
+                <div class="col-sm-8">
+                  <p>{{ $laboratorio_interno->email }}</p>
+                </div>
               @endif
-            </dl>
+            </div>
 
             @if ($laboratorio_interno->certificado)
               <hr class="my-4">
