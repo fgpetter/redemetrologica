@@ -30,21 +30,23 @@
                 <p>{{ $laboratorio_interno->laboratorio->nome_laboratorio ?? $laboratorio_interno->laboratorio->pessoa->nome_razao }}</p>
               </div>
 
-              <div class="col-sm-4">
-                <h6>Endereço:</h6>
-              </div>
-              <div class="col-sm-8">
-                <p>
-                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->endereco }},
-                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->numero }} - 
-                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->complemento }} 
-                <br>
-                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->bairro }}, 
-                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cidade }} /
-                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->uf }} -
-                  {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cep }}
-                </p>
-              </div>
+              @if ($laboratorio_interno->laboratorio->pessoa->enderecos()->first())
+                <div class="col-sm-4">
+                  <h6>Endereço:</h6>
+                </div>
+                <div class="col-sm-8">
+                  <p>
+                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->endereco }},
+                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->numero }} - 
+                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->complemento }} 
+                  <br>
+                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->bairro }}, 
+                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cidade }} /
+                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->uf }} -
+                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cep }}
+                  </p>
+                </div>
+              @endif
 
               <div class="col-sm-4">
                 <h6>Contato:</h6>
