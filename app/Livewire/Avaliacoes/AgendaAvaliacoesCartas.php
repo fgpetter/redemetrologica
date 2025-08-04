@@ -61,7 +61,8 @@ class AgendaAvaliacoesCartas extends Component
             $gerar = (new GenerateDocxFromTemplateAction())
                 ->execute($templatePath, $data, $blocks, $outputRelativePath);
 
-            return Storage::disk('public')->download($gerar);
+            // return Storage::disk('public')->download($gerar);
+            return Storage::download("public/{$gerar}");    
             
         } catch (\Exception $e) {
             $this->addError('template', 'Erro ao gerar documento: ' . $e->getMessage());
@@ -165,7 +166,8 @@ class AgendaAvaliacoesCartas extends Component
             $gerar = (new GenerateDocxFromTemplateAction())
                 ->execute($templatePath, $data, $blocks, $outputRelativePath);
 
-            return Storage::disk('public')->download($gerar);
+            return Storage::download("public/{$gerar}");
+            // return Storage::disk('public')->download($gerar);
             
         } catch (\Exception $e) {
             $this->addError('template', 'Erro ao gerar documento: ' . $e->getMessage());

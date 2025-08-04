@@ -121,15 +121,16 @@ class AgendaAvaliacoesOrcamentos extends Component
         $gerar = (new GenerateDocxFromTemplateAction())
             ->execute($templatePath, $data, $blocks, $outputRelativePath);
 
-        // Caminho absoluto dentro de storage/app/public
-        $fullPath = Storage::disk('public')->path($gerar);
+        // $fullPath = Storage::disk('public')->path($gerar);
+        $fullPath = Storage::path("public/{$gerar}");
 
-        // Resposta de download que deleta após enviar
-        return response()
-            ->download($fullPath, basename($fullPath))
-            ->deleteFileAfterSend(true); //deleta o arquivo após enviar e mantem o action idempotente???
 
-    } catch (\Exception $e) {
+            // Resposta de download que deleta após enviar
+            return response()
+                ->download($fullPath, basename($fullPath))
+                ->deleteFileAfterSend(true); //deleta o arquivo após enviar e mantem o action generico
+
+        } catch (\Exception $e) {
         $this->addError('template', 'Erro ao gerar documento: ' . $e->getMessage());
     }
 

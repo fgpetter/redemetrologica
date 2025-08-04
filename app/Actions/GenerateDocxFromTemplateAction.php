@@ -28,7 +28,9 @@ class GenerateDocxFromTemplateAction
             );
         }
 
-        $absolutePathToSave = Storage::disk('public')->path($outputRelativePath);
+        // $absolutePathToSave = Storage::disk('public')->path($outputRelativePath);
+        $absolutePathToSave = Storage::path("public/{$outputRelativePath}");
+        
 
         $templateProcessor->saveAs($absolutePathToSave);
 

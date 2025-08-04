@@ -1,3 +1,4 @@
+
 <div>
     @if ($errors->any())
         <div class="alert alert-warning">
@@ -116,6 +117,10 @@
                                             data-bs-target="{{ '#participanteModal' . $participante->uid }}">
                                             Editar
                                         </a>
+                                    </li>
+                                    <!-- Botão para gerar certificado -->
+                                    <li>
+                                        @livewire('interlab.gerar-certificado-button', ['participanteId' => $participante->id], key('cert-btn-' . $participante->id))
                                     </li>
                                     <li>
                                         <x-painel.form-delete.delete route='cancela-inscricao-interlab'
