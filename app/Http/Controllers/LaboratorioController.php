@@ -244,7 +244,7 @@ class LaboratorioController extends Controller
    * @return View
    */
   public function siteIndex(Request $request): View
-{
+  {
   if (!empty(request()->except('area', 'laboratorio', 'buscalaboratorio', 'page'))) {
     return abort('404');
   }
@@ -273,14 +273,16 @@ class LaboratorioController extends Controller
     ->orderBy('descricao', 'asc')
     ->get();
 
-
-  $laboratorios = Laboratorio::select('uid', 'nome_laboratorio')
-      ->whereHas('laboratoriosInternos', function ($query) {
-          $query->whereNotNull('laboratorio_id')->where('site', 1);
-      })->get();
-
-  $laboratorios_internos = LaboratorioInterno::select('uid','certificado', 'laboratorio_id', 'area_atuacao_id')
-      ->with('area:id,descricao', 'laboratorio:id,pessoa_id,nome_laboratorio')
+  $laboratorios_internos = LaboratorioInterno::select(
+    'laboratorios_internos.uid', 
+    'laboratorios_internos.nome', 
+    'laboratorios_internos.certificado', 
+    'laboratorios_internos.laboratorio_id', 
+    'laboratorios_internos.area_atuacao_id'
+    )
+      ->join('laboratorios', 'laboratorios_internos.laboratorio_id', '=', 'laboratorios.id')
+      ->with('laboratorio.pessoa')
+      ->with('area:id,descricao')
       ->when($request->area, function ($query) use ($request) {
           $query->whereHas('area', function ($q) use ($request) {
               $q->where('uid', $request->area);
@@ -294,13 +296,12 @@ class LaboratorioController extends Controller
       })
       ->where('site', 1)
       ->where('reconhecido', 1)
-      ->whereHas('laboratorio')
-      ->paginate(15);
+      ->orderBy('laboratorios.nome_laboratorio', 'asc')
+      ->get();
 
 
   return view('site.pages.laboratorios-reconhecidos', [
       'laboratorios_internos' => $laboratorios_internos,
-      'laboratorios'          => $laboratorios,
       'areas_atuacao'         => $areas_atuacao,
   ]);
 }

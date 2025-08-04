@@ -61,7 +61,7 @@
               </a>
             </td>
             <td>{{ $laboratorio_interno->area->descricao }}</td>
-            <td>{{ $laboratorio_interno->laboratorio->nome_laboratorio }}</td>
+            <td>{{ $laboratorio_interno->nome }}</td>
           </tr>
         @empty
           <tr>
@@ -71,9 +71,6 @@
       </tbody>
 
     </table>
-    <div class="row mt-3 w-100">
-      {!! $laboratorios_internos->withQueryString()->links('pagination::bootstrap-5') !!}
-    </div>
 
   </div>
   {{-- table --}}
