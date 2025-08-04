@@ -73,7 +73,6 @@ Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
 
 Route::get('laboratorios-reconhecidos', [LaboratorioController::class, 'siteIndex']);
 Route::get('laboratorios-reconhecidos/{labinterno:uid}', [LaboratorioController::class, 'showLabInterno'])->name('lab-interno-show'); //laboratorio interno
-Route::view('bonus-metrologia', 'site.pages.bonus-metrologia');
 Route::get('laboratorios-downloads', [DownloadController::class, 'siteIndex']);
 
 // Rotas para fale-conosco e envio de formulario de contato
