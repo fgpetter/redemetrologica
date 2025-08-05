@@ -32,7 +32,7 @@ class CertificadoInterlabMail extends Mailable
     public function envelope(): Envelope
     { 
         return new Envelope(
-            subject: 'Seu Certificado de Participação - Rede Metrológica',
+            subject: 'Certificado de Participação - '. $this->participante->agendaInterlab->interlab->nome,
         );
     }
 
