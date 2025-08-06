@@ -127,7 +127,7 @@ class AgendaAvaliacoesOrcamentos extends Component
         // Resposta de download que deleta após enviar
         return response()
             ->download($fullPath, basename($fullPath))
-            ->deleteFileAfterSend(true); //deleta o arquivo após enviar e mantem o action idempotente???
+            ->deleteFileAfterSend(true); //deleta o arquivo após enviar e mantem o action generica.
 
     } catch (\Exception $e) {
         $this->addError('template', 'Erro ao gerar documento: ' . $e->getMessage());

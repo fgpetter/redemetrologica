@@ -263,7 +263,7 @@ class AgendaAvaliacaoController extends Controller
             AreaAvaliada::create($validate);
         }
 
-        return redirect()->back()->with('success', 'Dados atualizados com sucesso');
+        return redirect()->back()->with('success', 'Dados atualizados com sucesso')->withFragment('laboratorios');
     }
 
     public function deleteArea(AreaAvaliada $area): RedirectResponse
