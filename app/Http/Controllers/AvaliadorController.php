@@ -57,6 +57,7 @@ class AvaliadorController extends Controller
       ->withQueryString();
         
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
+      ->where('tipo_pessoa', 'PF')
       ->whereNotIn('id', function ($query) {
         $query->select('pessoa_id')->from('avaliadores');
       })
