@@ -1,14 +1,44 @@
-<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}">
+<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}" x-data="{
+  updateDataProcLaboratorio() {
+    const dataInicio = this.$refs.dataInicio.value;
+    if (dataInicio) {
+      const data = new Date(dataInicio);
+      data.setDate(data.getDate() - 10);
+      const dataFormatada = data.toISOString().split('T')[0];
+      this.$refs.dataProcLaboratorio.value = dataFormatada;
+    }
+  },
+  updateDataPropostaAcoesCorretivas() {
+    const dataFim = this.$refs.dataFim.value;
+    if (dataFim) {
+      const data = new Date(dataFim);
+      
+      const dataProposta = new Date(dataFim);
+      dataProposta.setDate(dataProposta.getDate() + 7);
+      const dataPropostaFormatada = dataProposta.toISOString().split('T')[0];
+      this.$refs.dataPropostaAcoesCorretivas.value = dataPropostaFormatada;
+      
+      const dataAcoes = new Date(dataFim);
+      dataAcoes.setDate(dataAcoes.getDate() + 45);
+      const dataAcoesFormatada = dataAcoes.toISOString().split('T')[0];
+      this.$refs.dataAcoesCorretivas.value = dataAcoesFormatada;
+    }
+  }
+}">
   @csrf
 
   {{-- Grupo 1: Período & Tipo --}}
   <div class="row gy-3">
     <div class="col-md-3">
-      <x-forms.input-field name="data_inicio" :value="old('data_inicio') ?? $avaliacao->data_inicio" label="Data Início" type="date" />
+      <x-forms.input-field name="data_inicio" :value="old('data_inicio') ?? $avaliacao->data_inicio" 
+        label="Data Início" type="date" x-ref="dataInicio" 
+        @change="updateDataProcLaboratorio()" />
       @error('data_inicio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_fim" :value="old('data_fim') ?? $avaliacao->data_fim" label="Data Fim" type="date" />
+      <x-forms.input-field name="data_fim" :value="old('data_fim') ?? $avaliacao->data_fim" 
+        label="Data Fim" type="date" x-ref="dataFim" 
+        @change="updateDataPropostaAcoesCorretivas()" />
       @error('data_fim') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4">
@@ -107,7 +137,8 @@
       </x-forms.input-select>
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_proc_laboratorio" :value="old('data_proc_laboratorio') ?? $avaliacao->data_proc_laboratorio" label="Data Procedim. Laboratório" type="date" />
+      <x-forms.input-field name="data_proc_laboratorio" :value="old('data_proc_laboratorio') ?? $avaliacao->data_proc_laboratorio" 
+        label="Data Procedim. Laboratório" type="date" x-ref="dataProcLaboratorio" />
       @error('data_proc_laboratorio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
@@ -162,11 +193,13 @@
   {{-- Grupo 9: Ações Corretivas --}}
   <div class="row mt-3">
     <div class="col-md-3">
-      <x-forms.input-field name="data_proposta_acoes_corretivas" :value="old('data_proposta_acoes_corretivas') ?? $avaliacao->data_proposta_acoes_corretivas" label="Data Proposta Ações Corretivas" type="date" />
+      <x-forms.input-field name="data_proposta_acoes_corretivas" :value="old('data_proposta_acoes_corretivas') ?? $avaliacao->data_proposta_acoes_corretivas" 
+        label="Data Proposta Ações Corretivas" type="date" x-ref="dataPropostaAcoesCorretivas" />
       @error('data_proposta_acoes_corretivas') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_acoes_corretivas" :value="old('data_acoes_corretivas') ?? $avaliacao->data_acoes_corretivas" label="Data Ações Corretivas" type="date" />
+      <x-forms.input-field name="data_acoes_corretivas" :value="old('data_acoes_corretivas') ?? $avaliacao->data_acoes_corretivas" 
+        label="Data Ações Corretivas" type="date" x-ref="dataAcoesCorretivas" />
       @error('data_acoes_corretivas') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
