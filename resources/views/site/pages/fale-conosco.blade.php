@@ -92,6 +92,11 @@
             <div class="col offset-xxl-1 col-xxl-10 text-center my-4">
                 <h5 class="py-0">Processo para envio solicitação de resoluções e apelações:</h5>
                 <img src="{{ asset('build/images/site/fluxo-resolucao-apelacao.png') }}" alt="Fluxo de resolução e apelações" class="img-fluid">
+                <p>
+                    Toda reclamação/apelação é tratada com imparcialidade, confidencialidade e independência, conforme a Política da Qualidade do PEP. <br>
+                    O provedor é responsável por todas as decisões em todos os níveis do processo de tratamento de reclamações. <br>
+                    A investigação e a decisão sobre apelações não resultarão em quaisquer ações discriminatórias.
+                </p>
             </div>
         </div>
     </div>
