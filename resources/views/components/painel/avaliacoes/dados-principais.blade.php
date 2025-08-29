@@ -1,30 +1,4 @@
-<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}" x-data="{
-  updateDataProcLaboratorio() {
-    const dataInicio = this.$refs.dataInicio.value;
-    if (dataInicio) {
-      const data = new Date(dataInicio);
-      data.setDate(data.getDate() - 10);
-      const dataFormatada = data.toISOString().split('T')[0];
-      this.$refs.dataProcLaboratorio.value = dataFormatada;
-    }
-  },
-  updateDataPropostaAcoesCorretivas() {
-    const dataFim = this.$refs.dataFim.value;
-    if (dataFim) {
-      const data = new Date(dataFim);
-      
-      const dataProposta = new Date(dataFim);
-      dataProposta.setDate(dataProposta.getDate() + 7);
-      const dataPropostaFormatada = dataProposta.toISOString().split('T')[0];
-      this.$refs.dataPropostaAcoesCorretivas.value = dataPropostaFormatada;
-      
-      const dataAcoes = new Date(dataFim);
-      dataAcoes.setDate(dataAcoes.getDate() + 45);
-      const dataAcoesFormatada = dataAcoes.toISOString().split('T')[0];
-      this.$refs.dataAcoesCorretivas.value = dataAcoesFormatada;
-    }
-  }
-}">
+<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}" x-data="dadosPrincipaisData">
   @csrf
 
   {{-- Grupo 1: Período & Tipo --}}
@@ -51,7 +25,6 @@
     </div>
   </div>
 
-
   {{-- Grupo 2: Laboratório & Interno --}}
   <div class="row gy-3">
     <div class="col-12 col-xxl-7">
@@ -68,8 +41,6 @@
       </x-forms.input-select>
     </div>
   </div>
-
-
 
   {{-- Grupo 3: Contato --}}
   <div class="row mt-3">
@@ -121,8 +92,6 @@
     @endforeach
   </div>
 
-
-
   {{-- Grupo 6: Relatório & Procedimentos --}}
   <div class="row mt-3">
     <div class="col-md-3">
@@ -149,8 +118,6 @@
     </div>
     <div class="col-md-3"></div>
   </div>
-
-
 
   {{-- Grupo 7: Info Avaliadores & Carta --}}
   <div class="row mt-3">
@@ -188,8 +155,6 @@
     <div class="col-md-3"></div>
   </div>
 
- 
-
   {{-- Grupo 9: Ações Corretivas --}}
   <div class="row mt-3">
     <div class="col-md-3">
@@ -213,8 +178,6 @@
     </div>
     <div class="col-md-3"></div>
   </div>
-
-
 
   {{-- Grupo 10: Comitê --}}
   <div class="row mt-3">
@@ -300,3 +263,35 @@
     </div>
   </div>
 </form>
+
+<script>
+document.addEventListener('alpine:init', () => {
+  Alpine.data('dadosPrincipaisData', () => ({
+    updateDataProcLaboratorio() {
+      const dataInicio = this.$refs.dataInicio.value;
+      if (dataInicio) {
+        const data = new Date(dataInicio);
+        data.setDate(data.getDate() - 10);
+        const dataFormatada = data.toISOString().split('T')[0];
+        this.$refs.dataProcLaboratorio.value = dataFormatada;
+      }
+    },
+    updateDataPropostaAcoesCorretivas() {
+      const dataFim = this.$refs.dataFim.value;
+      if (dataFim) {
+        const data = new Date(dataFim);
+        
+        const dataProposta = new Date(dataFim);
+        dataProposta.setDate(dataProposta.getDate() + 7);
+        const dataPropostaFormatada = dataProposta.toISOString().split('T')[0];
+        this.$refs.dataPropostaAcoesCorretivas.value = dataPropostaFormatada;
+        
+        const dataAcoes = new Date(dataFim);
+        dataAcoes.setDate(dataAcoes.getDate() + 45);
+        const dataAcoesFormatada = dataAcoes.toISOString().split('T')[0];
+        this.$refs.dataAcoesCorretivas.value = dataAcoesFormatada;
+      }
+    }
+  }));
+});
+</script>

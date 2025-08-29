@@ -1,53 +1,6 @@
 {{-- modal --}}
-<div class="modal fade" id="{{ isset($areaavaliada) ? 'areaAvaliadaModal'.$areaavaliada->uid : 'areaAvaliadaModal' }}" tabindex="-1" aria-labelledby="areaAvaliadaModalLabel" aria-hidden="true" 
-     x-data="{
-       calcularValorAvaliador() {
-         const valorDia = parseFloat(this.$refs.valorDia.value) || 0;
-         const dias = parseFloat(this.$refs.dias.value) || 0;
-         const valorLider = parseFloat(this.$refs.valorLider.value) || 0;
-         
-         if (valorDia > 0 && dias > 0) {
-           const resultado = (valorDia * dias) + valorLider;
-           this.$refs.valorAvaliador.value = resultado.toFixed(2);
-         } else {
-           this.$refs.valorAvaliador.value = '';
-         }
-       },
-       
-       calcularTotalGastosEstim() {
-         const camposEstim = [
-           'valor_estim_desloc',
-           'valor_estim_alim', 
-           'valor_estim_hosped',
-           'valor_estim_extras'
-         ];
-         
-         let total = 0;
-         camposEstim.forEach(campo => {
-           const valor = parseFloat(this.$refs[campo].value) || 0;
-           total += valor;
-         });
-         
-         this.$refs.totalGastosEstim.value = total.toFixed(2);
-       },
-       
-       calcularTotalGastosReais() {
-         const camposReais = [
-           'valor_real_desloc',
-           'valor_real_alim', 
-           'valor_real_hosped',
-           'valor_real_extras'
-         ];
-         
-         let total = 0;
-         camposReais.forEach(campo => {
-           const valor = parseFloat(this.$refs[campo].value) || 0;
-           total += valor;
-         });
-         
-         this.$refs.totalGastosReais.value = total.toFixed(2);
-       }
-     }">
+<div class="modal fade" id="{{ isset($areaavaliada) ? 'areaAvaliadaModal'.$areaavaliada->uid : 'areaAvaliadaModal' }}" tabindex="-1" 
+  aria-labelledby="areaAvaliadaModalLabel" aria-hidden="true" x-data="areaAvaliadaData">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -73,14 +26,6 @@
                 @endforeach
               </x-forms.input-select>
             </div>
-            <div class="col-md-4">
-              <x-forms.input-select name="situacao" label="Situação" required>
-                <option value="">Selecione</option>
-                @foreach(['ATIVO','INATIVO','AVALIADOR','AVALIADOR EM TREINAMENTO','AVALIADOR LIDER','ESPECIALISTA'] as $sit)
-                  <option @selected(($areaavaliada->situacao ?? null) == $sit) value="{{ $sit }}">{{ $sit }}</option>
-                @endforeach
-              </x-forms.input-select>
-            </div>
           </div>
 
           <hr class="my-3">
@@ -100,6 +45,11 @@
                 @input="calcularValorAvaliador()" />
               @error('dias') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
+            <div class="col-md-3">
+              <x-forms.input-field name="num_ensaios" label="Num. Ensaios" type="number" value="{{ old('num_ensaios') ?? $areaavaliada->num_ensaios ?? null }}" />
+              @error('num_ensaios') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+
           </div>
 
           <hr class="my-3">
@@ -113,21 +63,27 @@
                 @endforeach
               </x-forms.input-select>
             </div>
-            <div class="col-md-3">
-              <x-forms.input-field name="num_ensaios" label="Num. Ensaios" type="number" value="{{ old('num_ensaios') ?? $areaavaliada->num_ensaios ?? null }}" />
-              @error('num_ensaios') <div class="text-warning">{{ $message }}</div> @enderror
+            <div class="col-md-4">
+              <x-forms.input-select name="situacao" label="Situação" required>
+                <option value="">Selecione</option>
+                @foreach(['ATIVO','INATIVO','AVALIADOR','AVALIADOR EM TREINAMENTO','AVALIADOR LIDER','ESPECIALISTA'] as $sit)
+                  <option @selected(($areaavaliada->situacao ?? null) == $sit) value="{{ $sit }}">{{ $sit }}</option>
+                @endforeach
+              </x-forms.input-select>
             </div>
+
+          </div>
+
+          <hr class="my-3">
+          <!-- Grupo 4: Valores Líder & Avaliador -->
+          <div class="row gy-3">
             <div class="col-md-3">
               <x-forms.input-field name="valor_dia" label="Valor Dia" class="money" x-ref="valorDia" 
                 value="{{ old('valor_dia') ?? $areaavaliada->valor_dia ?? null }}" 
                 @input="calcularValorAvaliador()" />
               @error('valor_dia') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
-          </div>
 
-          <hr class="my-3">
-          <!-- Grupo 4: Valores Líder & Avaliador -->
-          <div class="row gy-3">
             <div class="col-md-3">
               <x-forms.input-field name="valor_lider" label="Valor Líder" class="money" x-ref="valorLider" 
                 value="{{ old('valor_lider') ?? $areaavaliada->valor_lider ?? null }}" 
@@ -215,3 +171,74 @@
   </div>
 </div>
 {{-- endmodal --}}
+
+<script>
+document.addEventListener('alpine:init', () => {
+  Alpine.data('areaAvaliadaData', () => ({
+    // Função auxiliar para converter formato brasileiro para número
+    parseMoney(value) {
+      if (!value) return 0;
+      
+      // Converte para string e remove espaços
+      let strValue = value.toString().trim();
+
+      // Remove todos os pontos e vírgulas, depois adiciona vírgula nas últimas 2 casas se necessário
+      strValue = strValue.replace(/[.,]/g, '');
+      
+      // Se o valor tem 3 ou mais dígitos, adiciona vírgula nas últimas 2 casas
+      if (strValue.length >= 3) {
+        strValue = strValue.slice(0, -2) + '.' + strValue.slice(-2);
+      }
+      const result = parseFloat(strValue);
+      return isNaN(result) ? 0 : result;
+    },
+
+    calcularValorAvaliador() {
+      const valorDia = this.parseMoney(this.$refs.valorDia.value);
+      const dias = parseFloat(this.$refs.dias.value) || 0;
+      const valorLider = this.parseMoney(this.$refs.valorLider.value);
+
+      if (valorDia > 0 && dias > 0) {
+        const resultado = (valorDia * dias) + valorLider;
+        this.$refs.valorAvaliador.value = resultado.toFixed(2);
+      } else {
+        this.$refs.valorAvaliador.value = '';
+      }
+    },
+    
+    calcularTotalGastosEstim() {
+      const camposEstim = [
+        'valor_estim_desloc',
+        'valor_estim_alim', 
+        'valor_estim_hosped',
+        'valor_estim_extras'
+      ];
+      
+      let total = 0;
+      camposEstim.forEach(campo => {
+        const valor = this.parseMoney(this.$refs[campo].value);
+        total += valor;
+      });
+      
+      this.$refs.totalGastosEstim.value = total.toFixed(2);
+    },
+    
+    calcularTotalGastosReais() {
+      const camposReais = [
+        'valor_real_desloc',
+        'valor_real_alim', 
+        'valor_real_hosped',
+        'valor_real_extras'
+      ];
+      
+      let total = 0;
+      camposReais.forEach(campo => {
+        const valor = this.parseMoney(this.$refs[campo].value);
+        total += valor;
+      });
+      
+      this.$refs.totalGastosReais.value = total.toFixed(2);
+    }
+  }));
+});
+</script>

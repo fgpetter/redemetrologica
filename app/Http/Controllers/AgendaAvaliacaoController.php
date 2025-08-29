@@ -71,7 +71,23 @@ class AgendaAvaliacaoController extends Controller
         $laboratorio = Laboratorio::find($avaliacao->laboratorio_id);
         $avaliadores = Avaliador::with('pessoa:id,uid,nome_razao')->get();
         $tipo_avaliacao = TipoAvaliacao::select('id', 'descricao')->get();
-
+        $total_avaliadores = $avaliacao->areas()
+            ->with('avaliador.pessoa')
+            ->get()
+            ->groupBy(function ($area) {
+                return optional($area->avaliador)->id;
+            })
+            ->map(function ($areas) {
+                $avaliador = $areas->first()->avaliador;
+                return [
+                    'nome' => optional($avaliador->pessoa)->nome_razao,
+                    'total' => $areas->sum('valor_avaliador'),
+                ];
+            })
+            ->filter(function ($item) {
+                return !is_null($item['nome']);
+            })
+            ->values();
 
         return view('painel.avaliacoes.insert', 
             [
@@ -79,6 +95,7 @@ class AgendaAvaliacaoController extends Controller
                 'laboratorio' => $laboratorio,
                 'avaliadores' => $avaliadores,
                 'tipo_avaliacao' => $tipo_avaliacao,
+                'totalavaliadores' => $total_avaliadores,
             ]);
     }
 
