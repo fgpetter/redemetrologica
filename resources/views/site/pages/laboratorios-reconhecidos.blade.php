@@ -29,7 +29,7 @@
           
           <th>
             <input type="text" name="laboratorio" id="laboratorio" class="form-control form-control-sm"
-              placeholder="Digite o nome do laboratório e pressione ENTER para buscar." value="{{ $getlab ?? '' }}"
+              placeholder="Informe o laboratório ou área e pressione ENTER para buscar." value="{{ $getlab ?? '' }}"
               onkeypress="if(event.keyCode === 13){ search(event, window.location.href, 'laboratorio'); }">
           </th>
           
