@@ -91,8 +91,8 @@ class InscricaoInterlabController extends Controller
     }
 
     Mail::to('interlab@redemetrologica.com.br')
-      ->cc('tecnico@redemetrologica.com.br')
-      ->cc('sistema@redemetrologica.com.br')
+    ->cc('tecnico@redemetrologica.com.br')
+    ->cc('sistema@redemetrologica.com.br')
       ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
 
     Mail::to($inscrito->pessoa->email)

@@ -51,3 +51,8 @@
 
     </div>
 </form>
+@if ($laboratorio->uid)
+  <div class="col-12">
+    <x-painel.laboratorios.form-delete route="laboratorio-delete" id="{{ $laboratorio->uid }}" />
+  </div>
+@endif
