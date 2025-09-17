@@ -294,4 +294,4 @@ document.addEventListener('alpine:init', () => {
     }
   }));
 });
-</script>
+</script> 
