@@ -11,7 +11,7 @@
         
         <div class="hstack gap-2 flex-wrap mb-3 justify-content-end">
             <button class="btn btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-              <i class="ri-add-line align-bottom me-1"></i> Adicionar Avaliadors
+              <i class="ri-add-line align-bottom me-1"></i> Adicionar Avaliador
             </button>
           </div>
 
