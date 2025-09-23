@@ -31,12 +31,6 @@
               <x-painel.laboratorios.dados-principais :laboratorio="$laboratorio" />
             </div>
 
-            @if ($laboratorio->uid)
-              <div class="col-8">
-                <x-painel.laboratorios.form-delete route="laboratorio-delete" id="{{ $laboratorio->uid }}" />
-              </div>
-            @endif
-
             <div class="col-8 mt-4 px-0">
               <livewire:enderecos.listview :pessoa="$laboratorio->pessoa" />
             </div>

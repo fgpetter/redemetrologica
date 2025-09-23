@@ -26,23 +26,32 @@
       </div>
 
       <div class="col-4">
-        <x-forms.input-field name="telefone" :value="old('telefone') ?? ($laboratorio->telefone ?? $laboratorio->pessoa->telefone ?? null)" label="Telefone" class="telefone"/>
+        <x-forms.input-field name="telefone" 
+          :value="old('telefone') ?? ($laboratorio->telefone ?? $laboratorio->pessoa->telefone ?? null)" 
+          label="Telefone" class="telefone"/>
+          @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
-        <x-forms.input-field type="email" name="email" :value="old('email') ?? ($laboratorio->email ?? $laboratorio->pessoa->email ?? null)" label="E-mail" />
+        <x-forms.input-field type="email" name="email" 
+          :value="old('email') ?? ($laboratorio->email ?? $laboratorio->pessoa->email ?? null)" 
+          label="E-mail" />
+          @error('email') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="contato" :value="old('contato') ?? ($laboratorio->contato ?? null)" label="Pessoa de contato" />
+        @error('contato') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="responsavel_tecnico" :value="old('responsavel_tecnico') ?? ($laboratorio->responsavel_tecnico ?? null)" label="Responsável Técnico" />
+        @error('responsavel_tecnico') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="cod_laboratorio" :value="old('cod_laboratorio') ?? ($laboratorio->cod_laboratorio ?? null)" label="Código do Laboratório" />
+        @error('cod_laboratorio') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-12">
@@ -51,3 +60,8 @@
 
     </div>
 </form>
+@if ($laboratorio->uid)
+  <div class="col-12">
+    <x-painel.laboratorios.form-delete route="laboratorio-delete" id="{{ $laboratorio->uid }}" />
+  </div>
+@endif
