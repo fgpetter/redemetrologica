@@ -8,7 +8,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-            <ul class="navbar-nav nav-underline h5">
+            <ul class="navbar-nav nav-underline h6">
 
                 {{-- @foreach ($menu as $menu_item)
                     <x-nav.link nome='{{$menu_item->nome}}' link='{{$menu_item->item}}'/>
