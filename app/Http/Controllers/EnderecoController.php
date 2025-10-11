@@ -155,7 +155,8 @@ class EnderecoController extends Controller
    **/
   public function delete(Endereco $endereco, InterlabLaboratorio $laboratorio): RedirectResponse
   {
-    // Verifica se o endereço está vinculado a algum laboratório e impede a remoção
+
+    // Verifica se o endereço está vinculado a algum PEP e impede a remoção
     if ($laboratorio->where('endereco_id', $endereco->id)->exists()) {
       return redirect()->back()->with('error', 'Não é possível remover este endereço, pois o mesmo está vinculado a um PEP.');
     }
