@@ -346,7 +346,7 @@ class ConfirmInscricaoInterlab extends Component
 
                     $endereco = Endereco::create([
                         'pessoa_id' => $empresaId,
-                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'],
+                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''), //adicionar a info do PEP
                         'cep' => $validated['laboratorio']['endereco']['cep'],
                         'endereco' => $validated['laboratorio']['endereco']['endereco'],
                         'complemento' => $validated['laboratorio']['endereco']['complemento'] ?? null,
