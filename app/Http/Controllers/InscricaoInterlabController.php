@@ -33,7 +33,7 @@ class InscricaoInterlabController extends Controller
   }
 
   /**
-   * Cadastra pessoa ou laboratório no PEP a partir da área do cliente
+   * Cadastra pessoa ou laboratório no PEP a partir da área do cliente (painel)
    *
    * @param Request $request
    * @return RedirectResponse
@@ -50,7 +50,7 @@ class InscricaoInterlabController extends Controller
 
       $endereco = Endereco::create([
         'pessoa_id' => $empresa->id,
-        'info' => 'Laboratório: '.$validated['laboratorio'],
+        'info' => 'Laboratório: ' . $validated['laboratorio'] . ' | inscrito no PEP: ' . $agenda_interlab->interlab->nome, //Adiciona info do laboratório e do interlab
         'cep' => $validated['cep'],
         'endereco' => $validated['endereco'],
         'complemento' => $validated['complemento'],
@@ -90,15 +90,15 @@ class InscricaoInterlabController extends Controller
       $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio , $request->valor);
     }
 
-    Mail::to('interlab@redemetrologica.com.br')
+/*     Mail::to('interlab@redemetrologica.com.br')
     ->cc('tecnico@redemetrologica.com.br')
     ->cc('sistema@redemetrologica.com.br')
-      ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
+      ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab)); */
 
-    Mail::to($inscrito->pessoa->email)
+/*     Mail::to($inscrito->pessoa->email)
       ->cc('sistema@redemetrologica.com.br')
       ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
-
+ */
     if( $request->encerra_cadastro == 1 ) {
       session()->forget(['interlab', 'empresa', 'convite']);
       return back()->with('success', 'Inscrição realizada com sucesso!');
