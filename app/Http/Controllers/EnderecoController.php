@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Endereco;
+use App\Models\InterlabLaboratorio;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
@@ -152,8 +153,12 @@ class EnderecoController extends Controller
    * @param Endereco $user
    * @return RedirectResponse
    **/
-  public function delete(Endereco $endereco): RedirectResponse
+  public function delete(Endereco $endereco, InterlabLaboratorio $laboratorio): RedirectResponse
   {
+    // Verifica se o endereço está vinculado a algum laboratório e impede a remoção
+    if ($laboratorio->where('endereco_id', $endereco->id)->exists()) {
+      return redirect()->back()->with('error', 'Não é possível remover este endereço, pois o mesmo está vinculado a um PEP.');
+    }
     $endereco->pessoa->update(['end_padrao' => null]);
     $endereco->delete();
 
