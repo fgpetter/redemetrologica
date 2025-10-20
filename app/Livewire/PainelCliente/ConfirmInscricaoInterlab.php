@@ -320,6 +320,7 @@ class ConfirmInscricaoInterlab extends Component
                     $laboratorio = InterlabLaboratorio::findOrFail($this->laboratorioEditadoId);
                     $empresaId = $laboratorio->empresa_id;
                     $endereco = Endereco::findOrFail($laboratorio->endereco_id);
+                    
                     $endereco->update([
                         'cep' => $validated['laboratorio']['endereco']['cep'],
                         'endereco' => $validated['laboratorio']['endereco']['endereco'],
@@ -327,6 +328,7 @@ class ConfirmInscricaoInterlab extends Component
                         'bairro' => $validated['laboratorio']['endereco']['bairro'],
                         'cidade' => $validated['laboratorio']['endereco']['cidade'],
                         'uf' => $validated['laboratorio']['endereco']['uf'],
+                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''), //adicionar a info do PEP
                     ]);
 
                     $laboratorio->update([
@@ -346,7 +348,7 @@ class ConfirmInscricaoInterlab extends Component
 
                     $endereco = Endereco::create([
                         'pessoa_id' => $empresaId,
-                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'],
+                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''), //adicionar a info do PEP
                         'cep' => $validated['laboratorio']['endereco']['cep'],
                         'endereco' => $validated['laboratorio']['endereco']['endereco'],
                         'complemento' => $validated['laboratorio']['endereco']['complemento'] ?? null,

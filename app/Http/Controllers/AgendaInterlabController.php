@@ -577,7 +577,10 @@ class AgendaInterlabController extends Controller
    */
   public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab)
   {
-    return Excel::download(new LabExport($agendainterlab), 'inscritos-interlab-ID'.$agendainterlab->id.'.xlsx');
+    $interlabName = $agendainterlab->interlab->nome ?? 'interlab';
+    $interlabName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $interlabName); // Adicionar nome do PEP no nome do arquivo
+    $filename = 'inscritos-interlab-ID' . $agendainterlab->id . '-' . $interlabName . '.xlsx';
+    return Excel::download(new LabExport($agendainterlab), $filename);
   }
 
   /**
