@@ -239,11 +239,13 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::get('insert/{avaliador:uid?}', [AvaliadorController::class, 'insert'])->name('avaliador-insert');
     Route::post('create', [AvaliadorController::class, 'create'])->name('avaliador-create');
     Route::post('update/{avaliador:uid}', [AvaliadorController::class, 'update'])->name('avaliador-update');
+    Route::post('update-endereco/{avaliador:uid}', [AvaliadorController::class, 'updateEnderecos'])->name('avaliador-enderecos-update');
     Route::post('delete/{avaliador:uid}', [AvaliadorController::class, 'delete'])->name('avaliador-delete');
     Route::post('delete-curriculo/{avaliador:uid}', [AvaliadorController::class, 'curriculoDelete'])->name('avaliador-curriculo-delete');
     
     Route::post('create-avaliacao/{avaliador:uid}', [AvaliadorController::class, 'createAvaliacao'])->name('avaliador-create-avaliacao');
     Route::post('update-avaliacao/{avaliacao:uid}', [AvaliadorController::class, 'updateAvaliacao'])->name('avaliador-update-avaliacao');
+    Route::post('delete-avaliacao/{avaliacao:uid}', [AvaliadorController::class, 'deleteAvaliacao'])->name('avaliador-delete-avaliacao');
 
     Route::post('create-qualificacao/{avaliador:uid}', [AvaliadorController::class, 'createQualificacao'])->name('avaliador-create-qualificacao');
     Route::post('update-qualificacao/{qualificacao:uid}', [AvaliadorController::class, 'updateQualificacao'])->name('avaliador-update-qualificacao');

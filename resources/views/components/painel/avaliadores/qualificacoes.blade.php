@@ -17,7 +17,6 @@
                 </th>
                 <th scope="col">Ano</th>
                 <th scope="col">Atividade</th>
-                <th scope="col">Instrutor</th>
                 <th scope="col" class=" d-sm-table-cell" style="width: 5%; white-space: nowrap;"></th>
             </tr>
         </thead>
@@ -31,7 +30,6 @@
                     </th>
                     <td>{{ $qualificacao->ano }}</td>
                     <td>{{ $qualificacao->atividade }}</td>
-                    <td>{{ $qualificacao->instrutor }}</td>
                     <td>
                         <div class="dropdown">
                             <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
