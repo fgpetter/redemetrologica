@@ -2,12 +2,19 @@
   @csrf
     <div class="row gy-3">
 
-      <div class="col-8">
-        <x-forms.input-field name="nome_razao" :value="$laboratorio->pessoa->nome_razao ?? null" label="Razão Social"  :readonly=true />
+      <div class="col-6">
+        <x-forms.input-field name="nome_razao" :value="$laboratorio->pessoa->nome_razao ?? null" label="Razão Social"  :readonly=true 
+          tooltip="Para alterar o NOME ou CNPJ, clique em EDITAR EMPRESA."/>
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="cpf_cnpj" :value="$laboratorio->pessoa->cpf_cnpj ?? null" label="CNPJ"  :readonly=true />
+      </div>
+      <div class="col-2 d-flex align-items-center justify-content-center" style="white-space: nowrap;">
+        <a href="{{ route('pessoa-insert', $laboratorio->pessoa->uid) }}" class="link-primary fw-medium">
+          Editar Empresa
+          <i class="ri-arrow-right-line align-middle"></i>
+        </a>
       </div>
 
       <div class="col-10">
@@ -26,23 +33,32 @@
       </div>
 
       <div class="col-4">
-        <x-forms.input-field name="telefone" :value="old('telefone') ?? ($laboratorio->telefone ?? $laboratorio->pessoa->telefone ?? null)" label="Telefone" class="telefone"/>
+        <x-forms.input-field name="telefone" 
+          :value="old('telefone') ?? ($laboratorio->telefone ?? $laboratorio->pessoa->telefone ?? null)" 
+          label="Telefone" class="telefone"/>
+          @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
-        <x-forms.input-field type="email" name="email" :value="old('email') ?? ($laboratorio->email ?? $laboratorio->pessoa->email ?? null)" label="E-mail" />
+        <x-forms.input-field type="email" name="email" 
+          :value="old('email') ?? ($laboratorio->email ?? $laboratorio->pessoa->email ?? null)" 
+          label="E-mail" />
+          @error('email') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="contato" :value="old('contato') ?? ($laboratorio->contato ?? null)" label="Pessoa de contato" />
+        @error('contato') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="responsavel_tecnico" :value="old('responsavel_tecnico') ?? ($laboratorio->responsavel_tecnico ?? null)" label="Responsável Técnico" />
+        @error('responsavel_tecnico') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="cod_laboratorio" :value="old('cod_laboratorio') ?? ($laboratorio->cod_laboratorio ?? null)" label="Código do Laboratório" />
+        @error('cod_laboratorio') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 
       <div class="col-12">

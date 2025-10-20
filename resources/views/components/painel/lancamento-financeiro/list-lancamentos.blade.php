@@ -46,10 +46,10 @@
                             </x-forms.input-select>
                         </div>
                         <div class="col-12 col-lg-2 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">Pesquisar</button>
-                            <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-success w-100">
-                                <i class="ri-add-line align-bottom me-1"></i> Adicionar
-                            </a>
+                          <button type="submit" class="btn btn-primary btn-sm w-100">Pesquisar</button>
+                          <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-success btn-sm w-100">
+                            <i class="ri-add-line align-bottom me-1"></i> Adicionar
+                          </a>
                         </div>
                     </div>
                 </form>

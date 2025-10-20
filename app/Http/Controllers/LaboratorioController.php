@@ -114,7 +114,7 @@ class LaboratorioController extends Controller
         'email' => ['nullable', 'email'],
         'responsavel_tecnico' => ['nullable', 'string'],
         'contato' => ['nullable', 'string'],
-        'cod_laboratorio' => ['nullable', 'numeric'],
+        'cod_laboratorio' => ['nullable', 'string'],
       ],
       [
         'nome_laboratorio.string' => 'O dado enviado não é válido',
@@ -124,7 +124,7 @@ class LaboratorioController extends Controller
         'email.email' => 'O dado enviado não é válido',
         'responsavel_tecnico.string' => 'O dado enviado não é válido',
         'contato.string' => 'O dado enviado não é válido',
-        'cod_laboratorio.numeric' => 'Código inválido',
+        'cod_laboratorio.string' => 'Código inválido',
       ]
     );
 

@@ -47,7 +47,7 @@
                       Editar Responsável
                       <i class="ri-arrow-right-line align-middle"></i>
                     </a>
-                    <a href="#" class="link-primary fw-medium mb-1" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
+                    <a href="javascript:void(0);" class="link-primary fw-medium mb-1" onclick="$('#{{ 'participanteModal'.$participante->uid }}').modal('hide'); Livewire.dispatch('showSubstituirResponsavelModal', { interlabInscritoId: {{ $participante->id }} })">
                       Substituir Responsável
                       <i class="ri-arrow-right-line align-middle"></i>
                     </a>
