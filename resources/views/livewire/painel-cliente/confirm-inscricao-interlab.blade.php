@@ -169,8 +169,8 @@
                                             <div class="col-md-3">
                                                 <small class="text-muted">Endereço:</small>
                                                 <p class="mb-0">
-                                                    {{ $inscrito->laboratorio->endereco->endereco }},
-                                                    {{ $inscrito->laboratorio->endereco->cidade }}/{{ $inscrito->laboratorio->endereco->uf }}
+                                                    {{ $inscrito->laboratorio->endereco->endereco ?? '--' }},
+                                                    {{ $inscrito->laboratorio->endereco->cidade ?? '--' }}/{{ $inscrito->laboratorio->endereco->uf ?? '--'}} 
                                                 </p>
                                             </div>
                                             <!-- Botão de editar laboratório -->

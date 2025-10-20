@@ -2,12 +2,19 @@
   @csrf
     <div class="row gy-3">
 
-      <div class="col-8">
-        <x-forms.input-field name="nome_razao" :value="$laboratorio->pessoa->nome_razao ?? null" label="Razão Social"  :readonly=true />
+      <div class="col-6">
+        <x-forms.input-field name="nome_razao" :value="$laboratorio->pessoa->nome_razao ?? null" label="Razão Social"  :readonly=true 
+          tooltip="Para alterar o NOME ou CNPJ, clique em EDITAR EMPRESA."/>
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="cpf_cnpj" :value="$laboratorio->pessoa->cpf_cnpj ?? null" label="CNPJ"  :readonly=true />
+      </div>
+      <div class="col-2 d-flex align-items-center justify-content-center" style="white-space: nowrap;">
+        <a href="{{ route('pessoa-insert', $laboratorio->pessoa->uid) }}" class="link-primary fw-medium">
+          Editar Empresa
+          <i class="ri-arrow-right-line align-middle"></i>
+        </a>
       </div>
 
       <div class="col-10">

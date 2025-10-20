@@ -22,6 +22,11 @@ class AvaliacaoAvaliador extends Model
      */
     protected $guarded = [];
 
+    public function agendaAvaliacao()
+    {
+        return $this->belongsTo(AgendaAvaliacao::class, 'agenda_avaliacao_id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

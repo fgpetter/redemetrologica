@@ -25,11 +25,22 @@
                       </p>
                     </div>
                     <div class="col-6">
-                      <strong>Endereço: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->endereco }} <br>
-                      <strong>Complemento: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->complemento }} <br>
-                      <strong>Bairro: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->bairro }} <br>
-                      <strong>CEP: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cep }} <br>
-                      <strong>Cidade: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cidade .' / '. $labGroup->first()->laboratorio->endereco->uf }} <br>
+                      <strong>Endereço: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->endereco ?? '--' }} <br>
+                      <strong>Complemento: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->complemento ?? '--' }} <br>
+                      <strong>Bairro: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->bairro ?? '--' }} <br>
+                      <strong>CEP: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cep ?? '--' }} <br>
+                      <strong>Cidade: &nbsp; </strong>
+                      {{ 
+                          (
+                              $labGroup->first()->laboratorio->endereco->cidade 
+                              ?? '--'
+                          ) 
+                          . ' / ' . 
+                          (
+                              $labGroup->first()->laboratorio->endereco->uf 
+                              ?? '--'
+                          ) 
+                      }} <br>
                     </div>
                     <hr>
                   </div>
