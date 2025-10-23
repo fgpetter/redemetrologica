@@ -1,7 +1,30 @@
 
 <div>
-    <button wire:click="gerarCertificado" wire:loading.attr="disabled" class="dropdown-item">
-        <span wire:loading.remove wire:target="gerarCertificado">Enviar Certificado</span>
-        <span wire:loading wire:target="gerarCertificado">Enviando...</span>
+    <button wire:click="gerarCertificado" class="dropdown-item">
+        Gerar Certificado
     </button>
 </div>
+
+<script>
+document.addEventListener('livewire:init', () => {
+    Livewire.on('show-success-alert', (event) => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-right',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast',
+            },
+            showConfirmButton: false,
+            timer: 6000,
+            timerProgressBar: true,
+            showCloseButton: true
+        });
+        
+        Toast.fire({
+            icon: 'success',
+            title: event.message,
+        });
+    });
+});
+</script>

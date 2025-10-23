@@ -9,6 +9,7 @@ use Spatie\LaravelPdf\Facades\Pdf;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CertificadoInterlabMail;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\GerarCertificadoInterlabJob;
 
 class GerarCertificadoButton extends Component
 {
@@ -21,33 +22,11 @@ class GerarCertificadoButton extends Component
 
     public function gerarCertificado()
     {
-        $participante = InterlabInscrito::with(['laboratorio','agendaInterlab.interlab'])->findOrFail($this->participanteId);
-
-        $labNameSlug = Str::slug($participante->laboratorio->nome);
-        $fileName = 'certificado_interlab_' . $labNameSlug . '_' . $participante->agendaInterlab->interlab->id . '.pdf';
-        $Path = 'public/docs/certificados/' . $fileName;
-
-        //update em interlabinscrito com certificado_emitido = data atual e certificado_path = $fileName;
-        $participante->certificado_emitido = now();
-        $participante->certificado_path = $fileName;
-        $participante->save();
-
-        // Remove o arquivo existente, se houver
-        if (Storage::exists($Path)) {
-            Storage::delete($Path);
-        }
-
-        Pdf::view('certificados.certificado-interlab', [
-            'participante' => $participante,
-        ])
-        ->save(Storage::path($Path));
+        // Dispatch do job para fila
+        GerarCertificadoInterlabJob::dispatch($this->participanteId);
         
-        Mail::to($participante->laboratorio->email)->send(new CertificadoInterlabMail($participante, Storage::path($Path)));
-        
-        return redirect(request()->header('Referer'))->with('success', 'Certificado enviado com sucesso.');
-        
-        //download do arquivo pdf no navegador
-        // return response()->download(Storage::path($Path), 'certificado-interlab.pdf')->deleteFileAfterSend(true);
+        // Dispatch evento JavaScript para mostrar o alerta
+        $this->dispatch('show-success-alert', message: 'Certificado está sendo gerado e será enviado por email em breve.');
     }
 
     public function render()

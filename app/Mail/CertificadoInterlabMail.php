@@ -10,12 +10,22 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\InterlabInscrito;
 
-class CertificadoInterlabMail extends Mailable
+class CertificadoInterlabMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $participante;
     public $pdfPath;
+
+    /**
+     * The number of times the job may be attempted.
+     */
+    public $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run.
+     */
+    public $timeout = 120;
 
     /**
      * Create a new message instance.
