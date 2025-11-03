@@ -39,9 +39,7 @@
                             <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
                                 <option value=""> - </option>
                                 @foreach ($pessoas as $pessoa)
-                                    <option @selected($busca_pessoa == $pessoa->id) value="{{ $pessoa->id }}">
-                                        {{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}
-                                    </option>
+                                    <option @selected($busca_pessoa == $pessoa->id) value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
                                 @endforeach
                             </x-forms.input-select>
                         </div>

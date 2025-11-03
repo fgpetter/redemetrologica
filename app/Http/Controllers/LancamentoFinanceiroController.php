@@ -48,7 +48,9 @@ class LancamentoFinanceiroController extends Controller
       ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id')->where('status', 'EFETIVADO'))
+      ->whereHas('lancamentosfinanceiros', function ($query) {
+        $query->where('status', 'EFETIVADO');
+      })
       ->withTrashed()
       ->get();
 

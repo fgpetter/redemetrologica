@@ -189,4 +189,9 @@ class Pessoa extends Model
 
     }
 
+    public function lancamentosfinanceiros(): HasMany
+    {
+        return $this->hasMany(LancamentoFinanceiro::class);
+    }
+
 }

@@ -34,13 +34,13 @@
     if(pessoa){
       const choices = new Choices(pessoa,{
         searchFields: ['label'],
-        maxItemCount: -1
+        allowHTML: true
       });
     }
     if(empresa){
       const choices = new Choices(empresa,{
         searchFields: ['label'],
-        maxItemCount: -1
+        allowHTML: true
       });
     }
   </script>
