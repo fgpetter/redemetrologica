@@ -1,3 +1,4 @@
+
 <div>
     @if ($errors->any())
         <div class="alert alert-warning">
@@ -27,7 +28,8 @@
                         <td style="width: 1%; white-space: nowrap;">
                             <a data-bs-toggle="collapse" href="{{ '#collapse' . $participante->uid }}" role="button"
                                 aria-expanded="false" aria-controls="collapseExample">
-                                <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
+                                    <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"
+                                       style="color: {{ $participante->certificado_emitido !== null ? '#28a745' : '#0d6efd' }};"></i>
                             </a>
                             <span style="font-size: smaller;">
                                 {{ $participante->data_inscricao->format('d/m/Y') }}
@@ -116,6 +118,10 @@
                                             data-bs-target="{{ '#participanteModal' . $participante->uid }}">
                                             Editar
                                         </a>
+                                    </li>
+                                    <!-- Botão para gerar certificado -->
+                                    <li>
+                                        @livewire('interlab.gerar-certificado-button', ['participanteId' => $participante->id], key('cert-btn-' . $participante->id))
                                     </li>
                                     <li>
                                         <x-painel.form-delete.delete route='cancela-inscricao-interlab'
