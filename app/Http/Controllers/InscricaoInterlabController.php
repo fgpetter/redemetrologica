@@ -33,7 +33,7 @@ class InscricaoInterlabController extends Controller
   }
 
   /**
-   * Cadastra pessoa ou laboratório no PEP a partir da área do cliente
+   * Cadastra pessoa ou laboratório no PEP a partir da área do cliente (painel)
    *
    * @param Request $request
    * @return RedirectResponse
@@ -50,7 +50,7 @@ class InscricaoInterlabController extends Controller
 
       $endereco = Endereco::create([
         'pessoa_id' => $empresa->id,
-        'info' => 'Laboratório: '.$validated['laboratorio'],
+        'info' => 'Laboratório: ' . $validated['laboratorio'] . ' | inscrito no PEP: ' . $agenda_interlab->interlab->nome, //Adiciona info do laboratório e do interlab
         'cep' => $validated['cep'],
         'endereco' => $validated['endereco'],
         'complemento' => $validated['complemento'],
@@ -91,8 +91,8 @@ class InscricaoInterlabController extends Controller
     }
 
     Mail::to('interlab@redemetrologica.com.br')
-      ->cc('bonus@redemetrologica.com.br')
-      ->cc('sistema@redemetrologica.com.br')
+    ->cc('tecnico@redemetrologica.com.br')
+    ->cc('sistema@redemetrologica.com.br')
       ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
 
     Mail::to($inscrito->pessoa->email)

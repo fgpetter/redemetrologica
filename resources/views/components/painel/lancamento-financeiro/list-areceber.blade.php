@@ -86,6 +86,7 @@
                         <th scope="col" style="width: 25%;">Nome</th>
                         <th scope="col" style="width: 10%;">Vencimento</th>
                         <th scope="col" style="width: 45%;">Historico</th>
+                        <th scope="col" style="width: 10%;">NF</th>
                         <th scope="col" style="width: 10%;">Valor</th>
                         <th scope="col" style="width: 5%;"></th>
                     </tr>
@@ -103,6 +104,9 @@
                             </td>
                             <td>
                                 {{ $lancamento->historico ?? '-' }}
+                            </td>
+                            <td>
+                                {{ $lancamento->nota_fiscal ?? '-' }}
                             </td>
                             <td>
                                 <input type="text" class=" border-0 bg-transparent"
@@ -133,7 +137,6 @@
                             <td colspan="5" class="p-0">
                                 <div class="collapse" id="{{ 'collapse' . $lancamento->uid }}">
                                     <div class="row gy-2 m-3 mt-2">
-                                        <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
                                         <div class="col-2"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
                                         <div class="col-2"><b>Centro Custo:</b>
                                             {{ $lancamento->centroCusto?->descricao ?? '-' }}</div>

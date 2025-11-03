@@ -57,6 +57,7 @@ class AvaliadorController extends Controller
       ->withQueryString();
         
     $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
+      ->where('tipo_pessoa', 'PF')
       ->whereNotIn('id', function ($query) {
         $query->select('pessoa_id')->from('avaliadores');
       })
@@ -402,7 +403,7 @@ class AvaliadorController extends Controller
     }
 
     return redirect()->route('avaliador-insert', $avaliador->uid)
-      ->with('success', 'Avaliação cadastrada com sucesso');
+      ->with('success', 'Avaliação cadastrada com sucesso')->withFragment('avaliacoes');
   }
 
   /**
@@ -438,7 +439,7 @@ class AvaliadorController extends Controller
       'inserido_por' => auth()->user()->name,
     ]);
 
-    return redirect()->back()->with('success', 'Avaliaçãp atualizada com sucesso');
+    return redirect()->back()->with('success', 'Avaliaçãp atualizada com sucesso')->withFragment('avaliacoes');
   }
 
   /**
@@ -474,7 +475,7 @@ class AvaliadorController extends Controller
     ]);
 
     if (!$avaliador) {
-      return redirect()->back()->with('error', 'Houve um erro, tente novamente');
+      return redirect()->back()->with('error', 'Houve um erro, tente novamente')->withFragment('qualificacoes');
     }
 
     $validatedData['avaliador_id'] = $avaliador->id;
@@ -503,7 +504,7 @@ class AvaliadorController extends Controller
 
     $qualificacao->update($validatedData);
 
-    return redirect()->back()->with('success', 'Qualificação atualizada com sucesso');
+    return redirect()->back()->with('success', 'Qualificação atualizada com sucesso')->withFragment('qualificacoes');
   }
 
   /**
@@ -541,7 +542,7 @@ class AvaliadorController extends Controller
     ]);
 
     if (!$avaliador) {
-      return redirect()->back()->with('error', 'Houve um erro, tente novamente');
+      return redirect()->back()->with('error', 'Houve um erro, tente novamente')->withFragment('areasatuacao');
     }
 
     $validatedData['avaliador_id'] = $avaliador->id;
@@ -573,7 +574,7 @@ class AvaliadorController extends Controller
 
     $area->update($validatedData);
 
-    return redirect()->back()->with('success', 'Área atualizada com sucesso');
+    return redirect()->back()->with('success', 'Área atualizada com sucesso')->withFragment('areasatuacao');
   }
 
   /**
@@ -617,7 +618,7 @@ class AvaliadorController extends Controller
 
     StatusAvaliador::create($validatedData);
 
-    return redirect()->back()->with('success', 'Status cadastrado com sucesso');
+    return redirect()->back()->with('success', 'Status cadastrado com sucesso')->withFragment('controlestatus');
   }
 
   /**
@@ -641,7 +642,7 @@ class AvaliadorController extends Controller
 
     $status->update($validatedData);
 
-    return redirect()->back()->with('success', 'Status atualizado com sucesso');
+    return redirect()->back()->with('success', 'Status atualizado com sucesso')->withFragment('controlestatus');
   }
 
   /**

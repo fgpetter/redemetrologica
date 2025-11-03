@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Validator;
 use App\Models\Pessoa;
 use App\Models\AreaAtuacao;
 use App\Models\Laboratorio;
@@ -14,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 
 class LaboratorioController extends Controller
 {
@@ -114,7 +114,7 @@ class LaboratorioController extends Controller
         'email' => ['nullable', 'email'],
         'responsavel_tecnico' => ['nullable', 'string'],
         'contato' => ['nullable', 'string'],
-        'cod_laboratorio' => ['nullable', 'numeric'],
+        'cod_laboratorio' => ['nullable', 'string'],
       ],
       [
         'nome_laboratorio.string' => 'O dado enviado não é válido',
@@ -124,7 +124,7 @@ class LaboratorioController extends Controller
         'email.email' => 'O dado enviado não é válido',
         'responsavel_tecnico.string' => 'O dado enviado não é válido',
         'contato.string' => 'O dado enviado não é válido',
-        'cod_laboratorio.numeric' => 'Código inválido',
+        'cod_laboratorio.string' => 'Código inválido',
       ]
     );
 
@@ -236,70 +236,87 @@ class LaboratorioController extends Controller
   }
 
   /**
-   * Apresenta a tela de download no site
+   * Apresenta a tela de lista de laboratorios reconhecidos no site
    *
    * @param Request $request description
    * @return View
    */
   public function siteIndex(Request $request): View
-{
-  if (!empty(request()->except('area', 'laboratorio', 'buscalaboratorio', 'page'))) {
-    return abort('404');
+  {
+    if (!empty(request()->except('area', 'laboratorio', 'buscalaboratorio', 'page'))) {
+      return abort('404');
+    }
+
+    $validator = Validator::make($request->all(), [
+      "area"         => ['nullable', 'string', 'exists:areas_atuacao,uid'],
+      "laboratorio"  => ['nullable', 'string'],
+    ]);
+
+    if ($validator->fails()) {
+      Log::channel('validation')->info(
+          "Erro de validação",
+          [
+              'user'    => auth()->user() ?? null,
+              'request' => $request->all() ?? null,
+              'uri'     => request()->fullUrl() ?? null,
+              'method'  => get_class($this) . '::' . __FUNCTION__,
+              'errors'  => $validator->errors() ?? null,
+          ]
+      );
+
+      return abort('404');
+    }
+
+    $areas_atuacao = AreaAtuacao::select('uid', 'descricao')
+      ->orderBy('descricao', 'asc')
+      ->get();
+
+    $laboratorios_internos = LaboratorioInterno::select(
+      'laboratorios_internos.uid', 
+      'laboratorios_internos.nome', 
+      'laboratorios_internos.certificado', 
+      'laboratorios_internos.laboratorio_id', 
+      'laboratorios_internos.area_atuacao_id'
+      )
+        ->join('laboratorios', 'laboratorios_internos.laboratorio_id', '=', 'laboratorios.id')
+        ->with('laboratorio.pessoa')
+        ->with('area:id,descricao')
+        ->when($request->area, function ($query) use ($request) {
+            $query->whereHas('area', function ($q) use ($request) {
+                $q->where('uid', $request->area);
+            });
+        })
+        ->when($request->laboratorio, function ($query) use ($request) {
+            $busca = $request->laboratorio;
+            $query->where(function ($q) use ($busca) {
+                $q->where('laboratorios_internos.nome', 'like', "%{$busca}%")
+                  ->orWhereHas('laboratorio', function ($subQuery) use ($busca) {
+                      $subQuery->where('nome_laboratorio', 'like', "%{$busca}%");
+                  });
+            });
+        })
+        ->where('site', 1)
+        ->where('reconhecido', 1)
+        ->orderBy('laboratorios.nome_laboratorio', 'asc')
+        ->get();
+
+
+    return view('site.pages.laboratorios-reconhecidos', [
+        'laboratorios_internos' => $laboratorios_internos,
+        'areas_atuacao'         => $areas_atuacao,
+    ]);
   }
 
-  $validator = Validator::make($request->all(), [
-    "area"         => ['nullable', 'string', 'exists:areas_atuacao,uid'],
-    "laboratorio"  => ['nullable', 'string'],
-  ]);
+  /**
+   * Gera pagina single de laboratorio interno com dados e certificado
+   *
+   * @return View
+   **/
+  public function showLabInterno($uid): View
+  {
+    $laboratorio_interno = LaboratorioInterno::where('uid', $uid)->with('area')->firstOrFail();
 
-  if ($validator->fails()) {
-    Log::channel('validation')->info(
-        "Erro de validação",
-        [
-            'user'    => auth()->user() ?? null,
-            'request' => $request->all() ?? null,
-            'uri'     => request()->fullUrl() ?? null,
-            'method'  => get_class($this) . '::' . __FUNCTION__,
-            'errors'  => $validator->errors() ?? null,
-        ]
-    );
-
-    return abort('404');
+    return view('site.pages.slug-labinterno', ['laboratorio_interno' => $laboratorio_interno]);
   }
 
-  $areas_atuacao = AreaAtuacao::select('uid', 'descricao')
-    ->orderBy('descricao', 'asc')
-    ->get();
-
-
-  $laboratorios = Laboratorio::select('uid', 'nome_laboratorio')
-      ->whereHas('laboratoriosInternos', function ($query) {
-          $query->whereNotNull('laboratorio_id')->where('site', 1);
-      })->get();
-
-  $laboratorios_internos = LaboratorioInterno::select('certificado', 'laboratorio_id', 'area_atuacao_id')
-      ->with('area:id,descricao', 'laboratorio:id,pessoa_id,nome_laboratorio')
-      ->when($request->area, function ($query) use ($request) {
-          $query->whereHas('area', function ($q) use ($request) {
-              $q->where('uid', $request->area);
-          });
-      })
-      ->when($request->laboratorio, function ($query) use ($request) {
-          $busca = $request->laboratorio;
-          $query->whereHas('laboratorio', function ($q) use ($busca) {
-              $q->where('nome_laboratorio', 'like', "%{$busca}%");
-          });
-      })
-      ->where('site', 1)
-      ->where('reconhecido', 1)
-      ->whereHas('laboratorio')
-      ->paginate(15);
-
-
-  return view('site.pages.laboratorios-reconhecidos', [
-      'laboratorios_internos' => $laboratorios_internos,
-      'laboratorios'          => $laboratorios,
-      'areas_atuacao'         => $areas_atuacao,
-  ]);
-}
 }

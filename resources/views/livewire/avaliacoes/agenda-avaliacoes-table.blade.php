@@ -4,11 +4,11 @@
     <div class="row">
       <div class="col-12">
         <div class="hstack gap-2 flex-wrap mb-3 justify-content-end">
-          <button class="btn btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+          <button class="btn btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" 
+            aria-expanded="false" aria-controls="collapseExample" >
             <i class="ri-add-line align-bottom me-1"></i> Adicionar Avaliação
           </button>
         </div>
-      
         <div class="collapse" id="collapseExample">
           <div class="card mb-3 shadow-none">
               <div class="card-body">
@@ -45,86 +45,89 @@
     @endif
 
     {{-- Filtros --}}
-        <div class="card border shadow-sm mb-3">
-            <div class="card-body p-2">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="card-title mb-0">Filtros</h6>
-                </div>
+      <div class="card border shadow-sm mb-3 mx-3" >
+          <div class="card-body p-2">
+              <div class="mb-2">
+                  <h6 class="card-title mb-0">Filtros</h6>
+              </div>
 
-                <div class="row gx-3 align-items-center">
-                    <!-- Data Inicial -->
-                    <div class="col-2">
-                        <label class="form-label mb-0">Data Inicial</label>
-                        <input wire:model.live="dataIni" class="form-control form-control-sm" type="date"
-                            name="data_inicial" id="data_inicial">
-                    </div>
+              <div class="row gx-3">
+                  <!-- Data Inicial -->
+                  <div class="col-12 col-sm-2">
+                      <label class="form-label mb-0">Data Inicial</label>
+                      <input wire:model.live="dataIni" class="form-control form-control-sm" type="date"
+                          name="data_inicial" id="data_inicial">
+                  </div>
 
-                    <!-- Data Final -->
-                    <div class="col-2">
-                        <label class="form-label mb-0">Data Final</label>
-                        <input wire:model.live="dataFim" class="form-control form-control-sm" type="date"
-                            name="data_final" id="data_final">
-                    </div>
-                    <div class="col-8 "></div>
+                  <!-- Data Final -->
+                  <div class="col-12 col-sm-2">
+                      <label class="form-label mb-0">Data Final</label>
+                      <input wire:model.live="dataFim" class="form-control form-control-sm" type="date"
+                          name="data_final" id="data_final">
+                  </div>
 
+                  <div class="col-8 text-end d-none d-sm-block ">
+                    <button wire:click="resetFilters" type="button" class="btn btn-sm btn-light text-danger mt-3 me-xxl-3">
+                        <i class="ri-close-line"></i> Limpar
+                    </button>
+                  </div>
 
-                    <!-- Comitê -->
-                    <div class="col-2 mt-3">
-                        <label class="form-label mb-0">Comitê</label>
-                        <select wire:model.live="comite" class="form-select form-select-sm">
-                            <option value="">Selecione...</option>
-                            <option value="APROVADO">APROVADO</option>
-                            <option value="NÃO APROVADO">NÃO APROVADO</option>
-                            <option value="COM PENDENCIAS">COM PENDENCIAS</option>
-                        </select>
-                    </div>
+                  <!-- Comitê -->
+                  <div class="col-12 col-sm-3 col-xxl-2 mt-3">
+                      <label class="form-label mb-0">Comitê</label>
+                      <select wire:model.live="comite" class="form-select form-select-sm">
+                          <option value="">Selecione...</option>
+                          <option value="APROVADO">APROVADO</option>
+                          <option value="NÃO APROVADO">NÃO APROVADO</option>
+                          <option value="COM PENDENCIAS">COM PENDENCIAS</option>
+                      </select>
+                  </div>
 
-                    <!-- Status da proposta -->
-                    <div class="col-2 mt-3">
-                        <label class="form-label mb-0">Status da proposta</label>
-                        <select wire:model.live="status_proposta" class="form-select form-select-sm">
-                            <option value="">Selecione...</option>
-                            <option value="PENDENTE">PENDENTE</option>
-                            <option value="AGUARDANDO">AGUARDANDO APROVACAO</option>
-                            <option value="APROVADA">APROVADO</option>
-                            <option value="REPROVADA">REPROVADO</option>
-                        </select>
-                    </div>
+                  <!-- Status da proposta -->
+                  <div class="col-12 col-sm-3 col-xxl-2 mt-3">
+                      <label class="form-label mb-0">Status da proposta</label>
+                      <select wire:model.live="status_proposta" class="form-select form-select-sm">
+                          <option value="">Selecione...</option>
+                          <option value="PENDENTE">PENDENTE</option>
+                          <option value="AGUARDANDO">AGUARDANDO APROVACAO</option>
+                          <option value="APROVADA">APROVADO</option>
+                          <option value="REPROVADA">REPROVADO</option>
+                      </select>
+                  </div>
 
-                    <!-- Tipo Avaliação -->
-                    <div class="col-2 mt-3">
-                        <label class="form-label mb-0">Tipo Avaliação</label>
-                        <select wire:model.live="tipo_avaliacao_id" class="form-select form-select-sm">
-                            <option value="">Selecione...</option>
-                            @foreach($this->tipos as $tipo)
-                                <option value="{{ $tipo->id }}">{{ $tipo->descricao }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                  <!-- Tipo Avaliação -->
+                  <div class="col-12 col-sm-3 col-xxl-2 mt-3">
+                      <label class="form-label mb-0">Tipo Avaliação</label>
+                      <select wire:model.live="tipo_avaliacao_id" class="form-select form-select-sm">
+                          <option value="">Selecione...</option>
+                          @foreach($this->tipos as $tipo)
+                              <option value="{{ $tipo->id }}">{{ $tipo->descricao }}</option>
+                          @endforeach
+                      </select>
+                  </div>
 
-                    <!-- Avaliador -->
-                    <div class="col-2 mt-3">
-                        <label class="form-label mb-0">Avaliador</label>
-                        <select wire:model.live="avaliador_id" class="form-select form-select-sm">
-                            <option value="">Selecione...</option>
-                            @foreach($this->avaliadores as $avaliador)
-                                <option value="{{ $avaliador->id }}">{{ $avaliador->pessoa->nome_razao }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                  <!-- Avaliador -->
+                  <div class="col-12 col-sm-3 col-xxl-2 mt-3">
+                      <label class="form-label mb-0">Avaliador</label>
+                      <select wire:model.live="avaliador_id" class="form-select form-select-sm">
+                          <option value="">Selecione...</option>
+                          @foreach($this->avaliadores as $avaliador)
+                              <option value="{{ $avaliador->id }}">{{ $avaliador->pessoa->nome_razao }}</option>
+                          @endforeach
+                      </select>
+                  </div>
 
-                    <!-- Botão Limpar Filtros -->
-                    <div class="col text-end mt-5">
-                        <!-- Label oculto para manter o alinhamento -->
-                        <label class="form-label  invisible">Limpar</label>
-                        <button wire:click="resetFilters" type="button" class="btn btn-sm btn-light text-danger">
-                            <i class="ri-close-line"></i> Limpar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- Filtros --}}
+                  {{-- Replica para responsivo Botão Limpar Filtros --}}
+                  <div class="col-12 text-end d-block d-sm-none">
+                    <button wire:click="resetFilters" type="button" class="btn btn-sm btn-light text-danger mt-3">
+                        <i class="ri-close-line"></i> Limpar
+                    </button>
+                  </div>
+
+              </div>
+          </div>
+      </div>
+      {{-- Filtros --}}
 
     <div class="table-responsive" style="min-height: 25vh">
       <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
@@ -246,14 +249,35 @@
         @forelse ($avaliacoes as $avaliacao)
           <tr>
             <td>{{ $avaliacao->data_inicio ? \Carbon\Carbon::parse($avaliacao->data_inicio)->format('d/m/Y') : '' }}</td>
-            <td style="max-width: 25ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $avaliacao->laboratorio->nome_laboratorio }}">{{ $avaliacao->laboratorio->nome_laboratorio }}</td>
-            <td> @if ($avaliacao->fr_28) <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif </td>
-            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $avaliacao->status_proposta }}">{{ $avaliacao->status_proposta }}</td>
-            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $avaliacao->carta_marcacao }}">{{ $avaliacao->carta_marcacao }}</td>
-            <td>{{ $avaliacao->data_proposta_acoes_corretivas ? \Carbon\Carbon::parse($avaliacao->data_proposta_acoes_corretivas)->format('d/m/Y') : '' }}</td>
-            <td>{{ $avaliacao->data_acoes_corretivas ? \Carbon\Carbon::parse($avaliacao->data_acoes_corretivas)->format('d/m/Y') : '' }}</td>
-            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $avaliacao->acoes_aceitas }}">{{ $avaliacao->acoes_aceitas }}</td>
-            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $avaliacao->comite }}">{{ $avaliacao->comite }}</td>
+            <td style="max-width: 25ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+              title="{{ $avaliacao->laboratorio->nome_laboratorio }}">
+                {{ $avaliacao->laboratorio->nome_laboratorio ?? $avaliacao->laboratorio->pessoa->nome_razao }}
+            </td>
+            <td> 
+              @if ($avaliacao->fr_28) 
+              <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif 
+            </td>
+            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+              title="{{ $avaliacao->status_proposta }}">
+                {{ $avaliacao->status_proposta }}
+            </td>
+            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+              title="{{ $avaliacao->carta_marcacao }}">
+                {{ $avaliacao->carta_marcacao }}
+            </td>
+            <td>
+              {{ $avaliacao->data_proposta_acoes_corretivas ? \Carbon\Carbon::parse($avaliacao->data_proposta_acoes_corretivas)->format('d/m/Y') : '' }}
+            </td>
+            <td>
+              {{ $avaliacao->data_acoes_corretivas ? \Carbon\Carbon::parse($avaliacao->data_acoes_corretivas)->format('d/m/Y') : '' }}
+            </td>
+            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+              title="{{ $avaliacao->acoes_aceitas }}">
+                {{ $avaliacao->acoes_aceitas }}
+            </td>
+            <td style="max-width: 15ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+              title="{{ $avaliacao->comite }}">{{ $avaliacao->comite }}
+            </td>
             <td>
               <div class="dropdown">
                 <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown" aria-expanded="false">

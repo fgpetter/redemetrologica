@@ -1,4 +1,3 @@
-
 <div>
     <table class="table table-striped">
         <thead>
@@ -8,10 +7,10 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($avaliacao->areas as $area)
+            @forelse ($totalavaliadores as $total_avaliador)
                 <tr>
-                    <td>{{ $area->avaliador->pessoa->nome_razao}}</td>
-                    <td class="text-end">R$ {{ number_format($area->valor_avaliador, 2, ',', '.') }}</td>
+                    <td>{{ $total_avaliador['nome'] }}</td>
+                    <td class="text-end">R$ {{ number_format($total_avaliador['total'], 2, ',', '.') }}</td>
                 </tr>
             @empty
                 <tr>

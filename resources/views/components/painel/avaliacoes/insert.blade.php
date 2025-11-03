@@ -52,11 +52,11 @@
       </div>
 
       <div class="tab-pane" id="valavaliadores" role="tabpanel"> <!-- Valor Avaliadores -->
-        <livewire:avaliacoes.agenda-avaliacoes-val-avaliadores :avaliacao="$avaliacao" /> 
+        <x-painel.avaliacoes.agenda-avaliacoes-val-avaliadores :avaliacao="$avaliacao" :totalavaliadores="$totalavaliadores" /> 
       </div>
 
     </div>
 
   </div>
 
-</div>
+</div> 

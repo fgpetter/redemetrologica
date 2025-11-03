@@ -124,6 +124,10 @@ class AgendaAvaliacoesOrcamentos extends Component
         // $fullPath = Storage::disk('public')->path($gerar);
         $fullPath = Storage::path("public/{$gerar}");
 
+        // Resposta de download que deleta após enviar
+        return response()
+            ->download($fullPath, basename($fullPath))
+            ->deleteFileAfterSend(true); //deleta o arquivo após enviar e mantem o action generica.
 
             // Resposta de download que deleta após enviar
             return response()

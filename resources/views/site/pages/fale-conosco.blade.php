@@ -62,10 +62,9 @@
                                     lgpd@redemetrologica.com.br</strong></p>
                         </div>
                         <div class="col-lg-6">
-                            {{-- <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label> --}}
                             <textarea class="form-control mb-3" name="message" rows="3" placeholder="Mensagem*">{{ old('message') }}</textarea>
                             <p>Selecione as área(s) que deseja fazer contato</p>
-                            @foreach (['Avaliação de laboratórios', 'Cursos/Treinamentos', 'Material de Referência', 'Ensaios de Proficiência', 'Administrativo/Financeiro', 'Apoio Técnico', 'Outros'] as $key => $area)
+                            @foreach (['Avaliação de laboratórios', 'Cursos/Treinamentos', 'Reclamações/Apelações', 'Ensaios de Proficiência', 'Administrativo/Financeiro', 'Apoio Técnico', 'Outros'] as $key => $area)
                                 <div class="my-2">
                                     <input class="form-check-input" type="checkbox" name="areas[]" value="{{ $area }}"
                                         id="area{{ $key }}" {{ in_array($area, old('areas', [])) ? 'checked' : '' }}>
@@ -90,16 +89,15 @@
                     @endif
                 </form>
             </div>
+            <div class="col offset-xxl-1 col-xxl-10 text-center my-4">
+                <h5 class="py-0">Processo para envio solicitação de resoluções e apelações:</h5>
+                <img src="{{ asset('build/images/site/fluxo-resolucao-apelacao.png') }}" alt="Fluxo de resolução e apelações" class="img-fluid">
+                <p>
+                    Toda reclamação/apelação é tratada com imparcialidade, confidencialidade e independência, conforme a Política da Qualidade do PEP. <br>
+                    O provedor é responsável por todas as decisões em todos os níveis do processo de tratamento de reclamações. <br>
+                    A investigação e a decisão sobre apelações não resultarão em quaisquer ações discriminatórias.
+                </p>
+            </div>
         </div>
     </div>
-    {{-- formulario --}}
-
-
-    {{-- mapa --}}
-    <div class="container-fluid SiteMapbox ">
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6909.986166011413!2d-51.177472!3d-30.008355!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9519776178b124d7%3A0xa2ee25f04980c5b9!2sR.%20Santa%20Catarina%2C%2040%20-%20Santa%20Maria%20Goretti%2C%20Porto%20Alegre%20-%20RS%2C%2091030-330!5e0!3m2!1spt-BR!2sbr!4v1696857669341!5m2!1spt-BR!2sbr"
-            style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
-    {{-- mapa --}}
 @endsection

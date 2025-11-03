@@ -71,7 +71,23 @@ class AgendaAvaliacaoController extends Controller
         $laboratorio = Laboratorio::find($avaliacao->laboratorio_id);
         $avaliadores = Avaliador::with('pessoa:id,uid,nome_razao')->get();
         $tipo_avaliacao = TipoAvaliacao::select('id', 'descricao')->get();
-
+        $total_avaliadores = $avaliacao->areas()
+            ->with('avaliador.pessoa')
+            ->get()
+            ->groupBy(function ($area) {
+                return optional($area->avaliador)->id;
+            })
+            ->map(function ($areas) {
+                $avaliador = $areas->first()->avaliador;
+                return [
+                    'nome' => optional($avaliador->pessoa)->nome_razao,
+                    'total' => $areas->sum('valor_avaliador'),
+                ];
+            })
+            ->filter(function ($item) {
+                return !is_null($item['nome']);
+            })
+            ->values();
 
         return view('painel.avaliacoes.insert', 
             [
@@ -79,6 +95,7 @@ class AgendaAvaliacaoController extends Controller
                 'laboratorio' => $laboratorio,
                 'avaliadores' => $avaliadores,
                 'tipo_avaliacao' => $tipo_avaliacao,
+                'totalavaliadores' => $total_avaliadores,
             ]);
     }
 
@@ -159,10 +176,8 @@ class AgendaAvaliacaoController extends Controller
         $valor_proposta = formataMoeda( $request->valor_proposta);
         $validate['valor_proposta'] = $valor_proposta;
 
-        $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(-10)->format('Y-m-d');
-        $validate['data_proposta_acoes_corretivas'] = $request->data_proposta_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(7)->format('Y-m-d');
-        $validate['data_acoes_corretivas'] = $request->data_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(45)->format('Y-m-d');
-        $validate['validade_certificado'] = $request->validade_certificado ?? Carbon::parse($request->data_fim)->addYears(1)->addMonths(3)->format('Y-m-d');
+        $validate['validade_certificado'] = $request->validade_certificado 
+            ?? Carbon::parse($request->data_fim)->addYears(1)->addMonths(3)->format('Y-m-d');
 
         $avaliacao->update($validate);
 
@@ -263,7 +278,7 @@ class AgendaAvaliacaoController extends Controller
             AreaAvaliada::create($validate);
         }
 
-        return redirect()->back()->with('success', 'Dados atualizados com sucesso');
+        return redirect()->back()->with('success', 'Dados atualizados com sucesso')->withFragment('laboratorios');
     }
 
     public function deleteArea(AreaAvaliada $area): RedirectResponse

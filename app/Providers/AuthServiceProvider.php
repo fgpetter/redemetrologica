@@ -25,6 +25,11 @@ class AuthServiceProvider extends ServiceProvider
     {
 
         Gate::before(function (User $user, $ability) {
+            // Se o gate for viewActivityLogUi, ignora a verificação de demais gates
+            if ($ability === 'viewActivityLogUi') {
+                return null;
+            }
+
             Gate::define($ability, function (User $user) use ($ability) {
                 return $user->hasPermissionTo([$ability]);
             });

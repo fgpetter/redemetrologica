@@ -70,8 +70,9 @@ Route::get('interlaboratorial/{agendainterlab:uid}', [AgendaInterlabController::
 Route::get('interlab/inscricao', [InscricaoInterlabController::class, 'interlabInscricao'])->name('interlab-inscricao');
 
 Route::view('laboratorios-avaliacao', 'site.pages.laboratorios-avaliacao');
+
 Route::get('laboratorios-reconhecidos', [LaboratorioController::class, 'siteIndex']);
-Route::view('bonus-metrologia', 'site.pages.bonus-metrologia');
+Route::get('laboratorios-reconhecidos/{labinterno:uid}', [LaboratorioController::class, 'showLabInterno'])->name('lab-interno-show'); //laboratorio interno
 Route::get('laboratorios-downloads', [DownloadController::class, 'siteIndex']);
 
 // Rotas para fale-conosco e envio de formulario de contato
@@ -203,7 +204,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoCursoController::class, 'cancelaInscricao'])->name('cancela-inscricao');
     Route::post('salvar-inscrito/{inscrito:uid?}', [InscricaoCursoController::class, 'salvaInscrito'])->name('salvar-inscrito');
     Route::get('conclui-inscricao', [InscricaoCursoController::class, 'concluiInscricao'])->name('conclui-inscricao');
-    Route::post('envia-lista-inscritos/{agendacurso:uid}', [InscricaoCursoController::class, 'adicionaInscritosPorLista'])->name('envia-lista-inscritos');
   });
 
   /* Instrutores*/
@@ -219,8 +219,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('deletecursoshabilitado/{cursohabilitado:uid}', [InstrutorController::class, 'deleteCursoHabilitado'])->name('instrutor-delete-curso-habilitado');
     Route::post('delete-curriculo/{instrutor:uid}', [InstrutorController::class, 'curriculoDelete'])->name('instrutor-curriculo-delete');
   });
-
-
 
   /**
    * Avalições
