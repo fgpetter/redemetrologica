@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -27,7 +28,6 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
      */
     public $timeout = 120;
 
-
     /**
      * Create a new message instance.
      */
@@ -44,7 +44,11 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     { 
         return new Envelope(
+            replyTo: [
+                new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            ],
             subject: 'Certificado de Participação - '. $this->participante->agendaInterlab->interlab->nome,
+            from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
         );
     }
 

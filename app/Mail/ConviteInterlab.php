@@ -13,11 +13,21 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ConviteInterlab extends Mailable
+class ConviteInterlab extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+    
+    /**
+     * The number of times the job may be attempted.
+     */
+    public $tries = 3;
 
-    public $dados_email = [];
+    /**
+     * The maximum number of seconds the job can run.
+     */
+    public $timeout = 120;
+
+    public array $dados_email = [];
 
     /**
      * Create a new message instance.
@@ -44,6 +54,7 @@ class ConviteInterlab extends Mailable
                 new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
             ],
             subject: 'Inscrição em ' . Str::title($this->convite->agendaInterlab->interlab->nome),
+            from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
         );
     }
 

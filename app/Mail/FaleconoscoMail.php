@@ -10,9 +10,20 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class FaleconoscoMail extends Mailable
+class FaleconoscoMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+
+    /**
+     * The number of times the job may be attempted.
+     */
+    public $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run.
+     */
+    public $timeout = 120;
+
 
     /**
      * Create a new message instance.
@@ -25,7 +36,10 @@ class FaleconoscoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from:new Address('sistema@redemetrologica.com.br', 'Formulário Rede Metrológica'),
+            from: new Address('sistema@redemetrologica.com.br', 'Formulário Rede Metrológica'),
+            replyTo: [
+                new Address($this->dados['email']),
+            ],
             subject: 'Novo Contato do Site: ' . ($this->dados['name']),
         );
     }

@@ -5,16 +5,27 @@ namespace App\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NovoCadastroInterlabNotification extends Mailable
+class NovoCadastroInterlabNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $dados_email = [];
+    /**
+     * The number of times the job may be attempted.
+     */
+    public $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run.
+     */
+    public $timeout = 120;
+
+    public array $dados_email = [];
 
     /**
      * Create a new message instance.
@@ -45,6 +56,10 @@ class NovoCadastroInterlabNotification extends Mailable
     {
         return new Envelope(
             subject: 'Novo Inscrito em Interlab' . Str::title($this->dados_email['interlab_nome']),
+            replyTo: [
+                new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            ],
+            from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
         );
     }
 
