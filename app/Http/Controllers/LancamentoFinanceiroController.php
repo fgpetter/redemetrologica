@@ -24,23 +24,17 @@ class LancamentoFinanceiroController extends Controller
   {
     $validated = $request->validate([
       'data_inicial' => ['nullable', 'date'],
-      'data_final' => ['nullable', 'date'],
-      'pessoa' => ['nullable', 'exists:pessoas,id'],
-      'tipo_data' => ['nullable', 'in:data_vencimento,data_pagamento'],
+      'data_final'   => ['nullable', 'date'],
+      'pessoa'       => ['nullable', 'exists:pessoas,id'],
+      'tipo_data'    => ['nullable', 'in:data_vencimento,data_pagamento'],
     ]);
-    
-    if( empty($validated['data_inicial']) ) {
-      $validated['data_inicial'] = today();
-    }
-    
-    if( empty($validated['data_final']) ) {
-      $validated['data_final'] = today()->addDays(7);
+
+    if (empty($validated['data_inicial'])) {
+      $validated['data_inicial'] = today()->format('Y-m-d');
     }
 
-    if( $validated['pessoa'] ?? false ) {
-      unset($validated['data_inicial']);
-      unset($validated['data_final']);
-      unset($validated['tipo_data']);
+    if (empty($validated['data_final'])) {
+      $validated['data_final'] = today()->addDays(7)->format('Y-m-d');
     }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)
@@ -54,8 +48,8 @@ class LancamentoFinanceiroController extends Controller
       ->withTrashed()
       ->get();
 
-    return view( 'painel.lancamento-financeiro.index', [
-      'lancamentosfinanceiros' => $lancamentosfinanceiros, 
+    return view('painel.lancamento-financeiro.index', [
+      'lancamentosfinanceiros' => $lancamentosfinanceiros,
       'pessoas' => $pessoas
     ]);
   }
