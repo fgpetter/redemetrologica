@@ -27,10 +27,6 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
      */
     public $timeout = 120;
 
-    /**
-     * The delay time in seconds before sending the email.
-     */
-    public $delay = 5;
 
     /**
      * Create a new message instance.
@@ -39,6 +35,7 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
     {
         $this->participante = $participante;
         $this->pdfPath = $pdfPath;
+        $this->delay = 5;
     }
 
     /**
