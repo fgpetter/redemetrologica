@@ -49,7 +49,7 @@ class LancamentoFinanceiroController extends Controller
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
       ->whereHas('lancamentosfinanceiros', function ($query) {
-        $query->where('status', 'EFETIVADO');
+        $query->where('status', 'EFETIVADO')->orWhere('tipo_lancamento', 'DEBITO');
       })
       ->withTrashed()
       ->get();
