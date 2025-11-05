@@ -86,8 +86,9 @@ class AgendaInterlabTable extends Component
 
     protected function applyStatusFilter($query)
     {
-        return $query->when($this->status, fn($query) =>
-            $query->where('status', $this->status)
+        return $query->when($this->status, 
+            fn($query) => $query->where('status', $this->status),
+            fn($query) => $query->where('status', '<>', 'CONCLUIDO')
         );
     }
 
