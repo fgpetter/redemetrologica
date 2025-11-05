@@ -146,7 +146,7 @@ class LancamentoFinanceiroController extends Controller
     }
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento?->pessoa_id)->get();
 
-    $centrosdecusto = CentroCusto::all();
+    $centrosdecusto = CentroCusto::all()->sortBy('descricao');
     $planoConta = PlanoConta::all();
     $modalidadePagamento = ModalidadePagamento::all();
 
