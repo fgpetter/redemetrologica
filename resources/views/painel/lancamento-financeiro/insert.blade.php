@@ -35,7 +35,37 @@
         searchFields: ['label'],
         allowHTML: true
       });
+      pessoa.addEventListener('change', function(){
+        selectedPessoa = pessoa.value
+        invalidPessoa.classList.add("d-none")
+      })
     }
 
+    if(plano_conta){
+      const choices = new Choices(plano_conta,{
+        searchFields: ['label'],
+        allowHTML: true
+      });
+      plano_conta.addEventListener('change', function(){
+        selectedPlanoConta = plano_conta.value
+        invalidPlanoConta.classList.add("d-none")
+      })
+    }
+
+    sendButton.addEventListener('click', function validFields() {
+      if(selectedPlanoConta && selectedPessoa){
+        document.getElementById('submit-button').click()
+      }
+      if(!selectedPlanoConta) { invalidPlanoConta.classList.remove("d-none") }
+      if(!selectedPessoa) { invalidPessoa.classList.remove("d-none") }
+    })
+
+    $("#data_pagamento").change(function() {
+      if(Date.parse($(this).val())) {
+        $("input[name=status]").val('EFETIVADO');
+      } else {
+        $("input[name=status]").val('PROVISIONADO');
+      }
+    });
   </script>
 @endsection
