@@ -73,7 +73,8 @@
 
                     </div>
                 </div>
-                <x-painel.agendamento-cursos.list-participantes :inscritos="$inscritos" />
+                
+                <livewire:cursos.list-participantes :agendacurso="$agendacurso" />
 
                 <x-painel.agendamento-cursos.modal-insere-participante :agendacurso="$agendacurso" :empresas="$empresas"
                     :pessoas="$pessoas" />

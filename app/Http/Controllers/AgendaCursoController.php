@@ -36,28 +36,10 @@ class AgendaCursoController extends Controller
    * @param AgendaCursos $agendamento_curso
    * @return View
    */
-  public function insert(AgendaCursos $agendacurso, Request $request): View
+  public function insert(AgendaCursos $agendacurso): View
   {
     $agendacurso->load('instrutor.pessoa', 'curso.materiais');
     $pessoas = Pessoa::select('id','uid', 'cpf_cnpj', 'tipo_pessoa' , 'nome_razao')->get();
-
-    $sortBy = $request->query('sort_by', 'data_inscricao');
-    $sortDirection = $request->query('sort_direction', 'asc');
-    $isDescending = $sortDirection === 'desc';
-
-    $inscritos = $agendacurso->inscritos()->with(['pessoa', 'empresa'])->get();
-
-    if ($sortBy === 'nome') {
-        $inscritos = $inscritos->sortBy(function($inscrito) {
-            return $inscrito->pessoa->nome_razao;
-        }, SORT_REGULAR, $isDescending);
-    } elseif ($sortBy === 'empresa') {
-        $inscritos = $inscritos->sortBy(function($inscrito) {
-            return $inscrito->empresa->nome_razao ?? 'Individual';
-        }, SORT_REGULAR, $isDescending);
-    } else {
-        $inscritos = $inscritos->sortBy($sortBy, SORT_REGULAR, $isDescending);
-    }
 
     $data = [
       'instrutores' => Instrutor::select('id','uid', 'pessoa_id')->with('pessoa')->whereNot('id', $agendacurso->instrutor_id)->get(),
@@ -66,7 +48,6 @@ class AgendaCursoController extends Controller
       'curso_atual' => $agendacurso->curso()->withTrashed()->first(),
       'empresas' => $pessoas->where('tipo_pessoa', 'PJ'),
       'pessoas' => $pessoas->where('tipo_pessoa', 'PF'),
-      'inscritos' => $inscritos,
       'despesas' => $agendacurso->despesas()->with('materialPadrao:id,descricao')->get(),
       'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
       'agendacurso' => $agendacurso,
