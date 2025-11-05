@@ -11,6 +11,12 @@ class ListParticipantes extends Component
     public string $sortBy = 'empresa';
     public string $sortDirection = 'ASC';
 
+    /**
+     * Define o campo de ordenação dos participantes e empresas
+     *
+     * @param string $field
+     * @return void
+     */
     public function setSortBy(string $field): void
     {
         if ($this->sortBy === $field) {
@@ -21,9 +27,14 @@ class ListParticipantes extends Component
         }
     }
 
+    /**
+     * Renderiza a tela de lista de participantes
+     * 
+     */
     public function render()
     {
-        $inscritosQuery = $this->agendacurso->inscritos()->with(['pessoa', 'empresa']);
+        // Consulta os inscritos com as pessoas e empresas
+        $inscritosQuery = $this->agendacurso->inscritos()->with(['pessoa', 'empresa:nome_razao']);
 
         if ($this->sortBy === 'nome') {
             $inscritosQuery->join('pessoas', 'curso_inscritos.pessoa_id', '=', 'pessoas.id')
