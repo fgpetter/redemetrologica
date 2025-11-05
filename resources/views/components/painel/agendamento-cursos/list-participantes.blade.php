@@ -13,15 +13,36 @@
     <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
         <thead>
             <tr>
-                <th scope="col" style="width: 5%; white-space: nowrap;">Data Inscrição</th>
-                <th scope="col">Empresa</th>
-                <th scope="col">Nome</th>
+                <th scope="col" style="width: 5%; white-space: nowrap;">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'data_inscricao', 'sort_direction' => (request('sort_by') == 'data_inscricao' && request('sort_direction') == 'asc') ? 'desc' : 'asc']) }}#participantes">
+                        Data Inscrição
+                        @if(request('sort_by') == 'data_inscricao' || !request()->has('sort_by'))
+                            <i class="ph ph-arrow-{{ request('sort_direction', 'asc') == 'asc' ? 'up' : 'down' }}"></i>
+                        @endif
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'empresa', 'sort_direction' => (request('sort_by') == 'empresa' && request('sort_direction') == 'asc') ? 'desc' : 'asc']) }}#participantes">
+                        Empresa
+                        @if(request('sort_by') == 'empresa')
+                            <i class="ph ph-arrow-{{ request('sort_direction') == 'asc' ? 'up' : 'down' }}"></i>
+                        @endif
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'nome', 'sort_direction' => (request('sort_by') == 'nome' && request('sort_direction') == 'asc') ? 'desc' : 'asc']) }}#participantes">
+                        Nome
+                        @if(request('sort_by') == 'nome')
+                            <i class="ph ph-arrow-{{ request('sort_direction') == 'asc' ? 'up' : 'down' }}"></i>
+                        @endif
+                    </a>
+                </th>
                 <th scope="col" style="width: 5%; white-space: nowrap;">Valor</th>
                 <th scope="col" style="width: 5%; white-space: nowrap;"></th>
             </tr>
         </thead>
         <tbody>
-            @forelse ($inscritos->sortBy('empresa_id') as $inscrito)
+            @forelse ($inscritos as $inscrito)
                 @if($inscrito->pessoa->tipo_pessoa === 'PF')
                     <tr>
                         <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
