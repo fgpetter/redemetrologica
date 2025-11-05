@@ -34,7 +34,7 @@ class ListParticipantes extends Component
     public function render()
     {
         // Consulta os inscritos com as pessoas e empresas
-        $inscritosQuery = $this->agendacurso->inscritos()->with(['pessoa', 'empresa:nome_razao']);
+        $inscritosQuery = $this->agendacurso->inscritos()->with(['pessoa', 'empresa']);
 
         if ($this->sortBy === 'nome') {
             $inscritosQuery->join('pessoas', 'curso_inscritos.pessoa_id', '=', 'pessoas.id')
