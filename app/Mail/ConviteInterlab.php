@@ -54,7 +54,7 @@ class ConviteInterlab extends Mailable implements ShouldQueue
                 new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
             ],
             subject: 'Inscrição em ' . Str::title($this->convite->agendaInterlab->interlab->nome),
-            from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            // from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
         );
     }
 

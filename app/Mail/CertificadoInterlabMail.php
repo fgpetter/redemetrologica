@@ -48,7 +48,7 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
                 new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
             ],
             subject: 'Certificado de Participação - '. $this->participante->agendaInterlab->interlab->nome,
-            from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            // from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
         );
     }
 

@@ -59,7 +59,7 @@ class NovoCadastroInterlabNotification extends Mailable implements ShouldQueue
             replyTo: [
                 new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
             ],
-            from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            // from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
         );
     }
 
