@@ -321,11 +321,10 @@ Route::prefix('painel')->middleware('auth')->group(function () {
   /* Inscricao em interlaboratoriais */
   Route::group(['prefix' => 'inscricao-interlab'], function () {
     Route::post('confirmacao', [InscricaoInterlabController::class, 'confirmaInscricao'])->name('confirma-inscricao-interlab');
-    Route::post('informa-empresa', [InscricaoInterlabController::class, 'informaEmpresa'])->name('informa-empresa-interlab');
+    
     Route::post('cancela-inscricao/{inscrito:uid}', [InscricaoInterlabController::class, 'cancelaInscricao'])->name('cancela-inscricao-interlab');
     Route::post('salvar-inscrito/{inscrito:uid}', [InscricaoInterlabController::class, 'salvaInscrito'])->name('salvar-inscrito-interlab');
     Route::post('envia-convite', [InscricaoInterlabController::class, 'enviaConvite'])->name('envia-convite-interlab');
-    Route::post('limpa-sessao', [InscricaoInterlabController::class, 'limpaSessao'])->name('limpa-sessao-interlab');
   });
 
 
