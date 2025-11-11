@@ -108,32 +108,6 @@ class InscricaoInterlabController extends Controller
   }
 
   /**
-   * Adiciona empresa contratante a inscricao do interlab
-   *
-   * @param Request $request
-   * @return RedirectResponse
-   */
-  public function informaEmpresa(Request $request): RedirectResponse
-  {
-    // valida dados
-    $request->validate([
-      'cnpj' => ['nullable', 'cnpj'],
-      ],[
-      'cnpj.cnpj' => 'O dado enviado não é um CNPJ válido',
-    ]);
-
-    $empresa = Pessoa::where('cpf_cnpj', preg_replace('/[^0-9]/', '', $request->cnpj))->where('tipo_pessoa', 'PJ')->first() ?? null;
-    
-    if(!$empresa) {
-      return back()->with('error', 'Empresa não encontrada');
-    }
-
-    auth()->user()->pessoa->empresas()->syncWithoutDetaching([$empresa->id]);
-
-    return back()->with('success', 'Empresa adicionada com sucesso!');
-  }
-
-  /**
    * Adiciona / Edita inscrito manualmente na tela de agenda de interlabs
    *
    * @param Request $request
@@ -189,20 +163,7 @@ class InscricaoInterlabController extends Controller
     return back()->with('success', 'Inscrição cancelada com sucesso!')->withFragment('participantes');
   }
 
-  /**
-   * Reseta todos os dados da sessão e encerra a inscrição
-   *
-   * @return void
-   */
-  public function limpaSessao()
-  {
-    // remove dados da sessão
-    session()->forget(['interlab', 'empresa', 'convite']);
-
-    // redireciona para painel
-    return redirect('painel');
-    
-  }
+  
 
   /**
    * Adiciona / Edita lançamentos financeiros referentes a inscrição no interlab
