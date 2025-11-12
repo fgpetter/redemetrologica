@@ -87,10 +87,19 @@
             </div>
             @endif
           </div>
-
+          <div class="row mt-3">
+            <div class="col-12 col-lg-4">
+              <x-forms.input-field :value="old('valor_desconto') ?? ($agendainterlab->valor_desconto ?? null)" type="text" name="valor_desconto"
+              label="Valor de Desconto " class="money" tooltip="Valor de desconto caso o cliente inscrito em todas as rodadas."/>
+              @error('valor_desconto','principal') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+          </div>
         </div>
+        
       </div>
+      
     </div>
+    
   </div>
 
   <div class="row mt-3">
@@ -120,6 +129,7 @@
       </div>
       @error('destaque','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
+    
 
     <div class="col-12 mt-4">
       <div class="card border rouded shadow-none">
@@ -129,6 +139,8 @@
           <x-forms.input-textarea name="instrucoes_inscricao" label="Instruções ao cliente:" 
             tooltip="Informações que o cliente irá visualizar na tela de inscrição">{{ $agendainterlab->instrucoes_inscricao ?? null }}
           </x-forms.input-textarea>
+
+          
 
           {{-- <h6 class="card-subtitle mt-3 mb-2">Valores de inscrição por rodada conforme região</h6>
           <div class="row">
