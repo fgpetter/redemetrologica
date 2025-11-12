@@ -46,7 +46,7 @@
     <div class="col-12">
       <div class="card border rouded shadow-none">
         <div class="card-body">
-          <h6 class="card-subtitle mb-2 text-primary-emphasis">Adicionar valores:</h6>
+          <h6 class="card-subtitle mb-2 text-primary-emphasis">Valores rodada:</h6>
           
           <div id="valores-wrapper">
             @if(isset($agendainterlab) && $agendainterlab->valores->count() > 0)
