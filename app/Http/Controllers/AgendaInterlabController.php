@@ -92,6 +92,12 @@ class AgendaInterlabController extends Controller
       'valor_co' => ['nullable', 'string'],
       'valor_n_ne' => ['nullable', 'string'],
       'instrucoes_inscricao' => ['nullable', 'string'],
+      'ano_referencia' => ['nullable', 'integer'],
+      'data_limite_inscricao' => ['nullable', 'date'],
+      'data_limite_envio_ensaios' => ['nullable', 'date'],
+      'data_inicio_ensaios' => ['nullable', 'date'],
+      'data_limite_envio_resultados' => ['nullable', 'date'],
+      'data_divulgacao_relatorios' => ['nullable', 'date'],
       ], [
       'interlab_id.required' => 'Selecione um interlab',
       'interlab_id.exists' => 'Opção inválida',
@@ -110,7 +116,13 @@ class AgendaInterlabController extends Controller
       'valor_s_se.string' => 'Valor inválido', 
       'valor_co.string' => 'Valor inválido', 
       'valor_n_ne.string' => 'Valor inválido',
-      'instrucoes_inscricao.string' => 'Permitido somente texto'
+      'instrucoes_inscricao.string' => 'Permitido somente texto',
+      'ano_referencia.integer' => 'Ano referência inválido',
+      'data_limite_inscricao.date' => 'Data inválida',
+      'data_limite_envio_ensaios.date' => 'Data inválida',
+      'data_inicio_ensaios.date' => 'Data inválida',
+      'data_limite_envio_resultados.date' => 'Data inválida',
+      'data_divulgacao_relatorios.date' => 'Data inválida',
     ]);
 
     if ($validator->fails()) {
@@ -170,6 +182,12 @@ class AgendaInterlabController extends Controller
       'valor_co' => ['nullable', 'string'],
       'valor_n_ne' => ['nullable', 'string'],
       'instrucoes_inscricao' => ['nullable', 'string'],
+      'ano_referencia' => ['nullable', 'integer'],
+      'data_limite_inscricao' => ['nullable', 'date'],
+      'data_limite_envio_ensaios' => ['nullable', 'date'],
+      'data_inicio_ensaios' => ['nullable', 'date'],
+      'data_limite_envio_resultados' => ['nullable', 'date'],
+      'data_divulgacao_relatorios' => ['nullable', 'date'],
       ],[
       'interlab_id.required' => 'Selecione um interlab',
       'interlab_id.exists' => 'Opção inválida',
@@ -188,7 +206,13 @@ class AgendaInterlabController extends Controller
       'valor_s_se.string' => 'Valor inválido',
       'valor_co.string' => 'Valor inválido',
       'valor_n_ne.string' => 'Valor inválido',
-      'instrucoes_inscricao.string' => 'Permitido somente texto'
+      'instrucoes_inscricao.string' => 'Permitido somente texto',
+      'ano_referencia.integer' => 'Ano referência inválido',
+      'data_limite_inscricao.date' => 'Data inválida',
+      'data_limite_envio_ensaios.date' => 'Data inválida',
+      'data_inicio_ensaios.date' => 'Data inválida',
+      'data_limite_envio_resultados.date' => 'Data inválida',
+      'data_divulgacao_relatorios.date' => 'Data inválida',
       ]
     );
 
