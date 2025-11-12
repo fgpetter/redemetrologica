@@ -52,13 +52,13 @@
             @if(isset($agendainterlab) && $agendainterlab->valores->count() > 0)
               @foreach($agendainterlab->valores as $key => $valor)
               <div class="row row-valor mt-1 gx-1">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-4">
                   <input type="text" class="form-control" name="valores[{{$key}}][descricao]" placeholder="Descrição" value="{{$valor->descricao}}">
                 </div>
-                <div class="col-5 col-md-2">
+                <div class="col-5 col-md-3">
                   <input type="text" class="form-control money" name="valores[{{$key}}][valor]" placeholder="Valor" value="{{$valor->valor}}">
                 </div>
-                <div class="col-5 col-md-2">
+                <div class="col-5 col-md-3">
                   <input type="text" class="form-control money" name="valores[{{$key}}][valor_assoc]" placeholder="Valor Associado" value="{{$valor->valor_assoc}}">
                 </div>
                 <div class="col-2">
