@@ -46,13 +46,13 @@
   <div class="row gy-3"> 
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
-        label="Data Inicio" required/>
+        label="Data Inicio" />
       @error('data_inicio','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field :value="old('data_fim') ?? ($agendainterlab->data_fim?->format('Y-m-d') ?? null)" type="date" name="data_fim"
-        label="Data Final"/>
+        label="Data Final" />
       @error('data_fim','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4 col-xxl-3">
@@ -69,17 +69,17 @@
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field 
         :value="old('data_inicio_ensaios') ?? ($agendainterlab->data_inicio_ensaios?->format('Y-m-d') ?? null)" 
-        type="date" name="data_inicio_ensaios" label="Inicio ensaios" required />
+        type="date" name="data_inicio_ensaios" label="Inicio ensaios" />
     </div>
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field 
         :value="old('data_limite_envio_resultados') ?? ($agendainterlab->data_limite_envio_resultados?->format('Y-m-d') ?? null)" 
-        type="date" name="data_limite_envio_resultados" label="Envio resultados" required />
+        type="date" name="data_limite_envio_resultados" label="Envio resultados" />
     </div>
     <div class="col-md-4 col-xxl-3" >
       <x-forms.input-field 
         :value="old('data_divulgacao_relatorios') ?? ($agendainterlab->data_divulgacao_relatorios?->format('Y-m-d') ?? null)" 
-        type="date" name="data_divulgacao_relatorios" label="Divulgação relatórios" required />
+        type="date" name="data_divulgacao_relatorios" label="Divulgação relatórios" />
     </div>
   </div>
   <hr class="mt-4">
