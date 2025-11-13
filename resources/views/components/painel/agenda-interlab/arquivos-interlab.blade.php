@@ -15,8 +15,8 @@
           </div>
           <form method="POST" action="{{ route('agenda-interlab-delete-material', $material->uid) }}" >
             @csrf
-            <button type="submit" class="btn btn-danger py-0 px-1">
-              <i class="ph-trash align-middle d-block d-xxl-none" style="font-size: 1.4rem"></i>
+            <button type="submit" class="btn btn-sm btn-danger py-0 px-1">
+              <i class="ph-trash align-middle d-block d-xxl-none" style="font-size: 1rem"></i>
               <span class="d-none d-xxl-block">REMOVER</span>
             </button>
           </form>

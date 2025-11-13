@@ -23,6 +23,11 @@ class AgendaInterlab extends Model
     protected $casts = [
         'data_inicio' => 'date',
         'data_fim' => 'date',
+        'data_limite_inscricao' => 'date',
+        'data_limite_envio_ensaios' => 'date',
+        'data_inicio_ensaios' => 'date',
+        'data_limite_envio_resultados' => 'date',
+        'data_divulgacao_relatorios' => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions
