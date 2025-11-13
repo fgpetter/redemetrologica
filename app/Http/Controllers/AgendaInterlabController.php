@@ -16,6 +16,7 @@ use App\Models\InterlabInscrito;
 use App\Actions\FileUploadAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
+use App\Models\AgendaInterlabValor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
@@ -24,7 +25,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\AgendainterlabMaterial;
 use App\Models\InterlabRodadaParametro;
 use Illuminate\Support\Facades\Validator;
-use App\Models\AgendaInterlabValor;
+use App\Http\Requests\StoreAgendaInterlabRequest;
 
 
 class AgendaInterlabController extends Controller
@@ -76,69 +77,10 @@ class AgendaInterlabController extends Controller
    * @param Request $request
    * @return RedirectResponse
    **/
-  public function create(Request $request): RedirectResponse
+  public function create(StoreAgendaInterlabRequest $request): RedirectResponse
   {
-    $validator = Validator::make($request->all(), [
-      'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
-      'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
-      'inscricao' => ['nullable', 'numeric'],
-      'site' => ['nullable', 'numeric'],
-      'destaque' => ['nullable', 'numeric'],
-      'descricao' => ['nullable', 'string'],
-      'data_inicio' => ['required', 'date'],
-      'data_fim' => ['nullable', 'date'],
-      'valor_rs' => ['nullable', 'string'],
-      'valor_s_se' => ['nullable', 'string'],
-      'valor_co' => ['nullable', 'string'],
-      'valor_n_ne' => ['nullable', 'string'],
-      'valor_desconto' => ['nullable', 'string'],
-      'instrucoes_inscricao' => ['nullable', 'string'],
-      'valores' => ['nullable', 'array'],
-      'valores.*.descricao' => ['nullable', 'string'],
-      'valores.*.valor' => ['nullable', 'string'],
-      'valores.*.valor_assoc' => ['nullable', 'string'],
-    ], [
-      'interlab_id.required' => 'Selecione um interlab',
-      'interlab_id.exists' => 'Opção inválida',
-      'interlab_id.numeric' => 'Opção inválida',
-      'status.required' => 'O campo status obrigatório',
-      'status.in' => 'Opção inválida',
-      'status.string' => 'Permitido somente texto',
-      'inscricao.numeric' => 'Opção inválida',
-      'site.numeric' => 'Opção inválida',
-      'destaque.numeric' => 'Opção inválida',
-      'descricao.string' => 'Permitido somente texto',
-      'data_inicio.required' => 'O campo data obrigatório',
-      'data_inicio.date' => 'Permitido somente data',
-      'data_fim.date' => 'Permitido somente data',
-      'valor_rs.string' => 'Valor inválido',
-      'valor_s_se.string' => 'Valor inválido',
-      'valor_co.string' => 'Valor inválido',
-      'valor_n_ne.string' => 'Valor inválido',
-      'valor_desconto.string' => 'Valor com desconto inválido',
-      'instrucoes_inscricao.string' => 'Permitido somente texto',
-      'valores.array' => 'Valores adicionais inválidos.',
-      'valores.*.descricao.string' => 'Descrição do valor adicional deve ser um texto.',
-      'valores.*.valor.string' => 'Valor do valor adicional inválido.',
-      'valores.*.valor_assoc.string' => 'Valor de associado do valor adicional inválido.',
-    ]);
 
-    if ($validator->fails()) {
-      Log::channel('validation')->info("Erro de validação", [
-        'user' => auth()->user() ?? null,
-        'request' => $request->all() ?? null,
-        'uri' => request()->fullUrl() ?? null,
-        'method' => get_class($this) . '::' . __FUNCTION__,
-        'errors' => $validator->errors() ?? null,
-      ]);
-
-      return back()
-        ->withErrors($validator, 'principal')
-        ->withInput()
-        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-    }
-
-    $validated = $validator->validated();
+    $validated = $request->validated();
 
     $valores_data = $validated['valores'] ?? [];
     if (array_key_exists('valores', $validated)) {
@@ -146,10 +88,6 @@ class AgendaInterlabController extends Controller
     }
 
     $prepared_data = array_merge($validated, [
-      'valor_rs' => formataMoeda($request->valor_s_se),
-      'valor_s_se' => formataMoeda($request->valor_s_se),
-      'valor_co' => formataMoeda($request->valor_co),
-      'valor_n_ne' => formataMoeda($request->valor_n_ne),
       'valor_desconto' => formataMoeda($request->valor_desconto),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
     ]);
