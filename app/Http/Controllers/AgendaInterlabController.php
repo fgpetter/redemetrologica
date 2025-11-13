@@ -16,6 +16,7 @@ use App\Models\InterlabInscrito;
 use App\Actions\FileUploadAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
+use App\Models\AgendaInterlabValor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
@@ -47,7 +48,7 @@ class AgendaInterlabController extends Controller
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
-    $agendainterlab->load(['despesas', 'parametros', 'rodadas']);
+    $agendainterlab->load(['despesas', 'parametros', 'rodadas', 'valores']);
     $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)
       ->with(['empresa', 'pessoa', 'laboratorio']);
 
@@ -79,22 +80,59 @@ class AgendaInterlabController extends Controller
   public function create(StoreAgendaInterlabRequest $request): RedirectResponse
   {
 
-    $prepared_data = array_merge($request->validated(),[
-      'valor_rs' => formataMoeda($request->valor_s_se ),
-      'valor_s_se' => formataMoeda($request->valor_s_se ),
-      'valor_co' => formataMoeda($request->valor_co ),
-      'valor_n_ne' => formataMoeda($request->valor_n_ne ),
-      'descricao' => $request->descricao  ? $this->salvaImagensTemporarias( $request->descricao  ) : null
+    $validated = $request->validated();
+
+    $valores_data = $validated['valores'] ?? [];
+    if (array_key_exists('valores', $validated)) {
+      unset($validated['valores']);
+    }
+
+    $prepared_data = array_merge($validated, [
+      'valor_desconto' => formataMoeda($request->valor_desconto),
+      'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
     ]);
 
-    $agenda_interlab = AgendaInterlab::create( $prepared_data );
+    try {
+      DB::transaction(function () use ($prepared_data, $valores_data, &$agenda_interlab) {
 
-    if (!$agenda_interlab) {
+        $agenda_interlab = AgendaInterlab::create($prepared_data);
+
+        if (!empty($valores_data) && is_array($valores_data)) {
+          foreach ($valores_data as $valor_data) {
+            $descricao = $valor_data['descricao'] ?? null;
+            $valor = $valor_data['valor'] ?? null;
+            $valor_assoc = $valor_data['valor_assoc'] ?? null;
+
+            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
+              $agenda_interlab->valores()->create([
+                'descricao' => $descricao,
+                'valor' => formataMoeda($valor),
+                'valor_assoc' => formataMoeda($valor_assoc),
+              ]);
+            }
+          }
+        }
+      });
+    } catch (\Throwable $e) {
+      Log::error("Falha ao criar agenda interlab", [
+        'user' => auth()->user() ?? null,
+        'exception' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+        'request' => $request->all(),
+      ]);
+
+      return redirect()->back()
+        ->withInput()
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
+    }
+
+    if (empty($agenda_interlab) || !$agenda_interlab->id) {
       return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->route('agenda-interlab-index')->with('success', 'Agenda interlab cadastrado com sucesso');
   }
+
 
   /**
    * Altera agenda interlab
@@ -104,7 +142,6 @@ class AgendaInterlabController extends Controller
    **/
   public function update(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
   {
-
     $validator = Validator::make($request->all(), [
       'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
       'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
@@ -118,14 +155,13 @@ class AgendaInterlabController extends Controller
       'valor_s_se' => ['nullable', 'string'],
       'valor_co' => ['nullable', 'string'],
       'valor_n_ne' => ['nullable', 'string'],
+      'valor_desconto' => ['nullable', 'string'],
       'instrucoes_inscricao' => ['nullable', 'string'],
-      'ano_referencia' => ['nullable', 'integer'],
-      'data_limite_inscricao' => ['nullable', 'date'],
-      'data_limite_envio_ensaios' => ['nullable', 'date'],
-      'data_inicio_ensaios' => ['nullable', 'date'],
-      'data_limite_envio_resultados' => ['nullable', 'date'],
-      'data_divulgacao_relatorios' => ['nullable', 'date'],
-      ],[
+      'valores' => ['nullable', 'array'],
+      'valores.*.descricao' => ['nullable', 'string'],
+      'valores.*.valor' => ['nullable', 'string'],
+      'valores.*.valor_assoc' => ['nullable', 'string'],
+    ], [
       'interlab_id.required' => 'Selecione um interlab',
       'interlab_id.exists' => 'Opção inválida',
       'interlab_id.numeric' => 'Opção inválida',
@@ -143,49 +179,90 @@ class AgendaInterlabController extends Controller
       'valor_s_se.string' => 'Valor inválido',
       'valor_co.string' => 'Valor inválido',
       'valor_n_ne.string' => 'Valor inválido',
+      'valor_desconto.string' => 'Valor com desconto inválido',
       'instrucoes_inscricao.string' => 'Permitido somente texto',
-      'ano_referencia.integer' => 'Ano referência inválido',
-      'data_limite_inscricao.date' => 'Data inválida',
-      'data_limite_envio_ensaios.date' => 'Data inválida',
-      'data_inicio_ensaios.date' => 'Data inválida',
-      'data_limite_envio_resultados.date' => 'Data inválida',
-      'data_divulgacao_relatorios.date' => 'Data inválida',
-      ]
-    );
-
+      'valores.array' => 'Valores adicionais inválidos.',
+      'valores.*.descricao.string' => 'Descrição do valor adicional deve ser um texto.',
+      'valores.*.valor.string' => 'Valor do valor adicional inválido.',
+      'valores.*.valor_assoc.string' => 'Valor de associado do valor adicional inválido.',
+    ]);
 
     if ($validator->fails()) {
-
-      Log::channel('validation')->info("Erro de validação", 
-      [
-          'user' => auth()->user() ?? null,
-          'request' => $request->all() ?? null,
-          'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
-          'errors' => $validator->errors() ?? null,
+      Log::channel('validation')->info("Erro de validação", [
+        'user' => auth()->user() ?? null,
+        'request' => $request->all() ?? null,
+        'uri' => request()->fullUrl() ?? null,
+        'method' => get_class($this) . '::' . __FUNCTION__,
+        'errors' => $validator->errors() ?? null,
       ]);
 
       return back()
-      ->withErrors($validator, 'principal')
-      ->withInput()
-      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+        ->withErrors($validator, 'principal')
+        ->withInput()
+        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
     }
 
-    $prepared_data = array_merge($validator->validate(),[
-      'valor_rs' => formataMoeda( $request->valor_s_se ),
-      'valor_s_se' => formataMoeda( $request->valor_s_se ),
-      'valor_co' => formataMoeda( $request->valor_co ),
-      'valor_n_ne' => formataMoeda( $request->valor_n_ne ),
-      'descricao' => $request->descricao  ? $this->salvaImagensTemporarias( $request->descricao  ) : null,
-      'site' => ($request->status == 'CONCLUIDO') ? 0 : $request->site ?? 0,
-      'inscricao' => ($request->status == 'CONCLUIDO') ? 0 : $request->inscricao ?? 0,
-      'destaque' => ($request->status == 'CONCLUIDO') ? 0 : $request->destaque ?? 0
+
+    $validated = $validator->validated();
+
+    $prepared_data = array_merge($validated, [
+      'valor_rs' => formataMoeda($request->valor_s_se),
+      'valor_s_se' => formataMoeda($request->valor_s_se),
+      'valor_co' => formataMoeda($request->valor_co),
+      'valor_n_ne' => formataMoeda($request->valor_n_ne),
+      'valor_desconto' => formataMoeda($request->valor_desconto),
+      'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
+      'site' => ($request->status === 'CONCLUIDO') ? 0 : ($request->site ?? 0),
+      'inscricao' => ($request->status === 'CONCLUIDO') ? 0 : ($request->inscricao ?? 0),
+      'destaque' => ($request->status === 'CONCLUIDO') ? 0 : ($request->destaque ?? 0),
     ]);
 
-    $agendainterlab->update( $prepared_data );
+    $valores_data = $prepared_data['valores'] ?? null;
+    if (array_key_exists('valores', $prepared_data)) {
+      unset($prepared_data['valores']);
+    }
+
+    try {
+      DB::transaction(function () use ($agendainterlab, $prepared_data, $valores_data) {
+
+        $agendainterlab->update($prepared_data);
+
+        $agendainterlab->valores()->delete();
+
+        if (!empty($valores_data) && is_array($valores_data)) {
+          foreach ($valores_data as $valor_data) {
+
+            $descricao = $valor_data['descricao'] ?? null;
+            $valor = $valor_data['valor'] ?? null;
+            $valor_assoc = $valor_data['valor_assoc'] ?? null;
+
+            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
+              $agendainterlab->valores()->create([
+                'descricao' => $descricao,
+                'valor' => formataMoeda($valor),
+                'valor_assoc' => formataMoeda($valor_assoc),
+              ]);
+            }
+          }
+        }
+      });
+    } catch (\Throwable $e) {
+
+      Log::error("Falha ao atualizar agenda interlab", [
+        'user' => auth()->user() ?? null,
+        'agenda_interlab_id' => $agendainterlab->id ?? null,
+        'exception' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+      ]);
+
+      return back()
+        ->withInput()
+        ->with('error', 'Ocorreu um erro ao atualizar. Tente novamente mais tarde.');
+    }
 
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');
   }
+
 
   /**
    * Remove interlab

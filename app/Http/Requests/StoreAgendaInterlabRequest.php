@@ -32,10 +32,6 @@ class StoreAgendaInterlabRequest extends FormRequest
             'descricao' => ['nullable', 'string'],
             'data_inicio' => ['required', 'date'],
             'data_fim' => ['nullable', 'date'],
-            'valor_rs' => ['nullable', 'string'],
-            'valor_s_se' => ['nullable', 'string'],
-            'valor_co' => ['nullable', 'string'],
-            'valor_n_ne' => ['nullable', 'string'],
             'instrucoes_inscricao' => ['nullable', 'string'],
             'ano_referencia' => ['nullable', 'integer'],
             'data_limite_inscricao' => ['nullable', 'date'],
@@ -43,6 +39,11 @@ class StoreAgendaInterlabRequest extends FormRequest
             'data_inicio_ensaios' => ['nullable', 'date'],
             'data_limite_envio_resultados' => ['nullable', 'date'],
             'data_divulgacao_relatorios' => ['nullable', 'date'],
+            'valores' => ['nullable', 'array'],
+            'valores.*.descricao' => ['nullable', 'string'],
+            'valores.*.valor' => ['nullable', 'string'],
+            'valores.*.valor_assoc' => ['nullable', 'string'],
+            'valor_desconto' => ['nullable', 'string'],
         ];
     }
 
@@ -67,10 +68,6 @@ class StoreAgendaInterlabRequest extends FormRequest
             'data_inicio.required' => 'O campo data obrigatório',
             'data_inicio.date' => 'Permitido somente data',
             'data_fim.date' => 'Permitido somente data',
-            'valor_rs.string' => 'Valor inválido',
-            'valor_s_se.string' => 'Valor inválido',
-            'valor_co.string' => 'Valor inválido',
-            'valor_n_ne.string' => 'Valor inválido',
             'instrucoes_inscricao.string' => 'Permitido somente texto',
             'ano_referencia.integer' => 'Ano referência inválido',
             'data_limite_inscricao.date' => 'Data inválida',
@@ -78,6 +75,11 @@ class StoreAgendaInterlabRequest extends FormRequest
             'data_inicio_ensaios.date' => 'Data inválida',
             'data_limite_envio_resultados.date' => 'Data inválida',
             'data_divulgacao_relatorios.date' => 'Data inválida',
+            'valor_desconto.string' => 'Valor com desconto inválido',
+            'valores.array' => 'Valores adicionais inválidos.',
+            'valores.*.descricao.string' => 'Descrição do valor adicional deve ser um texto.',
+            'valores.*.valor.string' => 'Valor do valor adicional inválido.',
+            'valores.*.valor_assoc.string' => 'Valor de associado do valor adicional inválido.',
         ];
     }
 
