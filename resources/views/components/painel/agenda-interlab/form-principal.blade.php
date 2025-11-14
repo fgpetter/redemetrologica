@@ -31,7 +31,7 @@
     </div>
 
     <div class="col-md-4 col-xxl-3">
-      <x-forms.input-select name="ano_referencia" label="Ano Referência">
+      <x-forms.input-select name="ano_referencia" label="Ano Referência" id="input_ano_referencia" required>
         <option value="">Selecione</option>
         @for ($i = date('Y') - 1; $i <= date('Y') + 2; $i++)
           <option @selected($agendainterlab->ano_referencia == $i) value="{{ $i }}">{{ $i }}</option>
@@ -46,7 +46,7 @@
   <div class="row gy-3"> 
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
-        label="Data Inicio" />
+        label="Data Inicio" required/>
       @error('data_inicio','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
@@ -177,46 +177,14 @@
       <div class="card border rouded shadow-none">
         <div class="card-body">
 
-          
           <x-forms.input-textarea name="instrucoes_inscricao" label="Instruções ao cliente:" 
             tooltip="Informações que o cliente irá visualizar na tela de inscrição">{{ $agendainterlab->instrucoes_inscricao ?? null }}
           </x-forms.input-textarea>
 
-          
-
-          {{-- <h6 class="card-subtitle mt-3 mb-2">Valores de inscrição por rodada conforme região</h6>
-          <div class="row">
-
-            <div class="col-12 col-lg-3">
-              <x-forms.input-field :value="old('valor_rs') ?? ($agendainterlab->valor_rs ?? null)" type="text" name="valor_rs"
-                label="Valor base - RS" class="money"/>
-              @error('valor_rs','principal') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-12 col-lg-3">
-              <x-forms.input-field :value="old('valor_s_se') ?? ($agendainterlab->valor_s_se ?? null)" type="text" name="valor_s_se"
-                label="Sul e Sudeste" class="money"/>
-              @error('valor_s_se','principal') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-12 col-lg-3">
-              <x-forms.input-field :value="old('valor_co') ?? ($agendainterlab->valor_co ?? null)" type="text" name="valor_co"
-                label="Centro Oeste" class="money"/>
-              @error('valor_co','principal') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-12 col-lg-3">
-              <x-forms.input-field :value="old('valor_n_ne') ?? ($agendainterlab->valor_n_ne ?? null)" type="text" name="valor_n_ne"
-                label="Norte e Nordeste" class="money"/>
-              @error('valor_n_ne','principal') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
-
-          </div> --}}
         </div>
       </div>
     </div>
   </div>
-
 
   <div class="row gy-3 mt-1">
     <div class="col-12">
@@ -243,7 +211,6 @@
 
 <script src="{{ URL::asset('build/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
 <script>
-
   var ckClassicEditor = document.querySelectorAll(".ckeditor-classic");
   if (ckClassicEditor) {
     Array.from(ckClassicEditor).forEach(function() {
@@ -261,7 +228,6 @@
         });
     });
   }
-
 
   function reindexValores() {
     const rows = document.querySelectorAll('#valores-wrapper .row-valor');
@@ -350,7 +316,6 @@
     atualizarBotoesValores();
   }
 
-
   function deleteRowValor(elem) {
     // se aqui for chamado com o elemento <a> inline (this), redireciona para a interna
     if (elem && elem.nodeType === 1) {
@@ -377,6 +342,7 @@
       }
     };
   });
+
 </script>
 
 
