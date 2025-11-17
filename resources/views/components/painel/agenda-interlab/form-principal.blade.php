@@ -13,7 +13,7 @@
   </div>
 
   <div class="row mt-3">
-    <div class="col-md-4 col-xxl-3">
+    <div class="col-md-3 col-xxl-3">
       <x-forms.input-select name="status" label="Status" errorBag="principal">
         <option @selected($agendainterlab->status == 'AGENDADO') value="AGENDADO">AGENDADO</option>
         <option @selected($agendainterlab->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
@@ -21,22 +21,24 @@
       </x-forms.input-select>
     </div>
 
-    
-
-    <div class="col-md-4 col-xxl-3">
+    <div class="col-md-3 col-xxl-3">
       <x-forms.input-select name="certificado" label="Emitir certificado por:" errorBag="principal">
         <option @selected($agendainterlab->certificado == 'EMPRESA') value="EMPRESA">EMPRESA</option>
         <option @selected($agendainterlab->certificado == 'PARTICIPANTE') value="PARTICIPANTE">PARTICIPANTE</option>
       </x-forms.input-select>
     </div>
 
-    <div class="col-md-4 col-xxl-3">
+    <div class="col-md-3 col-xxl-3">
       <x-forms.input-select name="ano_referencia" label="Ano Referência" id="input_ano_referencia" required>
         <option value="">Selecione</option>
         @for ($i = date('Y') - 1; $i <= date('Y') + 2; $i++)
           <option @selected($agendainterlab->ano_referencia == $i) value="{{ $i }}">{{ $i }}</option>
         @endfor
       </x-forms.input-select>
+    </div>
+
+    <div class="col-md-3 col-xxl-3">
+      <x-forms.input-field name="tag_senha" label="Tag Senha" :value="old('tag_senha') ?? ($agendainterlab->tag_senha ?? null)" placeholder="Auto-computado" readonly />
     </div>
 
   </div>
