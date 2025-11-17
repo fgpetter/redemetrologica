@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('interlabs', function (Blueprint $table) {
-            $table->string('tag', 3)->nullable();
+            $table->string('tag', 5)->nullable();
         });
     }
 
