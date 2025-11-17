@@ -23,6 +23,18 @@
                     @error('tipo') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
+                <div class="col-md-6">
+                    <label class="form-label">
+                        TAG <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" name="tag" maxlength="3"
+                        style="text-transform: uppercase;" value="{{ old('tag') ?? ($interlab->tag ?? null) }}"
+                        required>
+                    @error('tag')
+                        <div class="text-warning">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <div class="col-12">
                     <label class="form-label">Descrição</label>
                     <textarea class="form-control" name="descricao" id="descricao" rows="2">{{ old('descricao') ?? ($interlab->descricao ?? null) }}</textarea>
