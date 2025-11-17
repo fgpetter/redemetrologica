@@ -145,7 +145,6 @@ class AgendaInterlabController extends Controller
     $valores_data = $validated['valores'] ?? null;
     unset($validated['valores']);
 
-
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($validated['valor_desconto']),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,

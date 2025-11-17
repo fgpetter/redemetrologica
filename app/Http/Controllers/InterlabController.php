@@ -77,6 +77,7 @@ class InterlabController extends Controller
         'nome' => ['required','string', 'max:190'],
         'descricao' => ['nullable', 'string'],
         'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+        'tag' => ['required', 'min:3', 'max:3'],
         'thumb' => ['nullable', 'string'],
         'observacoes' => ['nullable', 'string'],
       ],
@@ -86,6 +87,8 @@ class InterlabController extends Controller
         'nome.max' => 'O campo aceita no maximo 190 caracteres.',
         'descricao.string' => 'O campo aceita somente texto.',
         'tipo.in' => 'A opção selecionada é inválida',
+        'tag.required' => 'Preencha o campo TAG',
+        'tag.min' => 'O campo TAG deve ter no mínimo 3 caracteres.',
         'observacoes' => 'O campo aceita somente texto.'
       ]
     );
@@ -109,20 +112,24 @@ class InterlabController extends Controller
   {
     $validated = $request->validate(
       [
-        'nome' => ['required','string', 'max:190'],
-        'descricao' => ['nullable', 'string'],
-        'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
-        'thumb' => ['nullable', 'string'],
-        'observacoes' => ['nullable', 'string'],
+      'nome' => ['required','string', 'max:190'],
+      'descricao' => ['nullable', 'string'],
+      'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+      'tag' => ['required', 'min:2', 'max:5'],
+      'thumb' => ['nullable', 'string'],
+      'observacoes' => ['nullable', 'string'],
       ],
       [
-        'nome.required' => 'Preencha o campo Nome',
-        'nome.string' => 'O campo aceita somente texto.',
-        'nome.max' => 'O campo aceita no maximo 190 caracteres.',
-        'descricao.string' => 'O campo aceita somente texto.',
-        'tipo.in' => 'A opção selecionada é inválida',
-        'observacoes' => 'O campo aceita somente texto.'
-        ]
+      'nome.required' => 'Preencha o campo Nome',
+      'nome.string' => 'O campo aceita somente texto.',
+      'nome.max' => 'O campo aceita no maximo 190 caracteres.',
+      'descricao.string' => 'O campo aceita somente texto.',
+      'tipo.in' => 'A opção selecionada é inválida',
+      'tag.required' => 'Preencha o campo TAG',
+      'tag.min' => 'O campo TAG deve ter no mínimo 2 caracteres.',
+      'tag.max' => 'O campo TAG deve ter no máximo 5 caracteres.',
+      'observacoes' => 'O campo aceita somente texto.'
+      ]
     );
 
     $interlab->update($validated);

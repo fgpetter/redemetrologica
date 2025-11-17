@@ -23,6 +23,15 @@
                     @error('tipo') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
+                <div class="col-md-6">
+                    <x-forms.input-field name="tag"
+                    tooltip="Informe o código do interlaboratorial para que seja gerada a tag e senha para o inscrito."
+                    label="TAG (código)" maxlength="5" 
+                    class="text-uppercase" 
+                    :value="old('tag') ?? ($interlab->tag ?? null)" />
+                    @error('tag') <div class="text-warning">{{ $message }}</div> @enderror
+                </div>
+
                 <div class="col-12">
                     <label class="form-label">Descrição</label>
                     <textarea class="form-control" name="descricao" id="descricao" rows="2">{{ old('descricao') ?? ($interlab->descricao ?? null) }}</textarea>
