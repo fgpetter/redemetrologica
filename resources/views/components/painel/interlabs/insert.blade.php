@@ -24,15 +24,12 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">
-                        TAG <span class="text-danger">*</span>
-                    </label>
-                    <input type="text" class="form-control" name="tag" maxlength="3"
-                        style="text-transform: uppercase;" value="{{ old('tag') ?? ($interlab->tag ?? null) }}"
-                        required>
-                    @error('tag')
-                        <div class="text-warning">{{ $message }}</div>
-                    @enderror
+                    <x-forms.input-field name="tag"
+                    tooltip="Informe o código do interlaboratorial para que seja gerada a tag e senha para o inscrito."
+                    label="TAG (código)" maxlength="5" 
+                    class="text-uppercase" 
+                    :value="old('tag') ?? ($interlab->tag ?? null)" />
+                    @error('tag') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-12">

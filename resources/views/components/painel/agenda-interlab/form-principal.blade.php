@@ -9,6 +9,7 @@
           <option @selected( $agendainterlab->interlab_id == $interlab->id ) value="{{ $interlab->id }}">{{ $interlab->nome }}</option>
         @endforeach
       </x-forms.input-select>
+      @error('interlab_id','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
 
@@ -19,6 +20,7 @@
         <option @selected($agendainterlab->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
         <option @selected($agendainterlab->status == 'CONCLUIDO') value="CONCLUIDO">CONCLUIDO</option>
       </x-forms.input-select>
+      @error('status','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-3 col-xxl-3">
@@ -26,19 +28,26 @@
         <option @selected($agendainterlab->certificado == 'EMPRESA') value="EMPRESA">EMPRESA</option>
         <option @selected($agendainterlab->certificado == 'PARTICIPANTE') value="PARTICIPANTE">PARTICIPANTE</option>
       </x-forms.input-select>
+      @error('certificado','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-3 col-xxl-3">
-      <x-forms.input-select name="ano_referencia" label="Ano Referência" id="input_ano_referencia" required>
+      <x-forms.input-select name="ano_referencia" label="Ano Referência" id="input_ano_referencia">
         <option value="">Selecione</option>
         @for ($i = date('Y') - 1; $i <= date('Y') + 2; $i++)
           <option @selected($agendainterlab->ano_referencia == $i) value="{{ $i }}">{{ $i }}</option>
         @endfor
       </x-forms.input-select>
+      @error('ano_referencia','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-3 col-xxl-3">
-      <x-forms.input-field name="tag_senha" label="Tag Senha" :value="old('tag_senha') ?? ($agendainterlab->tag_senha ?? null)" placeholder="Auto-computado" readonly />
+      <x-forms.input-field name="tag_senha" label="TAG (código)" 
+        tooltip="TAG gerada automaticamente com base no código do interlaboratorial."
+        class="text-uppercase form-control-plaintext"
+        :value="$agendainterlab->interlab->tag ?? null"
+        placeholder="Não Preenchido" readonly />
+        @error('tag_senha','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
   </div>
@@ -61,27 +70,32 @@
       <x-forms.input-field 
         :value="old('data_limite_inscricao') ?? ($agendainterlab->data_limite_inscricao?->format('Y-m-d') ?? null)" 
         type="date" name="data_limite_inscricao" label="Limite inscrição" />
+      @error('data_limite_inscricao','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field 
         :value="old('data_limite_envio_ensaios') ?? ($agendainterlab->data_limite_envio_ensaios?->format('Y-m-d') ?? null)" 
         type="date" name="data_limite_envio_ensaios" label="Limite Envio ensaios" />
+      @error('data_limite_envio_ensaios','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field 
         :value="old('data_inicio_ensaios') ?? ($agendainterlab->data_inicio_ensaios?->format('Y-m-d') ?? null)" 
         type="date" name="data_inicio_ensaios" label="Inicio ensaios" />
+      @error('data_inicio_ensaios','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4 col-xxl-3">
       <x-forms.input-field 
         :value="old('data_limite_envio_resultados') ?? ($agendainterlab->data_limite_envio_resultados?->format('Y-m-d') ?? null)" 
         type="date" name="data_limite_envio_resultados" label="Envio resultados" />
+      @error('data_limite_envio_resultados','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4 col-xxl-3" >
       <x-forms.input-field 
         :value="old('data_divulgacao_relatorios') ?? ($agendainterlab->data_divulgacao_relatorios?->format('Y-m-d') ?? null)" 
         type="date" name="data_divulgacao_relatorios" label="Divulgação relatórios" />
+      @error('data_divulgacao_relatorios','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
   <hr class="mt-4">
@@ -148,11 +162,20 @@
 
   <div class="row mt-3">
     <div class="col-6 col-lg-3">
+      @if($agendainterlab->interlab->tag)
       <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
         <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox"
           @checked($agendainterlab->inscricao ?? false)>
         <label class="form-check-label" for="inscricao">INSCRIÇÕES</label>
-      </div>
+        </div>
+        @else
+        <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;"
+          data-bs-toggle="tooltip" data-bs-html="true" 
+          title="O interlaboratorial não possui tag.">
+          <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox" disabled>
+          <label class="form-check-label" for="inscricao">INSCRIÇÕES</label>
+        </div>
+        @endif
       @error('inscricao','principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 

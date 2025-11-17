@@ -83,13 +83,9 @@ class AgendaInterlabController extends Controller
     $valores_data = $validated['valores'] ?? null;
     unset($validated['valores']);
 
-    $interlab = Interlab::find($validated['interlab_id']);
-    $tag_senha = ($interlab->tag ?? '') . ($validated['ano_referencia'] ?? '');
-
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($request->valor_desconto),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
-      'tag_senha' => $tag_senha
     ]);
 
     try {
@@ -149,16 +145,12 @@ class AgendaInterlabController extends Controller
     $valores_data = $validated['valores'] ?? null;
     unset($validated['valores']);
 
-    $interlab = Interlab::find($validated['interlab_id']);
-    $tag_senha = ($interlab->tag ?? '') . '-' . ($validated['ano_referencia'] ?? '');
-
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($validated['valor_desconto']),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
       'site' => ($request->status === 'CONCLUIDO') ? 0 : ($request->site ?? 0),
       'inscricao' => ($request->status === 'CONCLUIDO') ? 0 : ($request->inscricao ?? 0),
       'destaque' => ($request->status === 'CONCLUIDO') ? 0 : ($request->destaque ?? 0),
-      'tag_senha' => $tag_senha
     ]);
 
 

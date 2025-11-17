@@ -115,7 +115,7 @@ class InterlabController extends Controller
       'nome' => ['required','string', 'max:190'],
       'descricao' => ['nullable', 'string'],
       'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
-      'tag' => ['required', 'min:3', 'max:3'],
+      'tag' => ['required', 'min:2', 'max:5'],
       'thumb' => ['nullable', 'string'],
       'observacoes' => ['nullable', 'string'],
       ],
@@ -126,7 +126,8 @@ class InterlabController extends Controller
       'descricao.string' => 'O campo aceita somente texto.',
       'tipo.in' => 'A opção selecionada é inválida',
       'tag.required' => 'Preencha o campo TAG',
-      'tag.min' => 'O campo TAG deve ter no mínimo 3 caracteres.',
+      'tag.min' => 'O campo TAG deve ter no mínimo 2 caracteres.',
+      'tag.max' => 'O campo TAG deve ter no máximo 5 caracteres.',
       'observacoes' => 'O campo aceita somente texto.'
       ]
     );
