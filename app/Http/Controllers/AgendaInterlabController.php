@@ -8,7 +8,6 @@ use App\Models\Parametro;
 use App\Exports\LabExport;
 use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
-use App\Models\InterlabRodada;
 use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
@@ -60,7 +59,6 @@ class AgendaInterlabController extends Controller
       'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
       'interlabParametros' => $agendainterlab->parametros,
       'parametros' => Parametro::orderBy('descricao')->get(),
-      'rodadas' => $agendainterlab->rodadas,
       'intelabinscritos' => $intelabinscritos->get(),
       'interlabempresasinscritas' => $intelabinscritos->distinct()->get(['empresa_id']),
       'idinterlab' => $agendainterlab->id, // id da agenda para uso no componente Livewire ListParticipantes
@@ -128,7 +126,7 @@ class AgendaInterlabController extends Controller
       return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
-    return redirect()->route('agenda-interlab-index')->with('success', 'Agenda interlab cadastrado com sucesso');
+    return redirect()->back()->with('success', 'Agenda interlab cadastrado com sucesso');
   }
 
   /**
@@ -196,7 +194,6 @@ class AgendaInterlabController extends Controller
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');
   }
 
-
   /**
    * Remove interlab
    *
@@ -218,7 +215,6 @@ class AgendaInterlabController extends Controller
    */
   public function salvaDespesa(Request $request): RedirectResponse
   {
-
     $validator = Validator::make($request->all(), [
       'agenda_interlab_id' => ['nullable', 'exists:agenda_interlabs,id'],
       'despesa_id' => ['nullable', 'exists:interlab_despesas,id'],
@@ -317,82 +313,6 @@ class AgendaInterlabController extends Controller
     return back()->with('warning', 'Material removido')->withFragment('despesas');
   }
 
-  /**
-   * Adiciona rodadas no agendamento de PEP
-   *
-   * @param Request $request
-   * @return RedirectResponse
-   */
-  public function salvaRodada(Request $request): RedirectResponse
-  {
-    $validator = Validator::make($request->all(), 
-      [
-        'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
-        'rodada_id' => ['nullable', 'exists:interlab_rodadas,id'],
-        'descricao' => ['required', 'string'],
-        'vias' => ['required', 'numeric' ,'min:1'],
-        'cronograma' => ['nullable', 'string'],
-        'parametros' => ['nullable', 'array'],
-        'parametros.*' => ['nullable', 'exists:parametros,id'],
-      ], [
-        'agenda_interlab_id.required' => 'Houve um erro ao salvar. Agenda inexistente',
-        'agenda_interlab_id.exists' => 'Houve um erro ao salvar. Agenda inexistente',
-        'rodada_id.exists' => 'Houve um erro ao salvar. Rodada inexistente',
-        'descricao.required' => 'O campo descricão obrigatório',
-        'descricao.string' => 'O campo descricão permite somente texto',
-        'vias.required' => 'O campo vias deve ser preenchido',
-        'vias.numeric' => 'O campo vias deve ser um número',
-        'vias.min' => 'O campo vias deve ser maior que 0',
-        'cronograma.string' => 'O campo cronograma permite somente texto',
-        'parametros.array' => 'Houve um erro ao salvar. Parametros inválidos',
-        'parametros.*.exists' => 'O parametro :input não existe',
-      ]
-    );
-
-    if ($validator->fails()){
-
-      Log::channel('validation')->info("Erro de validação", 
-      [
-          'user' => auth()->user() ?? null,
-          'request' => $request->all() ?? null,
-          'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
-          'errors' => $validator->errors() ?? null,
-      ]);
-
-      return back()
-        ->withErrors($validator, 'rodadas')
-        ->withInput()
-        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente')
-        ->withFragment('rodadas');
-    }
-
-    $prepared_data = $validator->validate();
-    $interlab_rodada = InterlabRodada::updateOrCreate([
-      'id' => $prepared_data['rodada_id'],
-    ],[
-      'agenda_interlab_id' => $prepared_data['agenda_interlab_id'],
-      'descricao' => $prepared_data['descricao'],
-      'vias' => $prepared_data['vias'],
-      'cronograma' => $prepared_data['cronograma'],
-    ]);
-
-    $interlab_rodada->updateParametros($request->parametros);
-
-    return back()->with('success', 'Rodada salva com sucesso')->withFragment('rodadas');
-  }
-
-  /**
-   * Remove rodada
-   *
-   * @param InterlabRodada $rodada
-   * @return RedirectResponse
-   */
-  public function deleteRodada(InterlabRodada $rodada): RedirectResponse
-  {
-    $rodada->delete();
-    return back()->with('warning', 'Rodada removida')->withFragment('rodadas');
-  }
 
   /**
    * Adiciona parametros no agendamento de PEP
@@ -465,7 +385,6 @@ class AgendaInterlabController extends Controller
 
     return back()->with('warning', 'Parâmetro removido')->withFragment('despesas');
   }
-
 
   /** 
    * Lida com imagens temporárias do editor de imagens 

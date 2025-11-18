@@ -81,8 +81,10 @@
                 </div>
             </div>
 
-            <div class="tab-pane" id="rodadas" role="tabpanel"> <!-- despesas -->
-                <x-painel.agenda-interlab.rodadas :agendainterlab="$agendainterlab" :interlabParametros="$interlabParametros" :rodadas="$rodadas" />
+            <div class="tab-pane" id="rodadas" role="tabpanel"> <!-- rodadas -->
+                <div class="col-12">
+                    <x-painel.agenda-interlab.rodadas :agendainterlab="$agendainterlab" />
+                </div>
             </div>
 
         </div>

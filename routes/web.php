@@ -311,10 +311,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salva-parametro');
     Route::post('delete-parametro/{parametro}', [AgendaInterlabController::class, 'deleteParametro'])->name('delete-parametro');
     
-    /* RodadascursoInscricao */
-    Route::post('salva-rodada', [AgendaInterlabController::class, 'salvaRodada'])->name('salvar-rodada');
-    Route::post('delete-rodada/{rodada:uid}', [AgendaInterlabController::class, 'deleteRodada'])->name('delete-rodada');
-    
     Route::get('export/{agendainterlab:uid}', [AgendaInterlabController::class, 'exportLaboratoriosToXLS'])->name('interlab-relatorio-inscritos');
   });
 
