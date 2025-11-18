@@ -374,7 +374,7 @@ class ConfirmInscricaoInterlab extends Component
 
                     do {
                         $attempt++;
-                        $candidate = $prefix . '-' . rand(1, 999);
+                        $candidate = $prefix . '-' . rand(100, 999);
 
                         $exists = InterlabInscrito::where('tag_senha', $candidate)->exists();
 
