@@ -366,6 +366,28 @@ class ConfirmInscricaoInterlab extends Component
                         'email' => $validated['laboratorio']['email'],
                     ]);
 
+                    // GERA TAG_SENHA ÚNICA (prefixo + rand(1,999)), com retry
+                    $prefix = $this->interlab->interlab->tag ?? 'N/A';
+                    $maxAttempts = 10;
+                    $attempt = 0;
+                    $senha = null;
+
+                    do {
+                        $attempt++;
+                        $candidate = $prefix . '-' . rand(1, 999);
+
+                        $exists = InterlabInscrito::where('tag_senha', $candidate)->exists();
+
+                        if (! $exists) {
+                            $senha = $candidate;
+                            break;
+                        }
+                    } while ($attempt < $maxAttempts);
+
+                    if ($senha === null) {
+                        throw new \Exception("Não foi possível gerar uma tag_senha única após {$maxAttempts} tentativas.");
+                    }
+
                     $inscrito = InterlabInscrito::create([
                         'pessoa_id' => $this->pessoaId_usuario,
                         'empresa_id' => $empresaId,
@@ -374,6 +396,7 @@ class ConfirmInscricaoInterlab extends Component
                         'data_inscricao' => now(),
                         'valor' => $validated['valor'] ?? null,
                         'informacoes_inscricao' => $validated['informacoes_inscricao'],
+                        'tag_senha' => $senha,
                     ]);
 
                     Mail::to('interlab@redemetrologica.com.br')
