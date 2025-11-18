@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('interlabs', function (Blueprint $table) {
+        Schema::table('interlab_inscritos', function (Blueprint $table) {
             $table->string('tag_senha')->nullable();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('interlabs', function (Blueprint $table) {
+        Schema::table('interlab_inscritos', function (Blueprint $table) {
             $table->dropColumn('tag_senha');
         });
     }
