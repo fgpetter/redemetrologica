@@ -10,6 +10,7 @@ use App\Models\InterlabInscrito;
 use Illuminate\Support\Facades\DB;
 use App\Models\InterlabLaboratorio;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\EnviarSenhaInterlabJob;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NovoCadastroInterlabNotification;
@@ -320,7 +321,7 @@ class ConfirmInscricaoInterlab extends Component
                     $laboratorio = InterlabLaboratorio::findOrFail($this->laboratorioEditadoId);
                     $empresaId = $laboratorio->empresa_id;
                     $endereco = Endereco::findOrFail($laboratorio->endereco_id);
-                    
+
                     $endereco->update([
                         'cep' => $validated['laboratorio']['endereco']['cep'],
                         'endereco' => $validated['laboratorio']['endereco']['endereco'],
@@ -366,27 +367,16 @@ class ConfirmInscricaoInterlab extends Component
                         'email' => $validated['laboratorio']['email'],
                     ]);
 
-                    // GERA TAG_SENHA ÚNICA (prefixo + rand(1,999)), com retry
-                    $prefix = $this->interlab->interlab->tag ?? 'N/A';
-                    $maxAttempts = 10;
-                    $attempt = 0;
-                    $senha = null;
-
-                    do {
-                        $attempt++;
-                        $candidate = $prefix . '-' . rand(100, 999);
-
-                        $exists = InterlabInscrito::where('tag_senha', $candidate)->exists();
-
-                        if (! $exists) {
-                            $senha = $candidate;
-                            break;
-                        }
-                    } while ($attempt < $maxAttempts);
-
-                    if ($senha === null) {
-                        throw new \Exception("Não foi possível gerar uma tag_senha única após {$maxAttempts} tentativas.");
+                    // GERA TAG_SENHA ÚNICA (prefixo + rand(111,999)), com retry
+                    $senha = ($this->interlab->interlab->tag ?? 'N/A') . '-' . rand(111, 999);
+                    while (
+                        InterlabInscrito::where('tag_senha', $senha)
+                        ->where('agenda_interlab_id', $this->interlab->id)
+                        ->exists()
+                    ) {
+                        $senha = ($this->interlab->interlab->tag ?? 'N/A') . '-' . rand(111, 999);
                     }
+
 
                     $inscrito = InterlabInscrito::create([
                         'pessoa_id' => $this->pessoaId_usuario,
@@ -403,11 +393,14 @@ class ConfirmInscricaoInterlab extends Component
                         ->cc('tecnico@redemetrologica.com.br')
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
-                        
+
                     Mail::mailer('interlaboratorial')
                         ->to($inscrito->pessoa->email)
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
+
+                    // Envia email com a senha de identificação do laboratório
+                    EnviarSenhaInterlabJob::dispatch($inscrito->id);
                 }
             });
 
