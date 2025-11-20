@@ -24,6 +24,7 @@ use App\Models\AgendainterlabMaterial;
 use App\Models\InterlabRodadaParametro;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreAgendaInterlabRequest;
+use App\Jobs\EnviarConfirmacaoInterlabJob;
 
 class AgendaInterlabController extends Controller
 {
@@ -137,6 +138,7 @@ class AgendaInterlabController extends Controller
    **/
   public function update(StoreAgendaInterlabRequest $request, AgendaInterlab $agendainterlab): RedirectResponse
   {
+    $oldStatus = $agendainterlab->status;
 
     $validated = $request->validated();
 
@@ -189,6 +191,17 @@ class AgendaInterlabController extends Controller
       return back()
         ->withInput()
         ->with('error', 'Ocorreu um erro ao atualizar. Tente novamente mais tarde.');
+    }
+    // Dispara os emails de confirmação
+    if ($oldStatus == 'AGENDADO' && $agendainterlab->status === 'CONFIRMADO') {
+      $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)
+        ->with('laboratorio')
+        ->get();
+
+      foreach ($inscritos as $index => $inscrito) {
+        EnviarConfirmacaoInterlabJob::dispatch($inscrito)
+          ->delay(now()->addSeconds($index * 30));
+      }
     }
 
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');
@@ -392,7 +405,8 @@ class AgendaInterlabController extends Controller
    * 
    * @return string $content
    */
-  private function salvaImagensTemporarias($descricao): string {
+  private function salvaImagensTemporarias($descricao): string
+  {
 
     // lida com as pastas temporarias do editor de conteúdo
     if (session()->has('tempPastas')) {
