@@ -34,7 +34,7 @@ class StoreAgendaInterlabRequest extends FormRequest
             'data_fim' => ['nullable', 'date'],
             'instrucoes_inscricao' => ['nullable', 'string'],
             'ano_referencia' => ['nullable', 'integer'],
-            'data_limite_inscricao' => ['nullable', 'date'],
+            'data_limite_inscricao' => ['required', 'date'],
             'data_limite_envio_ensaios' => ['nullable', 'date'],
             'data_inicio_ensaios' => ['nullable', 'date'],
             'data_limite_envio_resultados' => ['nullable', 'date'],
@@ -71,6 +71,7 @@ class StoreAgendaInterlabRequest extends FormRequest
             'instrucoes_inscricao.string' => 'Permitido somente texto',
             'ano_referencia.integer' => 'Ano referência inválido',
             'data_limite_inscricao.date' => 'Data inválida',
+            'data_limite_inscricao.required' => 'Data limite de inscrição obrigatória',
             'data_limite_envio_ensaios.date' => 'Data inválida',
             'data_inicio_ensaios.date' => 'Data inválida',
             'data_limite_envio_resultados.date' => 'Data inválida',
@@ -82,7 +83,6 @@ class StoreAgendaInterlabRequest extends FormRequest
             'valores.*.valor_assoc.string' => 'Valor de associado do valor adicional inválido.',
         ];
     }
-
     /**
      * Handle a failed validation attempt.
      */
@@ -92,7 +92,7 @@ class StoreAgendaInterlabRequest extends FormRequest
             'user' => auth()->user() ?? null,
             'request' => $this->all() ?? null,
             'uri' => request()->fullUrl() ?? null,
-            'method' => get_class($this).'::'.__FUNCTION__,
+            'method' => get_class($this) . '::' . __FUNCTION__,
             'errors' => $validator->errors() ?? null,
         ]);
 

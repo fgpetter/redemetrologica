@@ -6,10 +6,11 @@
       <x-forms.input-select name="interlab_id" label="Interlaboratorial" errorBag="principal" required>
         <option value="">Selecione</option>
         @foreach ($interlabs as $interlab)
-          <option @selected( $agendainterlab->interlab_id == $interlab->id ) value="{{ $interlab->id }}">{{ $interlab->nome }}</option>
+          <option @selected($agendainterlab->interlab_id == $interlab->id) value="{{ $interlab->id }}">
+            {{ $interlab->nome }}</option>
         @endforeach
       </x-forms.input-select>
-      @error('interlab_id','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('interlab_id', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
 
@@ -20,7 +21,7 @@
         <option @selected($agendainterlab->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
         <option @selected($agendainterlab->status == 'CONCLUIDO') value="CONCLUIDO">CONCLUIDO</option>
       </x-forms.input-select>
-      @error('status','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('status', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-3 col-xxl-3">
@@ -28,7 +29,7 @@
         <option @selected($agendainterlab->certificado == 'EMPRESA') value="EMPRESA">EMPRESA</option>
         <option @selected($agendainterlab->certificado == 'PARTICIPANTE') value="PARTICIPANTE">PARTICIPANTE</option>
       </x-forms.input-select>
-      @error('certificado','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('certificado', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-3 col-xxl-3">
@@ -38,64 +39,57 @@
           <option @selected($agendainterlab->ano_referencia == $i) value="{{ $i }}">{{ $i }}</option>
         @endfor
       </x-forms.input-select>
-      @error('ano_referencia','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('ano_referencia', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-3 col-xxl-3">
-      <x-forms.input-field name="tag_senha" label="TAG (código)" 
+      <x-forms.input-field name="tag_senha" label="TAG (código)"
         tooltip="TAG gerada automaticamente com base no código do interlaboratorial."
-        class="text-uppercase form-control-plaintext"
-        :value="$agendainterlab->interlab->tag ?? null"
+        class="text-uppercase form-control-plaintext" :value="$agendainterlab->interlab->tag ?? null"
         placeholder="Não Preenchido" readonly />
-        @error('tag_senha','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('tag_senha', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
   </div>
 
   {{-- Sessão de datas --}}
   <hr class="mt-4">
-  <div class="row gy-3"> 
+  <div class="row gy-3">
     <div class="col-md-4 col-xxl-3">
-      <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)" type="date" name="data_inicio"
-        label="Data Inicio" required/>
-      @error('data_inicio','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      <x-forms.input-field :value="old('data_inicio') ?? ($agendainterlab->data_inicio?->format('Y-m-d') ?? null)"
+        type="date" name="data_inicio" label="Data Inicio" required />
+      @error('data_inicio', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-4 col-xxl-3">
-      <x-forms.input-field :value="old('data_fim') ?? ($agendainterlab->data_fim?->format('Y-m-d') ?? null)" type="date" name="data_fim"
-        label="Data Final" />
-      @error('data_fim','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      <x-forms.input-field :value="old('data_fim') ?? ($agendainterlab->data_fim?->format('Y-m-d') ?? null)" type="date"
+        name="data_fim" label="Data Final" />
+      @error('data_fim', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4 col-xxl-3">
-      <x-forms.input-field 
-        :value="old('data_limite_inscricao') ?? ($agendainterlab->data_limite_inscricao?->format('Y-m-d') ?? null)" 
-        type="date" name="data_limite_inscricao" label="Limite inscrição" />
-      @error('data_limite_inscricao','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      <x-forms.input-field :value="old('data_limite_inscricao') ?? ($agendainterlab->data_limite_inscricao?->format('Y-m-d') ?? null)" type="date" name="data_limite_inscricao"
+        label="Limite inscrição" required />
+      @error('data_limite_inscricao', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4 col-xxl-3">
-      <x-forms.input-field 
-        :value="old('data_limite_envio_ensaios') ?? ($agendainterlab->data_limite_envio_ensaios?->format('Y-m-d') ?? null)" 
-        type="date" name="data_limite_envio_ensaios" label="Limite Envio ensaios" />
-      @error('data_limite_envio_ensaios','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      <x-forms.input-field :value="old('data_limite_envio_ensaios') ?? ($agendainterlab->data_limite_envio_ensaios?->format('Y-m-d') ?? null)" type="date"
+        name="data_limite_envio_ensaios" label="Limite Envio ensaios" />
+      @error('data_limite_envio_ensaios', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-md-4 col-xxl-3">
-      <x-forms.input-field 
-        :value="old('data_inicio_ensaios') ?? ($agendainterlab->data_inicio_ensaios?->format('Y-m-d') ?? null)" 
-        type="date" name="data_inicio_ensaios" label="Inicio ensaios" />
-      @error('data_inicio_ensaios','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      <x-forms.input-field :value="old('data_inicio_ensaios') ?? ($agendainterlab->data_inicio_ensaios?->format('Y-m-d') ?? null)" type="date" name="data_inicio_ensaios" label="Inicio ensaios" />
+      @error('data_inicio_ensaios', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4 col-xxl-3">
-      <x-forms.input-field 
-        :value="old('data_limite_envio_resultados') ?? ($agendainterlab->data_limite_envio_resultados?->format('Y-m-d') ?? null)" 
-        type="date" name="data_limite_envio_resultados" label="Envio resultados" />
-      @error('data_limite_envio_resultados','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      <x-forms.input-field :value="old('data_limite_envio_resultados') ?? ($agendainterlab->data_limite_envio_resultados?->format('Y-m-d') ?? null)" type="date"
+        name="data_limite_envio_resultados" label="Envio resultados" />
+      @error('data_limite_envio_resultados', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
-    <div class="col-md-4 col-xxl-3" >
-      <x-forms.input-field 
-        :value="old('data_divulgacao_relatorios') ?? ($agendainterlab->data_divulgacao_relatorios?->format('Y-m-d') ?? null)" 
-        type="date" name="data_divulgacao_relatorios" label="Divulgação relatórios" />
-      @error('data_divulgacao_relatorios','principal') <div class="text-warning">{{ $message }}</div> @enderror
+    <div class="col-md-4 col-xxl-3">
+      <x-forms.input-field :value="old('data_divulgacao_relatorios') ?? ($agendainterlab->data_divulgacao_relatorios?->format('Y-m-d') ?? null)" type="date"
+        name="data_divulgacao_relatorios" label="Divulgação relatórios" />
+      @error('data_divulgacao_relatorios', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
   <hr class="mt-4">
@@ -105,87 +99,90 @@
       <div class="card border rouded shadow-none">
         <div class="card-body">
           <h6 class="card-subtitle mb-2 text-primary-emphasis">Valores rodada:</h6>
-          
+
           <div id="valores-wrapper">
             @if(isset($agendainterlab) && $agendainterlab->valores->count() > 0)
               @foreach($agendainterlab->valores as $key => $valor)
-              <div class="row row-valor mt-1 gx-1">
-                <div class="col-12 col-md-4">
-                  <input type="text" class="form-control" name="valores[{{$key}}][descricao]" placeholder="Descrição" value="{{$valor->descricao}}">
+                <div class="row row-valor mt-1 gx-1">
+                  <div class="col-12 col-md-4">
+                    <input type="text" class="form-control" name="valores[{{$key}}][descricao]" placeholder="Descrição"
+                      value="{{$valor->descricao}}">
+                  </div>
+                  <div class="col-5 col-md-3">
+                    <input type="text" class="form-control money" name="valores[{{$key}}][valor]" placeholder="Valor"
+                      value="{{$valor->valor}}">
+                  </div>
+                  <div class="col-5 col-md-3">
+                    <input type="text" class="form-control money" name="valores[{{$key}}][valor_assoc]"
+                      placeholder="Valor Associado" value="{{$valor->valor_assoc}}">
+                  </div>
+                  <div class="col-2">
+                    @if($loop->first)
+                      <a href="javascript:void(0)" onclick="duplicateRowValor()" class="btn btn-primary"> + </a>
+                    @endif
+                    <a href="javascript:void(0)" onclick="deleteRowValor(this)" class="btn btn-danger"> - </a>
+                  </div>
                 </div>
-                <div class="col-5 col-md-3">
-                  <input type="text" class="form-control money" name="valores[{{$key}}][valor]" placeholder="Valor" value="{{$valor->valor}}">
-                </div>
-                <div class="col-5 col-md-3">
-                  <input type="text" class="form-control money" name="valores[{{$key}}][valor_assoc]" placeholder="Valor Associado" value="{{$valor->valor_assoc}}">
-                </div>
-                <div class="col-2">
-                  @if($loop->first)
-                  <a href="javascript:void(0)" onclick="duplicateRowValor()"  class="btn btn-primary"> + </a>
-                  @endif
-                  <a href="javascript:void(0)" onclick="deleteRowValor(this)"  class="btn btn-danger"> - </a>
-                </div>
-              </div>
               @endforeach
             @else
-            <div class="row row-valor mt-1 gx-1">
-              <div class="col-12 col-md-6">
-                <input type="text" class="form-control" name="valores[0][descricao]" placeholder="Descrição">
+              <div class="row row-valor mt-1 gx-1">
+                <div class="col-12 col-md-6">
+                  <input type="text" class="form-control" name="valores[0][descricao]" placeholder="Descrição">
+                </div>
+                <div class="col-5 col-md-2">
+                  <input type="text" class="form-control money" name="valores[0][valor]" placeholder="Valor">
+                </div>
+                <div class="col-5 col-md-2">
+                  <input type="text" class="form-control money" name="valores[0][valor_assoc]"
+                    placeholder="Valor Associado">
+                </div>
+                <div class="col-2">
+                  <a href="javascript:void(0)" onclick="duplicateRowValor()" class="btn btn-primary"> + </a>
+                  <a href="javascript:void(0)" onclick="deleteRowValor(this)" class="btn btn-danger"> - </a>
+                </div>
               </div>
-              <div class="col-5 col-md-2">
-                <input type="text" class="form-control money" name="valores[0][valor]" placeholder="Valor">
-              </div>
-              <div class="col-5 col-md-2">
-                <input type="text" class="form-control money" name="valores[0][valor_assoc]" placeholder="Valor Associado">
-              </div>
-              <div class="col-2">
-                <a href="javascript:void(0)" onclick="duplicateRowValor()"  class="btn btn-primary"> + </a>
-                <a href="javascript:void(0)" onclick="deleteRowValor(this)"  class="btn btn-danger"> - </a>
-              </div>
-            </div>
             @endif
           </div>
           <div class="row mt-3">
             <div class="col-12 col-lg-4">
-              <x-forms.input-field :value="old('valor_desconto') ?? ($agendainterlab->valor_desconto ?? null)" type="text" name="valor_desconto"
-              label="Valor de Desconto " class="money" tooltip="Valor de desconto caso o cliente inscrito em todas as rodadas."/>
-              @error('valor_desconto','principal') <div class="text-warning">{{ $message }}</div> @enderror
+              <x-forms.input-field :value="old('valor_desconto') ?? ($agendainterlab->valor_desconto ?? null)"
+                type="text" name="valor_desconto" label="Valor de Desconto " class="money"
+                tooltip="Valor de desconto caso o cliente inscrito em todas as rodadas." />
+              @error('valor_desconto', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
           </div>
         </div>
-        
+
       </div>
-      
+
     </div>
-    
+
   </div>
 
   <div class="row mt-3">
     <div class="col-6 col-lg-3">
       @if($agendainterlab->interlab->tag)
-      <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
-        <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox"
-          @checked($agendainterlab->inscricao ?? false)>
-        <label class="form-check-label" for="inscricao">INSCRIÇÕES</label>
+        <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
+          <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox"
+            @checked($agendainterlab->inscricao ?? false)>
+          <label class="form-check-label" for="inscricao">INSCRIÇÕES</label>
         </div>
-        @else
+      @else
         <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;"
-          data-bs-toggle="tooltip" data-bs-html="true" 
-          title="O interlaboratorial não possui tag.">
+          data-bs-toggle="tooltip" data-bs-html="true" title="O interlaboratorial não possui tag.">
           <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox" disabled>
           <label class="form-check-label" for="inscricao">INSCRIÇÕES</label>
         </div>
-        @endif
-      @error('inscricao','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @endif
+      @error('inscricao', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-6 col-md-4 col-xxl-3">
       <div class="form-check bg-light rounded mt-4 check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
-        <input class="form-check-input" name="site" value="1" id="site" type="checkbox"
-          @checked($agendainterlab->site ?? false)>
+        <input class="form-check-input" name="site" value="1" id="site" type="checkbox" @checked($agendainterlab->site ?? false)>
         <label class="form-check-label" for="site">SITE</label>
       </div>
-      @error('site','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('site', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
     <div class="col-6 col-md-4 col-xxl-3">
@@ -194,15 +191,15 @@
           @checked($agendainterlab->destaque ?? false)>
         <label class="form-check-label" for="destaque">DESTAQUE</label>
       </div>
-      @error('destaque','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      @error('destaque', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
-    
+
 
     <div class="col-12 mt-4">
       <div class="card border rouded shadow-none">
         <div class="card-body">
 
-          <x-forms.input-textarea name="instrucoes_inscricao" label="Instruções ao cliente:" 
+          <x-forms.input-textarea name="instrucoes_inscricao" label="Instruções ao cliente:"
             tooltip="Informações que o cliente irá visualizar na tela de inscrição">{{ $agendainterlab->instrucoes_inscricao ?? null }}
           </x-forms.input-textarea>
 
@@ -214,8 +211,9 @@
   <div class="row gy-3 mt-1">
     <div class="col-12">
       <h6 class="card-subtitle mb-2">Descrição do Programa</h6>
-      <textarea id="editor" class="ckeditor-classic" name="descricao">{!! old('descricao') ?? ($agendainterlab->descricao ?? null) !!}</textarea>
-      @error('descricao','principal') <div class="text-warning">{{ $message }}</div> @enderror
+      <textarea id="editor" class="ckeditor-classic"
+        name="descricao">{!! old('descricao') ?? ($agendainterlab->descricao ?? null) !!}</textarea>
+      @error('descricao', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
   </div>
 
@@ -238,17 +236,17 @@
 <script>
   var ckClassicEditor = document.querySelectorAll(".ckeditor-classic");
   if (ckClassicEditor) {
-    Array.from(ckClassicEditor).forEach(function() {
+    Array.from(ckClassicEditor).forEach(function () {
       ClassicEditor
         .create(document.querySelector('.ckeditor-classic'), {
           ckfinder: {
             uploadUrl: '{{ route('image-upload') . '?_token=' . csrf_token() }}',
           }
         })
-        .then(function(editor) {
+        .then(function (editor) {
           editor.ui.view.editable.element.style.height = '45vh';
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error(error);
         });
     });
@@ -256,7 +254,7 @@
 
   function reindexValores() {
     const rows = document.querySelectorAll('#valores-wrapper .row-valor');
-    rows.forEach(function(row, i) {
+    rows.forEach(function (row, i) {
       const desc = row.querySelector('input[name*="[descricao]"]');
       const val = row.querySelector('input[name*="[valor]"]');
       const valAssoc = row.querySelector('input[name*="[valor_assoc]"]');
@@ -288,7 +286,7 @@
   // Garante que cada linha tenha + e - e associa events
   function atualizarBotoesValores() {
     const rows = document.querySelectorAll('#valores-wrapper .row-valor');
-    rows.forEach(function(row) {
+    rows.forEach(function (row) {
       const col2 = row.querySelector('.col-2');
       if (!col2) return;
 
@@ -300,7 +298,7 @@
       addBtn.href = 'javascript:void(0)';
       addBtn.className = 'btn btn-primary me-1';
       addBtn.textContent = '+';
-      addBtn.addEventListener('click', function(e) { e.preventDefault(); duplicateRowValor(); });
+      addBtn.addEventListener('click', function (e) { e.preventDefault(); duplicateRowValor(); });
 
       // cria botão -
       const delBtn = document.createElement('a');
@@ -308,7 +306,7 @@
       delBtn.className = 'btn btn-danger';
       delBtn.textContent = '-';
       // chama a função interna
-      delBtn.addEventListener('click', function(e) { e.preventDefault(); deleteRowValorInternal(delBtn); });
+      delBtn.addEventListener('click', function (e) { e.preventDefault(); deleteRowValorInternal(delBtn); });
 
       col2.appendChild(addBtn);
       col2.appendChild(delBtn);
@@ -349,7 +347,7 @@
   }
 
   // inicia ao carregar DOM
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     reindexValores();
     atualizarBotoesValores();
 
@@ -360,7 +358,7 @@
 
     // expõe as funções globalmente caso existam chamadas inline anteriores
     window.duplicateRowValor = duplicateRowValor;
-    window.deleteRowValor = function(el) {
+    window.deleteRowValor = function (el) {
       // aceita tanto elemento DOM quanto this passado inline
       if (el && el.nodeType === 1) {
         deleteRowValorInternal(el);
@@ -369,5 +367,3 @@
   });
 
 </script>
-
-
