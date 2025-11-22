@@ -28,9 +28,9 @@
                     </div>
 
                     <!-- Filtro por Empresa -->
-                    <div class="col-3">
+                    <div class="col-3" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
-                        <select wire:model.live="empresaSelecionada" class="form-select form-select-sm">
+                        <select wire:model.live="empresaSelecionada" id="empresa-select" class="form-select form-select-sm">
                             <option value="">Selecione...</option>
                             @foreach ($this->empresas as $empresa)
                                 <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} -
@@ -204,4 +204,35 @@
             </div>
         </div>
     </div>
+    <style>
+        .choices__list--single {
+            padding: 0;
+        }
+
+        .choices__list--single .choices__item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+    </style>
 </div>
+
+@section('script')
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            const element = document.getElementById('empresa-select');
+            const choices = new Choices(element, {
+                searchFields: ['label'],
+                allowHTML: true,
+                itemSelectText: '',
+                noResultsText: 'Nenhum resultado encontrado',
+                noChoicesText: 'Sem opções para escolher',
+            });
+
+            element.addEventListener('change', function(event) {
+                @this.set('empresaSelecionada', event.target.value);
+            });
+        });
+    </script>
+@endsection
