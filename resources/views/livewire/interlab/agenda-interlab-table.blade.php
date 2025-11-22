@@ -19,7 +19,7 @@
                     <!-- Status -->
                     <div class="col-2">
                         <label class="form-label mb-0">Status</label>
-                        <select wire:model.live="status" class="form-select form-select-sm">
+                        <select wire:model.live="status" class="form-select">
                             <option value="">Selecione...</option>
                             <option value="AGENDADO">AGENDADO</option>
                             <option value="CONFIRMADO">CONFIRMADO</option>
@@ -42,11 +42,11 @@
                     <!-- Pesquisa Global -->
                     <div class="col-5">
                         <label class="form-label mb-0">Pesquisar</label>
-                        <div class="input-group input-group-sm">
+                        <div class="input-group">
                             <span class="input-group-text">
                                 <i class="ri-search-line"></i>
                             </span>
-                            <input wire:model.live.debounce.300ms="search" class="form-control form-control-sm"
+                            <input wire:model.live.debounce.300ms="search" class="form-control"
                                 type="text" name="search" id="search"
                                 placeholder="Pesquisar por nome do interlab...">
                         </div>
@@ -204,18 +204,7 @@
             </div>
         </div>
     </div>
-    <style>
-        .choices__list--single {
-            padding: 0;
-        }
 
-        .choices__list--single .choices__item {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-    </style>
 </div>
 
 @section('script')
@@ -228,10 +217,19 @@
                 itemSelectText: '',
                 noResultsText: 'Nenhum resultado encontrado',
                 noChoicesText: 'Sem opções para escolher',
+                classNames: {
+                    listSingle: 'choices__list--single p-0',
+                    item: 'choices__item text-truncate mw-100',
+                },
             });
 
             element.addEventListener('change', function(event) {
                 @this.set('empresaSelecionada', event.target.value);
+            });
+
+            Livewire.on('reset-empresa-filter', () => {
+                choices.setChoiceByValue('');
+                element.dispatchEvent(new Event('change'));
             });
         });
     </script>
