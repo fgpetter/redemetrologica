@@ -10,28 +10,16 @@ class LinkSenhaInterlabNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $participante;
-    public $linkUuid;
+    public $dadosDoc;
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
-    public function __construct($participante, $linkUuid)
+    public function __construct($dadosDoc)
     {
-        $this->participante = $participante;
-        $this->linkUuid = $linkUuid;
+        $this->dadosDoc = $dadosDoc;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
-        return $this->subject('Código de Identificação - ' . $this->participante->agendaInterlab->interlab->nome)
+        return $this->subject('Código de Identificação - ' . $this->dadosDoc->content['interlab_nome'])
             ->view('emails.link-senha-interlab');
     }
 }

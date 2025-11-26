@@ -12,11 +12,11 @@
     </div>
 
     <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-      <h3>Código de identificação - {{ $participante->agendaInterlab->interlab->nome }}</h3>
-      <p>É com grande satisfação que disponibilizamos o código de identificação do laboratório - {{ $participante->laboratorio->nome}}.</p>
+      <h3>Código de identificação - {{ $dadosDoc->content['interlab_nome'] }}</h3>
+      <p>É com grande satisfação que disponibilizamos o código de identificação do laboratório - {{ $dadosDoc->content['laboratorio_nome'] }}.</p>
       
       <p style="margin: 30px 0;">
-        <a href="{{ url('/dados-doc/' . $linkUuid) }}" 
+        <a href="{{ url('/dados-doc/' . $dadosDoc->link) }}" 
            target="_blank"
            style="display: inline-block; padding: 12px 30px; background-color: #0056b3; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
           Baixar Carta Senha
@@ -25,7 +25,7 @@
 
       <p style="font-size: 12px; color: #888;">
         Ou copie e cole o link abaixo no seu navegador:<br>
-        <a href="{{ url('/dados-doc/' . $linkUuid) }}" style="color: #0056b3; word-break: break-all;">{{ url('/dados-doc/' . $linkUuid) }}</a>
+        <a href="{{ url('/dados-doc/' . $dadosDoc->link) }}" style="color: #0056b3; word-break: break-all;">{{ url('/dados-doc/' . $dadosDoc->link) }}</a>
       </p>
       
       <br>

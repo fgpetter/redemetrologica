@@ -40,25 +40,7 @@ class DocController extends Controller
      */
     private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc)
     {
-        $content = $dadosDoc->content;
-
-        $participante = new \stdClass();
-        $participante->id = $content['participante_id'];
-        $participante->tag_senha = $content['tag_senha'];
-        $participante->informacoes_inscricao = $content['informacoes_inscricao'];
-        
-        $participante->laboratorio = new \stdClass();
-        $participante->laboratorio->nome = $content['laboratorio_nome'];
-        
-        $participante->empresa = new \stdClass();
-        $participante->empresa->nome_razao = $content['empresa_nome_razao'];
-        $participante->empresa->cpf_cnpj = $content['empresa_cpf_cnpj'];
-        
-        $participante->agendaInterlab = new \stdClass();
-        $participante->agendaInterlab->interlab = new \stdClass();
-        $participante->agendaInterlab->interlab->nome = $content['interlab_nome'];
-
-        $labNameSlug = Str::slug($participante->laboratorio->nome);
+        $labNameSlug = Str::slug($dadosDoc->content['laboratorio_nome']);
         $fileName = 'tag_senha_' . $labNameSlug . '_' . $dadosDoc->link . '.pdf';
         $path = 'public/docs/senhas/' . $fileName;
 
@@ -67,7 +49,7 @@ class DocController extends Controller
         }
 
         Pdf::view('certificados.tag-senha', [
-            'participante' => $participante,
+            'dadosDoc' => $dadosDoc,
         ])->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);

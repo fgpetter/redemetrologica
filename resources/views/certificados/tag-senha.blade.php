@@ -168,33 +168,33 @@
     </div>
 
     <div class="program-title">
-        {{ $participante->agendaInterlab->interlab->nome }}
+        {{ $dadosDoc->content['interlab_nome'] }}
     </div>
 
     <div class="info-group">
         <span class="label">Empresa:</span>
-        <span class="value">{{ $participante->empresa->nome_razao }}</span>
+        <span class="value">{{ $dadosDoc->content['empresa_nome_razao'] }}</span>
     </div>
 
     <div class="info-group">
         <span class="label">Laboratório:</span>
-        <span class="value">{{ $participante->laboratorio->nome }}</span>
+        <span class="value">{{ $dadosDoc->content['laboratorio_nome'] }}</span>
     </div>
 
     <div class="info-group">
         <span class="label">CNPJ:</span>
-        <span class="value">{{ $participante->empresa->cpf_cnpj }}</span>
+        <span class="value">{{ $dadosDoc->content['empresa_cpf_cnpj'] }}</span>
     </div>
 
     <div class="info-group">
         <span class="label">Opção Contratada:</span>
-        <span class="value">{{ $participante->informacoes_inscricao }}</span>
+        <span class="value">{{ $dadosDoc->content['informacoes_inscricao'] }}</span>
     </div>
 
     <div class="tag-container">
         <div class="tag-box">
             <span class="tag-label" style="color: #006699; font-size: 28pt;">TAG:</span>
-            <span class="tag-value" style="color: #0000FF; font-size: 28pt;">{{ $participante->tag_senha }}</span>
+            <span class="tag-value" style="color: #0000FF; font-size: 28pt;">{{ $dadosDoc->content['tag_senha'] }}</span>
         </div>
     </div>
 

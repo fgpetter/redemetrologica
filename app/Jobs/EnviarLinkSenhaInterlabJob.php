@@ -35,20 +35,11 @@ class EnviarLinkSenhaInterlabJob implements ShouldQueue
     {
         try {
             $dadosDoc = DadosGeraDoc::findOrFail($this->dadosDocId);
-            
-            $participante = new \stdClass();
-            $participante->laboratorio = new \stdClass();
-            $participante->agendaInterlab = new \stdClass();
-            $participante->agendaInterlab->interlab = new \stdClass();
-            
-            $participante->laboratorio->nome = $dadosDoc->content['laboratorio_nome'];
-            $participante->laboratorio->email = $dadosDoc->content['laboratorio_email'];
-            $participante->agendaInterlab->interlab->nome = $dadosDoc->content['interlab_nome'];
 
             Mail::mailer('interlaboratorial')
-                ->to($participante->laboratorio->email)
+                ->to($dadosDoc->content['laboratorio_email'])
                 ->cc('sistema@redemetrologica.com.br')
-                ->queue(new LinkSenhaInterlabNotification($participante, $dadosDoc->link));
+                ->queue(new LinkSenhaInterlabNotification($dadosDoc));
 
         } catch (\Exception $e) {
             Log::error('Falha ao enviar link senha interlab para DadosGeraDoc ID: ' . $this->dadosDocId, [
