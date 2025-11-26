@@ -6,7 +6,7 @@ use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
 use App\Jobs\EnviarLinkSenhaInterlabJob;
 
-class CriarTagSenhaAction
+class CriarEnviarSenhaAction
 {
     /**
      * Cria registro de tag senha e envia email com link para download
@@ -14,7 +14,7 @@ class CriarTagSenhaAction
      * @param InterlabInscrito $inscrito
      * @return DadosGeraDoc
      */
-    public function execute(InterlabInscrito $inscrito): DadosGeraDoc
+    public function execute(InterlabInscrito $inscrito, int $time): DadosGeraDoc
     {
         $inscrito->load(['laboratorio', 'empresa', 'agendaInterlab.interlab']);
 
@@ -32,7 +32,7 @@ class CriarTagSenhaAction
             'tipo' => 'tag_senha',
         ]);
 
-        EnviarLinkSenhaInterlabJob::dispatch($dadosDoc->id);
+        EnviarLinkSenhaInterlabJob::dispatch($dadosDoc->id)->delay($time * 10);
 
         return $dadosDoc;
     }

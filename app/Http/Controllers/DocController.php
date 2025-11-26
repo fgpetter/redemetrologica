@@ -15,11 +15,7 @@ class DocController extends Controller
      */
     public function download(string $link)
     {
-        $dadosDoc = DadosGeraDoc::where('link', $link)->first();
-
-        if (!$dadosDoc) {
-            abort(404, 'Documento não encontrado.');
-        }
+        $dadosDoc = DadosGeraDoc::where('link', $link)->firstOrFail();
 
         if ($dadosDoc->file_name && Storage::exists($dadosDoc->file_name)) {
             return response()->download(

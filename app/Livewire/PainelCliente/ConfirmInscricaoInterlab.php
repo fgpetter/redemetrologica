@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NovoCadastroInterlabNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
-use App\Actions\CriarTagSenhaAction;
+use App\Actions\CriarEnviarSenhaAction;
 
 class ConfirmInscricaoInterlab extends Component
 {
@@ -311,6 +311,7 @@ class ConfirmInscricaoInterlab extends Component
     // Metodo  salva interlab-inscritos
     public function InscreveLab()
     {
+
         if (!empty($this->laboratorio['telefone'])) {
             $this->laboratorio['telefone'] = preg_replace('/\D/', '', $this->laboratorio['telefone']);
         }
@@ -369,7 +370,11 @@ class ConfirmInscricaoInterlab extends Component
                         'email' => $validated['laboratorio']['email'],
                     ]);
 
-                    // GERA TAG_SENHA ÚNICA (prefixo + rand(111,999)), com retry
+                    /**
+                     * TODO
+                     * Se o interlab não tiver tag, pula todo processo de envio de email e criação de tag senha.
+                     */
+
                     $senha = ($this->interlab->interlab->tag ?? 'N/A') . '-' . rand(111, 999);
                     while (
                         InterlabInscrito::where('tag_senha', $senha)
@@ -403,7 +408,7 @@ class ConfirmInscricaoInterlab extends Component
 
                     // Cria tag senha e envia email com link apenas se interlab estiver confirmado
                     if ($this->interlab->status === 'CONFIRMADO') {
-                        app(CriarTagSenhaAction::class)->execute($inscrito);
+                        app(CriarEnviarSenhaAction::class)->execute($inscrito);
                     }
                 }
             });

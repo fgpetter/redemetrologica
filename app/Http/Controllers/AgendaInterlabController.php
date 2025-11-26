@@ -15,7 +15,7 @@ use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
 use App\Models\DadosGeraDoc;
 use App\Actions\FileUploadAction;
-use App\Actions\CriarTagSenhaAction;
+use App\Actions\CriarEnviarSenhaAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
@@ -200,13 +200,13 @@ class AgendaInterlabController extends Controller
     if ($request->status === 'CONFIRMADO') {
       $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->get();
 
-      foreach ($inscritos as $inscrito) {
+      foreach ($inscritos as $key => $inscrito) {
         $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
           ->whereJsonContains('content->participante_id', $inscrito->id)
           ->exists();
 
         if (!$jaGerado) {
-          (new CriarTagSenhaAction())->execute($inscrito);
+          (new CriarEnviarSenhaAction())->execute($inscrito, $key);
         }
       }
     }
