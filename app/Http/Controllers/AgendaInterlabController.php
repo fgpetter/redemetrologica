@@ -13,7 +13,9 @@ use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
+use App\Models\DadosGeraDoc;
 use App\Actions\FileUploadAction;
+use App\Actions\CriarTagSenhaAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
@@ -191,6 +193,22 @@ class AgendaInterlabController extends Controller
       return back()
         ->withInput()
         ->with('error', 'Ocorreu um erro ao atualizar. Tente novamente mais tarde.');
+    }
+
+    //se o status mudar para CONFIRMADO, enviar email parar todos os clientes com a tag_senha. CriarTagSenhaAction.php
+    
+    if ($request->status === 'CONFIRMADO') {
+      $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->get();
+
+      foreach ($inscritos as $inscrito) {
+        $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
+          ->whereJsonContains('content->participante_id', $inscrito->id)
+          ->exists();
+
+        if (!$jaGerado) {
+          (new CriarTagSenhaAction())->execute($inscrito);
+        }
+      }
     }
 
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');
