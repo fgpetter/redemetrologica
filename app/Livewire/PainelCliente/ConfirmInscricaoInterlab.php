@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NovoCadastroInterlabNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
+use App\Actions\CriarTagSenhaAction;
 
 class ConfirmInscricaoInterlab extends Component
 {
@@ -400,24 +401,10 @@ class ConfirmInscricaoInterlab extends Component
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
 
-                    // Popula dados na DadosGeraDoc e envia e-mail com link
-                    $empresa = Pessoa::find($empresaId);
-
-                    $dadosDoc = DadosGeraDoc::create([
-                        'content' => [
-                            'participante_id' => $inscrito->id,
-                            'tag_senha' => $senha,
-                            'informacoes_inscricao' => $validated['informacoes_inscricao'],
-                            'laboratorio_nome' => $laboratorio->nome,
-                            'laboratorio_email' => $laboratorio->email,
-                            'empresa_nome_razao' => $empresa->nome_razao,
-                            'empresa_cpf_cnpj' => $empresa->cpf_cnpj,
-                            'interlab_nome' => $this->interlab->interlab->nome,
-                        ],
-                        'tipo' => 'tag_senha',
-                    ]);
-
-                    EnviarLinkSenhaInterlabJob::dispatch($dadosDoc->id);
+                    // Cria tag senha e envia email com link apenas se interlab estiver confirmado
+                    if ($this->interlab->status === 'CONFIRMADO') {
+                        app(CriarTagSenhaAction::class)->execute($inscrito);
+                    }
                 }
             });
 
