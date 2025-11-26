@@ -200,7 +200,7 @@ class AgendaInterlabController extends Controller
 
       foreach ($inscritos as $index => $inscrito) {
         EnviarConfirmacaoInterlabJob::dispatch($inscrito)
-          ->delay(now()->addSeconds($index * 30));
+          ->delay(now()->addSeconds(($index + 1) * 10));
       }
     }
 
