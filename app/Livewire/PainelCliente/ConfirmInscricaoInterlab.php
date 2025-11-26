@@ -10,7 +10,8 @@ use App\Models\InterlabInscrito;
 use Illuminate\Support\Facades\DB;
 use App\Models\InterlabLaboratorio;
 use Illuminate\Support\Facades\Log;
-use App\Jobs\EnviarSenhaInterlabJob;
+use App\Jobs\EnviarLinkSenhaInterlabJob;
+use App\Models\DadosGeraDoc;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NovoCadastroInterlabNotification;
@@ -399,8 +400,24 @@ class ConfirmInscricaoInterlab extends Component
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
 
-                    // Envia email com a senha de identificação do laboratório
-                    EnviarSenhaInterlabJob::dispatch($inscrito->id);
+                    // Popula dados na DadosGeraDoc e envia e-mail com link
+                    $empresa = Pessoa::find($empresaId);
+
+                    $dadosDoc = DadosGeraDoc::create([
+                        'content' => [
+                            'participante_id' => $inscrito->id,
+                            'tag_senha' => $senha,
+                            'informacoes_inscricao' => $validated['informacoes_inscricao'],
+                            'laboratorio_nome' => $laboratorio->nome,
+                            'laboratorio_email' => $laboratorio->email,
+                            'empresa_nome_razao' => $empresa->nome_razao,
+                            'empresa_cpf_cnpj' => $empresa->cpf_cnpj,
+                            'interlab_nome' => $this->interlab->interlab->nome,
+                        ],
+                        'tipo' => 'tag_senha',
+                    ]);
+
+                    EnviarLinkSenhaInterlabJob::dispatch($dadosDoc->id);
                 }
             });
 

@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\DadosGeraDoc;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class DocController extends Controller
+{
+    /**
+     * Download de documento pelo link unico
+     */
+    public function download(string $link)
+    {
+        $dadosDoc = DadosGeraDoc::where('link', $link)->first();
+
+        if (!$dadosDoc) {
+            abort(404, 'Documento não encontrado.');
+        }
+
+        if ($dadosDoc->file_name && Storage::exists($dadosDoc->file_name)) {
+            return response()->download(
+                Storage::path($dadosDoc->file_name), 
+                basename($dadosDoc->file_name)
+            );
+        }
+
+        if ($dadosDoc->tipo === 'tag_senha') {
+            return $this->generateTagSenhaPdf($dadosDoc);
+        }
+
+        abort(500, 'Tipo de documento não suportado.');
+    }
+
+    /**
+     * Geração do PDF para tag senha
+     */
+    private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc)
+    {
+        $content = $dadosDoc->content;
+
+        $participante = new \stdClass();
+        $participante->id = $content['participante_id'];
+        $participante->tag_senha = $content['tag_senha'];
+        $participante->informacoes_inscricao = $content['informacoes_inscricao'];
+        
+        $participante->laboratorio = new \stdClass();
+        $participante->laboratorio->nome = $content['laboratorio_nome'];
+        
+        $participante->empresa = new \stdClass();
+        $participante->empresa->nome_razao = $content['empresa_nome_razao'];
+        $participante->empresa->cpf_cnpj = $content['empresa_cpf_cnpj'];
+        
+        $participante->agendaInterlab = new \stdClass();
+        $participante->agendaInterlab->interlab = new \stdClass();
+        $participante->agendaInterlab->interlab->nome = $content['interlab_nome'];
+
+        $labNameSlug = Str::slug($participante->laboratorio->nome);
+        $fileName = 'tag_senha_' . $labNameSlug . '_' . $dadosDoc->link . '.pdf';
+        $path = 'public/docs/senhas/' . $fileName;
+
+        if (!Storage::exists('public/docs/senhas')) {
+            Storage::makeDirectory('public/docs/senhas');
+        }
+
+        Pdf::view('certificados.tag-senha', [
+            'participante' => $participante,
+        ])->save(Storage::path($path));
+
+        $dadosDoc->update(['file_name' => $path]);
+       
+        return response()->download(Storage::path($path), $fileName);
+    }
+}
