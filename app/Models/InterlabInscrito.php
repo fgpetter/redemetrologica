@@ -9,6 +9,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
 use App\Models\User;
+use App\Models\DadosGeraDoc;
 
 
 
@@ -98,5 +99,10 @@ class InterlabInscrito extends Model
         return $this->belongsTo(Pessoa::class, 'empresa_id', 'id');
     }
 
-
+    public function getTagSenhaDocAttribute()
+    {
+        return DadosGeraDoc::where('tipo', 'tag_senha')
+            ->whereJsonContains('content->participante_id', $this->id)
+            ->first();
+    }
 }
