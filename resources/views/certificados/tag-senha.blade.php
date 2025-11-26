@@ -157,8 +157,8 @@
             </td>
             <td class="doc-info-cell">
                 <div>FR-70</div> <!-- TODO: Verificar qual informação adicionar aqui -->
-                <div>REVISÃO 01</div> <!-- TODO: Verificar como controlar a revisão -->
-                <div>{{ strtoupper(\Carbon\Carbon::now()->locale('pt_BR')->translatedFormat('M/Y')) }}</div>
+                <div>REVISÃO 04</div> <!-- TODO: Verificar como controlar a revisão -->
+                <div>OUT/2024</div>
             </td>
         </tr>
     </table>
