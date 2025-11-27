@@ -2,12 +2,13 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 use App\Models\DadosGeraDoc;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Foundation\Queue\Queueable;
 use App\Mail\LinkSenhaInterlabNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class EnviarLinkSenhaInterlabJob implements ShouldQueue
 {
@@ -36,7 +37,7 @@ class EnviarLinkSenhaInterlabJob implements ShouldQueue
         try {
             $dadosDoc = DadosGeraDoc::findOrFail($this->dadosDocId);
 
-            Mail::mailer('interlaboratorial')
+            Mail::mailer(App::environment('staging') ? 'smtp' : 'interlaboratorial')
                 ->to($dadosDoc->content['laboratorio_email'])
                 ->cc('sistema@redemetrologica.com.br')
                 ->queue(new LinkSenhaInterlabNotification($dadosDoc));

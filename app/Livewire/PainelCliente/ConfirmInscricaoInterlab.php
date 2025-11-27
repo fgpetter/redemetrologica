@@ -5,18 +5,19 @@ namespace App\Livewire\PainelCliente;
 use App\Models\Pessoa;
 use Livewire\Component;
 use App\Models\Endereco;
+use App\Models\DadosGeraDoc;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabInscrito;
 use Illuminate\Support\Facades\DB;
 use App\Models\InterlabLaboratorio;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
-use App\Jobs\EnviarLinkSenhaInterlabJob;
-use App\Models\DadosGeraDoc;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use App\Actions\CriarEnviarSenhaAction;
+use App\Jobs\EnviarLinkSenhaInterlabJob;
 use App\Mail\NovoCadastroInterlabNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
-use App\Actions\CriarEnviarSenhaAction;
 
 class ConfirmInscricaoInterlab extends Component
 {
@@ -401,7 +402,7 @@ class ConfirmInscricaoInterlab extends Component
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
 
-                    Mail::mailer('interlaboratorial')
+                    Mail::mailer(App::environment('staging') ? 'smtp' : 'interlaboratorial')
                         ->to($inscrito->pessoa->email)
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
