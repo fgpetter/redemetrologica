@@ -435,8 +435,7 @@ class ConfirmInscricaoInterlab extends Component
 
             $this->cancelEdit();
         } catch (\Exception $e) {
-            dd($e);
-            session()->flash('error', 'Erro ao processar: ' . $e->getMessage());
+           session()->flash('error', 'Erro ao processar: ' . $e->getMessage());
         }
 
         $this->showInscreveLab = false; // Esconde formulários
