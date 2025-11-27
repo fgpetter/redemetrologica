@@ -370,19 +370,19 @@ class ConfirmInscricaoInterlab extends Component
                         'email' => $validated['laboratorio']['email'],
                     ]);
 
-                    /**
-                     * TODO
-                     * Se o interlab não tiver tag, pula todo processo de envio de email e criação de tag senha.
-                     */
 
-                    $senha = ($this->interlab->interlab->tag ?? 'N/A') . '-' . rand(111, 999);
-                    while (
-                        InterlabInscrito::where('tag_senha', $senha)
-                        ->where('agenda_interlab_id', $this->interlab->id)
-                        ->exists()
-                    ) {
-                        $senha = ($this->interlab->interlab->tag ?? 'N/A') . '-' . rand(111, 999);
+                    $senha = null;
+                    if (!empty($this->interlab->interlab->tag)) {
+                        $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
+                        while (
+                            InterlabInscrito::where('tag_senha', $senha)
+                                ->where('agenda_interlab_id', $this->interlab->id)
+                                ->exists()
+                        ) {
+                            $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
+                        }
                     }
+
 
 
                     $inscrito = InterlabInscrito::create([
@@ -407,8 +407,8 @@ class ConfirmInscricaoInterlab extends Component
                         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
 
                     // Cria tag senha e envia email com link apenas se interlab estiver confirmado
-                    if ($this->interlab->status === 'CONFIRMADO') {
-                        app(CriarEnviarSenhaAction::class)->execute($inscrito);
+                    if ($this->interlab->status === 'CONFIRMADO' && !empty($this->interlab->interlab->tag)) {
+                        app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
                     }
                 }
             });
@@ -435,6 +435,7 @@ class ConfirmInscricaoInterlab extends Component
 
             $this->cancelEdit();
         } catch (\Exception $e) {
+            dd($e);
             session()->flash('error', 'Erro ao processar: ' . $e->getMessage());
         }
 

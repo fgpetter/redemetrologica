@@ -197,7 +197,7 @@ class AgendaInterlabController extends Controller
 
     //se o status mudar para CONFIRMADO, enviar email parar todos os clientes com a tag_senha. CriarTagSenhaAction.php
     
-    if ($request->status === 'CONFIRMADO') {
+    if ($request->status === 'CONFIRMADO' && !empty($agendainterlab->interlab->tag)) {
       $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->get();
 
       foreach ($inscritos as $key => $inscrito) {
