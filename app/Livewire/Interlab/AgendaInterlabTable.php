@@ -49,6 +49,7 @@ class AgendaInterlabTable extends Component
     public function resetFilters()
     {
         $this->reset(['search', 'status', 'empresaSelecionada']);
+        $this->dispatch('reset-empresa-filter');
     }
 
     public function updated($propertyName)
