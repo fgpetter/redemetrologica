@@ -11,7 +11,7 @@ use Illuminate\Http\{Request, RedirectResponse};
 use Illuminate\Support\Facades\{DB, Log, Validator};
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
-use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco, Laboratorio};
+use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco};
 
 class InscricaoInterlabController extends Controller
 {
@@ -113,7 +113,7 @@ class InscricaoInterlabController extends Controller
       ->cc('tecnico@redemetrologica.com.br')
       ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
 
-    Mail::mailer(App::environment('staging') ? 'smtp' : 'interlaboratorial')
+    Mail::mailer('interlaboratorial')
       ->to($inscrito->pessoa->email)
       ->cc('sistema@redemetrologica.com.br')
       ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
