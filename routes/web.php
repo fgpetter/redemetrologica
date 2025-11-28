@@ -32,7 +32,8 @@ use App\Http\Controllers\{
   HomeController,
   PainelController,
   AgendaCursoInCompanyController,
-  FaleconoscoController
+  FaleconoscoController,
+  DocController
 };
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ImpersonateController;
@@ -43,6 +44,9 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('reset-password');
 
 Route::get('/', [HomeController::class, 'root'])->name('root');
+
+/* Rota para download de documentos */
+Route::get('/dados-doc/{link}', [DocController::class, 'download'])->name('dados-doc.download');
 
 /* Rotas estáticas */
 Route::get('home', [HomeController::class, 'root'])->name('root');

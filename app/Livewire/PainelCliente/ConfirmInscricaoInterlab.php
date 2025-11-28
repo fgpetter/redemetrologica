@@ -9,9 +9,10 @@ use App\Models\AgendaInterlab;
 use App\Models\InterlabInscrito;
 use Illuminate\Support\Facades\DB;
 use App\Models\InterlabLaboratorio;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use App\Actions\CriarEnviarSenhaAction;
 use App\Mail\NovoCadastroInterlabNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 
@@ -308,6 +309,7 @@ class ConfirmInscricaoInterlab extends Component
     // Metodo  salva interlab-inscritos
     public function InscreveLab()
     {
+
         if (!empty($this->laboratorio['telefone'])) {
             $this->laboratorio['telefone'] = preg_replace('/\D/', '', $this->laboratorio['telefone']);
         }
@@ -320,7 +322,7 @@ class ConfirmInscricaoInterlab extends Component
                     $laboratorio = InterlabLaboratorio::findOrFail($this->laboratorioEditadoId);
                     $empresaId = $laboratorio->empresa_id;
                     $endereco = Endereco::findOrFail($laboratorio->endereco_id);
-                    
+
                     $endereco->update([
                         'cep' => $validated['laboratorio']['endereco']['cep'],
                         'endereco' => $validated['laboratorio']['endereco']['endereco'],
@@ -366,6 +368,21 @@ class ConfirmInscricaoInterlab extends Component
                         'email' => $validated['laboratorio']['email'],
                     ]);
 
+
+                    $senha = null;
+                    if (!empty($this->interlab->interlab->tag)) {
+                        $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
+                        while (
+                            InterlabInscrito::where('tag_senha', $senha)
+                                ->where('agenda_interlab_id', $this->interlab->id)
+                                ->exists()
+                        ) {
+                            $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
+                        }
+                    }
+
+
+
                     $inscrito = InterlabInscrito::create([
                         'pessoa_id' => $this->pessoaId_usuario,
                         'empresa_id' => $empresaId,
@@ -374,17 +391,23 @@ class ConfirmInscricaoInterlab extends Component
                         'data_inscricao' => now(),
                         'valor' => $validated['valor'] ?? null,
                         'informacoes_inscricao' => $validated['informacoes_inscricao'],
+                        'tag_senha' => $senha,
                     ]);
 
                     Mail::to('interlab@redemetrologica.com.br')
                         ->cc('tecnico@redemetrologica.com.br')
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
-                        
+
                     Mail::mailer('interlaboratorial')
                         ->to($inscrito->pessoa->email)
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
+
+                    // Cria tag senha e envia email com link apenas se interlab estiver confirmado
+                    if ($this->interlab->status === 'CONFIRMADO' && !empty($this->interlab->interlab->tag)) {
+                        app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
+                    }
                 }
             });
 
@@ -410,7 +433,7 @@ class ConfirmInscricaoInterlab extends Component
 
             $this->cancelEdit();
         } catch (\Exception $e) {
-            session()->flash('error', 'Erro ao processar: ' . $e->getMessage());
+           session()->flash('error', 'Erro ao processar: ' . $e->getMessage());
         }
 
         $this->showInscreveLab = false; // Esconde formulários

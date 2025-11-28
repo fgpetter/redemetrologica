@@ -12,7 +12,9 @@ use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
+use App\Models\DadosGeraDoc;
 use App\Actions\FileUploadAction;
+use App\Actions\CriarEnviarSenhaAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
@@ -201,6 +203,22 @@ class AgendaInterlabController extends Controller
       foreach ($inscritos as $index => $inscrito) {
         EnviarConfirmacaoInterlabJob::dispatch($inscrito)
           ->delay(now()->addSeconds(($index + 1) * 10));
+      }
+    }
+
+    //se o status mudar para CONFIRMADO, enviar email parar todos os clientes com a tag_senha. CriarTagSenhaAction.php
+    
+    if ($request->status === 'CONFIRMADO' && !empty($agendainterlab->interlab->tag)) {
+      $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->get();
+
+      foreach ($inscritos as $key => $inscrito) {
+        $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
+          ->whereJsonContains('content->participante_id', $inscrito->id)
+          ->exists();
+
+        if (!$jaGerado) {
+          (new CriarEnviarSenhaAction())->execute($inscrito, $key);
+        }
       }
     }
 

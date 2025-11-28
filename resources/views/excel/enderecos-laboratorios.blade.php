@@ -17,6 +17,7 @@
       <th>Email Participante</th>
       <th>Fone Participante</th>
       <th>Informações</th>
+      <th>TAG Senha</th>
   </tr>
   </thead>
   <tbody>
@@ -38,6 +39,7 @@
           <td>{{ $inscrito->laboratorio->email }}</td>
           <td>{{ $inscrito->laboratorio->telefone }}</td>
           <td>{{ $inscrito->informacoes_inscricao }}</td>
+          <td>{{ $inscrito->tag_senha }}</td>
       </tr>
   @endforeach
   </tbody>
