@@ -2,25 +2,27 @@
   <div class="card-body">
     <h6>Protocolo do Interlab</h6>
     @if($agendainterlab->protocolo)
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="pe-2 pe-xxl-4">
-        <a href="{{ asset('PROTOCOLO_INTERLAB/' . $agendainterlab->protocolo) }}" target="_blank">
-          <i class="ph-file-arrow-down align-middle" style="font-size: 1.4rem"></i> 
-          {{ $agendainterlab->protocolo }} 
-        </a>
-      </div>
-      <form method="POST" action="{{ route('agenda-interlab-delete-protocolo', $agendainterlab->uid) }}">
-        @csrf
-        <button type="submit" class="btn btn-sm btn-danger py-0 px-1">
-          <i class="ph-trash align-middle d-block d-xxl-none" style="font-size: 1rem"></i>
-          <span class="d-none d-xxl-block">REMOVER</span>
-        </button>
-      </form>
-    </div>
+    <ul class="list-group list-group-flush mb-3">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="pe-2 pe-xxl-4">
+          <a href="{{ asset('PROTOCOLO_INTERLAB/' . $agendainterlab->protocolo) }}" target="_blank">
+            <i class="ph-file-arrow-down align-middle" style="font-size: 1.4rem"></i> 
+            {{ $agendainterlab->protocolo }} 
+          </a>
+        </div>
+        <form method="POST" action="{{ route('agenda-interlab-delete-protocolo', $agendainterlab->uid) }}">
+          @csrf
+          <button type="submit" class="btn btn-sm btn-danger py-0 px-1">
+            <i class="ph-trash align-middle d-block d-xxl-none" style="font-size: 1rem"></i>
+            <span class="d-none d-xxl-block">REMOVER</span>
+          </button>
+        </form>
+      </li>
+    </ul>
     @else
     <form method="POST" class="row g-2 mb-3 border-bottom pb-3" action="{{ route('agenda-interlab-upload-protocolo', $agendainterlab->uid) }}" enctype="multipart/form-data">
       @csrf
-      <div class="col-12 col-xxl-10">
+      <div class="col-12 col-xxl-8">
         <input class="form-control" name="protocolo" type="file" id="protocolo" accept=".doc, .pdf, .docx, .jpeg, .jpg, .png">
         @error('protocolo') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
