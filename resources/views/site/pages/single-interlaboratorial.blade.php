@@ -19,15 +19,23 @@
           </div>
         </div>
 
-        @if ($agendainterlab->inscricao == 1)
-          <div class="col-sm-4 text-center pt-5">
+        <div class="col-sm-4 text-center pt-5">
+            @if ($agendainterlab->inscricao == 1)
             <h4>INSCRIÇÕES ABERTAS</h4>
             <P class="fs-5">Data de inicio : {{ \Carbon\Carbon::parse($agendainterlab->data_inicio)->format('d/m/Y') }}</P>
             <a href="{{ route('interlab-inscricao', ['target' => $agendainterlab->uid]) }}" class="btn btn-lg btn-rede-azul mt-3 botao-inscrevase">
               INSCREVA-SE
             </a>
+            @endif
+            @if ($agendainterlab->protocolo)
+            <div class="mt-4">
+              <h4>Baixe o protocolo da rodada</h4>
+              <a href="{{ asset('PROTOCOLO_INTERLAB/' . $agendainterlab->protocolo) }}" target="_blank" class="btn btn-warning">
+                <i class="ph-file-arrow-down align-middle me-1"></i> Baixar Protocolo
+              </a>
+            </div>
+            @endif
           </div>
-        @endif
 
       </div>
     </div>
