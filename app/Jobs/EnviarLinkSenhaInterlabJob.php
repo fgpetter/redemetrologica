@@ -42,12 +42,7 @@ class EnviarLinkSenhaInterlabJob implements ShouldQueue
                 ->queue(new LinkSenhaInterlabNotification($dadosDoc));
 
         } catch (\Exception $e) {
-            Log::error('Falha ao enviar link senha interlab para DadosGeraDoc ID: ' . $this->dadosDocId, [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            throw $e;
+            report($e);
         }
     }
 }
