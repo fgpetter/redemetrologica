@@ -32,7 +32,7 @@ class CriarEnviarSenhaAction
             'tipo' => 'tag_senha',
         ]);
 
-        EnviarLinkSenhaInterlabJob::dispatch($dadosDoc->id)->delay($time * 10);
+        EnviarLinkSenhaInterlabJob::dispatch($dadosDoc->id)->delay($time * 15);
 
         return $dadosDoc;
     }
