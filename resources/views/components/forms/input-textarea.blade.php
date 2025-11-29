@@ -18,6 +18,6 @@
 
 <textarea {{ $attributes->class(['form-control']) }} name={{ $name }} rows="3"
 @if ($id) id={{ $id }} @endif
-@if ($required) {{ $required }} @endif
+@if ($required) required @endif
 @if ($uppercase) oninput="this.value = this.value.toUpperCase()" @endif>{{ $slot }}</textarea>
 @if ($helper) <small class="form-text text-muted">{{ $helper }}</small> @endif
