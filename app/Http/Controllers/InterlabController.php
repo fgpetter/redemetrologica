@@ -139,7 +139,7 @@ class InterlabController extends Controller
         })->get();
 
         foreach ($inscritos as $inscrito) {
-            if ($inscrito->tag_senha_doc) {
+            if ($inscrito->tag_senha) {
                 return redirect()->back()->withInput()->with('error', 'Não é possível alterar a TAG, pois existem inscritos com senha atribuída com essa tag.');
             }
         }
