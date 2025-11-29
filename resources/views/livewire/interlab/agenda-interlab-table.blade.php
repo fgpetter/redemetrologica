@@ -72,8 +72,8 @@
                 <!-- Cabeçalho da tabela -->
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 5%; white-space: nowrap;">Mês/Ano</th>
                         <th scope="col" style="width: 4%; white-space: nowrap;">COD</th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;">Limite Insc</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">
                             <a href="#" wire:click.prevent="setSortBy('status')">
                                 Status
@@ -141,12 +141,12 @@
                 <tbody>
                     @forelse ($agendainterlabs as $agendainterlab)
                         <tr wire:key="agendainterlab-{{ $agendainterlab->id }}">
-                            <td class="text-uppercase">
-                                {{ Carbon\Carbon::parse($agendainterlab->data_inicio)->format('m/Y') }}
-                            </td>
                             <td class="text-center text-nowrap">
                                 <a
                                     href="{{ route('agenda-interlab-insert', $agendainterlab->uid) }}">#{{ $agendainterlab->id }}</a>
+                            </td>
+                            <td class="text-uppercase">
+                                {{ $agendainterlab->data_limite_inscricao?->format('d/m/Y') ?? 'N/A' }}
                             </td>
                             <td
                                 @if ($agendainterlab->status == 'CONFIRMADO') class="text-success fw-bold"
