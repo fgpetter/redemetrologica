@@ -19,7 +19,7 @@
           </div>
         </div>
 
-        @if ($agendainterlab->inscricao == 1)
+        @if ($agendainterlab->inscricao == 1 && $agendainterlab->interlab->tag)
           <div class="col-sm-4 text-center pt-5">
             <h4>INSCRIÇÕES ABERTAS</h4>
             <P class="fs-5">Data de inicio : {{ \Carbon\Carbon::parse($agendainterlab->data_inicio)->format('d/m/Y') }}</P>
