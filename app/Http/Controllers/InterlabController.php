@@ -133,16 +133,19 @@ class InterlabController extends Controller
       ]
     );
 
-    if ($interlab->tag != $validated['tag']) {
-        $inscritos = InterlabInscrito::whereHas('agendaInterlab', function ($query) use ($interlab) {
-            $query->where('interlab_id', $interlab->id);
-        })->get();
+    if ($interlab->tag !== $validated['tag']) {
 
-        foreach ($inscritos as $inscrito) {
-            if ($inscrito->tag_senha) {
-                return redirect()->back()->withInput()->with('error', 'Não é possível alterar a TAG, pois existem inscritos com senha atribuída com essa tag.');
-            }
-        }
+    $existeInscritoComSenha = InterlabInscrito::whereHas('agendaInterlab', fn ($q) =>
+        $q->where('interlab_id', $interlab->id)
+    )
+    ->whereNotNull('tag_senha')
+    ->exists();
+
+    if ($existeInscritoComSenha) {
+        return back()->withInput()->with(
+            'error',
+            'Não é possível alterar a TAG, pois existem inscritos com senha atribuída.'
+        );
     }
 
     $interlab->update($validated);
