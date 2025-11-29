@@ -147,6 +147,8 @@ class InterlabController extends Controller
             'Não é possível alterar a TAG, pois existem inscritos com senha atribuída.'
         );
     }
+}
+
 
     $interlab->update($validated);
 
