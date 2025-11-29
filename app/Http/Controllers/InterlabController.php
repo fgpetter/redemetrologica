@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Interlab;
+use App\Models\InterlabInscrito;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -131,6 +132,18 @@ class InterlabController extends Controller
       'observacoes' => 'O campo aceita somente texto.'
       ]
     );
+
+    if ($interlab->tag != $validated['tag']) {
+        $inscritos = InterlabInscrito::whereHas('agendaInterlab', function ($query) use ($interlab) {
+            $query->where('interlab_id', $interlab->id);
+        })->get();
+
+        foreach ($inscritos as $inscrito) {
+            if ($inscrito->tag_senha_doc) {
+                return redirect()->back()->withInput()->with('error', 'Não é possível alterar a TAG, pois existem inscritos com senha atribuída com essa tag.');
+            }
+        }
+    }
 
     $interlab->update($validated);
 
