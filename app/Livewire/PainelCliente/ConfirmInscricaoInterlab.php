@@ -50,7 +50,7 @@ class ConfirmInscricaoInterlab extends Component
         $this->interlab = session('interlab') ?? null;
 
         /** @var \App\Models\InterlabInscrito */
-        $this->inscritos = InterlabInscrito::with('laboratorio')
+        $this->inscritos = InterlabInscrito::with('laboratorio.endereco')
             ->where('pessoa_id',  auth()->user()->pessoa->id)
             ->where('agenda_interlab_id', $this->interlab->id)
             ->get() ?? null;
@@ -234,7 +234,7 @@ class ConfirmInscricaoInterlab extends Component
         $this->empresa = $empresa->toArray();
         $this->showSalvarEmpresa = false;
 
-        $this->inscritos = InterlabInscrito::with('laboratorio')
+        $this->inscritos = InterlabInscrito::with('laboratorio.endereco')
             ->where('pessoa_id', auth()->user()->pessoa->id)
             ->where('agenda_interlab_id', $this->interlab->id)
             ->get();

@@ -48,11 +48,13 @@ class AgendaInterlabController extends Controller
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
-    $agendainterlab->load(['despesas', 'parametros', 'rodadas', 'valores']);
-    $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)
-      ->with(['empresa', 'pessoa', 'laboratorio']);
+    // remover 'inscritos' daqui - o Livewire já carrega com eager loading
+    $agendainterlab->load(['despesas', 'parametros', 'rodadas']);
+    
+    // contar inscritos sem carregar a collection inteira
+    $inscritosCount = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->count();
 
-      $data = [
+    $data = [ 
       'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get(),
       'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
@@ -62,9 +64,8 @@ class AgendaInterlabController extends Controller
       'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
       'interlabParametros' => $agendainterlab->parametros,
       'parametros' => Parametro::orderBy('descricao')->get(),
-      'intelabinscritos' => $intelabinscritos->get(),
-      'interlabempresasinscritas' => $intelabinscritos->distinct()->get(['empresa_id']),
-      'idinterlab' => $agendainterlab->id, // id da agenda para uso no componente Livewire ListParticipantes
+      'inscritosCount' => $inscritosCount, // Passar apenas o count
+      'idinterlab' => $agendainterlab->id,
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -81,49 +82,12 @@ class AgendaInterlabController extends Controller
 
     $validated = $request->validated();
 
-    $valores_data = $validated['valores'] ?? null;
-    unset($validated['valores']);
-
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($request->valor_desconto),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
     ]);
 
-    try {
-      DB::transaction(function () use ($prepared_data, $valores_data, &$agenda_interlab) {
-
-        $agenda_interlab = AgendaInterlab::create($prepared_data);
-
-        if (!empty($valores_data) && is_array($valores_data)) {
-          foreach ($valores_data as $valor_data) {
-
-            if( is_null($valor_data['descricao']) 
-              && is_null($valor_data['valor']) 
-              && is_null($valor_data['valor_assoc']) 
-              ){
-              continue;
-            }
-
-            $agenda_interlab->valores()->create([
-              'descricao' => $valor_data['descricao'],
-              'valor' => formataMoeda($valor_data['valor']),
-              'valor_assoc' => formataMoeda($valor_data['valor_assoc']),
-            ]);
-          }
-        }
-      });
-    } catch (\Throwable $e) {
-      Log::error("Falha ao criar agenda interlab", [
-        'user' => auth()->user() ?? null,
-        'exception' => $e->getMessage(),
-        'trace' => $e->getTraceAsString(),
-        'request' => $request->all(),
-      ]);
-
-      return redirect()->back()
-        ->withInput()
-        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
-    }
+    $agenda_interlab = AgendaInterlab::create($prepared_data);
 
     if (empty($agenda_interlab) || !$agenda_interlab->id) {
       return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
@@ -144,9 +108,6 @@ class AgendaInterlabController extends Controller
 
     $validated = $request->validated();
 
-    $valores_data = $validated['valores'] ?? null;
-    unset($validated['valores']);
-
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($validated['valor_desconto']),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
@@ -155,71 +116,27 @@ class AgendaInterlabController extends Controller
       'destaque' => ($request->status === 'CONCLUIDO') ? 0 : ($request->destaque ?? 0),
     ]);
 
+    $agendainterlab->update($prepared_data);
 
-    try {
-      DB::transaction(function () use ($agendainterlab, $prepared_data, $valores_data) {
-
-        $agendainterlab->update($prepared_data);
-        $agendainterlab->valores()->delete();
-
-        if (!empty($valores_data) && is_array($valores_data)) {
-          foreach ($valores_data as $valor_data) {
-
-            if( is_null($valor_data['descricao']) 
-              && is_null($valor_data['valor']) 
-              && is_null($valor_data['valor_assoc']) 
-              ){
-              continue;
-            }
-
-            $agendainterlab->valores()->create([
-              'descricao' => $valor_data['descricao'],
-              'valor' => formataMoeda($valor_data['valor']),
-              'valor_assoc' => formataMoeda($valor_data['valor_assoc']),
-            ]);
-          }
-        }
-      });
-    } catch (\Throwable $e) {
-
-      Log::error("Falha ao atualizar agenda interlab", [
-        'user' => auth()->user() ?? null,
-        'agenda_interlab_id' => $agendainterlab->id ?? null,
-        'exception' => $e->getMessage(),
-        'trace' => $e->getTraceAsString(),
-        'request' => $request->all(),
-      ]);
-
-      return back()
-        ->withInput()
-        ->with('error', 'Ocorreu um erro ao atualizar. Tente novamente mais tarde.');
-    }
-    // Dispara os emails de confirmação
-    if ($oldStatus == 'AGENDADO' && $agendainterlab->status === 'CONFIRMADO') {
+    // se o status foi alterado para CONFIRMADO, envia a todos os participantes e-mail de confirmação e carta senha
+    if ($oldStatus == 'AGENDADO' && $agendainterlab->status === 'CONFIRMADO' && !empty($agendainterlab->interlab->tag)) {
       $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)
         ->with('laboratorio')
         ->get();
 
       foreach ($inscritos as $index => $inscrito) {
+        $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
+        ->whereJsonContains('content->participante_id', $inscrito->id)
+        ->exists();
+
+        if (!$jaGerado) {
+          (new CriarEnviarSenhaAction())->execute($inscrito, $index);
+        }
+
         EnviarConfirmacaoInterlabJob::dispatch($inscrito)
           ->delay(now()->addSeconds(($index + 1) * 10));
       }
-    }
 
-    //se o status mudar para CONFIRMADO, enviar email parar todos os clientes com a tag_senha. CriarTagSenhaAction.php
-    
-    if ($request->status === 'CONFIRMADO' && !empty($agendainterlab->interlab->tag)) {
-      $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->get();
-
-      foreach ($inscritos as $key => $inscrito) {
-        $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
-          ->whereJsonContains('content->participante_id', $inscrito->id)
-          ->exists();
-
-        if (!$jaGerado) {
-          (new CriarEnviarSenhaAction())->execute($inscrito, $key);
-        }
-      }
     }
 
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');

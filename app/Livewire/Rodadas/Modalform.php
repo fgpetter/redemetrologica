@@ -17,7 +17,6 @@ class Modalform extends Component
         'rodada.agenda_interlab_id' => 'required|integer',
         'rodada.descricao' => 'required|string',
         'rodada.vias' => 'required|numeric|min:1',
-        'rodada.cronograma' => 'nullable|string',
         'rodada.parametros' => 'nullable|array',
         'rodada.parametros.*' => 'nullable|exists:parametros,id',
     ];
@@ -30,7 +29,6 @@ class Modalform extends Component
         'rodada.vias.required' => 'O campo vias deve ser preenchido',
         'rodada.vias.numeric' => 'O campo vias deve ser um número',
         'rodada.vias.min' => 'O campo vias deve ser maior que 0',
-        'rodada.cronograma.string' => 'O campo cronograma permite somente texto',
         'rodada.parametros.array' => 'Houve um erro ao salvar. Parâmetros inválidos',
         'rodada.parametros.*.exists' => 'O parâmetro :input não existe',
     ];
@@ -47,8 +45,11 @@ class Modalform extends Component
                 'agenda_interlab_id' => $this->agendainterlab->id,
                 'descricao' => '',
                 'vias' => 1,
-                'cronograma' => '',
                 'parametros' => [],
+                'data_envio_amostras' => null,
+                'data_inicio_ensaios' => null,
+                'data_limite_envio_resultados' => null,
+                'data_divulgacao_relatorios' => null,
             ];
         }
     }

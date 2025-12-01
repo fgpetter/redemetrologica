@@ -38,12 +38,35 @@
             @enderror
         </div>
 
-        <div class="col-12 py-2">
-            <x-forms.input-textarea wire:model.lazy="rodada.cronograma" name="rodada.cronograma" 
-                label="Cronograma">{{ $rodada['cronograma'] ?? '' }}</x-forms.input-textarea>
-            @error('rodada.cronograma')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
+        <hr>
+        <div class="col-md-4">
+            <x-forms.input-field :value="old('valor') ?? ($rodada['valor'] ?? null)" name="valor"
+                label="Valor" class="money" />
+            @error('valor') <div class="text-warning">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="col-md-4">
+            <x-forms.input-field :value="old('data_envio_amostras') ?? ($rodada['data_envio_amostras']?->format('Y-m-d') ?? null)" type="date" name="data_envio_amostras"
+                label="Envio de amostras" />
+            @error('data_envio_amostras') <div class="text-warning">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="col-md-4">
+            <x-forms.input-field :value="old('data_inicio_ensaios') ?? ($rodada['data_inicio_ensaios']?->format('Y-m-d') ?? null)" type="date" name="data_inicio_ensaios"
+                label="Início de ensaios" />
+            @error('data_inicio_ensaios') <div class="text-warning">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="col-md-4">
+            <x-forms.input-field :value="old('data_limite_envio_resultados') ?? ($rodada['data_limite_envio_resultados']?->format('Y-m-d') ?? null)" type="date" name="data_limite_envio_resultados"
+                label="Limite de envio de resultados" />
+            @error('data_limite_envio_resultados') <div class="text-warning">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="col-md-4">
+            <x-forms.input-field :value="old('data_divulgacao_relatorios') ?? ($rodada['data_divulgacao_relatorios']?->format('Y-m-d') ?? null)" type="date" name="data_divulgacao_relatorios"
+                label="Divulgação de relatórios" />
+            @error('data_divulgacao_relatorios') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 
         <div class="col-lg-12 mt-4">

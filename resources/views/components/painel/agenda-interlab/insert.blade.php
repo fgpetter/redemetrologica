@@ -60,7 +60,7 @@
                                 <i class="ri-add-line align-bottom"></i> Adicionar Laboratório
                                 </a>
                             @endif
-                            @if ($agendainterlab->inscritos->count() > 0)
+                            @if ($inscritosCount > 0)
                                 <a href="{{ route('interlab-relatorio-inscritos', $agendainterlab->uid) }}"
                                     class="btn btn-sm btn-primary">
                                     <i class="ri-file-excel-line align-bottom"></i> Baixar XLS

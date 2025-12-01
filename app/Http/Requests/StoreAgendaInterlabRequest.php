@@ -35,14 +35,6 @@ class StoreAgendaInterlabRequest extends FormRequest
             'instrucoes_inscricao' => ['nullable', 'string'],
             'ano_referencia' => ['nullable', 'integer'],
             'data_limite_inscricao' => ['required', 'date'],
-            'data_limite_envio_ensaios' => ['nullable', 'date'],
-            'data_inicio_ensaios' => ['nullable', 'date'],
-            'data_limite_envio_resultados' => ['nullable', 'date'],
-            'data_divulgacao_relatorios' => ['nullable', 'date'],
-            'valores' => ['nullable', 'array'],
-            'valores.*.descricao' => ['nullable', 'string'],
-            'valores.*.valor' => ['nullable', 'string'],
-            'valores.*.valor_assoc' => ['nullable', 'string'],
             'valor_desconto' => ['nullable', 'string'],
         ];
     }
@@ -60,7 +52,6 @@ class StoreAgendaInterlabRequest extends FormRequest
             'interlab_id.numeric' => 'Opção inválida',
             'status.required' => 'O campo status obrigatório',
             'status.in' => 'Opção inválida',
-            'status.string' => 'Permitido somente texto',
             'inscricao.numeric' => 'Opção inválida',
             'site.numeric' => 'Opção inválida',
             'destaque.numeric' => 'Opção inválida',
@@ -71,16 +62,7 @@ class StoreAgendaInterlabRequest extends FormRequest
             'instrucoes_inscricao.string' => 'Permitido somente texto',
             'ano_referencia.integer' => 'Ano referência inválido',
             'data_limite_inscricao.date' => 'Data inválida',
-            'data_limite_inscricao.required' => 'Data limite de inscrição obrigatória',
-            'data_limite_envio_ensaios.date' => 'Data inválida',
-            'data_inicio_ensaios.date' => 'Data inválida',
-            'data_limite_envio_resultados.date' => 'Data inválida',
-            'data_divulgacao_relatorios.date' => 'Data inválida',
             'valor_desconto.string' => 'Valor com desconto inválido',
-            'valores.array' => 'Valores adicionais inválidos.',
-            'valores.*.descricao.string' => 'Descrição do valor adicional deve ser um texto.',
-            'valores.*.valor.string' => 'Valor do valor adicional inválido.',
-            'valores.*.valor_assoc.string' => 'Valor de associado do valor adicional inválido.',
         ];
     }
     /**

@@ -121,9 +121,9 @@
                                     </li>
 
                                     <!-- Botão para baixar carta-senha -->
-                                    @if($agendainterlab->status <> 'AGENDADO' && $participante->tag_senha_doc)
+                                    @if($agendainterlab->status <> 'AGENDADO' && isset($tagsSenhaDoc[$participante->id]))
                                         <li>
-                                            <a class="dropdown-item" href="https://redemetrologica.com.br/dados-doc/{{ $participante->tag_senha_doc->link }}" target="_blank">
+                                            <a class="dropdown-item" href="https://redemetrologica.com.br/dados-doc/{{ $tagsSenhaDoc[$participante->id]->link }}" target="_blank">
                                                 Baixar Carta Senha
                                             </a>
                                         </li>

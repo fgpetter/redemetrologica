@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\AgendaInterlabValor;
 
 
 class AgendaInterlab extends Model
@@ -86,15 +85,4 @@ class AgendaInterlab extends Model
     {
         return $this->hasMany(AgendainterlabMaterial::class);
     }
-
-    /**
-     * Retorna valores associados
-     *
-     * @return HasMany
-     */
-    public function valores(): HasMany
-    {
-        return $this->hasMany(AgendaInterlabValor::class);
-    }
-
 }
