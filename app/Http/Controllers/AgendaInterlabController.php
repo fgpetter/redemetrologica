@@ -228,7 +228,7 @@ class AgendaInterlabController extends Controller
   /**
    * Remove interlab
    *
-   * @param User $user
+  * @param User $user
    * @return RedirectResponse
    **/
   public function delete(AgendaInterlab $agendainterlab): RedirectResponse
@@ -573,6 +573,70 @@ class AgendaInterlabController extends Controller
     $material->delete();
 
     return redirect()->back()->with('success', 'Material removido');
+  }
+
+  /**
+   * Adiciona protocolo ao interlab
+   *
+   * @param Request $request
+   * @param AgendaInterlab $agendainterlab
+   * @return RedirectResponse
+   */
+  public function uploadProtocolo(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
+  {
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'protocolo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:5120'],
+      ],
+      [
+        'protocolo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'protocolo.max' => 'O arquivo é muito grande, diminua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+        'protocolo.required' => 'Selecione um arquivo para enviar.',
+      ]
+    );
+
+    if ($validator->fails()) {
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) . '::' . __FUNCTION__,
+          'errors' => $validator->errors() ?? null,
+        ]
+      );
+
+      return back()
+        ->with('error', 'Houve um erro ao processar os dados, tente novamente')
+        ->withErrors($validator)
+        ->withInput();
+    }
+
+    if ($request->hasFile('protocolo')) {
+      $file_name = FileUploadAction::handle($request, 'protocolo', 'PROTOCOLO_INTERLAB');
+      $agendainterlab->update(['protocolo' => $file_name]);
+    }
+
+    return back()->with('success', 'Protocolo adicionado com sucesso');
+  }
+
+  /**
+   * Remove protocolo do interlab
+   *
+   * @param AgendaInterlab $agendainterlab
+   * @return RedirectResponse
+   */
+  public function deleteProtocolo(AgendaInterlab $agendainterlab): RedirectResponse
+  {
+    if ($agendainterlab->protocolo && File::exists(public_path('PROTOCOLO_INTERLAB/' . $agendainterlab->protocolo))) {
+      File::delete(public_path('PROTOCOLO_INTERLAB/' . $agendainterlab->protocolo));
+    }
+
+    $agendainterlab->update(['protocolo' => null]);
+
+    return redirect()->back()->with('success', 'Protocolo removido');
   }
 
 }
