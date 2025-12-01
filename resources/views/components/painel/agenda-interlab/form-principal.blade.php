@@ -77,7 +77,7 @@
   <hr class="my-4">
   <div class="row">
     <div class="col-6 col-lg-3">
-      @if($agendainterlab->interlab->tag)
+      @if(isset($agendainterlab->id) && $agendainterlab->interlab->tag)
         <div class="form-check bg-light rounded check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
           <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox"
             @checked($agendainterlab->inscricao ?? false)>

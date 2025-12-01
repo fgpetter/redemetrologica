@@ -54,7 +54,7 @@
                             <h5 class="h5 mt-3">Inscritos</h5>
                         </div>
                         <div class="col d-flex justify-content-end gap-2">
-                            @if ($agendainterlab->interlab->tag)
+                            @if (isset($agendainterlab->id) && $agendainterlab->interlab->tag)
                             <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
                                 data-bs-target="#adicionaParticipanteModal">
                                 <i class="ri-add-line align-bottom"></i> Adicionar Laboratório
