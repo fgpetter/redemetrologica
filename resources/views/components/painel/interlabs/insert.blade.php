@@ -24,10 +24,19 @@
                 </div>
 
                 <div class="col-md-6">
+                    @php
+                        $readonlyTag = false;
+                        if($interlab->exists) {
+                            $readonlyTag = $interlab->agendas()->whereHas('inscritos', function($query) {
+                                $query->whereNotNull('tag_senha');
+                            })->exists();
+                        }
+                    @endphp
                     <x-forms.input-field name="tag"
                     tooltip="Informe o código do interlaboratorial para que seja gerada a tag e senha para o inscrito."
                     label="TAG (código)" maxlength="5" 
                     class="text-uppercase" 
+                    :readonly="$readonlyTag"
                     :value="old('tag') ?? ($interlab->tag ?? null)" />
                     @error('tag') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
