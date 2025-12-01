@@ -76,13 +76,33 @@ class AgendaInterlab extends Model
         return $this->hasMany(InterlabRodada::class);
     }
 
+    /**
+     * Retorna inscritos associados
+     *
+     * @return HasMany
+     */
     public function inscritos(): HasMany
     {
         return $this->hasMany(InterlabInscrito::class, 'agenda_interlab_id', 'id');
     }
 
+    /**
+     * Retorna materiais associados
+     *
+     * @return HasMany
+     */
     public function materiais(): HasMany
     {
         return $this->hasMany(AgendainterlabMaterial::class);
+    }
+
+    /**
+     * Retorna valores associados
+     *
+     * @return HasMany
+     */
+    public function valores(): HasMany
+    {
+        return $this->hasMany(AgendaInterlabValor::class);
     }
 }

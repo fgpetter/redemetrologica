@@ -49,7 +49,7 @@ class AgendaInterlabController extends Controller
   public function insert(AgendaInterlab $agendainterlab): View
   {
     // remover 'inscritos' daqui - o Livewire já carrega com eager loading
-    $agendainterlab->load(['despesas', 'parametros', 'rodadas']);
+    $agendainterlab->load(['despesas', 'parametros', 'rodadas', 'valores']);
     
     // contar inscritos sem carregar a collection inteira
     $inscritosCount = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->count();
@@ -82,15 +82,43 @@ class AgendaInterlabController extends Controller
 
     $validated = $request->validated();
 
+    $valores_data = $validated['valores'] ?? [];
+    if (array_key_exists('valores', $validated)) {
+      unset($validated['valores']);
+    }
+
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($request->valor_desconto),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
     ]);
 
-    $agenda_interlab = AgendaInterlab::create($prepared_data);
+    try {
+      DB::transaction(function () use ($prepared_data, $valores_data, &$agenda_interlab) {
 
-    if (empty($agenda_interlab) || !$agenda_interlab->id) {
-      return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        $agenda_interlab = AgendaInterlab::create($prepared_data);
+
+        if (!empty($valores_data) && is_array($valores_data)) {
+          foreach ($valores_data as $valor_data) {
+            $descricao = $valor_data['descricao'] ?? null;
+            $valor = $valor_data['valor'] ?? null;
+            $valor_assoc = $valor_data['valor_assoc'] ?? null;
+
+            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
+              $agenda_interlab->valores()->create([
+                'descricao' => $descricao,
+                'valor' => formataMoeda($valor),
+                'valor_assoc' => formataMoeda($valor_assoc),
+              ]);
+            }
+          }
+        }
+      });
+    } catch (\Throwable $e) {
+      report($e);
+
+      return redirect()->back()
+        ->withInput()
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
     return redirect()->back()->with('success', 'Agenda interlab cadastrado com sucesso');
@@ -108,6 +136,11 @@ class AgendaInterlabController extends Controller
 
     $validated = $request->validated();
 
+    $valores_data = $validated['valores'] ?? [];
+    if (array_key_exists('valores', $validated)) {
+      unset($validated['valores']);
+    }
+
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($validated['valor_desconto']),
       'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
@@ -116,7 +149,39 @@ class AgendaInterlabController extends Controller
       'destaque' => ($request->status === 'CONCLUIDO') ? 0 : ($request->destaque ?? 0),
     ]);
 
-    $agendainterlab->update($prepared_data);
+
+    try {
+      DB::transaction(function () use ($agendainterlab, $prepared_data, $valores_data) {
+
+        $agendainterlab->update($prepared_data);
+
+        $agendainterlab->valores()->delete();
+
+        if (!empty($valores_data) && is_array($valores_data)) {
+          foreach ($valores_data as $valor_data) {
+
+            $descricao = $valor_data['descricao'] ?? null;
+            $valor = $valor_data['valor'] ?? null;
+            $valor_assoc = $valor_data['valor_assoc'] ?? null;
+
+            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
+              $agendainterlab->valores()->create([
+                'descricao' => $descricao,
+                'valor' => formataMoeda($valor),
+                'valor_assoc' => formataMoeda($valor_assoc),
+              ]);
+            }
+          }
+        }
+      });
+    } catch (\Throwable $e) {
+
+      report($e);
+
+      return back()
+        ->withInput()
+        ->with('error', 'Ocorreu um erro ao atualizar. Tente novamente mais tarde.');
+    }
 
     // se o status foi alterado para CONFIRMADO, envia a todos os participantes e-mail de confirmação e carta senha
     if ($oldStatus == 'AGENDADO' && $agendainterlab->status === 'CONFIRMADO' && !empty($agendainterlab->interlab->tag)) {

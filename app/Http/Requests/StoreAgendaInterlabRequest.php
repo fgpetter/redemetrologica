@@ -36,6 +36,10 @@ class StoreAgendaInterlabRequest extends FormRequest
             'ano_referencia' => ['nullable', 'integer'],
             'data_limite_inscricao' => ['required', 'date'],
             'valor_desconto' => ['nullable', 'string'],
+            'valores' => ['nullable', 'array'],
+            'valores.*.descricao' => ['nullable', 'string'],
+            'valores.*.valor' => ['nullable', 'string'],
+            'valores.*.valor_assoc' => ['nullable', 'string'],
         ];
     }
 
@@ -63,6 +67,10 @@ class StoreAgendaInterlabRequest extends FormRequest
             'ano_referencia.integer' => 'Ano referência inválido',
             'data_limite_inscricao.date' => 'Data inválida',
             'valor_desconto.string' => 'Valor com desconto inválido',
+            'valores.array' => 'Valores inválidos',
+            'valores.*.descricao.string' => 'Descrição inválida',
+            'valores.*.valor.string' => 'Valor inválido',
+            'valores.*.valor_assoc.string' => 'Valor associado inválido',
         ];
     }
     /**

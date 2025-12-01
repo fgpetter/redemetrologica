@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('agenda_interlabs', 'protocolo')) {
-            Schema::table('agenda_interlabs', function (Blueprint $table) {
-                $table->string('protocolo')->nullable()->after('data_divulgacao_relatorios');
-            });
-        }
+        Schema::table('agenda_interlabs', function (Blueprint $table) {
+            $table->string('protocolo')->nullable()->after('instrucoes_inscricao');
+        });
     }
 
     /**

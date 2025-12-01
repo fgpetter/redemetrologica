@@ -39,11 +39,6 @@
         </div>
 
         <hr>
-        <div class="col-md-4">
-            <x-forms.input-field :value="old('valor') ?? ($rodada['valor'] ?? null)" name="valor"
-                label="Valor" class="money" />
-            @error('valor') <div class="text-warning">{{ $message }}</div> @enderror
-        </div>
 
         <div class="col-md-4">
             <x-forms.input-field :value="old('data_envio_amostras') ?? ($rodada['data_envio_amostras']?->format('Y-m-d') ?? null)" type="date" name="data_envio_amostras"

@@ -19,6 +19,10 @@ class Modalform extends Component
         'rodada.vias' => 'required|numeric|min:1',
         'rodada.parametros' => 'nullable|array',
         'rodada.parametros.*' => 'nullable|exists:parametros,id',
+        'data_envio_amostras' => 'nullable|date',
+        'data_inicio_ensaios' => 'nullable|date',
+        'data_limite_envio_resultados' => 'nullable|date',
+        'data_divulgacao_relatorios' => 'nullable|date',
     ];
 
     protected $messages = [
@@ -31,6 +35,10 @@ class Modalform extends Component
         'rodada.vias.min' => 'O campo vias deve ser maior que 0',
         'rodada.parametros.array' => 'Houve um erro ao salvar. Parâmetros inválidos',
         'rodada.parametros.*.exists' => 'O parâmetro :input não existe',
+        'data_envio_amostras.date' => 'O campo data de envio de amostras deve ser uma data válida',
+        'data_inicio_ensaios.date' => 'O campo data de início de ensaios deve ser uma data válida',
+        'data_limite_envio_resultados.date' => 'O campo data de limite de envio de resultados deve ser uma data válida',
+        'data_divulgacao_relatorios.date' => 'O campo data de divulgação de relatórios deve ser uma data válida',
     ];
 
     public function mount(): void
