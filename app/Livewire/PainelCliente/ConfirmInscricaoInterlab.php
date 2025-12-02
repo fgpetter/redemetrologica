@@ -8,6 +8,7 @@ use App\Models\Endereco;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabInscrito;
 use Illuminate\Support\Facades\DB;
+use App\Models\AgendaInterlabValor;
 use App\Models\InterlabLaboratorio;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
@@ -41,6 +42,10 @@ class ConfirmInscricaoInterlab extends Component
     public $laboratorio;
     public $informacoes_inscricao;
     public $valor;
+    public $blocos_selecionados = [];
+
+    // Valores para o formulario de inscrição de laboratorio
+    public $valores_inscricao;
 
     public function mount()
     {
@@ -86,6 +91,7 @@ class ConfirmInscricaoInterlab extends Component
             ]
         ];
 
+        $this->valores_inscricao = AgendaInterlabValor::where('agenda_interlab_id', $this->interlab->id)->get();
 
         $this->reset(['inscritoId', 'laboratorioId']);
     }
@@ -279,8 +285,40 @@ class ConfirmInscricaoInterlab extends Component
             "laboratorio.endereco.bairro" => ['required', 'string'],
             "laboratorio.endereco.cidade" => ['nullable', 'string'],
             "laboratorio.endereco.uf" => ['required', 'string', 'size:2'],
-            "informacoes_inscricao" => ['required', 'string'],
+            "informacoes_inscricao" => ['nullable', 'string'],
             "valor" => ['nullable', 'string'],
+            "blocos_selecionados" => ['required', 'array', 'min:1'],
+        ];
+    }
+
+    /**
+     * Calcula o valor total e gera as informações de inscrição baseado nos blocos selecionados
+     */
+    public function calcularValorEBlocos(?bool $isAssociado = false): array
+    {
+        $valorTotal = 0;
+        $descricoes = [];
+
+        if (!empty($this->blocos_selecionados)) {
+            $blocosSelecionados = AgendaInterlabValor::whereIn('id', $this->blocos_selecionados)->get();
+
+            foreach ($blocosSelecionados as $bloco) {
+                if ($isAssociado && $bloco->valor_assoc) {
+                    $valorTotal += (float) $bloco->valor_assoc;
+                } else {
+                    $valorTotal += (float) $bloco->valor;
+                }
+                $descricoes[] = $bloco->descricao;
+            }
+        }
+
+        $informacoesInscricao = !empty($descricoes)
+            ? 'Blocos: ' . implode(', ', $descricoes) . '.'
+            : '';
+
+        return [
+            'valor' => $valorTotal,
+            'informacoes_inscricao' => $informacoesInscricao,
         ];
     }
 
@@ -301,7 +339,8 @@ class ConfirmInscricaoInterlab extends Component
             'laboratorio.endereco.uf.required' => 'Preencha o campo UF.',
             'laboratorio.endereco.uf.size' => 'O campo UF deve ter exatamente 2 caracteres.',
             'valor.string' => 'O valor digitado é inválido.',
-            'informacoes_inscricao.required' => 'Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar.',
+            'blocos_selecionados.required' => 'Selecione ao menos um bloco.',
+            'blocos_selecionados.min' => 'Selecione ao menos um bloco.',
         ];
     }
 
@@ -315,8 +354,33 @@ class ConfirmInscricaoInterlab extends Component
         }
         $validated = $this->validate();
 
+        // Determinar se a empresa é associada
+        $empresaId = $this->novaInscricaoEmpresaId ?? ($this->empresa['id'] ?? null);
+        $isAssociado = false;
+
+        if ($this->laboratorioEditadoId) {
+            $laboratorioExistente = InterlabLaboratorio::find($this->laboratorioEditadoId);
+            $empresaId = $laboratorioExistente?->empresa_id;
+        }
+
+        if ($empresaId) {
+            $empresaModel = Pessoa::find($empresaId);
+            $isAssociado = $empresaModel?->associado ?? false;
+        }
+
+        // Calcular valor e informações de inscrição baseado nos blocos selecionados
+        $dadosBlocos = $this->calcularValorEBlocos($isAssociado);
+        $valorFinal = $dadosBlocos['valor'];
+        $informacoesInscricaoFinal = $dadosBlocos['informacoes_inscricao'];
+
+        // Adicionar observações extras se houver (ignorar se começar com "Blocos:" pois é texto gerado automaticamente)
+        $observacoesExtras = $validated['informacoes_inscricao'] ?? '';
+        if (!empty($observacoesExtras) && !str_starts_with(trim($observacoesExtras), 'Blocos:')) {
+            $informacoesInscricaoFinal .= ' ' . $observacoesExtras;
+        }
+
         try {
-            $inscrito = DB::transaction(function () use ($validated) {
+            $inscrito = DB::transaction(function () use ($validated, $valorFinal, $informacoesInscricaoFinal) {
                 if ($this->laboratorioEditadoId) {
                     // EDIÇÃO:
                     $laboratorio = InterlabLaboratorio::findOrFail($this->laboratorioEditadoId);
@@ -330,7 +394,7 @@ class ConfirmInscricaoInterlab extends Component
                         'bairro' => $validated['laboratorio']['endereco']['bairro'],
                         'cidade' => $validated['laboratorio']['endereco']['cidade'],
                         'uf' => $validated['laboratorio']['endereco']['uf'],
-                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''), //adicionar a info do PEP
+                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''),
                     ]);
 
                     $laboratorio->update([
@@ -341,16 +405,18 @@ class ConfirmInscricaoInterlab extends Component
                     ]);
 
                     InterlabInscrito::where('id', $this->inscritoEditadoId)->update([
-                        'valor' => $validated['valor'] ?? null,
-                        'informacoes_inscricao' => $validated['informacoes_inscricao'],
+                        'valor' => $valorFinal,
+                        'informacoes_inscricao' => $informacoesInscricaoFinal,
                     ]);
+
+                    return InterlabInscrito::find($this->inscritoEditadoId);
                 } else {
                     // NOVO CADASTRO:
                     $empresaId = $this->novaInscricaoEmpresaId ?? $this->empresa['id'];
 
                     $endereco = Endereco::create([
                         'pessoa_id' => $empresaId,
-                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''), //adicionar a info do PEP
+                        'info' => 'Laboratório: ' . $validated['laboratorio']['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''),
                         'cep' => $validated['laboratorio']['endereco']['cep'],
                         'endereco' => $validated['laboratorio']['endereco']['endereco'],
                         'complemento' => $validated['laboratorio']['endereco']['complemento'] ?? null,
@@ -382,15 +448,14 @@ class ConfirmInscricaoInterlab extends Component
                     }
 
 
-
                     $inscrito = InterlabInscrito::create([
                         'pessoa_id' => $this->pessoaId_usuario,
                         'empresa_id' => $empresaId,
                         'laboratorio_id' => $laboratorio->id,
                         'agenda_interlab_id' => $this->interlab->id,
                         'data_inscricao' => now(),
-                        'valor' => $validated['valor'] ?? null,
-                        'informacoes_inscricao' => $validated['informacoes_inscricao'],
+                        'valor' => $valorFinal,
+                        'informacoes_inscricao' => $informacoesInscricaoFinal,
                         'tag_senha' => $senha,
                     ]);
 
@@ -408,6 +473,8 @@ class ConfirmInscricaoInterlab extends Component
                     if ($this->interlab->status === 'CONFIRMADO' && !empty($this->interlab->interlab->tag)) {
                         app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
                     }
+
+                    return $inscrito;
                 }
             });
 
@@ -418,16 +485,17 @@ class ConfirmInscricaoInterlab extends Component
             $this->reset([
                 'novaInscricaoEmpresaId',
                 'laboratorioEditadoId',
-                'inscritoEditadoId'
+                'inscritoEditadoId',
+                'blocos_selecionados',
             ]);
 
 
-            if (!empty($validated['valor']) && $validated['valor'] > 0) {
+            if (!empty($valorFinal) && $valorFinal > 0) {
                 $this->adicionaLancamentoFinanceiro(
                     $inscrito->agendaInterlab,
                     $inscrito->empresa,
                     $inscrito->laboratorio,
-                    $validated['valor']
+                    $valorFinal
                 );
             }
 
@@ -453,7 +521,15 @@ class ConfirmInscricaoInterlab extends Component
             ? $inscrito->laboratorio->endereco->toArray()
             : [];
         $this->laboratorioEditadoId = $inscrito->laboratorio->id;
-        $this->informacoes_inscricao = $inscrito->informacoes_inscricao;
+
+        // Limpar campo de observações se contiver apenas blocos gerados automaticamente
+        // Os blocos serão selecionados via checkboxes
+        $infoInscricao = $inscrito->informacoes_inscricao ?? '';
+        if (str_starts_with(trim($infoInscricao), 'Blocos:')) {
+            $this->informacoes_inscricao = '';
+        } else {
+            $this->informacoes_inscricao = $infoInscricao;
+        }
     }
 
     // novo laboratorio para empresa ja inscrita
@@ -486,6 +562,8 @@ class ConfirmInscricaoInterlab extends Component
             'inscritoEditadoId',
             'laboratorio',
             'informacoes_inscricao',
+            'blocos_selecionados',
+            'valor',
         ]);
     }
 
