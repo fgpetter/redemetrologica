@@ -48,7 +48,7 @@ class EnviarConfirmacaoInterlabJob implements ShouldQueue
             return;
         }
 
-        Mail::mailer('interlaboratorial')
+        Mail::mailer(env('APP_ENV') === 'production' ? 'interlaboratorial' : 'smtp')
             ->to($this->participante->pessoa->email)
             ->send(new ConfirmacaoInterlabMail($this->participante));
     }

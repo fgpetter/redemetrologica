@@ -7,10 +7,15 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\InterlabInscrito;
 use App\Models\AgendaInterlab;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ConfirmacaoInscricaoInterlabNotification extends Mailable
+class ConfirmacaoInscricaoInterlabNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+
+    public $tries = 3;
+
+    public $timeout = 120;
 
     public $dados_email;
 
