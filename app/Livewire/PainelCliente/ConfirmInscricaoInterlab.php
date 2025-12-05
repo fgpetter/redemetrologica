@@ -487,6 +487,7 @@ class ConfirmInscricaoInterlab extends Component
                 'laboratorioEditadoId',
                 'inscritoEditadoId',
                 'blocos_selecionados',
+                'informacoes_inscricao',
             ]);
 
 
