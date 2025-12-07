@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use App\Actions\CriarEnviarSenhaAction;
 use App\Mail\NovoCadastroInterlabNotification;
 use Illuminate\Http\{Request, RedirectResponse};
 use Illuminate\Support\Facades\{DB, Log, Validator};
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
-use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco, Laboratorio};
+use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco};
 
 class InscricaoInterlabController extends Controller
 {
@@ -67,6 +69,18 @@ class InscricaoInterlabController extends Controller
         'telefone' => $validated['telefone'],
         'email' => $validated['email'],
       ]);
+
+      $senha = null;
+      if (!empty($agenda_interlab->interlab->tag)) {
+        $senha = $agenda_interlab->interlab->tag . '-' . rand(111, 999);
+        while (
+          InterlabInscrito::where('tag_senha', $senha)
+            ->where('agenda_interlab_id', $agenda_interlab->id)
+            ->exists()
+        ) {
+          $senha = $agenda_interlab->interlab->tag . '-' . rand(111, 999);
+        }
+      }
   
       $inscrito = InterlabInscrito::create([
         'pessoa_id' => $responsavel->id ?? auth()->user()->pessoa->id,
@@ -76,7 +90,12 @@ class InscricaoInterlabController extends Controller
         'data_inscricao' => now(),
         'valor' => $validated['valor'] ?? null,
         'informacoes_inscricao' => $validated['informacoes_inscricao'],
+        'tag_senha' => $senha,
       ]);
+
+      if ($agenda_interlab->status === 'CONFIRMADO' && !empty($agenda_interlab->interlab->tag)) {
+        app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
+      }
 
       return $inscrito;
 
@@ -94,7 +113,7 @@ class InscricaoInterlabController extends Controller
       ->cc('tecnico@redemetrologica.com.br')
       ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
 
-    Mail::mailer('interlaboratorial')
+    Mail::mailer(env('APP_ENV') === 'production' ? 'interlaboratorial' : 'smtp')
       ->to($inscrito->pessoa->email)
       ->cc('sistema@redemetrologica.com.br')
       ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));

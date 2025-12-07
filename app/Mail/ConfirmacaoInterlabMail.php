@@ -5,23 +5,34 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\InterlabInscrito;
 
-class NotifyRegisterInvalid extends Mailable implements ShouldQueue
+class ConfirmacaoInterlabMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
+    public $participante;
+
+    /**
+     * The number of times the job may be attempted.
+     */
     public $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run.
+     */
     public $timeout = 120;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(public $content)
+    public function __construct(InterlabInscrito $participante)
     {
-        //
+        $this->participante = $participante;
     }
 
     /**
@@ -30,7 +41,10 @@ class NotifyRegisterInvalid extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Erro ao registrar pessoa em ' . now()->format('d/m/Y H:i:s'),
+            replyTo: [
+                new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            ],
+            subject: 'Confirmação de Realização - ' . $this->participante->agendaInterlab->interlab->nome,
         );
     }
 
@@ -40,7 +54,7 @@ class NotifyRegisterInvalid extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'emails.informa-admin-falha-cadastro',
+            view: 'emails.confirmacao-interlab',
         );
     }
 

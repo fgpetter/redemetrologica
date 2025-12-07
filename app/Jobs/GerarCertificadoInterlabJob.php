@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use App\Models\InterlabInscrito;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CertificadoInterlabMail;
 use Illuminate\Queue\SerializesModels;
@@ -67,7 +67,7 @@ class GerarCertificadoInterlabJob implements ShouldQueue
         ])->save(Storage::path($Path));
 
         // Enviar email com certificado
-        Mail::mailer('interlaboratorial')
+        Mail::mailer(env('APP_ENV') === 'production' ? 'interlaboratorial' : 'smtp')
             ->to($participante->laboratorio->email)
             ->queue(new CertificadoInterlabMail($participante, Storage::path($Path)));
     }

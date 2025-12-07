@@ -32,7 +32,8 @@ use App\Http\Controllers\{
   HomeController,
   PainelController,
   AgendaCursoInCompanyController,
-  FaleconoscoController
+  FaleconoscoController,
+  DocController
 };
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ImpersonateController;
@@ -43,6 +44,9 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('reset-password');
 
 Route::get('/', [HomeController::class, 'root'])->name('root');
+
+/* Rota para download de documentos */
+Route::get('/dados-doc/{link}', [DocController::class, 'download'])->name('dados-doc.download');
 
 /* Rotas estáticas */
 Route::get('home', [HomeController::class, 'root'])->name('root');
@@ -301,6 +305,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('delete/{agendainterlab:uid}', [AgendaInterlabController::class, 'delete'])->name('agenda-interlab-delete');
     Route::post('upload-material/{agendainterlab:uid}',[AgendaInterlabController::class, 'uploadMaterial'])->name('agenda-interlab-upload-material');
     Route::post('delete-material/{material:uid}',[AgendaInterlabController::class, 'deleteMaterial'])->name('agenda-interlab-delete-material');
+    Route::post('upload-protocolo/{agendainterlab:uid}',[AgendaInterlabController::class, 'uploadProtocolo'])->name('agenda-interlab-upload-protocolo');
+    Route::post('delete-protocolo/{agendainterlab:uid}',[AgendaInterlabController::class, 'deleteProtocolo'])->name('agenda-interlab-delete-protocolo');
     
     /* Despesas */
     Route::post('salva-despesa', [AgendaInterlabController::class, 'salvaDespesa'])->name('salvar-despesa');
@@ -310,10 +316,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     /* Parametros */
     Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salva-parametro');
     Route::post('delete-parametro/{parametro}', [AgendaInterlabController::class, 'deleteParametro'])->name('delete-parametro');
-    
-    /* RodadascursoInscricao */
-    Route::post('salva-rodada', [AgendaInterlabController::class, 'salvaRodada'])->name('salvar-rodada');
-    Route::post('delete-rodada/{rodada:uid}', [AgendaInterlabController::class, 'deleteRodada'])->name('delete-rodada');
     
     Route::get('export/{agendainterlab:uid}', [AgendaInterlabController::class, 'exportLaboratoriosToXLS'])->name('interlab-relatorio-inscritos');
   });

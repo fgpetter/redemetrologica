@@ -119,6 +119,15 @@
                                             Editar
                                         </a>
                                     </li>
+
+                                    <!-- Botão para baixar carta-senha -->
+                                    @if($agendainterlab->status <> 'AGENDADO' && isset($tagsSenhaDoc[$participante->id]))
+                                        <li>
+                                            <a class="dropdown-item" href="https://redemetrologica.com.br/dados-doc/{{ $tagsSenhaDoc[$participante->id]->link }}" target="_blank">
+                                                Baixar Carta Senha
+                                            </a>
+                                        </li>
+                                    @endif
                                     <!-- Botão para gerar certificado -->
                                     <li>
                                         @livewire('interlab.gerar-certificado-button', ['participanteId' => $participante->id], key('cert-btn-' . $participante->id))

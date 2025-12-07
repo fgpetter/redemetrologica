@@ -157,14 +157,13 @@
                                 @if ($laboratorioEditadoId !== $inscrito->laboratorio->id)
                                     <div class="mb-3 p-2 border rounded" wire:key="inscrito-{{ $inscrito->id }}">
                                         <div class="row">
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <small class="text-muted">Laboratório:</small>
                                                 <p class="mb-0">{{ $inscrito->laboratorio->nome }}</p>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <small class="text-muted">Responsável Técnico:</small>
-                                                <p class="mb-0">{{ $inscrito->laboratorio->responsavel_tecnico }}
-                                                </p>
+                                                <p class="mb-0">{{ $inscrito->laboratorio->responsavel_tecnico }}</p>
                                             </div>
                                             <div class="col-md-3">
                                                 <small class="text-muted">Endereço:</small>
@@ -173,6 +172,10 @@
                                                     {{ $inscrito->laboratorio->endereco->cidade ?? '--' }}/{{ $inscrito->laboratorio->endereco->uf ?? '--'}} 
                                                 </p>
                                             </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted">Blocos:</small>
+                                                <p class="mb-0">{{ $inscrito->informacoes_inscricao ?? '--' }}</p>
+                                            </div>
                                             <!-- Botão de editar laboratório -->
                                             @if (
                                                 !$showSalvarEmpresa &&
@@ -180,7 +183,7 @@
                                                     $empresaEditadaId === null &&
                                                     $laboratorioEditadoId === null &&
                                                     $novaInscricaoEmpresaId === null)
-                                                <div class="mt-2 text-end col-3">
+                                                <div class="mt-2 text-end col-md-2">
                                                     <button class="btn btn-sm btn-outline-warning"
                                                         wire:click.prevent="{{ $laboratorioEditadoId === $inscrito->laboratorio->id
                                                             ? '$set(\'laboratorioEditadoId\', null)'
@@ -305,14 +308,53 @@
                                                     </div>
 
                                                     <x-forms.input-textarea wire:model="informacoes_inscricao"
-                                                        name="informacoes_inscricao" label="Informações da inscrição"
-                                                        sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar."
-                                                        required>
+                                                        name="informacoes_inscricao" label="Observações adicionais"
+                                                        sublabel="Adicione aqui observações extras sobre a inscrição (opcional).">
                                                         {{ old('informacoes_inscricao') ?? null }}
                                                     </x-forms.input-textarea>
                                                     @error('informacoes_inscricao')
                                                         <div class="text-danger">{{ $message }}</div>
                                                     @enderror
+
+                                                    {{-- Card de seleção de blocos (múltipla seleção) --}}
+                                                    @if ($valores_inscricao && $valores_inscricao->isNotEmpty())
+                                                        <div class="card border border-primary mt-4">
+                                                            <div class="card-header">
+                                                                <h6 class="mb-0">Selecione os blocos:</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="row g-3">
+                                                                    @foreach ($valores_inscricao as $valorItem)
+                                                                        <div class="col-12 col-md-6 col-lg-4">
+                                                                            <div class="form-check border rounded p-3 h-100">
+                                                                                <input class="form-check-input ms-1" type="checkbox"
+                                                                                    wire:model="blocos_selecionados"
+                                                                                    id="bloco_{{ $valorItem->id }}_edit_{{ $inscrito->id }}"
+                                                                                    value="{{ $valorItem->id }}">
+                                                                                <label class="form-check-label ps-1" for="bloco_{{ $valorItem->id }}_edit_{{ $inscrito->id }}">
+                                                                                    <strong>{{ $valorItem->descricao }}</strong>
+                                                                                    <div class="mt-2">
+                                                                                        @if ($empresa_inscrita->associado && $valorItem->valor_assoc)
+                                                                                            <span class="badge bg-success fs-6">
+                                                                                                R$ {{ number_format($valorItem->valor_assoc, 2, ',', '.') }}
+                                                                                            </span>
+                                                                                        @else
+                                                                                            <span class="badge bg-primary fs-6">
+                                                                                                R$ {{ number_format($valorItem->valor, 2, ',', '.') }}
+                                                                                            </span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @error('blocos_selecionados')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
                                                 </div>
                                             </div>
 
@@ -354,9 +396,7 @@
                                         class="mt-4">
                                         <div class="card border overflow-hidden card-border shadow-none">
                                             <div class="card-header">
-                                                <h6 class="card-title mb-0">Informe os dados do Laboratório para envio
-                                                    de
-                                                    amostras:</h6>
+                                                <h6 class="card-title mb-0">Informe os dados do Laboratório para envio de amostras:</h6>
                                             </div>
                                             <div class="card-body">
                                                 <div class="row">
@@ -463,14 +503,53 @@
                                                 </div>
 
                                                 <x-forms.input-textarea wire:model="informacoes_inscricao"
-                                                    name="informacoes_inscricao" label="Informações da inscrição"
-                                                    sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar."
-                                                    required>
+                                                    name="informacoes_inscricao" label="Observações adicionais"
+                                                    sublabel="Adicione aqui observações extras sobre a inscrição (opcional).">
                                                     {{ old('informacoes_inscricao') ?? null }}
                                                 </x-forms.input-textarea>
                                                 @error('informacoes_inscricao')
                                                     <div class="text-danger">{{ $message }}</div>
                                                 @enderror
+
+                                                {{-- Card de seleção de blocos (múltipla seleção) --}}
+                                                @if ($valores_inscricao && $valores_inscricao->isNotEmpty())
+                                                    <div class="card border border-primary mt-4">
+                                                        <div class="card-header">
+                                                            <h6 class="mb-0">Selecione os blocos:</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row g-3">
+                                                                @foreach ($valores_inscricao as $valorItem)
+                                                                    <div class="col-12 col-md-6 col-lg-4">
+                                                                        <div class="form-check border rounded p-3 h-100">
+                                                                            <input class="form-check-input ms-1" type="checkbox"
+                                                                                wire:model="blocos_selecionados"
+                                                                                id="bloco_{{ $valorItem->id }}_novo_{{ $empresa_inscrita->id }}"
+                                                                                value="{{ $valorItem->id }}">
+                                                                            <label class="form-check-label ps-1" for="bloco_{{ $valorItem->id }}_novo_{{ $empresa_inscrita->id }}">
+                                                                                <strong>{{ $valorItem->descricao }}</strong>
+                                                                                <div class="mt-2">
+                                                                                    @if ($empresa_inscrita->associado && $valorItem->valor_assoc)
+                                                                                        <span class="badge bg-success fs-6">
+                                                                                            R$ {{ number_format($valorItem->valor_assoc, 2, ',', '.') }}
+                                                                                        </span>
+                                                                                    @else
+                                                                                        <span class="badge bg-primary fs-6">
+                                                                                            R$ {{ number_format($valorItem->valor, 2, ',', '.') }}
+                                                                                        </span>
+                                                                                    @endif
+                                                                                </div>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @error('blocos_selecionados')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                    @enderror
+                                                @endif
                                             </div>
                                         </div>
                                         <div>
@@ -741,14 +820,53 @@
                         </div>
                     </div>
                     <x-forms.input-textarea wire:model="informacoes_inscricao" name="informacoes_inscricao"
-                        label="Informações da inscrição"
-                        sublabel="Informe aqui quais rodadas, blocos ou parâmetros esse laboratório irá participar."
-                        required>
+                        label="Observações adicionais"
+                        sublabel="Adicione aqui observações extras sobre a inscrição (opcional).">
                         {{ old('informacoes_inscricao') ?? null }}
                     </x-forms.input-textarea>
                     @error('informacoes_inscricao')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
+
+                    {{-- Card de seleção de blocos (múltipla seleção) --}}
+                    @if ($valores_inscricao && $valores_inscricao->isNotEmpty())
+                        <div class="card border border-primary mt-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">Selecione os blocos:</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    @foreach ($valores_inscricao as $valorItem)
+                                        <div class="col-12 col-md-6 col-lg-4">
+                                            <div class="form-check border rounded p-3 h-100">
+                                                <input class="form-check-input ms-1" type="checkbox"
+                                                    wire:model="blocos_selecionados"
+                                                    id="bloco_{{ $valorItem->id }}_principal"
+                                                    value="{{ $valorItem->id }}">
+                                                <label class="form-check-label ps-1" for="bloco_{{ $valorItem->id }}_principal">
+                                                    <strong>{{ $valorItem->descricao }}</strong>
+                                                    <div class="mt-2">
+                                                        @if (($empresa['associado'] ?? false) && $valorItem->valor_assoc)
+                                                            <span class="badge bg-success fs-6">
+                                                                R$ {{ number_format($valorItem->valor_assoc, 2, ',', '.') }}
+                                                            </span>
+                                                        @else
+                                                            <span class="badge bg-primary fs-6">
+                                                                R$ {{ number_format($valorItem->valor, 2, ',', '.') }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        @error('blocos_selecionados')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    @endif
                 </div>
                 <div>
                     <div class="row m-3 d-flex justify-content-end gap-2">

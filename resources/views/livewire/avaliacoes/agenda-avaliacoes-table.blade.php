@@ -250,8 +250,14 @@
           <tr>
             <td>{{ $avaliacao->data_inicio ? \Carbon\Carbon::parse($avaliacao->data_inicio)->format('d/m/Y') : '' }}</td>
             <td style="max-width: 25ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
-              title="{{ $avaliacao->laboratorio->nome_laboratorio }}">
+              title="{{ $avaliacao->laboratorio->nome_laboratorio ?? $avaliacao->laboratorio->pessoa->nome_razao ?? 'Laboratório sem nome'}}">
+              @if ($avaliacao->laboratorio)
+              <a href="{{ route('laboratorio-insert', $avaliacao->laboratorio->uid) }}" target="_blank">
                 {{ $avaliacao->laboratorio->nome_laboratorio ?? $avaliacao->laboratorio->pessoa->nome_razao }}
+              </a>
+              @else
+                Laboratório sem nome
+              @endif
             </td>
             <td> 
               @if ($avaliacao->fr_28) 

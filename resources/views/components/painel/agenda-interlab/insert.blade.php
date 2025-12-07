@@ -54,11 +54,13 @@
                             <h5 class="h5 mt-3">Inscritos</h5>
                         </div>
                         <div class="col d-flex justify-content-end gap-2">
+                            @if (isset($agendainterlab->id) && $agendainterlab->interlab->tag)
                             <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
                                 data-bs-target="#adicionaParticipanteModal">
                                 <i class="ri-add-line align-bottom"></i> Adicionar Laboratório
-                            </a>
-                            @if ($agendainterlab->inscritos->count() > 0)
+                                </a>
+                            @endif
+                            @if ($inscritosCount > 0)
                                 <a href="{{ route('interlab-relatorio-inscritos', $agendainterlab->uid) }}"
                                     class="btn btn-sm btn-primary">
                                     <i class="ri-file-excel-line align-bottom"></i> Baixar XLS
@@ -81,8 +83,10 @@
                 </div>
             </div>
 
-            <div class="tab-pane" id="rodadas" role="tabpanel"> <!-- despesas -->
-                <x-painel.agenda-interlab.rodadas :agendainterlab="$agendainterlab" :interlabParametros="$interlabParametros" :rodadas="$rodadas" />
+            <div class="tab-pane" id="rodadas" role="tabpanel"> <!-- rodadas -->
+                <div class="col-12">
+                    <x-painel.agenda-interlab.rodadas :agendainterlab="$agendainterlab" />
+                </div>
             </div>
 
         </div>
