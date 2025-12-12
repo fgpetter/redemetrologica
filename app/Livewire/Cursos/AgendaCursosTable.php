@@ -81,7 +81,12 @@ class AgendaCursosTable extends Component
         $sortDirection = $this->sortDirection;
 
         $query = AgendaCursos::with('curso')
-            ->withCount('inscritos as inscritos_count')
+              ->withCount([
+                'inscritos',
+                'inscritos as inscritos_validos_count' => function ($query) {
+                    $query->whereNotNull('valor');
+                }
+            ])
             ->where(function ($query) {
                 $query->whereHas('curso', function ($q) {
                     $q->where('descricao', 'like', "%{$this->search}%");
