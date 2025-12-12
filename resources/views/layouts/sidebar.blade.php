@@ -166,13 +166,6 @@
                 Agendamento de Cursos
               </a>
               </li>
-              <li class="nav-item">
-                <a href="{{ route('agendamento-curso-in-company-index') }}"
-                  class="nav-link {{ request()->is('painel/agendamento-curso-in-company/*') ? 'active' : '' }}"
-                  role="button" data-key="t-signin" style="white-space: nowrap;">
-                  Agendamento In-Company
-                </a>
-              </li>
             </ul>
           </div>
         </li>

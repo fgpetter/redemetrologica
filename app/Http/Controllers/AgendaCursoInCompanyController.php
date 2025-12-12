@@ -17,16 +17,6 @@ use Spatie\Browsershot\Browsershot;
 class AgendaCursoInCompanyController extends Controller
 {
 
-  /**
-   * Gera tela de lista de cursos agendados
-   * 
-   * @return View
-   */
-  public function index(Request $request): View
-{
-  $tipoagenda = 'IN-COMPANY';
- return view('painel.agendamento-cursos.index', compact('tipoagenda'));
-}
 
   /**
    * Tela de cadastro e edição de agenda de cursos in-company
