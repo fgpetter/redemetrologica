@@ -2,18 +2,17 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12 d-flex justify-content-end mb-3">
-                <div class="d-grid gap-2" style="width: fit-content;">
+                <div>
                     <a href="{{  route('agendamento-curso-insert') }}"
-                        class="btn btn-sm btn-success">
+                        class="btn btn-sm btn-success me-2">
                         <i class="ri-add-line align-bottom me-1"></i> Adicionar Agendamento de curso
                     </a>
-                    <a href="{{ route('agendamento-curso-in-company-insert')  }}"
-                        class="btn btn-sm btn-success">
-                        <i class="ri-add-line align-bottom me-1"></i> Adicionar Agendamento de IN-COMPANY
+                    <a href="{{ route('agendamento-curso-in-company-insert') }}"
+                        class="btn btn-sm btn-primary">
+                        <i class="ri-add-line align-bottom me-1"></i> Adicionar Agendamento IN-COMPANY
                     </a>
                 </div>
             </div>
-        </div>
         </div>
         {{-- Filtros --}}
         <div class="card border shadow-sm mb-3">
