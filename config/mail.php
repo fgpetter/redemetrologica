@@ -44,57 +44,7 @@ return [
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
-        // mailer para envio de emails de avaliações
-        'avaliacao' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-            'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_AVALIACAO'),
-            'password' => env('PASS_AVALIACAO'),
-            'timeout' => null,
-        ],
-        // mailer para envio de emails de interlaboratoriais
-        'interlaboratorial' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-            'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_INTERLAB'),
-            'password' => env('PASS_INTERLAB'),
-            'timeout' => null,
-        ],
-        // mailer para envio de emails de cursos
-        'curso' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-            'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_EVENTOS'),
-            'password' => env('PASS_EVENTOS'),
-            'timeout' => null,
-        ],
-        // mailer para envio de emails de qualidade
-        'qualidade' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-            'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_QUALIDADE'),
-            'password' => env('PASS_QUALIDADE'),
-            'timeout' => null,
-        ],
-        // mailer para envio de emails de contato
-        'contato' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-            'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_CONTATO'),
-            'password' => env('PASS_CONTATO'),
-            'timeout' => null,
-        ],
-        
+
         'ses' => [
             'transport' => 'ses',
         ],

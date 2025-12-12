@@ -464,8 +464,7 @@ class ConfirmInscricaoInterlab extends Component
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
 
-                    Mail::mailer(env('APP_ENV') === 'production' ? 'interlaboratorial' : 'smtp')
-                        ->to($inscrito->pessoa->email)
+                    Mail::to($inscrito->pessoa->email)
                         ->cc('sistema@redemetrologica.com.br')
                         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
 

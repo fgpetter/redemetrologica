@@ -67,8 +67,7 @@ class GerarCertificadoInterlabJob implements ShouldQueue
         ])->save(Storage::path($Path));
 
         // Enviar email com certificado
-        Mail::mailer(env('APP_ENV') === 'production' ? 'interlaboratorial' : 'smtp')
-            ->to($participante->laboratorio->email)
+        Mail::to($participante->laboratorio->email)
             ->queue(new CertificadoInterlabMail($participante, Storage::path($Path)));
     }
 
