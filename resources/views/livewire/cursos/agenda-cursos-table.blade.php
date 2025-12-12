@@ -189,9 +189,7 @@
                             <td class="align-middle p-1">{{ $agendacurso->curso->descricao ?? '' }}</td>
                             <td class="align-middle p-1">{{ $agendacurso->tipo_agendamento ?? '' }}</td>
                             <td class="text-center text-nowrap align-middle p-1">
-                                {{ $agendacurso->tipo_agendamento != 'IN-COMPANY'
-                                    ? $agendacurso->inscritos->where('valor', '!=', null)->count()
-                                    : $agendacurso->inscritos->count() }}
+                                {{ $agendacurso->inscritos_count }}
                             </td>
                             <td>
                                 <div class="dropdown">
