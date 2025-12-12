@@ -73,11 +73,6 @@ class AgendaCursosTable extends Component
         $this->resetPage();
     }
 
-    //Metodo mount para capturar tipoagendaini
-    public function mount($tipoagendaini)
-    {
-        $this->tipoAgendaIni = $tipoagendaini;
-    }
 
     //Método para construir a query (reutilizável)
     protected function getQuery()
@@ -93,13 +88,6 @@ class AgendaCursosTable extends Component
             })
             ->when($this->status !== '', function ($query) {
                 $query->where('status', $this->status);
-            })
-            ->when($this->tipoAgendaIni !== '', function ($query) {
-                if ($this->tipoAgendaIni === 'ABERTA') {
-                    $query->where('tipo_agendamento', '!=', 'IN-COMPANY');
-                } elseif ($this->tipoAgendaIni === 'IN-COMPANY') {
-                    $query->where('tipo_agendamento', '=', 'IN-COMPANY');
-                }
             })
             ->when($this->tipo_agendamento !== '', function ($query) {  
                     $query->where('tipo_agendamento', $this->tipo_agendamento);

@@ -93,7 +93,8 @@ class AgendaCursoInCompanyController extends Controller
       ]);
     }
 
-    return back()->with('success', 'Agendamento in-company cadastrado com sucesso');
+    return redirect()->route('agendamento-curso-index')
+      ->with('success', 'Agendamento cadastrado com sucesso');
   }
 
   /**
@@ -132,6 +133,7 @@ class AgendaCursoInCompanyController extends Controller
       ]);
     }
 
-    return back()->with('success', 'Agendamento in-company atualizado com sucesso');
+    return redirect()->route('agendamento-curso-index')
+      ->with('success', 'Agendamento atualizado com sucesso');
   }
 } 
