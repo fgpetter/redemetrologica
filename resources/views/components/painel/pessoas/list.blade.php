@@ -7,6 +7,10 @@
   if (isset($_GET['doc']) && $_GET['doc'] == 'ASC') {
     $order_doc = 'DESC';
   }
+  $order_associado = 'ASC';
+  if (isset($_GET['associado']) && $_GET['associado'] == 'ASC') {
+    $order_associado = 'DESC';
+  }
   $order_data = 'ASC';
   if (isset($_GET['data']) && $_GET['data'] == 'ASC') {
     $order_data = 'DESC';
@@ -43,7 +47,6 @@
               <input type="text" class="form-control form-control-sm"
                 onkeypress="search(event, window.location.href, 'buscadoc')"
                 placeholder="Buscar por documento" value="{{ $busca_doc ?? null }}">
-
             </th>
             <th scope="col"></th>
             <th scope="col"></th>
@@ -71,6 +74,12 @@
                 &nbsp Data de cadastro
               </a>
             </th>
+            <th scope="col" class="text-wrap">
+              <a href="{{ route('pessoa-index', ['associado' => $order_associado]) }}">
+                {!! $order_associado == 'ASC' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
+                &nbsp Associado
+              </a>
+            </th>
             <th scope="col" style="width: 5%; white-space: nowrap;"></th>
           </tr>
         </thead>
@@ -86,6 +95,7 @@
               <td><input type="text" class="form-control-plaintext table-cpf-cnpj"
                   style="min-width: 135px" value="{{ $pessoa->cpf_cnpj }}" readonly></td>
               <td>{{ ($pessoa->created_at) ? $pessoa->created_at->format('d/m/Y') : '-' }}</td>
+              <td>{{ $pessoa->associado == 1 ? 'Sim' : 'Não' }}</td>
               <td>
                 <div class="dropdown">
                   <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"

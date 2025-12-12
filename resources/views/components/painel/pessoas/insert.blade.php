@@ -182,6 +182,15 @@
                    @error('site') <div class="text-warning">{{ $message }}</div> @enderror
                  </div>
 
+                 <div class="col-6">
+                  <div class="form-check mb-3 bg-light rounded" style="padding: 0.8rem 1.8rem 0.8rem;">
+                    <input class="form-check-input" name="associado" value="1" id="associado" type="checkbox"
+                    @checked(old('associado') ?? ($pessoa->associado)) >
+                    <label class="form-check-label" for="associado">
+                      Associado
+                    </label>
+                  </div>
+
                  <div class="col-12">
                    <button type="submit"
                      class="btn btn-primary px-4">{{ $pessoa->id ? 'Atualizar' : 'Salvar' }}</button>
