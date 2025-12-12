@@ -26,8 +26,7 @@ class AgendaCursoController extends Controller
    */
  public function index(Request $request): View
 {
-  $tipoagenda = 'ABERTA';
- return view('painel.agendamento-cursos.index', compact('tipoagenda'));
+ return view('painel.agendamento-cursos.index');
 }
 
   /**

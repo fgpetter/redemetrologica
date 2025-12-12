@@ -7,14 +7,9 @@
         li1="Cursos" li1link="curso-index"
         title="Lista Agendamento de Cursos"/>
 
-    {{-- <div class="row">
-        <div class="col">
-            <x-painel.agendamento-cursos.list :agendacursos="$agendacursos" :tipoagenda="$tipoagenda" />
-        </div>
-    </div> --}}
     <div class="row">
         <div class="col">
-            <livewire:cursos.agenda-cursos-table  :tipoagendaini="$tipoagenda" />
+            <livewire:cursos.agenda-cursos-table/>
         </div>
     </div>
 @endsection

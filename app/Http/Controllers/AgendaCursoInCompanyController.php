@@ -17,16 +17,6 @@ use Spatie\Browsershot\Browsershot;
 class AgendaCursoInCompanyController extends Controller
 {
 
-  /**
-   * Gera tela de lista de cursos agendados
-   * 
-   * @return View
-   */
-  public function index(Request $request): View
-{
-  $tipoagenda = 'IN-COMPANY';
- return view('painel.agendamento-cursos.index', compact('tipoagenda'));
-}
 
   /**
    * Tela de cadastro e edição de agenda de cursos in-company
@@ -93,7 +83,8 @@ class AgendaCursoInCompanyController extends Controller
       ]);
     }
 
-    return back()->with('success', 'Agendamento in-company cadastrado com sucesso');
+    return redirect()->route('agendamento-curso-index')
+      ->with('success', 'Agendamento cadastrado com sucesso');
   }
 
   /**
@@ -132,6 +123,7 @@ class AgendaCursoInCompanyController extends Controller
       ]);
     }
 
-    return back()->with('success', 'Agendamento in-company atualizado com sucesso');
+    return redirect()->route('agendamento-curso-index')
+      ->with('success', 'Agendamento atualizado com sucesso');
   }
 } 
