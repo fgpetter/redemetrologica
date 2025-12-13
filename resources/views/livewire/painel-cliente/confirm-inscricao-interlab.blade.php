@@ -29,7 +29,7 @@
                                 </div>
                                 <!-- Botão de editar empresa -->
                                 @if (
-                                    !$showSalvarEmpresa &&
+                                        !$showSalvarEmpresa &&
                                         !$showInscreveLab &&
                                         $empresaEditadaId === null &&
                                         $laboratorioEditadoId === null &&
@@ -37,8 +37,8 @@
                                     <div>
                                         <button class="btn btn-sm btn-outline-light me-2"
                                             wire:click.prevent="{{ $empresaEditadaId === $empresa_inscrita->id
-                                                ? '$set(\'empresaEditadaId\', null)'
-                                                : 'editEmpresa(' . $empresa_inscrita->id . ')' }}">
+                                    ? '$set(\'empresaEditadaId\', null)'
+                                    : 'editEmpresa(' . $empresa_inscrita->id . ')' }}">
                                             <i class="ri-edit-line"></i>
                                             {{ $empresaEditadaId === $empresa_inscrita->id ? 'Cancelar' : 'Editar' }}
                                         </button>
@@ -72,8 +72,8 @@
                                         <x-forms.input-field wire:model="empresa.telefone" name="telefone"
                                             label="Telefone" class="telefone" maxlength="15"
                                             x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
-                                                ? '(99) 99999-9999' 
-                                                : '(99) 9999-9999'" />
+                                                            ? '(99) 99999-9999' 
+                                                            : '(99) 9999-9999'" />
                                         @error('empresa.telefone')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
@@ -169,7 +169,7 @@
                                                 <small class="text-muted">Endereço:</small>
                                                 <p class="mb-0">
                                                     {{ $inscrito->laboratorio->endereco->endereco ?? '--' }},
-                                                    {{ $inscrito->laboratorio->endereco->cidade ?? '--' }}/{{ $inscrito->laboratorio->endereco->uf ?? '--'}} 
+                                                    {{ $inscrito->laboratorio->endereco->cidade ?? '--' }}/{{ $inscrito->laboratorio->endereco->uf ?? '--'}}
                                                 </p>
                                             </div>
                                             <div class="col-md-3">
@@ -178,7 +178,7 @@
                                             </div>
                                             <!-- Botão de editar laboratório -->
                                             @if (
-                                                !$showSalvarEmpresa &&
+                                                    !$showSalvarEmpresa &&
                                                     !$showInscreveLab &&
                                                     $empresaEditadaId === null &&
                                                     $laboratorioEditadoId === null &&
@@ -186,8 +186,8 @@
                                                 <div class="mt-2 text-end col-md-2">
                                                     <button class="btn btn-sm btn-outline-warning"
                                                         wire:click.prevent="{{ $laboratorioEditadoId === $inscrito->laboratorio->id
-                                                            ? '$set(\'laboratorioEditadoId\', null)'
-                                                            : 'editLaboratorio(' . $inscrito->id . ')' }}">
+                                                    ? '$set(\'laboratorioEditadoId\', null)'
+                                                    : 'editLaboratorio(' . $inscrito->id . ')' }}">
                                                         <i class="ri-edit-line"></i>
                                                         {{ $laboratorioEditadoId === $inscrito->laboratorio->id ? 'Cancelar' : 'Editar' }}
                                                     </button>
@@ -228,7 +228,7 @@
                                                                 name="laboratorio.telefone" label="Telefone"
                                                                 class="telefone" maxlength="15"
                                                                 x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
-                                                                ? '(99) 99999-9999' 
+                                                                                    ? '(99) 99999-9999' 
                                                                 : '(99) 9999-9999'"
                                                                 wire:ignore />
                                                             @error('laboratorio.telefone')
@@ -355,6 +355,30 @@
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
                                                     @endif
+
+                                                    <!-- Card de seleção do Certificado de desempenho -->
+                                                    <div class="card border border-warning mt-4">
+                                                        <div class="card-body">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    wire:model="solicitar_certificado"
+                                                                    id="solicitar_certificado_edit_{{ $inscrito->id }}">
+                                                                <label class="form-check-label"
+                                                                    for="solicitar_certificado_edit_{{ $inscrito->id }}">
+                                                                    <strong>Adicionar Certificado de Desempenho</strong>
+                                                                    <small class="text-muted d-block mt-1">
+                                                                        Selecione caso queira receber um certificado de desempenho para esse
+                                                                        laboratório.
+                                                                        A emissão deste certificado possui custo adicional. Ao solicitar,
+                                                                        você confirma ciência do valor e das condições de pagamento.
+                                                                    </small>
+                                                                    <span class="badge bg-primary fs-6 mt-1">
+                                                                        R$ 300,00
+                                                                    </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -377,7 +401,7 @@
                             @endforeach
                             <!-- Botão de adicionar novo laboratório -->
                             @if (
-                                !$showSalvarEmpresa &&
+                                    !$showSalvarEmpresa &&
                                     !$showInscreveLab &&
                                     $empresaEditadaId === null &&
                                     $laboratorioEditadoId === null &&
@@ -425,7 +449,7 @@
                                                             name="laboratorio.telefone" label="Telefone"
                                                             class="telefone" maxlength="15"
                                                             x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
-                                                                ? '(99) 99999-9999' 
+                                                                                ? '(99) 99999-9999' 
                                                                 : '(99) 9999-9999'"
                                                             wire:ignore />
                                                         @error('laboratorio.telefone')
@@ -550,6 +574,30 @@
                                                         <div class="text-danger">{{ $message }}</div>
                                                     @enderror
                                                 @endif
+
+                                                <!-- Card de seleção do Certificado de desempenho -->
+                                                <div class="card border border-warning mt-4">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                wire:model="solicitar_certificado"
+                                                                id="solicitar_certificado_new_{{ $empresa_inscrita->id }}">
+                                                            <label class="form-check-label"
+                                                                for="solicitar_certificado_new_{{ $empresa_inscrita->id }}">
+                                                                <strong>Adicionar Certificado de Desempenho</strong>
+                                                                <small class="text-muted d-block mt-1">
+                                                                    Selecione caso queira receber um certificado de desempenho para esse
+                                                                    laboratório.
+                                                                    A emissão deste certificado possui custo adicional. Ao solicitar,
+                                                                    você confirma ciência do valor e das condições de pagamento.
+                                                                </small>
+                                                                <span class="badge bg-primary fs-6 mt-1">
+                                                                    R$ 300,00
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div>
@@ -578,7 +626,7 @@
     @endif
     <!-- Formulário de busca CNPJ -->
     @if (
-        !$showSalvarEmpresa &&
+            !$showSalvarEmpresa &&
             !$showInscreveLab &&
             $empresaEditadaId === null &&
             $laboratorioEditadoId === null &&
@@ -587,8 +635,8 @@
             <div class="row">
                 <div class="col-md-6 border-end pe-3" id="step-6">
                     <h5>{{ $empresas_inscritas && $empresas_inscritas->isNotEmpty()
-                        ? 'Informe outro CNPJ caso queira cadastrar outra empresa para cobrança'
-                        : 'Informe o CNPJ para continuar' }}
+            ? 'Informe outro CNPJ caso queira cadastrar outra empresa para cobrança'
+            : 'Informe o CNPJ para continuar' }}
                     </h5>
                     <p>Para prosseguir com a inscrição, é necessário informar um CNPJ para envio de nota Fiscal e
                         Cobrança</p>
@@ -867,6 +915,26 @@
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     @endif
+                    <!-- Card de seleção do Certificado de desempenho -->
+                    <div class="card border border-warning mt-4">
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" wire:model="solicitar_certificado"
+                                    id="solicitar_certificado_main">
+                                <label class="form-check-label" for="solicitar_certificado_main">
+                                    <strong>Adicionar Certificado de Desempenho</strong>
+                                    <small class="text-muted d-block mt-1">
+                                        Selecione caso queira receber um certificado de desempenho para esse laboratório.
+                                        A emissão deste certificado possui custo adicional. Ao solicitar, você confirma
+                                        ciência do valor e das condições de pagamento.
+                                    </small>
+                                    <span class="badge bg-primary fs-6 mt-1">
+                                        R$ 300,00
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <div class="row m-3 d-flex justify-content-end gap-2">
@@ -970,41 +1038,41 @@
         function createDriver4() {
             const driver = window.driver.js.driver({
                 steps: [{
-                        element: '#step-4',
-                        popover: {
-                            title: 'Conferir inscrição',
-                            description: 'Aqui você pode conferir as inscrições feitas e editar os dados da empresa e dos laboratórios.',
-                            side: 'top',
-                            align: 'start',
-                        }
-                    },
-                    {
-                        element: '#step-5',
-                        popover: {
-                            title: 'Adicionar novo laboratório',
-                            description: 'Aqui você pode adicionar um novo laboratório à inscrição.',
-                            side: 'top',
-                            align: 'start',
-                        }
-                    },
-                    {
-                        element: '#step-6',
-                        popover: {
-                            title: 'Incluir nova empresa',
-                            description: 'Aqui você pode cadastrar uma nova empresa para a emissão da nota fiscal a um CNPJ diferente.',
-                            side: 'top',
-                            align: 'start',
-                        }
-                    },
-                    {
-                        element: '#step-7',
-                        popover: {
-                            title: 'Encerrar inscrições',
-                            description: 'Clique aqui quando desejar encerrar as inscrições.',
-                            side: 'top',
-                            align: 'start',
-                        }
+                    element: '#step-4',
+                    popover: {
+                        title: 'Conferir inscrição',
+                        description: 'Aqui você pode conferir as inscrições feitas e editar os dados da empresa e dos laboratórios.',
+                        side: 'top',
+                        align: 'start',
                     }
+                },
+                {
+                    element: '#step-5',
+                    popover: {
+                        title: 'Adicionar novo laboratório',
+                        description: 'Aqui você pode adicionar um novo laboratório à inscrição.',
+                        side: 'top',
+                        align: 'start',
+                    }
+                },
+                {
+                    element: '#step-6',
+                    popover: {
+                        title: 'Incluir nova empresa',
+                        description: 'Aqui você pode cadastrar uma nova empresa para a emissão da nota fiscal a um CNPJ diferente.',
+                        side: 'top',
+                        align: 'start',
+                    }
+                },
+                {
+                    element: '#step-7',
+                    popover: {
+                        title: 'Encerrar inscrições',
+                        description: 'Clique aqui quando desejar encerrar as inscrições.',
+                        side: 'top',
+                        align: 'start',
+                    }
+                }
                 ],
                 showButtons: ['next', 'prev'],
                 nextBtnText: '→',

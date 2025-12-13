@@ -46,6 +46,7 @@ class ConfirmInscricaoInterlab extends Component
 
     // Valores para o formulario de inscrição de laboratorio
     public $valores_inscricao;
+    public $solicitar_certificado = false;
 
     public function mount()
     {
@@ -93,7 +94,7 @@ class ConfirmInscricaoInterlab extends Component
 
         $this->valores_inscricao = AgendaInterlabValor::where('agenda_interlab_id', $this->interlab->id)->get();
 
-        $this->reset(['inscritoId', 'laboratorioId']);
+        $this->reset(['inscritoId', 'laboratorioId', 'solicitar_certificado']);
     }
 
     public function render()
@@ -288,6 +289,7 @@ class ConfirmInscricaoInterlab extends Component
             "informacoes_inscricao" => ['nullable', 'string'],
             "valor" => ['nullable', 'string'],
             "blocos_selecionados" => ['required', 'array', 'min:1'],
+            "solicitar_certificado" => ['boolean'],
         ];
     }
 
@@ -311,10 +313,18 @@ class ConfirmInscricaoInterlab extends Component
                 $descricoes[] = $bloco->descricao;
             }
         }
+        // Adiciona o valor do certificado se solicitado
+        if ($this->solicitar_certificado) {
+            $valorTotal += 300.00;
+        }
 
         $informacoesInscricao = !empty($descricoes)
             ? 'Blocos: ' . implode(', ', $descricoes) . '.'
             : '';
+        // Adiciona o texto do certificado se solicitado
+        if ($this->solicitar_certificado) {
+            $informacoesInscricao .= ' | Certificado de Desempenho solicitado.';
+        }
 
         return [
             'valor' => $valorTotal,
@@ -525,10 +535,19 @@ class ConfirmInscricaoInterlab extends Component
         // Limpar campo de observações se contiver apenas blocos gerados automaticamente
         // Os blocos serão selecionados via checkboxes
         $infoInscricao = $inscrito->informacoes_inscricao ?? '';
+
+        // Verifica se o certificado de desempenho foi solicitado
+        if (str_contains($infoInscricao, 'Certificado de Desempenho solicitado.')) {
+            $this->solicitar_certificado = true;
+            $infoInscricao = str_replace(' | Certificado de Desempenho solicitado.', '', $infoInscricao);
+        } else {
+            $this->solicitar_certificado = false;
+        }
+
         if (str_starts_with(trim($infoInscricao), 'Blocos:')) {
             $this->informacoes_inscricao = '';
         } else {
-            $this->informacoes_inscricao = $infoInscricao;
+            $this->informacoes_inscricao = trim($infoInscricao);
         }
     }
 
@@ -564,6 +583,7 @@ class ConfirmInscricaoInterlab extends Component
             'informacoes_inscricao',
             'blocos_selecionados',
             'valor',
+            'solicitar_certificado',
         ]);
     }
 
