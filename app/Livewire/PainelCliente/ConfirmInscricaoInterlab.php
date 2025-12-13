@@ -585,6 +585,7 @@ class ConfirmInscricaoInterlab extends Component
             'valor',
             'solicitar_certificado',
         ]);
+        $this->mount();
     }
 
     public function buscaCep($campo)
