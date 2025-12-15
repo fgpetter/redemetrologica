@@ -46,6 +46,24 @@ class Avaliador extends Model
     }
 
     /**
+     * Endereço pessoal
+     * @return BelongsTo
+     */
+    public function enderecoPessoal(): BelongsTo
+    {
+        return $this->belongsTo(Endereco::class, 'endereco_pessoal_id');
+    }
+
+    /**
+     * Endereço comercial
+     * @return BelongsTo
+     */
+    public function enderecoComercial(): BelongsTo
+    {
+        return $this->belongsTo(Endereco::class, 'endereco_comercial_id');
+    }
+
+    /**
      * Qualificações
      * @return HasMany
      */

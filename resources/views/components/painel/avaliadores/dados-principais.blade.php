@@ -150,7 +150,7 @@
         <div class="col-4">
           <label class="form-label">Data ingresso</label>
           <input type="date" class="form-control" name="data_ingresso" id="data_ingresso" 
-            value="{{ old('data_ingresso') ?? $avaliador->data_ingresso->format('Y-m-d') ?? null }}" required>
+            value="{{ old('data_ingresso') ?? $avaliador->data_ingresso ?? null }}" required>
           @error('data_ingresso') <div class="text-warning">{{ $message }}</div> @enderror 
         </div>
 

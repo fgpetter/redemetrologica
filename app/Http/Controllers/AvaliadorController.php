@@ -125,15 +125,10 @@ class AvaliadorController extends Controller
     $areas_atuacao = AreaAtuacao::select('id', 'uid', 'descricao')->get();
 
     // carrega endereço pessoal do avaliador
-    $endereco_pessoal = $avaliador->pessoa->enderecos()
-      ->where('pessoa_id', $avaliador->pessoa_id)
-      ->whereNull('avaliador_id')
-      ->first();
+    $endereco_pessoal = $avaliador->enderecoPessoal;
 
     // carrega endereço comercial do avaliador
-    $endereco_comercial = $avaliador->pessoa->enderecos()
-    ->where('avaliador_id', $avaliador->id)
-    ->first(); 
+    $endereco_comercial = $avaliador->enderecoComercial; 
 
     //carrega lista com empresas
     $empresas = Pessoa::select('id', 'uid', 'nome_razao', 'cpf_cnpj')
@@ -290,12 +285,18 @@ class AvaliadorController extends Controller
     }
 
     if ($isPessoalGroupFilled) {
-        $avaliador->pessoa->enderecos()->updateOrCreate(
-            [
+        if ($avaliador->endereco_pessoal_id) {
+            $avaliador->enderecoPessoal->update([
+                'cep' => $request->pessoal_cep,
+                'endereco' => $request->pessoal_endereco,
+                'complemento' => $request->pessoal_complemento,
+                'bairro' => $request->pessoal_bairro,
+                'cidade' => $request->pessoal_cidade,
+                'uf' => $request->pessoal_uf,
+            ]);
+        } else {
+            $endereco = Endereco::create([
                 'pessoa_id' => $avaliador->pessoa->id,
-                'avaliador_id' => null
-            ],
-            [   
                 'info' => 'Endereço pessoal',
                 'cep' => $request->pessoal_cep,
                 'endereco' => $request->pessoal_endereco,
@@ -303,17 +304,24 @@ class AvaliadorController extends Controller
                 'bairro' => $request->pessoal_bairro,
                 'cidade' => $request->pessoal_cidade,
                 'uf' => $request->pessoal_uf,
-            ]
-        );
+            ]);
+            $avaliador->update(['endereco_pessoal_id' => $endereco->id]);
+        }
     }
 
     if ($isComercialGroupFilled) {
-        $avaliador->pessoa->enderecos()->updateOrCreate(
-            [
+        if ($avaliador->endereco_comercial_id) {
+            $avaliador->enderecoComercial->update([
+                'cep' => $request->comercial_cep,
+                'endereco' => $request->comercial_endereco,
+                'complemento' => $request->comercial_complemento,
+                'bairro' => $request->comercial_bairro,
+                'cidade' => $request->comercial_cidade,
+                'uf' => $request->comercial_uf,
+            ]);
+        } else {
+            $endereco = Endereco::create([
                 'pessoa_id' => $avaliador->pessoa->id,
-                'avaliador_id' => $avaliador->id
-            ],
-            [
                 'info' => 'Endereço comercial',
                 'cep' => $request->comercial_cep,
                 'endereco' => $request->comercial_endereco,
@@ -321,8 +329,9 @@ class AvaliadorController extends Controller
                 'bairro' => $request->comercial_bairro,
                 'cidade' => $request->comercial_cidade,
                 'uf' => $request->comercial_uf,
-            ]
-        );
+            ]);
+            $avaliador->update(['endereco_comercial_id' => $endereco->id]);
+        }
     }
 
     return redirect()->back()->with('success', 'Endereços atualizados com sucesso')->withFragment('enderecos');
