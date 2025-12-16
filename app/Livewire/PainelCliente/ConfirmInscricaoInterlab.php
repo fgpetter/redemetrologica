@@ -434,19 +434,7 @@ class ConfirmInscricaoInterlab extends Component
                         'email' => $validated['laboratorio']['email'],
                     ]);
 
-
-                    $senha = null;
-                    if (!empty($this->interlab->interlab->tag)) {
-                        $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
-                        while (
-                            InterlabInscrito::where('tag_senha', $senha)
-                                ->where('agenda_interlab_id', $this->interlab->id)
-                                ->exists()
-                        ) {
-                            $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
-                        }
-                    }
-
+                    $senha = InterlabInscrito::geraTagSenha($this->interlab);
 
                     $inscrito = InterlabInscrito::create([
                         'pessoa_id' => $this->pessoaId_usuario,

@@ -70,18 +70,8 @@ class InscricaoInterlabController extends Controller
         'email' => $validated['email'],
       ]);
 
-      $senha = null;
-      if (!empty($agenda_interlab->interlab->tag)) {
-        $senha = $agenda_interlab->interlab->tag . '-' . rand(111, 999);
-        while (
-          InterlabInscrito::where('tag_senha', $senha)
-            ->where('agenda_interlab_id', $agenda_interlab->id)
-            ->exists()
-        ) {
-          $senha = $agenda_interlab->interlab->tag . '-' . rand(111, 999);
-        }
-      }
-  
+      $senha = InterlabInscrito::geraTagSenha($agenda_interlab->interlab);
+
       $inscrito = InterlabInscrito::create([
         'pessoa_id' => $responsavel->id ?? auth()->user()->pessoa->id,
         'empresa_id' => $empresa->id,
