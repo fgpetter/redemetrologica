@@ -120,7 +120,7 @@
   <hr class="my-4">
   <div class="row">
     <div class="col-6 col-lg-3">
-      @if(isset($agendainterlab->id) && $agendainterlab->interlab->tag)
+      @if(isset($agendainterlab->id) && $agendainterlab->interlab->tag && $agendainterlab->valores->count() > 0)
         <div class="form-check bg-light rounded check-bg" style="padding: 0.8rem 1.8rem 0.8rem;">
           <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox"
             @checked($agendainterlab->inscricao ?? false)>
@@ -128,7 +128,7 @@
         </div>
       @else
         <div class="form-check bg-light rounded check-bg" style="padding: 0.8rem 1.8rem 0.8rem;"
-          data-bs-toggle="tooltip" data-bs-html="true" title="O interlaboratorial não possui tag.">
+          data-bs-toggle="tooltip" data-bs-html="true" title="O interlaboratorial não possui tag ou valores.">
           <input class="form-check-input" name="inscricao" value="1" id="inscricao" type="checkbox" disabled>
           <label class="form-check-label" for="inscricao">INSCRIÇÕES</label>
         </div>
