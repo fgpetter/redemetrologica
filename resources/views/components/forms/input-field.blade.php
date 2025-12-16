@@ -13,7 +13,20 @@
     'readonly' => false,
     'disabled' => false,
     'list' => null,
+    'mask' => null,
 ])
+
+@php
+    $maskAttr = match($mask) {
+        'cpf' => 'x-mask="999.999.999-99"',
+        'cnpj' => 'x-mask="99.999.999/9999-99"',
+        'cpf_cnpj' => 'x-mask:dynamic="$input.replace(/\D/g, \'\').length > 11 ? \'99.999.999/9999-99\' : \'999.999.999-99\'"',
+        'cep' => 'x-mask="99999-999"',
+        'telefone' => 'x-mask:dynamic="$input.replace(/\D/g, \'\').length === 11 ? \'(99) 9 9999-9999\' : \'(99) 9999-9999\'"',
+        'money' => 'x-mask:dynamic="moneyMask($input)"',
+        default => null,
+    };
+@endphp
 
 <div x-data="{ showError: false }">
     <label class="form-label mb-0">{!! $label !!} {!! ($required ? '<span class="text-danger-emphasis"> * </span>' : '') !!}</label>
@@ -33,6 +46,7 @@
         @if ($pattern) pattern='{{ $pattern }}' title="{{ $title }}" @endif
         @if ($list) list={{ $list }} @endif
         @readonly($readonly) 
-        @disabled($disabled) >
+        @disabled($disabled) 
+        @if ($maskAttr) {!! $maskAttr !!} @endif >
     <span x-show="showError" x-cloak class="text-danger small">Obrigatório</span>
 </div>

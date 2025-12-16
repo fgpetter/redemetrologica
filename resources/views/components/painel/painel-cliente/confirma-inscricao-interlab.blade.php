@@ -39,7 +39,7 @@
   
                 <div class="row mb-2">
                   <div class="col-12 col-sm-6">
-                    <x-forms.input-field :value="old('telefone') ?? null" name="telefone" label="Telefone" class="telefone"/>
+                    <x-forms.input-field :value="old('telefone') ?? null" name="telefone" label="Telefone" mask="telefone"/>
                     @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                   </div>
                   <div class="col-12 col-sm-6">

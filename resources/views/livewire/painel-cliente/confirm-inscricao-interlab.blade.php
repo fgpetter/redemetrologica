@@ -70,10 +70,7 @@
 
                                     <div class="col-md-6">
                                         <x-forms.input-field wire:model="empresa.telefone" name="telefone"
-                                            label="Telefone" class="telefone" maxlength="15"
-                                            x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
-                                                ? '(99) 99999-9999' 
-                                                : '(99) 9999-9999'" />
+                                            label="Telefone" mask="telefone" />
                                         @error('empresa.telefone')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
@@ -226,11 +223,7 @@
                                                         <div class="col-12 col-sm-6">
                                                             <x-forms.input-field wire:model="laboratorio.telefone"
                                                                 name="laboratorio.telefone" label="Telefone"
-                                                                class="telefone" maxlength="15"
-                                                                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
-                                                                ? '(99) 99999-9999' 
-                                                                : '(99) 9999-9999'"
-                                                                wire:ignore />
+                                                                mask="telefone" />
                                                             @error('laboratorio.telefone')
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
@@ -423,11 +416,7 @@
                                                     <div class="col-12 col-sm-6">
                                                         <x-forms.input-field wire:model="laboratorio.telefone"
                                                             name="laboratorio.telefone" label="Telefone"
-                                                            class="telefone" maxlength="15"
-                                                            x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
-                                                                ? '(99) 99999-9999' 
-                                                                : '(99) 9999-9999'"
-                                                            wire:ignore />
+                                                            mask="telefone" />
                                                         @error('laboratorio.telefone')
                                                             <div class="text-danger">{{ $message }}</div>
                                                         @enderror
@@ -642,8 +631,7 @@
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.telefone" name="telefone" label="Telefone"
-                                class="telefone" maxlength="15"
-                                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'" />
+                                mask="telefone" />
                             @error('empresa.telefone')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
@@ -758,8 +746,7 @@
                     <div class="row mb-2">
                         <div class="col-12 col-sm-6">
                             <x-forms.input-field wire:model="laboratorio.telefone" name="laboratorio.telefone"
-                                label="Telefone" class="telefone" maxlength="15"
-                                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'" />
+                                label="Telefone" mask="telefone" />
                             @error('laboratorio.telefone')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror

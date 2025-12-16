@@ -53,19 +53,19 @@
                  </div>
 
                  <div class="col-6">
-                   <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" class="telefone"
+                   <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" mask="telefone"
                      label="Telefone" /> 
                    @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                  </div>
 
                  <div class="col-6">
-                   <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone"
+                   <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" mask="telefone"
                      label="Telefone Alternativo" />
                    @error('telefone_alt') <div class="text-warning">{{ $message }}</div> @enderror
                  </div>
 
                  <div class="col-6">
-                   <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" class="telefone"
+                   <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" mask="telefone"
                      label="Celular" />
                    @error('celular') <div class="text-warning">{{ $message }}</div> @enderror
                  </div>
@@ -153,18 +153,18 @@
 
                  <div class="col-6">
                    <x-forms.input-field :value="old('telefone') ?? ($pessoa->telefone ?? null)" name="telefone" label="Telefone"
-                     class="telefone" />
+                     mask="telefone" />
                    @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                  </div>
 
                  <div class="col-6">
-                  <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone"
+                  <x-forms.input-field :value="old('telefone_alt') ?? ($pessoa->telefone_alt ?? null)" name="telefone_alt" mask="telefone"
                     label="Telefone Alternativo" />
                   @error('telefone_alt') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-6">
-                  <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" class="telefone"
+                  <x-forms.input-field :value="old('celular') ?? ($pessoa->celular ?? null)" name="celular" mask="telefone"
                     label="Celular" />
                   @error('celular') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>

@@ -92,8 +92,7 @@
                 </a>
               </th>
               <td class="text-truncate"> {{ $pessoa->nome_razao }} </td>
-              <td><input type="text" class="form-control-plaintext table-cpf-cnpj"
-                  style="min-width: 135px" value="{{ $pessoa->cpf_cnpj }}" readonly></td>
+              <td>{{ $pessoa->cpf_cnpj }}</td>
               <td>{{ ($pessoa->created_at) ? $pessoa->created_at->format('d/m/Y') : '-' }}</td>
               <td>{{ $pessoa->associado == 1 ? 'Sim' : 'Não' }}</td>
               <td>
