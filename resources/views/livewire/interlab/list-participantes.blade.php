@@ -18,7 +18,9 @@
                 <thead class="bg-light">
                     <tr>
                         <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp;
-                            {{ $empresa->nome_razao }} - CNPJ: {{ $empresa->cpf_cnpj }}</th>
+                            {{ $empresa->nome_razao }} - CNPJ: {{ $empresa->cpf_cnpj }}
+                            @if($empresa->associado) - <span class="text-primary">Associado</span> @endif
+                        </th>
                     </tr>
                 </thead>
 
