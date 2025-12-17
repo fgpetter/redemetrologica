@@ -18,7 +18,7 @@
   <div class="container my-5">
     <div class="row  d-flex align-items-center justify-content-center text-center">
       <div class="col">
-        <a href="{{ asset('downloads/Previsao_Ensaios_de_Proficiencia_2025.pdf') }}" class="link-secondary link-offset-2 text-decoration-underline">
+        <a href="{{ asset('downloads/Previsao_Ensaios_de_Proficiencia_2026.pdf') }}" class="link-secondary link-offset-2 text-decoration-underline">
           <h4>CLIQUE AQUI PARA BAIXAR A PROGRAMAÇÃO ANUAL 
           <i class="ri-file-download-line"></i>
           </h4>
