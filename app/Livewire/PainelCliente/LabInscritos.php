@@ -72,6 +72,10 @@ class LabInscritos extends Component
         $this->laboratorio['endereco'] = $inscrito->laboratorio->endereco
             ? $inscrito->laboratorio->endereco->toArray()
             : [];
+            
+        $this->laboratorio['responsavel_tecnico'] = $inscrito->responsavel_tecnico;
+        $this->laboratorio['telefone'] = $inscrito->telefone;
+        $this->laboratorio['email'] = $inscrito->email;
 
         $infoInscricao = $inscrito->informacoes_inscricao ?? '';
 
