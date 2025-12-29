@@ -288,6 +288,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
    */
   Route::group(['prefix' => 'interlab', 'middleware' => 'permission:funcionario,admin'], function () {
     Route::get('index', [InterlabController::class, 'index'])->name('interlab-index');
+    Route::get('labindex', [InterlabController::class, 'labindex'])->name('interlab-labindex');
     Route::get('insert/{interlab:uid?}', [InterlabController::class, 'insert'])->name('interlab-insert');
     Route::post('create', [InterlabController::class, 'create'])->name('interlab-create');
     Route::post('update/{interlab:uid}', [InterlabController::class, 'update'])->name('interlab-update');
