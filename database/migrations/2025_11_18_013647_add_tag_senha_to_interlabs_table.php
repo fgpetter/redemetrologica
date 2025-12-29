@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('interlab_inscritos', function (Blueprint $table) {
-            $table->string('tag_senha')->nullable();
+            $table->string('tag_senha')->nullable()->after('agenda_interlab_id');
         });
     }
 

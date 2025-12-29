@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('interlab_inscritos', function (Blueprint $table) {
-            $table->string('responsavel_tecnico')->nullable();
-            $table->string('telefone')->nullable();
-            $table->string('email')->nullable();
+            $table->string('responsavel_tecnico')->nullable()->after('informacoes_inscricao');
+            $table->string('telefone')->nullable()->after('responsavel_tecnico');
+            $table->string('email')->nullable()->after('telefone');
         });
     }
 
