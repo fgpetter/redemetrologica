@@ -130,9 +130,9 @@ class LabTable extends Component
     {
         $this->resetForm();
         $this->isEdit = true;
-        
+
         $lab = InterlabLaboratorio::where('uid', $uid)->with('endereco')->firstOrFail();
-        
+
         $this->labId = $lab->id;
         $this->empresa_id = $lab->empresa_id;
         $this->nome = $lab->nome;
@@ -155,8 +155,10 @@ class LabTable extends Component
         $this->validate();
 
         DB::transaction(function () {
+
             $enderecoData = [
                 'pessoa_id' => $this->empresa_id,
+                'info' => 'Laboratório Interlab',
                 'cep' => $this->cep,
                 'endereco' => $this->endereco,
                 'complemento' => $this->complemento,
@@ -165,23 +167,19 @@ class LabTable extends Component
                 'uf' => $this->uf,
             ];
 
-            if ($this->isEdit && $this->labId) {
-                $lab = InterlabLaboratorio::findOrFail($this->labId);
-                if ($lab->endereco_id) {
-                    $endereco = Endereco::find($lab->endereco_id);
-                    if ($endereco) {
-                        $endereco->update($enderecoData);
-                    } else {
-                        $endereco = Endereco::create($enderecoData);
-                        $lab->endereco_id = $endereco->id;
-                    }
-                } else {
-                    $endereco = Endereco::create($enderecoData);
-                    $lab->endereco_id = $endereco->id;
-                }
+            // laboratório
+            $lab = $this->isEdit && $this->labId
+                ? InterlabLaboratorio::findOrFail($this->labId)
+                : new InterlabLaboratorio();
+
+            // endereço
+            if ($lab->endereco_id) {
+                $endereco = Endereco::updateOrCreate(
+                    ['id' => $lab->endereco_id],
+                    $enderecoData
+                );
             } else {
                 $endereco = Endereco::create($enderecoData);
-                $lab = new InterlabLaboratorio();
                 $lab->endereco_id = $endereco->id;
             }
 
@@ -191,23 +189,24 @@ class LabTable extends Component
         });
 
         $this->dispatch('close-modal');
-        $this->dispatch('notify', 
-            type: 'success', 
+        $this->dispatch(
+            'notify',
+            type: 'success',
             content: $this->isEdit ? 'Laboratório atualizado com sucesso!' : 'Laboratório criado com sucesso!'
         );
-        
+
         $this->resetForm();
     }
 
     public function delete($uid)
     {
         $lab = InterlabLaboratorio::where('uid', $uid)->firstOrFail();
-        DB::transaction(function() use ($lab) {
-             $enderecoId = $lab->endereco_id;
-             $lab->delete();
-             if ($enderecoId) {
-                 Endereco::where('id', $enderecoId)->delete();
-             }
+        DB::transaction(function () use ($lab) {
+            $enderecoId = $lab->endereco_id;
+            $lab->delete();
+            if ($enderecoId) {
+                Endereco::where('id', $enderecoId)->delete();
+            }
         });
 
         $this->dispatch('notify', type: 'success', content: 'Laboratório removido com sucesso!');
@@ -216,8 +215,15 @@ class LabTable extends Component
     public function resetForm()
     {
         $this->reset([
-            'labId', 'nome', 'empresa_id',
-            'cep', 'endereco', 'complemento', 'bairro', 'cidade', 'uf',
+            'labId',
+            'nome',
+            'empresa_id',
+            'cep',
+            'endereco',
+            'complemento',
+            'bairro',
+            'cidade',
+            'uf',
             'isEdit'
         ]);
         $this->dispatch('reset-empresa-modal');
@@ -228,9 +234,11 @@ class LabTable extends Component
         return Pessoa::query()
             ->select(['id', 'cpf_cnpj', 'nome_razao'])
             ->where('tipo_pessoa', 'PJ')
-            ->whereIn('id', InterlabLaboratorio::query()
-                ->select('empresa_id')
-                ->distinct()
+            ->whereIn(
+                'id',
+                InterlabLaboratorio::query()
+                    ->select('empresa_id')
+                    ->distinct()
             )
             ->orderBy('nome_razao')
             ->get();
@@ -261,10 +269,10 @@ class LabTable extends Component
         return $query->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nome', 'like', "%{$search}%")
-                  ->orWhereHas('empresa', function ($subQuery) use ($search) {
-                      $subQuery->where('nome_razao', 'like', "%{$search}%")
-                               ->orWhere('cpf_cnpj', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('empresa', function ($subQuery) use ($search) {
+                        $subQuery->where('nome_razao', 'like', "%{$search}%")
+                            ->orWhere('cpf_cnpj', 'like', "%{$search}%");
+                    });
             });
         });
     }
@@ -272,7 +280,7 @@ class LabTable extends Component
     protected function applyEmpresaFilter($query)
     {
         return $query->when($this->empresaSelecionada, function ($query) {
-             $query->where('empresa_id', $this->empresaSelecionada);
+            $query->where('empresa_id', $this->empresaSelecionada);
         });
     }
 
