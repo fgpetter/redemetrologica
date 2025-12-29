@@ -220,9 +220,7 @@ class NovoLabInscrito extends Component
                     'empresa_id' => $empresaId,
                     'endereco_id' => $endereco->id,
                     'nome' => $this->laboratorio['nome'],
-                    'responsavel_tecnico' => $this->laboratorio['responsavel_tecnico'],
-                    'telefone' => $this->laboratorio['telefone'],
-                    'email' => $this->laboratorio['email'],
+    
                 ]);
                 $laboratorioId = $laboratorio->id;
             } else {
@@ -231,9 +229,7 @@ class NovoLabInscrito extends Component
                 
                 $laboratorio->update([
                     'nome' => $this->laboratorio['nome'],
-                    'responsavel_tecnico' => $this->laboratorio['responsavel_tecnico'],
-                    'telefone' => $this->laboratorio['telefone'],
-                    'email' => $this->laboratorio['email'],
+
                 ]);
                 
                 if($laboratorio->endereco) {

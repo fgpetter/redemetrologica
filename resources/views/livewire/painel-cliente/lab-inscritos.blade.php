@@ -57,7 +57,7 @@
                             <form wire:submit.prevent="salvar">
                                 @include('livewire.painel-cliente.form-laboratorio')
                                 <div class="mt-4 d-flex justify-content-end gap-2">
-                                    <button type="submit" class="btn btn-success btn-sm">
+                                    <button type="button" class="btn btn-success btn-sm" wire:click="salvar">
                                         <i class="ri-save-line me-2"></i>Salvar
                                     </button>
                                     <button type="button" class="btn btn-warning btn-sm" wire:click="cancelEdit">

@@ -65,18 +65,18 @@
                         <div class="row g-3">
                             @foreach ($valores_inscricao as $valorItem)
                                 <div class="col-12 col-md-6 col-lg-4">
-                                    <div class="form-check border rounded p-3 h-100 shadow-sm">
-                                        <input class="form-check-input ms-1" type="checkbox"
-                                            wire:model.live="blocos_selecionados"
-                                            value="{{ $valorItem->id }}"
-                                            id="bloco_{{ $valorItem->id }}">
-                                        <label class="form-check-label ps-1 w-100" for="bloco_{{ $valorItem->id }}">
-                                            <strong>{{ $valorItem->descricao }}</strong>
-                                            <div class="mt-2">
-                                                <span class="badge bg-primary fs-6">
-                                                    R$ {{ number_format($valorItem->valor, 2, ',', '.') }}
-                                                </span>
-                                            </div>
+                                    <div class="border rounded p-3 h-100 shadow-sm d-flex align-items-start">
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input fs-5 mt-0" type="checkbox"
+                                                wire:model.live="blocos_selecionados"
+                                                value="{{ $valorItem->id }}"
+                                                id="bloco_{{ $valorItem->id }}">
+                                        </div>
+                                        <label class="form-check-label ms-3 flex-grow-1" for="bloco_{{ $valorItem->id }}" style="cursor: pointer;">
+                                            <strong class="d-block mb-2">{{ $valorItem->descricao }}</strong>
+                                            <span class="badge bg-primary fs-6">
+                                                R$ {{ number_format($valorItem->valor, 2, ',', '.') }}
+                                            </span>
                                         </label>
                                     </div>
                                 </div>
