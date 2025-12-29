@@ -29,6 +29,10 @@
         <div id="collapseConfirmaCNPJ" class="accordion-collapse collapse {{ $isOpen ? 'show' : '' }}" 
             aria-labelledby="headingConfirmaCNPJ" data-bs-parent="#mainInscricaoAccordion">
             <div class="accordion-body bg-light">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong> Atenção! </strong> Revise os dados da empresa e clique em "Continuar" para prosseguir com a inscrição.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 <form wire:submit.prevent="salvar">
                     <div class="row g-3">
                         <div class="col-md-6">

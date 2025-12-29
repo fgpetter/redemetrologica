@@ -3,14 +3,14 @@
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <div class="row align-items-center">
-                <div class="col-md-7">
+                <div class="col-md-6">
                     <h5 class="mb-3">
                         <i class="ri-search-line me-2 text-primary"></i>Informe o CNPJ da Empresa
                     </h5>
                     <p class="text-muted mb-3">Para prosseguir com a inscrição, é necessário informar um CNPJ para envio de Nota Fiscal e Cobrança.</p>
                     
                     <form wire:submit.prevent="ProcuraCnpj">
-                        <div class="input-group input-group-lg">
+                        <div class="input-group input-group">
                             <span class="input-group-text bg-primary text-white">
                                 <i class="ri-building-line"></i>
                             </span>

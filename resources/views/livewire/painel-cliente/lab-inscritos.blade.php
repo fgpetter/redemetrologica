@@ -42,7 +42,7 @@
                                 </div>
                             </div>
                             @if(!$editingId)
-                                <span class="badge bg-success d-flex align-items-center justify-content-center" style="width: 90px;">
+                                <span class="badge bg-success d-flex align-items-center justify-content-center py-2 px-3 fs-6 fw-normal">
                                     <i class="ri-check-line me-1"></i>Inscrito
                                 </span>
                             @endif

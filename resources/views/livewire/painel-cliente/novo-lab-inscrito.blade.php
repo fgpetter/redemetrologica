@@ -1,7 +1,15 @@
-<div>
+<div x-data
+     x-on:scroll-to-errors.window="
+        $nextTick(() => {
+            const anchor = document.getElementById('laboratorios-disponiveis-line');
+            if (anchor) {
+                anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        })
+     ">
     @if($isVisible)
         @if($laboratorios_disponiveis->count() > 0)
-            <div class="mb-3">
+            <div class="mb-3" id="laboratorios-disponiveis-line">
                 <h5 class="text-primary">
                     <i class="ri-flask-line me-2"></i>Laboratórios Disponíveis para Inscrição
                 </h5>
@@ -11,21 +19,31 @@
             @foreach ($laboratorios_disponiveis as $lab)
                 <div class="accordion-item shadow-sm mb-3 border" wire:key="lab-disponivel-{{ $lab->id }}">
                     <h2 class="accordion-header" id="headingLabDisp{{ $lab->id }}">
-                        <button class="accordion-button collapsed fw-semibold" type="button" 
+                        <button class="accordion-button {{ $selecionadoId === $lab->id ? '' : 'collapsed' }}" 
+                            type="button" 
                             wire:click="selectLab({{ $lab->id }})"
-                            data-bs-toggle="collapse" data-bs-target="#collapse-labdisp-{{ $lab->id }}"
-                            aria-expanded="{{ $selecionadoId === $lab->id ? 'true' : 'false' }}">
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#collapse-labdisp-{{ $lab->id }}"
+                            aria-expanded="{{ $selecionadoId === $lab->id ? 'true' : 'false' }}"
+                            aria-controls="collapse-labdisp-{{ $lab->id }}">
                             <div class="w-100 d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center gap-3">
                                     <i class="ri-flask-line fs-5 text-primary"></i>
                                     <div>
-                                        <strong class="d-block">{{ $lab->nome }}</strong>
-                                        <small class="text-muted">Clique para inscrever este laboratório</small>
+                                        <div class="fs-5 py-1">{{ $lab->nome }}</div>
+                                        <div class="py-1">{{ $lab->endereco->endereco }}, {{ $lab->endereco->complemento }} - {{ $lab->endereco->cidade }} - {{ $lab->endereco->uf }}</div>
+                                        <small class="text-muted">
+                                            @if($selecionadoId === $lab->id)
+                                                Revise os dados do laboratório e clique em salvar
+                                            @else
+                                                Clique para inscrever este laboratório
+                                            @endif
+                                        </small>
                                     </div>
                                 </div>
                                 @if($selecionadoId !== $lab->id)
-                                    <span class="badge bg-primary d-flex align-items-center justify-content-center" style="width: 90px;">
-                                        <i class="ri-add-circle-line me-1"></i>Inscrever
+                                    <span class="badge bg-primary d-flex align-items-center py-2 fs-6 fw-normal">
+                                        Inscrever
                                     </span>
                                 @endif
                             </div>
@@ -54,10 +72,13 @@
         
         <div class="accordion-item shadow-sm mb-3 border border-success" wire:key="lab-novo">
             <h2 class="accordion-header" id="headingLabNovo">
-                <button class="accordion-button collapsed fw-semibold" type="button" 
+                <button class="accordion-button {{ $selecionadoId === 'new' ? '' : 'collapsed' }} fw-semibold" 
+                    type="button" 
                     wire:click="selectLab('new')"
-                    data-bs-toggle="collapse" data-bs-target="#collapse-labnovo"
-                    aria-expanded="{{ $selecionadoId === 'new' ? 'true' : 'false' }}">
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#collapse-labnovo"
+                    aria-expanded="{{ $selecionadoId === 'new' ? 'true' : 'false' }}"
+                    aria-controls="collapse-labnovo">
                     <div class="w-100 d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center gap-3">
                             <i class="ri-add-circle-fill fs-5 text-success"></i>
@@ -67,7 +88,7 @@
                             </div>
                         </div>
                         @if($selecionadoId !== 'new')
-                            <span class="badge bg-success d-flex align-items-center justify-content-center" style="width: 90px;">
+                            <span class="badge bg-success d-flex align-items-center justify-content-center py-2 px-3 fs-6 fw-normal">
                                 <i class="ri-add-line me-1"></i>Novo
                             </span>
                         @endif

@@ -157,7 +157,13 @@ class NovoLabInscrito extends Component
 
     public function salvar()
     {
-         $this->validate([
+        $this->withValidator(function ($validator) {
+            $validator->after(function ($validator) {
+                if ($validator->errors()->isNotEmpty()) {
+                    $this->dispatch('scroll-to-errors');
+                }
+            });
+        })->validate([
             "laboratorio.nome" => ['required', 'string', 'max:191'],
             "laboratorio.responsavel_tecnico" => ['required', 'string', 'max:191'],
             "laboratorio.telefone" => ['nullable', 'string', 'max:15'],
