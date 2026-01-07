@@ -197,6 +197,13 @@
                 Agendamento de Interlabs
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{{ route('interlab-labindex') }}" 
+                class="nav-link {{ request()->is('painel/interlab/labindex') ? 'active' : '' }}" 
+                role="button" data-key="t-signin">
+                Laboratórios
+              </a>
+            </li>
             </ul>
           </div>
         </li>

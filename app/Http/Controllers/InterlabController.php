@@ -30,6 +30,15 @@ class InterlabController extends Controller
 
     return view('painel.interlabs.index', ['interlabs' => $interlabs]);
 }
+  /**
+   * Gera pagina de listagem de laboratórios do intelabs
+   *
+   * @return View
+   **/
+   public function labindex(Request $request): View
+{  
+    return view('painel.interlabs.labindex');
+}
 
   /**
    * Tela de edição de interlab
