@@ -25,6 +25,7 @@ class LinkSenhaInterlabNotification extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Código de Identificação - ' . $this->dadosDoc->content['interlab_nome'])
+            ->replyTo('interlab@redemetrologica.com.br')
             ->view('emails.link-senha-interlab');
     }
 }

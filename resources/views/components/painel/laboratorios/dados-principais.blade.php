@@ -26,16 +26,13 @@
       </div>
 
       <div class="col-2">
-        <x-forms.input-select name="laboratorio_associado" label="Asociado">
-          <option value="0">NÃO</option>
-          <option @selected($laboratorio->laboratorio_associado == 1 || $laboratorio->pessoa->associado == 1 ) value="1">SIM</option>
-        </x-forms.input-select>
+        <x-forms.input-field name="associado" :value="$laboratorio->pessoa->associado ? 'SIM' : 'NÃO'" label="Associado" readonly />
       </div>
 
       <div class="col-4">
         <x-forms.input-field name="telefone" 
           :value="old('telefone') ?? ($laboratorio->telefone ?? $laboratorio->pessoa->telefone ?? null)" 
-          label="Telefone" class="telefone"/>
+          label="Telefone" mask="telefone"/>
           @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
       </div>
 

@@ -70,18 +70,8 @@ class InscricaoInterlabController extends Controller
         'email' => $validated['email'],
       ]);
 
-      $senha = null;
-      if (!empty($agenda_interlab->interlab->tag)) {
-        $senha = $agenda_interlab->interlab->tag . '-' . rand(111, 999);
-        while (
-          InterlabInscrito::where('tag_senha', $senha)
-            ->where('agenda_interlab_id', $agenda_interlab->id)
-            ->exists()
-        ) {
-          $senha = $agenda_interlab->interlab->tag . '-' . rand(111, 999);
-        }
-      }
-  
+      $senha = InterlabInscrito::geraTagSenha($agenda_interlab->interlab);
+
       $inscrito = InterlabInscrito::create([
         'pessoa_id' => $responsavel->id ?? auth()->user()->pessoa->id,
         'empresa_id' => $empresa->id,
@@ -113,8 +103,7 @@ class InscricaoInterlabController extends Controller
       ->cc('tecnico@redemetrologica.com.br')
       ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
 
-    Mail::mailer(env('APP_ENV') === 'production' ? 'interlaboratorial' : 'smtp')
-      ->to($inscrito->pessoa->email)
+    Mail::to($inscrito->pessoa->email)
       ->cc('sistema@redemetrologica.com.br')
       ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
 

@@ -2,9 +2,9 @@
 
 namespace App\Actions;
 
-use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Str;
+use Intervention\Image\Facades\Image;
 
 class FileUploadAction 
 {
@@ -20,7 +20,6 @@ class FileUploadAction
    */
   public static function handle(Request $request, string $filename, string $path, bool|array $params = false): ?string
   {
-    //dd($request, $filename, $path, $params);
     if ($request->hasFile( $filename )) {
 
       $file = $request->file($filename);

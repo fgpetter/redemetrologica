@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('interlab_inscritos', function (Blueprint $table) {
-            $table->string('tag_senha')->nullable()->after('agenda_interlab_id');
+            $table->string('responsavel_tecnico')->nullable()->after('informacoes_inscricao');
+            $table->string('telefone')->nullable()->after('responsavel_tecnico');
+            $table->string('email')->nullable()->after('telefone');
         });
     }
 
@@ -22,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('interlab_inscritos', function (Blueprint $table) {
-            $table->dropColumn('tag_senha');
+            $table->dropColumn(['responsavel_tecnico', 'telefone', 'email']);
         });
     }
 };

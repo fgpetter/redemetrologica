@@ -111,8 +111,8 @@ window.onload = function(){
      * Aplica mascaras com jquery mask
     */
     if (window.jQuery.fn.mask) {
-      $('#input-cnpj').mask('00.000.000/0000-00', {reverse: true});
-      $('#input-cpf').mask('000.000.000-00', {reverse: true});
+      $('#input-cnpj').mask('00.000.000/0000-00');
+      $('#input-cpf').mask('000.000.000-00');
       $('.money').mask('0.000.000,00', {reverse: true});
       $('.cep').mask('00000-000');
     }
@@ -224,17 +224,19 @@ window.onload = function(){
   const fontPlus = document.getElementById('font-plus')
   const fontMinus = document.getElementById('font-minus')
   const fontSize = document.body.style.fontSize
-  if(!fontSize){
-    document.body.style.fontSize = localStorage.getItem('fontSize') || '0.8rem'
+  if( fontPlus && fontMinus ){
+    if(!fontSize){
+      document.body.style.fontSize = localStorage.getItem('fontSize') || '0.8rem'
+    }
+    fontPlus.addEventListener('click', function(){
+      document.body.style.fontSize = parseFloat(localStorage.getItem('fontSize')) + 0.1 + 'rem'
+      localStorage.setItem('fontSize', document.body.style.fontSize)
+    })
+    fontMinus.addEventListener('click', function(){
+      document.body.style.fontSize = parseFloat(localStorage.getItem('fontSize')) - 0.1 + 'rem'
+      localStorage.setItem('fontSize', document.body.style.fontSize)
+    })
   }
-  fontPlus.addEventListener('click', function(){
-    document.body.style.fontSize = parseFloat(localStorage.getItem('fontSize')) + 0.1 + 'rem'
-    localStorage.setItem('fontSize', document.body.style.fontSize)
-  })
-  fontMinus.addEventListener('click', function(){
-    document.body.style.fontSize = parseFloat(localStorage.getItem('fontSize')) - 0.1 + 'rem'
-    localStorage.setItem('fontSize', document.body.style.fontSize)
-  })
 
 };
 console.log('Custom JS loaded!')

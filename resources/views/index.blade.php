@@ -66,7 +66,7 @@
       @endif
 
       @if ( session('interlab') )
-         <livewire:painel-cliente.confirm-inscricao-interlab />
+         @include('painel.painel-cliente.nova-inscricao-pd')
       @elseif( auth()->user()->pessoa->interlabs()->count() > 0 )
         <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->get()" />
       @endif

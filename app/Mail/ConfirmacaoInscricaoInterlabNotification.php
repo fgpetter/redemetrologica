@@ -42,6 +42,7 @@ class ConfirmacaoInscricaoInterlabNotification extends Mailable implements Shoul
     public function build()
     {
         return $this->subject('Confirmação de Inscrição - ' . $this->dados_email['interlab_nome'])
+                    ->replyTo('interlab@redemetrologica.com.br')
                     ->view('emails/confirmacao-inscricao-interlab');
     }
 } 

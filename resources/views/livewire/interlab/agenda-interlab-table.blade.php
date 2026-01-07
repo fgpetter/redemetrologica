@@ -73,6 +73,7 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width: 4%; white-space: nowrap;">COD</th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;">ANO</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">Limite Insc</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">
                             <a href="#" wire:click.prevent="setSortBy('status')">
@@ -144,6 +145,9 @@
                             <td class="text-center text-nowrap">
                                 <a
                                     href="{{ route('agenda-interlab-insert', $agendainterlab->uid) }}">#{{ $agendainterlab->id }}</a>
+                            </td>
+                            <td>
+                                {{ $agendainterlab->ano_referencia ?? '-' }}
                             </td>
                             <td class="text-uppercase">
                                 {{ $agendainterlab->data_limite_inscricao?->format('d/m/Y') ?? 'N/A' }}

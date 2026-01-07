@@ -18,7 +18,9 @@
                 <thead class="bg-light">
                     <tr>
                         <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp;
-                            {{ $empresa->nome_razao }} - CNPJ: {{ $empresa->cpf_cnpj }}</th>
+                            {{ $empresa->nome_razao }} - CNPJ: {{ $empresa->cpf_cnpj }}
+                            @if($empresa->associado) - <span class="text-primary">Associado</span> @endif
+                        </th>
                     </tr>
                 </thead>
 
@@ -146,16 +148,14 @@
                             <div class="collapse" id="{{ 'collapse' . $participante->uid }}">
                                 <div class="row m-3 pe-2">
                                     <div class="col-6 text-wrap">
-                                        <b>Inscrito por:</b>
-                                        {{ $participante->pessoa->nome_razao }} <br>
                                         <b>Informações:</b> {{ $participante->informacoes_inscricao }}
                                     </div>
                                     <div class="col-6 text-wrap">
                                         <b>Responsável técnico:</b>
-                                        {{ $participante->laboratorio->responsavel_tecnico }}
+                                        {{ $participante->responsavel_tecnico }}
                                         <br>
-                                        <b>Telefone:</b> {{ $participante->laboratorio->telefone }} <b>Email:</b>
-                                        {{ $participante->laboratorio->email }}<br>
+                                        <b>Telefone:</b> {{ $participante->telefone }} <b>Email:</b>
+                                        {{ $participante->email }}<br>
                                         <b>Endereço:</b>
                                         {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
                                         {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }},

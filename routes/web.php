@@ -194,7 +194,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
   /* Agendamento de cursos in-company */
   Route::group(['prefix' => 'agendamento-curso-in-company', 'middleware' => 'permission:funcionario,admin'], function () {
-    Route::get('index', [AgendaCursoInCompanyController::class, 'index'])->name('agendamento-curso-in-company-index');
     Route::get('insert/{agendacurso:uid?}', [AgendaCursoInCompanyController::class, 'insert'])->name('agendamento-curso-in-company-insert');
     Route::post('create', [AgendaCursoInCompanyController::class, 'create'])->name('agendamento-curso-in-company-create');
     Route::post('update/{agendacurso:uid}', [AgendaCursoInCompanyController::class, 'update'])->name('agendamento-curso-in-company-update');

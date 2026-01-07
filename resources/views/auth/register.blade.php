@@ -48,8 +48,8 @@
                         </div>
                         <div class="mb-3">
                           <label for="document" class="form-label">CPF <span class="text-danger">*</span></label>
-                          <input type="text" class="form-control table-cpf-cnpj @error('document') is-invalid @enderror" name="document" value="{{ old('document') }}" 
-                            id="document" required placeholder="Seu CPF">
+                          <input type="text" class="form-control @error('document') is-invalid @enderror" name="document" value="{{ old('document') }}" 
+                            id="input-cpf" required placeholder="Seu CPF">
                           @error('document')
                           <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
