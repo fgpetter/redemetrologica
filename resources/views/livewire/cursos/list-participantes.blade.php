@@ -9,6 +9,38 @@
             </ul>
         </div>
     @endif
+    @if (session()->has('success'))
+        <div wire:key="success-{{ rand() }}" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 1500)" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @click="show = false"></button>
+        </div>
+    @endif
+    @if ($agendacurso->tipo_agendamento == 'IN-COMPANY')
+    <div class="card mb-3 border-0 shadow-none">
+        <div class="card-body p-0">
+            <form wire:submit.prevent="saveInscrito" class="row g-2 align-items-start">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Nome" wire:model.defer="nome_razao">
+                    @error('nome_razao') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="CPF" wire:model.defer="cpf_cnpj"
+                        x-mask:dynamic="$input.replace(/\D/g, '').length > 11 ? '99.999.999/9999-99' : '999.999.999-99'"
+                        maxlength="14"
+                    >
+                    @error('cpf_cnpj') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                </div>
+                <div class="col-md-4">
+                    <input type="email" class="form-control" placeholder="E-mail" wire:model.defer="email">
+                    @error('email') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100"><i class="ri-add-line"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
 
     <div class="table-responsive" style="min-height: 180px">
         <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
