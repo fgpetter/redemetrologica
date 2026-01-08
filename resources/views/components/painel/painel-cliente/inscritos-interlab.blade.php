@@ -17,9 +17,9 @@
                     <div class="col-6">
                       <p class="ps-1">
                         <strong>Laboratório: &nbsp; </strong>{{ $labGroup->first()->laboratorio->nome }} <br>
-                        <strong>Responsável Técnico:</strong> {{ $labGroup->first()->laboratorio->responsavel_tecnico }} <br>
-                        <strong>Telefone: </strong> {{ $labGroup->first()->laboratorio->telefone }} <br>
-                        <strong>Email: </strong> {{ $labGroup->first()->laboratorio->email }} <br>
+                        <strong>Responsável Técnico:</strong> {{ $labGroup->first()->responsavel_tecnico }} <br>
+                        <strong>Telefone: </strong> {{ $labGroup->first()->telefone }} <br>
+                        <strong>Email: </strong> {{ $labGroup->first()->email }} <br>
                         <strong>Informações de inscrição:</strong> <br>
                         <span class="ps-1" >{!! nl2br($labGroup->first()->informacoes_inscricao) !!}</span>
                       </p>
