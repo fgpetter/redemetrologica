@@ -30,14 +30,14 @@
           <td>{{ $inscrito->pessoa->email }}</td>
           <td>{{ $inscrito->laboratorio->nome }}</td>
           <td>{{ ($inscrito->empresa->associado) ? 'SIM' : 'NÃO' }}</td>
-          <td>{{ $inscrito->laboratorio->endereco->endereco .' - '. $inscrito->laboratorio->endereco->complemento }}</td>
-          <td>{{ $inscrito->laboratorio->endereco->cep }}</td>
-          <td>{{ $inscrito->laboratorio->endereco->bairro }}</td>
-          <td>{{ $inscrito->laboratorio->endereco->cidade }}</td>
-          <td>{{ $inscrito->laboratorio->endereco->uf }}</td>
-          <td>{{ $inscrito->laboratorio->responsavel_tecnico }}</td>
-          <td>{{ $inscrito->laboratorio->email }}</td>
-          <td>{{ $inscrito->laboratorio->telefone }}</td>
+          <td>{{ $inscrito->laboratorio->endereco->endereco ?? '--' }}{{ !empty($inscrito->laboratorio->endereco->complemento) ? ' - ' . $inscrito->laboratorio->endereco->complemento : '' }}</td>
+          <td>{{ $inscrito->laboratorio->endereco->cep ?? '--' }}</td>
+          <td>{{ $inscrito->laboratorio->endereco->bairro ?? '--' }}</td>
+          <td>{{ $inscrito->laboratorio->endereco->cidade ?? '--' }}</td>
+          <td>{{ $inscrito->laboratorio->endereco->uf ?? '--' }}</td>
+          <td>{{ $inscrito->responsavel_tecnico }}</td>
+          <td>{{ $inscrito->email }}</td>
+          <td>{{ $inscrito->telefone }}</td>
           <td>{{ $inscrito->informacoes_inscricao }}</td>
           <td>{{ $inscrito->tag_senha }}</td>
       </tr>

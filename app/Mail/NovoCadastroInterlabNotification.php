@@ -38,8 +38,8 @@ class NovoCadastroInterlabNotification extends Mailable implements ShouldQueue
             'laboratorio_nome' => $inscrito->laboratorio->nome,
             'empresa_nome' => $inscrito->empresa->nome_razao,
             'empresa_cnpj' => $inscrito->empresa->cpf_cnpj,
-            'laboratorio_email' => $inscrito->laboratorio->email,
-            'laboratorio_telefone' => $inscrito->laboratorio->telefone,
+            'laboratorio_email' => $inscrito->email,
+            'laboratorio_telefone' => $inscrito->telefone,
             'laboratorio_endereco' => $inscrito->laboratorio->endereco->endereco.' - '.
                 $inscrito->laboratorio->endereco->complemento.' - '.
                 $inscrito->laboratorio->endereco->bairro.' - '.

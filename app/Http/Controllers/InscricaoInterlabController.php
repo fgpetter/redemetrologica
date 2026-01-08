@@ -65,12 +65,9 @@ class InscricaoInterlabController extends Controller
         'empresa_id' => $empresa->id,
         'endereco_id' => $endereco->id,
         'nome' => $validated['laboratorio'],
-        'responsavel_tecnico' => $validated['responsavel_tecnico'],
-        'telefone' => $validated['telefone'],
-        'email' => $validated['email'],
       ]);
 
-      $senha = InterlabInscrito::geraTagSenha($agenda_interlab->interlab);
+      $senha = InterlabInscrito::geraTagSenha($agenda_interlab);
 
       $inscrito = InterlabInscrito::create([
         'pessoa_id' => $responsavel->id ?? auth()->user()->pessoa->id,
@@ -81,6 +78,9 @@ class InscricaoInterlabController extends Controller
         'valor' => $validated['valor'] ?? null,
         'informacoes_inscricao' => $validated['informacoes_inscricao'],
         'tag_senha' => $senha,
+        'responsavel_tecnico' => $validated['responsavel_tecnico'],
+        'telefone' => $validated['telefone'],
+        'email' => $validated['email'],
       ]);
 
       if ($agenda_interlab->status === 'CONFIRMADO' && !empty($agenda_interlab->interlab->tag)) {
