@@ -154,9 +154,9 @@
                 @foreach ($inscritos as $inscrito)
                   <div class="{{ ($loop->index > 0) ? "border-top border-dark pt-3" : ""}}" >
                     <span class="fs-5">{{ $inscrito->laboratorio->nome }}</span> <br>
-                    <strong>Responsável Técnico</strong> {{ $inscrito->laboratorio->responsavel_tecnico }} <br>
-                    <strong>Telefone</strong> {{ $inscrito->laboratorio->telefone }} <br>
-                    <strong>Email</strong> {{ $inscrito->laboratorio->email }} <br>
+                    <strong>Responsável Técnico</strong> {{ $inscrito->responsavel_tecnico }} <br>
+                    <strong>Telefone</strong> {{ $inscrito->telefone }} <br>
+                    <strong>Email</strong> {{ $inscrito->email }} <br>
                     <strong>Informações de inscrição:</strong>
                     <p class="ps-3" >{!! nl2br($inscrito->informacoes_inscricao) !!}</p>
                   </div>
