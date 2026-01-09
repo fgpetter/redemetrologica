@@ -1,3 +1,7 @@
+{{-- Previne acesso direto a esta página --}}
+@php
+    die( http_response_code(404) );
+@endphp
 @extends('layouts.app')
 
 @section('content')

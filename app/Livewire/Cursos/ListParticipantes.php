@@ -3,6 +3,11 @@
 namespace App\Livewire\Cursos;
 
 use App\Models\AgendaCursos;
+use App\Models\CursoInscrito;
+use App\Models\Pessoa;
+use App\Actions\CreateUserForPessoaAction;
+use Illuminate\Support\Facades\DB;
+use LaravelLegends\PtBrValidator\Rules\CpfOuCnpj;
 use Livewire\Component;
 
 class ListParticipantes extends Component
@@ -51,5 +56,63 @@ class ListParticipantes extends Component
         return view('livewire.cursos.list-participantes', [
             'inscritos' => $inscritosQuery->get(),
         ]);
+    }
+
+    public $cpf_cnpj;
+    public $nome_razao;
+    public $email;
+
+    public function saveInscrito()
+    {
+        $this->validate([
+            'cpf_cnpj' => ['required', new CpfOuCnpj],
+            'nome_razao' => 'required|string|min:3',
+            'email' => 'required|email',
+        ], [
+            'cpf_cnpj.required' => 'O CPF é obrigatório.',
+            'cpf_cnpj.CpfOuCnpj' => 'O CPF informado é inválido.',
+            'nome_razao.required' => 'O nome é obrigatório.',
+            'nome_razao.min' => 'O nome deve ter no mínimo 3 caracteres.',
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email' => 'O e-mail informado é inválido.',
+        ]);
+
+        DB::transaction(function () {
+            // Remove caracteres especiais e espaços extras
+            $cpf_cnpj = preg_replace('/[^0-9]/', '', $this->cpf_cnpj);
+            $nome_razao = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($this->nome_razao));
+            $email = strtolower($this->email);
+
+            // Pula se o e-mail for inválido
+            if (function_exists('isInvalidEmail') && isInvalidEmail($email)) {
+                $this->addError('email', 'E-mail inválido.');
+                return;
+            }
+
+            //Verifica se a pessoa já existe ou cria uma nova
+            $pessoa = Pessoa::updateOrCreate(
+                ['cpf_cnpj' => $cpf_cnpj],
+                [
+                    'nome_razao' => $nome_razao,
+                    'email' => $email,
+                    'tipo_pessoa' => 'PF'
+                ]
+            );
+
+            // Cria o usuário para a pessoa
+            CreateUserForPessoaAction::handle($pessoa);
+
+            // Cria ou atualiza o registro de inscrição
+            CursoInscrito::updateOrCreate([
+                'pessoa_id' => $pessoa->id,
+                'agenda_curso_id' => $this->agendacurso->id,
+            ], [
+                'empresa_id' => $this->agendacurso->empresa_id,
+                'data_inscricao' => now()
+            ]);
+
+            $this->reset(['cpf_cnpj', 'nome_razao', 'email']);
+            session()->flash('success', 'Inscrito adicionado com sucesso!');
+        });
     }
 }

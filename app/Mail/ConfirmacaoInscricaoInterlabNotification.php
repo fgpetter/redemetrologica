@@ -26,9 +26,9 @@ class ConfirmacaoInscricaoInterlabNotification extends Mailable implements Shoul
             'nome_da_pessoa' => $inscrito->pessoa->nome_razao,
             'laboratorio_nome' => $inscrito->laboratorio->nome,
             'empresa_nome' => $inscrito->empresa->nome_razao,
-            'responsavel_tecnico' => $inscrito->laboratorio->responsavel_tecnico,
-            'laboratorio_email' => $inscrito->laboratorio->email,
-            'laboratorio_telefone' => $inscrito->laboratorio->telefone,
+            'responsavel_tecnico' => $inscrito->responsavel_tecnico,
+            'laboratorio_email' => $inscrito->email,
+            'laboratorio_telefone' => $inscrito->telefone,
             'laboratorio_endereco' => $inscrito->laboratorio->endereco->endereco.' - '.
               $inscrito->laboratorio->endereco->complemento.' - '.
               $inscrito->laboratorio->endereco->bairro.' - '.

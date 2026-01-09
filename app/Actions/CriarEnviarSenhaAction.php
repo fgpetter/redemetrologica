@@ -24,7 +24,7 @@ class CriarEnviarSenhaAction
                 'tag_senha' => $inscrito->tag_senha,
                 'informacoes_inscricao' => $inscrito->informacoes_inscricao,
                 'laboratorio_nome' => $inscrito->laboratorio->nome,
-                'laboratorio_email' => $inscrito->laboratorio->email,
+                'laboratorio_email' => $inscrito->email,
                 'empresa_nome_razao' => $inscrito->empresa->nome_razao,
                 'empresa_cpf_cnpj' => $inscrito->empresa->cpf_cnpj,
                 'interlab_nome' => $inscrito->agendaInterlab->interlab->nome,
