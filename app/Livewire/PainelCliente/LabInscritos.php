@@ -225,7 +225,7 @@ class LabInscritos extends Component
 
             
             if ($valorFinal > 0) {
-                $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio, $valorFinal);
+                app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal);
             }
         });
 
@@ -233,47 +233,6 @@ class LabInscritos extends Component
 
         session()->flash('success', 'Laboratório atualizado com sucesso!');
         $this->loadInscritos();
-    }
-
-
-    private function adicionaLancamentoFinanceiro(AgendaInterlab $agenda_interlab, Pessoa $empresa, InterlabLaboratorio $laboratorio, $valor = null)
-    {
-        $lancamento = LancamentoFinanceiro::where('pessoa_id', $empresa->id)
-            ->where('agenda_interlab_id', $agenda_interlab->id)
-            ->first();
-
-        // se a empresa não possui inscritos nesse interlab, cria um novo lançamento
-        if (!$lancamento) {
-            LancamentoFinanceiro::create([
-                'pessoa_id' => $empresa->id,
-                'agenda_interlab_id' => $agenda_interlab->id,
-                'historico' => 'Inscrição no interlab - ' . $agenda_interlab->interlab->nome,
-                'valor' => formataMoeda($valor),
-                'centro_custo_id' => '4', // INTERLABORATORIAL
-                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
-                'data_emissao' => now(),
-                'status' => 'PROVISIONADO',
-                'observacoes' => "Inscrição de {$laboratorio->nome}, com valor de R$ {$valor} \n"
-            ]);
-        } else { // se a empresa já possui inscritos nesse interlab, atualiza o valor
-            $inscricoes_empresa = InterlabInscrito::where('empresa_id', $empresa->id)
-                ->where('agenda_interlab_id', $agenda_interlab->id)
-                ->whereNotNull('valor')
-                ->with('pessoa')
-                ->get();
-
-            $observacoes = '';
-            foreach ($inscricoes_empresa as $incricao) {
-                $nomeLab = $incricao->laboratorio->nome ?? 'Laboratório';
-                $data = Carbon::parse($incricao->data_inscricao)->format('d/m/Y H:i');
-                $observacoes .= "Inscrição de {$nomeLab}, com valor de R$ {$incricao->valor}, em {$data} \n";
-            }
-
-            $lancamento->update([
-                'valor' => $inscricoes_empresa->sum('valor'),
-                'observacoes' => $observacoes
-            ]);
-        }
     }
 
 
