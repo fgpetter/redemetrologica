@@ -31,9 +31,10 @@ class PessoaController extends Controller
     $data = $request->data;
     $doc = $request->doc;
     $busca_nome = $request->buscanome;
+    $associado = $request->associado;
     $busca_doc = preg_replace("/[^0-9]/", "", $request->buscadoc);
 
-    $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'created_at')
+    $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'created_at', 'associado')
       ->when($name, function (Builder $query, $name) {
         $query->orderBy('nome_razao', $name);
       })
@@ -42,6 +43,9 @@ class PessoaController extends Controller
       })
       ->when($doc, function (Builder $query, $doc) {
         $query->orderBy('cpf_cnpj', $doc);
+      })
+      ->when($associado == 'ASC', function (Builder $query) {
+        $query->where('associado', 1);
       })
       ->when($busca_nome, function (Builder $query, $busca_nome) {
         $query->where('nome_razao', 'LIKE', "%$busca_nome%");

@@ -5,16 +5,27 @@ namespace App\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NovoCadastroInterlabNotification extends Mailable
+class NovoCadastroInterlabNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $dados_email = [];
+    /**
+     * The number of times the job may be attempted.
+     */
+    public $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run.
+     */
+    public $timeout = 120;
+
+    public array $dados_email = [];
 
     /**
      * Create a new message instance.
@@ -27,8 +38,8 @@ class NovoCadastroInterlabNotification extends Mailable
             'laboratorio_nome' => $inscrito->laboratorio->nome,
             'empresa_nome' => $inscrito->empresa->nome_razao,
             'empresa_cnpj' => $inscrito->empresa->cpf_cnpj,
-            'laboratorio_email' => $inscrito->laboratorio->email,
-            'laboratorio_telefone' => $inscrito->laboratorio->telefone,
+            'laboratorio_email' => $inscrito->email,
+            'laboratorio_telefone' => $inscrito->telefone,
             'laboratorio_endereco' => $inscrito->laboratorio->endereco->endereco.' - '.
                 $inscrito->laboratorio->endereco->complemento.' - '.
                 $inscrito->laboratorio->endereco->bairro.' - '.
@@ -45,6 +56,10 @@ class NovoCadastroInterlabNotification extends Mailable
     {
         return new Envelope(
             subject: 'Novo Inscrito em Interlab' . Str::title($this->dados_email['interlab_nome']),
+            replyTo: [
+                new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
+            ],
+            // from: new Address('interlab@redemetrologica.com.br', 'Interlaboriais Rede Metrológica RS'),
         );
     }
 

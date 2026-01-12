@@ -19,7 +19,7 @@
             <form action="{{ route('impersonate') }}" method="POST">
               @csrf
               <div class="row">
-                <div class="col">
+                <div class="col-9">
                   <select class="form-control" data-choices name="user_id" id="user_id">
                     <option value="">Selecione um usuário</option>
                     @foreach(App\Models\User::whereHas('permissions', fn($q) => $q->where('permission', 'cliente'))
@@ -30,7 +30,7 @@
                     @endforeach
                   </select>
                 </div>
-                <div class="col-2">
+                <div class="col-3">
                   <button type="submit" class="btn btn-primary">
                     Personificar
                   </button>
@@ -66,7 +66,7 @@
       @endif
 
       @if ( session('interlab') )
-         <livewire:painel-cliente.confirm-inscricao-interlab />
+         @include('painel.painel-cliente.nova-inscricao-pd')
       @elseif( auth()->user()->pessoa->interlabs()->count() > 0 )
         <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->get()" />
       @endif

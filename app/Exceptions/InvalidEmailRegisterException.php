@@ -27,7 +27,7 @@ class InvalidEmailRegisterException extends Exception
                 ->toJson(JSON_PRETTY_PRINT);
             $content['ip'] = request()->ip();
 
-            Mail::to('ti@redemetrologica.com.br')->send(new NotifyRegisterException($content));
+            Mail::to('sistema@redemetrologica.com.br')->send(new NotifyRegisterException($content));
             Mail::to('contato@redemetrologica.com.br')->send(new NotifyRegisterInvalid($content));
         } catch (Throwable $exception) {
             Log::error($exception);

@@ -26,8 +26,7 @@ class AgendaCursoController extends Controller
    */
  public function index(Request $request): View
 {
-  $tipoagenda = 'ABERTA';
- return view('painel.agendamento-cursos.index', compact('tipoagenda'));
+ return view('painel.agendamento-cursos.index');
 }
 
   /**
@@ -38,7 +37,7 @@ class AgendaCursoController extends Controller
    */
   public function insert(AgendaCursos $agendacurso): View
   {
-    $agendacurso->load('instrutor.pessoa', 'curso.materiais', 'inscritos');
+    $agendacurso->load('instrutor.pessoa', 'curso.materiais');
     $pessoas = Pessoa::select('id','uid', 'cpf_cnpj', 'tipo_pessoa' , 'nome_razao')->get();
 
     $data = [
@@ -48,7 +47,6 @@ class AgendaCursoController extends Controller
       'curso_atual' => $agendacurso->curso()->withTrashed()->first(),
       'empresas' => $pessoas->where('tipo_pessoa', 'PJ'),
       'pessoas' => $pessoas->where('tipo_pessoa', 'PF'),
-      'inscritos' => $agendacurso->inscritos()->with('pessoa')->get(),
       'despesas' => $agendacurso->despesas()->with('materialPadrao:id,descricao')->get(),
       'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
       'agendacurso' => $agendacurso,

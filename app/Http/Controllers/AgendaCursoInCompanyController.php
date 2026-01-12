@@ -17,16 +17,6 @@ use Spatie\Browsershot\Browsershot;
 class AgendaCursoInCompanyController extends Controller
 {
 
-  /**
-   * Gera tela de lista de cursos agendados
-   * 
-   * @return View
-   */
-  public function index(Request $request): View
-{
-  $tipoagenda = 'IN-COMPANY';
- return view('painel.agendamento-cursos.index', compact('tipoagenda'));
-}
 
   /**
    * Tela de cadastro e edição de agenda de cursos in-company
@@ -36,17 +26,16 @@ class AgendaCursoInCompanyController extends Controller
    */
   public function insert(AgendaCursos $agendacurso): View
   {
-    $agendacurso->load('instrutor.pessoa', 'curso.materiais', 'inscritos');
-    $pessoas = Pessoa::select('id','uid', 'cpf_cnpj', 'tipo_pessoa' , 'nome_razao')->get();
+    $agendacurso->load('instrutor.pessoa', 'curso.materiais');
+    $pessoas = Pessoa::select('id', 'uid', 'cpf_cnpj', 'tipo_pessoa', 'nome_razao')->get();
 
     $data = [
-      'instrutores' => Instrutor::select('id','uid', 'pessoa_id')->with('pessoa')->whereNot('id', $agendacurso->instrutor_id)->get(),
+      'instrutores' => Instrutor::select('id', 'uid', 'pessoa_id')->with('pessoa')->whereNot('id', $agendacurso->instrutor_id)->get(),
       'instrutor_atual' => $agendacurso->instrutor()->with('pessoa')->withTrashed()->first(),
       'cursos' => Curso::select('id', 'descricao')->whereNot('id', $agendacurso->curso_id)->get(),
       'curso_atual' => $agendacurso->curso()->withTrashed()->first(),
       'empresas' => $pessoas->where('tipo_pessoa', 'PJ'),
       'pessoas' => $pessoas->where('tipo_pessoa', 'PF'),
-      'inscritos' => $agendacurso->inscritos()->with('pessoa')->get(),
       'despesas' => $agendacurso->despesas()->with('materialPadrao:id,descricao')->get(),
       'materiaispadrao' => MaterialPadrao::select('id', 'descricao')->whereiN('tipo', ['CURSOS', 'AMBOS'])->get(),
       'agendacurso' => $agendacurso,
@@ -94,7 +83,8 @@ class AgendaCursoInCompanyController extends Controller
       ]);
     }
 
-    return back()->with('success', 'Agendamento in-company cadastrado com sucesso');
+    return redirect()->route('agendamento-curso-index')
+      ->with('success', 'Agendamento cadastrado com sucesso');
   }
 
   /**
@@ -133,6 +123,7 @@ class AgendaCursoInCompanyController extends Controller
       ]);
     }
 
-    return back()->with('success', 'Agendamento in-company atualizado com sucesso');
+    return redirect()->route('agendamento-curso-index')
+      ->with('success', 'Agendamento atualizado com sucesso');
   }
 } 

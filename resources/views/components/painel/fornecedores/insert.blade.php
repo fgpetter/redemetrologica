@@ -22,17 +22,17 @@
         </div>
 
         <div class="col-4">
-          <x-forms.input-field :value="old('telefone') ?? ($fornecedor->pessoa->telefone ?? null)" name="telefone" class="telefone" label="Telefone" />
+          <x-forms.input-field :value="old('telefone') ?? ($fornecedor->pessoa->telefone ?? null)" name="telefone" mask="telefone" label="Telefone" />
             @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror  
         </div>
         
         <div class="col-4">
-          <x-forms.input-field :value="old('telefone_alt') ?? ($fornecedor->pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone" label="Telefone Alternativo" />
+          <x-forms.input-field :value="old('telefone_alt') ?? ($fornecedor->pessoa->telefone_alt ?? null)" name="telefone_alt" mask="telefone" label="Telefone Alternativo" />
           @error('telefone_alt') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 
         <div class="col-4">
-          <x-forms.input-field :value="old('celular') ?? ($fornecedor->pessoa->celular ?? null)" name="celular" class="telefone" label="Celular" />
+          <x-forms.input-field :value="old('celular') ?? ($fornecedor->pessoa->celular ?? null)" name="celular" mask="telefone" label="Celular" />
           @error('celular') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 

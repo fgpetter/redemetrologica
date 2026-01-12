@@ -1,135 +1,202 @@
-@if ($errors->any())
-    <div class="alert alert-warning">
-        <strong>Erro ao salvar os dados!</strong> <br><br>
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
 
-<div class="table-responsive" style="min-height: 180px">
-    <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
-        @forelse ($interlabempresasinscritas as $empresa)
+<div>
+    @if ($errors->any())
+        <div class="alert alert-warning">
+            <strong>Erro ao salvar os dados!</strong> <br><br>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-            <thead class="bg-light">
-                <tr>
-                    <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp;
-                        {{ $empresa->nome_razao }} - CNPJ: {{ $empresa->cpf_cnpj }}</th>
-                </tr>
-            </thead>
+    <div class="table-responsive" style="min-height: 180px" x-data="{ editandoId: null }">
+        <table class="table table-responsive table-striped align-middle table-nowrap mb-0">
+            @forelse ($interlabempresasinscritas as $empresa)
 
-            @foreach ($intelabinscritos->where('empresa_id', $empresa->id) as $participante)
-                <tr wire:key="participante-{{ $participante->id }}">
-                    <td style="width: 1%; white-space: nowrap;">
-                        <a data-bs-toggle="collapse" href="{{ '#collapse' . $participante->uid }}" role="button"
-                            aria-expanded="false" aria-controls="collapseExample">
-                            <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"></i>
-                        </a>
-                        <span
-                            style="font-size: smaller;">{{ Carbon\Carbon::parse($participante->data_inscricao)->format('d/m/Y') }}</span>
-                    </td>
-                    <td>
-                        <b>Laboratório: </b>{{ $participante->laboratorio->nome }}
-                        {{-- UF E RT
-                        <b><span
-                                style="font-size: smaller;">({{ $participante->laboratorio->endereco->uf ?? 'N/A' }})</span></b>
-                        &nbsp;&nbsp;
-                        <b>RT: </b>{{ $participante->laboratorio->responsavel_tecnico }} --}}
+                <thead class="bg-light">
+                    <tr>
+                        <th scope="col" colspan="5"><strong>Empresa: </strong> &nbsp;
+                            {{ $empresa->nome_razao }} - CNPJ: {{ $empresa->cpf_cnpj }}
+                            @if($empresa->associado) - <span class="text-primary">Associado</span> @endif
+                        </th>
+                    </tr>
+                </thead>
 
-                        &nbsp;&nbsp;
-                        <b>Inscrito por:</b>
-                        {{ $participante->pessoa->nome_razao }} - {{ $participante->pessoa->email }} <br>
-                    </td>
-                    <!-- ====== Célula de VALOR ====== -->
-                    <td class="text-start"  style="width: 200px; white-space: nowrap;">
-                      @if ($editandoValor === $participante->id)
-                        <input type="number" wire:model.defer="novoValor" class="form-control form-control-sm"
-                          style="width: 100px; display: inline;" placeholder="Valor" />
+                @foreach ($intelabinscritos->where('empresa_id', $empresa->id) as $participante)
+                    <tr wire:key="participante-{{ $participante->id }}-{{ $participante->valor }}">
 
-                        <button class="btn btn-success btn-sm ms-1" style="padding: 0.25rem 0.5rem;"
-                          wire:click="atualizarValorParticipante({{ $participante->id }})" title="Salvar">
-                          ✔
-                        </button>
-                        <button class="btn btn-warning btn-sm ms-1" style="padding: 0.25rem 0.5rem;"
-                          wire:click="cancelarEdicao()" title="Cancelar">
-                          ✖
-                        </button>
-                      @else
-                        <b>Valor: </b>
-                        <span wire:click="editarValorParticipante({{ $participante->id }})"
-                          style="cursor: pointer; color: #0d6efd;" title="Clique para editar">
-                          {{ $participante->valor !== null ? 'R$ ' . number_format($participante->valor, 2, ',', '.') : 'R$ 0,00' }}
-                        </span>
-                      @endif
-                    </td>
-                    <!-- ====== FIM da Célula de VALOR ====== -->
-                    <td style="width: 1%; white-space: nowrap;">
-                        <div class="dropdown">
-                            <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
+                        <td style="width: 1%; white-space: nowrap;">
+                            <a data-bs-toggle="collapse" href="{{ '#collapse' . $participante->uid }}" role="button"
+                                aria-expanded="false" aria-controls="collapseExample">
+                                    <i class="ri-file-text-line btn-ghost ps-2 pe-3 fs-5"
+                                       style="color: {{ $participante->certificado_emitido !== null ? '#28a745' : '#0d6efd' }};"></i>
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                <li>
-                                    <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                        data-bs-target="{{ '#participanteModal' . $participante->uid }}">Editar</a>
-                                </li>
-                                <li>
-                                    <x-painel.form-delete.delete route='cancela-inscricao-interlab'
-                                        id="{{ $participante->uid }}" />
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-
-                </tr>
-                <tr>
-                    <td colspan="5" class="p-0">
-                        <div class="collapse" id="{{ 'collapse' . $participante->uid }}">
-                            <div class="row m-3 pe-2">
-                                <div class="col-6 text-wrap">
-                                    <b>Inscrito por:</b>
-                                    {{ $participante->pessoa->nome_razao }} <br>
-                                    <b>Informacoes:</b> {{ $participante->informacoes_inscricao }}
+                            <span style="font-size: smaller;">
+                                {{ $participante->data_inscricao->format('d/m/Y') }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap align-items-center">
+                                <div class="me-3">
+                                    <b>Laboratório: </b>{{ $participante->laboratorio->nome }}
                                 </div>
-                                <div class="col-6 text-wrap">
-                                    <b>Responsável técnico:</b> {{ $participante->laboratorio->responsavel_tecnico }}
-                                    <br>
-                                    <b>Telefone:</b> {{ $participante->laboratorio->telefone }} <b>Email:</b>
-                                    {{ $participante->laboratorio->email }}<br>
-                                    <b>Endereço:</b> {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
-                                    {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }}, Bairro:
-                                    {{ $participante->laboratorio->endereco->bairro ?? 'N/A' }} <br>
-                                    Cidade: {{ $participante->laboratorio->endereco->cidade ?? 'N/A' }} /
-                                    {{ $participante->laboratorio->endereco->uf ?? 'N/A' }},
-                                    CEP: {{ $participante->laboratorio->endereco->cep ?? 'N/A' }}
+                                <div class="flex-grow-1 ">
+                                    <b>Inscrito por:</b>
+                                    {{ $participante->pessoa->nome_razao }} - {{ $participante->pessoa->email }}
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-                <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" />
-            @endforeach
-        @empty
-            <tr>
-                <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>
-            </tr>
-        @endforelse
-        @if ($intelabinscritos->count() > 0)
-            <tfoot>
+                        </td>
+
+                        {{-- ====== Célula de VALOR (otimizada p/ atualização instantânea) ====== --}}
+                        <td class="text-start" style="width: 200px; white-space: nowrap;" 
+                            x-data="{
+                                valorLocal: {{ $participante->valor ?? 0 }},
+                                participanteId: {{ $participante->id }},
+                                formatarValor(valor) {
+                                    if (valor === 0) {
+                                        return 'Sem valor';
+                                    } else {
+                                        let numero = Number(valor).toFixed(2);
+                                        return 'R$ ' + numero.replace('.', ',');
+                                    }
+                                },
+                                atualizarModal() {
+                                    const novoValorFormatado = this.formatarValor(this.valorLocal);
+                                    const modalValorInput = document.getElementById('valor-{{ $participante->uid }}');
+                                    if (modalValorInput) {
+                                        modalValorInput.value = Number(novoValorFormatado.replace(/[^\d,]/g, '').replace(',', '.'));
+                                    }
+                                }
+                            }"
+                        >
+                            <template x-if="editandoId !== {{ $participante->id }}">
+                                <span @click="editandoId = {{ $participante->id }}"
+                                    style="cursor: pointer; color: #000;">
+                                    <b>Valor:</b> <span x-text="formatarValor(valorLocal)"></span>
+                                </span>
+                            </template>
+                            <template x-if="editandoId === {{ $participante->id }}">
+                                <div class="d-flex align-items-center">
+                                    <input type="number" x-model.number="valorLocal"
+                                        class="form-control form-control-sm" style="width: 100px;"
+                                        @keydown.enter.prevent="
+                                        $wire.call('atualizarValor', participanteId, valorLocal);
+                                        editandoId = null;
+                                        atualizarModal();
+                                    ">
+                                    <button class="btn btn-success btn-sm ms-1"
+                                        @click="
+                                        $wire.call('atualizarValor', participanteId, valorLocal);
+                                        editandoId = null;
+                                        atualizarModal();
+                                    ">
+                                        ✔
+                                    </button>
+                                    <button class="btn btn-warning btn-sm ms-1"
+                                        @click="
+                                        valorLocal = {{ $participante->valor ?? 0 }};
+                                        editandoId = null;
+                                    ">
+                                        ✖
+                                    </button>
+                                </div>
+                            </template>
+                        </td>
+                        {{-- ====== FIM da Célula de VALOR ====== --}}
+
+
+                        <td style="width: 1%; white-space: nowrap;">
+                            <div class="dropdown">
+                                <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                            data-bs-target="{{ '#participanteModal' . $participante->uid }}">
+                                            Editar
+                                        </a>
+                                    </li>
+
+                                    <!-- Botão para baixar carta-senha -->
+                                    @if($agendainterlab->status <> 'AGENDADO' && isset($tagsSenhaDoc[$participante->id]))
+                                        <li>
+                                            <a class="dropdown-item" href="https://redemetrologica.com.br/dados-doc/{{ $tagsSenhaDoc[$participante->id]->link }}" target="_blank">
+                                                Baixar Carta Senha
+                                            </a>
+                                        </li>
+                                    @endif
+                                    <!-- Botão para gerar certificado -->
+                                    <li>
+                                        @livewire('interlab.gerar-certificado-button', ['participanteId' => $participante->id], key('cert-btn-' . $participante->id))
+                                    </li>
+                                    <li>
+                                        <x-painel.form-delete.delete route='cancela-inscricao-interlab'
+                                            id="{{ $participante->uid }}" />
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="5" class="p-0">
+                            <div class="collapse" id="{{ 'collapse' . $participante->uid }}">
+                                <div class="row m-3 pe-2">
+                                    <div class="col-6 text-wrap">
+                                        <b>Informações:</b> {{ $participante->informacoes_inscricao }}
+                                    </div>
+                                    <div class="col-6 text-wrap">
+                                        <b>Responsável técnico:</b>
+                                        {{ $participante->responsavel_tecnico }}
+                                        <br>
+                                        <b>Telefone:</b> {{ $participante->telefone }} <b>Email:</b>
+                                        {{ $participante->email }}<br>
+                                        <b>Endereço:</b>
+                                        {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
+                                        {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }},
+                                        Bairro: {{ $participante->laboratorio->endereco->bairro ?? 'N/A' }} <br>
+                                        Cidade: {{ $participante->laboratorio->endereco->cidade ?? 'N/A' }}
+                                        / {{ $participante->laboratorio->endereco->uf ?? 'N/A' }}, CEP:
+                                        {{ $participante->laboratorio->endereco->cep ?? 'N/A' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+           
+                    
+                    <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" />
+                @endforeach
+            @empty
                 <tr>
-                    <td colspan="2"><strong>Qtd Inscritos:</strong> {{ $intelabinscritos->count() }} </td>
-                    </td>
-                    <td><strong>Valor total:</strong> R$ {{ number_format($intelabinscritos->sum('valor'), 2, ',', '.') }} </td>
-                    <td></td>
+                    <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>
                 </tr>
-            </tfoot>
-        @endif
-    </table>
+            @endforelse
 
-    <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
+            @if ($intelabinscritos->count() > 0)
+                <tfoot>
+                    <tr>
+                        <td colspan="2"><strong>Qtd Inscritos:</strong> {{ $intelabinscritos->count() }}</td>
+                        <td>
+                            <strong>Valor total:</strong>
+                            R$ {{ number_format($intelabinscritos->sum('valor'), 2, ',', '.') }}
+                        </td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            @endif
+        </table>
+        {{-- Componente p/ substituir responsavel pela inscrição--}}
+        <livewire:interlab.substituir-responsavel />
 
+        <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
+
+    </div>
 </div>
+
+

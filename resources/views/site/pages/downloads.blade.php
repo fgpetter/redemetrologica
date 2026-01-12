@@ -22,7 +22,7 @@ if(isset($_GET['descricao'])) {
 
     {{-- table --}}
     <div class="container mt-4">
-        <table class="table table-responsive table-striped align-middle table-nowrap">
+        <table class="table table-responsive table-striped align-middle">
             <thead>
                 <h5 class="h6 ps-3 mb-0">Filtros</h5>
                 <tr>

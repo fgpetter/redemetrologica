@@ -12,7 +12,7 @@ class Qualificacao extends Model
 {
     use LogsActivity, SetDefaultUid;
 
-    protected $table = 'qualificacoes';
+    protected $table = 'avaliador_qualificacoes';
 
     /**
      * The attributes that aren't mass assignable.

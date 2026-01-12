@@ -46,19 +46,19 @@
           </div>
 
           <div class="col-6">
-            <x-forms.input-field :value="old('telefone') ?? ($user->pessoa->telefone ?? null)" name="telefone" class="telefone"
+            <x-forms.input-field :value="old('telefone') ?? ($user->pessoa->telefone ?? null)" name="telefone" mask="telefone"
               label="Telefone" /> 
             @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
           </div>
 
           <div class="col-6">
-            <x-forms.input-field :value="old('telefone_alt') ?? ($user->pessoa->telefone_alt ?? null)" name="telefone_alt" class="telefone"
+            <x-forms.input-field :value="old('telefone_alt') ?? ($user->pessoa->telefone_alt ?? null)" name="telefone_alt" mask="telefone"
               label="Telefone Alternativo" />
             @error('telefone_alt') <div class="text-warning">{{ $message }}</div> @enderror
           </div>
 
           <div class="col-6">
-            <x-forms.input-field :value="old('celular') ?? ($user->pessoa->celular ?? null)" name="celular" class="telefone"
+            <x-forms.input-field :value="old('celular') ?? ($user->pessoa->celular ?? null)" name="celular" mask="telefone"
               label="Celular" />
             @error('celular') <div class="text-warning">{{ $message }}</div> @enderror
           </div>
@@ -99,9 +99,12 @@
     @canany(['admin','funcionario'])
       @if($user->pessoa)
       <div class="col mt-5">
-        <div class="alert alert-light text-body bg-light alert-label-icon" role="alert">
-          <i class="ri-user-line label-icon"></i>Usuário associado a pessoa: &nbsp; <strong>{{ $user->pessoa->nome_razao }}</strong> 
-          <a href="{{"/painel/pessoa/insert/".$user->pessoa->uid}}" class="btn btn-sm btn-info float-end" style="margin-top:-3px"> EDITAR PESSOA </a>
+        <div class="alert alert-light text-body bg-light alert-label-icon d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between" role="alert">
+          <div>
+        <i class="ri-user-line label-icon"></i>
+        Usuário associado a pessoa: &nbsp; <strong>{{ $user->pessoa->nome_razao }}</strong>
+          </div>
+          <a href="{{"/painel/pessoa/insert/".$user->pessoa->uid}}" class="btn btn-sm btn-info mt-2 mt-md-0 ms-0 ms-md-3">EDITAR PESSOA</a>
         </div>
       </div>
       @endif

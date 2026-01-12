@@ -1,4 +1,4 @@
-  <div class="card h-100">
+<div class="card h-100">
     <div class="card-body">
       <div class="row">
         <div class="col-12 d-flex justify-content-end mb-3">
@@ -9,33 +9,33 @@
       </div>
 
       <div class="table-responsive" style="min-height: 25vh">
-        <table class="table table-striped align-middle table-nowrap mb-0">
+        <table class="table table-striped align-middle">
           <thead>
             <tr>
-              <th scope="col" style="width: 5%; white-space: nowrap;">ID</th>
+              <th scope="col" style="width: 5%;">ID</th>
               <th scope="col">Titulo</th>
               <th scope="col">Descriçao</th>
               <th scope="col">Categoria</th>
-              <th scope="col" style="width: 5%; white-space: nowrap;">Data</th>
-              <th scope="col" style="width: 5%; white-space: nowrap;">Baixar</th>
-              <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+              <th scope="col" style="width: 5%; text-align: center;">Data</th>
+              <th scope="col" style="width: 5%;">Baixar</th>
+              <th scope="col" style="width: 5%;"></th>
             </tr>
           </thead>
           <tbody>
             @forelse ($downloads as $download)
-              <tr>
-                <th scope="row"><a href="{{ route('download-insert', ['download' => $download->uid]) }}"
-                    class="fw-medium"> #{{ $download['id'] }} </a></th>
-                <td>{{ $download['titulo'] }}</td>
-                <td>{{ $download['descricao'] }}</td>
-                <td>{{ $download['categoria'] }}</td>
-                <td>{{ Carbon\Carbon::parse($download->updated_at)->format('d/m/Y') }}</td>
-                <td><a href="{{ asset('downloads/' . $download->arquivo) }}">
-                    <i class="ph-file-arrow-down align-middle" style="font-size: 1.4rem"></i>
-                  </a>
-                </td>
+            <tr>
+              <th scope="row"><a href="{{ route('download-insert', ['download' => $download->uid]) }}"
+                  class="fw-medium"> #{{ $download['id'] }} </a></th>
+              <td>{{ $download['titulo'] }}</td>
+              <td>{{ $download['descricao'] }}</td>
+              <td>{{ $download['categoria'] }}</td>
+              <td>{{ Carbon\Carbon::parse($download->updated_at)->format('d/m/Y') }}</td>
+              <td class="text-center"><a href="{{ asset('downloads/' . $download->arquivo) }}">
+                  <i class="ph-file-arrow-down align-middle" style="font-size: 1.4rem"></i>
+                </a>
+              </td>
 
-                <td>
+              <td>
                   <div class="dropdown">
                     <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
                       aria-expanded="false">
@@ -52,7 +52,6 @@
                       </li>
                     </ul>
                   </div>
-
                 </td>
               </tr>
             @empty

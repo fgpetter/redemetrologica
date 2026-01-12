@@ -100,7 +100,7 @@
                         <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                             <div class="accordion-body">
                                 Para laboratórios reconhecidos, divulgação do escopo de serviços no site da Rede
-                                Metrológica RS e disponibilização do Bônus Metrologia para seus clientes.
+                                 Metrológica RS. 
                             </div>
                         </div>
                     </div>

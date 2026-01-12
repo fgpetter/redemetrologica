@@ -17,19 +17,30 @@
                     <div class="col-6">
                       <p class="ps-1">
                         <strong>Laboratório: &nbsp; </strong>{{ $labGroup->first()->laboratorio->nome }} <br>
-                        <strong>Responsável Técnico:</strong> {{ $labGroup->first()->laboratorio->responsavel_tecnico }} <br>
-                        <strong>Telefone: </strong> {{ $labGroup->first()->laboratorio->telefone }} <br>
-                        <strong>Email: </strong> {{ $labGroup->first()->laboratorio->email }} <br>
+                        <strong>Responsável Técnico:</strong> {{ $labGroup->first()->responsavel_tecnico }} <br>
+                        <strong>Telefone: </strong> {{ $labGroup->first()->telefone }} <br>
+                        <strong>Email: </strong> {{ $labGroup->first()->email }} <br>
                         <strong>Informações de inscrição:</strong> <br>
                         <span class="ps-1" >{!! nl2br($labGroup->first()->informacoes_inscricao) !!}</span>
                       </p>
                     </div>
                     <div class="col-6">
-                      <strong>Endereço: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->endereco }} <br>
-                      <strong>Complemento: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->complemento }} <br>
-                      <strong>Bairro: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->bairro }} <br>
-                      <strong>CEP: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cep }} <br>
-                      <strong>Cidade: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cidade .' / '. $labGroup->first()->laboratorio->endereco->uf }} <br>
+                      <strong>Endereço: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->endereco ?? '--' }} <br>
+                      <strong>Complemento: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->complemento ?? '--' }} <br>
+                      <strong>Bairro: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->bairro ?? '--' }} <br>
+                      <strong>CEP: &nbsp; </strong>{{ $labGroup->first()->laboratorio->endereco->cep ?? '--' }} <br>
+                      <strong>Cidade: &nbsp; </strong>
+                      {{ 
+                          (
+                              $labGroup->first()->laboratorio->endereco->cidade 
+                              ?? '--'
+                          ) 
+                          . ' / ' . 
+                          (
+                              $labGroup->first()->laboratorio->endereco->uf 
+                              ?? '--'
+                          ) 
+                      }} <br>
                     </div>
                     <hr>
                   </div>

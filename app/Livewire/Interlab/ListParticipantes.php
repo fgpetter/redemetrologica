@@ -2,41 +2,67 @@
 
 namespace App\Livewire\Interlab;
 
+use App\Models\Pessoa;
 use Livewire\Component;
+use App\Models\DadosGeraDoc;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabInscrito;
-use App\Models\Pessoa;
+use Illuminate\Support\Facades\Validator;
 
 class ListParticipantes extends Component
 {
+    public int $idinterlab;
 
-
-    public $idinterlab;
-
-
-    public $pessoas;
-    public $agendainterlab;
-    public $intelabinscritos;
-    public $interlabempresasinscritas;
-
-
-    public $editandoValor = null;
-    public $novoValor;
-
-    /**
-     * mount recebe  id e faz todo o carregamento.
-     */
     public function mount(int $idinterlab)
     {
         $this->idinterlab = $idinterlab;
+    }
 
-        $this->agendainterlab = AgendaInterlab::with([
+    public function atualizarValor($id, $valor)
+    {
+        Validator::make(
+            ['id' => $id, 'valor' => $valor],
+            [
+                'id'    => ['required', 'exists:interlab_inscritos,id'],
+                'valor' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            ],
+            [
+                'id.required'    => 'O ID é obrigatório.',
+                'id.exists'      => 'Participante não encontrado.',
+                'valor.required' => 'O valor é obrigatório.',
+                'valor.numeric'  => 'O valor deve ser numérico.',
+                'valor.min'      => 'O valor deve ser maior ou igual a zero.',
+                'valor.max'      => 'O valor máximo permitido é 999.999,99.',
+            ]
+        )->validate();
+
+        $participante = InterlabInscrito::findOrFail($id);
+        $participante->valor = $valor;
+        $participante->save();
+    }
+
+    public function render()
+    {
+        $agendainterlab = AgendaInterlab::with([
             'despesas',
             'parametros',
             'rodadas',
         ])->findOrFail($this->idinterlab);
 
-        $this->pessoas = Pessoa::select([
+        $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
+            ->with(['empresa', 'pessoa', 'laboratorio.endereco'])
+            ->get();
+
+        $empresaIds = $intelabinscritos
+            ->pluck('empresa_id')
+            ->unique()
+            ->values();
+
+        $interlabempresasinscritas = Pessoa::whereIn('id', $empresaIds)
+            ->orderBy('nome_razao')
+            ->get();
+
+        $pessoas = Pessoa::select([
             'id',
             'uid',
             'cpf_cnpj',
@@ -46,58 +72,24 @@ class ListParticipantes extends Component
             ->orderBy('nome_razao')
             ->get();
 
-        $this->intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-            ->with(['empresa', 'pessoa', 'laboratorio'])
-            ->get();
+        // pré-carregar todos os tag_senha_doc de uma vez (evita N+1)
+        $participanteIds = $intelabinscritos->pluck('id')->toArray();
+        $tagsSenhaDoc = DadosGeraDoc::where('tipo', 'tag_senha')
+            ->get()
+            ->filter(function ($doc) use ($participanteIds) {
+                $participanteId = $doc->content['participante_id'] ?? null;
+                return in_array($participanteId, $participanteIds);
+            })
+            ->keyBy(function ($doc) {
+                return $doc->content['participante_id'] ?? null;
+            });
 
-        $empresaIds = $this->intelabinscritos
-            ->pluck('empresa_id')
-            ->unique()
-            ->values();
-
-        $this->interlabempresasinscritas = Pessoa::whereIn('id', $empresaIds)
-            ->orderBy('nome_razao')
-            ->get();
-    }
-
-    public function editarValorParticipante($participanteId)
-    {
-        $this->editandoValor = $participanteId;
-        $participante = InterlabInscrito::findOrFail($participanteId);
-        $this->novoValor = $participante->valor;
-    }
-
-
-    public function atualizarValorParticipante($participanteId)
-    {
-        $this->validate([
-            'novoValor' => ['required', 'numeric', 'min:0'],
-        ], [
-            'novoValor.required' => 'O valor é obrigatório.',
-            'novoValor.numeric'  => 'O valor deve ser numérico.',
-            'novoValor.min'      => 'O valor deve ser maior ou igual a zero.',
+        return view('livewire.interlab.list-participantes', [
+            'agendainterlab' => $agendainterlab,
+            'intelabinscritos' => $intelabinscritos,
+            'interlabempresasinscritas' => $interlabempresasinscritas,
+            'pessoas' => $pessoas,
+            'tagsSenhaDoc' => $tagsSenhaDoc,
         ]);
-
-        $participante = InterlabInscrito::findOrFail($participanteId);
-        $participante->update(['valor' => $this->novoValor]);
-
-        $itemNaColecao = $this->intelabinscritos->firstWhere('id', $participanteId);
-        if ($itemNaColecao) {
-            $itemNaColecao->valor = $this->novoValor;
-        }
-
-        $this->editandoValor = null;
-        $this->novoValor     = null;
-    }
-
-    public function cancelarEdicao()
-    {
-        $this->editandoValor = null;
-        $this->novoValor     = null;
-    }
-
-    public function render()
-    {
-        return view('livewire.interlab.list-participantes');
     }
 }

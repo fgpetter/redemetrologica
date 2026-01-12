@@ -28,7 +28,7 @@ class AgendaInterlabTable extends Component
     public $tipo_agendamento = '';
 
     #[Url(as: 'sb', history: false)]
-    public $sortBy = 'data_inicio';
+    public $sortBy = 'data_limite_inscricao';
 
     #[Url(as: 'sd', history: false)]
     public $sortDirection = 'ASC';
@@ -49,6 +49,7 @@ class AgendaInterlabTable extends Component
     public function resetFilters()
     {
         $this->reset(['search', 'status', 'empresaSelecionada']);
+        $this->dispatch('reset-empresa-filter');
     }
 
     public function updated($propertyName)
@@ -86,8 +87,9 @@ class AgendaInterlabTable extends Component
 
     protected function applyStatusFilter($query)
     {
-        return $query->when($this->status, fn($query) =>
-            $query->where('status', $this->status)
+        return $query->when($this->status, 
+            fn($query) => $query->where('status', $this->status),
+            fn($query) => $query->where('status', '<>', 'CONCLUIDO')
         );
     }
 

@@ -40,7 +40,7 @@
                         <option value=""> - </option>
                         @foreach ($cursos as $curso)
                             <option @selected($curso->id == $busca_curso) value="{{ $curso->id }}">
-                                ID: {{ $curso->id }} - {{ $curso->curso->descricao }}
+                                 {{ \Carbon\Carbon::parse($curso->data_inicio)->format('d/m/y') }} - {{ $curso->curso->descricao }}
                             </option>
                         @endforeach
                     </x-forms.input-select>
@@ -50,25 +50,26 @@
                         <option value=""> - </option>
                         @foreach ($agendainterlabs as $agendainterlab)
                             <option @selected($agendainterlab->id == $busca_pep) value="{{ $agendainterlab->id }}">
-                                {{ $agendainterlab->interlab->nome }}</option>
+                                {{ $agendainterlab->interlab->nome }} - {{ $agendainterlab->ano_referencia }}</option>
                         @endforeach
 
                     </x-forms.input-select>
                 </div>
             </div>
-            <div class="row mt-2 align-items-end">
+            <div class="row mt-2">
                 <div class="col-10">
                     <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
                         <option value=""> - </option>
                         @foreach ($pessoas as $pessoa)
-                            <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{ $pessoa->nome_razao }} -
-                                {{ $pessoa->cpf_cnpj }}</option>
+                            <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{$pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
                         @endforeach
                     </x-forms.input-select>
                 </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary px-3 py-2 ms-sm-3">Pesquisar</button>
-                    <a href="{{ route('a-receber-index') }}" class="btn btn-sm btn-danger px-3 py-2">Limpar</a>
+                <div class="col-2 d-flex flex-nowrap gap-2 align-items-center justify-content-end">
+                    <button type="submit" class="btn btn-sm btn-primary px-3 py-2">Pesquisar</button>
+                    <a href="{{ route('a-receber-index') }}" class="btn btn-sm btn-danger px-3 py-2">
+                        Limpar
+                    </a>
                 </div>
             </div>
         </form>
@@ -78,15 +79,15 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive" style="min-height: 25vh">
-            <table class="table table-responsive table-striped align-middle table-nowrap mb-0"
-                style="table-layout: fixed">
+            <table class="table table-striped align-middle mb-0" style="table-layout: fixed;">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 50%; white-space: nowrap;">Nome</th>
-                        <th scope="col">Vencimento</th>
-                        <th scope="col">Área</th>
-                        <th scope="col">Valor</th>
-                        <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+                        <th scope="col" style="width: 25%;">Nome</th>
+                        <th scope="col" style="width: 10%;">Vencimento</th>
+                        <th scope="col" style="width: 45%;">Historico</th>
+                        <th scope="col" style="width: 10%;">NF</th>
+                        <th scope="col" style="width: 10%;">Valor</th>
+                        <th scope="col" style="width: 5%;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -101,9 +102,10 @@
                             <td>{{ $lancamento->data_vencimento ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-' }}
                             </td>
                             <td>
-                                {{ $lancamento->agenda_curso_id ? 'CURSO' : '' }}
-                                {{ $lancamento->agenda_interlab_id ? 'PEP' : '' }}
-                                {{ $lancamento->agenda_avaliacao_id ? 'AVALIAÇÃO' : '' }}
+                                {{ $lancamento->historico ?? '-' }}
+                            </td>
+                            <td>
+                                {{ $lancamento->nota_fiscal ?? '-' }}
                             </td>
                             <td>
                                 <input type="text" class=" border-0 bg-transparent"
@@ -134,7 +136,6 @@
                             <td colspan="5" class="p-0">
                                 <div class="collapse" id="{{ 'collapse' . $lancamento->uid }}">
                                     <div class="row gy-2 m-3 mt-2">
-                                        <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
                                         <div class="col-2"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
                                         <div class="col-2"><b>Centro Custo:</b>
                                             {{ $lancamento->centroCusto?->descricao ?? '-' }}</div>

@@ -22,6 +22,11 @@ class AgendaInterlab extends Model
     protected $casts = [
         'data_inicio' => 'date',
         'data_fim' => 'date',
+        'data_limite_inscricao' => 'date',
+        'data_limite_envio_ensaios' => 'date',
+        'data_inicio_ensaios' => 'date',
+        'data_limite_envio_resultados' => 'date',
+        'data_divulgacao_relatorios' => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -71,14 +76,33 @@ class AgendaInterlab extends Model
         return $this->hasMany(InterlabRodada::class);
     }
 
+    /**
+     * Retorna inscritos associados
+     *
+     * @return HasMany
+     */
     public function inscritos(): HasMany
     {
         return $this->hasMany(InterlabInscrito::class, 'agenda_interlab_id', 'id');
     }
 
+    /**
+     * Retorna materiais associados
+     *
+     * @return HasMany
+     */
     public function materiais(): HasMany
     {
         return $this->hasMany(AgendainterlabMaterial::class);
     }
 
+    /**
+     * Retorna valores associados
+     *
+     * @return HasMany
+     */
+    public function valores(): HasMany
+    {
+        return $this->hasMany(AgendaInterlabValor::class);
+    }
 }

@@ -15,13 +15,13 @@
 
 <div class="col-5 col-sm-4">
   <x-forms.input-field :value="old('cep') ?? $endereco->cep ?? ''" name="cep"
-    label="CEP" class="cep" :required="$required"/>
+    label="CEP" class="cep" required/>
   @error('cep') <div class="text-warning">{{ $message }}</div> @enderror
 </div>
 
 <div class="col-12 col-sm-8">
   <x-forms.input-field :value="old('endereco') ?? $endereco->endereco ?? ''" name="endereco"
-    label="Endereço com número" placeholder="Ex. Av. Brasil, 1234" :required="$required" />
+    label="Endereço com número" placeholder="Ex. Av. Brasil, 1234" required />
   @error('endereco') <div class="text-warning">{{ $message }}</div> @enderror
 </div>
 
@@ -39,7 +39,7 @@
 
 <div class="col-12 col-sm-6">
   <x-forms.input-field :value="old('cidade') ?? $endereco->cidade ?? ''" name="cidade"
-    label="Cidade" :required="$required" />
+    label="Cidade" required />
   @error('cidade') <div class="text-warning">{{ $message }}</div> @enderror
 </div>
 
@@ -47,7 +47,7 @@
   <label for="uf" class="form-label mb-0">UF<small class="text-danger-emphasis opacity-75"> * </small></label>
   <input type="text" class="form-control" name="uf" id="uf" 
     value="{{ old('uf') ?? $endereco->uf ?? null }}" maxlength="2" pattern="[A-Z]{2}" 
-    title="Duas letras maiúsculo" :required="$required"
+    title="Duas letras maiúsculo" required
     oninput="this.value = this.value.toUpperCase()">
     @error('uf') <div class="text-warning">{{ $message }}</div> @enderror
 </div>

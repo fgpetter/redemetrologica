@@ -5,10 +5,14 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-
-class CertificadosDeletedNotification extends Mailable
+use Illuminate\Contracts\Queue\ShouldQueue;
+class CertificadosDeletedNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+
+    public $tries = 3;
+
+    public $timeout = 120;
 
     public array $deletedFiles;
 

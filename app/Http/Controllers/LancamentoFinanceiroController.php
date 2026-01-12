@@ -27,29 +27,33 @@ class LancamentoFinanceiroController extends Controller
   {
     $validated = $request->validate([
       'data_inicial' => ['nullable', 'date'],
-      'data_final' => ['nullable', 'date'],
-      'pessoa' => ['nullable', 'exists:pessoas,id'],
+      'data_final'   => ['nullable', 'date'],
+      'pessoa'       => ['nullable', 'exists:pessoas,id'],
+      'tipo_data'    => ['nullable', 'in:data_vencimento,data_pagamento'],
     ]);
+
+    if (empty($validated['data_inicial'])) {
+      $validated['data_inicial'] = today()->format('Y-m-d');
+    }
+
+    if (empty($validated['data_final'])) {
+      $validated['data_final'] = today()->addDays(7)->format('Y-m-d');
+    }
 
     $lancamentosfinanceiros = LancamentoFinanceiro::getLancamentosFinanceiros($validated)
       ->orderBy('data_vencimento')
       ->get();
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->whereHas('lancamentosfinanceiros', function ($query) {
+        $query->where('status', 'EFETIVADO')->orWhere('tipo_lancamento', 'DEBITO');
+      })
       ->withTrashed()
       ->get();
 
-    $meses_anos = LancamentoFinanceiro::whereNotNull('data_pagamento')
-      ->selectRaw("DATE_FORMAT(data_pagamento, '%m-%Y') as mes_ano")
-      ->distinct()
-      ->pluck('mes_ano')
-      ->reverse();
-
-      return view( 'painel.lancamento-financeiro.index', [
-      'lancamentosfinanceiros' => $lancamentosfinanceiros, 
-      'pessoas' => $pessoas,
-      'mesesanos' => $meses_anos
+    return view('painel.lancamento-financeiro.index', [
+      'lancamentosfinanceiros' => $lancamentosfinanceiros,
+      'pessoas' => $pessoas
     ]);
   }
 
@@ -145,7 +149,7 @@ class LancamentoFinanceiroController extends Controller
     }
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento?->pessoa_id)->get();
 
-    $centrosdecusto = CentroCusto::all();
+    $centrosdecusto = CentroCusto::all()->sortBy('descricao');
     $planoConta = PlanoConta::all();
     $modalidadePagamento = ModalidadePagamento::all();
 
@@ -284,17 +288,19 @@ class LancamentoFinanceiroController extends Controller
       ->orderBy('data_vencimento')->paginate(10);
 
     $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
-      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id'))
+      ->whereIn('id', LancamentoFinanceiro::select('pessoa_id')->whereNot('status', 'EFETIVADO'))
       ->withTrashed()
+      ->orderBy('nome_razao')
       ->get();
 
-    $cursos = AgendaCursos::select('agenda_cursos.id', 'agenda_cursos.uid', 'agenda_cursos.curso_id')
+    $cursos = AgendaCursos::select('agenda_cursos.id', 'agenda_cursos.uid', 'agenda_cursos.curso_id', 'agenda_cursos.data_inicio')
       ->join('cursos', 'agenda_cursos.curso_id', '=', 'cursos.id')
+      ->whereIn('agenda_cursos.id', LancamentoFinanceiro::whereNull('data_pagamento')->select('agenda_curso_id'))
       ->whereNot('agenda_cursos.status', 'CANCELADO')
       ->orderBy('cursos.descricao')
       ->get();
 
-    $agendainterlabs = AgendaInterlab::select('agenda_interlabs.id', 'agenda_interlabs.uid', 'agenda_interlabs.interlab_id')
+    $agendainterlabs = AgendaInterlab::select('agenda_interlabs.id', 'agenda_interlabs.uid', 'agenda_interlabs.interlab_id', 'agenda_interlabs.ano_referencia', 'interlabs.nome')
       ->join('interlabs', 'agenda_interlabs.interlab_id', '=', 'interlabs.id')
       ->whereNot('agenda_interlabs.status', 'CANCELADO')
       ->orderBy('interlabs.nome')

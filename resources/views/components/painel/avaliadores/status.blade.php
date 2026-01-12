@@ -15,7 +15,6 @@
                 <th scope="col">Data</th>
                 <th scope="col">Status</th>
                 <th scope="col">Parecer</th>
-                <th scope="col">Seminário</th>
                 <th scope="col" class=" d-sm-table-cell" style="width: 5%; white-space: nowrap;"></th>
             </tr>
         </thead>
@@ -27,10 +26,11 @@
                             data-bs-target="{{ '#avaliadorStatusModal' . $status->uid }}">#{{ substr($status->uid, 7) }}
                         </a>
                     </th>
-                    <td>{{ $status->data }}</td>
+                    <td>
+                        {{ \Carbon\Carbon::parse($status->data)->format('d/m/Y') }}
+                    </td>
                     <td>{{ $status->status }}</td>
                     <td>@if ($status->parecer_positivo) <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif</td>
-                    <td>@if ($status->seminario) <i class="ri-checkbox-circle-fill label-icon text-success fs-xl ms-2"></i> @endif</td>
                     <td>
                         <div class="dropdown">
                             <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"

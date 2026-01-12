@@ -1,14 +1,18 @@
-<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}">
+<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}" x-data="dadosPrincipaisData">
   @csrf
 
   {{-- Grupo 1: Período & Tipo --}}
   <div class="row gy-3">
     <div class="col-md-3">
-      <x-forms.input-field name="data_inicio" :value="old('data_inicio') ?? $avaliacao->data_inicio" label="Data Início" type="date" />
+      <x-forms.input-field name="data_inicio" :value="old('data_inicio') ?? $avaliacao->data_inicio" 
+        label="Data Início" type="date" x-ref="dataInicio" 
+        @change="updateDataProcLaboratorio()" />
       @error('data_inicio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_fim" :value="old('data_fim') ?? $avaliacao->data_fim" label="Data Fim" type="date" />
+      <x-forms.input-field name="data_fim" :value="old('data_fim') ?? $avaliacao->data_fim" 
+        label="Data Fim" type="date" x-ref="dataFim" 
+        @change="updateDataPropostaAcoesCorretivas()" />
       @error('data_fim') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4">
@@ -20,7 +24,6 @@
       </x-forms.input-select>
     </div>
   </div>
-
 
   {{-- Grupo 2: Laboratório & Interno --}}
   <div class="row gy-3">
@@ -39,21 +42,20 @@
     </div>
   </div>
 
-
-
   {{-- Grupo 3: Contato --}}
   <div class="row mt-3">
     <div class="col-md-3">
       <label for="contato" class="form-label">Contato</label>
-      <input type="text" class="form-control" id="contato" name="contato" value="{{ $laboratorio->contato }}">
+      <input type="text" class="form-control" id="contato" name="contato" value="{{ $laboratorio->contato }}" readonly>
     </div>
     <div class="col-md-3">
       <label for="fone" class="form-label">Telefone</label>
-      <input type="text" class="form-control" id="fone" name="fone" value="{{ $laboratorio->telefone }}">
+      <input type="text" class="form-control" id="fone" name="fone" value="{{ $laboratorio->telefone }}" readonly>
     </div>
     <div class="col-md-3">
       <label for="email" class="form-label">E-mail</label>
-      <input type="email" class="form-control" id="email" name="email" value="{{ $laboratorio->email }}">
+      <input type="email" class="form-control" id="email" name="email" value="{{ $laboratorio->email }}" readonly>
+      @error('email') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">&nbsp;</div>
   </div>
@@ -90,8 +92,6 @@
     @endforeach
   </div>
 
-
-
   {{-- Grupo 6: Relatório & Procedimentos --}}
   <div class="row mt-3">
     <div class="col-md-3">
@@ -106,7 +106,8 @@
       </x-forms.input-select>
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_proc_laboratorio" :value="old('data_proc_laboratorio') ?? $avaliacao->data_proc_laboratorio" label="Data Procedim. Laboratório" type="date" />
+      <x-forms.input-field name="data_proc_laboratorio" :value="old('data_proc_laboratorio') ?? $avaliacao->data_proc_laboratorio" 
+        label="Data Procedim. Laboratório" type="date" x-ref="dataProcLaboratorio" />
       @error('data_proc_laboratorio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
@@ -117,8 +118,6 @@
     </div>
     <div class="col-md-3"></div>
   </div>
-
-
 
   {{-- Grupo 7: Info Avaliadores & Carta --}}
   <div class="row mt-3">
@@ -156,16 +155,16 @@
     <div class="col-md-3"></div>
   </div>
 
- 
-
   {{-- Grupo 9: Ações Corretivas --}}
   <div class="row mt-3">
     <div class="col-md-3">
-      <x-forms.input-field name="data_proposta_acoes_corretivas" :value="old('data_proposta_acoes_corretivas') ?? $avaliacao->data_proposta_acoes_corretivas" label="Data Proposta Ações Corretivas" type="date" />
+      <x-forms.input-field name="data_proposta_acoes_corretivas" :value="old('data_proposta_acoes_corretivas') ?? $avaliacao->data_proposta_acoes_corretivas" 
+        label="Data Proposta Ações Corretivas" type="date" x-ref="dataPropostaAcoesCorretivas" />
       @error('data_proposta_acoes_corretivas') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_acoes_corretivas" :value="old('data_acoes_corretivas') ?? $avaliacao->data_acoes_corretivas" label="Data Ações Corretivas" type="date" />
+      <x-forms.input-field name="data_acoes_corretivas" :value="old('data_acoes_corretivas') ?? $avaliacao->data_acoes_corretivas" 
+        label="Data Ações Corretivas" type="date" x-ref="dataAcoesCorretivas" />
       @error('data_acoes_corretivas') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
@@ -179,8 +178,6 @@
     </div>
     <div class="col-md-3"></div>
   </div>
-
-
 
   {{-- Grupo 10: Comitê --}}
   <div class="row mt-3">
@@ -266,3 +263,35 @@
     </div>
   </div>
 </form>
+
+<script>
+document.addEventListener('alpine:init', () => {
+  Alpine.data('dadosPrincipaisData', () => ({
+    updateDataProcLaboratorio() {
+      const dataInicio = this.$refs.dataInicio.value;
+      if (dataInicio) {
+        const data = new Date(dataInicio);
+        data.setDate(data.getDate() - 10);
+        const dataFormatada = data.toISOString().split('T')[0];
+        this.$refs.dataProcLaboratorio.value = dataFormatada;
+      }
+    },
+    updateDataPropostaAcoesCorretivas() {
+      const dataFim = this.$refs.dataFim.value;
+      if (dataFim) {
+        const data = new Date(dataFim);
+        
+        const dataProposta = new Date(dataFim);
+        dataProposta.setDate(dataProposta.getDate() + 7);
+        const dataPropostaFormatada = dataProposta.toISOString().split('T')[0];
+        this.$refs.dataPropostaAcoesCorretivas.value = dataPropostaFormatada;
+        
+        const dataAcoes = new Date(dataFim);
+        dataAcoes.setDate(dataAcoes.getDate() + 45);
+        const dataAcoesFormatada = dataAcoes.toISOString().split('T')[0];
+        this.$refs.dataAcoesCorretivas.value = dataAcoesFormatada;
+      }
+    }
+  }));
+});
+</script> 
