@@ -7,8 +7,11 @@ use App\Models\AgendaInterlab;
 use Illuminate\Validation\Rule;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
+
+use App\Exports\LancamentosMesExport;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\{Request,RedirectResponse};
 use App\Models\{AgendaCursos,Pessoa,CentroCusto,LancamentoFinanceiro,ModalidadePagamento,PlanoConta};
 
@@ -309,5 +312,21 @@ class LancamentoFinanceiroController extends Controller
       'cursos' => $cursos,
       'agendainterlabs' => $agendainterlabs
     ]);
+  }
+
+  /**
+   * Exporta os lançamentos financeiros do mês/ano para XLSX
+   *
+   * @param int $mes
+   * @param int $ano
+   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+   */
+  public function exportLancamentosMes(Request $request)
+  {
+    $mes_ano = explode('-', $request->mesano);
+    $mes = $mes_ano[0];
+    $ano = $mes_ano[1];
+    $nomeArquivo = "lancamentos-financeiros-{$mes}-{$ano}.xlsx";
+    return Excel::download(new LancamentosMesExport($mes, $ano), $nomeArquivo);
   }
 }
