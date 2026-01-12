@@ -10,7 +10,6 @@ use App\Models\Pessoa;
 use App\Models\Endereco;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Rule;
 
 class LabTable extends Component
 {
@@ -21,6 +20,9 @@ class LabTable extends Component
 
     #[Url(as: 's', history: false)]
     public $search = '';
+
+    #[Url(as: 'pep', history: false)]
+    public $searchPep = '';
 
     #[Url(as: 'empresa', history: false)]
     public $empresaSelecionada = '';
@@ -75,13 +77,13 @@ class LabTable extends Component
 
     public function resetFilters()
     {
-        $this->reset(['search', 'empresaSelecionada']);
+        $this->reset(['search', 'searchPep', 'empresaSelecionada']);
         $this->dispatch('reset-empresa-filter');
     }
 
     public function updated($propertyName)
     {
-        if (in_array($propertyName, ['search', 'perPage', 'empresaSelecionada'])) {
+        if (in_array($propertyName, ['search', 'searchPep', 'perPage', 'empresaSelecionada'])) {
             $this->resetPage();
         }
     }
@@ -198,20 +200,6 @@ class LabTable extends Component
         $this->resetForm();
     }
 
-    public function delete($uid)
-    {
-        $lab = InterlabLaboratorio::where('uid', $uid)->firstOrFail();
-        DB::transaction(function () use ($lab) {
-            $enderecoId = $lab->endereco_id;
-            $lab->delete();
-            if ($enderecoId) {
-                Endereco::where('id', $enderecoId)->delete();
-            }
-        });
-
-        $this->dispatch('notify', type: 'success', content: 'Laboratório removido com sucesso!');
-    }
-
     public function resetForm()
     {
         $this->reset([
@@ -254,9 +242,13 @@ class LabTable extends Component
 
     protected function getQuery()
     {
-        $query = InterlabLaboratorio::with(['empresa', 'endereco']);
+        $query = InterlabLaboratorio::with([
+            'empresa',
+            'inscritos.agendaInterlab.interlab'
+        ]);
 
         $query = $this->applySearchFilter($query);
+        $query = $this->applyPepFilter($query);
         $query = $this->applyEmpresaFilter($query);
         $query = $this->applySorting($query);
 
@@ -273,6 +265,16 @@ class LabTable extends Component
                         $subQuery->where('nome_razao', 'like', "%{$search}%")
                             ->orWhere('cpf_cnpj', 'like', "%{$search}%");
                     });
+            });
+        });
+    }
+
+    protected function applyPepFilter($query)
+    {
+        $searchPep = trim($this->searchPep);
+        return $query->when($searchPep, function ($query) use ($searchPep) {
+            $query->whereHas('inscritos.agendaInterlab.interlab', function ($subQuery) use ($searchPep) {
+                $subQuery->where('nome', 'like', "%{$searchPep}%");
             });
         });
     }

@@ -107,6 +107,15 @@ class InterlabInscrito extends Model
     }
 
     /**
+     * Lançamento financeiro desta inscrição
+     * @return BelongsTo
+     */
+    public function lancamentoFinanceiro(): BelongsTo
+    {
+        return $this->belongsTo(LancamentoFinanceiro::class, 'lancamento_financeiro_id');
+    }
+
+    /**
      * Gera a tag senha para o inscrito
      * @return string
      */

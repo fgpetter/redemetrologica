@@ -28,14 +28,26 @@
                     </div>
 
                     <!-- Pesquisa Global -->
-                    <div class="col-6">
-                        <label class="form-label mb-0">Pesquisar</label>
+                    <div class="col-3">
+                        <label class="form-label mb-0">Laboratório</label>
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="ri-search-line"></i>
                             </span>
                             <input wire:model.live.debounce.300ms="search" class="form-control"
                                 type="text" placeholder="Pesquisar por nome...">
+                        </div>
+                    </div>
+
+                    <!-- Pesquisa por PEP -->
+                    <div class="col-3">
+                        <label class="form-label mb-0">PEP</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ri-search-line"></i>
+                            </span>
+                            <input wire:model.live.debounce.300ms="searchPep" class="form-control"
+                                type="text" placeholder="Pesquisar por PEP...">
                         </div>
                     </div>
 
@@ -74,8 +86,8 @@
                                 @endif
                             </a>
                         </th>
-                        <th scope="col" style="width: 30%;">Endereço</th>
-                        <th scope="col" style="width: 10%;">Ações</th>
+                        <th scope="col" style="width: 30%;">PEP Inscrito</th>
+                        <th scope="col" style="width: 5%;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,8 +101,15 @@
                             <td>{{ $lab->empresa->nome_razao ?? '-' }}</td>
                             <td>{{ $lab->nome }}</td>
                             <td>
-                                @if($lab->endereco)
-                                    {{ $lab->endereco->cidade }}/{{ $lab->endereco->uf }}
+                                @php
+                                    $peps = $lab->inscritos
+                                        ->pluck('agendaInterlab.interlab.nome')
+                                        ->filter()
+                                        ->unique()
+                                        ->values();
+                                @endphp
+                                @if($peps->isNotEmpty())
+                                    {{ $peps->implode(', ') }}
                                 @else
                                     -
                                 @endif
@@ -99,17 +118,12 @@
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink{{ $lab->id }}"
                                         data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ph-dots-three-outline-vertical fs-5"></i>
+                                        <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"></i>
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink{{ $lab->id }}">
                                         <li>
                                             <a class="dropdown-item" href="#" wire:click.prevent="edit('{{ $lab->uid }}')">
                                                 Editar
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item text-danger" href="#" onclick="confirmDelete('{{ $lab->uid }}')">
-                                                Excluir
                                             </a>
                                         </li>
                                     </ul>
@@ -118,7 +132,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center">Nenhum laboratório encontrado.</td>
+                            <td colspan="5" class="text-center">Nenhum laboratório encontrado.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -289,7 +289,7 @@ class NovoLabInscrito extends Component
                 app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
             }
             
-            $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $laboratorio, $valorFinal);
+            app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal);
         });
         
         $this->selecionadoId = null;
@@ -299,47 +299,6 @@ class NovoLabInscrito extends Component
         session()->flash('success', 'Inscrição realizada com sucesso!');
     }
     
-
-    private function adicionaLancamentoFinanceiro(AgendaInterlab $agenda_interlab, Pessoa $empresa, InterlabLaboratorio $laboratorio, $valor = null)
-    {
-        $lancamento = LancamentoFinanceiro::where('pessoa_id', $empresa->id)
-            ->where('agenda_interlab_id', $agenda_interlab->id)
-            ->first();
-
-        // se a empresa não possui inscritos nesse interlab, cria um novo lançamento
-        if(!$lancamento) {
-            LancamentoFinanceiro::create([
-                'pessoa_id' => $empresa->id,
-                'agenda_interlab_id' => $agenda_interlab->id,
-                'historico' => 'Inscrição no interlab - ' . $agenda_interlab->interlab->nome,
-                'valor' => formataMoeda($valor), 
-                'centro_custo_id' => '4', // INTERLABORATORIAL
-                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
-                'data_emissao' => now(),
-                'status' => 'PROVISIONADO',
-                'observacoes' => "Inscrição de {$laboratorio->nome}, com valor de R$ {$valor} \n"
-            ]);
-        } else { // se a empresa já possui inscritos nesse interlab, atualiza o valor
-            $inscricoes_empresa = InterlabInscrito::where('empresa_id', $empresa->id)
-                ->where('agenda_interlab_id', $agenda_interlab->id)
-                ->whereNotNull('valor')
-                ->with('pessoa') // Fixed relationship name if needed (lab?)
-                ->get();
-
-            $observacoes = '';
-            foreach($inscricoes_empresa as $incricao) {
-                // $incricao->laboratorio might be null if no relation loaded? interlabInscrito belongsTo laboratorio
-                $nomeLab = $incricao->laboratorio->nome ?? 'Laboratório';
-                $data = Carbon::parse($incricao->data_inscricao)->format('d/m/Y H:i');
-                $observacoes .= "Inscrição de {$nomeLab}, com valor de R$ {$incricao->valor}, em {$data} \n";
-            }
-
-            $lancamento->update([
-                'valor' => $inscricoes_empresa->sum('valor'),
-                'observacoes' => $observacoes
-            ]);
-        }
-    }
     
 
     public function render()

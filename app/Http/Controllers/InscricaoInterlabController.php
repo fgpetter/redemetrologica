@@ -96,7 +96,7 @@ class InscricaoInterlabController extends Controller
     }
 
     if( isset($request->valor) && $request->valor > 0) {
-      $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio , $request->valor);
+      app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
     }
 
     Mail::to('interlab@redemetrologica.com.br')
@@ -153,7 +153,7 @@ class InscricaoInterlabController extends Controller
     ]);
     // se valor > 0 atualiza lancamento financeiro
     if($request->valor > 0) {
-      $this->adicionaLancamentoFinanceiro($inscrito->agendaInterlab, $inscrito->empresa, $inscrito->laboratorio , $request->valor);
+      app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
     }
     
     return back()->with('success', 'Dados salvos com sucesso!')->withFragment('participantes');
@@ -167,93 +167,11 @@ class InscricaoInterlabController extends Controller
    */
   public function cancelaInscricao(InterlabInscrito $inscrito)
   {
+    // Cancela o lançamento financeiro antes de apagar o inscrito
+    app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->cancelarLancamento($inscrito);
     $inscrito->delete();
-    $this->atualizaFinanceiro($inscrito);
-    return back()->with('success', 'Inscrição cancelada com sucesso!')->withFragment('participantes');
-  }
-
-  
-
-  /**
-   * Adiciona / Edita lançamentos financeiros referentes a inscrição no interlab
-   *
-   * @param AgendaInterlab $agenda_interlab
-   * @param Pessoa $empresa
-   * @param float|null $valor
-   * @return void
-   */
-  private function adicionaLancamentoFinanceiro(AgendaInterlab $agenda_interlab, Pessoa $empresa, InterlabLaboratorio $laboratorio, $valor = null)
-  {
-    $lancamento = LancamentoFinanceiro::where('pessoa_id', $empresa->id)
-      ->where('agenda_interlab_id', $agenda_interlab->id)
-      ->first();
     
-    // se a empresa não possui inscritos nesse interlab, cria um novo lançamento
-    if(!$lancamento) {
-      LancamentoFinanceiro::create([
-        'pessoa_id' => $empresa->id,
-        'agenda_interlab_id' => $agenda_interlab->id,
-        'historico' => 'Inscrição no interlab - ' . $agenda_interlab->interlab->nome,
-        'valor' => formataMoeda($valor),
-        'centro_custo_id' => '4', // INTERLABORATORIAL
-        'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
-        'data_emissao' => now(),
-        'status' => 'PROVISIONADO',
-        'observacoes' => "Inscrição de {$laboratorio->nome}, com valor de R$ {$valor} \n"
-      ]);
-    } else { // se a empresa já possui inscritos nesse interlab, atualiza o valor
-
-      $inscricoes_empresa = InterlabInscrito::where('empresa_id', $empresa->id)
-        ->where('agenda_interlab_id', $agenda_interlab->id)
-        ->whereNotNull('valor')
-        ->with('pessoa')
-        ->get();
-
-      $observacoes = '';
-      foreach($inscricoes_empresa as $incricao) {
-        $data = Carbon::parse($incricao->data_inscricao)->format('d/m/Y H:i');
-        $observacoes .= "Inscrição de {$incricao->laboratorio->nome}, com valor de R$ {$incricao->valor}, em {$data} \n";
-      }
-
-      $lancamento->update([
-        'valor' => $inscricoes_empresa->sum('valor'),
-        'observacoes' => $observacoes
-      ]);
-    }
-
-  }
-
-  /**
-   * Attualiza lançamento financeiro removendo o valor da inscrição
-   * deletada
-   *
-   * @param InterlabInscrito $inscrito
-   * @return void
-   */
-  private function atualizaFinanceiro(InterlabInscrito $inscrito): void
-  {
-    $lancamento = LancamentoFinanceiro::where('pessoa_id', $inscrito->empresa_id)
-      ->where('agenda_interlab_id', $inscrito->agenda_interlab_id)
-      ->first();
-
-    if( $lancamento ) {
-      $inscricoes_empresa = InterlabInscrito::where('empresa_id', $inscrito->empresa_id)
-        ->where('agenda_interlab_id', $inscrito->agenda_interlab_id)
-        ->whereNotNull('valor')
-        ->with('pessoa')
-        ->get();
-
-      $observacoes = '';
-      foreach($inscricoes_empresa as $incricao) {
-        $data = Carbon::parse($incricao->data_inscricao)->format('d/m/Y H:i');
-        $observacoes .= "Inscrição de {$incricao->laboratorio->nome}, com valor de R$ {$incricao->valor}, em {$data} \n";
-      }
-
-      $lancamento->update([
-        'valor' => $inscricoes_empresa->sum('valor'),
-        'observacoes' => $observacoes
-      ]);
-    }
+    return back()->with('success', 'Inscrição cancelada com sucesso!')->withFragment('participantes');
   }
 
 
