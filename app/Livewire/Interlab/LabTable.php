@@ -200,20 +200,6 @@ class LabTable extends Component
         $this->resetForm();
     }
 
-    public function delete($uid)
-    {
-        $lab = InterlabLaboratorio::where('uid', $uid)->firstOrFail();
-        DB::transaction(function () use ($lab) {
-            $enderecoId = $lab->endereco_id;
-            $lab->delete();
-            if ($enderecoId) {
-                Endereco::where('id', $enderecoId)->delete();
-            }
-        });
-
-        $this->dispatch('notify', type: 'success', content: 'Laboratório removido com sucesso!');
-    }
-
     public function resetForm()
     {
         $this->reset([

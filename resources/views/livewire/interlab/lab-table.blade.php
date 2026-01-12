@@ -87,7 +87,7 @@
                             </a>
                         </th>
                         <th scope="col" style="width: 30%;">PEP Inscrito</th>
-                        <th scope="col" style="width: 10%;">Ações</th>
+                        <th scope="col" style="width: 5%;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,17 +118,12 @@
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink{{ $lab->id }}"
                                         data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ph-dots-three-outline-vertical fs-5"></i>
+                                        <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"></i>
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink{{ $lab->id }}">
                                         <li>
                                             <a class="dropdown-item" href="#" wire:click.prevent="edit('{{ $lab->uid }}')">
                                                 Editar
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item text-danger" href="#" onclick="confirmDelete('{{ $lab->uid }}')">
-                                                Excluir
                                             </a>
                                         </li>
                                     </ul>
