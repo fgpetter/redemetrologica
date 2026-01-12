@@ -20,7 +20,7 @@
         <div class="card">
             <div class="card-body">
                 <form method="GET">
-                    <div class="row g-2 align-items-end">
+                    <div class="row g-2">
                         <div class="col-12 col-lg-2">
                             <x-forms.input-field :value="$data_inicial ?? null" type="date" name="data_inicial" id="data_inicial"
                                 label="Data Inicial" />
@@ -43,9 +43,9 @@
                                 @endforeach
                             </x-forms.input-select>
                         </div>
-                        <div class="col-12 col-lg-2 d-flex gap-2">
-                          <button type="submit" class="btn btn-primary btn-sm w-100">Pesquisar</button>
-                          <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-success btn-sm w-100">
+                        <div class="col-12 col-lg-2 d-flex gap-2 align-items-center justify-content-end">
+                          <button type="submit" class="btn btn-primary ">Pesquisar</button>
+                          <a href="{{ route('lancamento-financeiro-insert') }}" class="btn btn-success ">
                             <i class="ri-add-line align-bottom me-1"></i> Adicionar
                           </a>
                         </div>

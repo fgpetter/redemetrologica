@@ -297,7 +297,7 @@ class LancamentoFinanceiroController extends Controller
       ->orderBy('cursos.descricao')
       ->get();
 
-    $agendainterlabs = AgendaInterlab::select('agenda_interlabs.id', 'agenda_interlabs.uid', 'agenda_interlabs.interlab_id')
+    $agendainterlabs = AgendaInterlab::select('agenda_interlabs.id', 'agenda_interlabs.uid', 'agenda_interlabs.interlab_id', 'agenda_interlabs.ano_referencia', 'interlabs.nome')
       ->join('interlabs', 'agenda_interlabs.interlab_id', '=', 'interlabs.id')
       ->whereNot('agenda_interlabs.status', 'CANCELADO')
       ->orderBy('interlabs.nome')

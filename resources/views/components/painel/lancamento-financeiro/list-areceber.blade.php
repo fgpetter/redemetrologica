@@ -50,13 +50,13 @@
                         <option value=""> - </option>
                         @foreach ($agendainterlabs as $agendainterlab)
                             <option @selected($agendainterlab->id == $busca_pep) value="{{ $agendainterlab->id }}">
-                                {{ $agendainterlab->interlab->nome }}</option>
+                                {{ $agendainterlab->interlab->nome }} - {{ $agendainterlab->ano_referencia }}</option>
                         @endforeach
 
                     </x-forms.input-select>
                 </div>
             </div>
-            <div class="row mt-2 align-items-end">
+            <div class="row mt-2">
                 <div class="col-10">
                     <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
                         <option value=""> - </option>
@@ -65,7 +65,7 @@
                         @endforeach
                     </x-forms.input-select>
                 </div>
-                <div class="col-2 d-flex flex-nowrap gap-2">
+                <div class="col-2 d-flex flex-nowrap gap-2 align-items-center justify-content-end">
                     <button type="submit" class="btn btn-sm btn-primary px-3 py-2">Pesquisar</button>
                     <a href="{{ route('a-receber-index') }}" class="btn btn-sm btn-danger px-3 py-2">
                         Limpar
