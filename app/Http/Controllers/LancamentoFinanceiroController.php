@@ -48,9 +48,16 @@ class LancamentoFinanceiroController extends Controller
       ->withTrashed()
       ->get();
 
+    $meses_anos = LancamentoFinanceiro::whereNotNull('data_pagamento')
+      ->selectRaw("DATE_FORMAT(data_pagamento, '%m-%Y') as mes_ano")
+      ->distinct()
+      ->pluck('mes_ano')
+      ->reverse();
+
     return view('painel.lancamento-financeiro.index', [
       'lancamentosfinanceiros' => $lancamentosfinanceiros,
-      'pessoas' => $pessoas
+      'pessoas' => $pessoas,
+      'mesesanos' => $meses_anos
     ]);
   }
 
