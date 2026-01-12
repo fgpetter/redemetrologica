@@ -1,11 +1,11 @@
 @php
-  if (isset($_GET['data_inicial']) && $_GET['data_inicial'] != '') {
+  if (isset($_GET['data_inicial']) && $_GET['data_inicial'] != "") {
     $data_inicial = \Carbon\Carbon::parse($_GET['data_inicial'])->format('Y-m-d');
   } else {
     $data_inicial = \Carbon\Carbon::now()->format('Y-m-d');
   }
 
-  if (isset($_GET['data_final']) && $_GET['data_final'] != '') {
+  if (isset($_GET['data_final']) && $_GET['data_final'] != "") {
     $data_final = \Carbon\Carbon::parse($_GET['data_final'])->format('Y-m-d');
   } else {
     $data_final = \Carbon\Carbon::now()->addDays(7)->format('Y-m-d');
@@ -64,8 +64,8 @@
         <h5>RECEITAS</h5>
       </div>
       <div class="card-body">
-
-
+            
+    
         <div class="table-responsive" style="min-height: 25vh">
           <table class="table border-1" style="table-layout: fixed">
             <thead>
@@ -91,8 +91,8 @@
                   <td>  {{ $lancamento->nota_fiscal ?? '-' }} </td>
                   <td>
                     <div class="dropdown">
-                      <a href="#" role="button" id="dropdownMenuLink1"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                      <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
+                        aria-expanded="false">
                         <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
                           data-bs-toggle="tooltip" data-bs-placement="top"
                           title="Detalhes e edição"></i>
@@ -107,45 +107,36 @@
                         </li>
                       </ul>
                     </div>
-
+    
                   </td>
                 </tr>
                 <tr>
                   <td colspan="5" class="p-0">
-                    <div class="collapse" id="{{ 'collapse' . $lancamento->uid }}">
+                    <div class="collapse" id="{{"collapse".$lancamento->uid}}">
                       <div class="row gy-2 m-3 mt-2">
-                        <div class="col-12"><b>Historico:</b>
-                          {{ $lancamento->historico ?? '-' }}</div>
-                        <div class="col-3"><b>Vencimento:</b>
-                          {{ $lancamento->data_vencimento ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-' }}
-                        </div>
-                        <div class="col-3"><b>Documento:</b>
-                          {{ $lancamento->documento ?? '-' }}</div>
-                        <div class="col-3"><b>Nº Documento:</b>
-                          {{ $lancamento->num_documento ?? '-' }}</div>
-                        <div class="col-3"><b>Status:</b> {{ $lancamento->status ?? '-' }}
-                        </div>
+                        <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
+                        <div class="col-3"><b>Vencimento:</b> {{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }}</div>
+                        <div class="col-3"><b>Documento:</b> {{ $lancamento->documento ?? '-' }}</div>
+                        <div class="col-3"><b>Nº Documento:</b> {{ $lancamento->num_documento ?? '-' }}</div>
+                        <div class="col-3"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
                       </div>
                     </div>
                   </td>
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center"> Não há lançamentos com vencimento nos
-                    próximos 7 dias, use o botão "Pesquisar" para atualizar a lista. </td>
+                  <td colspan="6" class="text-center"> Não há lançamentos com vencimento nos próximos 7 dias, use o botão "Pesquisar" para atualizar a lista. </td>
                 </tr>
               @endforelse
               <tr>
-                <td colspan="5" class="border-0">
-                  <h6> Total da seleção: R$
-                    {{ $lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento')->sum('valor') }}
-                  </h6>
+                <td colspan="5" class="border-0"> 
+                  <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento')->sum('valor') }} </h6> 
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-
+    
       </div>
     </div>
   </div>
@@ -157,7 +148,7 @@
         <h5>DESPESAS</h5>
       </div>
       <div class="card-body">
-
+    
         <div class="table-responsive" style="min-height: 25vh">
           <table class="table border-1" style="table-layout: fixed">
             <thead>
@@ -183,8 +174,8 @@
                   <td> {!! ($lancamento->data_pagamento) ? Carbon\Carbon::parse($lancamento->data_pagamento)->format('d/m/Y') : "<span class='badge rounded-pill bg-warning'>Em Aberto</span>" !!} </td>
                   <td>
                     <div class="dropdown">
-                      <a href="#" role="button" id="dropdownMenuLink1"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                      <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
+                        aria-expanded="false">
                         <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
                           data-bs-toggle="tooltip" data-bs-placement="top"
                           title="Detalhes e edição"></i>
@@ -199,12 +190,12 @@
                         </li>
                       </ul>
                     </div>
-
+    
                   </td>
                 </tr>
                 <tr>
                   <td colspan="5" class="p-0">
-                    <div class="collapse" id="{{ 'collapse' . $lancamento->uid }}">
+                    <div class="collapse" id="{{"collapse".$lancamento->uid}}">
                       <div class="row gy-2 m-3 mt-2">
                         <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
                         <div class="col-3"><b>Vencimento:</b> {{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }}</div>
@@ -218,38 +209,21 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center"> Não há lançamentos com vencimento nos
-                    próximos 7 dias, use o botão "Pesquisar" para atualizar a lista. </td>
+                  <td colspan="6" class="text-center"> Não há lançamentos com vencimento nos próximos 7 dias, use o botão "Pesquisar" para atualizar a lista. </td>
                 </tr>
               @endforelse
               <tr>
-                <td colspan="5" class="border-0">
-                  <h6> Total da seleção: R$
-                    {{ $lancamentosfinanceiros->where('tipo_lancamento', 'DEBITO')->sum('valor') }}
-                  </h6>
+                <td colspan="5" class="border-0"> 
+                  <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'DEBITO')->sum('valor') }} </h6> 
                 </td>
               </tr>
 
             </tbody>
           </table>
         </div>
-
+    
       </div>
     </div>
   </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const select = document.getElementById('mesAnoExport');
-    const link = document.getElementById('linkExportLancamentos');
-
-    select.addEventListener('change', function () {
-      if (this.value) {
-        link.classList.remove('disabled');
-      } else {
-        link.classList.add('disabled');
-      }
-    });
-  });
-</script>
