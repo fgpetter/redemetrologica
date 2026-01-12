@@ -28,14 +28,26 @@
                     </div>
 
                     <!-- Pesquisa Global -->
-                    <div class="col-6">
-                        <label class="form-label mb-0">Pesquisar</label>
+                    <div class="col-3">
+                        <label class="form-label mb-0">Laboratório</label>
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="ri-search-line"></i>
                             </span>
                             <input wire:model.live.debounce.300ms="search" class="form-control"
                                 type="text" placeholder="Pesquisar por nome...">
+                        </div>
+                    </div>
+
+                    <!-- Pesquisa por PEP -->
+                    <div class="col-3">
+                        <label class="form-label mb-0">PEP</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ri-search-line"></i>
+                            </span>
+                            <input wire:model.live.debounce.300ms="searchPep" class="form-control"
+                                type="text" placeholder="Pesquisar por PEP...">
                         </div>
                     </div>
 
@@ -74,7 +86,7 @@
                                 @endif
                             </a>
                         </th>
-                        <th scope="col" style="width: 30%;">Endereço</th>
+                        <th scope="col" style="width: 30%;">PEP Inscrito</th>
                         <th scope="col" style="width: 10%;">Ações</th>
                     </tr>
                 </thead>
@@ -89,8 +101,15 @@
                             <td>{{ $lab->empresa->nome_razao ?? '-' }}</td>
                             <td>{{ $lab->nome }}</td>
                             <td>
-                                @if($lab->endereco)
-                                    {{ $lab->endereco->cidade }}/{{ $lab->endereco->uf }}
+                                @php
+                                    $peps = $lab->inscritos
+                                        ->pluck('agendaInterlab.interlab.nome')
+                                        ->filter()
+                                        ->unique()
+                                        ->values();
+                                @endphp
+                                @if($peps->isNotEmpty())
+                                    {{ $peps->implode(', ') }}
                                 @else
                                     -
                                 @endif
@@ -118,7 +137,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center">Nenhum laboratório encontrado.</td>
+                            <td colspan="5" class="text-center">Nenhum laboratório encontrado.</td>
                         </tr>
                     @endforelse
                 </tbody>
