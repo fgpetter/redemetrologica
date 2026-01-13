@@ -14,7 +14,7 @@
 
   <div class="row">
     <div class="col">
-      <x-painel.lancamento-financeiro.list-lancamentos :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas"/>
+      <x-painel.lancamento-financeiro.list-lancamentos :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas" :mesesanos="$mesesanos" />
     </div>
   </div>
 @endsection

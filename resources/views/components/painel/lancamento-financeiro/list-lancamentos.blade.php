@@ -51,6 +51,25 @@
                         </div>
                     </div>
                 </form>
+                <div class="col-12">
+                  <form method="GET" action="{{ route('export-lancamentos') }}">
+                    <div class="col-4">
+                      <label for="mesano" class="form-label mt-2">Exportar Lançamentos do Mês</label>
+                      <div class="input-group">
+                        <select class="form-select" id="mesAnoExport" name="mesano">
+                          <option value="">Selecione...</option>
+                          @foreach($mesesanos as $mesano)
+                            <option value="{{ $mesano }}">{{ $mesano }}</option>
+                          @endforeach
+                        </select>
+      
+                        <button type="submit" class="btn btn-outline-success disabled" id="linkExportLancamentos">
+                          <i class="ri-download-2-line"></i> Baixar
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
             </div>
         </div>
     </div>
@@ -227,3 +246,17 @@
   </div>
 </div>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const select = document.getElementById('mesAnoExport');
+    const link = document.getElementById('linkExportLancamentos');
+
+    select.addEventListener('change', function () {
+      if (this.value) {
+        link.classList.remove('disabled');
+      } else {
+        link.classList.add('disabled');
+      }
+    });
+  });
+</script>
