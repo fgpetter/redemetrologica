@@ -8,14 +8,9 @@
   <div class="row">
 
     <div class="col col-12">
-      <x-painel.avaliacoes.insert 
-        :avaliacao="$avaliacao" 
-        :laboratorio="$laboratorio" 
-        :avaliadores="$avaliadores" 
-        :tipoavaliacao="$tipo_avaliacao" 
-        :totalavaliadores="$totalavaliadores" 
-      />
+      <x-painel.avaliacoes.insert :avaliacao="$avaliacao" :laboratorio="$laboratorio" :avaliadores="$avaliadores" :tipoavaliacao="$tipo_avaliacao" />
     </div>
 
   </div>
+
 @endsection

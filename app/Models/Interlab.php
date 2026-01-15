@@ -22,11 +22,4 @@ class Interlab extends Model
             ->logOnly(['*'])
             ->useLogName(get_class($this));
     }
-    /**
-     * Get the agendas for the interlab.
-     */
-    public function agendas(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(AgendaInterlab::class);
-    }
 }

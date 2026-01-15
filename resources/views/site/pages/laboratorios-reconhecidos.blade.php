@@ -29,7 +29,7 @@
           
           <th>
             <input type="text" name="laboratorio" id="laboratorio" class="form-control form-control-sm"
-              placeholder="Informe o laboratório ou área e pressione ENTER para buscar." value="{{ $getlab ?? '' }}"
+              placeholder="Digite o nome do laboratório e pressione ENTER para buscar." value="{{ $getlab ?? '' }}"
               onkeypress="if(event.keyCode === 13){ search(event, window.location.href, 'laboratorio'); }">
           </th>
           
@@ -47,8 +47,9 @@
       <thead>
         <tr>
           <th scope="col">Entidade</th>
-          <th scope="col">Área de Atuação</th>
-          <th scope="col">Nome do Laboratório</th>
+          <th scope="col">Laboratório</th>
+          <th scope="col">Cidade</th>
+          <th scope="col">Outras informações</th>
         </tr>
       </thead>
 
@@ -56,21 +57,28 @@
         @forelse ($laboratorios_internos as $laboratorio_interno)
           <tr>
             <td>
-              <a href="{{ route('lab-interno-show', $laboratorio_interno->uid) }}">
-                {{ $laboratorio_interno->laboratorio->pessoa->nome_razao }}
+              <a href="{{ asset('laboratorios-certificados/' . $laboratorio_interno->certificado) }}" target="_blank">
+                <i class="ph-file-arrow-down align-middle me-1" style="font-size: 1.4rem"></i>
+                {{ $laboratorio_interno->laboratorio->nome_laboratorio }}
               </a>
             </td>
             <td>{{ $laboratorio_interno->area->descricao }}</td>
-            <td>{{ $laboratorio_interno->nome }}</td>
+            <td>
+              {{ $laboratorio_interno->laboratorio->pessoa?->enderecos->first()->cidade ?? null }}
+            </td>
+            <td></td>
           </tr>
         @empty
           <tr>
-            <td colspan="3" class="text-center">Não há laboratorios cadastrados</td>
+            <td colspan="5" class="text-center">Não há laboratorios cadastrados</td>
           </tr>
         @endforelse
       </tbody>
 
     </table>
+    <div class="row mt-3 w-100">
+      {!! $laboratorios_internos->withQueryString()->links('pagination::bootstrap-5') !!}
+    </div>
 
   </div>
   {{-- table --}}

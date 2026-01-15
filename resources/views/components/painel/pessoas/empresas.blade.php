@@ -52,6 +52,7 @@
     if(empresa){
       const choices = new Choices(empresa,{
         searchFields: ['label'],
+        maxItemCount: -1,
         allowHTML: true
       });
     }

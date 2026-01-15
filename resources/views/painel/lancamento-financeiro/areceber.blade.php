@@ -29,7 +29,7 @@
     if(pessoa){
       const choices = new Choices(pessoa,{
         searchFields: ['label'],
-        allowHTML: true
+        maxItemCount: -1
       });
     }
   </script>

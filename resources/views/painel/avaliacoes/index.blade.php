@@ -8,9 +8,7 @@
 
 <div class="row">
   <div class="col">
-
-    <livewire:avaliacoes.agenda-avaliacoes-table />
-    
+    <x-painel.avaliacoes.list :avaliacoes="$avaliacoes" :laboratorios="$laboratorios"/>
   </div>
 </div>
 
@@ -22,6 +20,7 @@
   if(element){
     const choices = new Choices(element,{
       searchFields: ['label'],
+      maxItemCount: -1,
       allowHTML: true
     });
   }

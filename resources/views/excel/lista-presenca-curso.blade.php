@@ -9,8 +9,6 @@
     <tr></tr>
     <tr>
       <th>Inscrito</th>
-      <th>Empresa</th>
-      <th>Email</th>
       <th>Presença</th>
     </tr>
   </thead>
@@ -19,8 +17,6 @@
       @if($inscrito->valor)
         <tr>
           <td>{{ $inscrito->pessoa->nome_razao }}</td>
-          <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
-          <td>{{ $inscrito->pessoa->email }}</td>
           <td></td>
         </tr>
       @endif

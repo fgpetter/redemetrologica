@@ -134,9 +134,8 @@
         </div>
 
         <div class="col-2">
-          <label class="form-label">Vencimento</label>
-          <input type="date" class="form-control" name="data_vencimento" 
-            value="{{ old('data_vencimento') ?? ($lancamento->data_vencimento ?? null) }}">
+          <label class="form-label">Vencimento <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" name="data_vencimento" value="{{ old('data_vencimento') ?? ($lancamento->data_vencimento ?? null) }}" required>
           @error('data_vencimento') <div class="text-warning">{{ $message }}</div> @enderror
         </div>
 
@@ -179,7 +178,7 @@
       </div>
     </form>
     @if ($lancamento->id)
-      <x-painel.form-delete.delete route="lancamento-financeiro-delete" id="{{ $lancamento->uid }}" label="Lançamento" />
+    <x-painel.form-delete.delete route="lancamento-financeiro-delete" id="{{ $lancamento->uid }}" label="Lançamento" />
     @endif
 
   </div>

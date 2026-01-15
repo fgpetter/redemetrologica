@@ -33,6 +33,7 @@
     if(pessoa){
       const choices = new Choices(pessoa,{
         searchFields: ['label'],
+        maxItemCount: -1,
         allowHTML: true
       });
       pessoa.addEventListener('change', function(){
@@ -44,6 +45,7 @@
     if(plano_conta){
       const choices = new Choices(plano_conta,{
         searchFields: ['label'],
+        maxItemCount: -1,
         allowHTML: true
       });
       plano_conta.addEventListener('change', function(){
@@ -59,6 +61,7 @@
       if(!selectedPlanoConta) { invalidPlanoConta.classList.remove("d-none") }
       if(!selectedPessoa) { invalidPessoa.classList.remove("d-none") }
     })
+
 
     $("#data_pagamento").change(function() {
       if(Date.parse($(this).val())) {

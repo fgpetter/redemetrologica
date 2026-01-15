@@ -50,15 +50,12 @@
                                         Editar
                                     </a>
                                 </li>
-                                {{-- Só exibee se não for endereço de PEP --}}
-                                @if (!Str::of($endereco->info)->lower()->contains('inscrito no pep:'))
-                                    <li>
-                                        <x-painel.form-delete.delete 
-                                            route="endereco-delete" 
-                                            :id="$endereco->uid"
-                                            class="dropdown-item" />
-                                    </li>
-                                @endif
+                                <li>
+                                    <x-painel.form-delete.delete 
+                                        route="endereco-delete" 
+                                        :id="$endereco->uid"
+                                        class="dropdown-item" />
+                                </li>
                             </ul>
                         </div>
                     </div>

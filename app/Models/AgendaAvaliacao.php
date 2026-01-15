@@ -44,9 +44,4 @@ class AgendaAvaliacao extends Model
         return $this->hasOne(Laboratorio::class, 'id', 'laboratorio_id');
     }
 
-    public function tipoAvaliacao(): HasOne
-    {
-        return $this->hasOne(TipoAvaliacao::class, 'id', 'tipo_avaliacao_id');
-    }
-
 }

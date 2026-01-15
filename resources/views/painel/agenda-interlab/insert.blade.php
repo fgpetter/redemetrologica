@@ -21,8 +21,9 @@
                 :fornecedores="$fornecedores"
                 :interlabParametros="$interlabParametros"
                 :parametros="$parametros"
-                :idinterlab="$idinterlab"
-                :inscritosCount="$inscritosCount"
+                :rodadas="$rodadas"
+                :intelabinscritos="$intelabinscritos"
+                :interlabempresasinscritas="$interlabempresasinscritas"
             />
         </div>
     </div>

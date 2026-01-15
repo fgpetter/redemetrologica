@@ -166,6 +166,13 @@
                 Agendamento de Cursos
               </a>
               </li>
+              <li class="nav-item">
+                <a href="{{ route('agendamento-curso-in-company-index') }}"
+                  class="nav-link {{ request()->is('painel/agendamento-curso-in-company/*') ? 'active' : '' }}"
+                  role="button" data-key="t-signin" style="white-space: nowrap;">
+                  Agendamento In-Company
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -195,13 +202,6 @@
                 class="nav-link {{ request()->is('painel/agenda-interlab/*') ? 'active' : '' }}" 
                 role="button" data-key="t-signin">
                 Agendamento de Interlabs
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ route('interlab-labindex') }}" 
-                class="nav-link {{ request()->is('painel/interlab/labindex') ? 'active' : '' }}" 
-                role="button" data-key="t-signin">
-                Laboratórios
               </a>
             </li>
             </ul>

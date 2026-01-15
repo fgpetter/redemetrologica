@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Convite;
 use App\Mail\ConviteCurso;
+use App\Mail\ConviteInterlab;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -37,6 +38,7 @@ class EnviaConvites extends Command
 
         if( $convite ) {
             if( $convite->agendaCurso ){ Mail::to($convite->email)->send( new ConviteCurso( $convite ) ); };
+            if( $convite->agendaInterlab ){ Mail::to($convite->email)->send( new ConviteInterlab( $convite ) ); };
 
             $convite->update([ 'enviado' => now(), 'status' => 'PENDENTE' ]);
             

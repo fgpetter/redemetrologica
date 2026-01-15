@@ -16,6 +16,7 @@
       :empresas="$empresas" 
       :pessoas="$pessoas" 
       :agendacurso="$agendacurso"
+      :inscritos="$inscritos"
       :cursoatual="$curso_atual"
       :instrutoratual="$instrutor_atual"
       :despesas="$despesas"
@@ -33,13 +34,13 @@
     if(pessoa){
       const choices = new Choices(pessoa,{
         searchFields: ['label'],
-        allowHTML: true
+        maxItemCount: -1
       });
     }
     if(empresa){
       const choices = new Choices(empresa,{
         searchFields: ['label'],
-        allowHTML: true
+        maxItemCount: -1
       });
     }
   </script>

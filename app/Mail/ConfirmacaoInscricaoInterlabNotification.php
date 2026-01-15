@@ -7,15 +7,10 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\InterlabInscrito;
 use App\Models\AgendaInterlab;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ConfirmacaoInscricaoInterlabNotification extends Mailable implements ShouldQueue
+class ConfirmacaoInscricaoInterlabNotification extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $tries = 3;
-
-    public $timeout = 120;
 
     public $dados_email;
 
@@ -26,9 +21,9 @@ class ConfirmacaoInscricaoInterlabNotification extends Mailable implements Shoul
             'nome_da_pessoa' => $inscrito->pessoa->nome_razao,
             'laboratorio_nome' => $inscrito->laboratorio->nome,
             'empresa_nome' => $inscrito->empresa->nome_razao,
-            'responsavel_tecnico' => $inscrito->responsavel_tecnico,
-            'laboratorio_email' => $inscrito->email,
-            'laboratorio_telefone' => $inscrito->telefone,
+            'responsavel_tecnico' => $inscrito->laboratorio->responsavel_tecnico,
+            'laboratorio_email' => $inscrito->laboratorio->email,
+            'laboratorio_telefone' => $inscrito->laboratorio->telefone,
             'laboratorio_endereco' => $inscrito->laboratorio->endereco->endereco.' - '.
               $inscrito->laboratorio->endereco->complemento.' - '.
               $inscrito->laboratorio->endereco->bairro.' - '.
@@ -42,7 +37,6 @@ class ConfirmacaoInscricaoInterlabNotification extends Mailable implements Shoul
     public function build()
     {
         return $this->subject('Confirmação de Inscrição - ' . $this->dados_email['interlab_nome'])
-                    ->replyTo('interlab@redemetrologica.com.br')
                     ->view('emails/confirmacao-inscricao-interlab');
     }
 } 
