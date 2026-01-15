@@ -2,27 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pessoa;
 use App\Models\Interlab;
 use App\Models\Parametro;
+use App\Exports\LabExport;
 use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
-use App\Models\InterlabRodada;
 use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
+use App\Models\DadosGeraDoc;
+use App\Actions\FileUploadAction;
+use App\Actions\CriarEnviarSenhaAction;
 use App\Models\InterlabParametro;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-use Illuminate\Http\RedirectResponse;
-use App\Models\InterlabRodadaParametro;
-use App\Models\Pessoa;
-use Illuminate\Support\Facades\Validator;
-use App\Exports\LabExport;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Illuminate\Http\RedirectResponse;
+use App\Models\AgendainterlabMaterial;
+use App\Models\InterlabRodadaParametro;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\StoreAgendaInterlabRequest;
+use App\Jobs\EnviarConfirmacaoInterlabJob;
 
 class AgendaInterlabController extends Controller
 {
@@ -31,38 +35,10 @@ class AgendaInterlabController extends Controller
    * 
    * @return View
    */
-  public function index(Request $request): View
-{
-    $sortDirection = $request->input('order', 'asc');
-    $sortField     = $request->input('orderBy', 'data_inicio');
-    $searchTerm    = $request->input('buscanome');
-
-    $agenda_interlabs = AgendaInterlab::with('interlab')
-        ->withCount('inscritos')
-        ->when($searchTerm, function ($query) use ($searchTerm) {
-            $query->whereHas('interlab', function ($q) use ($searchTerm) {
-                $q->where('nome', 'LIKE', "%{$searchTerm}%");
-            });
-        })
-        ->when($sortField == 'nome', function ($query) use ($sortDirection) {
-            $query->join('interlabs', 'agenda_interlabs.interlab_id', '=', 'interlabs.id')
-                  ->orderBy('interlabs.nome', $sortDirection)
-                  ->select('agenda_interlabs.*');
-        })
-        ->when($sortField == 'inscritos', function ($query) use ($sortDirection) {
-            $query->orderBy('inscritos_count', $sortDirection);
-        })
-        ->when(in_array($sortField, ['status', 'data_inicio', 'data_fim']), function ($query) use ($sortField, $sortDirection) {
-            $query->orderBy("agenda_interlabs.{$sortField}", $sortDirection);
-        })
-        ->paginate(15)
-        ->withQueryString();
-
-    return view('painel.agenda-interlab.index', ['agenda_interlabs' => $agenda_interlabs]);
-}
-
-
-
+  public function index(): View
+  {
+    return view('painel.agenda-interlab.index');
+  }
 
    /**
    * Tela de cadastro e ediçao de agenda de interlabs
@@ -72,11 +48,13 @@ class AgendaInterlabController extends Controller
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
-    $agendainterlab->load(['despesas', 'parametros', 'rodadas']);
-    $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)
-      ->with(['empresa', 'pessoa', 'laboratorio']);
+    // remover 'inscritos' daqui - o Livewire já carrega com eager loading
+    $agendainterlab->load(['despesas', 'parametros', 'rodadas', 'valores']);
+    
+    // contar inscritos sem carregar a collection inteira
+    $inscritosCount = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->count();
 
-      $data = [
+    $data = [ 
       'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get(),
       'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
@@ -86,9 +64,8 @@ class AgendaInterlabController extends Controller
       'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
       'interlabParametros' => $agendainterlab->parametros,
       'parametros' => Parametro::orderBy('descricao')->get(),
-      'rodadas' => $agendainterlab->rodadas,
-      'intelabinscritos' => $intelabinscritos->get(),
-      'interlabempresasinscritas' => $intelabinscritos->distinct()->get(['empresa_id']),
+      'inscritosCount' => $inscritosCount, // Passar apenas o count
+      'idinterlab' => $agendainterlab->id,
     ];
 
     return view('painel.agenda-interlab.insert', $data);
@@ -100,76 +77,51 @@ class AgendaInterlabController extends Controller
    * @param Request $request
    * @return RedirectResponse
    **/
-  public function create(Request $request): RedirectResponse
+  public function create(StoreAgendaInterlabRequest $request): RedirectResponse
   {
 
-    $validator = Validator::make($request->all(), [
-      'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
-      'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
-      'inscricao' => ['nullable', 'numeric'],
-      'site' => ['nullable', 'numeric'],
-      'destaque' => ['nullable', 'numeric'],
-      'descricao' => ['nullable', 'string'],
-      'data_inicio' => ['required', 'date'],
-      'data_fim' => ['nullable', 'date'],
-      'valor_rs' => ['nullable', 'string'],
-      'valor_s_se' => ['nullable', 'string'],
-      'valor_co' => ['nullable', 'string'],
-      'valor_n_ne' => ['nullable', 'string'],
-      'instrucoes_inscricao' => ['nullable', 'string'],
-      ], [
-      'interlab_id.required' => 'Selecione um interlab',
-      'interlab_id.exists' => 'Opção inválida',
-      'interlab_id.numeric' => 'Opção inválida',
-      'status.required' => 'O campo status obrigatório',
-      'status.in' => 'Opção inválida',
-      'status.string' => 'Permitido somente texto',
-      'inscricao.numeric' => 'Opção inválida',
-      'site.numeric' => 'Opção inválida',
-      'destaque.numeric' => 'Opção inválida',
-      'descricao.string' => 'Permitido somente texto',
-      'data_inicio.required' => 'O campo data obrigatório',
-      'data_inicio.date' => 'Permitido somente data',
-      'data_fim.date' => 'Permitido somente data',
-      'valor_rs.string' => 'Valor inválido', 
-      'valor_s_se.string' => 'Valor inválido', 
-      'valor_co.string' => 'Valor inválido', 
-      'valor_n_ne.string' => 'Valor inválido',
-      'instrucoes_inscricao.string' => 'Permitido somente texto'
-    ]);
+    $validated = $request->validated();
 
-    if ($validator->fails()) {
-
-      Log::channel('validation')->info("Erro de validação", 
-      [
-          'user' => auth()->user() ?? null,
-          'request' => $request->all() ?? null,
-          'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
-          'errors' => $validator->errors() ?? null,
-      ]);
-
-      return back()
-      ->withErrors($validator, 'principal')
-      ->withInput()
-      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    $valores_data = $validated['valores'] ?? [];
+    if (array_key_exists('valores', $validated)) {
+      unset($validated['valores']);
     }
 
-    $prepared_data = array_merge($validator->validate(),[
-      'valor_rs' => formataMoeda($request->valor_s_se ),
-      'valor_s_se' => formataMoeda($request->valor_s_se ),
-      'valor_co' => formataMoeda($request->valor_co ),
-      'valor_n_ne' => formataMoeda($request->valor_n_ne ),
-      'descricao' => $request->descricao  ? $this->salvaImagensTemporarias( $request->descricao  ) : null
+    $prepared_data = array_merge($validated, [
+      'valor_desconto' => formataMoeda($request->valor_desconto),
+      'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
     ]);
 
-    $agenda_interlab = AgendaInterlab::create( $prepared_data );
+    try {
+      DB::transaction(function () use ($prepared_data, $valores_data, &$agenda_interlab) {
 
-    if (!$agenda_interlab) {
-      return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
+        $agenda_interlab = AgendaInterlab::create($prepared_data);
+
+        if (!empty($valores_data) && is_array($valores_data)) {
+          foreach ($valores_data as $valor_data) {
+            $descricao = $valor_data['descricao'] ?? null;
+            $valor = $valor_data['valor'] ?? null;
+            $valor_assoc = $valor_data['valor_assoc'] ?? null;
+
+            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
+              $agenda_interlab->valores()->create([
+                'descricao' => $descricao,
+                'valor' => formataMoeda($valor),
+                'valor_assoc' => formataMoeda($valor_assoc),
+              ]);
+            }
+          }
+        }
+      });
+    } catch (\Throwable $e) {
+      report($e);
+
+      return redirect()->back()
+        ->withInput()
+        ->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
     }
 
-    return redirect()->route('agenda-interlab-index')->with('success', 'Agenda interlab cadastrado com sucesso');
+    return redirect()->back()->with('success', 'Agenda interlab cadastrado com sucesso');
   }
 
   /**
@@ -178,75 +130,79 @@ class AgendaInterlabController extends Controller
    * @param Request $request
    * @return RedirectResponse
    **/
-  public function update(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
+  public function update(StoreAgendaInterlabRequest $request, AgendaInterlab $agendainterlab): RedirectResponse
   {
+    $oldStatus = $agendainterlab->status;
 
-    $validator = Validator::make($request->all(), [
-      'interlab_id' => ['required', 'numeric', 'exists:interlabs,id'],
-      'status' => ['required', 'string', 'in:AGENDADO,CONFIRMADO,CONCLUIDO'],
-      'inscricao' => ['nullable', 'numeric'],
-      'site' => ['nullable', 'numeric'],
-      'destaque' => ['nullable', 'numeric'],
-      'descricao' => ['nullable', 'string'],
-      'data_inicio' => ['required', 'date'],
-      'data_fim' => ['nullable', 'date'],
-      'valor_rs' => ['nullable', 'string'],
-      'valor_s_se' => ['nullable', 'string'],
-      'valor_co' => ['nullable', 'string'],
-      'valor_n_ne' => ['nullable', 'string'],
-      'instrucoes_inscricao' => ['nullable', 'string'],
-      ],[
-      'interlab_id.required' => 'Selecione um interlab',
-      'interlab_id.exists' => 'Opção inválida',
-      'interlab_id.numeric' => 'Opção inválida',
-      'status.required' => 'O campo status obrigatório',
-      'status.in' => 'Opção inválida',
-      'status.string' => 'Permitido somente texto',
-      'inscricao.numeric' => 'Opção inválida',
-      'site.numeric' => 'Opção inválida',
-      'destaque.numeric' => 'Opção inválida',
-      'descricao.string' => 'Permitido somente texto',
-      'data_inicio.required' => 'O campo data obrigatório',
-      'data_inicio.date' => 'Permitido somente data',
-      'data_fim.date' => 'Permitido somente data',
-      'valor_rs.string' => 'Valor inválido',
-      'valor_s_se.string' => 'Valor inválido',
-      'valor_co.string' => 'Valor inválido',
-      'valor_n_ne.string' => 'Valor inválido',
-      'instrucoes_inscricao.string' => 'Permitido somente texto'
-      ]
-    );
+    $validated = $request->validated();
 
-
-    if ($validator->fails()) {
-
-      Log::channel('validation')->info("Erro de validação", 
-      [
-          'user' => auth()->user() ?? null,
-          'request' => $request->all() ?? null,
-          'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
-          'errors' => $validator->errors() ?? null,
-      ]);
-
-      return back()
-      ->withErrors($validator, 'principal')
-      ->withInput()
-      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    $valores_data = $validated['valores'] ?? [];
+    if (array_key_exists('valores', $validated)) {
+      unset($validated['valores']);
     }
 
-    $prepared_data = array_merge($validator->validate(),[
-      'valor_rs' => formataMoeda( $request->valor_s_se ),
-      'valor_s_se' => formataMoeda( $request->valor_s_se ),
-      'valor_co' => formataMoeda( $request->valor_co ),
-      'valor_n_ne' => formataMoeda( $request->valor_n_ne ),
-      'descricao' => $request->descricao  ? $this->salvaImagensTemporarias( $request->descricao  ) : null,
-      'site' => ($request->status == 'CONCLUIDO') ? 0 : $request->site ?? 0,
-      'inscricao' => ($request->status == 'CONCLUIDO') ? 0 : $request->inscricao ?? 0,
-      'destaque' => ($request->status == 'CONCLUIDO') ? 0 : $request->destaque ?? 0
+    $prepared_data = array_merge($validated, [
+      'valor_desconto' => formataMoeda($validated['valor_desconto']),
+      'descricao' => $request->descricao ? $this->salvaImagensTemporarias($request->descricao) : null,
+      'site' => ($request->status === 'CONCLUIDO') ? 0 : ($request->site ?? 0),
+      'inscricao' => ($request->status === 'CONCLUIDO') ? 0 : ($request->inscricao ?? 0),
+      'destaque' => ($request->status === 'CONCLUIDO') ? 0 : ($request->destaque ?? 0),
     ]);
 
-    $agendainterlab->update( $prepared_data );
+
+    try {
+      DB::transaction(function () use ($agendainterlab, $prepared_data, $valores_data) {
+
+        $agendainterlab->update($prepared_data);
+
+        $agendainterlab->valores()->delete();
+
+        if (!empty($valores_data) && is_array($valores_data)) {
+          foreach ($valores_data as $valor_data) {
+
+            $descricao = $valor_data['descricao'] ?? null;
+            $valor = $valor_data['valor'] ?? null;
+            $valor_assoc = $valor_data['valor_assoc'] ?? null;
+
+            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
+              $agendainterlab->valores()->create([
+                'descricao' => $descricao,
+                'valor' => formataMoeda($valor),
+                'valor_assoc' => formataMoeda($valor_assoc),
+              ]);
+            }
+          }
+        }
+      });
+    } catch (\Throwable $e) {
+
+      report($e);
+
+      return back()
+        ->withInput()
+        ->with('error', 'Ocorreu um erro ao atualizar. Tente novamente mais tarde.');
+    }
+
+    // se o status foi alterado para CONFIRMADO, envia a todos os participantes e-mail de confirmação e carta senha
+    if ($oldStatus == 'AGENDADO' && $agendainterlab->status === 'CONFIRMADO' && !empty($agendainterlab->interlab->tag)) {
+      $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)
+        ->with('laboratorio')
+        ->get();
+
+      foreach ($inscritos as $index => $inscrito) {
+        $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
+        ->whereJsonContains('content->participante_id', $inscrito->id)
+        ->exists();
+
+        if (!$jaGerado) {
+          (new CriarEnviarSenhaAction())->execute($inscrito, $index);
+        }
+
+        EnviarConfirmacaoInterlabJob::dispatch($inscrito)
+          ->delay(now()->addSeconds(($index + 1) * 10));
+      }
+
+    }
 
     return redirect()->back()->with('success', 'Agenda interlab atualizado com sucesso');
   }
@@ -254,7 +210,7 @@ class AgendaInterlabController extends Controller
   /**
    * Remove interlab
    *
-   * @param User $user
+  * @param User $user
    * @return RedirectResponse
    **/
   public function delete(AgendaInterlab $agendainterlab): RedirectResponse
@@ -272,7 +228,6 @@ class AgendaInterlabController extends Controller
    */
   public function salvaDespesa(Request $request): RedirectResponse
   {
-
     $validator = Validator::make($request->all(), [
       'agenda_interlab_id' => ['nullable', 'exists:agenda_interlabs,id'],
       'despesa_id' => ['nullable', 'exists:interlab_despesas,id'],
@@ -340,13 +295,13 @@ class AgendaInterlabController extends Controller
     return back()->with('success', 'Material salvo com sucesso')->withFragment('despesas');
   }
 
-/**
- * Duplica despesa do agendamento de interlab removendo campos 
- * que não devem sere duplicados como id, uid, and timestamps.
- *
- * @param InterlabDespesa $despesa
- * @return \Illuminate\Http\RedirectResponse
- */
+  /**
+   * Duplica despesa do agendamento de interlab removendo campos 
+   * que não devem sere duplicados como id, uid, and timestamps.
+   *
+   * @param InterlabDespesa $despesa
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function duplicarDespesa(InterlabDespesa $despesa): RedirectResponse 
   {
     $despesa = collect($despesa)->forget(['id','uid', 'created_at', 'updated_at', 'deleted_at'])->toArray();
@@ -371,83 +326,6 @@ class AgendaInterlabController extends Controller
     return back()->with('warning', 'Material removido')->withFragment('despesas');
   }
 
-  /**
-   * Adiciona rodadas no agendamento de PEP
-   *
-   * @param Request $request
-   * @return RedirectResponse
-   */
-
-  public function salvaRodada(Request $request): RedirectResponse
-  {
-    $validator = Validator::make($request->all(), 
-      [
-        'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
-        'rodada_id' => ['nullable', 'exists:interlab_rodadas,id'],
-        'descricao' => ['required', 'string'],
-        'vias' => ['required', 'numeric' ,'min:1'],
-        'cronograma' => ['nullable', 'string'],
-        'parametros' => ['nullable', 'array'],
-        'parametros.*' => ['nullable', 'exists:parametros,id'],
-      ], [
-        'agenda_interlab_id.required' => 'Houve um erro ao salvar. Agenda inexistente',
-        'agenda_interlab_id.exists' => 'Houve um erro ao salvar. Agenda inexistente',
-        'rodada_id.exists' => 'Houve um erro ao salvar. Rodada inexistente',
-        'descricao.required' => 'O campo descricão obrigatório',
-        'descricao.string' => 'O campo descricão permite somente texto',
-        'vias.required' => 'O campo vias deve ser preenchido',
-        'vias.numeric' => 'O campo vias deve ser um número',
-        'vias.min' => 'O campo vias deve ser maior que 0',
-        'cronograma.string' => 'O campo cronograma permite somente texto',
-        'parametros.array' => 'Houve um erro ao salvar. Parametros inválidos',
-        'parametros.*.exists' => 'O parametro :input não existe',
-      ]
-    );
-
-    if ($validator->fails()){
-
-      Log::channel('validation')->info("Erro de validação", 
-      [
-          'user' => auth()->user() ?? null,
-          'request' => $request->all() ?? null,
-          'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
-          'errors' => $validator->errors() ?? null,
-      ]);
-
-      return back()
-        ->withErrors($validator, 'rodadas')
-        ->withInput()
-        ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente')
-        ->withFragment('rodadas');
-    }
-
-    $prepared_data = $validator->validate();
-    $interlab_rodada = InterlabRodada::updateOrCreate([
-      'id' => $prepared_data['rodada_id'],
-    ],[
-      'agenda_interlab_id' => $prepared_data['agenda_interlab_id'],
-      'descricao' => $prepared_data['descricao'],
-      'vias' => $prepared_data['vias'],
-      'cronograma' => $prepared_data['cronograma'],
-    ]);
-
-    $interlab_rodada->updateParametros($request->parametros);
-
-    return back()->with('success', 'Rodada salva com sucesso')->withFragment('rodadas');
-  }
-
-  /**
-   * Remove rodada
-   *
-   * @param InterlabRodada $rodada
-   * @return RedirectResponse
-   */
-  public function deleteRodada(InterlabRodada $rodada): RedirectResponse
-  {
-    $rodada->delete();
-    return back()->with('warning', 'Rodada removida')->withFragment('rodadas');
-  }
 
   /**
    * Adiciona parametros no agendamento de PEP
@@ -521,14 +399,14 @@ class AgendaInterlabController extends Controller
     return back()->with('warning', 'Parâmetro removido')->withFragment('despesas');
   }
 
-
   /** 
    * Lida com imagens temporárias do editor de imagens 
    * e retorna o conteúdo atualizado para pasta correta
    * 
    * @return string $content
    */
-  private function salvaImagensTemporarias($descricao): string {
+  private function salvaImagensTemporarias($descricao): string
+  {
 
     // lida com as pastas temporarias do editor de conteúdo
     if (session()->has('tempPastas')) {
@@ -603,7 +481,144 @@ class AgendaInterlabController extends Controller
    */
   public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab)
   {
-    return Excel::download(new LabExport($agendainterlab), 'inscritos-interlab-ID'.$agendainterlab->id.'.xlsx');
+    $interlabName = $agendainterlab->interlab->nome ?? 'interlab';
+    $interlabName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $interlabName); // Adicionar nome do PEP no nome do arquivo
+    $filename = 'inscritos-interlab-ID' . $agendainterlab->id . '-' . $interlabName . '.xlsx';
+    return Excel::download(new LabExport($agendainterlab), $filename);
+  }
+
+  /**
+   * Adiciona materiais ao interlab
+   *
+   * @param Request $request
+   * @param AgendaInterlab $agendainterlab
+   * @return RedirectResponse
+   */
+  public function uploadMaterial(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
+  {
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'descricao' => ['nullable', 'string', 'max:190'],
+        'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:5120'],
+      ],
+      [
+        'descricao.string' => 'O campo aceita somente texto.',
+        'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'arquivo.max' => 'O arquivo é muito grande, diminua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+        'arquivo.required' => 'Selecione um arquivo para enviar.',
+      ]
+    );
+
+    if ($validator->fails()) {
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) . '::' . __FUNCTION__,
+          'errors' => $validator->errors() ?? null,
+        ]
+      );
+
+      return back()
+        ->with('error', 'Houve um erro ao processar os dados, tente novamente')
+        ->withErrors($validator)
+        ->withInput();
+    }
+
+    if ($request->hasFile('arquivo')) {
+      $file_name = FileUploadAction::handle($request, 'arquivo', 'interlab-material');
+    }
+
+    $agendainterlab->materiais()->create([
+      'arquivo' => $file_name,
+      'descricao' => $request->descricao
+    ]);
+
+    return back()->with('success', 'Material adicionado com sucesso');
+  }
+
+  /**
+   * Remove materiais do interlab
+   *
+   * @param AgendainterlabMaterial $material
+   * @return RedirectResponse
+   */
+  public function deleteMaterial(AgendainterlabMaterial $material): RedirectResponse
+  {
+    if (File::exists(public_path('interlab-material/' . $material->arquivo))) {
+      File::delete(public_path('interlab-material/' . $material->arquivo));
+    }
+
+    $material->delete();
+
+    return redirect()->back()->with('success', 'Material removido');
+  }
+
+  /**
+   * Adiciona protocolo ao interlab
+   *
+   * @param Request $request
+   * @param AgendaInterlab $agendainterlab
+   * @return RedirectResponse
+   */
+  public function uploadProtocolo(Request $request, AgendaInterlab $agendainterlab): RedirectResponse
+  {
+    $validator = Validator::make(
+      $request->all(),
+      [
+        'protocolo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:5120'],
+      ],
+      [
+        'protocolo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
+        'protocolo.max' => 'O arquivo é muito grande, diminua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
+        'protocolo.required' => 'Selecione um arquivo para enviar.',
+      ]
+    );
+
+    if ($validator->fails()) {
+      Log::channel('validation')->info(
+        "Erro de validação",
+        [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) . '::' . __FUNCTION__,
+          'errors' => $validator->errors() ?? null,
+        ]
+      );
+
+      return back()
+        ->with('error', 'Houve um erro ao processar os dados, tente novamente')
+        ->withErrors($validator)
+        ->withInput();
+    }
+
+    if ($request->hasFile('protocolo')) {
+      $file_name = FileUploadAction::handle($request, 'protocolo', 'PROTOCOLO_INTERLAB');
+      $agendainterlab->update(['protocolo' => $file_name]);
+    }
+
+    return back()->with('success', 'Protocolo adicionado com sucesso');
+  }
+
+  /**
+   * Remove protocolo do interlab
+   *
+   * @param AgendaInterlab $agendainterlab
+   * @return RedirectResponse
+   */
+  public function deleteProtocolo(AgendaInterlab $agendainterlab): RedirectResponse
+  {
+    if ($agendainterlab->protocolo && File::exists(public_path('PROTOCOLO_INTERLAB/' . $agendainterlab->protocolo))) {
+      File::delete(public_path('PROTOCOLO_INTERLAB/' . $agendainterlab->protocolo));
+    }
+
+    $agendainterlab->update(['protocolo' => null]);
+
+    return redirect()->back()->with('success', 'Protocolo removido');
   }
 
 }

@@ -13,21 +13,26 @@
                          </a>
                      </li>
                      <li class="nav-item">
+                         <a class="nav-link" data-bs-toggle="tab" href="#enderecos" role="tab" aria-selected="true">
+                             Endereços
+                         </a>
+                     </li>
+                     <li class="nav-item">
                          <a class="nav-link" data-bs-toggle="tab" href="#avaliacoes" role="tab"
                              aria-selected="false">
                              Avaliações
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a class="nav-link" data-bs-toggle="tab" href="#qualificacoes" role="tab"
+                         <a class="nav-link" data-bs-toggle="tab" href="#areasatuacao" role="tab"
                              aria-selected="false">
-                             Qualificações e Áreas
+                             Áreas de atuação
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a class="nav-link" data-bs-toggle="tab" href="#certificados" role="tab"
+                         <a class="nav-link" data-bs-toggle="tab" href="#qualificacoes" role="tab"
                              aria-selected="false">
-                             Certificados
+                             Qualificações
                          </a>
                      </li>
                      <li class="nav-item">
@@ -51,30 +56,33 @@
                                          id="{{ $avaliador->uid }}" />
                                  </div>
                              @endif
-
-                             <div class="col-12 mt-4 px-0">
-                                 {{-- <x-painel.enderecos.list :pessoa="$avaliador->pessoa" /> --}}
-                                 <livewire:enderecos.listview :pessoa="$avaliador->pessoa" />
-                             </div>
-
                          </div>
+                         <div>
+                             @if ($avaliador->id)
+                                 <div>
+                                     <x-painel.dados-bancarios.list :pessoa="$avaliador->pessoa" />
+                                 </div>
+                             @endif
+                         </div>
+                     </div>
+                     <div class="tab-pane" id="enderecos" role="tabpanel">
+                         <x-painel.avaliadores.enderecos :enderecopessoal="$enderecopessoal" :enderecocomercial="$enderecocomercial" :avaliador="$avaliador" />
                      </div>
 
                      <div class="tab-pane" id="avaliacoes" role="tabpanel">
-                         <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" />
+                         <x-painel.avaliadores.avaliacoes :avaliacoes="$avaliacoes" :avaliador="$avaliador" :empresas="$empresas" />
+                     </div>
+
+                     <div class="tab-pane" id="areasatuacao" role="tabpanel">
+                         <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador" />
                      </div>
 
                      <div class="tab-pane" id="qualificacoes" role="tabpanel">
-                         <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador"/>
-                         <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador"/>
-                     </div>
-
-                     <div class="tab-pane" id="certificados" role="tabpanel">
-                         <x-painel.avaliadores.certificados :avaliador="$avaliador"/>
+                         <x-painel.avaliadores.qualificacoes :qualificacoes="$qualificacoes" :qualificacoeslist="$qualificacoeslist" :avaliador="$avaliador" />
                      </div>
 
                      <div class="tab-pane" id="controlestatus" role="tabpanel">
-                        <x-painel.avaliadores.status :avaliador="$avaliador"/>
+                         <x-painel.avaliadores.status :avaliador="$avaliador" />
                      </div>
 
                  </div>

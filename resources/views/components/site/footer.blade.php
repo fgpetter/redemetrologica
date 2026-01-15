@@ -15,11 +15,11 @@
                         Qualidade e Sustentabilidade
                         <br>
                         <br>
-                        <a class="text-white" href="https://redemetrologica.com.br/politica-de-privacidade/">
+                        <a class="text-white" href="/politica-de-privacidade/">
                             Política de Privacidade
                         </a>
                         <br>
-                        <a class="text-white" href="https://redemetrologica.com.br/politica-de-cookies/">
+                        <a class="text-white" href="/politica-de-cookies/">
                             Política de Cookies
                         </a>
                     </div>
@@ -62,11 +62,6 @@
                                             Laboratórios Reconhecidos
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="text-white" href="/bonus-metrologia">
-                                            Bônus Metrologia
-                                        </a>
-                                    </li>
                                 </ul>
                             </li>
                             <li>
@@ -89,7 +84,7 @@
         <div  class="container pt-2">
             <div class="row gap-3">
                 <div class="col">
-                    <h4 class="text-white text-end"> Rede Metrológica RS © </h4>
+                    <h4 class="text-white text-end">{{ date('Y') }} Rede Metrológica RS</h4>
                 </div>
                 <div class="col">
                     <a href="https://www.facebook.com/Rede-Metrol%C3%B3gica-RS-788822964529119/">
@@ -101,6 +96,10 @@
                     <a class="text-white" href="https://www.linkedin.com/company/redemetrologicars/">
                         <i class="bi bi-linkedin text-white fs-4 me-3"></i>
                     </a>
+                </div>
+                <div class="col">
+                    <span class="text-white">Desenvolvido por: </span>
+                    <a class="text-white" href="https://premiumweb.com.br" target="_blank">PremiumWeb</a>
                 </div>
             </div>
         </div>

@@ -2,10 +2,16 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12 d-flex justify-content-end mb-3">
-                <a href="{{ $tipoagenda == 'IN-COMPANY' ? route('agendamento-curso-in-company-insert') : route('agendamento-curso-insert') }}"
-                    class="btn btn-sm btn-success">
-                    <i class="ri-add-line align-bottom me-1"></i> Adicionar Agendamento de curso
-                </a>
+                <div>
+                    <a href="{{  route('agendamento-curso-insert') }}"
+                        class="btn btn-sm btn-success me-2">
+                        <i class="ri-add-line align-bottom me-1"></i> Adicionar Agendamento de curso
+                    </a>
+                    <a href="{{ route('agendamento-curso-in-company-insert') }}"
+                        class="btn btn-sm btn-primary">
+                        <i class="ri-add-line align-bottom me-1"></i> Adicionar Agendamento IN-COMPANY
+                    </a>
+                </div>
             </div>
         </div>
         {{-- Filtros --}}
@@ -43,16 +49,16 @@
                         </select>
                     </div>
                     <!-- Tipo -->
-                    @if ($tipoagenda != 'IN-COMPANY')
                         <div class="col-2">
                             <label class="form-label mb-0">Tipo</label>
                             <select wire:model.live="tipo_agendamento" name="tipoAgendamento" id="tipoAgendamento" class="form-select form-select-sm">
                                 <option value="">Selecione...</option>
                                 <option value="ONLINE">ONLINE</option>
                                 <option value="EVENTO">EVENTO</option>
+                                <option value="IN-COMPANY">IN-COMPANY</option>
                             </select>
                         </div>
-                    @endif
+                    
 
                     <!-- Pesquisa Global -->
                     <div class="col-3">
@@ -150,7 +156,7 @@
                                 {{ Carbon\Carbon::parse($agendacurso->data_inicio)->locale('pt-BR')->translatedFormat('F') }}
                             </td>
                             <td class="text-center text-nowrap">
-                                <a href="{{ $tipoagenda == 'IN-COMPANY'
+                                <a href="{{ $agendacurso->tipo_agendamento == 'IN-COMPANY'
                                     ? route('agendamento-curso-in-company-insert', $agendacurso->uid)
                                     : route('agendamento-curso-insert', $agendacurso->uid) }}">
                                     # {{ $agendacurso->id }}
@@ -183,8 +189,8 @@
                             <td class="align-middle p-1">{{ $agendacurso->tipo_agendamento ?? '' }}</td>
                             <td class="text-center text-nowrap align-middle p-1">
                                 {{ $agendacurso->tipo_agendamento != 'IN-COMPANY'
-                                    ? $agendacurso->inscritos->where('valor', '!=', null)->count()
-                                    : $agendacurso->inscritos->count() }}
+                                    ? $agendacurso->inscritos_validos_count
+                                    : $agendacurso->inscritos_count }}
                             </td>
                             <td>
                                 <div class="dropdown">
@@ -196,7 +202,7 @@
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                                         <li>
-                                            <a class="dropdown-item" href="{{ $tipoagenda == 'IN-COMPANY'
+                                            <a class="dropdown-item" href="{{ $agendacurso->tipo_agendamento == 'IN-COMPANY'
                                                 ? route('agendamento-curso-in-company-insert', $agendacurso->uid)
                                                 : route('agendamento-curso-insert', $agendacurso->uid) }}">
                                                 Editar

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
@@ -47,6 +48,15 @@ class InterlabLaboratorio extends Model
     public function endereco(): HasOne
     {
       return $this->hasOne(Endereco::class, 'id', 'endereco_id');
+    }
+
+    /**
+     * Retorna inscrições do laboratório em PEPs
+     * @return HasMany
+     */
+    public function inscritos(): HasMany
+    {
+        return $this->hasMany(InterlabInscrito::class, 'laboratorio_id', 'id');
     }
 
     protected function telefone(): Attribute

@@ -3,15 +3,18 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-//use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NotifyRegisterInvalid extends Mailable
+class NotifyRegisterInvalid extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+
+    public $tries = 3;
+    public $timeout = 120;
 
     /**
      * Create a new message instance.

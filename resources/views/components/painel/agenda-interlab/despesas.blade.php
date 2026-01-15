@@ -65,6 +65,15 @@
               @endforelse
             
           </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-end fw-bold">Total:</td>
+              <td class="fw-bold">
+                {{ "R$ " . number_format($interlabDespesa->sum('total'), 2, ',', '.') }}
+              </td>
+              <td></td>
+            </tr>
+          </tfoot>
         </table>
       
         <x-painel.agenda-interlab.modal-despesa 

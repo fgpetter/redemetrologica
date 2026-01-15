@@ -9,6 +9,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
 use App\Models\User;
+use App\Models\DadosGeraDoc;
 
 
 
@@ -30,6 +31,11 @@ class InterlabInscrito extends Model
      * @var string
      */
     protected $table = 'interlab_inscritos';
+
+    // cast data inscrição as date and valor as money BRL
+    protected $casts = [
+        'data_inscricao' => 'date',
+    ];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -93,5 +99,40 @@ class InterlabInscrito extends Model
         return $this->belongsTo(Pessoa::class, 'empresa_id', 'id');
     }
 
+    public function getTagSenhaDocAttribute()
+    {
+        return DadosGeraDoc::where('tipo', 'tag_senha')
+            ->whereJsonContains('content->participante_id', $this->id)
+            ->first();
+    }
+
+    /**
+     * Lançamento financeiro desta inscrição
+     * @return BelongsTo
+     */
+    public function lancamentoFinanceiro(): BelongsTo
+    {
+        return $this->belongsTo(LancamentoFinanceiro::class, 'lancamento_financeiro_id');
+    }
+
+    /**
+     * Gera a tag senha para o inscrito
+     * @return string
+     */
+    public static function geraTagSenha(AgendaInterlab $agendaInterlab): string
+    {
+        $tag = $agendaInterlab->interlab->tag ?? throw new \Exception('Tag do interlab não encontrada');
+        $senha = $tag . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+        
+        while (
+            self::where('tag_senha', $senha)
+                ->where('agenda_interlab_id', $agendaInterlab->id)
+            ->exists()
+        ) {
+            $senha = $tag . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+        }
+        
+        return $senha;
+    }
 
 }

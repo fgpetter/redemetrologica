@@ -842,7 +842,7 @@ File: Main Js File
 
     function windowResizeHover() {
         var windowSize = document.documentElement.clientWidth;
-        if (windowSize < 1025 && windowSize > 767) {
+        if (windowSize < 1337 && windowSize > 767) {
             document.body.classList.remove("twocolumn-panel");
             if (sessionStorage.getItem("data-layout") == "twocolumn") {
                 document.documentElement.setAttribute(

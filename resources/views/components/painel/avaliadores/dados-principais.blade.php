@@ -11,6 +11,25 @@
           <div class="text-warning">{{ $message }}</div>
         @enderror
       </div>
+     
+      <div class="col-4">
+        <label class="form-label">Situação<small class="text-danger-emphasis opacity-75"> *
+          </small></label>
+        <select class="form-select" name="situacao" required>
+          <option value="">Selecione</option>
+          <option value="ATIVO" @if (old('situacao', $avaliador->situacao) == 'ATIVO') selected @endif>ATIVO</option>
+          <option value="AVALIADOR" @if (old('situacao', $avaliador->situacao) == 'AVALIADOR') selected @endif>AVALIADOR</option>
+          <option value="AVALIADOR EM TREINAMENTO" @if (old('situacao', $avaliador->situacao) == 'AVALIADOR EM TREINAMENTO') selected @endif>AVALIADOR EM
+            TREINAMENTO</option>
+          <option value="AVALIADOR LIDER" @if (old('situacao', $avaliador->situacao) == 'AVALIADOR LIDER') selected @endif>AVALIADOR LIDER
+          </option>
+          <option value="ESPECIALISTA" @if (old('situacao', $avaliador->situacao) == 'ESPECIALISTA') selected @endif>ESPECIALISTA</option>
+          <option value="INATIVO" @if (old('situacao', $avaliador->situacao) == 'INATIVO') selected @endif>INATIVO</option>
+        </select>
+        @error('situacao')
+          <div class="text-warning">{{ $message }}</div>
+        @enderror
+      </div>
 
       <div class="col-4">
         <label class="form-label">CPF<small class="text-danger-emphasis opacity-75"> *
@@ -131,7 +150,7 @@
         <div class="col-4">
           <label class="form-label">Data ingresso</label>
           <input type="date" class="form-control" name="data_ingresso" id="data_ingresso" 
-            value="{{ old('data_ingresso') ?? \Carbon\Carbon::parse()->format('Y-m-d') ?? null }}" required>
+            value="{{ old('data_ingresso') ?? $avaliador->data_ingresso->format('Y-m-d') ?? null }}" required>
           @error('data_ingresso') <div class="text-warning">{{ $message }}</div> @enderror 
         </div>
 

@@ -33,7 +33,7 @@
 
             <div class="col-6 col-md-4">
               <x-forms.input-field :value="old('telefone') ?? $unidade->telefone ?? ''" name="telefone"
-                label="Telefone" class="telefone" />
+                label="Telefone" mask="telefone" />
               @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             

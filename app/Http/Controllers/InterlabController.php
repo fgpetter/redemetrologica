@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Interlab;
+use App\Models\InterlabInscrito;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +29,15 @@ class InterlabController extends Controller
         ->withQueryString();
 
     return view('painel.interlabs.index', ['interlabs' => $interlabs]);
+}
+  /**
+   * Gera pagina de listagem de laboratórios do intelabs
+   *
+   * @return View
+   **/
+   public function labindex(Request $request): View
+{  
+    return view('painel.interlabs.labindex');
 }
 
   /**
@@ -77,6 +87,7 @@ class InterlabController extends Controller
         'nome' => ['required','string', 'max:190'],
         'descricao' => ['nullable', 'string'],
         'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+        'tag' => ['required', 'min:3', 'max:3'],
         'thumb' => ['nullable', 'string'],
         'observacoes' => ['nullable', 'string'],
       ],
@@ -86,6 +97,8 @@ class InterlabController extends Controller
         'nome.max' => 'O campo aceita no maximo 190 caracteres.',
         'descricao.string' => 'O campo aceita somente texto.',
         'tipo.in' => 'A opção selecionada é inválida',
+        'tag.required' => 'Preencha o campo TAG',
+        'tag.min' => 'O campo TAG deve ter no mínimo 3 caracteres.',
         'observacoes' => 'O campo aceita somente texto.'
       ]
     );
@@ -109,21 +122,42 @@ class InterlabController extends Controller
   {
     $validated = $request->validate(
       [
-        'nome' => ['required','string', 'max:190'],
-        'descricao' => ['nullable', 'string'],
-        'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
-        'thumb' => ['nullable', 'string'],
-        'observacoes' => ['nullable', 'string'],
+      'nome' => ['required','string', 'max:190'],
+      'descricao' => ['nullable', 'string'],
+      'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+      'tag' => ['required', 'min:2', 'max:5'],
+      'thumb' => ['nullable', 'string'],
+      'observacoes' => ['nullable', 'string'],
       ],
       [
-        'nome.required' => 'Preencha o campo Nome',
-        'nome.string' => 'O campo aceita somente texto.',
-        'nome.max' => 'O campo aceita no maximo 190 caracteres.',
-        'descricao.string' => 'O campo aceita somente texto.',
-        'tipo.in' => 'A opção selecionada é inválida',
-        'observacoes' => 'O campo aceita somente texto.'
-        ]
+      'nome.required' => 'Preencha o campo Nome',
+      'nome.string' => 'O campo aceita somente texto.',
+      'nome.max' => 'O campo aceita no maximo 190 caracteres.',
+      'descricao.string' => 'O campo aceita somente texto.',
+      'tipo.in' => 'A opção selecionada é inválida',
+      'tag.required' => 'Preencha o campo TAG',
+      'tag.min' => 'O campo TAG deve ter no mínimo 2 caracteres.',
+      'tag.max' => 'O campo TAG deve ter no máximo 5 caracteres.',
+      'observacoes' => 'O campo aceita somente texto.'
+      ]
     );
+
+    if ($interlab->tag !== $validated['tag']) {
+
+    $existeInscritoComSenha = InterlabInscrito::whereHas('agendaInterlab', fn ($q) =>
+        $q->where('interlab_id', $interlab->id)
+    )
+    ->whereNotNull('tag_senha')
+    ->exists();
+
+    if ($existeInscritoComSenha) {
+        return back()->withInput()->with(
+            'error',
+            'Não é possível alterar a TAG, pois existem inscritos com senha atribuída.'
+        );
+    }
+}
+
 
     $interlab->update($validated);
 

@@ -34,14 +34,6 @@
                 <option value="1" @selected(isset($status) && $status->parecer_positivo) >Sim</option>
               </x-forms.input-select>
             </div>
-
-            <div class="col-6">
-              <x-forms.input-select name="seminario" label="Participou Seminario">
-                <option value="0">Não</option>
-                <option value="1" @selected(isset($status) && $status->seminario)>Sim</option>
-              </x-forms.input-select>
-            </div>
-
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>

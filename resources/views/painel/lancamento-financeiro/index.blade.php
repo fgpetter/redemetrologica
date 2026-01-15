@@ -14,7 +14,7 @@
 
   <div class="row">
     <div class="col">
-      <x-painel.lancamento-financeiro.list-lancamentos :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas"/>
+      <x-painel.lancamento-financeiro.list-lancamentos :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas" :mesesanos="$mesesanos" />
     </div>
   </div>
 @endsection
@@ -25,7 +25,7 @@
     if(pessoa){
       const choices = new Choices(pessoa,{
         searchFields: ['label'],
-        maxItemCount: -1
+        allowHTML: true
       });
     }
   </script>

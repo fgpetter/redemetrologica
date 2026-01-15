@@ -15,9 +15,9 @@
             <tr>
                 <th scope="col" class=" d-sm-table-cell" style="width: 5%; white-space: nowrap;">ID
                 </th>
-                <th scope="col">Data Cadastro</th>
                 <th scope="col">Situação</th>
                 <th scope="col">Área de atuação</th>
+                <th scope="col">Data Cadastro</th>
                 <th scope="col" class=" d-sm-table-cell" style="width: 5%; white-space: nowrap;"></th>
             </tr>
         </thead>
@@ -29,9 +29,11 @@
                             data-bs-target="{{ '#areaModal' . $area->uid }}">#{{ substr($area->uid, 7) }}
                         </a>
                     </th>
-                    <td>{{ $area->data_cadastro }}</td>
                     <td>{{ $area->situacao }}</td>
                     <td>{{ $area->area->descricao }}</td>
+                    <td>
+                        {{ \Carbon\Carbon::parse($area->data_cadastro)->format('d/m/Y') }}
+                    </td>
                     <td>
                         <div class="dropdown">
                             <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"

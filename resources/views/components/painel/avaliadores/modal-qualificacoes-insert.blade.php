@@ -12,12 +12,12 @@
             @csrf
             <div class="row gy-3 mb-3">
   
-              <div class="col-6">
+              <div class="col-3">
                 <x-forms.input-field name="ano" :value="old('ano') ?? $qualificacao->ano ?? null" label="Ano" />
                 @error('ano') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
               
-              <div class="col-6">
+              <div class="col-9">
                 <x-forms.input-field name="atividade" 
                     :value="old('atividade') ?? $qualificacao->atividade ?? null" 
                     label="Atividade"
@@ -31,20 +31,7 @@
                 @error('atividade') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
               
-              <div class="col-6">
-                <x-forms.input-field name="instrutor" 
-                    :value="old('instrutor') ?? $qualificacao->instrutor ?? null" 
-                    label="Instrutor"
-                    list="instrutorList"
-                />
-                <datalist id="instrutorList">
-                    @foreach ($qualificacoeslist['instrutores'] as $instrutor)
-                        <option value="{{ $instrutor->instrutor }}">
-                    @endforeach
-                </datalist>
-                @error('instrutor') <div class="text-warning">{{ $message }}</div> @enderror
-              </div>
-              
+            
   
             </div>
             <div class="modal-footer">

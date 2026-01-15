@@ -33,7 +33,7 @@ class DeleteUnusedCertificados extends Command
         }
 
         // Envia email com a lista de arquivos removidos
-        Mail::to('ti@redemetrologica.com.br')
+        Mail::to('sistema@redemetrologica.com.br')
             ->send(new CertificadosDeletedNotification($deletedFiles));
 
         $this->info('Limpeza de certificados concluída');

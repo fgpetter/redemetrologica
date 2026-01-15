@@ -14,9 +14,11 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 
-class ConviteCurso extends Mailable
+class ConviteCurso extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+    public $tries = 3;
+    public $timeout = 120;
 
     public $dados_email = [];
 

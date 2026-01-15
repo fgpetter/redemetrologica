@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Avaliador;
 use App\Models\Laboratorio;
-use App\Models\TipoAvaliacao;
-use App\Models\AgendaAvaliacao;
 use App\Models\AreaAvaliada;
 use Illuminate\Http\Request;
+use App\Models\TipoAvaliacao;
+use Illuminate\Support\Carbon;
+use App\Models\AgendaAvaliacao;
 use Illuminate\Validation\Rule;
+use App\Models\AvaliacaoAvaliador;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Carbon;
 
 class AgendaAvaliacaoController extends Controller
 {
@@ -22,16 +23,7 @@ class AgendaAvaliacaoController extends Controller
      */
     public function index(): View
     {
-        $avaliacoes = AgendaAvaliacao::with('laboratorio')
-            ->whereHas('laboratorio')
-            ->orderBy('data_inicio')
-            ->get();
-
-        $laboratorios = Laboratorio::with('pessoa')
-            ->whereHas('pessoa')
-            ->get();
-
-        return view('painel.avaliacoes.index', ['avaliacoes' => $avaliacoes, 'laboratorios' => $laboratorios]);
+        return view('painel.avaliacoes.index');
     }
 
     /**
@@ -79,7 +71,23 @@ class AgendaAvaliacaoController extends Controller
         $laboratorio = Laboratorio::find($avaliacao->laboratorio_id);
         $avaliadores = Avaliador::with('pessoa:id,uid,nome_razao')->get();
         $tipo_avaliacao = TipoAvaliacao::select('id', 'descricao')->get();
-
+        $total_avaliadores = $avaliacao->areas()
+            ->with('avaliador.pessoa')
+            ->get()
+            ->groupBy(function ($area) {
+                return optional($area->avaliador)->id;
+            })
+            ->map(function ($areas) {
+                $avaliador = $areas->first()->avaliador;
+                return [
+                    'nome' => optional($avaliador->pessoa)->nome_razao,
+                    'total' => $areas->sum('valor_avaliador'),
+                ];
+            })
+            ->filter(function ($item) {
+                return !is_null($item['nome']);
+            })
+            ->values();
 
         return view('painel.avaliacoes.insert', 
             [
@@ -87,6 +95,7 @@ class AgendaAvaliacaoController extends Controller
                 'laboratorio' => $laboratorio,
                 'avaliadores' => $avaliadores,
                 'tipo_avaliacao' => $tipo_avaliacao,
+                'totalavaliadores' => $total_avaliadores,
             ]);
     }
 
@@ -98,12 +107,13 @@ class AgendaAvaliacaoController extends Controller
      * @return RedirectResponse
      */
     public function update(Request $request, AgendaAvaliacao $avaliacao): RedirectResponse
-    {        
+    {
         $validate = $request->validate([
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date'],
             'tipo_avaliacao_id' => ['nullable', 'numeric', 'exists:tipo_avaliacoes,id'],
             'laboratorio_interno_id' => ['nullable', 'numeric', 'exists:laboratorios_internos,id'],
+            'status_proposta' => ['nullable', 'string', Rule::in(['PENDENTE', 'AGUARDANDO', 'APROVADA', 'REPROVADA'])], 
             'fr_28' => ['nullable', 'numeric', 'in:0,1'],
             'fr_41' => ['nullable', 'numeric', 'in:0,1'],
             'fr_101' => ['nullable', 'numeric', 'in:0,1'],
@@ -165,12 +175,34 @@ class AgendaAvaliacaoController extends Controller
 
         $valor_proposta = formataMoeda( $request->valor_proposta);
         $validate['valor_proposta'] = $valor_proposta;
-        $validate['data_proc_laboratorio'] = $request->data_proc_laboratorio ?? Carbon::parse($request->data_inicio)->addDays(10)->format('Y-m-d');
-        $validate['data_proposta_acoes_corretivas'] = $request->data_proposta_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(7)->format('Y-m-d');
-        $validate['data_acoes_corretivas'] = $request->data_acoes_corretivas ?? Carbon::parse($request->data_fim)->addDays(45)->format('Y-m-d');
+
+        $validate['validade_certificado'] = $request->validade_certificado 
+            ?? Carbon::parse($request->data_fim)->addYears(1)->addMonths(3)->format('Y-m-d');
 
         $avaliacao->update($validate);
 
+
+            // SE CARTA RECONHECIMENTO = SIM adiciona AvaliacaoAvaliador para cada avaliador
+            if ($request->carta_reconhecimento == 1) {
+
+                $avaliacao_avaliadores = AreaAvaliada::where('avaliacao_id', $avaliacao->id)->get();
+
+                foreach ($avaliacao_avaliadores as $avaliacao_avaliador) {
+                AvaliacaoAvaliador::updateorcreate(
+                    [
+                    'agenda_avaliacao_id'=> $avaliacao->id, 
+                    'avaliador_id' => $avaliacao_avaliador->avaliador_id, 
+                    'empresa' => $avaliacao->laboratorio_id, 
+                    ],[
+                    'data' => $avaliacao->data_inicio, 
+                    'situacao' => $avaliacao_avaliador->situacao,
+                    'inserido_por' => 'Inserido pelo sistema'
+                    ]
+                );
+            }
+            
+
+        }
         return redirect()->back()->with('success', 'Dados atualizados com sucesso');
     }
 
@@ -232,11 +264,11 @@ class AgendaAvaliacaoController extends Controller
 
         $validate['valor_avaliador'] = ($validate['dias'] * $validate['valor_dia']) + ($validate['valor_lider']); // verificar regra correta
         
-        $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'];
+        $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'] ;
         // como estava
         // $validate['total_gastos_reais'] = $validate['valor_lider'] + $validate['valor_avaliador'] + $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras']; //como estava
        
-        $validate['total_gastos_reais'] = $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras']; //Regra conforme card no trello, validar.
+        $validate['total_gastos_reais'] = $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras'] ;
 
         if($area->uid){
 
@@ -246,7 +278,7 @@ class AgendaAvaliacaoController extends Controller
             AreaAvaliada::create($validate);
         }
 
-        return redirect()->back()->with('success', 'Dados atualizados com sucesso');
+        return redirect()->back()->with('success', 'Dados atualizados com sucesso')->withFragment('laboratorios');
     }
 
     public function deleteArea(AreaAvaliada $area): RedirectResponse

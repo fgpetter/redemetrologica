@@ -27,11 +27,11 @@
 
 
               <div class="col-12 my-1">
-                <label for="pessoa_id" class="form-label">Pessoa responsável</label>
-                <select class="form-control" data-choices name="pessoa_id" id="pessoa">
+                <label for="pessoa_uid" class="form-label">Pessoa responsável</label>
+                <select class="form-control" data-choices name="pessoa_uid" id="pessoa">
                   <option value="">Selecione na lista</option>
-                  @foreach($pessoas->where('tipo_pessoa', 'PF') as $empresa)
-                    <option value="{{ $empresa->uid }}">{{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}</option>
+                  @foreach($pessoas->where('tipo_pessoa', 'PF') as $pessoa)
+                    <option value="{{ $pessoa->uid }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
                   @endforeach
                 </select>
               </div>
@@ -50,7 +50,7 @@
 
             <div class="row mb-2 gy-2">
               <div class="col-12 col-sm-6">
-                <x-forms.input-field :value="old('telefone') ?? null" name="telefone" label="Telefone" class="telefone"/>
+                <x-forms.input-field :value="old('telefone') ?? null" name="telefone" label="Telefone" mask="telefone"/>
                 @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
 
