@@ -34,12 +34,6 @@ class Convite extends Model
         return $this->belongsTo(AgendaInterlab::class, 'agenda_interlab_id');
     }
 
-    
-    public function empresa()
-    {
-        return $this->belongsTo(Pessoa::class, 'empresa_id');
-    }
-
     public function empresaUid(): string
     {
         return $this->pessoa->empresas()->first()->uid;
