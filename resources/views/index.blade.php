@@ -202,12 +202,7 @@
             @endif
             {{-- todo - melhorar lista de cursos inscritos e convites --}}
 
-            @if ($empresas = auth()->user()->pessoa->empresas->first())
-                @if ($empresas->empresaInterlabs->count() > 0)
-                    {{-- carrega componente em app\View\Components\Painel\PainelCliente\LaboratoriosInscritosInterlab --}}
-                    <x-painel.painel-cliente.laboratorios-inscritos-interlab />
-                @endif
-            @endif
+
 
         @endif
 
