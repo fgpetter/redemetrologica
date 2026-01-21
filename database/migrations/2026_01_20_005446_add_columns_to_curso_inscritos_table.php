@@ -15,8 +15,7 @@ return new class extends Migration
             $table->string('nome')->after('agenda_curso_id');
             $table->string('email')->after('nome');
             $table->string('telefone')->nullable()->after('email');
-            $table->unsignedBigInteger('lancamento_financeiro_id')->nullable()->after('telefone');
-            $table->dropForeign('curso_inscritos_pessoa_id_foreign');
+            $table->unsignedBigInteger('lancamento_financeiro_id')->nullable()->after('telefone');    
         });
     }
 
@@ -26,8 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('curso_inscritos', function (Blueprint $table) {
-            $table->dropColumn(['nome', 'email', 'telefone', 'lancamento_financeiro_id']);
-            $table->foreign('pessoa_id')->references('id')->on('pessoas');
+            $table->dropColumn(['nome', 'email', 'telefone', 'lancamento_financeiro_id']);           
         });
     }
 };
