@@ -348,7 +348,7 @@ class ConfirmInscricaoCurso extends Component
             ]);
 
 
-            // TODO REVISAR
+            
             $lancamento = LancamentoFinanceiro::where('pessoa_id', $this->empresa['id'])
                 ->where('agenda_curso_id', $this->agendacurso->id)
                 ->first();
@@ -381,7 +381,7 @@ class ConfirmInscricaoCurso extends Component
                 $observacoes = '';
                 foreach ($dados_empresa as $dado) {
                     $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
-                    $observacoes .= "Inscrição de {$dado->pessoa->nome_razao}, com valor de R$ {$dado->valor}, em {$data} \n";
+                    $observacoes .= "Inscrição de {$dado->nome}, com valor de R$ {$dado->valor}, em {$data} \n";
                 }
 
                 $lancamento->update([
@@ -424,14 +424,18 @@ class ConfirmInscricaoCurso extends Component
                     'cidade' => $inscricao['cidade'],
                 ]
             );
-            CursoInscrito::updateOrCreate(
+            $cursoInscrito = CursoInscrito::updateOrCreate(
                 [
                     'pessoa_id' => $inscrito->id,
                     'agenda_curso_id' => $this->agendacurso->id,
+                    'empresa_id' => null,
                 ],
                 [
                     'valor' => $inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
                     'data_inscricao' => now(),
+                    'nome' => $inscricao['nome'],
+                    'email' => $inscricao['email'],
+                    'telefone' => $inscricao['telefone'],
                 ]
             );
             // Adiciona lançamento financeiro
@@ -444,7 +448,12 @@ class ConfirmInscricaoCurso extends Component
                 'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
                 'data_emissao' => now(),
                 'status' => 'PROVISIONADO',
+                 'observacoes' => 'Inscrição de ' . $inscricao['nome'] . ', em ' . now()->format('d/m/Y H:i')
             ]);
+
+            $cursoInscrito->update([
+                    'lancamento_financeiro_id' => $lancamento->id,
+                ]);
         }
     }
 
