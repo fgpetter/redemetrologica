@@ -298,6 +298,14 @@
                                     @endif
                                     <div class="row mt-1 gx-2">
                                         <div class="col">
+                                            <input type="text" class="form-control"
+                                                name="inscricoes[{{ $index }}][nome]" placeholder="Nome"
+                                                wire:model.live="inscricoes.{{ $index }}.nome" required>
+                                            @error('inscricoes.' . $index . '.nome')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col">
                                             <input type="email" class="form-control"
                                                 name="inscricoes[{{ $index }}][email]" placeholder="Email"
                                                 wire:model.lazy="inscricoes.{{ $index }}.email" required
@@ -311,9 +319,13 @@
                                         </div>
                                         <div class="col">
                                             <input type="text" class="form-control"
-                                                name="inscricoes[{{ $index }}][nome]" placeholder="Nome"
-                                                wire:model.live="inscricoes.{{ $index }}.nome" required>
-                                            @error('inscricoes.' . $index . '.nome')
+                                                name="inscricoes[{{ $index }}][telefone]" placeholder="Telefone"
+                                                maxlength="15"
+                                                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
+                                                                ? '(99) 99999-9999' 
+                                                                : '(99) 9999-9999'"
+                                                wire:model.live="inscricoes.{{ $index }}.telefone">
+                                            @error('inscricoes.' . $index . '.telefone')
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
                                         </div>
