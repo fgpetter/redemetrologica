@@ -219,74 +219,17 @@
                             @csrf
                             <input type="hidden" name="id_pessoa" value="{{ auth()->user()->pessoa->id }}">
                             <input type="hidden" name="id_curso" value="{{ $curso->id }}">
+                            <!-- checkbox ja inscrito -->
+                            @if(!$jaInscrito)
+                            <div class="form-check mb-3 ms-2">
+                                <input class="form-check-input" type="checkbox" wire:model.live="MeInscrever" id="meInscreverCheck">
+                                <label class="form-check-label" for="meInscreverCheck">
+                                    Me inscrever como participante do curso.
+                                </label>
+                            </div>
+                            @endif
                             @foreach ($inscricoes as $index => $inscricao)
-                                @if ($inscricao['email'] === auth()->user()->email && $inscricao['responsavel'] == 1)
-                                    <div class ="mt-2">
-                                        <strong class="card-title ">Confirme os dados para a sua inscrição:</strong>
-                                    </div>
-                                    <div class=" mt-2">
-                                        <div class="row gx-1">
-                                            <div class="col">
-                                                <div class="card-body border bg-light px-3 py-2 rounded">
-                                                    <div class="row  mt-1 gx-2 align-items-center">
-                                                        <div class="col-6">
-                                                            <x-forms.input-field
-                                                                wire:model.lazy="inscricoes.{{ $index }}.email"
-                                                                name="email" label="Email" type="email" required
-                                                                style="text-transform: lowercase;" />
-                                                            @error('inscricoes.' . $index . '.email')
-                                                                <span class="text-danger small">{{ $message }}</span>
-                                                            @enderror
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <x-forms.input-field
-                                                                wire:model.live="inscricoes.{{ $index }}.nome"
-                                                                name="nome" label="Nome" required />
-                                                            @error('inscricoes.' . $index . '.nome')
-                                                                <span class="text-danger small">{{ $message }}</span>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-                                                    <div class="row  mt-1 gx-2">
-                                                        <div class="col-6">
-                                                            <x-forms.input-field
-                                                                wire:model.live="inscricoes.{{ $index }}.telefone"
-                                                                name="telefone" label="Telefone" class="telefone"
-                                                                required maxlength="15"
-                                                                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 
-                                                                ? '(99) 99999-9999' 
-                                                                : '(99) 9999-9999'" />
-                                                            @error('inscricoes.' . $index . '.telefone')
-                                                                <span class="text-danger small">{{ $message }}</span>
-                                                            @enderror
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <x-forms.input-field
-                                                                wire:model.live="inscricoes.{{ $index }}.cpf_cnpj"
-                                                                name="cpf_cnpj" label="CPF" id="input-cpf"
-                                                                x-mask="999.999.999-99" required />
-                                                            @error('inscricoes.' . $index . '.cpf_cnpj')
-                                                                <span class="text-danger small">{{ $message }}</span>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto d-flex gap-2 align-items-end p-1"
-                                                style="width: 90px;">
-                                                @if ($loop->last)
-                                                    <button type="button" class="btn btn-primary"
-                                                        wire:click="adicionarInscricao">+</button>
-                                                @endif
-
-                                                @if (count($inscricoes) > 1)
-                                                    <button type="button" class="btn btn-danger"
-                                                        wire:click="removerInscricao({{ $index }})">-</button>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
+                                @if ($inscricao['responsavel'] == 0)
                                     @if (
                                         $loop->first ||
                                             ($loop->index > 0 &&

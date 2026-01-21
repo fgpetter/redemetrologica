@@ -30,6 +30,7 @@ class ConfirmInscricaoCurso extends Component
     public $inscricoes = [
         ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'responsavel' => 0],
     ];
+    public $MeInscrever = false;
 
     public function mount() //metodo chamado quando o componente é montado
     {
@@ -258,8 +259,7 @@ class ConfirmInscricaoCurso extends Component
         $this->validate([
             'inscricoes.*.nome' => 'required|string|max:191',
             'inscricoes.*.email' => 'required|email|max:191|distinct',
-            'inscricoes.*.telefone' => 'required_if:inscricoes.*.responsavel,1|string|min:10|max:15',
-            'inscricoes.*.cpf_cnpj' => 'required_if:inscricoes.*.responsavel,1|string|min:11|max:14',
+            'inscricoes.*.telefone' => 'string|min:10|max:15',
         ], [
             'inscricoes.*.nome.required' => 'O campo nome é obrigatório.',
             'inscricoes.*.nome.max' => 'O campo nome deve ter no máximo 191 caracteres.',
@@ -267,12 +267,8 @@ class ConfirmInscricaoCurso extends Component
             'inscricoes.*.email.email' => 'O campo email deve ser um endereço válido.',
             'inscricoes.*.email.max' => 'O campo email deve ter no máximo 191 caracteres.',
             'inscricoes.*.email.distinct' => 'Não é permitido cadastrar e-mails duplicados.',
-            'inscricoes.*.telefone.required_if' => 'O campo telefone é obrigatório.',
             'inscricoes.*.telefone.min' => 'O telefone deve ter no mínimo 10 caracteres.',
             'inscricoes.*.telefone.max' => 'O telefone deve ter no máximo 15 caracteres.',
-            'inscricoes.*.cpf_cnpj.required_if' => 'O campo CPF/CNPJ é obrigatório.',
-            'inscricoes.*.cpf_cnpj.min' => 'O CPF/CNPJ deve ter no mínimo 11 caracteres.',
-            'inscricoes.*.cpf_cnpj.max' => 'O CPF/CNPJ deve ter no máximo 14 caracteres.',
         ]);
     }
 
@@ -310,7 +306,7 @@ class ConfirmInscricaoCurso extends Component
                 }
 
                 // Verifica se existe um usuário com o e-mail informado
-                $usuario = User::where('email', $emailInformado)->first();
+                // $usuario = User::where('email', $emailInformado)->first();
 
                 // Adiciona o id_pessoa do responsavel pela inscrição[NEW]
                 $this->inscricoes[$index]['id_pessoa'] = $this->pessoaId_usuario;
@@ -319,23 +315,41 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
+    //metodo que quando marcado adiciona uma linha em incricoes com os dados da pessoa do usuario.
+    public function updatedMeInscrever($value)
+    {
+        $user = auth()->user();
+
+        if ($value) {
+            foreach ($this->inscricoes as $inscricao) {
+                if (isset($inscricao['email']) && strtolower($inscricao['email']) == strtolower($user->email)) {
+                    return;
+                }
+            }
+
+            $pessoa = $user->pessoa;
+            $endereco = $pessoa->enderecos->first();
+
+            $this->inscricoes[] = [
+                'id_pessoa' => $pessoa->id,
+                'nome' => $pessoa->nome_razao ?? $user->name,
+                'email' => strtolower($user->email),
+                'telefone' => $pessoa->telefone ?? '',
+                'responsavel' => 1
+            ];
+        } else {
+            foreach ($this->inscricoes as $key => $inscricao) {
+                if (isset($inscricao['email']) && strtolower($inscricao['email']) == strtolower($user->email)) {
+                    unset($this->inscricoes[$key]);
+                }
+            }
+            $this->inscricoes = array_values($this->inscricoes);
+        }
+    }
+
     public function salvarInscricaoCNPJ() // Método com regras para salvar inscrição de CNPJ
     {
         foreach ($this->inscricoes as $inscricao) {
-            if ($inscricao['responsavel'] == 1) {
-                $pessoa_responsavel = Pessoa::where('id', $inscricao['id_pessoa'])
-                ->where('tipo_pessoa', 'PF')
-                ->first();
-            if ($pessoa_responsavel) {
-                $pessoa_responsavel->update([
-                    'nome_razao' => $inscricao['nome'],
-                    'email' => $inscricao['email'],
-                    'telefone' => $inscricao['telefone'],
-                    'cpf_cnpj' => $inscricao['cpf_cnpj'],
-                ]);
-            }
-            }
-            
             $cursoInscrito = CursoInscrito::create([
                 'pessoa_id' => $inscricao['id_pessoa'],
                 'agenda_curso_id' => $this->agendacurso->id,
