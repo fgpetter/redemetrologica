@@ -315,8 +315,7 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
-    //metodo que quando marcado adiciona uma linha em incricoes com os dados da pessoa do usuario.
-    private function incluirMeInscrever()
+    private function incluirMeInscrever() //metodo que quando marcado adiciona uma linha em incricoes com os dados da pessoa do usuario.
     {
         if ($this->MeInscrever) {
             $user = auth()->user();

@@ -2,7 +2,6 @@
     <div class="card-body">
         <div class="row">
             <div class="col-9 col-xxl-9 border-bottom mb-3">
-                <h4 class="mb-4">Confirme sua inscrição:</h4>
                 {{-- Informações do curso --}}
                 <x-painel.painel-cliente.dados-curso :curso="$curso" />
             </div>
@@ -10,7 +9,7 @@
         @if ($showTipoInscricao) {{-- Exibe opções de inscrição --}}
             <div class="row mt-4">
                 <div class="col-6">
-                    <h5 class="fw-bold mb-3 text-start">Escolha uma das opções de inscrição para continuar:</h5>
+                    <h5 class="fw-bold mb-3 text-start">Selecione uma das opções para cobrança e envio de Nota Fiscal:</h5>
                     <button wire:click="inscreverCNPJ"
                         class="btn btn-primary w-50 mb-3 d-flex align-items-center justify-content-center">
                         Inscrição pelo CNPJ <i class="bi bi-buildings"
@@ -187,13 +186,9 @@
                                 role="alert">
                                 <strong class="text-success">VOCÊ JÁ ESTÁ INSCRITO: </strong> <br>
                                 <p>
-                                    Para convidar <strong> outras pessoas</strong>
+                                    Para inscrever <strong> outras pessoas</strong>
                                     neste
-                                    curso, adicione os dados de e-mail e nome nos campos abaixo. <br>
-                                    As demais pessoas adicionadas nessa lista receberão um email com link para
-                                    confirmarem
-                                    suas
-                                    inscrições. <br>
+                                    curso, adicione o nome, e-mail e telefone nos campos abaixo. <br>
                                 </p>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"
                                     aria-label="Close"></button>
@@ -203,13 +198,7 @@
                                 role="alert">
                                 <strong>IMPORTANTE: </strong> <br>
                                 <p>
-                                    Para <strong>inscrever-se</strong> e/ou convidar <strong> outras pessoas</strong>
-                                    neste
-                                    curso, adicione os dados de e-mail e nome nos campos abaixo. <br>
-                                    As demais pessoas adicionadas nessa lista receberão um email com link para
-                                    confirmarem
-                                    suas
-                                    inscrições. <br>
+                                    Para realizar <strong>inscrições</strong> neste curso, preencha os campos abaixo.
                                 </p>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"
                                     aria-label="Close"></button>
@@ -221,12 +210,12 @@
                             <input type="hidden" name="id_curso" value="{{ $curso->id }}">
                             <!-- checkbox ja inscrito -->
                             @if(!$jaInscrito)
-                            <div class="form-check mb-3 ms-2">
-                                <input class="form-check-input" type="checkbox" wire:model="MeInscrever" id="meInscreverCheck">
-                                <label class="form-check-label" for="meInscreverCheck">
-                                    Me inscrever como participante do curso.
-                                </label>
-                            </div>
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input class="form-check-input" type="checkbox" wire:model.live="MeInscrever" id="meInscreverCheck">
+                                        <label class="form-check-label" for="meInscreverCheck">
+                                            <strong>Me inscrever como participante do curso.</strong>
+                                        </label>
+                                    </div>
                             @endif
                             @foreach ($inscricoes as $index => $inscricao)
                                     @if (
@@ -235,7 +224,7 @@
                                                 isset($inscricoes[$loop->index - 1]['responsavel']) &&
                                                 $inscricoes[$loop->index - 1]['responsavel'] == 1))
                                         <h6 class="card-subtitle my-2 text-primary-emphasis">
-                                            Adicionar inscrições:
+                                            Dados dos participantes:
                                         </h6>
                                     @endif
                                     <div class="row mt-1 gx-2">
