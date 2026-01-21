@@ -316,34 +316,29 @@ class ConfirmInscricaoCurso extends Component
     }
 
     //metodo que quando marcado adiciona uma linha em incricoes com os dados da pessoa do usuario.
-    public function updatedMeInscrever($value)
+    private function incluirMeInscrever()
     {
-        $user = auth()->user();
-
-        if ($value) {
+        if ($this->MeInscrever) {
+            $user = auth()->user();
+            $pessoa = $user->pessoa;
+            //verifica se já não foi adicionado
             foreach ($this->inscricoes as $inscricao) {
                 if (isset($inscricao['email']) && strtolower($inscricao['email']) == strtolower($user->email)) {
                     return;
                 }
             }
 
-            $pessoa = $user->pessoa;
-            $endereco = $pessoa->enderecos->first();
-
             $this->inscricoes[] = [
                 'id_pessoa' => $pessoa->id,
-                'nome' => $pessoa->nome_razao ?? $user->name,
+                'nome' => $pessoa->nome_razao,
                 'email' => strtolower($user->email),
                 'telefone' => $pessoa->telefone ?? '',
                 'responsavel' => 1
             ];
-        } else {
-            foreach ($this->inscricoes as $key => $inscricao) {
-                if (isset($inscricao['email']) && strtolower($inscricao['email']) == strtolower($user->email)) {
-                    unset($this->inscricoes[$key]);
-                }
-            }
-            $this->inscricoes = array_values($this->inscricoes);
+            // Remove linhas vazias (onde nem nome nem email foram preenchidos)
+            $this->inscricoes = array_values(array_filter($this->inscricoes, function ($inscricao) {
+                return !empty(trim($inscricao['nome'] ?? '')) || !empty(trim($inscricao['email'] ?? ''));
+            }));
         }
     }
 
@@ -495,12 +490,13 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarInscricoes() // método que consolida e conclui a inscrição
     {
-        $this->validateInscricao();
-
+        
         if ($this->tipoInscricao === 'CNPJ') {
-            // dd($this->inscricoes);
+            $this->incluirMeInscrever();
+            $this->validateInscricao();
             $this->salvarInscricaoCNPJ();
         } elseif ($this->tipoInscricao === 'CPF') {
+            $this->validateInscricao();
             $this->salvarInscricaoCPF();
         }
 

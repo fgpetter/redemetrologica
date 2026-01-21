@@ -222,14 +222,13 @@
                             <!-- checkbox ja inscrito -->
                             @if(!$jaInscrito)
                             <div class="form-check mb-3 ms-2">
-                                <input class="form-check-input" type="checkbox" wire:model.live="MeInscrever" id="meInscreverCheck">
+                                <input class="form-check-input" type="checkbox" wire:model="MeInscrever" id="meInscreverCheck">
                                 <label class="form-check-label" for="meInscreverCheck">
                                     Me inscrever como participante do curso.
                                 </label>
                             </div>
                             @endif
                             @foreach ($inscricoes as $index => $inscricao)
-                                @if ($inscricao['responsavel'] == 0)
                                     @if (
                                         $loop->first ||
                                             ($loop->index > 0 &&
@@ -243,7 +242,7 @@
                                         <div class="col">
                                             <input type="text" class="form-control"
                                                 name="inscricoes[{{ $index }}][nome]" placeholder="Nome"
-                                                wire:model.live="inscricoes.{{ $index }}.nome" required>
+                                                wire:model.live="inscricoes.{{ $index }}.nome">
                                             @error('inscricoes.' . $index . '.nome')
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
@@ -251,7 +250,7 @@
                                         <div class="col">
                                             <input type="email" class="form-control"
                                                 name="inscricoes[{{ $index }}][email]" placeholder="Email"
-                                                wire:model.lazy="inscricoes.{{ $index }}.email" required
+                                                wire:model.lazy="inscricoes.{{ $index }}.email"
                                                 style="text-transform: lowercase;">
                                             @error('inscricoes.' . $index . '.email')
                                                 <span class="text-danger small">{{ $message }}</span>
@@ -283,7 +282,6 @@
                                             @endif
                                         </div>
                                     </div>
-                                @endif
                             @endforeach
                             <div class="mt-4 d-flex justify-content-end gap-2">
                                 <button type="submit" class="btn btn-success">
