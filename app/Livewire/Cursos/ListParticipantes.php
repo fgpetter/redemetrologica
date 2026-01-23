@@ -92,4 +92,13 @@ class ListParticipantes extends Component
             session()->flash('success', 'Inscrito adicionado com sucesso!');
         });
     }
+    public function enviarDocs(CursoInscrito $inscrito)
+    {
+        try {
+            app(\App\Actions\EnviarMaterialCursoAction::class)->execute($inscrito);
+            session()->flash('success', 'E-mail com materiais enviado com sucesso!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Houve um erro ao tentar enviar os materiais: ' . $e->getMessage());
+        }
+    }
 }

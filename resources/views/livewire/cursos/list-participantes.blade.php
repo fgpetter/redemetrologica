@@ -108,6 +108,11 @@
                                     </li>
                                     @endif
                                     <li>
+                                        <button class="dropdown-item" wire:click="enviarDocs({{ $inscrito->id }})" wire:loading.attr="disabled">
+                                            Enviar Docs
+                                        </button>
+                                    </li>
+                                    <li>
                                         <x-painel.form-delete.delete route='cancela-inscricao' id="{{ $inscrito->uid }}" />
                                     </li>
                                 </ul>

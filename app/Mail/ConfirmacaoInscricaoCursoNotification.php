@@ -21,7 +21,8 @@ class ConfirmacaoInscricaoCursoNotification extends Mailable implements ShouldQu
     {
         $this->dados_email = [
             'curso_nome' => $agenda_curso->curso->descricao,
-            'curso_data' => $agenda_curso->data_inicio->format('d/m/Y') . ($agenda_curso->data_fim ? ' a ' . $agenda_curso->data_fim->format('d/m/Y') : ''),
+            'curso_data' => ($agenda_curso->data_inicio instanceof \Carbon\Carbon ? $agenda_curso->data_inicio->format('d/m/Y') : $agenda_curso->data_inicio) . 
+                            ($agenda_curso->data_fim instanceof \Carbon\Carbon ? ' a ' . $agenda_curso->data_fim->format('d/m/Y') : ''),
             'participante_nome' => is_array($inscrito) ? $inscrito['nome'] : $inscrito->nome,
             'participante_email' => is_array($inscrito) ? $inscrito['email'] : $inscrito->email,
             'participante_telefone' => is_array($inscrito) ? $inscrito['telefone'] : $inscrito->telefone,
