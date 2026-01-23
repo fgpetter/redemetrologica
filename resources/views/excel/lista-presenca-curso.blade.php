@@ -18,9 +18,9 @@
     @foreach($agendacurso->inscritos as $inscrito)
       @if($inscrito->valor)
         <tr>
-          <td>{{ $inscrito->pessoa->nome_razao }}</td>
+          <td>{{ $inscrito->nome }}</td>
           <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
-          <td>{{ $inscrito->pessoa->email }}</td>
+          <td>{{ $inscrito->email }}</td>
           <td></td>
         </tr>
       @endif
