@@ -28,6 +28,10 @@ class DocController extends Controller
             return $this->generateTagSenhaPdf($dadosDoc);
         }
 
+        if ($dadosDoc->tipo === 'certificado') {
+            return $this->generateCertificadoPdf($dadosDoc);
+        }
+
         abort(500, 'Tipo de documento não suportado.');
     }
 
@@ -47,6 +51,27 @@ class DocController extends Controller
         Pdf::view('certificados.tag-senha', [
             'dadosDoc' => $dadosDoc,
         ])->save(Storage::path($path));
+
+        $dadosDoc->update(['file_name' => $path]);
+       
+        return response()->download(Storage::path($path), $fileName);
+    }
+    /**
+     * Geração do PDF para certificado
+     */
+    private function generateCertificadoPdf(DadosGeraDoc $dadosDoc)
+    {
+        $participanteNameSlug = Str::slug($dadosDoc->content['participante_nome']);
+        $fileName = 'certificado_' . $participanteNameSlug . '_' . $dadosDoc->link . '.pdf';
+        $path = 'public/docs/certificados/' . $fileName;
+
+        if (!Storage::exists('public/docs/certificados')) {
+            Storage::makeDirectory('public/docs/certificados');
+        }
+
+        Pdf::view('certificados.certificado', [
+            'dadosDoc' => $dadosDoc,
+        ])->format('a4')->landscape()->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
        

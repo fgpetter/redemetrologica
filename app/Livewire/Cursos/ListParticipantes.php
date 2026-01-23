@@ -101,4 +101,13 @@ class ListParticipantes extends Component
             session()->flash('error', 'Houve um erro ao tentar enviar os materiais: ' . $e->getMessage());
         }
     }
+    public function enviarCertificado(CursoInscrito $inscrito)
+    {
+        try {
+            app(\App\Actions\EnviarCertificadoAction::class)->execute($inscrito);
+            session()->flash('success', 'E-mail com certificado enviado com sucesso!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Houve um erro ao tentar enviar o certificado: ' . $e->getMessage());
+        }
+    }
 }

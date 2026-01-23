@@ -102,14 +102,14 @@
                                     <li>
                                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
                                     </li>
-                                    @if(auth()->user()->email == 'fgpetter@gmail.com')
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('curso-visualizar-certificado', $inscrito->uid) }}">Certificado</a>
-                                    </li>
-                                    @endif
                                     <li>
                                         <button class="dropdown-item" wire:click="enviarDocs({{ $inscrito->id }})" wire:loading.attr="disabled">
                                             Enviar Docs
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item" wire:click="enviarCertificado({{ $inscrito->id }})" wire:loading.attr="disabled">
+                                            Enviar Certificado
                                         </button>
                                     </li>
                                     <li>
