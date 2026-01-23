@@ -238,7 +238,7 @@
                                         </div>
                                         <div class="col">
                                             <input type="email" class="form-control"
-                                                name="inscricoes[{{ $index }}][email]" placeholder="Email"
+                                                name="inscricoes[{{ $index }}][email]" placeholder="E-mail"
                                                 wire:model.lazy="inscricoes.{{ $index }}.email"
                                                 style="text-transform: lowercase;">
                                             @error('inscricoes.' . $index . '.email')
