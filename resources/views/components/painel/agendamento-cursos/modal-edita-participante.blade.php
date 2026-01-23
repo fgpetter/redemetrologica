@@ -11,29 +11,42 @@
       <h5 class="modal-title" id="inscritoModalLabel">{{ 'Editar Inscrito'}}</h5>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" x-data="{ editMode: false }">
       <div class="row gy-3">
         <form method="POST" action="{{route('salvar-inscrito', $inscrito->uid)}}">
           @csrf
           <div class="row">
             <div class="col-8">
-              <h6 class="card-title mb-0">{{ $inscrito->pessoa->nome_razao ?? null }}</h6>
-              <p class="card-text">
-                <strong>Email:</strong>  {{ $inscrito->pessoa->email ?? null }} <br>
-                <strong>Telefone:</strong>  {{ $inscrito->pessoa->telefone ?? null }}
-                @if( $inscrito->empresa_id ) <br> <strong>Empresa:</strong> {{ $inscrito->empresa->nome_razao ?? null }} @endif
-              </p>
+              <div x-show="!editMode">
+                <h6 class="card-title mb-0">{{ $inscrito->nome ?? null }}</h6>
+                <p class="card-text">
+                  <strong>Email:</strong>  {{ $inscrito->email ?? null }} <br>
+                  <strong>Telefone:</strong>  {{ $inscrito->telefone ?? null }}
+                  @if( $inscrito->empresa_id ) <br> <strong>Empresa:</strong> {{ $inscrito->empresa->nome_razao ?? null }} @endif
+                </p>
+              </div>
+              
+              <div x-show="editMode">
+                <div class="mb-2">
+                  <label class="form-label">Nome</label>
+                  <input type="text" class="form-control" name="nome" value="{{ $inscrito->nome ?? null }}">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">E-mail</label>
+                  <input type="email" class="form-control" name="email" value="{{ $inscrito->email ?? null }}">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Telefone</label>
+                  <input type="text" class="form-control" name="telefone" value="{{ $inscrito->telefone ?? null }}" x-mask="(99) 99999-9999">
+                </div>
+                @if( $inscrito->empresa_id )
+                  <p class="mb-0"><strong>Empresa:</strong> {{ $inscrito->empresa->nome_razao ?? null }}</p>
+                @endif
+              </div>
             </div>
             <div class="col-4">
               <div class="text-end">
-                @if ($inscrito?->pessoa->deleted_at !== null)
-                  <span class="text-secondary">Pessoa excluida, somente leitura</span>
-                @else
-                  <a href="{{ route('pessoa-insert', $inscrito->pessoa->uid) }}" class="link-primary fw-medium">
-                    Editar Pessoa 
-                    <i class="ri-arrow-right-line align-middle"></i>
-                  </a>
-                @endif
+                <button type="button" class="btn btn-sm btn-outline-primary" @click="editMode = !editMode" x-text="editMode ? 'Cancelar' : 'Editar Inscrito'"></button>
               </div>
             </div>
           </div>
@@ -51,9 +64,7 @@
           </div>
           <div class="modal-footer my-2">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            @if ($inscrito?->pessoa->deleted_at == null)
-              <button type="submit" class="btn btn-primary">Salvar</button>
-            @endif
+            <button type="submit" class="btn btn-primary">Salvar</button>
           </div>
         </form>
 

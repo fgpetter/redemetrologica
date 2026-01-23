@@ -19,23 +19,21 @@
     <div class="card mb-3 border-0 shadow-none">
         <div class="card-body p-0">
             <form wire:submit.prevent="saveInscrito" class="row g-2 align-items-start">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Nome" wire:model.defer="nome_razao">
-                    @error('nome_razao') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Nome" wire:model.defer="nome">
+                    @error('nome') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                 </div>
                 <div class="col-md-3">
-                    <input type="text" class="form-control" placeholder="CPF" wire:model.defer="cpf_cnpj"
-                        x-mask:dynamic="$input.replace(/\D/g, '').length > 11 ? '99.999.999/9999-99' : '999.999.999-99'"
-                        maxlength="14"
-                    >
-                    @error('cpf_cnpj') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
-                </div>
-                <div class="col-md-4">
                     <input type="email" class="form-control" placeholder="E-mail" wire:model.defer="email">
                     @error('email') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                 </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary w-100"><i class="ri-add-line"></i></button>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Telefone" wire:model.defer="telefone"
+                        x-mask="(99) 99999-9999">
+                    @error('telefone') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100"><i class="ri-add-line"></i> Adicionar</button>
                 </div>
             </form>
         </div>
@@ -88,37 +86,35 @@
             </thead>
             <tbody>
                 @forelse ($inscritos as $inscrito)
-                    @if($inscrito->pessoa->tipo_pessoa === 'PF')
-                        <tr wire:key="inscrito-{{ $inscrito->uid }}">
-                            <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
-                            <td class="text-truncate" style="max-width: 250px;">{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
-                            <td>{{ $inscrito->pessoa->nome_razao }}</td>
-                            <td> {{ $inscrito->valor }} </td>
-                            <td>
-                                <div class="dropdown">
-                                    <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                        <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                        <li>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
-                                        </li>
-                                        @if(auth()->user()->email == 'fgpetter@gmail.com')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('curso-visualizar-certificado', $inscrito->uid) }}">Certificado</a>
-                                        </li>
-                                        @endif
-                                        <li>
-                                            <x-painel.form-delete.delete route='cancela-inscricao' id="{{ $inscrito->uid }}" />
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <x-painel.agendamento-cursos.modal-edita-participante :inscrito="$inscrito"/>
-                    @endif
+                    <tr wire:key="inscrito-{{ $inscrito->uid }}">
+                        <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
+                        <td class="text-truncate" style="max-width: 250px;">{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
+                        <td>{{ $inscrito->nome }}</td>
+                        <td> {{ $inscrito->valor }} </td>
+                        <td>
+                            <div class="dropdown">
+                                <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="ph-dots-three-outline-vertical" style="font-size: 1.5rem"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhes e edição"></i>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
+                                    </li>
+                                    @if(auth()->user()->email == 'fgpetter@gmail.com')
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('curso-visualizar-certificado', $inscrito->uid) }}">Certificado</a>
+                                    </li>
+                                    @endif
+                                    <li>
+                                        <x-painel.form-delete.delete route='cancela-inscricao' id="{{ $inscrito->uid }}" />
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <x-painel.agendamento-cursos.modal-edita-participante :inscrito="$inscrito"/>
                 @empty
                     <tr>
                         <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>

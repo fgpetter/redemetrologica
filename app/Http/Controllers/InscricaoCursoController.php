@@ -187,10 +187,15 @@ class InscricaoCursoController extends Controller
   {
     if( $inscrito->exists ) {
       $validator = Validator::make($request->all(), [
+        'nome' => ['nullable', 'string', 'min:3'],
+        'email' => ['nullable', 'email'],
+        'telefone' => ['nullable', 'string'],
         'valor' => ['nullable','string'],
         'certificado_emitido' => ['nullable', 'date'],
         'resposta_pesquisa' => ['nullable', 'date'],
       ],[
+        'nome.min' => 'O nome deve ter no mínimo 3 caracteres',
+        'email.email' => 'O e-mail informado é inválido',
         'certificado_emitido.date' => 'O campo Certificado Enviado não é uma data valida',
         'resposta_pesquisa.date' => 'O o campo Pesqisa Respondida não é uma data valida',
       ]);
@@ -209,11 +214,23 @@ class InscricaoCursoController extends Controller
         return back()->with('error', $validator->errors()->first());
       }
 
-      $inscrito->update([
+      $updateData = [
         'valor' => formataMoeda($request->valor),
         'certificado_emitido' => $request->certificado_emitido,
         'resposta_pesquisa' => $request->resposta_pesquisa,
-      ]);
+      ];
+
+      if ($request->has('nome')) {
+        $updateData['nome'] = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($request->nome));
+      }
+      if ($request->has('email')) {
+        $updateData['email'] = strtolower($request->email);
+      }
+      if ($request->has('telefone')) {
+        $updateData['telefone'] = preg_replace('/[^0-9]/', '', $request->telefone) ?: null;
+      }
+
+      $inscrito->update($updateData);
 
       $this->atualizaFinanceiro($inscrito);
 
@@ -222,7 +239,9 @@ class InscricaoCursoController extends Controller
 
     $validator = Validator::make($request->all(), [
       'agenda_curso_id' => ['required', 'exists:agenda_cursos,id'],
-      'pessoa_id' => ['required', 'exists:pessoas,id'],
+      'nome' => ['required', 'string', 'min:3'],
+      'email' => ['required', 'email'],
+      'telefone' => ['nullable', 'string'],
       'empresa_id' => ['nullable', 'exists:pessoas,id'],
       'valor' => ['nullable','string'],
       'certificado_emitido' => ['nullable', 'date'],
@@ -230,8 +249,10 @@ class InscricaoCursoController extends Controller
       ],[
       'agenda_curso_id.required' => 'O agendamento de cursos não foi encontrado',
       'agenda_curso_id.exists' => 'O agendamento de cursos não foi encontrado',
-      'pessoa_id.required' => 'É obrigatório informar o participante',
-      'pessoa_id.exists' => 'O participante nao foi encontrado',
+      'nome.required' => 'É obrigatório informar o nome do participante',
+      'nome.min' => 'O nome deve ter no mínimo 3 caracteres',
+      'email.required' => 'É obrigatório informar o e-mail do participante',
+      'email.email' => 'O e-mail informado é inválido',
       'empresa_id.exists' => 'A empresa não foi encontrada',
       'certificado_emitido.date' => 'O campo Certificado Enviado não é uma data valida',
       'resposta_pesquisa.date' => 'O o campo Pesqisa Respondida não é uma data valida',
@@ -250,31 +271,31 @@ class InscricaoCursoController extends Controller
       return back()->with('error', $validator->errors()->first());
     }
 
-    // verifica se a empresa já tem cadastro no curso, se não cria
-    // atribui empresa ao cadastro da pessoa caso não haja
-    if( $request->empresa_id ){
-      CursoInscrito::firstOrCreate([
-        'pessoa_id' => $request->empresa_id,
-        'agenda_curso_id' => $request->agenda_curso_id
-        ],[
-          'data_inscricao' => now()
-        ]);
-    }
+    $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($request->nome));
+    $email = strtolower($request->email);
+    $telefone = preg_replace('/[^0-9]/', '', $request->telefone ?? '');
 
 
-    CursoInscrito::create([
-      'pessoa_id' => $request->pessoa_id,
+    $novoInscrito = CursoInscrito::create([
+      'pessoa_id' => auth()->user()->pessoa->id, 
       'agenda_curso_id' => $request->agenda_curso_id,
       'empresa_id' => $request->empresa_id ?? null,
+      'nome' => $nome,
+      'email' => $email,
+      'telefone' => $telefone ?: null,
       'valor' => formataMoeda($request->valor),
       'data_inscricao' => now(),
     ]);
 
-    $agendacurso = AgendaCursos::find($request->agenda_curso_id);
-    $inscrito = Pessoa::find($request->pessoa_id);
-    $empresa = Pessoa::find($request->empresa_id);
-
-    $this->adicionaLancamentoFinanceiro($agendacurso, $inscrito, $empresa, false, $request->valor);
+    // Se houver empresa, adiciona lançamento financeiro
+    if ($request->empresa_id) {
+      $agendacurso = AgendaCursos::find($request->agenda_curso_id);
+      $empresa = Pessoa::find($request->empresa_id);
+      
+      // Usa uma pessoa fictícia para o lançamento financeiro
+      $pessoaFicticia = new Pessoa(['id' => auth()->user()->pessoa->id]);
+      $this->adicionaLancamentoFinanceiro($agendacurso, $pessoaFicticia, $empresa, false, $request->valor);
+    }
 
     return back()->with('success', 'Inscrito adicionado com sucesso')->withFragment('participantes');
   }
@@ -394,16 +415,16 @@ class InscricaoCursoController extends Controller
 
     } else { // se a inscrição é de pessoa física
 
-      $lancamento = LancamentoFinanceiro::create([
-        'pessoa_id' => $inscrito->id,
-        'agenda_curso_id' => $agendacurso->id,
-        'historico' => 'Inscrição no curso - ' . $agendacurso->curso->descricao,
-        'valor' => formataMoeda($valor),
-        'centro_custo_id' => '3', // TREINAMENTO
-        'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
-        'data_emissao' => now(),
-        'status' => 'PROVISIONADO',
-      ]);
+      // $lancamento = LancamentoFinanceiro::create([
+      //   'pessoa_id' => $inscrito->id,
+      //   'agenda_curso_id' => $agendacurso->id,
+      //   'historico' => 'Inscrição no curso - ' . $agendacurso->curso->descricao,
+      //   'valor' => formataMoeda($valor),
+      //   'centro_custo_id' => '3', // TREINAMENTO
+      //   'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+      //   'data_emissao' => now(),
+      //   'status' => 'PROVISIONADO',
+      // ]);
 
     }
   }
