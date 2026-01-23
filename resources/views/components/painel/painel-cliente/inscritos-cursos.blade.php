@@ -49,7 +49,7 @@
                                     @foreach ($inscricao->agendaCurso->cursoMateriais as $material)
                                         <li class="mb-1">
                                             <i class="bx bx-file me-1"></i>
-                                            <a href="{{ asset('storage/' . $material->arquivo) }}"
+                                            <a href="{{ asset('curso-material/' . $material->arquivo) }}"
                                                 target="_blank" class="text-primary">
                                                 {{ $material->descricao ?: 'Material ' . $loop->iteration }}
                                             </a>
@@ -106,7 +106,7 @@
                                     @foreach ($primeiraInscricao->agendaCurso->cursoMateriais as $material)
                                         <li class="mb-1">
                                             <i class="bx bx-file me-1"></i>
-                                            <a href="{{ asset('storage/' . $material->arquivo) }}"
+                                            <a href="{{ asset('curso-material/' . $material->arquivo) }}"
                                                 target="_blank" class="text-primary">
                                                 {{ $material->descricao ?: 'Material ' . $loop->iteration }}
                                             </a>
