@@ -22,6 +22,11 @@ class AgendaCursos extends Model
      */
     protected $guarded = [];
 
+    protected $casts = [
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

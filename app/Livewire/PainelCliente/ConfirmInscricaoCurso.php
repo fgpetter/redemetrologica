@@ -13,6 +13,8 @@ use App\Models\CursoInscrito;
 use Illuminate\Support\Carbon;
 use App\Models\LancamentoFinanceiro;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ConfirmacaoInscricaoCursoNotification;
 
 class ConfirmInscricaoCurso extends Component
 {
@@ -465,26 +467,22 @@ class ConfirmInscricaoCurso extends Component
         }
     }
 
-    public function enviaConvites() // Método com regras para envio de convites para os inscritos
+    public function enviaEmail() // Método com regras para envio de emails para os inscritos
     {
-        // foreach ($this->inscricoes as $inscricao) {
-        //     if ($inscricao['responsavel'] == 0) {
-        //         // pula se o email não for revalidado
-        //         $email = $inscricao['email'];
-        //         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        //             continue;
-        //         }
+        $delay = 0;
+        foreach ($this->inscricoes as $inscricao) {
+            $dadosParticipante = [
+                'nome' => $inscricao['nome'],
+                'email' => $inscricao['email'],
+                'telefone' => $inscricao['telefone'] ?? '',
+                'empresa_nome' => $this->empresa['nome_razao'] ?? null
+            ];
 
-        //         Convite::firstOrCreate([
-        //             'agenda_curso_id' => $this->agendacurso->id,
-        //             'email' => $email,
-        //         ], [
-        //             'pessoa_id' => $this->pessoaId_usuario,
-        //             'empresa_id' => $this->empresa['id'],
-        //             'nome' => $inscricao['nome'],
-        //         ]);
-        //     }
-        // }
+            Mail::to($inscricao['email'])
+                ->later(now()->addSeconds($delay), new ConfirmacaoInscricaoCursoNotification($dadosParticipante, $this->agendacurso));
+            
+            $delay += 5;
+        }
     }
 
     public function salvarInscricoes() // método que consolida e conclui a inscrição
@@ -498,6 +496,8 @@ class ConfirmInscricaoCurso extends Component
             $this->validateInscricao();
             $this->salvarInscricaoCPF();
         }
+
+        $this->enviaEmail();
 
         // limpa os dados da sessão e volta para o painel
         session()->forget(['curso', 'empresa']);
