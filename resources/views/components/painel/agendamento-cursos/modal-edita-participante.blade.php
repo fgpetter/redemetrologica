@@ -27,18 +27,59 @@
               </div>
               
               <div x-show="editMode">
-                <div class="mb-2">
-                  <label class="form-label">Nome</label>
-                  <input type="text" class="form-control" name="nome" value="{{ $inscrito->nome ?? null }}">
+                <div class="mb-2 ms-2">
+                  <x-forms.input-field :value="$inscrito->nome ?? null" name="nome" label="Nome" required="true" />
                 </div>
-                <div class="mb-2">
-                  <label class="form-label">E-mail</label>
-                  <input type="email" class="form-control" name="email" value="{{ $inscrito->email ?? null }}">
-                </div>
-                <div class="mb-2">
-                  <label class="form-label">Telefone</label>
-                  <input type="text" class="form-control" name="telefone" value="{{ $inscrito->telefone ?? null }}" x-mask="(99) 99999-9999">
-                </div>
+                
+                @if(!$inscrito->empresa_id)
+                  <div class="row m-0 p-0">
+                    <div class="col-md-4 mb-2">
+                      <x-forms.input-field :value="$inscrito->pessoa->cpf_cnpj ?? null" name="cpf" label="CPF" class="cpf" required="true" mask="cpf" />
+                    </div>
+                    <div class="col-md-5 mb-2">
+                      <x-forms.input-field :value="$inscrito->email ?? null" type="email" name="email" label="E-mail" required="true" />
+                    </div>
+                    <div class="col-md-5 mb-2">
+                      <x-forms.input-field :value="$inscrito->telefone ?? null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
+                    </div>
+                  </div>
+
+                  <div class="col-md-12 mt-3 mb-1">
+                      <h6 class="text-muted border-bottom">Dados de Endereço</h6>
+                  </div>
+
+                  @php $endereco = $inscrito->pessoa->enderecos->first(); @endphp
+                  <div class="row m-0 p-0">
+                    <div class="col-md-4 mb-2">
+                      <x-forms.input-field :value="$endereco->cep ?? null" name="cep" label="CEP" class="cep" required="true" />
+                    </div>
+                    <div class="col-md-2 mb-2">
+                      <x-forms.input-field :value="$endereco->uf ?? null" name="uf" label="UF" required="true" maxlength="2" uppercase="true" />
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <x-forms.input-field :value="$endereco->cidade ?? null" name="cidade" label="Cidade" required="true" />
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <x-forms.input-field :value="$endereco->bairro ?? null" name="bairro" label="Bairro" required="true" />
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <x-forms.input-field :value="$endereco->endereco ?? null" name="endereco" label="Endereço" required="true" />
+                    </div>
+                    <div class="col-12 mb-2">
+                      <x-forms.input-field :value="$endereco->complemento ?? null" name="complemento" label="Complemento" />
+                    </div>
+                  </div>
+                @else
+                  <div class="row m-0 p-0">
+                    <div class="col-md-6 mb-2">
+                      <x-forms.input-field :value="$inscrito->email ?? null" type="email" name="email" label="E-mail" required="true" />
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <x-forms.input-field :value="$inscrito->telefone ?? null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
+                    </div>
+                  </div>
+                @endif
+
                 @if( $inscrito->empresa_id )
                   <p class="mb-0"><strong>Empresa:</strong> {{ $inscrito->empresa->nome_razao ?? null }}</p>
                 @endif
