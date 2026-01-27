@@ -49,12 +49,13 @@ class LancamentoFinanceiroController extends Controller
       })
       ->withTrashed()
       ->get();
-    
-    $meses_anos = LancamentoFinanceiro::whereNotNull('data_pagamento')
-      ->selectRaw("DATE_FORMAT(data_pagamento, '%m-%Y') as mes_ano")
-      ->distinct()
-      ->pluck('mes_ano')
-      ->reverse();
+
+    $meses_anos = LancamentoFinanceiro::selectRaw("DATE_FORMAT(data_pagamento, '%m-%Y') as mes_ano")
+        ->whereNotNull('data_pagamento')
+        ->distinct()
+        ->orderByRaw("MIN(data_pagamento) DESC") // para retornar em ordem cronológica
+        ->groupBy('mes_ano')
+        ->pluck('mes_ano');
 
     return view('painel.lancamento-financeiro.index', [
       'lancamentosfinanceiros' => $lancamentosfinanceiros,

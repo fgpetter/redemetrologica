@@ -58,7 +58,7 @@
                       <div class="input-group">
                         <select class="form-select" id="mesAnoExport" name="mesano">
                           <option value="">Selecione...</option>
-                          @foreach($mesesanos->sortDesc() as $mesano)
+                          @foreach($mesesanos as $mesano)
                             <option value="{{ $mesano }}">{{ $mesano }}</option>
                           @endforeach
                         </select>
