@@ -93,6 +93,6 @@
     </div>
     </div>
   </div>
-  </div>
+
   {{-- endmodal --}}
   
