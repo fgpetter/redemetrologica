@@ -82,6 +82,7 @@
                     </th>
                     <th scope="col" style="width: 5%; white-space: nowrap;">Valor</th>
                     <th scope="col" style="width: 5%; white-space: nowrap;"></th>
+                    <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -91,6 +92,14 @@
                         <td class="text-truncate" style="max-width: 250px;">{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
                         <td>{{ $inscrito->nome }}</td>
                         <td> {{ $inscrito->valor }} </td>
+                        <td>
+                            <span data-bs-toggle="tooltip" title="{{ $inscrito->is_pago ? 'Pago' : 'Aguardando Pagamento' }}">
+                                <i class="{{ $inscrito->is_pago ? 'ri-checkbox-circle-fill text-success' : 'ri-time-line text-warning' }}" style="font-size: 1.2rem"></i>
+                            </span>
+                            <span data-bs-toggle="tooltip" title="{{ $inscrito->is_certificado_emitido ? 'Certificado Enviado' : 'Certificado não enviado' }}">
+                                <i class="{{ $inscrito->is_certificado_emitido ? 'ri-award-fill text-primary' : 'ri-award-line text-muted' }}" style="font-size: 1.2rem"></i>
+                            </span>
+                        </td>
                         <td>
                             <div class="dropdown">
                                 <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
@@ -122,7 +131,7 @@
                     <x-painel.agendamento-cursos.modal-edita-participante :inscrito="$inscrito"/>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center">Este agendamento não possui inscritos.</td>
+                        <td colspan="7" class="text-center">Este agendamento não possui inscritos.</td>
                     </tr>
                 @endforelse
                 @if($inscritos->sum('valor') > 0)
@@ -130,7 +139,7 @@
                     <tr>
                         <td colspan="3"></td>
                         <td><strong>Total:</strong> {{ $inscritos->sum('valor') }} </td>
-                        <td></td>
+                        <td colspan="2"></td>
                     </tr>
                 </tfoot>
                 @endif

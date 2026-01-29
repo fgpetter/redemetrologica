@@ -35,7 +35,7 @@ class ListParticipantes extends Component
      */
     public function render()
     {
-        $inscritosQuery = $this->agendacurso->inscritos()->with('empresa');
+        $inscritosQuery = $this->agendacurso->inscritos()->with(['empresa', 'lancamentoFinanceiro']);
 
         if ($this->sortBy === 'nome') {
             $inscritosQuery->orderBy('nome', $this->sortDirection);
