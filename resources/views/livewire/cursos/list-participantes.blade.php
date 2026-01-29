@@ -94,7 +94,7 @@
                         <td> {{ $inscrito->valor }} </td>
                         <td>
                             <span data-bs-toggle="tooltip" title="{{ $inscrito->is_pago ? 'Pago' : 'Aguardando Pagamento' }}">
-                                <i class="{{ $inscrito->is_pago ? 'ri-checkbox-circle-fill text-success' : 'ri-time-line text-warning' }}" style="font-size: 1.2rem"></i>
+                                <i class="{{ $inscrito->is_pago ? 'ri-money-dollar-circle-fill text-success' : 'ri-money-dollar-circle-fill text-warning' }}" style="font-size: 1.2rem"></i>
                             </span>
                             <span data-bs-toggle="tooltip" title="{{ $inscrito->is_certificado_emitido ? 'Certificado Enviado' : 'Certificado não enviado' }}">
                                 <i class="{{ $inscrito->is_certificado_emitido ? 'ri-award-fill text-primary' : 'ri-award-line text-muted' }}" style="font-size: 1.2rem"></i>
