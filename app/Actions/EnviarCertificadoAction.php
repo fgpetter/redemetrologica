@@ -31,6 +31,11 @@ class EnviarCertificadoAction
             'tipo' => 'certificado',
         ]);
 
+        $inscrito->update([
+            'certificado_emitido' => now(),
+            'certificado_path' => $dadosDoc->suggested_storage_path,
+        ]);
+
         EnviarLinkCertificadoJob::dispatch($dadosDoc->id);
 
         return $dadosDoc;

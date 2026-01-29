@@ -46,4 +46,31 @@ class DadosGeraDoc extends Model
             }
         });
     }
+
+    /**
+     * Retorna o nome do arquivo padrão com base no tipo
+     */
+    public function getFileNameAttribute(): string
+    {
+        if ($this->tipo === 'tag_senha') {
+            $nameSlug = Str::slug($this->content['laboratorio_nome'] ?? 'tag');
+            return "tag_senha_{$nameSlug}_{$this->link}.pdf";
+        }
+
+        if ($this->tipo === 'certificado') {
+            $nameSlug = Str::slug($this->content['participante_nome'] ?? 'certificado');
+            return "certificado_{$nameSlug}_{$this->link}.pdf";
+        }
+
+        return "documento_{$this->link}.pdf";
+    }
+
+    /**
+     * Retorna o caminho de armazenamento padrão
+     */
+    public function getStoragePathAttribute(): string
+    {
+        $folder = $this->tipo === 'tag_senha' ? 'senhas' : 'certificados';
+        return "public/docs/{$folder}/{$this->file_name}";
+    }
 }

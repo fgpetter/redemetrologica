@@ -40,12 +40,11 @@ class DocController extends Controller
      */
     private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc)
     {
-        $labNameSlug = Str::slug($dadosDoc->content['laboratorio_nome']);
-        $fileName = 'tag_senha_' . $labNameSlug . '_' . $dadosDoc->link . '.pdf';
-        $path = 'public/docs/senhas/' . $fileName;
+        $fileName = $dadosDoc->file_name;
+        $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists('public/docs/senhas')) {
-            Storage::makeDirectory('public/docs/senhas');
+        if (!Storage::exists(dirname($path))) {
+            Storage::makeDirectory(dirname($path));
         }
 
         Pdf::view('certificados.tag-senha', [
@@ -61,12 +60,11 @@ class DocController extends Controller
      */
     private function generateCertificadoPdf(DadosGeraDoc $dadosDoc)
     {
-        $participanteNameSlug = Str::slug($dadosDoc->content['participante_nome']);
-        $fileName = 'certificado_' . $participanteNameSlug . '_' . $dadosDoc->link . '.pdf';
-        $path = 'public/docs/certificados/' . $fileName;
+        $fileName = $dadosDoc->file_name;
+        $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists('public/docs/certificados')) {
-            Storage::makeDirectory('public/docs/certificados');
+        if (!Storage::exists(dirname($path))) {
+            Storage::makeDirectory(dirname($path));
         }
 
         Pdf::view('certificados.certificado', [
@@ -74,6 +72,12 @@ class DocController extends Controller
         ])->format('a4')->landscape()->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
+
+        if (isset($dadosDoc->content['participante_id'])) {
+            \App\Models\CursoInscrito::where('id', $dadosDoc->content['participante_id'])->update([
+                'certificado_path' => $path
+            ]);
+        }
        
         return response()->download(Storage::path($path), $fileName);
     }
