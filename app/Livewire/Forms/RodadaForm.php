@@ -58,7 +58,7 @@ class RodadaForm extends Form
     /**
      * Inicializa o form para uma nova rodada
      */
-    public function setNew(int $agendaInterlabId): void
+    public function setNew(?int $agendaInterlabId): void
     {
         $this->uid = uniqid();
         $this->agenda_interlab_id = $agendaInterlabId;
