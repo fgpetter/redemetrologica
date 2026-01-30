@@ -25,6 +25,7 @@ class AgendaCursos extends Model
     protected $casts = [
         'data_inicio' => 'date',
         'data_fim' => 'date',
+        'validade_proposta' => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions

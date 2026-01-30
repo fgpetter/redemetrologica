@@ -14,7 +14,7 @@ class EnviarCertificadoAction
      * @param CursoInscrito $inscrito
      * @return DadosGeraDoc
      */
-    public function execute(CursoInscrito $inscrito): DadosGeraDoc
+    public function execute(CursoInscrito $inscrito, int $delay = 0): DadosGeraDoc
     {
         $inscrito->load(['agendaCurso.curso', 'empresa']);
 
@@ -36,7 +36,9 @@ class EnviarCertificadoAction
             'certificado_path' => $dadosDoc->suggested_storage_path,
         ]);
 
-        EnviarLinkCertificadoJob::dispatch($dadosDoc->id);
+      
+        EnviarLinkCertificadoJob::dispatch($dadosDoc->id)->delay(now()->addSeconds($delay));
+
 
         return $dadosDoc;
     }

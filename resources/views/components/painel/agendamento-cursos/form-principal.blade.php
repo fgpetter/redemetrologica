@@ -1,10 +1,10 @@
-<form method="POST"
+<form method="POST" id="form-agendamento-curso"
   action="{{ isset($agendacurso->id) ? route('agendamento-curso-update', $agendacurso->uid) : route('agendamento-curso-create') }}">
   @csrf
   <div class="row gy-3">
 
     <div class="col-sm-4">
-      <x-forms.input-select name="status" label="Status">
+      <x-forms.input-select name="status" id="status-agendamento" label="Status">
         <option @selected($agendacurso->status == 'AGENDADO') value="AGENDADO">AGENDADO</option>
         <option @selected($agendacurso->status == 'CANCELADO') value="CANCELADO">CANCELADO</option>
         <option @selected($agendacurso->status == 'CONFIRMADO') value="CONFIRMADO">CONFIRMADO</option>
@@ -49,7 +49,7 @@
     </div>
 
     <div class="col-sm-3">
-      <x-forms.input-field :value="old('data_inicio') ?? ($agendacurso->data_inicio ?? null)" type="date" name="data_inicio"
+      <x-forms.input-field :value="old('data_inicio', $agendacurso->data_inicio?->format('Y-m-d'))" type="date" name="data_inicio"
         label="Data Inicio  <span class='text-danger'>*</span>" />
       @error('data_inicio')
         <div class="text-warning">{{ $message }}</div>
@@ -57,7 +57,7 @@
     </div>
 
     <div class="col-sm-3">
-      <x-forms.input-field :value="old('data_fim') ?? ($agendacurso->data_fim ?? null)" type="date" name="data_fim" label="Data Fim" />
+      <x-forms.input-field :value="old('data_fim', $agendacurso->data_fim?->format('Y-m-d'))" type="date" name="data_fim" label="Data Fim" />
       @error('data_fim')
         <div class="text-warning">{{ $message }}</div>
       @enderror
@@ -168,3 +168,28 @@
 @if ($agendacurso->id)
   <x-painel.form-delete.delete route='agendamento-curso-delete' id="{{ $agendacurso->uid }}" label="Agendamento de curso" />
 @endif
+
+<script>
+  document.getElementById('form-agendamento-curso').addEventListener('submit', function(e) {
+    const statusSelect = document.getElementById('status-agendamento');
+    const oldStatus = "{{ $agendacurso->status }}";
+    
+    if (statusSelect.value === 'REALIZADO' && oldStatus !== 'REALIZADO') {
+      e.preventDefault();
+      Swal.fire({
+        title: 'Confirmação',
+        text: 'Ao salvar esse curso como realizado, todos os certificados serão enviados para os inscritos com pagamento quitado. Deseja continuar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, continuar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.submit();
+        }
+      });
+    }
+  });
+</script>
