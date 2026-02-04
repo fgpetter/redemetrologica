@@ -35,15 +35,15 @@
                     >
                         <div class="w-100 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-3">
-                                <i class="ri-flask-fill fs-5 text-info"></i>
+                                <i class="ri-flask-fill fs-5 text-success"></i>
                                 <div>
                                     <strong class="d-block">{{ $inscrito->laboratorio->nome }}</strong>
                                     <small class="text-muted">{{ $inscrito->informacoes_inscricao }}</small>
                                 </div>
                             </div>
                             @if(!$editingId)
-                                <span class="badge bg-success d-flex align-items-center justify-content-center py-2 px-3 fs-6 fw-normal">
-                                    <i class="ri-check-line me-1"></i>Inscrito
+                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle p-2 fs-5 lh-1 me-4">
+                                    <i class="ri-check-line"></i>
                                 </span>
                             @endif
                         </div>
