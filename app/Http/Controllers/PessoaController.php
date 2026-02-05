@@ -87,6 +87,7 @@ class PessoaController extends Controller
         'celular' => ['nullable', 'string', 'min:10', 'max:11'],
         'email' => ['nullable', 'email', 'max:191'],
         'site' => ['nullable', 'string', 'max:191'],
+        'associado' => ['nullable', 'boolean'],
       ],[
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo documento',
@@ -153,7 +154,8 @@ class PessoaController extends Controller
     $request->merge([
       'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
       'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
-      'email' => strtolower($request->get('email'))
+      'email' => strtolower($request->get('email')),
+      'associado' => $request->get('associado') ? 1 : 0,
     ]);
 
     $validator = Validator::make($request->all(), [
@@ -169,6 +171,7 @@ class PessoaController extends Controller
         'celular' => ['nullable', 'string', 'min:10', 'max:11'],
         'email' => ['nullable', 'email', 'max:191'],
         'site' => ['nullable', 'string', 'max:191'],
+        'associado' => ['nullable', 'boolean'],
       ],
       [
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
