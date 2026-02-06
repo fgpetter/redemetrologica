@@ -24,7 +24,7 @@
                     </tr>
                 </thead>
 
-                @foreach ($intelabinscritos->where('empresa_id', $empresa->id) as $participante)
+                @foreach ($inscritosPorEmpresa[$empresa->id] ?? [] as $participante)
                     <tr wire:key="participante-{{ $participante->id }}-{{ $participante->valor }}">
 
                         <td style="width: 1%; white-space: nowrap;">

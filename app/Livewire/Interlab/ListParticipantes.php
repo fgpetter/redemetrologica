@@ -51,16 +51,25 @@ class ListParticipantes extends Component
 
         $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
             ->with(['empresa', 'pessoa', 'laboratorio.endereco'])
+            ->orderBy('data_inscricao', 'desc')
             ->get();
 
-        $empresaIds = $intelabinscritos
-            ->pluck('empresa_id')
-            ->unique()
-            ->values();
+        // Agrupar inscritos por empresa mantendo a ordenação por data
+        $inscritosPorEmpresa = $intelabinscritos->groupBy('empresa_id');
+
+        // Ordenar empresas pela data de inscrição mais recente de seus laboratórios
+        $empresaIds = $inscritosPorEmpresa->map(function ($inscritos) {
+            return [
+                'empresa_id' => $inscritos->first()->empresa_id,
+                'data_mais_recente' => $inscritos->first()->data_inscricao,
+            ];
+        })->sortByDesc('data_mais_recente')->pluck('empresa_id');
 
         $interlabempresasinscritas = Pessoa::whereIn('id', $empresaIds)
-            ->orderBy('nome_razao')
-            ->get();
+            ->get()
+            ->sortBy(function ($empresa) use ($empresaIds) {
+                return $empresaIds->search($empresa->id);
+            });
 
         $pessoas = Pessoa::select([
             'id',
@@ -78,6 +87,7 @@ class ListParticipantes extends Component
             ->get()
             ->filter(function ($doc) use ($participanteIds) {
                 $participanteId = $doc->content['participante_id'] ?? null;
+
                 return in_array($participanteId, $participanteIds);
             })
             ->keyBy(function ($doc) {
@@ -88,6 +98,7 @@ class ListParticipantes extends Component
             'agendainterlab' => $agendainterlab,
             'intelabinscritos' => $intelabinscritos,
             'interlabempresasinscritas' => $interlabempresasinscritas,
+            'inscritosPorEmpresa' => $inscritosPorEmpresa,
             'pessoas' => $pessoas,
             'tagsSenhaDoc' => $tagsSenhaDoc,
         ]);
