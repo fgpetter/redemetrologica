@@ -4,6 +4,7 @@
 - For library documentation, if some library is not available in Laravel Boost 'search-docs', always use context7. Automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
 - Every frontend change or debugging mode use Crhome DevTools MCP to check for errors.
 - If envinronment is running over Docker Sail, always use `vendor/bin/sail` to run a command. Example: `vendor/bin/sail artisan:migrate` or `vendor/bin/sail npm run build` `vendor/bin/sail composer install`
+- Don't run laravel pint after changing a PHP or blade file
 
 ---
 
