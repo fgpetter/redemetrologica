@@ -253,13 +253,13 @@ class NovoLabInscrito extends Component
             
              $senha = null;
             if (!empty($this->interlab->interlab->tag)) {
-                $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
+                $senha = $this->interlab->interlab->tag . rand(111, 999);
                 while (
                     InterlabInscrito::where('tag_senha', $senha)
                         ->where('agenda_interlab_id', $this->interlab->id)
                         ->exists()
                 ) {
-                    $senha = $this->interlab->interlab->tag . '-' . rand(111, 999);
+                    $senha = $this->interlab->interlab->tag . rand(111, 999);
                 }
             }
 
