@@ -152,10 +152,10 @@
                                     </div>
                                     <div class="col-6 text-wrap">
                                         <b>Responsável técnico:</b>
-                                        {{ $participante->responsavel_tecnico }}
+                                        {{ $participante->laboratorio->responsavel_tecnico }}
                                         <br>
-                                        <b>Telefone:</b> {{ $participante->telefone }} <b>Email:</b>
-                                        {{ $participante->email }}<br>
+                                        <b>Telefone:</b> {{ $participante->laboratorio->telefone }} <b>Email:</b>
+                                        {{ $participante->laboratorio->email }}<br>
                                         <b>Endereço:</b>
                                         {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
                                         {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }},

@@ -3,13 +3,7 @@
 namespace App\Livewire\Interlab;
 
 use Livewire\Component;
-use Illuminate\Support\Str;
 use App\Models\InterlabInscrito;
-use Spatie\LaravelPdf\Facades\Pdf;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\CertificadoInterlabMail;
-use Illuminate\Support\Facades\Storage;
-use App\Jobs\GerarCertificadoInterlabJob;
 
 class GerarCertificadoButton extends Component
 {
@@ -22,11 +16,16 @@ class GerarCertificadoButton extends Component
 
     public function gerarCertificado()
     {
-        // Dispatch do job para fila
-        GerarCertificadoInterlabJob::dispatch($this->participanteId);
-        
-        // Dispatch evento JavaScript para mostrar o alerta
-        $this->dispatch('show-success-alert', message: 'Certificado está sendo gerado e será enviado por email em breve.');
+        try {
+            $inscrito = InterlabInscrito::findOrFail($this->participanteId);
+            
+            app(\App\Actions\EnviarCertificadoInterlabAction::class)->execute($inscrito);
+            
+            // Dispatch evento JavaScript para mostrar o alerta
+            $this->dispatch('show-success-alert', message: 'Certificado está sendo gerado e será enviado por email em breve.');
+        } catch (\Exception $e) {
+            $this->dispatch('show-error-alert', message: 'Erro ao gerar certificado: ' . $e->getMessage());
+        }
     }
 
     public function render()

@@ -32,6 +32,10 @@ class DocController extends Controller
             return $this->generateCertificadoPdf($dadosDoc);
         }
 
+        if ($dadosDoc->tipo === 'certificado_interlab') {
+            return $this->generateCertificadoInterlabPdf($dadosDoc);
+        }
+
         abort(500, 'Tipo de documento não suportado.');
     }
 
@@ -75,6 +79,37 @@ class DocController extends Controller
 
         if (isset($dadosDoc->content['participante_id'])) {
             \App\Models\CursoInscrito::where('id', $dadosDoc->content['participante_id'])->update([
+                'certificado_path' => $path
+            ]);
+        }
+       
+        return response()->download(Storage::path($path), $fileName);
+    }
+
+    /**
+     * Geração do PDF para certificado Interlab
+     */
+    private function generateCertificadoInterlabPdf(DadosGeraDoc $dadosDoc)
+    {
+        $fileName = $dadosDoc->file_name;
+        $path = $dadosDoc->storage_path;
+
+        if (!Storage::exists(dirname($path))) {
+            Storage::makeDirectory(dirname($path));
+        }
+
+        // Buscar participante para gerar certificado
+        $participante = \App\Models\InterlabInscrito::with(['laboratorio', 'agendaInterlab.interlab'])
+            ->findOrFail($dadosDoc->content['participante_id']);
+
+        Pdf::view('certificados.certificado-interlab', [
+            'participante' => $participante,
+        ])->format('a4')->landscape()->save(Storage::path($path));
+
+        $dadosDoc->update(['file_name' => $path]);
+
+        if (isset($dadosDoc->content['participante_id'])) {
+            \App\Models\InterlabInscrito::where('id', $dadosDoc->content['participante_id'])->update([
                 'certificado_path' => $path
             ]);
         }

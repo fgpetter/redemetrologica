@@ -9,14 +9,13 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\InterlabInscrito;
+use App\Models\DadosGeraDoc;
 
 class CertificadoInterlabMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $participante;
-    public $pdfPath;
+    public $dadosDoc;
 
     /**
      * The number of times the job may be attempted.
@@ -31,10 +30,9 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct(InterlabInscrito $participante, $pdfPath)
+    public function __construct(DadosGeraDoc $dadosDoc)
     {
-        $this->participante = $participante;
-        $this->pdfPath = $pdfPath;
+        $this->dadosDoc = $dadosDoc;
         $this->delay = 5;
     }
 
@@ -47,7 +45,7 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
             replyTo: [
                 new Address('interlab@redemetrologica.com.br'),
             ],
-            subject: 'Certificado de Participação - '. $this->participante->agendaInterlab->interlab->nome,
+            subject: 'Certificado de Participação - '. $this->dadosDoc->content['interlab_nome'],
         );
     }
 
@@ -59,19 +57,5 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
         return new Content(
             view: 'emails.certificado-interlab',
         );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    { 
-        return [
-            \Illuminate\Mail\Mailables\Attachment::fromPath($this->pdfPath)
-                ->as('certificado.pdf')
-                ->withMime('application/pdf'),
-        ];
     }
 }

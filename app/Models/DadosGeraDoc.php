@@ -62,6 +62,11 @@ class DadosGeraDoc extends Model
             return "certificado_{$nameSlug}_{$this->link}.pdf";
         }
 
+        if ($this->tipo === 'certificado_interlab') {
+            $nameSlug = Str::slug($this->content['laboratorio_nome'] ?? 'certificado_interlab');
+            return "certificado_interlab_{$nameSlug}_{$this->link}.pdf";
+        }
+
         return "documento_{$this->link}.pdf";
     }
 
