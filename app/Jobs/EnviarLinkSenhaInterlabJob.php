@@ -5,13 +5,17 @@ namespace App\Jobs;
 use App\Models\DadosGeraDoc;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Foundation\Queue\Queueable;
 use App\Mail\LinkSenhaInterlabNotification;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
 
 class EnviarLinkSenhaInterlabJob implements ShouldQueue
 {
-    use Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $dadosDocId;
 
