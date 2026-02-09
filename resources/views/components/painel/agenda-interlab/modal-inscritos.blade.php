@@ -13,8 +13,8 @@
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <strong>Empresa:</strong> {{ $participante->empresa->nome_razao ?? null }} <br>
-                <strong>Email:</strong> {{ $participante->email ?? null }} <br>
-                <strong>Telefone:</strong> {{ $participante->telefone ?? null }}
+                <strong>Email:</strong> {{ $participante->empresa->email ?? null }} <br>
+                <strong>Telefone:</strong> {{ $participante->empresa->telefone ?? null }}
               </div>
               <div class="text-end">
                 @if ($participante->empresa->deleted_at !== null)
