@@ -7,6 +7,7 @@ use App\Mail\ExceptionOccured;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Arr;
 
 class Handler extends ExceptionHandler
 {
@@ -44,8 +45,11 @@ class Handler extends ExceptionHandler
 
             $content['message'] = $exception->getMessage();
             $content['file'] = $exception->getFile();
-            $content['line'] = $exception->getLine();
-            $content['trace'] = $exception->getTrace();
+            $content['line'] = $exception->getLine();            
+            // Remove args from trace to avoid closure serialization errors
+            $content['trace'] = collect($exception->getTrace())->map(function ($trace) {
+                return Arr::except($trace, ['args']);
+            })->all();
 
             $content['url'] = request()->url();
             $content['body'] = json_encode(request()->except('_token'));
@@ -54,8 +58,8 @@ class Handler extends ExceptionHandler
 
             Mail::to('sistema@redemetrologica.com.br')->send(new ExceptionOccured($content));
  
-         } catch (Throwable $exception) {
-            Log::error($exception);
+         } catch (Throwable $e) {
+            Log::error("Failed to send exception email: " . $e->getMessage());
          }
  
      }

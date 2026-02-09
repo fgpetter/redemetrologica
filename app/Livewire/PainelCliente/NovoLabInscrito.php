@@ -86,7 +86,7 @@ class NovoLabInscrito extends Component
                 $this->laboratorio['endereco'] = $labModel->endereco ? $labModel->endereco->toArray() : [];
             }
         }
-        $this->dispatch('open-collapse-inner', id: 'collapse-novolab-' . $labId);
+        // $this->dispatch('open-collapse-inner', id: 'collapse-novolab-' . $labId);
     }
     
     private function resetForm() {
@@ -273,7 +273,7 @@ class NovoLabInscrito extends Component
                 'informacoes_inscricao' => $infoFinal,
                 'tag_senha' => $senha,
                 'responsavel_tecnico' => $this->laboratorio['responsavel_tecnico'], 
-                'telefone' => $this->laboratorio['telefone'], 
+                'telefone' => $this->laboratorio['telefone'] ?? null, 
                 'email' => $this->laboratorio['email'], 
             ]);
 
