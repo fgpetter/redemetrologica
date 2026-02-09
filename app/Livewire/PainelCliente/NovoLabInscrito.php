@@ -86,7 +86,6 @@ class NovoLabInscrito extends Component
                 $this->laboratorio['endereco'] = $labModel->endereco ? $labModel->endereco->toArray() : [];
             }
         }
-        // $this->dispatch('open-collapse-inner', id: 'collapse-novolab-' . $labId);
     }
     
     private function resetForm() {
