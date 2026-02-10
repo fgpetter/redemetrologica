@@ -19,9 +19,11 @@
         "muhammadsadeeq/laravel-activitylog-ui": "^1.2",
         "opcodesio/log-viewer": "^3.1",
         "phpoffice/phpword": "^1.3",
+        "sentry/sentry-laravel": "^4.20",
         "spatie/laravel-activitylog": "^4.9",
         "spatie/laravel-pdf": "^1.5",
-        "yajra/laravel-datatables-oracle": "^11.0"
+        "yajra/laravel-datatables-oracle": "^11.0",
+        "zohomail/laravel-zeptomail": "dev-main"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.1",

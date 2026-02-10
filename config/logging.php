@@ -150,6 +150,10 @@ return [
             'path' => storage_path('logs/validation_errors.log'),
             'ignore_exceptions' => true,
         ],
+        'sentry_logs' => [
+            'driver' => 'sentry_logs',
+            'level' => env('LOG_LEVEL', 'info'), // defaults to `debug` if not set
+        ],
     ],
 
 ];
