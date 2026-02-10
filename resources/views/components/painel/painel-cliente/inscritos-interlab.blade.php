@@ -20,6 +20,7 @@
                         <strong>Responsável Técnico:</strong> {{ $labGroup->first()->responsavel_tecnico }} <br>
                         <strong>Telefone: </strong> {{ $labGroup->first()->telefone }} <br>
                         <strong>Email: </strong> {{ $labGroup->first()->email }} <br>
+                        <strong>Data da Inscrição:</strong> {{ \Carbon\Carbon::parse($labGroup->first()->created_at)->format('d/m/Y') }} <br>
                         <strong>Informações de inscrição:</strong> <br>
                         <span class="ps-1" >{!! nl2br($labGroup->first()->informacoes_inscricao) !!}</span>
                       </p>
