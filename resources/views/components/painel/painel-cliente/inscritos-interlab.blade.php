@@ -5,7 +5,7 @@
       @foreach ($interlabs->groupBy('agendaInterlab.id') as $agendaGroup)
         <div class="card bg-light shadow-none">
           <div class="card-header bg-light">
-            <h6 class="card-title pb-1">{{ $agendaGroup->first()->agendaInterlab->interlab->nome }}</h6>
+            <h6 class="card-title pb-1">{{ $agendaGroup->first()->agendaInterlab->interlab->nome }} - {{ \Carbon\Carbon::parse($agendaGroup->first()->agendaInterlab->data_inicio)->format('Y') }}</h6>
           </div>
 
           <div class="card-body bg-light-subtle pt-0">
