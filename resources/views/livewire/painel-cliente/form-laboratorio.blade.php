@@ -1,3 +1,6 @@
+@php
+    $isAssociado = $isAssociado ?? $this->isAssociado;
+@endphp
 <form wire:submit.prevent="salvar">
     <div class="row g-3">
         <div class="col-12 col-xl-6">
@@ -74,14 +77,30 @@
                                         </div>
                                         <label class="form-check-label ms-3 flex-grow-1" for="bloco_{{ $valorItem->id }}" style="cursor: pointer;">
                                             <strong class="d-block mb-2">{{ $valorItem->descricao }}</strong>
+                                            
                                             <span class="badge bg-primary fs-6">
-                                                R$ {{ number_format($valorItem->valor, 2, ',', '.') }}
+                                                R$ {{ number_format($isAssociado && $valorItem->valor_assoc ? $valorItem->valor_assoc : $valorItem->valor, 2, ',', '.') }}
                                             </span>
                                         </label>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
+                        
+                        @if(!$isAssociado)
+                            <div class="mt-3 p-2 bg-light bg-opacity-50 border rounded d-flex align-items-center text-muted small">
+                                <i class="ri-vip-crown-2-fill text-warning fs-5 me-2"></i>
+                                <span>
+                                    <strong>Valores especiais para associados:</strong>
+                                    @foreach($valores_inscricao as $v)
+                                        @if($v->valor_assoc)
+                                            {{ $v->descricao }} <span class="text-primary fw-bold">R$ {{ number_format($v->valor_assoc, 2, ',', '.') }}</span>@if(!$loop->last) <span class="mx-1">•</span> @endif
+                                        @endif
+                                    @endforeach
+                                </span>
+                            </div>
+                        @endif
+
                         @error('blocos_selecionados') <span class="text-danger d-block mt-3">{{ $message }}</span> @enderror
                     </div>
                 </div>
