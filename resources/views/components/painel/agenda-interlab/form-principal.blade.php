@@ -47,7 +47,7 @@
     <div class="col-12">
       <div class="card border rouded shadow-none">
         <div class="card-body" x-data="valoresBlocoData()">
-          <h6 class="card-subtitle mb-2 text-primary-emphasis">Valores por bloco:</h6>
+          <h6 class="card-subtitle mb-2 text-primary-emphasis">Investimento:</h6>
           
           <div id="valores-wrapper">
             <template x-for="(valor, index) in valores" :key="index">
