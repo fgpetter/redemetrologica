@@ -60,61 +60,19 @@
       Painel de funcionários
     @else
 
-      @if ( session('curso') )
-        {{-- carrega componente em app\View\Components\Painel\PainelCliente\ConfirmaInscricao --}}
-        <x-painel.painel-cliente.confirma-inscricao />
-      @endif
+      @if (session('curso'))
+          <livewire:painel-cliente.confirm-inscricao-curso />
+      @elseif (session('interlab'))
+          @include('painel.painel-cliente.nova-inscricao-pd')
+      @else
+          {{-- Lista de interlabs inscritos --}}
+          <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->get()" />
 
-      @if ( session('interlab') )
-         @include('painel.painel-cliente.nova-inscricao-pd')
-      @elseif( auth()->user()->pessoa->interlabs()->count() > 0 )
-        <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->get()" />
+          {{-- Lista de cursos inscritos e convites --}}
+          <x-painel.painel-cliente.inscritos-cursos :cursos="auth()->user()->pessoa->cursos" />
       @endif
-
-      @if ( auth()->user()->pessoa->cursos->count() > 0 )
-        <div class="col-12 col-xxl-6 col-xl-8">
-          <div class="card">
-            <div class="card-body lh-lg">
-              <h5 class="h5 mb-3">Você está inscrito no seguinte curso:</h5>
-      
-              @foreach ( auth()->user()->pessoa?->cursos as $curso )
-                <strong>Nome:</strong> {{ $curso->agendaCurso->curso->descricao }} <br>
-                <strong>Período:</strong>
-                de
-                @if($curso->agendaCurso->data_inicio)
-                {{ \Carbon\Carbon::parse($curso->agendaCurso->data_inicio)->format('d/m/Y') }} 
-                @endif
-                até 
-                @if($curso->agendaCurso->data_fim)
-                {{ \Carbon\Carbon::parse($curso->agendaCurso->data_fim)->format('d/m/Y') }} 
-                @endif
-                {{ $curso->agendaCurso->horario }} <br>
-                <strong>Status do agendamento:</strong> {{ $curso->agendaCurso->status }} <br>
-                <strong>Local: </strong> {{ $curso->agendaCurso->endereco_local }} <br>
-                
-                @if($curso->agendaCurso->cursoMateriais->count() > 0 && $curso->agendaCurso->status == 'CONFIRMADO')
-                  <strong>Materiais do curso:</strong>
-                  <ul class="list-unstyled ms-3 mt-2">
-                    @foreach($curso->agendaCurso->cursoMateriais as $material)
-                      <li class="mb-1">
-                        <i class="bx bx-file me-1"></i>
-                        <a href="{{ asset('curso-material/' . $material->arquivo) }}" target="_blank" class="text-primary">
-                          {{ $material->descricao ?: 'Material ' . $loop->iteration }}
-                        </a>
-                      </li>
-                    @endforeach
-                  </ul>
-                @endif
-              @endforeach
-      
-            </div>
-          </div>
-        </div>
-      @endif
-
     @endif
 
   @endif
 
 @endsection
-

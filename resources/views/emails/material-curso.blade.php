@@ -12,21 +12,24 @@
     </div>
 
     <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-      <h3>Certificado de Participação - {{ $dadosDoc->content['interlab_nome'] }}</h3>
-      <p>É com grande satisfação que informamos que o seu Certificado de Participação - {{ $dadosDoc->content['interlab_nome'] }} está disponível para download.</p>
+      <h3>Materiais do Curso - {{ $inscrito->agendaCurso->curso->descricao }}</h3>
+      <p>Olá {{ $inscrito->nome }},</p>
+      <p>Conforme solicitado, seguem os links para download dos materiais do curso:</p>
       
-      <p style="text-align: center; margin: 30px 0;">
-        <a href="{{ route('dados-doc.download', $dadosDoc->link) }}" 
-           target="_blank"
-           style="display: inline-block; padding: 12px 30px; background-color: #0056b3; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
-          Baixar Certificado
-        </a>
-      </p>
+      <div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #0056b3;">
+        <ul style="padding-left: 20px;">
+          @foreach($materiais as $material)
+            <li style="margin-bottom: 10px;">
+              <strong>{{ $material->descricao ?: 'Material' }}:</strong> <br>
+              <a href="{{ asset('curso-material/' . $material->arquivo) }}" target="_blank" style="color: #0056b3; text-decoration: underline;">
+                Clique aqui para baixar
+              </a>
+            </li>
+          @endforeach
+        </ul>
+      </div>
 
-      <p style="font-size: 12px; color: #888; text-align: center;">
-        Ou copie e cole o link abaixo no seu navegador:<br>
-        <a href="{{ route('dados-doc.download', $dadosDoc->link) }}" style="color: #0056b3; word-break: break-all;">{{ route('dados-doc.download', $dadosDoc->link) }}</a>
-      </p>
+      <p>Caso tenha alguma dúvida, entre em contato conosco.</p>
       
       <br>
       <p>

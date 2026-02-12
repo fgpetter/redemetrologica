@@ -11,6 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('convites');
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
         Schema::create('convites', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pessoa_id')->constrained();
@@ -23,13 +31,5 @@ return new class extends Migration
             $table->dateTime('enviado')->nullable();
             $table->timestamps();
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('convites');
     }
 };

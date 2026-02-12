@@ -9,7 +9,7 @@
   :title="$agendacurso->id ? 'Editar Agendamento de Cursos' : 'Cadastrar Agendamento de Cursos'" />
   
   <div class="row">
-    <div class="col col-xxl-8">
+    <div class="col col-xxl-12">
       <x-painel.agendamento-cursos.insert 
       :instrutores="$instrutores" 
       :cursos="$cursos" 

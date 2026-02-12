@@ -1,3 +1,4 @@
+@if ( auth()->user()->pessoa->interlabs()->count() > 0 )
 <div class="col-12 col-xxl-8">
   <div class="card">
     <div class="card-body">
@@ -83,3 +84,4 @@
     </div>
   </div>
 </div>
+@endif

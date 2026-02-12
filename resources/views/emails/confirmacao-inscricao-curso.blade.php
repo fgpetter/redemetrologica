@@ -12,21 +12,22 @@
     </div>
 
     <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-      <h3>Certificado de Participação - {{ $dadosDoc->content['interlab_nome'] }}</h3>
-      <p>É com grande satisfação que informamos que o seu Certificado de Participação - {{ $dadosDoc->content['interlab_nome'] }} está disponível para download.</p>
+      <h3>Confirmação de Inscrição - {{ $dados_email['curso_nome'] }}</h3>
+      <p>Olá {{ $dados_email['participante_nome'] }},</p>
+      <p>Sua inscrição no curso foi realizada com sucesso!</p>
       
-      <p style="text-align: center; margin: 30px 0;">
-        <a href="{{ route('dados-doc.download', $dadosDoc->link) }}" 
-           target="_blank"
-           style="display: inline-block; padding: 12px 30px; background-color: #0056b3; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
-          Baixar Certificado
-        </a>
+      <h4>Dados da Inscrição:</h4>
+      <p>
+        <strong>Curso:</strong> {{ $dados_email['curso_nome'] }} <br>
+        <strong>Data:</strong> {{ $dados_email['curso_data'] }} <br>
+        @if($dados_email['empresa_nome'])
+          <strong>Empresa:</strong> {{ $dados_email['empresa_nome'] }} <br>
+        @endif
+        <strong>E-mail:</strong> {{ $dados_email['participante_email'] }} <br>
+        <strong>Telefone:</strong> {{ $dados_email['participante_telefone'] }}
       </p>
 
-      <p style="font-size: 12px; color: #888; text-align: center;">
-        Ou copie e cole o link abaixo no seu navegador:<br>
-        <a href="{{ route('dados-doc.download', $dadosDoc->link) }}" style="color: #0056b3; word-break: break-all;">{{ route('dados-doc.download', $dadosDoc->link) }}</a>
-      </p>
+      <p>Para acessar mais informações sobre o curso, <a href="{{ $dados_email['link_curso'] }}" style="color: #0d6efd;">clique aqui</a>.</p>
       
       <br>
       <p>

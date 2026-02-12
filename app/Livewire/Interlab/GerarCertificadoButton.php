@@ -3,30 +3,62 @@
 namespace App\Livewire\Interlab;
 
 use Livewire\Component;
-use Illuminate\Support\Str;
 use App\Models\InterlabInscrito;
-use Spatie\LaravelPdf\Facades\Pdf;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\CertificadoInterlabMail;
-use Illuminate\Support\Facades\Storage;
-use App\Jobs\GerarCertificadoInterlabJob;
+use App\Actions\EnviarCertificadoInterlabAction;
 
 class GerarCertificadoButton extends Component
 {
     public $participanteId;
+    public $email = '';
+    public $showModal = false;
 
     public function mount($participanteId)
     {
         $this->participanteId = $participanteId;
+        
+        // Carregar email do participante
+        $inscrito = InterlabInscrito::find($participanteId);
+        if ($inscrito) {
+            $this->email = $inscrito->email ?? '';
+        }
     }
 
-    public function gerarCertificado()
+    public function confirmarEnvio()
     {
-        // Dispatch do job para fila
-        GerarCertificadoInterlabJob::dispatch($this->participanteId);
+        $inscrito = InterlabInscrito::find($this->participanteId);
+        if ($inscrito) {
+            $this->email = $inscrito->email ?? '';
+        }
         
-        // Dispatch evento JavaScript para mostrar o alerta
-        $this->dispatch('show-success-alert', message: 'Certificado está sendo gerado e será enviado por email em breve.');
+        $this->showModal = true;
+    }
+
+    public function enviarCertificado()
+    {
+        $this->validate([
+            'email' => 'required|email|max:191',
+        ], [
+            'email.required' => 'O email é obrigatório.',
+            'email.email' => 'O email deve ser um endereço válido.',
+            'email.max' => 'O email deve ter no máximo 191 caracteres.',
+        ]);
+
+        try {
+            $inscrito = InterlabInscrito::findOrFail($this->participanteId);
+            
+            app(EnviarCertificadoInterlabAction::class)->execute($inscrito, $this->email);
+            
+            $this->showModal = false;
+            $this->dispatch('show-success-alert', message: 'Certificado está sendo gerado e será enviado por email em breve.');
+        } catch (\Exception $e) {
+            $this->dispatch('show-error-alert', message: 'Erro ao gerar certificado: ' . $e->getMessage());
+        }
+    }
+
+    public function fecharModal()
+    {
+        $this->showModal = false;
+        $this->reset('email');
     }
 
     public function render()
