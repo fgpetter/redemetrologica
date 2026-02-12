@@ -135,4 +135,20 @@ class InterlabInscrito extends Model
         return $senha;
     }
 
+    /**
+     * Verifica se o pagamento foi confirmado (baixado)
+     */
+    public function getIsPagoAttribute(): bool
+    {
+        return $this->lancamentoFinanceiro?->status === 'EFETIVADO';
+    }
+
+    /**
+     * Verifica se o certificado já foi emitido
+     */
+    public function getIsCertificadoEmitidoAttribute(): bool
+    {
+        return !empty($this->certificado_emitido);
+    }
+
 }
