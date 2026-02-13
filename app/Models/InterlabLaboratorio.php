@@ -59,6 +59,15 @@ class InterlabLaboratorio extends Model
         return $this->hasMany(InterlabInscrito::class, 'laboratorio_id', 'id');
     }
 
+    /**
+     * Retorna analistas vinculados ao laboratório
+     * @return HasMany
+     */
+    public function analistas(): HasMany
+    {
+        return $this->hasMany(InterlabAnalista::class, 'interlab_laboratorio_id');
+    }
+
     protected function telefone(): Attribute
     {
         return Attribute::make(

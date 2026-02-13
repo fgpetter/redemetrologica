@@ -105,4 +105,13 @@ class AgendaInterlab extends Model
     {
         return $this->hasMany(AgendaInterlabValor::class);
     }
+
+    /**
+     * Retorna analistas vinculados a esta agenda
+     * @return HasMany
+     */
+    public function analistas(): HasMany
+    {
+        return $this->hasMany(InterlabAnalista::class);
+    }
 }

@@ -151,4 +151,13 @@ class InterlabInscrito extends Model
         return !empty($this->certificado_emitido);
     }
 
+    /**
+     * Analistas vinculados a esta inscrição
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function analistas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InterlabAnalista::class, 'interlab_laboratorio_id', 'laboratorio_id')
+            ->where('agenda_interlab_id', $this->agenda_interlab_id);
+    }
 }

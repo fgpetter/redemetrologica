@@ -54,6 +54,46 @@
             </x-forms.input-textarea>
         </div>
 
+        <!-- Dados dos Analistas -->
+        @if ($requer_analistas && $numero_analistas > 0)
+            <div class="col-12">
+                <div class="card border border-info">
+                    <div class="card-header bg-info-subtle">
+                        <h6 class="text-info my-1">
+                            <i class="ri-user-star-line me-2"></i>Dados {{ $numero_analistas == 1 ? 'do Analista' : 'dos Analistas' }}
+                        </h6>
+                        <small class="text-muted">
+                            Preencha os dados dos analistas participantes. Todos os campos são obrigatórios.
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        @for ($i = 0; $i < $numero_analistas; $i++)
+                            <div class="row g-3 {{ $i > 0 ? 'mt-3 pt-3 border-top' : '' }}">
+                                <div class="col-12">
+                                    <strong class="text-primary-emphasis small text-uppercase">Analista {{ $i + 1 }}</strong>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <x-forms.input-field wire:model="analistas.{{ $i }}.nome" name="analista_{{ $i }}_nome" label="Nome" required />
+                                    @error("analistas.{$i}.nome") <span class="text-danger small">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <x-forms.input-field wire:model="analistas.{{ $i }}.email" name="analista_{{ $i }}_email" label="E-mail" type="email" required />
+                                    @error("analistas.{$i}.email") <span class="text-danger small">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <x-forms.input-field wire:model="analistas.{{ $i }}.telefone" name="analista_{{ $i }}_telefone" label="Telefone" 
+                                        class="telefone" maxlength="15"
+                                        x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'"
+                                        required />
+                                    @error("analistas.{$i}.telefone") <span class="text-danger small">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Blocos de inscrição -->
         @if ($valores_inscricao && $valores_inscricao->isNotEmpty())
             <div class="col-12"><hr class="my-3"></div>
@@ -121,6 +161,7 @@
                 </div>
             </div>
         </div>
+
     </div>
     
     

@@ -83,6 +83,21 @@ class InscricaoInterlabController extends Controller
         'email' => $validated['email'],
       ]);
 
+      // Salva analistas se o tipo de avaliação for ANALISTA
+      if (($agenda_interlab->interlab->avaliacao ?? null) === 'ANALISTA' && $request->has('analistas')) {
+        foreach ($request->analistas as $analistaData) {
+          if (!empty($analistaData['nome'])) { // Validação básica pois o Request já deve validar
+            \App\Models\InterlabAnalista::create([
+              'agenda_interlab_id' => $agenda_interlab->id,
+              'interlab_laboratorio_id' => $laboratorio->id,
+              'nome' => $analistaData['nome'],
+              'email' => $analistaData['email'] ?? '',
+              'telefone' => preg_replace('/\D/', '', $analistaData['telefone'] ?? ''),
+            ]);
+          }
+        }
+      }
+
       if ($agenda_interlab->status === 'CONFIRMADO' && !empty($agenda_interlab->interlab->tag)) {
         app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
       }

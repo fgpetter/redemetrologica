@@ -28,6 +28,10 @@ class NovoLabInscrito extends Component
     public $solicitar_certificado = false;
     public $informacoes_inscricao = '';
     
+    public $analistas = [];
+    public $numero_analistas = 0;
+    public $requer_analistas = false;
+    
     public $interlab;
     public $valores_inscricao;
     public $isOpen = false;
@@ -37,6 +41,7 @@ class NovoLabInscrito extends Component
     {
         $this->interlab = session('interlab');
         $this->valores_inscricao = AgendaInterlabValor::where('agenda_interlab_id', $this->interlab->id)->get();
+        $this->requer_analistas = ($this->interlab->interlab->avaliacao ?? null) === 'ANALISTA';
         $this->resetForm();
     }
 
@@ -99,6 +104,36 @@ class NovoLabInscrito extends Component
         $this->blocos_selecionados = [];
         $this->solicitar_certificado = false;
         $this->informacoes_inscricao = '';
+        $this->analistas = [];
+        $this->numero_analistas = 0;
+    }
+
+    public function updatedBlocosSelecionados()
+    {
+        if ($this->requer_analistas && !empty($this->blocos_selecionados)) {
+            $blocos = AgendaInterlabValor::whereIn('id', $this->blocos_selecionados)->get();
+            $maxAnalistas = $blocos->max('analistas') ?? 0;
+
+            if ($maxAnalistas > 0) {
+                // Se o número de analistas mudar, reinicializa o array mantendo os dados que já foram digitados se possível
+                $oldAnalistas = $this->analistas;
+                $this->numero_analistas = $maxAnalistas;
+                $this->analistas = [];
+                for ($i = 0; $i < $this->numero_analistas; $i++) {
+                    $this->analistas[$i] = [
+                        'nome' => $oldAnalistas[$i]['nome'] ?? '',
+                        'email' => $oldAnalistas[$i]['email'] ?? '',
+                        'telefone' => $oldAnalistas[$i]['telefone'] ?? '',
+                    ];
+                }
+            } else {
+                $this->numero_analistas = 0;
+                $this->analistas = [];
+            }
+        } else {
+            $this->numero_analistas = 0;
+            $this->analistas = [];
+        }
     }
 
     public function buscaCep(BuscaCepAction $buscaCepAction)
@@ -149,13 +184,7 @@ class NovoLabInscrito extends Component
 
     public function salvar()
     {
-        $this->withValidator(function ($validator) {
-            $validator->after(function ($validator) {
-                if ($validator->errors()->isNotEmpty()) {
-                    $this->dispatch('scroll-to-errors');
-                }
-            });
-        })->validate([
+        $rules = [
             "laboratorio.nome" => ['required', 'string', 'max:191'],
             "laboratorio.responsavel_tecnico" => ['required', 'string', 'max:191'],
             "laboratorio.telefone" => ['nullable', 'string', 'max:15'],
@@ -166,7 +195,9 @@ class NovoLabInscrito extends Component
             "laboratorio.endereco.uf" => ['required', 'string', 'size:2'],
             "laboratorio.endereco.cidade" => ['required', 'string'],
             "blocos_selecionados" => ['required', 'array', 'min:1'],
-        ], [
+        ];
+
+        $messages = [
             'laboratorio.nome.required' => 'Preencha o campo laboratório.',
             'laboratorio.nome.max' => 'O campo laboratório deve ter no máximo :max caracteres.',
             'laboratorio.responsavel_tecnico.required' => 'Preencha o campo responsável técnico.',
@@ -182,7 +213,28 @@ class NovoLabInscrito extends Component
             'laboratorio.endereco.uf.size' => 'O campo UF deve ter exatamente 2 caracteres.',
             'blocos_selecionados.required' => 'Selecione ao menos um bloco.',
             'blocos_selecionados.min' => 'Selecione ao menos um bloco.',
-        ]);
+        ];
+
+        if ($this->requer_analistas && $this->numero_analistas > 0) {
+            for ($i = 0; $i < $this->numero_analistas; $i++) {
+                $rules["analistas.{$i}.nome"] = ['required', 'string', 'max:191'];
+                $rules["analistas.{$i}.email"] = ['required', 'email', 'max:191'];
+                $rules["analistas.{$i}.telefone"] = ['required', 'string', 'max:15'];
+
+                $messages["analistas.{$i}.nome.required"] = "O nome do analista " . ($i + 1) . " é obrigatório.";
+                $messages["analistas.{$i}.email.required"] = "O e-mail do analista " . ($i + 1) . " é obrigatório.";
+                $messages["analistas.{$i}.email.email"] = "O e-mail do analista " . ($i + 1) . " deve ser um endereço válido.";
+                $messages["analistas.{$i}.telefone.required"] = "O telefone do analista " . ($i + 1) . " é obrigatório.";
+            }
+        }
+
+        $this->withValidator(function ($validator) {
+            $validator->after(function ($validator) {
+                if ($validator->errors()->isNotEmpty()) {
+                    $this->dispatch('scroll-to-errors');
+                }
+            });
+        })->validate($rules, $messages);
         
         if (!empty($this->laboratorio['telefone'])) {
             $this->laboratorio['telefone'] = preg_replace('/\D/', '', $this->laboratorio['telefone']);
@@ -268,6 +320,19 @@ class NovoLabInscrito extends Component
                 'telefone' => $this->laboratorio['telefone'] ?? null, 
                 'email' => $this->laboratorio['email'], 
             ]);
+
+            // Salva analistas se necessário
+            if ($this->requer_analistas && $this->numero_analistas > 0) {
+                foreach ($this->analistas as $analistaData) {
+                    \App\Models\InterlabAnalista::create([
+                        'agenda_interlab_id' => $this->interlab->id,
+                        'interlab_laboratorio_id' => $laboratorioId,
+                        'nome' => $analistaData['nome'],
+                        'email' => $analistaData['email'],
+                        'telefone' => preg_replace('/\D/', '', $analistaData['telefone']),
+                    ]);
+                }
+            }
 
             Mail::to('interlab@redemetrologica.com.br')
                 ->cc(['tecnico@redemetrologica.com.br', 'sistema@redemetrologica.com.br'])
