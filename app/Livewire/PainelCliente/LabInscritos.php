@@ -4,13 +4,8 @@ namespace App\Livewire\PainelCliente;
 
 use App\Actions\BuscaCepAction;
 use App\Models\AgendaInterlabValor;
-use App\Models\Endereco;
 use App\Models\InterlabInscrito;
-use App\Models\InterlabLaboratorio;
-use App\Models\AgendaInterlab; 
 use App\Models\Pessoa;
-use App\Models\LancamentoFinanceiro;
-use Illuminate\Support\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use DB;
