@@ -47,8 +47,6 @@
                                     {{ $participante->pessoa->nome_razao }} - {{ $participante->pessoa->email }}
                                 </div>
                             </div>
-                        </td>
-
                         {{-- ====== Célula de VALOR (otimizada p/ atualização instantânea) ====== --}}
                         <td class="text-start" style="width: 200px; white-space: nowrap;" 
                             x-data="{
@@ -163,6 +161,13 @@
                                         Cidade: {{ $participante->laboratorio->endereco->cidade ?? 'N/A' }}
                                         / {{ $participante->laboratorio->endereco->uf ?? 'N/A' }}, CEP:
                                         {{ $participante->laboratorio->endereco->cep ?? 'N/A' }}
+                                        <br>
+                                        <b>Certificado:</b>
+                                        @if($participante->certificado_emitido)
+                                            <span class="text-success">Enviado em {{ \Carbon\Carbon::parse($participante->certificado_emitido)->format('d/m/Y') }}</span>
+                                        @else
+                                            <span class="text-muted">Não enviado</span>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

@@ -18,6 +18,7 @@ use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use DB;
+use Livewire\Attributes\Computed;
 
 class NovoLabInscrito extends Component
 {
@@ -125,12 +126,7 @@ class NovoLabInscrito extends Component
 
         if (!empty($this->blocos_selecionados)) {
             $blocos = AgendaInterlabValor::whereIn('id', $this->blocos_selecionados)->get();
-            
-            $isAssociado = false;
-            if($this->empresaId) {
-                $empresa = Pessoa::find($this->empresaId);
-                $isAssociado = $empresa->associado ?? false;
-            }
+            $isAssociado = $this->isAssociado;
 
             foreach ($blocos as $bloco) {
                 if ($isAssociado && $bloco->valor_assoc) {
@@ -299,6 +295,16 @@ class NovoLabInscrito extends Component
     }
     
     
+
+    #[Computed]
+    public function isAssociado()
+    {
+        if ($this->empresaId) {
+            $empresa = Pessoa::find($this->empresaId);
+            return $empresa->associado ?? false;
+        }
+        return false;
+    }
 
     public function render()
     {
