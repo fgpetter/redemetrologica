@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
 use App\Models\User;
 use App\Models\DadosGeraDoc;
+use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 
@@ -153,9 +154,9 @@ class InterlabInscrito extends Model
 
     /**
      * Analistas vinculados a esta inscrição
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function analistas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function analistas(): HasMany
     {
         return $this->hasMany(InterlabAnalista::class, 'interlab_laboratorio_id', 'laboratorio_id')
             ->where('agenda_interlab_id', $this->agenda_interlab_id);

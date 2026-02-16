@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\App;
+use App\Models\InterlabAnalista;
 use Illuminate\Support\Facades\Mail;
 use App\Actions\CriarEnviarSenhaAction;
 use App\Mail\NovoCadastroInterlabNotification;
@@ -11,6 +10,7 @@ use Illuminate\Http\{Request, RedirectResponse};
 use Illuminate\Support\Facades\{DB, Log, Validator};
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
+use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco};
 
 class InscricaoInterlabController extends Controller
@@ -43,7 +43,6 @@ class InscricaoInterlabController extends Controller
   public function confirmaInscricao(ConfirmaInscricaoInterlabRequest $request): RedirectResponse
   {
     $validated = $request->validated();
-    
 
     $agenda_interlab = AgendaInterlab::where('uid', $validated['interlab_uid'])->first();
     $empresa = Pessoa::where( 'uid', $validated['empresa_uid'] )->first();
@@ -87,7 +86,7 @@ class InscricaoInterlabController extends Controller
       if (($agenda_interlab->interlab->avaliacao ?? null) === 'ANALISTA' && $request->has('analistas')) {
         foreach ($request->analistas as $analistaData) {
           if (!empty($analistaData['nome'])) { // Validação básica pois o Request já deve validar
-            \App\Models\InterlabAnalista::create([
+            InterlabAnalista::create([
               'agenda_interlab_id' => $agenda_interlab->id,
               'interlab_laboratorio_id' => $laboratorio->id,
               'nome' => $analistaData['nome'],
@@ -111,7 +110,7 @@ class InscricaoInterlabController extends Controller
     }
 
     if( isset($request->valor) && $request->valor > 0) {
-      app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
+      app(GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
     }
 
     Mail::to('interlab@redemetrologica.com.br')
@@ -168,7 +167,7 @@ class InscricaoInterlabController extends Controller
     ]);
     // se valor > 0 atualiza lancamento financeiro
     if($request->valor > 0) {
-      app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
+      app(GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
     }
     
     return back()->with('success', 'Dados salvos com sucesso!')->withFragment('participantes');
@@ -182,12 +181,15 @@ class InscricaoInterlabController extends Controller
    */
   public function cancelaInscricao(InterlabInscrito $inscrito)
   {
+    // Deleta analistas vinculados a esta inscrição
+    InterlabAnalista::where('interlab_inscrito_id', $inscrito->id)->delete();
+
     // Cancela o lançamento financeiro antes de apagar o inscrito
-    app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->cancelarLancamento($inscrito);
+    app(GerarLancamentoInterlabAction::class)->cancelarLancamento($inscrito);
+
+    // Deleta inscrito
     $inscrito->delete();
     
     return back()->with('success', 'Inscrição cancelada com sucesso!')->withFragment('participantes');
   }
-
-
 }

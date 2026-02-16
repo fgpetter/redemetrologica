@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('interlab_analistas', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->unique();
-            $table->foreignId('agenda_interlab_id')->constrained('agenda_interlabs')->onDelete('cascade');
-            $table->foreignId('interlab_laboratorio_id')->constrained('interlab_laboratorios')->onDelete('cascade');
+            $table->foreignId('interlab_inscrito_id')->constrained('interlab_inscritos')->onDelete('cascade');
+            $table->string('tag_senha')->nullable();
+            $table->string('certificado_path')->nullable();
             $table->string('nome');
             $table->string('email');
             $table->string('telefone');

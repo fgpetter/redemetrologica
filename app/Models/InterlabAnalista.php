@@ -52,13 +52,8 @@ class InterlabAnalista extends Model
         return '';
     }
 
-    public function agendainterlab(): BelongsTo
+    public function interlabInscrito(): BelongsTo
     {
-        return $this->belongsTo(AgendaInterlab::class);
-    }
-
-    public function laboratorio(): BelongsTo
-    {
-        return $this->belongsTo(InterlabLaboratorio::class);
+        return $this->belongsTo(InterlabInscrito::class);
     }
 }
