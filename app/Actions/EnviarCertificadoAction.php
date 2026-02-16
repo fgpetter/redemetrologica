@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Actions;
+
+use App\Models\DadosGeraDoc;
+use App\Models\CursoInscrito;
+use App\Jobs\EnviarLinkCertificadoJob;
+
+class EnviarCertificadoAction
+{
+    /**
+     * Cria registro de log e dispara e-mail com link do certificado
+     *
+     * @param CursoInscrito $inscrito
+     * @return DadosGeraDoc
+     */
+    public function execute(CursoInscrito $inscrito, int $delay = 0): DadosGeraDoc
+    {
+        $inscrito->load(['agendaCurso.curso', 'empresa']);
+
+        $dadosDoc = DadosGeraDoc::create([
+            'content' => [
+                'participante_id' => $inscrito->id,
+                'participante_nome' => $inscrito->nome,
+                'participante_email' => $inscrito->email,
+                'curso_nome' => $inscrito->agendaCurso->curso->descricao,
+                'curso_data' => ($inscrito->agendaCurso->data_inicio instanceof \Carbon\Carbon ? $inscrito->agendaCurso->data_inicio->format('d/m/Y') : $inscrito->agendaCurso->data_inicio) . 
+                                ($inscrito->agendaCurso->data_fim instanceof \Carbon\Carbon ? ' a ' . $inscrito->agendaCurso->data_fim->format('d/m/Y') : ''),
+                'empresa_nome' => $inscrito->empresa->nome_razao ?? null,
+            ],
+            'tipo' => 'certificado',
+        ]);
+
+        $inscrito->update([
+            'certificado_emitido' => now(),
+            'certificado_path' => $dadosDoc->suggested_storage_path,
+        ]);
+
+      
+        EnviarLinkCertificadoJob::dispatch($dadosDoc->id)->delay(now()->addSeconds($delay));
+
+
+        return $dadosDoc;
+    }
+}

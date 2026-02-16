@@ -22,6 +22,12 @@ class AgendaCursos extends Model
      */
     protected $guarded = [];
 
+    protected $casts = [
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+        'validade_proposta' => 'date',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -60,5 +66,10 @@ class AgendaCursos extends Model
     public function cursoMateriais()
     {
         return $this->belongsToMany(CursoMaterial::class, 'agenda_curso_materiais', 'agenda_curso_id', 'curso_material_id');
+    }
+
+    public function convites()
+    {
+        return $this->hasMany(Convite::class, 'agenda_curso_id', 'id');
     }
 }

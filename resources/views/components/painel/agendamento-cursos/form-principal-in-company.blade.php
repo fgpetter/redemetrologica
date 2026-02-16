@@ -63,7 +63,7 @@
     </div>
 
     <div class="col-sm-3">
-      <x-forms.input-field :value="old('validade_proposta') ?? ($agendacurso->validade_proposta ?? null)" 
+      <x-forms.input-field :value="old('validade_proposta', $agendacurso->validade_proposta?->format('Y-m-d'))" 
         type="date" name="validade_proposta" label="Validade Proposta" />
       @error('validade_proposta')
         <div class="text-warning">{{ $message }}</div>
@@ -99,7 +99,7 @@
     </div>
 
     <div class="col-sm-3">
-      <x-forms.input-field :value="old('data_inicio') ?? ($agendacurso->data_inicio ?? null)" type="date" name="data_inicio"
+      <x-forms.input-field :value="old('data_inicio', $agendacurso->data_inicio?->format('Y-m-d'))" type="date" name="data_inicio"
         label="Data Inicio  <span class='text-danger'>*</span>" />
       @error('data_inicio')
         <div class="text-warning">{{ $message }}</div>
@@ -107,7 +107,7 @@
     </div>
 
     <div class="col-sm-3">
-      <x-forms.input-field :value="old('data_fim') ?? ($agendacurso->data_fim ?? null)" type="date" name="data_fim" label="Data Fim" />
+      <x-forms.input-field :value="old('data_fim', $agendacurso->data_fim?->format('Y-m-d'))" type="date" name="data_fim" label="Data Fim" />
       @error('data_fim')
         <div class="text-warning">{{ $message }}</div>
       @enderror

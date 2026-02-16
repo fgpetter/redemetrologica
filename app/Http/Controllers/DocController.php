@@ -28,6 +28,10 @@ class DocController extends Controller
             return $this->generateTagSenhaPdf($dadosDoc);
         }
 
+        if ($dadosDoc->tipo === 'certificado') {
+            return $this->generateCertificadoPdf($dadosDoc);
+        }
+
         abort(500, 'Tipo de documento não suportado.');
     }
 
@@ -36,12 +40,11 @@ class DocController extends Controller
      */
     private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc)
     {
-        $labNameSlug = Str::slug($dadosDoc->content['laboratorio_nome']);
-        $fileName = 'tag_senha_' . $labNameSlug . '_' . $dadosDoc->link . '.pdf';
-        $path = 'public/docs/senhas/' . $fileName;
+        $fileName = $dadosDoc->file_name;
+        $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists('public/docs/senhas')) {
-            Storage::makeDirectory('public/docs/senhas');
+        if (!Storage::exists(dirname($path))) {
+            Storage::makeDirectory(dirname($path));
         }
 
         Pdf::view('certificados.tag-senha', [
@@ -49,6 +52,32 @@ class DocController extends Controller
         ])->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
+       
+        return response()->download(Storage::path($path), $fileName);
+    }
+    /**
+     * Geração do PDF para certificado
+     */
+    private function generateCertificadoPdf(DadosGeraDoc $dadosDoc)
+    {
+        $fileName = $dadosDoc->file_name;
+        $path = $dadosDoc->storage_path;
+
+        if (!Storage::exists(dirname($path))) {
+            Storage::makeDirectory(dirname($path));
+        }
+
+        Pdf::view('certificados.certificado', [
+            'dadosDoc' => $dadosDoc,
+        ])->format('a4')->landscape()->save(Storage::path($path));
+
+        $dadosDoc->update(['file_name' => $path]);
+
+        if (isset($dadosDoc->content['participante_id'])) {
+            \App\Models\CursoInscrito::where('id', $dadosDoc->content['participante_id'])->update([
+                'certificado_path' => $path
+            ]);
+        }
        
         return response()->download(Storage::path($path), $fileName);
     }

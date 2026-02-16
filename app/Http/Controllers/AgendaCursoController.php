@@ -16,6 +16,8 @@ use App\Exports\CursoInscritosExport;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\AgendaCursoRequest;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Actions\EnviarCertificadoAction;
+use Illuminate\Support\Facades\Log;
 
 class AgendaCursoController extends Controller
 {
@@ -92,6 +94,7 @@ class AgendaCursoController extends Controller
    */
   public function update(AgendaCursos $agendacurso, AgendaCursoRequest $request): RedirectResponse
   {
+    $oldStatus = $agendacurso->status;
     $validated = $request->validated();
 
     if($request->material){
@@ -102,6 +105,22 @@ class AgendaCursoController extends Controller
     }
 
     $agendacurso->update($validated);
+
+    if ($oldStatus !== 'REALIZADO' && $agendacurso->status === 'REALIZADO') {
+      $inscritos = $agendacurso->inscritos()
+        ->with('lancamentoFinanceiro')
+        ->get();
+
+      foreach ($inscritos as $index => $inscrito) {
+        if ($inscrito->is_pago && !$inscrito->is_certificado_emitido) {
+          try {
+            app(EnviarCertificadoAction::class)->execute($inscrito, $index * 5);
+          } catch (\Exception $e) {
+            Log::error("Erro ao enviar certificado automático no curso {$agendacurso->id} para inscrito {$inscrito->id}: " . $e->getMessage());
+          }
+        }
+      }
+    }
 
     return redirect()->route('agendamento-curso-index')
       ->with('success', 'Agendamento atualizado com sucesso');
