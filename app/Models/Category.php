@@ -18,7 +18,7 @@ class Category extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['titulo', 'slug'];
+    protected $guarded = [];
 
     public function getActivitylogOptions(): LogOptions
     {

@@ -17,7 +17,7 @@ class PostMedia extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['slug_post', 'caminho_media'];
+    protected $guarded = [];
 
     public function getActivitylogOptions(): LogOptions
     {

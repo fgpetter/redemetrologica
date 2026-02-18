@@ -40,6 +40,7 @@ class StoreAgendaInterlabRequest extends FormRequest
             'valores.*.descricao' => ['nullable', 'string'],
             'valores.*.valor' => ['nullable', 'string'],
             'valores.*.valor_assoc' => ['nullable', 'string'],
+            'valores.*.analistas' => ['nullable', 'integer', 'min:1'],
         ];
     }
 
@@ -71,6 +72,7 @@ class StoreAgendaInterlabRequest extends FormRequest
             'valores.*.descricao.string' => 'Descrição inválida',
             'valores.*.valor.string' => 'Valor inválido',
             'valores.*.valor_assoc.string' => 'Valor associado inválido',
+            'valores.*.analistas.integer' => 'Analistas inválidos',
         ];
     }
     /**

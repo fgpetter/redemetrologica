@@ -22,7 +22,7 @@ class InterlabController extends Controller
     $searchTerm = $request->input('buscanome');
 
     $interlabs = Interlab::when($searchTerm, function ($query) use ($searchTerm) {
-            $query->where('nome', 'LIKE', "%{$searchTerm}%");
+          $query->where('nome', 'LIKE', "%{$searchTerm}%");
         })
         ->orderBy($sortField, $sortDirection)
         ->paginate(15)
@@ -87,6 +87,7 @@ class InterlabController extends Controller
         'nome' => ['required','string', 'max:190'],
         'descricao' => ['nullable', 'string'],
         'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+        'avaliacao' => ['nullable', 'string', 'in:LABORATORIAL,ANALISTA'],
         'tag' => ['required', 'min:3', 'max:3'],
         'thumb' => ['nullable', 'string'],
         'observacoes' => ['nullable', 'string'],
@@ -125,6 +126,7 @@ class InterlabController extends Controller
       'nome' => ['required','string', 'max:190'],
       'descricao' => ['nullable', 'string'],
       'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
+      'avaliacao' => ['nullable', 'string', 'in:LABORATORIAL,ANALISTA'],
       'tag' => ['required', 'min:2', 'max:5'],
       'thumb' => ['nullable', 'string'],
       'observacoes' => ['nullable', 'string'],
@@ -143,20 +145,19 @@ class InterlabController extends Controller
     );
 
     if ($interlab->tag !== $validated['tag']) {
+        $existeInscritoComSenha = InterlabInscrito::whereHas('agendaInterlab', fn ($q) =>
+          $q->where('interlab_id', $interlab->id)
+        )
+        ->whereNotNull('tag_senha')
+        ->exists();
 
-    $existeInscritoComSenha = InterlabInscrito::whereHas('agendaInterlab', fn ($q) =>
-        $q->where('interlab_id', $interlab->id)
-    )
-    ->whereNotNull('tag_senha')
-    ->exists();
-
-    if ($existeInscritoComSenha) {
-        return back()->withInput()->with(
+        if ($existeInscritoComSenha) {
+          return back()->withInput()->with(
             'error',
             'Não é possível alterar a TAG, pois existem inscritos com senha atribuída.'
-        );
+          );
+        }
     }
-}
 
 
     $interlab->update($validated);
@@ -172,10 +173,8 @@ class InterlabController extends Controller
    **/
   public function delete(Interlab $interlab): RedirectResponse
   {
-    // $tem_interlabs_agendados = AgendaCursos::where('interlab_id', $interlab->id)->first();
-    // (!$tem_interlabs_agendados) ? $interlab->forceDelete() : $interlab->delete();
 
-    $interlab->forceDelete();
+    $interlab->delete();
 
     return redirect()->route('interlab-index')->with('warning', 'Interlab removido');
   }

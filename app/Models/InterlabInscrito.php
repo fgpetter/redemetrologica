@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
 use App\Models\User;
 use App\Models\DadosGeraDoc;
+use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 
@@ -116,26 +117,6 @@ class InterlabInscrito extends Model
     }
 
     /**
-     * Gera a tag senha para o inscrito
-     * @return string
-     */
-    public static function geraTagSenha(AgendaInterlab $agendaInterlab): string
-    {
-        $tag = $agendaInterlab->interlab->tag ?? throw new \Exception('Tag do interlab não encontrada');
-        $senha = $tag . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
-        
-        while (
-            self::where('tag_senha', $senha)
-                ->where('agenda_interlab_id', $agendaInterlab->id)
-            ->exists()
-        ) {
-            $senha = $tag . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
-        }
-        
-        return $senha;
-    }
-
-    /**
      * Verifica se o pagamento foi confirmado (baixado)
      */
     public function getIsPagoAttribute(): bool
@@ -151,4 +132,12 @@ class InterlabInscrito extends Model
         return !empty($this->certificado_emitido);
     }
 
+    /**
+     * Analistas vinculados a esta inscrição
+     * @return HasMany
+     */
+    public function analistas(): HasMany
+    {
+        return $this->hasMany(InterlabAnalista::class, 'interlab_inscrito_id');
+    }
 }

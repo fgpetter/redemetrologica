@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 ## General code instructions
 
 - Don't generate code comments above the methods or code blocks if they are obvious. Don't add docblock comments when defining variables, unless instructed to, like `/** @var \App\Models\User $currentUser */`. Generate comments only for something that needs extra explanation for the reasons why that code was written.
@@ -5,6 +9,7 @@
 - Every frontend change or debugging mode use Crhome DevTools MCP to check for errors.
 - If envinronment is running over Docker Sail, always use `vendor/bin/sail` to run a command. Example: `vendor/bin/sail artisan:migrate` or `vendor/bin/sail npm run build` `vendor/bin/sail composer install`
 - Don't run laravel pint after changing a PHP or blade file
+- When runnuing debug, don't try to write a new file using file_put_contents('/pathtoproject/.cursor/debug.log'), always use native Laravel loggin method
 
 ---
 

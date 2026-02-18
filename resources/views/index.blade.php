@@ -66,7 +66,7 @@
           @include('painel.painel-cliente.nova-inscricao-pd')
       @else
           {{-- Lista de interlabs inscritos --}}
-          <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->get()" />
+          <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->with('laboratorio.analistas')->get()" />
 
           {{-- Lista de cursos inscritos e convites --}}
           <x-painel.painel-cliente.inscritos-cursos :cursos="auth()->user()->pessoa->cursos" />

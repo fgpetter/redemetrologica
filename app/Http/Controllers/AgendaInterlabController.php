@@ -79,13 +79,9 @@ class AgendaInterlabController extends Controller
    **/
   public function create(StoreAgendaInterlabRequest $request): RedirectResponse
   {
-
     $validated = $request->validated();
-
     $valores_data = $validated['valores'] ?? [];
-    if (array_key_exists('valores', $validated)) {
-      unset($validated['valores']);
-    }
+    unset($validated['valores']);
 
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($request->valor_desconto),
@@ -94,24 +90,8 @@ class AgendaInterlabController extends Controller
 
     try {
       DB::transaction(function () use ($prepared_data, $valores_data, &$agenda_interlab) {
-
         $agenda_interlab = AgendaInterlab::create($prepared_data);
-
-        if (!empty($valores_data) && is_array($valores_data)) {
-          foreach ($valores_data as $valor_data) {
-            $descricao = $valor_data['descricao'] ?? null;
-            $valor = $valor_data['valor'] ?? null;
-            $valor_assoc = $valor_data['valor_assoc'] ?? null;
-
-            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
-              $agenda_interlab->valores()->create([
-                'descricao' => $descricao,
-                'valor' => formataMoeda($valor),
-                'valor_assoc' => formataMoeda($valor_assoc),
-              ]);
-            }
-          }
-        }
+        $this->syncValores($agenda_interlab, $valores_data);
       });
     } catch (\Throwable $e) {
       report($e);
@@ -135,11 +115,8 @@ class AgendaInterlabController extends Controller
     $oldStatus = $agendainterlab->status;
 
     $validated = $request->validated();
-
     $valores_data = $validated['valores'] ?? [];
-    if (array_key_exists('valores', $validated)) {
-      unset($validated['valores']);
-    }
+    unset($validated['valores']);
 
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($validated['valor_desconto']),
@@ -149,33 +126,15 @@ class AgendaInterlabController extends Controller
       'destaque' => ($request->status === 'CONCLUIDO') ? 0 : ($request->destaque ?? 0),
     ]);
 
-
     try {
       DB::transaction(function () use ($agendainterlab, $prepared_data, $valores_data) {
-
         $agendainterlab->update($prepared_data);
 
+        // Remove valores antigos e cria os novos
         $agendainterlab->valores()->delete();
-
-        if (!empty($valores_data) && is_array($valores_data)) {
-          foreach ($valores_data as $valor_data) {
-
-            $descricao = $valor_data['descricao'] ?? null;
-            $valor = $valor_data['valor'] ?? null;
-            $valor_assoc = $valor_data['valor_assoc'] ?? null;
-
-            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
-              $agendainterlab->valores()->create([
-                'descricao' => $descricao,
-                'valor' => formataMoeda($valor),
-                'valor_assoc' => formataMoeda($valor_assoc),
-              ]);
-            }
-          }
-        }
+        $this->syncValores($agendainterlab, $valores_data);
       });
     } catch (\Throwable $e) {
-
       report($e);
 
       return back()
@@ -619,6 +578,40 @@ class AgendaInterlabController extends Controller
     $agendainterlab->update(['protocolo' => null]);
 
     return redirect()->back()->with('success', 'Protocolo removido');
+  }
+
+  /**
+   * Sincroniza os valores do interlab
+   *
+   * @param AgendaInterlab $agendaInterlab
+   * @param array $valoresData
+   * @return void
+   */
+  private function syncValores(AgendaInterlab $agendaInterlab, array $valoresData): void
+  {
+    if (empty($valoresData)) {
+      return;
+    }
+
+    $valoresParaCriar = collect($valoresData)
+      ->filter(function ($valorData) {
+        return !empty($valorData['descricao']) 
+          || !empty($valorData['valor']) 
+          || !empty($valorData['valor_assoc']);
+      })
+      ->map(function ($valorData) {
+        return [
+          'descricao' => $valorData['descricao'] ?? null,
+          'valor' => !empty($valorData['valor']) ? formataMoeda($valorData['valor']) : null,
+          'valor_assoc' => !empty($valorData['valor_assoc']) ? formataMoeda($valorData['valor_assoc']) : null,
+          'analistas' => $valorData['analistas'] ?? null,
+        ];
+      })
+      ->toArray();
+
+    if (!empty($valoresParaCriar)) {
+      $agendaInterlab->valores()->createMany($valoresParaCriar);
+    }
   }
 
 }

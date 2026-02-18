@@ -41,23 +41,37 @@
         placeholder="Não Preenchido" readonly />
       @error('tag_senha', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
+
+    @if($agendainterlab->interlab->avaliacao == 'ANALISTA')
+      <div class="col-md-3 col-xxl-3 align-self-center">
+        <span class="badge bg-primary">PEP POR ANALISTA</span>
+      </div>
+    @endif
   </div>
 
   <div class="row mt-3">
     <div class="col-12">
       <div class="card border rouded shadow-none">
         <div class="card-body" x-data="valoresBlocoData()">
-          <h6 class="card-subtitle mb-2 text-primary-emphasis">Valores por bloco:</h6>
+          <h6 class="card-subtitle mb-2 text-primary-emphasis">Investimento:</h6>
           
           <div id="valores-wrapper">
             <template x-for="(valor, index) in valores" :key="index">
               <div class="row row-valor mt-1 gx-1">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-5">
                   <input type="text" class="form-control" 
                     :name="`valores[${index}][descricao]`" 
                     x-model="valor.descricao"
                     placeholder="Descrição">
                 </div>
+                @if($agendainterlab->interlab->avaliacao == 'ANALISTA')
+                  <div class="col-5 col-md-1">
+                    <input type="number" class="form-control" 
+                     :name="`valores[${index}][analistas]`"
+                     x-model="valor.analistas" 
+                     placeholder="Analistas">
+                  </div>
+                @endif
                 <div class="col-5 col-md-2">
                   <input type="text" class="form-control money" 
                     :name="`valores[${index}][valor]`" 
@@ -200,9 +214,10 @@
     ? $agendainterlab->valores->map(fn($valor) => [
         'descricao' => $valor->descricao,
         'valor' => $valor->valor,
-        'valor_assoc' => $valor->valor_assoc
+        'valor_assoc' => $valor->valor_assoc,
+        'analistas' => $valor->analistas
       ])->toArray()
-    : [['descricao' => '', 'valor' => '', 'valor_assoc' => '']];
+    : [['descricao' => '', 'valor' => '', 'valor_assoc' => '', 'analistas' => '']];
 @endphp
 
 <script src="{{ URL::asset('build/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
@@ -230,14 +245,14 @@
     Alpine.data('valoresBlocoData', () => ({
       valores: @json($valoresIniciais), // parseia os dados do array para json
       addRow() {
-        this.valores.push({ descricao: '', valor: '', valor_assoc: '' });
+        this.valores.push({ descricao: '', valor: '', valor_assoc: '', analistas: '' });
       },
       
       removeRow(index) {
         if (this.valores.length > 1) {
           this.valores.splice(index, 1);
         } else {
-          this.valores[0] = { descricao: '', valor: '', valor_assoc: '' };
+          this.valores[0] = { descricao: '', valor: '', valor_assoc: '', analistas: '' };
         }
       }
     }));
