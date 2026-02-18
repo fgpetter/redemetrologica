@@ -4,17 +4,15 @@ namespace App\Livewire\PainelCliente;
 
 use App\Models\Pessoa;
 use Livewire\Component;
-use App\Models\Endereco;
 use Livewire\Attributes\On;
 use App\Actions\BuscaCepAction;
-use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use Livewire\Attributes\Computed;
 use App\Models\AgendaInterlabValor;
 use App\Models\InterlabLaboratorio;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Actions\CriarEnviarSenhaAction;
+use App\Actions\InscricaoInterlabAction;
 use App\Mail\NovoCadastroInterlabNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
@@ -231,108 +229,49 @@ class NovoLabInscrito extends Component
         $infoFinal = $dadosCalculados['info'];
 
         $obsExtras = $this->informacoes_inscricao ?? '';
-        if (!empty($obsExtras) && !str_starts_with(trim($obsExtras), 'Blocos:')) {
+        if (! empty($obsExtras) && ! str_starts_with(trim($obsExtras), 'Blocos:')) {
             $infoFinal .= ' ' . $obsExtras;
         }
-        
-        DB::transaction(function () use ($valorFinal, $infoFinal) {
-            $empresaId = $this->empresaId;
-            $laboratorioId = null;
-            $laboratorio = null;
-            
-            if ($this->selecionadoId === 'new') {
-                 $endereco = Endereco::create([
-                    'pessoa_id' => $empresaId,
-                    'info' => 'Laboratório: ' . $this->laboratorio['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''),
+
+        $dados = [
+            'empresa_id' => $this->empresaId,
+            'pessoa_id' => request()->user()->pessoa->id,
+            'laboratorio_id' => $this->selecionadoId === 'new' ? null : $this->selecionadoId,
+            'laboratorio' => [
+                'nome' => $this->laboratorio['nome'],
+                'responsavel_tecnico' => $this->laboratorio['responsavel_tecnico'],
+                'telefone' => $this->laboratorio['telefone'] ?? null,
+                'email' => $this->laboratorio['email'],
+                'endereco' => [
                     'cep' => $this->laboratorio['endereco']['cep'],
                     'endereco' => $this->laboratorio['endereco']['endereco'],
                     'complemento' => $this->laboratorio['endereco']['complemento'] ?? null,
                     'bairro' => $this->laboratorio['endereco']['bairro'],
                     'cidade' => $this->laboratorio['endereco']['cidade'],
                     'uf' => $this->laboratorio['endereco']['uf'],
-                ]);
+                ],
+            ],
+            'valor' => $valorFinal,
+            'informacoes_inscricao' => $infoFinal,
+        ];
 
-                $laboratorio = InterlabLaboratorio::create([
-                    'empresa_id' => $empresaId,
-                    'endereco_id' => $endereco->id,
-                    'nome' => $this->laboratorio['nome'],
-    
-                ]);
-                $laboratorioId = $laboratorio->id;
-            } else {
-                $laboratorio = InterlabLaboratorio::find($this->selecionadoId);
-                $laboratorioId = $laboratorio->id;
-                
-                $laboratorio->update([
-                    'nome' => $this->laboratorio['nome'],
+        $analistas = $this->requer_analistas && $this->numero_analistas > 0 ? $this->analistas : [];
 
-                ]);
-                
-                if($laboratorio->endereco) {
-                     $laboratorio->endereco->update([
-                        'cep' => $this->laboratorio['endereco']['cep'],
-                        'endereco' => $this->laboratorio['endereco']['endereco'],
-                        'complemento' => $this->laboratorio['endereco']['complemento'] ?? null,
-                        'bairro' => $this->laboratorio['endereco']['bairro'],
-                        'cidade' => $this->laboratorio['endereco']['cidade'],
-                        'uf' => $this->laboratorio['endereco']['uf'],
-                        'info' => 'Laboratório: ' . $this->laboratorio['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''),
-                     ]);
-                }
-            }
-            
-             $senha = null;
-            if (!empty($this->interlab->interlab->tag)) {
-                $senha = $this->interlab->interlab->tag . rand(111, 999);
-                while (
-                    InterlabInscrito::where('tag_senha', $senha)
-                        ->where('agenda_interlab_id', $this->interlab->id)
-                        ->exists()
-                ) {
-                    $senha = $this->interlab->interlab->tag . rand(111, 999);
-                }
-            }
+        $inscrito = app(InscricaoInterlabAction::class)->execute($this->interlab, $dados, $analistas);
 
-            $inscrito = InterlabInscrito::create([
-                'pessoa_id' => request()->user()->pessoa->id,
-                'empresa_id' => $empresaId,
-                'laboratorio_id' => $laboratorioId,
-                'agenda_interlab_id' => $this->interlab->id,
-                'data_inscricao' => now(),
-                'valor' => $valorFinal,
-                'informacoes_inscricao' => $infoFinal,
-                'tag_senha' => $senha,
-                'responsavel_tecnico' => $this->laboratorio['responsavel_tecnico'], 
-                'telefone' => $this->laboratorio['telefone'] ?? null, 
-                'email' => $this->laboratorio['email'], 
-            ]);
+        Mail::to('interlab@redemetrologica.com.br')
+            ->cc(['tecnico@redemetrologica.com.br', 'sistema@redemetrologica.com.br'])
+            ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
 
-            // Salva analistas se necessário
-            if ($this->requer_analistas && $this->numero_analistas > 0) {
-                foreach ($this->analistas as $analistaData) {
-                    InterlabAnalista::create([
-                        'interlab_inscrito_id' => $inscrito->id,
-                        'nome' => $analistaData['nome'],
-                        'email' => $analistaData['email'],
-                        'telefone' => preg_replace('/\D/', '', $analistaData['telefone']),
-                    ]);
-                }
-            }
+        Mail::to($inscrito->pessoa->email)
+            ->cc('sistema@redemetrologica.com.br')
+            ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
 
-            Mail::to('interlab@redemetrologica.com.br')
-                ->cc(['tecnico@redemetrologica.com.br', 'sistema@redemetrologica.com.br'])
-                ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
+        if ($this->interlab->status === 'CONFIRMADO' && ! empty($this->interlab->interlab?->tag)) {
+            app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
+        }
 
-            Mail::to($inscrito->pessoa->email)
-                ->cc('sistema@redemetrologica.com.br')
-                ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
-
-            if ($this->interlab->status === 'CONFIRMADO' && !empty($this->interlab->interlab->tag)) {
-                app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
-            }
-            
-            app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal);
-        });
+        app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal);
         
         $this->selecionadoId = null;
         $this->dispatch('novoLabInscritoSaved');

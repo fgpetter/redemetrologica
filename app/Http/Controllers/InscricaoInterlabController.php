@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\InterlabAnalista;
 use Illuminate\Support\Facades\Mail;
 use App\Actions\CriarEnviarSenhaAction;
+use App\Actions\InscricaoInterlabAction;
 use App\Mail\NovoCadastroInterlabNotification;
 use Illuminate\Http\{Request, RedirectResponse};
-use Illuminate\Support\Facades\{DB, Log, Validator};
+use Illuminate\Support\Facades\{Log, Validator};
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
-use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito, LancamentoFinanceiro, InterlabLaboratorio, Endereco};
+use App\Models\{AgendaInterlab, Pessoa, InterlabInscrito};
 
 class InscricaoInterlabController extends Controller
 {
@@ -45,71 +46,40 @@ class InscricaoInterlabController extends Controller
     $validated = $request->validated();
 
     $agenda_interlab = AgendaInterlab::where('uid', $validated['interlab_uid'])->first();
-    $empresa = Pessoa::where( 'uid', $validated['empresa_uid'] )->first();
-    $responsavel = Pessoa::where( 'uid', $validated['pessoa_uid'] )->first();
-    $inscrito = DB::transaction(function () use ($validated, $empresa, $agenda_interlab, $responsavel) {
+    $empresa = Pessoa::where('uid', $validated['empresa_uid'])->first();
+    $responsavel = Pessoa::where('uid', $validated['pessoa_uid'])->first();
 
-      $endereco = Endereco::create([
-        'pessoa_id' => $empresa->id,
-        'info' => 'Laboratório: ' . $validated['laboratorio'] . ' | inscrito no PEP: ' . $agenda_interlab->interlab->nome, //Adiciona info do laboratório e do interlab
-        'cep' => $validated['cep'],
-        'endereco' => $validated['endereco'],
-        'complemento' => $validated['complemento'],
-        'bairro' => $validated['bairro'],
-        'cidade' => $validated['cidade'],
-        'uf' => $validated['uf'],
-      ]);
-  
-      $laboratorio = InterlabLaboratorio::create([
-        'empresa_id' => $empresa->id,
-        'endereco_id' => $endereco->id,
+    $dados = [
+      'empresa_id' => $empresa->id,
+      'pessoa_id' => $responsavel->id ?? auth()->user()->pessoa->id,
+      'laboratorio_id' => null,
+      'laboratorio' => [
         'nome' => $validated['laboratorio'],
-      ]);
-
-      $senha = InterlabInscrito::geraTagSenha($agenda_interlab);
-
-      $inscrito = InterlabInscrito::create([
-        'pessoa_id' => $responsavel->id ?? auth()->user()->pessoa->id,
-        'empresa_id' => $empresa->id,
-        'laboratorio_id' => $laboratorio->id,
-        'agenda_interlab_id' => $agenda_interlab->id,
-        'data_inscricao' => now(),
-        'valor' => $validated['valor'] ?? null,
-        'informacoes_inscricao' => $validated['informacoes_inscricao'],
-        'tag_senha' => $senha,
         'responsavel_tecnico' => $validated['responsavel_tecnico'],
-        'telefone' => $validated['telefone'],
+        'telefone' => $validated['telefone'] ?? null,
         'email' => $validated['email'],
-      ]);
+        'endereco' => [
+          'cep' => $validated['cep'],
+          'endereco' => $validated['endereco'],
+          'complemento' => $validated['complemento'] ?? null,
+          'bairro' => $validated['bairro'],
+          'cidade' => $validated['cidade'],
+          'uf' => $validated['uf'],
+        ],
+      ],
+      'valor' => $validated['valor'] ?? null,
+      'informacoes_inscricao' => $validated['informacoes_inscricao'] ?? '',
+    ];
 
-      // Salva analistas se o tipo de avaliação for ANALISTA
-      if (($agenda_interlab->interlab->avaliacao ?? null) === 'ANALISTA' && $request->has('analistas')) {
-        foreach ($request->analistas as $analistaData) {
-          if (!empty($analistaData['nome'])) { // Validação básica pois o Request já deve validar
-            InterlabAnalista::create([
-              'agenda_interlab_id' => $agenda_interlab->id,
-              'interlab_laboratorio_id' => $laboratorio->id,
-              'nome' => $analistaData['nome'],
-              'email' => $analistaData['email'] ?? '',
-              'telefone' => preg_replace('/\D/', '', $analistaData['telefone'] ?? ''),
-            ]);
-          }
-        }
-      }
+    $analistas = $request->analistas ?? [];
 
-      if ($agenda_interlab->status === 'CONFIRMADO' && !empty($agenda_interlab->interlab->tag)) {
-        app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
-      }
+    $inscrito = app(InscricaoInterlabAction::class)->execute($agenda_interlab, $dados, $analistas);
 
-      return $inscrito;
-
-    });
-
-    if(!$inscrito){
+    if (! $inscrito) {
       return back()->with('error', 'Erro ao processar os dados')->withFragment('participantes');
     }
 
-    if( isset($request->valor) && $request->valor > 0) {
+    if (isset($request->valor) && $request->valor > 0) {
       app(GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
     }
 
@@ -121,13 +91,17 @@ class InscricaoInterlabController extends Controller
       ->cc('sistema@redemetrologica.com.br')
       ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
 
-    if( $request->encerra_cadastro == 1 ) {
-      session()->forget(['interlab', 'empresa', 'convite']);
-      return back()->with('success', 'Inscrição realizada com sucesso!');
-
-    } else {
-      return back()->with('success', 'Laboratório cadastrado com sucesso!')->withFragment('participantes');
+    if ($agenda_interlab->status === 'CONFIRMADO' && ! empty($agenda_interlab->interlab?->tag)) {
+      app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
     }
+
+    if ($request->encerra_cadastro == 1) {
+      session()->forget(['interlab', 'empresa', 'convite']);
+
+      return back()->with('success', 'Inscrição realizada com sucesso!');
+    }
+
+    return back()->with('success', 'Laboratório cadastrado com sucesso!')->withFragment('participantes');
   }
 
   /**
