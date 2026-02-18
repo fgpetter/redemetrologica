@@ -31,7 +31,7 @@
                                     <i class="ri-flask-line fs-5 text-primary"></i>
                                     <div>
                                         <div class="fs-5 py-1">{{ $lab->nome }}</div>
-                                        <div class="py-1">{{ $lab->endereco->endereco }}, {{ $lab->endereco->complemento }} - {{ $lab->endereco->cidade }} - {{ $lab->endereco->uf }}</div>
+                                        <div class="py-1">{{ $lab->endereco->endereco ?? '' }}, {{ $lab->endereco->complemento ?? '' }} - {{ $lab->endereco->cidade ?? '' }} - {{ $lab->endereco->uf ?? '' }}</div>
                                         <small class="text-muted">
                                             @if($selecionadoId === $lab->id)
                                                 Revise os dados do laboratório e clique em salvar
