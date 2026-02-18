@@ -13,7 +13,13 @@
 
     <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
       <h3>Código de identificação - {{ $dadosDoc->content['interlab_nome'] }}</h3>
-      <p>Segue código de identificação (senha) do laboratório - {{ $dadosDoc->content['laboratorio_nome'] }}.</p>
+      
+      @if ($dadosDoc->content['analista_nome'])
+        Olá {{ $dadosDoc->content['analista_nome'] }},
+        <p>Segue seu código de identificação (senha) para o interlaboratorial - Laboratório: {{ $dadosDoc->content['laboratorio_nome'] }}.</p>
+      @else
+        <p>Segue código de identificação (senha) do laboratório - {{ $dadosDoc->content['laboratorio_nome'] }}.</p>
+      @endif
       
       <p style="margin: 30px 0;">
         <a href="https://redemetrologica.com.br/dados-doc/{{ $dadosDoc->link }}" 

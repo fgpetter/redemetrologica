@@ -3,35 +3,54 @@
 namespace App\Livewire\PainelCliente;
 
 use App\Actions\BuscaCepAction;
+use App\Actions\CriarEnviarSenhaAction;
+use App\Actions\Financeiro\GerarLancamentoInterlabAction;
+use App\Actions\InscricaoInterlabAction;
+use App\Actions\NotifyInscricaoInterlabAction;
 use App\Models\AgendaInterlabValor;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
+use App\Models\InterlabLaboratorio;
 use App\Models\Pessoa;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 
 class LabInscritos extends Component
 {
     public $inscritos = [];
-    public $empresaId = null; 
+
+    public $empresaId = null;
+
     public $editingId = null;
+
+    public $laboratorios_disponiveis = [];
+
+    public $selecionadoId = null;
+
     public $laboratorio = [];
+
     public $blocos_selecionados = [];
+
     public $bloco_selecionado = null;
+
     public $solicitar_certificado = false;
+
     public $informacoes_inscricao = '';
 
     public $interlab;
+
     public $valores_inscricao;
+
     public $isVisible = false;
 
     public $numero_analistas = 0;
+
     public $requer_analistas = false;
+
     public $analistas = [];
 
-    public function mount()
+    public function mount(): void
     {
         $this->interlab = session('interlab');
         $this->valores_inscricao = AgendaInterlabValor::where('agenda_interlab_id', $this->interlab->id)->get();
@@ -47,29 +66,36 @@ class LabInscritos extends Component
                 $this->carregarAnalistasInscricao($inscricao->id);
             }
         }
+
+        $this->resetForm();
     }
 
     #[On('empresaSaved')]
-    public function setEmpresa($empresa_id)
+    public function setEmpresa($empresa_id): void
     {
         $this->empresaId = $empresa_id;
         $this->isVisible = true;
         $this->loadInscritos();
+        $this->loadLaboratorios();
     }
-    
+
     #[On('novoLabInscritoSaved')]
-    public function reloadInscritos()
+    public function reloadInscritos(): void
     {
         $this->loadInscritos();
+        $this->loadLaboratorios();
+        $this->resetForm();
+        $this->selecionadoId = null;
     }
-    
-    public function loadInscritos()
+
+    public function loadInscritos(): void
     {
-        if (!$this->empresaId) {
+        if (! $this->empresaId) {
             $this->inscritos = [];
+
             return;
         }
-        
+
         $this->inscritos = InterlabInscrito::with('laboratorio.endereco')
             ->where('pessoa_id', request()->user()->pessoa->id)
             ->where('empresa_id', $this->empresaId)
@@ -77,16 +103,47 @@ class LabInscritos extends Component
             ->get();
     }
 
-    public function edit($inscritoId)
+    public function loadLaboratorios(): void
+    {
+        if ($this->empresaId) {
+            $labsJaInscritos = InterlabInscrito::where('empresa_id', $this->empresaId)
+                ->where('agenda_interlab_id', $this->interlab->id)
+                ->where('pessoa_id', request()->user()->pessoa->id)
+                ->pluck('laboratorio_id')
+                ->toArray();
+
+            $this->laboratorios_disponiveis = InterlabLaboratorio::where('empresa_id', $this->empresaId)
+                ->whereNotIn('id', $labsJaInscritos)
+                ->get();
+        }
+    }
+
+    public function selectLab($labId): void
+    {
+        $this->selecionadoId = $labId;
+        $this->editingId = null;
+        $this->resetForm();
+
+        if ($labId !== 'new') {
+            $labModel = InterlabLaboratorio::with('endereco')->find($labId);
+            if ($labModel) {
+                $this->laboratorio = $labModel->toArray();
+                $this->laboratorio['endereco'] = $labModel->endereco ? $labModel->endereco->toArray() : [];
+            }
+        }
+    }
+
+    public function edit($inscritoId): void
     {
         $inscrito = InterlabInscrito::with(['laboratorio.endereco'])->findOrFail($inscritoId);
         $this->editingId = $inscritoId;
+        $this->selecionadoId = null;
 
         $this->laboratorio = $inscrito->laboratorio->toArray();
         $this->laboratorio['endereco'] = $inscrito->laboratorio->endereco
             ? $inscrito->laboratorio->endereco->toArray()
             : [];
-            
+
         $this->laboratorio['responsavel_tecnico'] = $inscrito->responsavel_tecnico;
         $this->laboratorio['telefone'] = $inscrito->telefone;
         $this->laboratorio['email'] = $inscrito->email;
@@ -101,10 +158,10 @@ class LabInscritos extends Component
         }
 
         $this->informacoes_inscricao = '';
-        if (!empty($infoInscricao)) {
+        if (! empty($infoInscricao)) {
             if (preg_match('/^Blocos:.*?\.(.*)$/', $infoInscricao, $matches)) {
                 $this->informacoes_inscricao = trim($matches[1]);
-            } elseif (!str_starts_with(trim($infoInscricao), 'Blocos:')) {
+            } elseif (! str_starts_with(trim($infoInscricao), 'Blocos:')) {
                 $this->informacoes_inscricao = trim($infoInscricao);
             }
         }
@@ -133,15 +190,38 @@ class LabInscritos extends Component
         $this->numero_analistas = count($this->analistas);
     }
 
-    public function cancelEdit()
+    public function cancelEdit(): void
     {
         $this->editingId = null;
-        $this->laboratorio = [];
-        $this->blocos_selecionados = [];
-        $this->bloco_selecionado = null;
+        $this->resetForm();
     }
 
-    public function buscaCep(BuscaCepAction $buscaCepAction)
+    public function cancelCreate(): void
+    {
+        $this->selecionadoId = null;
+        $this->resetForm();
+    }
+
+    private function resetForm(): void
+    {
+        $this->laboratorio = [
+            'nome' => '',
+            'responsavel_tecnico' => '',
+            'telefone' => '',
+            'email' => '',
+            'endereco' => [
+                'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '',
+            ],
+        ];
+        $this->blocos_selecionados = [];
+        $this->bloco_selecionado = null;
+        $this->solicitar_certificado = false;
+        $this->informacoes_inscricao = '';
+        $this->analistas = [];
+        $this->numero_analistas = 0;
+    }
+
+    public function buscaCep(BuscaCepAction $buscaCepAction): void
     {
         $cep = $this->laboratorio['endereco']['cep'] ?? '';
         $dados = $buscaCepAction->execute($cep);
@@ -156,13 +236,13 @@ class LabInscritos extends Component
         }
     }
 
-    public function calcularValorEBlocos()
+    public function calcularValorEBlocos(): array
     {
         $valorTotal = 0;
         $descricoes = [];
 
         $blocosSelecionados = $this->getBlocosSelecionadosIds();
-        if (!empty($blocosSelecionados)) {
+        if (! empty($blocosSelecionados)) {
             $blocos = AgendaInterlabValor::whereIn('id', $blocosSelecionados)->get();
             $isAssociado = $this->isAssociado;
 
@@ -180,7 +260,7 @@ class LabInscritos extends Component
             $valorTotal += 300.00;
         }
 
-        $info = !empty($descricoes) ? 'Blocos: ' . implode(', ', $descricoes) . '.' : '';
+        $info = ! empty($descricoes) ? 'Blocos: '.implode(', ', $descricoes).'.' : '';
         if ($this->solicitar_certificado) {
             $info .= ' | Certificado de Desempenho solicitado.';
         }
@@ -188,19 +268,18 @@ class LabInscritos extends Component
         return ['valor' => $valorTotal, 'info' => $info];
     }
 
-    public function salvar()
+    public function salvar(): void
     {
-        dd('teste');
         $rules = [
-            "laboratorio.nome" => ['required', 'string', 'max:191'],
-            "laboratorio.responsavel_tecnico" => ['required', 'string', 'max:191'],
-            "laboratorio.telefone" => ['nullable', 'string', 'max:15'],
-            "laboratorio.email" => ['required', 'email', 'max:191'],
-            "laboratorio.endereco.cep" => ['required', 'string'],
-            "laboratorio.endereco.endereco" => ['required', 'string'],
-            "laboratorio.endereco.bairro" => ['required', 'string'],
-            "laboratorio.endereco.uf" => ['required', 'string', 'size:2'],
-            "laboratorio.endereco.cidade" => ['required', 'string'],
+            'laboratorio.nome' => ['required', 'string', 'max:191'],
+            'laboratorio.responsavel_tecnico' => ['required', 'string', 'max:191'],
+            'laboratorio.telefone' => ['nullable', 'string', 'max:15'],
+            'laboratorio.email' => ['required', 'email', 'max:191'],
+            'laboratorio.endereco.cep' => ['required', 'string'],
+            'laboratorio.endereco.endereco' => ['required', 'string'],
+            'laboratorio.endereco.bairro' => ['required', 'string'],
+            'laboratorio.endereco.uf' => ['required', 'string', 'size:2'],
+            'laboratorio.endereco.cidade' => ['required', 'string'],
         ];
 
         $messages = [
@@ -237,16 +316,22 @@ class LabInscritos extends Component
                 $rules["analistas.{$i}.email"] = ['required', 'email', 'max:191'];
                 $rules["analistas.{$i}.telefone"] = ['required', 'string', 'max:15'];
 
-                $messages["analistas.{$i}.nome.required"] = "O nome do analista " . ($i + 1) . " é obrigatório.";
-                $messages["analistas.{$i}.email.required"] = "O e-mail do analista " . ($i + 1) . " é obrigatório.";
-                $messages["analistas.{$i}.email.email"] = "O e-mail do analista " . ($i + 1) . " deve ser um endereço válido.";
-                $messages["analistas.{$i}.telefone.required"] = "O telefone do analista " . ($i + 1) . " é obrigatório.";
+                $messages["analistas.{$i}.nome.required"] = 'O nome do analista '.($i + 1).' é obrigatório.';
+                $messages["analistas.{$i}.email.required"] = 'O e-mail do analista '.($i + 1).' é obrigatório.';
+                $messages["analistas.{$i}.email.email"] = 'O e-mail do analista '.($i + 1).' deve ser um endereço válido.';
+                $messages["analistas.{$i}.telefone.required"] = 'O telefone do analista '.($i + 1).' é obrigatório.';
             }
         }
 
-        $this->validate($rules, $messages);
+        $this->withValidator(function ($validator) {
+            $validator->after(function ($validator) {
+                if ($validator->errors()->isNotEmpty()) {
+                    $this->dispatch('scroll-to-errors');
+                }
+            });
+        })->validate($rules, $messages);
 
-        if (!empty($this->laboratorio['telefone'])) {
+        if (! empty($this->laboratorio['telefone'])) {
             $this->laboratorio['telefone'] = preg_replace('/\D/', '', $this->laboratorio['telefone']);
         }
 
@@ -254,63 +339,71 @@ class LabInscritos extends Component
         $valorFinal = $dadosCalculados['valor'];
         $infoFinal = $dadosCalculados['info'];
 
-        $obsExtras = trim($this->informacoes_inscricao ?? '');
-        if (!empty($obsExtras) && !str_starts_with($obsExtras, 'Blocos:')) {
-            $infoFinal = trim($infoFinal . ' ' . $obsExtras);
+        $obsExtras = $this->informacoes_inscricao ?? '';
+        if (! empty($obsExtras) && ! str_starts_with(trim($obsExtras), 'Blocos:')) {
+            $infoFinal .= ' '.$obsExtras;
         }
 
-        DB::transaction(function () use ($valorFinal, $infoFinal) {
-            $inscrito = InterlabInscrito::find($this->editingId);
-            $laboratorio = $inscrito->laboratorio;
-            $endereco = $laboratorio->endereco;
-
-            $endereco->update([
-                'cep' => $this->laboratorio['endereco']['cep'],
-                'endereco' => $this->laboratorio['endereco']['endereco'],
-                'complemento' => $this->laboratorio['endereco']['complemento'] ?? null,
-                'bairro' => $this->laboratorio['endereco']['bairro'],
-                'cidade' => $this->laboratorio['endereco']['cidade'],
-                'uf' => $this->laboratorio['endereco']['uf'],
-                'info' => 'Laboratório: ' . $this->laboratorio['nome'] . ' | Inscrito no PEP: ' . ($this->interlab->nome ?? ''),
-            ]);
-
-            $laboratorio->update([
+        $dados = [
+            'empresa_id' => $this->empresaId,
+            'pessoa_id' => request()->user()->pessoa->id,
+            'inscrito_id' => $this->editingId ?: null,
+            'laboratorio_id' => $this->editingId
+                ? ($this->laboratorio['id'] ?? null)
+                : ($this->selecionadoId === 'new' ? null : $this->selecionadoId),
+            'laboratorio' => [
                 'nome' => $this->laboratorio['nome'],
-            ]);
-
-            $inscrito->update([
-                'valor' => $valorFinal,
-                'informacoes_inscricao' => $infoFinal,
                 'responsavel_tecnico' => $this->laboratorio['responsavel_tecnico'],
-                'telefone' => $this->laboratorio['telefone'],
+                'telefone' => $this->laboratorio['telefone'] ?? null,
                 'email' => $this->laboratorio['email'],
-            ]);
+                'endereco' => [
+                    'cep' => $this->laboratorio['endereco']['cep'],
+                    'endereco' => $this->laboratorio['endereco']['endereco'],
+                    'complemento' => $this->laboratorio['endereco']['complemento'] ?? null,
+                    'bairro' => $this->laboratorio['endereco']['bairro'],
+                    'cidade' => $this->laboratorio['endereco']['cidade'],
+                    'uf' => $this->laboratorio['endereco']['uf'],
+                ],
+            ],
+            'valor' => $valorFinal,
+            'informacoes_inscricao' => $infoFinal,
+        ];
 
-            
-            if ($valorFinal > 0) {
-                app(\App\Actions\Financeiro\GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal);
-            }
-        });
+        $analistas = $this->requer_analistas && $this->numero_analistas > 0 ? $this->analistas : [];
+        $inscrito = app(InscricaoInterlabAction::class)->execute($this->interlab, $dados, $analistas);
 
-        $this->editingId = null;
+        app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $this->interlab);
 
-        session()->flash('success', 'Laboratório atualizado com sucesso!');
-        $this->loadInscritos();
+        app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal, $this->editingId);
+        
+        if ($this->editingId) {
+            $this->editingId = null;
+            session()->flash('success', 'Laboratório atualizado com sucesso!');
+            $this->loadInscritos();
+        } else {
+            $this->selecionadoId = null;
+            $this->dispatch('novoLabInscritoSaved');
+            session()->flash('success', 'Inscrição realizada com sucesso!');
+        }
+        $this->dispatch('close-accordion', id: 'accordion-novo-lab');
     }
 
-
     #[Computed]
-    public function isAssociado()
+    public function isAssociado(): bool
     {
-        if($this->empresaId) {
+        if ($this->empresaId) {
             $empresa = Pessoa::find($this->empresaId);
+
             return $empresa->associado ?? false;
-        } elseif ($this->editingId) {
-             $inscrito = InterlabInscrito::find($this->editingId);
-             if ($inscrito && $inscrito->empresa) {
-                 return $inscrito->empresa->associado ?? false;
-             }
         }
+
+        if ($this->editingId) {
+            $inscrito = InterlabInscrito::find($this->editingId);
+            if ($inscrito && $inscrito->empresa) {
+                return $inscrito->empresa->associado ?? false;
+            }
+        }
+
         return false;
     }
 

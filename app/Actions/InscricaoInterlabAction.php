@@ -15,8 +15,8 @@ class InscricaoInterlabAction
     {
         return DB::transaction(function () use ($agendaInterlab, $dados, $analistas) {
             $laboratorio = $this->criarOuAtualizarLaboratorio($agendaInterlab, $dados);
-            $inscrito = $this->criarInscrito($agendaInterlab, $laboratorio, $dados);
-            $this->criarAnalistas($inscrito, $agendaInterlab, $analistas);
+            $inscrito = $this->criarOuAtualizarInscrito($agendaInterlab, $laboratorio, $dados);
+            $this->criarOuAtualizarAnalistas($inscrito, $agendaInterlab, $analistas);
 
             return $inscrito;
         });
@@ -66,47 +66,56 @@ class InscricaoInterlabAction
         return $laboratorio;
     }
 
-    protected function criarInscrito(AgendaInterlab $agendaInterlab, InterlabLaboratorio $laboratorio, array $dados): InterlabInscrito
+    protected function criarOuAtualizarInscrito(AgendaInterlab $agendaInterlab, InterlabLaboratorio $laboratorio, array $dados): InterlabInscrito
     {
         $lab = $dados['laboratorio'];
+        $camposComuns = [
+            'laboratorio_id' => $laboratorio->id,
+            'valor' => $dados['valor'] ?? null,
+            'informacoes_inscricao' => $dados['informacoes_inscricao'] ?? '',
+            'responsavel_tecnico' => $lab['responsavel_tecnico'] ?? '',
+            'telefone' => $this->normalizaTelefone($lab['telefone'] ?? null),
+            'email' => $lab['email'] ?? '',
+        ];
+
+        if (! empty($dados['inscrito_id'])) {
+            $inscrito = InterlabInscrito::find($dados['inscrito_id']);
+            $inscrito->update($camposComuns);
+
+            return $inscrito;
+        }
+
         $senha = ! empty($agendaInterlab->interlab?->tag)
             ? $this->geraTagSenha($agendaInterlab, 'interlab_laboratorios')
             : null;
 
-        return InterlabInscrito::create([
+        return InterlabInscrito::create(array_merge($camposComuns, [
             'pessoa_id' => $dados['pessoa_id'],
             'empresa_id' => $dados['empresa_id'],
-            'laboratorio_id' => $laboratorio->id,
             'agenda_interlab_id' => $agendaInterlab->id,
             'data_inscricao' => now(),
-            'valor' => $dados['valor'] ?? null,
-            'informacoes_inscricao' => $dados['informacoes_inscricao'] ?? '',
             'tag_senha' => $senha,
-            'responsavel_tecnico' => $lab['responsavel_tecnico'] ?? '',
-            'telefone' => $this->normalizaTelefone($lab['telefone'] ?? null),
-            'email' => $lab['email'] ?? '',
-        ]);
+        ]));
     }
 
-    protected function criarAnalistas(InterlabInscrito $inscrito, AgendaInterlab $agendaInterlab, array $analistas): void
+    protected function criarOuAtualizarAnalistas(InterlabInscrito $inscrito, AgendaInterlab $agendaInterlab, array $analistas): void
     {
-        $requerAnalistas = ($agendaInterlab->interlab->avaliacao ?? null) === 'ANALISTA';
-
-        if (! $requerAnalistas || empty($analistas)) {
+        if (($agendaInterlab->interlab->avaliacao ?? null) !== 'ANALISTA') {
             return;
         }
+
+        InterlabAnalista::where('interlab_inscrito_id', $inscrito->id)->delete();
 
         foreach ($analistas as $analistaData) {
             if (empty($analistaData['nome'])) {
                 continue;
             }
 
-            $tagSenha = null;
-            if (! empty($agendaInterlab->interlab->tag)) {
-                $tagSenha = $this->geraTagSenha($agendaInterlab, 'interlab_analistas');
-            }
+            $tagSenha = ! empty($agendaInterlab->interlab->tag)
+                ? $this->geraTagSenha($agendaInterlab, 'interlab_analistas')
+                : null;
 
-            $analista = InterlabAnalista::create([
+            InterlabAnalista::create([
                 'interlab_inscrito_id' => $inscrito->id,
                 'nome' => $analistaData['nome'],
                 'email' => $analistaData['email'] ?? '',
