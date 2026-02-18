@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 ## General code instructions
 
 - Don't generate code comments above the methods or code blocks if they are obvious. Don't add docblock comments when defining variables, unless instructed to, like `/** @var \App\Models\User $currentUser */`. Generate comments only for something that needs extra explanation for the reasons why that code was written.

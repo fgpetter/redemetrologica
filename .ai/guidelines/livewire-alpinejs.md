@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 ## Livewire Instructions
 
 - Use `vendor/bin/sail artisan make:livewire [Namespace\ComponentName]` to create new components.
