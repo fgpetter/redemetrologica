@@ -4,11 +4,12 @@ namespace App\Livewire\PainelCliente;
 
 use App\Actions\BuscaCepAction;
 use App\Models\AgendaInterlabValor;
+use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\Pessoa;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\On;
-use DB;
 use Livewire\Attributes\Computed;
 
 class LabInscritos extends Component
@@ -18,6 +19,7 @@ class LabInscritos extends Component
     public $editingId = null;
     public $laboratorio = [];
     public $blocos_selecionados = [];
+    public $bloco_selecionado = null;
     public $solicitar_certificado = false;
     public $informacoes_inscricao = '';
 
@@ -25,10 +27,26 @@ class LabInscritos extends Component
     public $valores_inscricao;
     public $isVisible = false;
 
+    public $numero_analistas = 0;
+    public $requer_analistas = false;
+    public $analistas = [];
+
     public function mount()
     {
         $this->interlab = session('interlab');
         $this->valores_inscricao = AgendaInterlabValor::where('agenda_interlab_id', $this->interlab->id)->get();
+        $this->requer_analistas = ($this->interlab->interlab->avaliacao ?? null) === 'ANALISTA';
+
+        if ($this->requer_analistas) {
+            $inscricao = InterlabInscrito::where('pessoa_id', request()->user()->pessoa->id)
+                ->where('agenda_interlab_id', $this->interlab->id)
+                ->latest('id')
+                ->first();
+
+            if ($inscricao) {
+                $this->carregarAnalistasInscricao($inscricao->id);
+            }
+        }
     }
 
     #[On('empresaSaved')]
@@ -53,7 +71,7 @@ class LabInscritos extends Component
         }
         
         $this->inscritos = InterlabInscrito::with('laboratorio.endereco')
-            ->where('pessoa_id', auth()->user()->pessoa->id)
+            ->where('pessoa_id', request()->user()->pessoa->id)
             ->where('empresa_id', $this->empresaId)
             ->where('agenda_interlab_id', $this->interlab->id)
             ->get();
@@ -92,6 +110,27 @@ class LabInscritos extends Component
         }
 
         $this->blocos_selecionados = [];
+        $this->bloco_selecionado = null;
+
+        if ($this->requer_analistas) {
+            $this->carregarAnalistasInscricao($inscritoId);
+        }
+    }
+
+    private function carregarAnalistasInscricao(int $inscritoId): void
+    {
+        $this->analistas = InterlabAnalista::where('interlab_inscrito_id', $inscritoId)
+            ->orderBy('id')
+            ->get(['nome', 'email', 'telefone'])
+            ->map(fn (InterlabAnalista $analista) => [
+                'nome' => $analista->nome,
+                'email' => $analista->email,
+                'telefone' => $analista->telefone,
+            ])
+            ->values()
+            ->toArray();
+
+        $this->numero_analistas = count($this->analistas);
     }
 
     public function cancelEdit()
@@ -99,6 +138,7 @@ class LabInscritos extends Component
         $this->editingId = null;
         $this->laboratorio = [];
         $this->blocos_selecionados = [];
+        $this->bloco_selecionado = null;
     }
 
     public function buscaCep(BuscaCepAction $buscaCepAction)
@@ -121,8 +161,9 @@ class LabInscritos extends Component
         $valorTotal = 0;
         $descricoes = [];
 
-        if (!empty($this->blocos_selecionados)) {
-            $blocos = AgendaInterlabValor::whereIn('id', $this->blocos_selecionados)->get();
+        $blocosSelecionados = $this->getBlocosSelecionadosIds();
+        if (!empty($blocosSelecionados)) {
+            $blocos = AgendaInterlabValor::whereIn('id', $blocosSelecionados)->get();
             $isAssociado = $this->isAssociado;
 
             foreach ($blocos as $bloco) {
@@ -149,7 +190,7 @@ class LabInscritos extends Component
 
     public function salvar()
     {
-        $this->validate([
+        $rules = [
             "laboratorio.nome" => ['required', 'string', 'max:191'],
             "laboratorio.responsavel_tecnico" => ['required', 'string', 'max:191'],
             "laboratorio.telefone" => ['nullable', 'string', 'max:15'],
@@ -159,8 +200,9 @@ class LabInscritos extends Component
             "laboratorio.endereco.bairro" => ['required', 'string'],
             "laboratorio.endereco.uf" => ['required', 'string', 'size:2'],
             "laboratorio.endereco.cidade" => ['required', 'string'],
-            "blocos_selecionados" => ['required', 'array', 'min:1'],
-        ], [
+        ];
+
+        $messages = [
             'laboratorio.nome.required' => 'Preencha o campo laboratório.',
             'laboratorio.nome.max' => 'O campo laboratório deve ter no máximo :max caracteres.',
             'laboratorio.responsavel_tecnico.required' => 'Preencha o campo responsável técnico.',
@@ -174,9 +216,34 @@ class LabInscritos extends Component
             'laboratorio.endereco.cidade.required' => 'Preencha o campo cidade.',
             'laboratorio.endereco.uf.required' => 'Preencha o campo UF.',
             'laboratorio.endereco.uf.size' => 'O campo UF deve ter exatamente 2 caracteres.',
-            'blocos_selecionados.required' => 'Selecione ao menos um bloco.',
-            'blocos_selecionados.min' => 'Selecione ao menos um bloco.',
-        ]);
+        ];
+
+        if ($this->requer_analistas) {
+            $rules['bloco_selecionado'] = ['required', 'integer', 'exists:agendainterlab_valores,id'];
+            $messages['bloco_selecionado.required'] = 'Selecione um bloco.';
+            $messages['bloco_selecionado.integer'] = 'Seleção de bloco inválida.';
+            $messages['bloco_selecionado.exists'] = 'O bloco selecionado é inválido.';
+        } else {
+            $rules['blocos_selecionados'] = ['required', 'array', 'min:1'];
+            $messages['blocos_selecionados.required'] = 'Selecione ao menos um bloco.';
+            $messages['blocos_selecionados.min'] = 'Selecione ao menos um bloco.';
+        }
+
+        $this->numero_analistas = $this->getNumeroAnalistasSelecionado();
+        if ($this->requer_analistas && $this->numero_analistas > 0) {
+            for ($i = 0; $i < $this->numero_analistas; $i++) {
+                $rules["analistas.{$i}.nome"] = ['required', 'string', 'max:191'];
+                $rules["analistas.{$i}.email"] = ['required', 'email', 'max:191'];
+                $rules["analistas.{$i}.telefone"] = ['required', 'string', 'max:15'];
+
+                $messages["analistas.{$i}.nome.required"] = "O nome do analista " . ($i + 1) . " é obrigatório.";
+                $messages["analistas.{$i}.email.required"] = "O e-mail do analista " . ($i + 1) . " é obrigatório.";
+                $messages["analistas.{$i}.email.email"] = "O e-mail do analista " . ($i + 1) . " deve ser um endereço válido.";
+                $messages["analistas.{$i}.telefone.required"] = "O telefone do analista " . ($i + 1) . " é obrigatório.";
+            }
+        }
+
+        $this->validate($rules, $messages);
 
         if (!empty($this->laboratorio['telefone'])) {
             $this->laboratorio['telefone'] = preg_replace('/\D/', '', $this->laboratorio['telefone']);
@@ -249,5 +316,28 @@ class LabInscritos extends Component
     public function render()
     {
         return view('livewire.painel-cliente.lab-inscritos');
+    }
+
+    private function getBlocosSelecionadosIds(): array
+    {
+        if ($this->requer_analistas) {
+            return empty($this->bloco_selecionado) ? [] : [(int) $this->bloco_selecionado];
+        }
+
+        return collect($this->blocos_selecionados)
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function getNumeroAnalistasSelecionado(): int
+    {
+        if (! $this->requer_analistas || empty($this->bloco_selecionado)) {
+            return count($this->analistas);
+        }
+
+        return (int) AgendaInterlabValor::where('id', $this->bloco_selecionado)
+            ->value('analistas');
     }
 }

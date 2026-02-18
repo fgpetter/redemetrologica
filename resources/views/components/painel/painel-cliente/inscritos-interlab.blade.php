@@ -24,9 +24,9 @@
                         <strong>Data da Inscrição:</strong> {{ \Carbon\Carbon::parse($labGroup->first()->created_at)->format('d/m/Y') }} <br>
                         <strong>Informações de inscrição:</strong> <br>
                         <span class="ps-1" >{!! nl2br($labGroup->first()->informacoes_inscricao) !!}</span>
-                        @if($labGroup->first()->analistas->count() > 0)
+                        @if($labGroup->first()->laboratorio->analistas->count() > 0)
                           <br><strong>Analistas Inscritos:</strong> <br>
-                          @foreach($labGroup->first()->analistas as $analista)
+                          @foreach($labGroup->first()->laboratorio->analistas as $analista)
                             <span class="ps-1"><strong>{{ $analista->nome }}</strong>, {{ $analista->email }}, {{ $analista->telefone }}</span> <br>
                           @endforeach
                         @endif

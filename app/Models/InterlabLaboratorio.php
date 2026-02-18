@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
@@ -63,9 +64,16 @@ class InterlabLaboratorio extends Model
      * Retorna analistas vinculados ao laboratório
      * @return HasMany
      */
-    public function analistas(): HasMany
+    public function analistas(): HasManyThrough
     {
-        return $this->hasMany(InterlabAnalista::class, 'interlab_laboratorio_id');
+        return $this->hasManyThrough(
+            InterlabAnalista::class,
+            InterlabInscrito::class,
+            'laboratorio_id',
+            'interlab_inscrito_id',
+            'id',
+            'id',
+        );
     }
 
     protected function telefone(): Attribute

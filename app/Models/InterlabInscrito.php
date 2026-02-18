@@ -158,7 +158,6 @@ class InterlabInscrito extends Model
      */
     public function analistas(): HasMany
     {
-        return $this->hasMany(InterlabAnalista::class, 'interlab_laboratorio_id', 'laboratorio_id')
-            ->where('agenda_interlab_id', $this->agenda_interlab_id);
+        return $this->hasMany(InterlabAnalista::class, 'interlab_inscrito_id');
     }
 }
