@@ -190,6 +190,7 @@ class LabInscritos extends Component
 
     public function salvar()
     {
+        dd('teste');
         $rules = [
             "laboratorio.nome" => ['required', 'string', 'max:191'],
             "laboratorio.responsavel_tecnico" => ['required', 'string', 'max:191'],

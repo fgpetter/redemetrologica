@@ -13,6 +13,7 @@ use App\Models\InterlabLaboratorio;
 use Illuminate\Support\Facades\Mail;
 use App\Actions\CriarEnviarSenhaAction;
 use App\Actions\InscricaoInterlabAction;
+use App\Actions\NotifyInscricaoInterlabAction;
 use App\Mail\NovoCadastroInterlabNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
@@ -256,16 +257,9 @@ class NovoLabInscrito extends Component
         ];
 
         $analistas = $this->requer_analistas && $this->numero_analistas > 0 ? $this->analistas : [];
-
         $inscrito = app(InscricaoInterlabAction::class)->execute($this->interlab, $dados, $analistas);
 
-        Mail::to('interlab@redemetrologica.com.br')
-            ->cc(['tecnico@redemetrologica.com.br', 'sistema@redemetrologica.com.br'])
-            ->send(new NovoCadastroInterlabNotification($inscrito, $this->interlab));
-
-        Mail::to($inscrito->pessoa->email)
-            ->cc('sistema@redemetrologica.com.br')
-            ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $this->interlab));
+        app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $this->interlab);
 
         if ($this->interlab->status === 'CONFIRMADO' && ! empty($this->interlab->interlab?->tag)) {
             app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
@@ -276,11 +270,9 @@ class NovoLabInscrito extends Component
         $this->selecionadoId = null;
         $this->dispatch('novoLabInscritoSaved');
         $this->dispatch('close-accordion', id: 'accordion-novo-lab');
-        
+
         session()->flash('success', 'Inscrição realizada com sucesso!');
     }
-    
-    
 
     #[Computed]
     public function isAssociado()

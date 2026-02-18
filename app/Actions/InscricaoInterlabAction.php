@@ -8,9 +8,6 @@ use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use App\Models\AgendaInterlab;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ConfirmacaoInscricaoAnalistaNotification;
-use App\Mail\SenhaAnalistaInterlabNotification;
 
 class InscricaoInterlabAction
 {
@@ -73,7 +70,7 @@ class InscricaoInterlabAction
     {
         $lab = $dados['laboratorio'];
         $senha = ! empty($agendaInterlab->interlab?->tag)
-            ? $this->geraTagSenha($agendaInterlab, fn (string $s) => InterlabInscrito::where('tag_senha', $s)->where('agenda_interlab_id', $agendaInterlab->id)->exists())
+            ? $this->geraTagSenha($agendaInterlab, 'interlab_laboratorios')
             : null;
 
         return InterlabInscrito::create([
@@ -116,28 +113,23 @@ class InscricaoInterlabAction
                 'telefone' => $this->normalizaTelefone($analistaData['telefone'] ?? ''),
                 'tag_senha' => $tagSenha,
             ]);
-
-            if (! empty($tagSenha)) {
-                Mail::to($analista->email)->send(new SenhaAnalistaInterlabNotification($analista, $agendaInterlab));
-            }
-
-            Mail::to($analista->email)->send(new ConfirmacaoInscricaoAnalistaNotification($analista, $inscrito, $agendaInterlab));
         }
     }
 
     protected function geraTagSenha(AgendaInterlab $agendaInterlab, string $tipo): string
     {
         $tag = $agendaInterlab->interlab->tag ?? throw new \Exception('Tag do interlab não encontrada');
+        $senha = $tag . '-' . rand(111, 999);
 
-        if ($tipo === 'interlab_inscritos') {
+        if ($tipo === 'interlab_laboratorios') {
             while (InterlabInscrito::where('tag_senha', $senha)->where('agenda_interlab_id', $agendaInterlab->id)->exists()) {
-                $senha = $tag . '-' . rand(111, 999);
+                $senha = $tag . rand(111, 999);
             }
         }
 
         if ($tipo === 'interlab_analistas') {
-            while (InterlabAnalista::where('tag_senha', $senha)) {
-                $senha = $tag . '-' . rand(111, 999);
+            while (InterlabAnalista::where('tag_senha', $senha)->exists()) {
+                $senha = $tag . rand(111, 999);
             }
         }
 
