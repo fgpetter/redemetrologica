@@ -1,5 +1,5 @@
 <form wire:submit.prevent="salvar">
-  <div class="row gy-3">
+  <div class="row gy-2">
     <input type="hidden" wire:model="form.agenda_interlab_id">
 
     <div class="col-10 py-2">
@@ -32,77 +32,120 @@
       @error('parametros')<div class="text-danger">{{ $message }}</div>@enderror
     </div>
 
-    <hr>
-    {{-- Envio de amostras --}}
-    <div class="row">
-      <div class="col-md-4">
-        <x-forms.input-field 
-          wire:model.lazy="form.data_envio_amostras"
-          type="date" name="form.data_envio_amostras" label="Envio de amostras" />
-        @error('form.data_envio_amostras') <div class="text-warning">{{ $message }}</div> @enderror
-      </div>
+    <div class="col-12"><hr class="my-2"></div>
 
-      <div class="col-md-8">
-        <x-forms.input-file-upload 
-          label="Arquivo - Envio de amostras"
-          :arquivoSalvo="$this->arquivosSalvos['arquivo_envio'] ?? null"
-          wireModel="arquivo_envio"
-          campo="arquivo_envio" />
-      </div>
+    {{-- Envio de amostras --}}
+    <div class="col-12">
+        <div class="row g-1 align-items-end">
+            <div class="col-12">
+                <span class="fw-bold text-primary small"><i class="ri-send-plane-fill me-1"></i> 1. Envio de Amostras</span>
+            </div>
+            <div class="col-md-3">
+                <x-forms.input-field 
+                    wire:model.lazy="form.data_envio_amostras"
+                    type="date" name="form.data_envio_amostras" label="Data de Envio" />
+                @error('form.data_envio_amostras') <div class="text-warning small" style="font-size: 0.75rem;">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-9">
+                <x-forms.input-file-upload 
+                    label="Documento"
+                    :arquivoSalvo="$this->arquivosSalvos['arquivo_envio'] ?? null"
+                    wireModel="arquivo_envio"
+                    campo="arquivo_envio" />
+            </div>
+            <div class="col-12">
+                <x-forms.input-textarea 
+                    wire:model.lazy="form.descricao_arquivo_envio"
+                    name="form.descricao_arquivo_envio" label="Descrição" rows="2" />
+            </div>
+        </div>
     </div>
+
+    <div class="col-12"><hr class="my-1 border-light"></div>
 
     {{-- Início de ensaios --}}
-    <div class="row">
-      <div class="col-md-4">
-        <x-forms.input-field 
-          wire:model.lazy="form.data_inicio_ensaios"
-          type="date" name="form.data_inicio_ensaios" label="Início de ensaios" />
-        @error('form.data_inicio_ensaios') <div class="text-warning">{{ $message }}</div> @enderror
-      </div>
-
-      <div class="col-md-8">
-        <x-forms.input-file-upload 
-          label="Arquivo - Início de ensaios"
-          :arquivoSalvo="$this->arquivosSalvos['arquivo_inicio_ensaios'] ?? null"
-          wireModel="arquivo_inicio_ensaios"
-          campo="arquivo_inicio_ensaios" />
-      </div>
+    <div class="col-12">
+        <div class="row g-1 align-items-end">
+            <div class="col-12">
+                <span class="fw-bold text-primary small"><i class="ri-play-circle-fill me-1"></i> 2. Início de Ensaios</span>
+            </div>
+            <div class="col-md-3">
+                <x-forms.input-field 
+                    wire:model.lazy="form.data_inicio_ensaios"
+                    type="date" name="form.data_inicio_ensaios" label="Data de Início" />
+                @error('form.data_inicio_ensaios') <div class="text-warning small" style="font-size: 0.75rem;">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-9">
+                <x-forms.input-file-upload 
+                    label="Documento"
+                    :arquivoSalvo="$this->arquivosSalvos['arquivo_inicio_ensaios'] ?? null"
+                    wireModel="arquivo_inicio_ensaios"
+                    campo="arquivo_inicio_ensaios" />
+            </div>
+            <div class="col-12">
+                <x-forms.input-textarea 
+                    wire:model.lazy="form.descricao_arquivo_inicio_ensaios"
+                    name="form.descricao_arquivo_inicio_ensaios" label="Descrição" rows="2" />
+            </div>
+        </div>
     </div>
+
+    <div class="col-12"><hr class="my-1 border-light"></div>
 
     {{-- Limite de envio de resultados --}}
-    <div class="row">
-      <div class="col-md-4">
-        <x-forms.input-field 
-          wire:model.lazy="form.data_limite_envio_resultados"
-          type="date" name="form.data_limite_envio_resultados" label="Limite de envio de resultados" />
-        @error('form.data_limite_envio_resultados') <div class="text-warning">{{ $message }}</div> @enderror
-      </div>
-
-      <div class="col-md-8">
-        <x-forms.input-file-upload 
-          label="Arquivo - Limite de envio de resultados"
-          :arquivoSalvo="$this->arquivosSalvos['arquivo_limite_envio_resultados'] ?? null"
-          wireModel="arquivo_limite_envio_resultados"
-          campo="arquivo_limite_envio_resultados" />
-      </div>
+    <div class="col-12">
+        <div class="row g-1 align-items-end">
+            <div class="col-12">
+                <span class="fw-bold text-primary small"><i class="ri-timer-fill me-1"></i> 3. Limite de Envio de Resultados</span>
+            </div>
+            <div class="col-md-3">
+                <x-forms.input-field 
+                    wire:model.lazy="form.data_limite_envio_resultados"
+                    type="date" name="form.data_limite_envio_resultados" label="Data Limite" />
+                @error('form.data_limite_envio_resultados') <div class="text-warning small" style="font-size: 0.75rem;">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-9">
+                <x-forms.input-file-upload 
+                    label="Documento"
+                    :arquivoSalvo="$this->arquivosSalvos['arquivo_limite_envio_resultados'] ?? null"
+                    wireModel="arquivo_limite_envio_resultados"
+                    campo="arquivo_limite_envio_resultados" />
+            </div>
+            <div class="col-12">
+                <x-forms.input-textarea 
+                    wire:model.lazy="form.descricao_arquivo_limite_envio_resultados"
+                    name="form.descricao_arquivo_limite_envio_resultados" label="Descrição" rows="2" />
+            </div>
+        </div>
     </div>
 
-    {{-- Divulgação de relatórios --}}
-    <div class="row">
-      <div class="col-md-4">
-        <x-forms.input-field 
-          wire:model.lazy="form.data_divulgacao_relatorios"
-          type="date" name="form.data_divulgacao_relatorios" label="Divulgação de relatórios" />
-        @error('form.data_divulgacao_relatorios') <div class="text-warning">{{ $message }}</div> @enderror
-      </div>
+    <div class="col-12"><hr class="my-1 border-light"></div>
 
-      <div class="col-md-8">
-        <x-forms.input-file-upload 
-          label="Arquivo - Divulgação de relatórios"
-          :arquivoSalvo="$this->arquivosSalvos['arquivo_divulgacao_relatorios'] ?? null"
-          wireModel="arquivo_divulgacao_relatorios"
-          campo="arquivo_divulgacao_relatorios" />
-      </div>
+    {{-- Divulgação de relatórios --}}
+    <div class="col-12">
+        <div class="row g-1 align-items-end">
+            <div class="col-12">
+                <span class="fw-bold text-primary small"><i class="ri-article-fill me-1"></i> 4. Divulgação de Relatórios</span>
+            </div>
+            <div class="col-md-3">
+                <x-forms.input-field 
+                    wire:model.lazy="form.data_divulgacao_relatorios"
+                    type="date" name="form.data_divulgacao_relatorios" label="Data de Divulgação" />
+                @error('form.data_divulgacao_relatorios') <div class="text-warning small" style="font-size: 0.75rem;">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-9">
+                <x-forms.input-file-upload 
+                    label="Documento"
+                    :arquivoSalvo="$this->arquivosSalvos['arquivo_divulgacao_relatorios'] ?? null"
+                    wireModel="arquivo_divulgacao_relatorios"
+                    campo="arquivo_divulgacao_relatorios" />
+            </div>
+            <div class="col-12">
+                <x-forms.input-textarea 
+                    wire:model.lazy="form.descricao_arquivo_divulgacao_relatorios"
+                    name="form.descricao_arquivo_divulgacao_relatorios" label="Descrição" rows="2" />
+            </div>
+        </div>
     </div>
 
     <div class="col-lg-12 mt-4">

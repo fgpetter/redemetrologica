@@ -38,6 +38,10 @@ class RodadaForm extends Form
 
     #[Validate('nullable|date', message: 'O campo data de divulgação de relatórios deve ser uma data válida')]
     public ?string $data_divulgacao_relatorios = null;
+    public string $descricao_arquivo_envio = '';
+    public string $descricao_arquivo_inicio_ensaios = '';
+    public string $descricao_arquivo_limite_envio_resultados = '';
+    public string $descricao_arquivo_divulgacao_relatorios = '';
 
     /**
      * Preenche o form com dados de uma rodada existente
@@ -53,6 +57,10 @@ class RodadaForm extends Form
         $this->data_inicio_ensaios = $rodada->data_inicio_ensaios;
         $this->data_limite_envio_resultados = $rodada->data_limite_envio_resultados;
         $this->data_divulgacao_relatorios = $rodada->data_divulgacao_relatorios;
+        $this->descricao_arquivo_envio = $rodada->descricao_arquivo_envio ?? '';
+        $this->descricao_arquivo_inicio_ensaios = $rodada->descricao_arquivo_inicio_ensaios ?? '';
+        $this->descricao_arquivo_limite_envio_resultados = $rodada->descricao_arquivo_limite_envio_resultados ?? '';
+        $this->descricao_arquivo_divulgacao_relatorios = $rodada->descricao_arquivo_divulgacao_relatorios ?? '';
     }
 
     /**
@@ -68,6 +76,10 @@ class RodadaForm extends Form
         $this->data_inicio_ensaios = null;
         $this->data_limite_envio_resultados = null;
         $this->data_divulgacao_relatorios = null;
+        $this->descricao_arquivo_envio = '';
+        $this->descricao_arquivo_inicio_ensaios = '';
+        $this->descricao_arquivo_limite_envio_resultados = '';
+        $this->descricao_arquivo_divulgacao_relatorios = '';
     }
 
     /**
@@ -84,6 +96,10 @@ class RodadaForm extends Form
             'data_inicio_ensaios' => $this->data_inicio_ensaios,
             'data_limite_envio_resultados' => $this->data_limite_envio_resultados,
             'data_divulgacao_relatorios' => $this->data_divulgacao_relatorios,
+            'descricao_arquivo_envio' => $this->descricao_arquivo_envio,
+            'descricao_arquivo_inicio_ensaios' => $this->descricao_arquivo_inicio_ensaios,
+            'descricao_arquivo_limite_envio_resultados' => $this->descricao_arquivo_limite_envio_resultados,
+            'descricao_arquivo_divulgacao_relatorios' => $this->descricao_arquivo_divulgacao_relatorios,
         ];
     }
 }
