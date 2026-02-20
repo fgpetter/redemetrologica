@@ -42,7 +42,7 @@
       @error('tag_senha', 'principal') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
 
-    @if($agendainterlab->interlab->avaliacao == 'ANALISTA')
+    @if( isset($agendainterlab->interlab) && $agendainterlab->interlab->avaliacao == 'ANALISTA')
       <div class="col-md-3 col-xxl-3 align-self-center">
         <span class="badge bg-primary">PEP POR ANALISTA</span>
       </div>
@@ -64,7 +64,7 @@
                     x-model="valor.descricao"
                     placeholder="Descrição">
                 </div>
-                @if($agendainterlab->interlab->avaliacao == 'ANALISTA')
+                @if( isset($agendainterlab->interlab) && $agendainterlab->interlab->avaliacao == 'ANALISTA')
                   <div class="col-5 col-md-1">
                     <input type="number" class="form-control" 
                      :name="`valores[${index}][analistas]`"

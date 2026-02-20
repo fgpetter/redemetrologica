@@ -14,7 +14,7 @@
     <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
       <h3>Código de identificação - {{ $dadosDoc->content['interlab_nome'] }}</h3>
       
-      @if ($dadosDoc->content['analista_nome'])
+      @if (isset($dadosDoc->content['analista_nome']))
         Olá {{ $dadosDoc->content['analista_nome'] }},
         <p>Segue seu código de identificação (senha) para o interlaboratorial - Laboratório: {{ $dadosDoc->content['laboratorio_nome'] }}.</p>
       @else
