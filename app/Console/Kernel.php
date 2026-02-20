@@ -14,6 +14,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('app:envia-convites')->everyTenSeconds();
         // $schedule->command('certificados:clean')->dailyAt('01:00');
+        $schedule->command('app:send-envio-amostras-notification')->dailyAt('00:00');
+        $schedule->command('app:send-inicio-ensaios-notification')->dailyAt('01:00');
+        $schedule->command('app:send-limite-envio-resultados-notification')->dailyAt('02:00');
+        $schedule->command('app:send-divulgacao-relatorios-notification')->dailyAt('03:00');
     }
 
     /**
