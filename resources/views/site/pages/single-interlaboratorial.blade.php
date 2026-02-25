@@ -14,6 +14,11 @@
     <div class="container bg-white shadow-lg rounded p-4">
       <div class="row">
         <div class="col pe-5">
+          <div class="text-center">
+            @if( $agendainterlab->status == 'CONFIRMADO' )
+            <h2>PEP CONFIRMADO</h2>
+            @endif
+          </div>
           <div class="d-inline-block fs-5">
             {!! $agendainterlab->descricao !!}
           </div>
@@ -23,6 +28,9 @@
             @if ($agendainterlab->inscricao == 1 && $agendainterlab->interlab->tag)
             <h4>INSCRIÇÕES ABERTAS</h4>
             <P class="fs-5">Data de inicio : {{ \Carbon\Carbon::parse($agendainterlab->data_inicio)->format('d/m/Y') }}</P>
+            @if( $agendainterlab->status == 'CONFIRMADO' )
+            <P class="fs-5 fw-bold">PEP CONFIRMADO</p>
+            @endif
             <a href="{{ route('interlab-inscricao', ['target' => $agendainterlab->uid]) }}" class="btn btn-lg btn-rede-azul mt-3 botao-inscrevase">
               INSCREVA-SE
             </a>
