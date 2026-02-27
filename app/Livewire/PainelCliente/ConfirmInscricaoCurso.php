@@ -345,20 +345,19 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarInscricaoCNPJ() // Método com regras para salvar inscrição de CNPJ
     {
+        $dados_empresa = Pessoa::where('id', $this->empresa['id'])->first();
         foreach ($this->inscricoes as $inscricao) {
             $cursoInscrito = CursoInscrito::create([
                 'pessoa_id' => $inscricao['id_pessoa'],
                 'agenda_curso_id' => $this->agendacurso->id,
-                'empresa_id' => $this->empresa['id'],
+                'empresa_id' => $dados_empresa->id,
                 'nome' => $inscricao['nome'],
                 'email' => $inscricao['email'],
                 'telefone' => $inscricao['telefone'],
-                'valor' => $this->empresa['associado'] == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
+                'valor' => $dados_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
                 'data_inscricao' => now(),
             ]);
 
-
-            
             $lancamento = LancamentoFinanceiro::where('pessoa_id', $this->empresa['id'])
                 ->where('agenda_curso_id', $this->agendacurso->id)
                 ->first();
@@ -366,15 +365,15 @@ class ConfirmInscricaoCurso extends Component
             // se a empresa não possui inscritos nesse curso, cria um novo lançamento
             if (!$lancamento) {
                 $novoLancamentoFinanceiro = LancamentoFinanceiro::create([
-                    'pessoa_id' => $this->empresa['id'],
+                    'pessoa_id' => $dados_empresa->id,
                     'agenda_curso_id' =>  $this->agendacurso->id,
                     'historico' => 'Inscrição no curso - ' . $this->agendacurso->curso->descricao,
-                    'valor' => formataMoeda($this->empresa['associado'] == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento),
+                    'valor' => formataMoeda($dados_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento),
                     'centro_custo_id' => '3', // TREINAMENTO
                     'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
                     'data_emissao' => now(),
                     'status' => 'PROVISIONADO',
-                    'observacoes' => 'Inscrição de ' . $inscricao['nome'] . ', com valor de R$ ' . formataMoeda($this->empresa['associado'] == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento) . ', em ' . now()->format('d/m/Y H:i'),
+                    'observacoes' => 'Inscrição de ' . $inscricao['nome'] . ', com valor de R$ ' . formataMoeda($dados_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento) . ', em ' . now()->format('d/m/Y H:i'),
                 ]);
 
                 $cursoInscrito->update([
