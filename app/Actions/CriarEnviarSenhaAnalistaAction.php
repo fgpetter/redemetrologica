@@ -22,7 +22,7 @@ class CriarEnviarSenhaAnalistaAction
         $dadosDoc = DadosGeraDoc::create([
             'content' => [
                 'participante_id' => $inscrito->id,
-                'tag_senha' => $inscrito->tag_senha,
+                'tag_senha' => $analista->tag_senha ?? $inscrito->tag_senha,
                 'informacoes_inscricao' => $inscrito->informacoes_inscricao,
                 'laboratorio_nome' => $inscrito->laboratorio->nome,
                 'laboratorio_email' => $inscrito->email,
