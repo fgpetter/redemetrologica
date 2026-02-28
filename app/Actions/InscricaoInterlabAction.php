@@ -128,7 +128,7 @@ class InscricaoInterlabAction
     protected function geraTagSenha(AgendaInterlab $agendaInterlab, string $tipo): string
     {
         $tag = $agendaInterlab->interlab->tag ?? throw new \Exception('Tag do interlab não encontrada');
-        $senha = $tag . '-' . rand(111, 999);
+        $senha = $tag . rand(111, 999);
 
         if ($tipo === 'interlab_laboratorios') {
             while (InterlabInscrito::where('tag_senha', $senha)->where('agenda_interlab_id', $agendaInterlab->id)->exists()) {
@@ -138,7 +138,7 @@ class InscricaoInterlabAction
 
         if ($tipo === 'interlab_analistas') {
             while (InterlabAnalista::where('tag_senha', $senha)->exists()) {
-                $senha = $tag . rand(111, 999);
+                $senha = $tag . rand(1111, 9999);
             }
         }
 

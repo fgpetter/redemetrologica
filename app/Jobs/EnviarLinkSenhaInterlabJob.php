@@ -39,8 +39,9 @@ class EnviarLinkSenhaInterlabJob implements ShouldQueue
     {
         try {
             $dadosDoc = DadosGeraDoc::findOrFail($this->dadosDocId);
+            $destinatario = $dadosDoc->content['analista_email'] ?? $dadosDoc->content['laboratorio_email'];
 
-            Mail::to($dadosDoc->content['laboratorio_email'])
+            Mail::to($destinatario)
                 ->cc('sistema@redemetrologica.com.br')
                 ->queue(new LinkSenhaInterlabNotification($dadosDoc));
 

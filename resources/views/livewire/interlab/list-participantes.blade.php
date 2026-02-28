@@ -147,6 +147,15 @@
                                 <div class="row m-3 pe-2">
                                     <div class="col-6 text-wrap">
                                         <b>Informações:</b> {{ $participante->informacoes_inscricao }}
+                                        <br>
+                                        @if($participante->laboratorio->analistas->count() > 0)
+                                            <b>Analistas inscritos:</b> <br>
+                                            @foreach($participante->laboratorio->analistas as $analista)
+                                                {{ $analista->nome }} - {{ $analista->email }} - {{ $analista->telefone }} <br>
+                                            @endforeach
+                                        @endif
+
+
                                     </div>
                                     <div class="col-6 text-wrap">
                                         <b>Responsável técnico:</b>
