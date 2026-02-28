@@ -9,6 +9,22 @@
   @endcomponent
 
   @if( auth()->user()->pessoa )
+  
+    {{-- Apresenta links para páginas de cursos e interlabs --}}
+    @if(!auth()->user()->pessoa->funcionario && !session('curso') && !session('interlab'))
+      <div class="row">
+        <div class="col-12 col-xxl-4">
+          <div class="card mb-4">
+            <a href="{{ route('cursos-agendados-list') }}" class="btn btn-primary">Inscreva-se em um curso</a>
+          </div>
+        </div>
+        <div class="col-12 col-xxl-4">
+          <div class="card mb-4">
+            <a href="{{ route('site-list-interlaboratoriais') }}" class="btn btn-primary">Inscreva-se em um Ensaio de Proficiência</a>
+          </div>
+        </div>
+      </div>
+    @endif
 
     {{-- Habilita impersonamento --}}
     @canany(['admin','funcionario'])
