@@ -143,7 +143,11 @@ class FornecedorController extends Controller
         'fornecedor_area.array' => 'Áreas inválidas',
       ]
     );
-    $fornecedor->update($request->only('observacoes', 'fornecedor_area'));
+
+    $fornecedor->update([
+      'observacoes' => $request->observacoes,
+      'fornecedor_area' => $request->fornecedor_area ?? null
+    ]);
     $fornecedor->pessoa->update($request->except('observacoes','fornecedor_area'));
 
     return redirect()->back()->with('success', 'Fornecedor atualizado com sucesso');

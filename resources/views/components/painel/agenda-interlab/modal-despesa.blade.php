@@ -31,18 +31,18 @@
                 </x-forms.input-select>
               </div>
 
-              <div class="col-4">
+              <div class="col-6">
                 <label for="fornecedor" class="form-label">Fornecedor</label>
-                <input class="form-control" name="fornecedor" 
-                  value="{{old('fornecedor') ?? ($despesa->fornecedor ?? null)}}" 
-                  list="fornecedorList">
+                <select class="form-control" data-choices name="fornecedor" id="fornecedor">
+                    <option value="">Selecione na lista</option>
+                    @foreach ($fornecedores as $fornecedor)
+                        <option value="{{ $fornecedor->pessoa->nome_razao }}"
+                            @selected(old('fornecedor', $despesa?->fornecedor) === $fornecedor->pessoa->nome_razao)>
+                            {{ $fornecedor->pessoa->nome_razao }}
+                        </option>
+                    @endforeach
+                </select>
                 @error('fornecedor','despesas') <span class="text-warning" role="alert">{{ $message }}</span> @enderror
-                <datalist id="fornecedorList">
-                  @foreach ($fornecedores as $fornecedor)
-                      <option value="{{ $fornecedor->fornecedor }}">
-                  @endforeach
-              </datalist>
-
               </div>
 
               <div class="col-4">
@@ -60,8 +60,8 @@
 
               </div>
 
-              <div class="col-4">
-                <label for="cod_fabricante" class="form-label">Codigo Fabricante</label>
+              <div class="col-2">
+                <label for="cod_fabricante" class="form-label">Cod Fabricante</label>
                 <input class="form-control" name="cod_fabricante" 
                   value="{{old('cod_fabricante') ?? ($despesa->cod_fabricante ?? null)}}" >
                 @error('cod_fabricante','despesas') <span class="text-warning" role="alert">{{ $message }}</span> @enderror

@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Pessoa;
 use App\Models\Interlab;
 use App\Models\Parametro;
+use App\Enums\FornecedorArea;
 use App\Exports\LabExport;
 use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
 use App\Models\MaterialPadrao;
 use Illuminate\Support\Carbon;
+use App\Models\Fornecedor;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
 use App\Models\DadosGeraDoc;
@@ -61,7 +63,10 @@ class AgendaInterlabController extends Controller
       'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->orderBy('descricao')->get(),
       'interlabDespesa' => $agendainterlab->despesas,
       'fabricantes' => DB::table('interlab_despesas')->distinct()->get(['fabricante']),
-      'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
+      'fornecedores' => Fornecedor::with('pessoa')
+        ->whereJsonContains('fornecedor_area', FornecedorArea::Interlaboratorial->value)
+        ->orderBy('id')
+        ->get(),
       'interlabParametros' => $agendainterlab->parametros,
       'parametros' => Parametro::orderBy('descricao')->get(),
       'inscritosCount' => $inscritosCount, // Passar apenas o count
