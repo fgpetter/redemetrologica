@@ -47,9 +47,30 @@
         </div>
 
         <div class="row mt-3">
+          <div class="col-12">
+            <label class="form-label">Áreas de Atuação</label>
+            <div class="d-flex flex-wrap gap-3">
+              @foreach (App\Enums\FornecedorArea::cases() as $area)
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="fornecedor_area[]"
+                    value="{{ $area->value }}"
+                    @checked(in_array($area->value, old('fornecedor_area', $fornecedor->fornecedor_area ?? [])))
+                    id="area_{{ $area->value }}">
+                  <label class="form-check-label" for="area_{{ $area->value }}">
+                    {{ $area->label() }}
+                  </label>
+                </div>
+              @endforeach
+            </div>
+            @error('fornecedor_area') <div class="text-warning">{{ $message }}</div> @enderror
+          </div>
+        </div>
+
+        <div class="row mt-3">
           <div class="col">
-            <label for="oservacoes" class="form-label">Observações</label>
-            <textarea class="form-control" name="oservacoes" id="oservacoes" rows="3"></textarea>
+            <label for="observacoes" class="form-label">Observações</label>
+            <textarea class="form-control" name="observacoes" id="observacoes" rows="3">{{ old('observacoes') ?? ($fornecedor->observacoes ?? null) }}</textarea>
+            @error('observacoes') <div class="text-warning">{{ $message }}</div> @enderror
           </div>
         </div>
 

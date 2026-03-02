@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Fornecedor;
 use App\Models\Pessoa;
+use App\Enums\FornecedorArea;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -122,6 +123,8 @@ class FornecedorController extends Controller
         'email' => ['nullable', 'string', 'max:191'],
         'site' => ['nullable', 'string', 'max:191'],
         'observacoes' => ['nullable', 'string', 'max:1000'],
+        'fornecedor_area' => ['nullable', 'array'],
+        'fornecedor_area.*' => [Rule::enum(FornecedorArea::class)],
 
       ],
       [
@@ -137,12 +140,11 @@ class FornecedorController extends Controller
         'email.max' => 'E-mail inválido',
         'site.max' => 'Site inválido',
         'observacoes.max' => 'Observações inválidas',
+        'fornecedor_area.array' => 'Áreas inválidas',
       ]
     );
-
-    $fornecedor->update($request->only('obsercvacoes'));
-
-    $fornecedor->pessoa->update($validated);
+    $fornecedor->update($request->only('observacoes', 'fornecedor_area'));
+    $fornecedor->pessoa->update($request->except('observacoes','fornecedor_area'));
 
     return redirect()->back()->with('success', 'Fornecedor atualizado com sucesso');
   }

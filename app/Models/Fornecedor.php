@@ -26,6 +26,18 @@ class Fornecedor extends Model
      */
     protected $table = 'fornecedores';
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'fornecedor_area' => 'array',
+        ];
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

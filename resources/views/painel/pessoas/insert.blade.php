@@ -31,10 +31,11 @@
       <livewire:dados-bancarios.listview :pessoa="$pessoa" />
     @endif
 
+    {{-- TODO remover unidades --}}
     {{-- Unidades --}}
-    @if($pessoa->id && $pessoa->tipo_pessoa == 'PJ')
+    {{-- @if($pessoa->id && $pessoa->tipo_pessoa == 'PJ')
       <x-painel.unidades.list :pessoa="$pessoa"/>
-    @endif
+    @endif --}}
 
     {{-- Avaliador --}}
     @if($pessoa->avaliador)
