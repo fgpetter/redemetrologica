@@ -1,6 +1,6 @@
 @php
     $order = request('name', 'asc') == 'asc' ? 'desc' : 'asc';
-    $busca_nome = request('buscanome', '');
+    $busca = request('busca', '');
 @endphp
 
 <div class="card">
@@ -15,8 +15,8 @@
             <th scope="col"></th>
             <th scope="col">
               <input type="text" class="form-control form-control-sm"
-                onkeypress="search(event, window.location.href, 'buscanome')"
-                placeholder="Buscar por nome" value="{{ $busca_nome }}">
+                onkeypress="search(event, window.location.href, 'busca')"
+                placeholder="Buscar por nome ou email" value="{{ $busca }}">
             </th>
             <th scope="col"></th>
             <th scope="col"></th>
@@ -27,7 +27,7 @@
           <tr>
             <th scope="col">ID</th>
             <th scope="col">
-              <a href="{{ route('user-index', ['name' => $order, 'buscanome' => $busca_nome]) }}">
+              <a href="{{ route('user-index', ['name' => $order, 'busca' => $busca]) }}">
                 {!! $order == 'asc' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
                 Nome
               </a>

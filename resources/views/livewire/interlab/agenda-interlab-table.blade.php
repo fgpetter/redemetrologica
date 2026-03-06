@@ -28,7 +28,7 @@
                     </div>
 
                     <!-- Filtro por Empresa -->
-                    <div class="col-3" wire:ignore>
+                    <div class="col-4" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
                         <select wire:model.live="empresaSelecionada" id="empresa-select" class="form-select form-select-sm">
                             <option value="">Selecione...</option>

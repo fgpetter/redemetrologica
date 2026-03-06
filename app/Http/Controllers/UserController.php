@@ -23,11 +23,12 @@ class UserController extends Controller
   public function index(Request $request)
 {
     $order = $request->input('name', 'asc');
-    $busca_nome = $request->input('buscanome');
+    $busca = $request->input('busca');
 
     $users = User::with(['permissions', 'pessoa'])
-        ->when($busca_nome, function ($query) use ($busca_nome) {
-            $query->where('name', 'LIKE', "%{$busca_nome}%");
+        ->when($busca, function ($query) use ($busca) {
+            $query->where('name', 'LIKE', "%{$busca}%");
+            $query->orWhere('email', 'LIKE', "%{$busca}%");
         })
         ->orderBy('name', $order)
         ->paginate(10)
