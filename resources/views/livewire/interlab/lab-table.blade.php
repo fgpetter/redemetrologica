@@ -109,7 +109,7 @@
                                         ->values();
                                 @endphp
                                 @if($peps->isNotEmpty())
-                                    {{ $peps->implode(', ') }}
+                                    {!! $peps->implode('<br>') !!}
                                 @else
                                     -
                                 @endif
