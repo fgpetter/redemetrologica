@@ -8,7 +8,7 @@
     
     $busca_nome = request('buscanome', '');
     $busca_doc = request('buscadoc', '');
-    
+    $busca_area = request('buscaarea', '');
 @endphp
 <div class="card">
     <div class="card-body">
@@ -65,7 +65,14 @@
                             onkeypress="search(event, window.location.href, 'buscadoc')"
                             placeholder="Buscar por documento" value="{{ $busca_doc }}">
                     </th>
-                    <th scope="col"></th>
+                    <th scope="col">
+                        <select class="form-control form-control-sm" name="area" id="area">
+                            <option value="">Filtrar áreas</option>
+                            @foreach(App\Enums\FornecedorArea::cases() as $area)
+                                <option value="{{ $area->value }}" @selected($busca_area == $area->value)>{{ $area->label() }}</option>
+                            @endforeach
+                        </select>
+                    </th>
                 </tr>
             </thead>  
             <thead>
@@ -94,6 +101,7 @@
                         </a>
                     </th>
                     <th scope="col">Áreas</th>
+                    <th scope="col">Nome - Contato</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
@@ -113,11 +121,12 @@
                                     @foreach($fornecedor->fornecedor_area as $area_value)
                                         @php $area = App\Enums\FornecedorArea::tryFrom($area_value); @endphp
                                         @if($area)
-                                            {{ $area->label() }}{{ !$loop->last ? ' | ' : '' }}
+                                            {{ $area->label() }} <br>
                                         @endif
                                     @endforeach
                                 @endif
                             </td>
+                            <td>{{ $fornecedor->pessoa_contato }} - {{ $fornecedor->pessoa_contato_email }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
@@ -153,3 +162,10 @@
         </div>
     </div>
 </div>
+
+<script>
+    const selectArea = document.querySelector('select[name="area"]');
+    selectArea.addEventListener('change', function() {
+        window.location.href = window.location.href.split('?')[0] + '?buscaarea=' + this.value;
+    });
+</script>

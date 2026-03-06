@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\FornecedorArea;
 use App\Models\Fornecedor;
 use App\Models\Pessoa;
-use App\Enums\FornecedorArea;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
 
 class FornecedorController extends Controller
 {
@@ -24,6 +25,7 @@ class FornecedorController extends Controller
     $doc = $request->doc;
     $busca_nome = $request->buscanome;
     $busca_doc = preg_replace("/[^0-9]/", "", $request->buscadoc);
+    $busca_area = $request->buscaarea;
 
     $fornecedores = Fornecedor::with('pessoa')
         ->join('pessoas', 'fornecedores.pessoa_id', '=', 'pessoas.id')
@@ -39,6 +41,9 @@ class FornecedorController extends Controller
         })
         ->when($busca_doc, function ($query, $busca_doc) {
             $query->where('pessoas.cpf_cnpj', 'LIKE', "%{$busca_doc}%");
+        })
+        ->when($busca_area, function ($query, $busca_area) {
+            $query->whereJsonContains('fornecedor_area', [$busca_area]);
         })
         ->paginate(10)
         ->withQueryString();
@@ -112,22 +117,22 @@ class FornecedorController extends Controller
   {
     $request->merge(return_only_nunbers($request->only('cpf_cnpj', 'telefone', 'telefone_alt', 'celular')));
 
-    $validated = $request->validate(
-      [
+    $validator = Validator::make($request->all(), [
         'nome_razao' => ['required', 'string', 'max:191'],
         'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,' . $fornecedor->pessoa->id],
         'rg_ie' => ['nullable', 'string', 'max:191'],
         'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
         'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
         'celular' => ['nullable', 'string', 'min:10', 'max:11'],
-        'email' => ['nullable', 'string', 'max:191'],
         'site' => ['nullable', 'string', 'max:191'],
         'observacoes' => ['nullable', 'string', 'max:1000'],
         'fornecedor_area' => ['nullable', 'array'],
         'fornecedor_area.*' => [Rule::enum(FornecedorArea::class)],
-
-      ],
-      [
+        'fornecedor_area_atuacao' => ['nullable', 'string', 'max:191'],
+        'pessoa_contato' => ['nullable', 'string', 'max:191'],
+        'pessoa_contato_email' => ['nullable', 'email', 'max:191'],
+        'fornecerdor_desde' => ['nullable', 'date'],
+      ],[
         'nome_razao.required' => 'Preencha o campo nome ou razão social',
         'cpf_cnpj.required' => 'Preencha o campo CPF',
         'cpf_cnpj.unique' => 'CPF ja cadastrado',
@@ -137,18 +142,55 @@ class FornecedorController extends Controller
         'telefone_alt.max' => 'Telefone alternativo inválido',
         'celular.min' => 'Celular inválido',
         'celular.max' => 'Celular inválido',
-        'email.max' => 'E-mail inválido',
         'site.max' => 'Site inválido',
         'observacoes.max' => 'Observações inválidas',
         'fornecedor_area.array' => 'Áreas inválidas',
+        'fornecedor_area_atuacao.string' => 'Área de atuação inválida',
+        'fornecedor_area_atuacao.max' => 'Área de atuação inválida',
+        'pessoa_contato.string' => 'Contato inválido',
+        'pessoa_contato.max' => 'Contato inválido',
+        'pessoa_contato_email.email' => 'E-mail inválido',
+        'pessoa_contato_email.max' => 'E-mail inválido',
+        'fornecerdor_desde.date' => 'Data de inicio inválida',
       ]
     );
 
-    $fornecedor->update([
-      'observacoes' => $request->observacoes,
-      'fornecedor_area' => $request->fornecedor_area ?? null
+    if ($validator->fails()) {
+
+      Log::channel('validation')->info("Erro de validação", 
+      [
+          'user' => auth()->user() ?? null,
+          'request' => $request->all() ?? null,
+          'uri' => request()->fullUrl() ?? null,
+          'method' => get_class($this) .'::'. __FUNCTION__ ,
+          'errors' => $validator->errors() ?? null,
+          
+      ]);
+
+      return back()
+      ->withErrors($validator, 'principal')
+      ->withInput()
+      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
+    }
+
+    $fornecedor->pessoa->update([
+      'nome_razao' => $request->nome_razao,
+      'cpf_cnpj' => $request->cpf_cnpj,
+      'rg_ie' => $request->rg_ie,
+      'telefone' => $request->telefone,
+      'telefone_alt' => $request->telefone_alt,
+      'celular' => $request->celular,
+      'site' => $request->site,
     ]);
-    $fornecedor->pessoa->update($request->except('observacoes','fornecedor_area'));
+
+    $fornecedor->update([
+      'fornecedor_area' => $request->fornecedor_area,
+      'fornecedor_area_atuacao' => $request->fornecedor_area_atuacao,
+      'pessoa_contato' => $request->pessoa_contato,
+      'pessoa_contato_email' => $request->pessoa_contato_email,
+      'fornecerdor_desde' => $request->fornecerdor_desde,
+      'ativo' => $request->ativo,
+    ]);
 
     return redirect()->back()->with('success', 'Fornecedor atualizado com sucesso');
   }
@@ -162,7 +204,6 @@ class FornecedorController extends Controller
   public function delete(Fornecedor $fornecedor): RedirectResponse
   {
     $fornecedor->delete();
-
     return redirect()->route('fornecedor-index')->with('warning', 'Fornecedor removido');
   }
 }
