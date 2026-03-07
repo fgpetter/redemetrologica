@@ -50,13 +50,18 @@ class AgendaInterlabController extends Controller
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
-    // remover 'inscritos' daqui - o Livewire já carrega com eager loading
-    $agendainterlab->load(['despesas', 'parametros', 'rodadas', 'valores']);
-    
-    // contar inscritos sem carregar a collection inteira
+    $agendainterlab->load([
+      'interlab',
+      'despesas.materialPadrao',
+      'parametros.parametro',
+      'rodadas',
+      'valores',
+      'materiais',
+    ]);
+
     $inscritosCount = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->count();
 
-    $data = [ 
+    $data = [
       'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get(),
       'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
@@ -64,7 +69,7 @@ class AgendaInterlabController extends Controller
       'interlabDespesa' => $agendainterlab->despesas,
       'fabricantes' => DB::table('interlab_despesas')->distinct()->get(['fabricante']),
       'fornecedores' => Fornecedor::with('pessoa')
-        ->whereJsonContains('fornecedor_area', FornecedorArea::Interlaboratorial->value)
+        ->whereJsonContains('fornecedor_area', FornecedorArea::PEP->value)
         ->orderBy('id')
         ->get(),
       'interlabParametros' => $agendainterlab->parametros,

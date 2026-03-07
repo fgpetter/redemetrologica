@@ -70,7 +70,7 @@
                     </div>
 
                 @if ($agendainterlab->id)
-                    <livewire:interlab.list-participantes :idinterlab="$idinterlab" />
+                    <livewire:interlab.list-participantes :idinterlab="$idinterlab" :pessoas="$pessoas" />
                 @endif
 
                 </div>
