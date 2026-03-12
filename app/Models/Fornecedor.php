@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Fornecedor extends Model
 {
@@ -26,25 +27,12 @@ class Fornecedor extends Model
      */
     protected $table = 'fornecedores';
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'fornecedor_area' => 'array',
-        ];
-    }
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
             ->useLogName(get_class($this));
     }
-
 
     /**
      * Carrega pessoa
@@ -53,5 +41,14 @@ class Fornecedor extends Model
     public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class);
+    }
+
+    /**
+     * Áreas de atuação
+     * @return HasMany
+     */
+    public function areas(): HasMany
+    {
+        return $this->hasMany(FornecedorArea::class);
     }
 }

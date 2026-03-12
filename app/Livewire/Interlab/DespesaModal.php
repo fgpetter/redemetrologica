@@ -215,7 +215,7 @@ class DespesaModal extends Component
     public function render()
     {
         $fornecedores = Fornecedor::with('pessoa')
-            ->whereJsonContains('fornecedor_area', FornecedorArea::PEP->value)
+            ->whereHas('areas', fn ($q) => $q->where('area', FornecedorArea::PEP))
             ->orderBy('id')
             ->get();
 
