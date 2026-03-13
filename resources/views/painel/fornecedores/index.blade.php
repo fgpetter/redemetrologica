@@ -8,7 +8,7 @@
 
 <div class="row">
   <div class="col">
-    <x-painel.fornecedores.list :fornecedores="$fornecedores" :pessoas="$pessoas"/>
+    <livewire:fornecedores.fornecedores-table />
   </div>
 </div>
 

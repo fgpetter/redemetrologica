@@ -308,11 +308,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     Route::post('upload-protocolo/{agendainterlab:uid}',[AgendaInterlabController::class, 'uploadProtocolo'])->name('agenda-interlab-upload-protocolo');
     Route::post('delete-protocolo/{agendainterlab:uid}',[AgendaInterlabController::class, 'deleteProtocolo'])->name('agenda-interlab-delete-protocolo');
     
-    /* Despesas */
-    Route::post('salva-despesa', [AgendaInterlabController::class, 'salvaDespesa'])->name('salvar-despesa');
-    Route::get('duplicar-despesa/{despesa:uid}', [AgendaInterlabController::class, 'duplicarDespesa'])->name('agenda-interlab-duplicar-despesa');
-    Route::post('delete-despesa/{despesa:uid}', [AgendaInterlabController::class, 'deleteDespesa'])->name('delete-despesa');
-    
     /* Parametros */
     Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salva-parametro');
     Route::post('delete-parametro/{parametro}', [AgendaInterlabController::class, 'deleteParametro'])->name('delete-parametro');

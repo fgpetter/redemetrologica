@@ -16,7 +16,8 @@
   @endif
 
   <div class="form-check">
-    <input {{ $attributes->class(['form-check-input']) }} type="checkbox" name="{{ $name }}" id="{{ $name }}"
+    @php $inputId = $attributes->get('id', $name); @endphp
+    <input {{ $attributes->merge(['class' => 'form-check-input', 'id' => $inputId]) }} type="checkbox" name="{{ $name }}"
       x-on:invalid="showError = true; $el.focus()"
       x-on:change="showError = false"
       :class="{ 'is-invalid': showError }"
@@ -24,7 +25,7 @@
       @if ($required) required @endif
       @readonly($readonly)
     >
-    <label {{ $attributes->class(['form-check-label']) }} for="{{ $name }}">{{ $label }}</label>
+    <label class="form-check-label" for="{{ $inputId }}">{{ $label }}</label>
   </div>
   <span x-show="showError" x-cloak class="text-danger small">Obrigatório</span>
 </div>

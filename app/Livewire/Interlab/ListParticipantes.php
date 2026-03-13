@@ -13,9 +13,13 @@ class ListParticipantes extends Component
 {
     public int $idinterlab;
 
-    public function mount(int $idinterlab)
+    /** @var \Illuminate\Support\Collection|null */
+    public $pessoas = null;
+
+    public function mount(int $idinterlab, $pessoas = null)
     {
         $this->idinterlab = $idinterlab;
+        $this->pessoas = $pessoas ? (is_array($pessoas) ? collect($pessoas) : $pessoas) : null;
     }
 
     public function atualizarValor($id, $valor)
@@ -43,14 +47,10 @@ class ListParticipantes extends Component
 
     public function render()
     {
-        $agendainterlab = AgendaInterlab::with([
-            'despesas',
-            'parametros',
-            'rodadas',
-        ])->findOrFail($this->idinterlab);
+        $agendainterlab = AgendaInterlab::findOrFail($this->idinterlab);
 
         $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-            ->with(['empresa', 'pessoa', 'laboratorio.endereco'])
+            ->with(['empresa', 'pessoa', 'laboratorio.endereco', 'laboratorio.analistas'])
             ->orderBy('data_inscricao', 'desc')
             ->get();
 
@@ -65,21 +65,17 @@ class ListParticipantes extends Component
             ];
         })->sortByDesc('data_mais_recente')->pluck('empresa_id');
 
-        $interlabempresasinscritas = Pessoa::whereIn('id', $empresaIds)
-            ->get()
+        $pessoasCollection = $this->pessoas && $this->pessoas->isNotEmpty()
+            ? $this->pessoas
+            : Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get();
+
+        $interlabempresasinscritas = $pessoasCollection->whereIn('id', $empresaIds)
             ->sortBy(function ($empresa) use ($empresaIds) {
                 return $empresaIds->search($empresa->id);
-            });
+            })
+            ->values();
 
-        $pessoas = Pessoa::select([
-            'id',
-            'uid',
-            'cpf_cnpj',
-            'nome_razao',
-            'tipo_pessoa',
-        ])
-            ->orderBy('nome_razao')
-            ->get();
+        $pessoas = $pessoasCollection;
 
         // pré-carregar todos os tag_senha_doc de uma vez (evita N+1)
         $participanteIds = $intelabinscritos->pluck('id')->toArray();

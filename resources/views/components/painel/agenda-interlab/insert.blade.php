@@ -70,7 +70,7 @@
                     </div>
 
                 @if ($agendainterlab->id)
-                    <livewire:interlab.list-participantes :idinterlab="$idinterlab" />
+                    <livewire:interlab.list-participantes :idinterlab="$idinterlab" :pessoas="$pessoas" />
                 @endif
 
                 </div>
@@ -78,8 +78,8 @@
 
             <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
                 <div class="col-12">
-                    <x-painel.agenda-interlab.despesas :agendainterlab="$agendainterlab" :materiaisPadrao="$materiaisPadrao" :interlabDespesa="$interlabDespesa"
-                        :interlabParametros="$interlabParametros" :parametros="$parametros" :fornecedores="$fornecedores" :fabricantes="$fabricantes" />
+                    <x-painel.agenda-interlab.despesas :agendainterlab="$agendainterlab"
+                        :interlabParametros="$interlabParametros" :parametros="$parametros" />
                 </div>
             </div>
 
