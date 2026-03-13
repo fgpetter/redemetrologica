@@ -14,10 +14,12 @@ return new class extends Migration
     {
         Schema::table('fornecedores', function (Blueprint $table) {
             $table->date('fornecedor_desde')->nullable()->after('pessoa_id');
+            $table->boolean('ativo')->default(true)->after('observacoes');
         });
 
         Schema::create('fornecedores_areas', function (Blueprint $table) {
             $table->id();
+            $table->string('uid')->unique();
             $table->foreignId('fornecedor_id')->constrained('fornecedores', 'id')->onDelete('cascade');
             $table->enum('area', FornecedorArea::values());
             $table->string('atuacao')->nullable();
@@ -25,6 +27,7 @@ return new class extends Migration
             $table->string('pessoa_contato_email')->nullable();
             $table->string('pessoa_contato_telefone')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

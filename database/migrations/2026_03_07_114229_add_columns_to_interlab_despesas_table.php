@@ -17,9 +17,11 @@ return new class extends Migration
 
         // rodar a migration
         Schema::table('interlab_despesas', function (Blueprint $table) {
-            $table->string('material_servico')->nullable()->after('material_padrao_id');
-            $table->foreignId('fornecedor_id')->nullable()->constrained('fornecedores')->nullOnDelete()->after('material_padrao_id');
+            $table->dropForeign(['material_padrao_id']);
+            $table->dropColumn('material_padrao_id');
             $table->dropColumn('fornecedor');
+            $table->foreignId('fornecedor_id')->nullable()->constrained('fornecedores')->after('agenda_interlab_id');
+            $table->string('material_servico')->nullable()->after('fornecedor_id');
         });
     }
 
@@ -28,11 +30,5 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('interlab_despesas', function (Blueprint $table) {
-            $table->dropColumn('material_servico');
-            $table->dropForeign(['fornecedor_id']);
-            $table->dropColumn('fornecedor_id');
-            $table->string('fornecedor')->nullable()->after('material_padrao_id');
-        });
     }
 };
