@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('fornecedores', function (Blueprint $table) {
-            $table->date('fornecedor_desde')->nullable()->after('fornecedor_area');
+            $table->date('fornecedor_desde')->nullable()->after('pessoa_id');
         });
 
         Schema::create('fornecedores_areas', function (Blueprint $table) {
