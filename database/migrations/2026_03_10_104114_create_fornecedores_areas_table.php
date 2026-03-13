@@ -18,8 +18,8 @@ return new class extends Migration
 
         Schema::create('fornecedores_areas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fornecedor_id')->constrained()->onDelete('cascade');
-            $table->enum('area', FornecedorArea::cases());
+            $table->foreignId('fornecedor_id')->constrained('fornecedores', 'id')->onDelete('cascade');
+            $table->enum('area', FornecedorArea::values());
             $table->string('atuacao')->nullable();
             $table->string('pessoa_contato')->nullable();
             $table->string('pessoa_contato_email')->nullable();
@@ -36,7 +36,6 @@ return new class extends Migration
         Schema::table('fornecedores', function (Blueprint $table) {
             $table->dropColumn('fornecedor_desde');
         });
-        Schema::dropIfExists('fornecedores_areas');
         Schema::dropIfExists('fornecedores_areas');
     }
 };
