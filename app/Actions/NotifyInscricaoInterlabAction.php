@@ -2,13 +2,14 @@
 
 namespace App\Actions;
 
-use App\Models\AgendaInterlab;
-use App\Models\InterlabInscrito;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\NovoCadastroInterlabNotification;
 use App\Actions\CriarEnviarSenhaAnalistaAction;
 use App\Mail\ConfirmacaoInscricaoAnalistaNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
+use App\Mail\NotifyInvalidEmail;
+use App\Mail\NovoCadastroInterlabNotification;
+use App\Models\AgendaInterlab;
+use App\Models\InterlabInscrito;
+use Illuminate\Support\Facades\Mail;
 
 class NotifyInscricaoInterlabAction
 {
@@ -20,6 +21,12 @@ class NotifyInscricaoInterlabAction
         ->send(new NovoCadastroInterlabNotification($inscrito, $interlab));
       }
       
+      // if $inscrito->pessoa->email is null or empty trown exception
+      if (empty($inscrito->pessoa->email)) {
+        Mail::to('sistema@redemetrologica.com.br')->send(new NotifyInvalidEmail($inscrito->pessoa, $interlab, auth()->user() ));
+        dd('email invalido');
+      }
+
       Mail::to($inscrito->pessoa->email)
         ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $interlab));
 
