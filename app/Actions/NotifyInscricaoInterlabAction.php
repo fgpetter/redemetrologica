@@ -23,7 +23,6 @@ class NotifyInscricaoInterlabAction
         // if $inscrito->pessoa->email is null or empty trown exception
         if (empty($inscrito->pessoa->email)) {
             Mail::to('sistema@redemetrologica.com.br')->send(new NotifyInvalidEmail($inscrito->pessoa, $interlab, auth()->user()));
-            dd('email invalido');
         }
 
         Mail::to($inscrito->pessoa->email)
