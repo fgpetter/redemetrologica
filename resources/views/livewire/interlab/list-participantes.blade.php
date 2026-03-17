@@ -148,9 +148,9 @@
                                     <div class="col-6 text-wrap">
                                         <b>Informações:</b> {{ $participante->informacoes_inscricao }}
                                         <br>
-                                        @if($participante->laboratorio->analistas->count() > 0)
+                                        @if($participante->analistas->isNotEmpty())
                                             <b>Analistas inscritos:</b> <br>
-                                            @foreach($participante->laboratorio->analistas as $analista)
+                                            @foreach($participante->analistas as $analista)
                                                 {{ $analista->nome }} - {{ $analista->email }} - {{ $analista->telefone }} <br>
                                             @endforeach
                                         @endif
