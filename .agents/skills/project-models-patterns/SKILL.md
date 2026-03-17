@@ -17,6 +17,7 @@ description: Padrões para Models Eloquent (Traits, Accessors, PHP 8.3+) no proj
 - **Model Scopes estáticos:** para filtros complexos reutilizáveis, criar método `static` retornando `Builder` (ex: `getLancamentosAReceber(array $validated): Builder`).
 - Relacionamentos sempre documentados com `@return` no PHPDoc e com tipagem de retorno (`BelongsTo`, `HasMany`, `BelongsToMany`, etc.).
 - Métodos de negócio que manipulam relacionamentos (ex: `updateParametros()`) devem ficar no Model, não no Controller.
+- Para validar se um objeto existe, use `->exists()` em vez de `->count()` isso gera uma query muito mais eficiente no banco.
 
 ## 2. Exemplo de Referência
 
@@ -104,17 +105,23 @@ class NomeModel extends Model
             ->when($validated['status'] ?? null, fn (Builder $q, $s) => $q->where('status', $s))
             ->when($validated['search'] ?? null, fn (Builder $q, $s) => $q->where('nome', 'like', "%{$s}%"));
     }
+
+    public function userExists()
+    {
+        $this->where('email', $email)->exists()
+    }
 }
 ```
 
 ## 3. Anti-Patterns
 
-| ❌ Anti-pattern                                  | ✅ Correto                                               |
-| :----------------------------------------------- | :------------------------------------------------------- |
-| `getXxxAttribute()` para novos Accessors         | Usar `Attribute::make(get:, set:)`                       |
-| `$fillable = [...]` explícito                    | Usar `protected $guarded = []`                           |
-| Omitir `protected $table`                        | Sempre declarar a tabela explicitamente                  |
-| Relacionamento `BelongsTo` sem `->withTrashed()` | Adicionar `->withTrashed()` em entidades com SoftDeletes |
+| ❌ Anti-pattern                                       | ✅ Correto                                              |
+| :-----------------------------------------------      | :------------------------------------------------------- |
+| `getXxxAttribute()` para novos Accessors              | Usar `Attribute::make(get:, set:)`                       |
+| `$fillable = [...]` explícito                         | Usar `protected $guarded = []`                           |
+| Omitir `protected $table`                             | Sempre declarar a tabela explicitamente                  |
+| Relacionamento `BelongsTo` sem `->withTrashed()`      | Adicionar `->withTrashed()` em entidades com SoftDeletes |
+| Usar count `$this->where('email', $email)->count()`   | Usar Exists `$this->where('email', $email)->exists()`    |
 
 ## 4. Checklist
 
