@@ -57,7 +57,7 @@ class AgendaInterlabController extends Controller
     $inscritosCount = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->count();
 
     $data = [
-      'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get(),
+      'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa', 'associado'])->orderBy('nome_razao')->get(),
       'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
       'interlabParametros' => $agendainterlab->parametros,
