@@ -89,7 +89,12 @@
                 @forelse ($inscritos as $inscrito)
                     <tr wire:key="inscrito-{{ $inscrito->uid }}">
                         <td>{{ Carbon\Carbon::parse($inscrito->data_inscricao)->format('d/m/Y') }}</td>
-                        <td class="text-truncate" style="max-width: 250px;">{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>
+                        <td class="text-truncate" style="max-width: 250px;">
+                            {{ $inscrito->empresa?->nome_razao ?? 'Individual' }}
+                            @if($inscrito->empresa?->associado)
+                                <span class="text-primary">Associado</span>
+                            @endif
+                        </td>
                         <td>{{ $inscrito->nome }}</td>
                         <td> {{ $inscrito->valor }} </td>
                         <td>
