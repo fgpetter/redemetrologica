@@ -55,11 +55,11 @@
 
             <p class="h4 font-weight-bold my-3">{{ $dadosDoc->content['participante_nome'] }}</p>
 
-            <p class="h3">Participou do</p>
+            <p class="h3">Participou do curso de</p>
 
             <p class="h4 font-weight-bold mt-3 mb-3">{{ $dadosDoc->content['curso_nome'] }}</p>
             
-            <p class="h5">Realizado no(s) dia(s): {{ $dadosDoc->content['curso_data'] }}</p>
+            <p class="h5">{{ $dadosDoc->content['curso_data'] }}</p>
 
             @php
                 setlocale(LC_TIME, 'pt_BR.UTF-8');

@@ -9,17 +9,20 @@ use App\Actions\EnviarCertificadoInterlabAction;
 class GerarCertificadoButton extends Component
 {
     public $participanteId;
+
     public $email = '';
+
     public $showModal = false;
 
-    public function mount($participanteId)
+    public function mount($participanteId, $email = null)
     {
         $this->participanteId = $participanteId;
-        
-        // Carregar email do participante
-        $inscrito = InterlabInscrito::find($participanteId);
-        if ($inscrito) {
-            $this->email = $inscrito->email ?? '';
+        $this->email = $email ?? '';
+        if ($this->email === '' && $participanteId) {
+            $inscrito = InterlabInscrito::find($participanteId);
+            if ($inscrito) {
+                $this->email = $inscrito->email ?? '';
+            }
         }
     }
 

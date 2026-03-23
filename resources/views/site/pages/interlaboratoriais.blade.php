@@ -44,7 +44,12 @@
           <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" 
              class="text-white bold flex-grow-1 overflow-hidden">
             <h5 class="card-title pb-2">{{ $agendaInterlab->interlab->nome }}</h5>
-            <p class="card-text">{{ $agendaInterlab->ano_referencia ?? '' }}</p>
+            <p class="card-text">
+              {{ $agendaInterlab->ano_referencia ?? '' }}
+              @if( $agendaInterlab->status == 'CONFIRMADO' )
+               - <strong>PEP CONFIRMADO</strong>
+              @endif
+            </p>
           </a>
 
           <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" 
