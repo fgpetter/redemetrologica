@@ -148,6 +148,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
     - Execute Node commands: `vendor/bin/sail npm run dev`
     - Execute PHP scripts: `vendor/bin/sail php [script]`
 - View all available Sail commands by running `vendor/bin/sail` without arguments.
+- When running any debug, do not try to run `file_put_contents`, always use Laravel log helper or Log facade.
 
 === laravel/core rules ===
 
