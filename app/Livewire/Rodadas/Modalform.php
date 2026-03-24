@@ -16,11 +16,10 @@ class Modalform extends Component
     use WithFileUploads;
 
     public AgendaInterlab $agendainterlab;
-    public ?string $rodadaUid = null;
-    public RodadaForm $form;
 
-    // Propriedade separada para parâmetros (checkboxes não funcionam bem em Form Objects)
-    public array $parametros = [];
+    public ?string $rodadaUid = null;
+
+    public RodadaForm $form;
 
     // Propriedades separadas para upload de arquivos (Livewire não funciona bem com uploads em Form Objects)
     #[Validate('nullable|file|mimes:doc,docx,pdf|max:5120', message: [
@@ -56,10 +55,8 @@ class Modalform extends Component
         if ($this->rodadaUid) {
             $rodada = InterlabRodada::where('uid', $this->rodadaUid)->first();
             $this->form->setRodada($rodada);
-            $this->parametros = $rodada->parametros->pluck('parametro_id')->map(fn($id) => (string) $id)->toArray();
         } else {
             $this->form->setNew($this->agendainterlab->id);
-            $this->parametros = [];
         }
     }
 
@@ -69,7 +66,7 @@ class Modalform extends Component
             return;
         }
 
-        $caminhoArquivo = public_path('interlab-material/' . $nomeArquivo);
+        $caminhoArquivo = public_path('interlab-material/'.$nomeArquivo);
         if (file_exists($caminhoArquivo)) {
             unlink($caminhoArquivo);
         }
@@ -93,13 +90,13 @@ class Modalform extends Component
 
     private function processarArquivo($arquivo, string $campo, InterlabRodada $interlab_rodada): void
     {
-        if (!$arquivo) {
+        if (! $arquivo) {
             return;
         }
 
         // Remove arquivo antigo se existir
         if ($interlab_rodada->$campo) {
-            $caminhoArquivoAntigo = public_path('interlab-material/' . $interlab_rodada->$campo);
+            $caminhoArquivoAntigo = public_path('interlab-material/'.$interlab_rodada->$campo);
             if (file_exists($caminhoArquivoAntigo)) {
                 unlink($caminhoArquivoAntigo);
             }
@@ -135,7 +132,6 @@ class Modalform extends Component
             }
 
             $interlab_rodada->save();
-            $interlab_rodada->updateParametros($this->parametros);
         });
 
         // Atualiza rodadaUid se for nova
@@ -147,7 +143,6 @@ class Modalform extends Component
         $rodada = InterlabRodada::where('uid', $this->form->uid)->first();
         if ($rodada) {
             $this->form->setRodada($rodada);
-            $this->parametros = $rodada->parametros->pluck('parametro_id')->map(fn($id) => (string) $id)->toArray();
         }
         $this->limparArquivos();
 
@@ -182,8 +177,6 @@ class Modalform extends Component
 
     public function render()
     {
-        return view('livewire.rodadas.modalform', [
-            'interlabParametros' => $this->agendainterlab->parametros,
-        ]);
+        return view('livewire.rodadas.modalform');
     }
 }

@@ -14,24 +14,6 @@
       @error('form.vias')<div class="text-danger">{{ $message }}</div>@enderror
     </div>
 
-    <div class="col-12 m-2 py-2 bg-light rounded">
-      <label class="form-label">Selecione os parâmetros da rodada</label>
-      @foreach ($interlabParametros as $parametro)
-        <div class="form-check mb-2">
-          <input class="form-check-input" 
-               type="checkbox"
-               wire:model="parametros"
-               value="{{ $parametro->parametro->id }}"
-               id="checkBox{{ $form->uid ?? 'new' }}{{ $parametro->parametro->id }}">
-          <label class="form-check-label" 
-               for="checkBox{{ $form->uid ?? 'new' }}{{ $parametro->parametro->id }}">
-            {{ $parametro->parametro->descricao }}
-          </label>
-        </div>
-      @endforeach
-      @error('parametros')<div class="text-danger">{{ $message }}</div>@enderror
-    </div>
-
     <div class="col-12"><hr class="my-2"></div>
 
     {{-- Envio de amostras --}}

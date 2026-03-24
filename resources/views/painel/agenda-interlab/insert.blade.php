@@ -15,8 +15,6 @@
                 :pessoas="$pessoas" 
                 :agendainterlab="$agendainterlab" 
                 :interlabs="$interlabs"
-                :interlabParametros="$interlabParametros"
-                :parametros="$parametros"
                 :idinterlab="$idinterlab"
                 :inscritosCount="$inscritosCount"
             />

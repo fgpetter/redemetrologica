@@ -18,7 +18,7 @@
 
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
-                        Despesas e Parametros
+                        Despesas
                     </a>
                 </li>
 
@@ -78,8 +78,7 @@
 
             <div class="tab-pane" id="despesas" role="tabpanel"> <!-- despesas -->
                 <div class="col-12">
-                    <x-painel.agenda-interlab.despesas :agendainterlab="$agendainterlab"
-                        :interlabParametros="$interlabParametros" :parametros="$parametros" />
+                    <x-painel.agenda-interlab.despesas :agendainterlab="$agendainterlab" />
                 </div>
             </div>
 
