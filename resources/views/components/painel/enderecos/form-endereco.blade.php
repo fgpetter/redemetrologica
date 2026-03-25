@@ -52,11 +52,6 @@
     @error('uf') <div class="text-warning">{{ $message }}</div> @enderror
 </div>
 
-@if($padrao)
-  <div class="col-6 col-sm-4">
-    <x-forms.input-check-pill name='end_padrao' label='Endereço Padrão'/>
-  </div>
-@endif
 
 <script>
 

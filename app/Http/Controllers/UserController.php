@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Endereco;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -99,7 +100,7 @@ class UserController extends Controller
   {
     if( auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id) ) {
       $permissions = $user->permissions()->pluck('permission')->toArray();
-      $endereco = $user->pessoa->enderecos()->first();
+      $endereco = $user->pessoa->endereco;
       return view('painel.users.user-update', ['user' => $user , 'permissions' => $permissions, 'endereco' => $endereco]);
     }
     abort(404);
@@ -180,12 +181,22 @@ class UserController extends Controller
           'celular' => $request->celular,
         ]);
   
-        $user->pessoa->enderecos()->update([
-          'cep' => $request->cep,
-          'endereco' => $request->endereco,
-          'cidade' => $request->cidade,
-          'uf' => $request->uf,
-        ]);
+        if ($user->pessoa->endereco) {
+          $user->pessoa->endereco->update([
+            'cep' => $request->cep,
+            'endereco' => $request->endereco,
+            'cidade' => $request->cidade,
+            'uf' => $request->uf,
+          ]);
+        } else {
+          $endereco = Endereco::create([
+            'cep' => $request->cep,
+            'endereco' => $request->endereco,
+            'cidade' => $request->cidade,
+            'uf' => $request->uf,
+          ]);
+          $user->pessoa->update(['endereco_id' => $endereco->id]);
+        }
       } else { // mantem a consistencia dos dados pessoa -> usuario
         $user->pessoa()->update([
           'nome_razao' => ucwords( $request->nome ?? '' ),

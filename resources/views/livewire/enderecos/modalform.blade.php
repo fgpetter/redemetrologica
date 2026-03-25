@@ -1,7 +1,16 @@
 
 <form wire:submit.prevent="salvar">
     <div class="row gy-2">
-        <input type="hidden" wire:model="endereco.pessoa_id">
+        <div class="col-12">
+            <label class="form-label mb-0">Tipo de endereço<small class="text-danger"> *</small></label>
+            <select wire:model="tipoEndereco" class="form-select">
+                <option value="principal">Principal</option>
+                <option value="cobranca">Cobrança</option>
+            </select>
+            @error('tipoEndereco')
+                <div class="text-danger">{{ $message }}</div>
+            @enderror
+        </div>
 
         <div class="col-12">
             <x-forms.input-field wire:model.lazy="endereco.info" name="endereco.info"
@@ -57,14 +66,6 @@
                 id="uf" maxlength="2" pattern="[A-Z]{2}" title="Duas letras maiúsculas" required
                 oninput="this.value = this.value.toUpperCase()">
             @error('endereco.uf')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <div class="col-6 col-sm-4">
-            <x-forms.input-check-pill wire:model.lazy="endereco.end_padrao" name="endereco.end_padrao"
-                label="Endereço Padrão" />
-            @error('endereco.end_padrao')
                 <div class="text-danger">{{ $message }}</div>
             @enderror
         </div>

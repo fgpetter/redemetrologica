@@ -71,4 +71,20 @@ class Avaliador extends Model
     {
         return $this->hasMany(StatusAvaliador::class);
     }
+
+    /**
+     * Retorna o endereço comercial do avaliador.
+     */
+    public function enderecoComercial(): BelongsTo
+    {
+        return $this->belongsTo(Endereco::class, 'endereco_comercial_id');
+    }
+
+    /**
+     * Retorna o endereço pessoal do avaliador.
+     */
+    public function enderecoPessoal(): BelongsTo
+    {
+        return $this->belongsTo(Endereco::class, 'endereco_pessoal_id');
+    }
 }

@@ -19,8 +19,16 @@ class Listview extends Component
     #[On('refresh-enderecos-list')]
     public function render()
     {
+        $enderecos = collect();
+        if ($this->pessoa->endereco) {
+            $enderecos->push($this->pessoa->endereco);
+        }
+        if ($this->pessoa->enderecoCobranca) {
+            $enderecos->push($this->pessoa->enderecoCobranca);
+        }
+
         return view('livewire.enderecos.listview', [
-            'enderecos' => $this->pessoa->enderecos
+            'enderecos' => $enderecos
         ]);
     }
 }

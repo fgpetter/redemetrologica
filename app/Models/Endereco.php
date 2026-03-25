@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
@@ -34,14 +33,6 @@ class Endereco extends Model
         }
     }
 
-
-    /**
-     * Retorna pessoa do endereço.
-     */
-    public function pessoa(): BelongsTo
-    {
-        return $this->belongsTo(Pessoa::class);
-    }
 
     protected function cep(): Attribute
     {

@@ -30,11 +30,11 @@
                     </div>
                     
                     <div class="d-flex align-items-center gap-2">
-                        @if ($pessoa->end_padrao == $endereco->id)
-                            <span class="badge bg-primary align-top mt-1">Padrão</span>
+                        @if ($pessoa->endereco_id == $endereco->id)
+                            <span class="badge bg-primary align-top mt-1">Principal</span>
                         @endif
-                        @if ($pessoa->end_cobranca == $endereco->id)
-                            <span class="badge bg-primary align-top mt-1">Cobrança</span>
+                        @if ($pessoa->endereco_cobranca_id == $endereco->id)
+                            <span class="badge bg-info align-top mt-1">Cobrança</span>
                         @endif
                         
                         <div class="dropdown">

@@ -30,20 +30,20 @@
                 <p>{{ $laboratorio_interno->laboratorio->nome_laboratorio ?? $laboratorio_interno->laboratorio->pessoa->nome_razao }}</p>
               </div>
 
-              @if ($laboratorio_interno->laboratorio->pessoa->enderecos()->first())
+              @if ($laboratorio_interno->laboratorio->pessoa->endereco)
                 <div class="col-sm-4">
                   <h6>Endereço:</h6>
                 </div>
                 <div class="col-sm-8">
                   <p>
-                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->endereco }},
-                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->numero }} - 
-                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->complemento }} 
+                    {{ $laboratorio_interno->laboratorio->pessoa->endereco->endereco }},
+                    {{ $laboratorio_interno->laboratorio->pessoa->endereco->numero ?? '' }} -
+                    {{ $laboratorio_interno->laboratorio->pessoa->endereco->complemento }}
                   <br>
-                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->bairro }}, 
-                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cidade }} /
-                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->uf }} -
-                    {{ $laboratorio_interno->laboratorio->pessoa->enderecos()->first()->cep }}
+                    {{ $laboratorio_interno->laboratorio->pessoa->endereco->bairro }},
+                    {{ $laboratorio_interno->laboratorio->pessoa->endereco->cidade }} /
+                    {{ $laboratorio_interno->laboratorio->pessoa->endereco->uf }} -
+                    {{ $laboratorio_interno->laboratorio->pessoa->endereco->cep }}
                   </p>
                 </div>
               @endif

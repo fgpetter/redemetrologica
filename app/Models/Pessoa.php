@@ -41,15 +41,23 @@ class Pessoa extends Model
     }
 
     /**
-     * Lista os endereços de uma pessoa.
+     * Retorna o endereço principal da pessoa.
      */
-    public function enderecos(): HasMany
+    public function endereco(): BelongsTo
     {
-        return $this->hasMany(Endereco::class);
+        return $this->belongsTo(Endereco::class);
     }
 
     /**
-     * Lista os endereços de uma pessoa.
+     * Retorna o endereço de cobrança da pessoa.
+     */
+    public function enderecoCobranca(): BelongsTo
+    {
+        return $this->belongsTo(Endereco::class, 'endereco_cobranca_id');
+    }
+
+    /**
+     * Lista as unidades de uma pessoa.
      */
     public function unidades(): HasMany
     {
@@ -86,14 +94,6 @@ class Pessoa extends Model
     public function instrutor(): HasOne
     {
         return $this->hasOne(Instrutor::class);
-    }
-
-    /**
-     * Retorna endereço de cobrança da pessoa.
-     */
-    public function enderecoCobranca(): HasOne
-    {
-        return $this->hasOne(Endereco::class, 'id', 'end_cobranca');
     }
 
     /**

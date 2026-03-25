@@ -84,12 +84,12 @@ class AgendaAvaliacoesCartas extends Component
             'nome_laboratorio' => $this->avaliacao->laboratorio->nome_laboratorio ?? 'Não informado',
 
             'endereco' => 
-                            ($this->avaliacao->laboratorio->pessoa->enderecos->first()->endereco ?? ' ') . ', ' .
-                            ($this->avaliacao->laboratorio->pessoa->enderecos->first()->complemento ?? ' ') . ', ' .
-                            ('Bairro: ' . ($this->avaliacao->laboratorio->pessoa->enderecos->first()->bairro ?? ' ')) . ', ' .
-                            ($this->avaliacao->laboratorio->pessoa->enderecos->first()->cidade ?? ' ') . ' - ' .
-                            ($this->avaliacao->laboratorio->pessoa->enderecos->first()->uf ?? ' ') . ', ' .
-                            ($this->avaliacao->laboratorio->pessoa->enderecos->first()->cep ?? ' '),
+                            ($this->avaliacao->laboratorio->pessoa->endereco->endereco ?? ' ') . ', ' .
+                            ($this->avaliacao->laboratorio->pessoa->endereco->complemento ?? ' ') . ', ' .
+                            ('Bairro: ' . ($this->avaliacao->laboratorio->pessoa->endereco->bairro ?? ' ')) . ', ' .
+                            ($this->avaliacao->laboratorio->pessoa->endereco->cidade ?? ' ') . ' - ' .
+                            ($this->avaliacao->laboratorio->pessoa->endereco->uf ?? ' ') . ', ' .
+                            ($this->avaliacao->laboratorio->pessoa->endereco->cep ?? ' '),
 
             'areas' => $this->avaliacao
                             ->areas

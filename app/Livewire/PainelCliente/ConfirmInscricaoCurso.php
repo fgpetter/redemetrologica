@@ -126,26 +126,23 @@ class ConfirmInscricaoCurso extends Component
             ]
         );
 
-        // Atualiza ou cria o endereço de cobrança
-        $enderecoCobranca = $empresa->enderecoCobranca()->updateOrCreate(
-            ['pessoa_id' => $empresa->id],
-            [
-                'info' => 'Cobrança',
-                'cep' => $this->empresa['endereco_cobranca']['cep'],
-                'endereco' => $this->empresa['endereco_cobranca']['endereco'],
-                'complemento' => $this->empresa['endereco_cobranca']['complemento'] ?? null,
-                'bairro' => $this->empresa['endereco_cobranca']['bairro'],
-                'cidade' => $this->empresa['endereco_cobranca']['cidade'],
-                'uf' => $this->empresa['endereco_cobranca']['uf'],
-                'email' => $this->empresa['endereco_cobranca']['email'],
-                'cobranca' => 1,
-            ]
-        );
+        $enderecoData = [
+            'info' => 'Cobrança',
+            'cep' => $this->empresa['endereco_cobranca']['cep'],
+            'endereco' => $this->empresa['endereco_cobranca']['endereco'],
+            'complemento' => $this->empresa['endereco_cobranca']['complemento'] ?? null,
+            'bairro' => $this->empresa['endereco_cobranca']['bairro'],
+            'cidade' => $this->empresa['endereco_cobranca']['cidade'],
+            'uf' => $this->empresa['endereco_cobranca']['uf'],
+        ];
 
-        // Atualiza o campo end_cobranca na tabela Pessoa
-        $empresa->update([
-            'end_cobranca' => $enderecoCobranca->id,
-        ]);
+        if ($empresa->enderecoCobranca) {
+            $empresa->enderecoCobranca->update($enderecoData);
+            $enderecoCobranca = $empresa->enderecoCobranca;
+        } else {
+            $enderecoCobranca = Endereco::create($enderecoData);
+            $empresa->update(['endereco_cobranca_id' => $enderecoCobranca->id]);
+        }
 
         // atualizar $empresa para mostrar os dados atualizados
         $this->empresa = $empresa->toArray();
@@ -233,7 +230,7 @@ class ConfirmInscricaoCurso extends Component
         $usuario = auth()->user();
         if ($usuario && $usuario->pessoa) {
             $pessoa = $usuario->pessoa;
-            $endereco = $pessoa->enderecos->first();
+            $endereco = $pessoa->endereco;
 
             $this->inscricoes[0] = [
                 'id_pessoa' => $pessoa->id,
@@ -432,19 +429,21 @@ class ConfirmInscricaoCurso extends Component
             ]);
         }
         if ($inscrito) {
-            Endereco::updateOrCreate(
-                [
-                    'pessoa_id' => $inscrito->id,
-                ],
-                [
-                    'cep' => $inscricao['cep'],
-                    'uf' => $inscricao['uf'],
-                    'endereco' => $inscricao['endereco'],
-                    'complemento' => $inscricao['complemento'],
-                    'bairro' => $inscricao['bairro'],
-                    'cidade' => $inscricao['cidade'],
-                ]
-            );
+            $enderecoData = [
+                'cep' => $inscricao['cep'],
+                'uf' => $inscricao['uf'],
+                'endereco' => $inscricao['endereco'],
+                'complemento' => $inscricao['complemento'],
+                'bairro' => $inscricao['bairro'],
+                'cidade' => $inscricao['cidade'],
+            ];
+            if ($inscrito->endereco) {
+                $inscrito->endereco->update($enderecoData);
+            } else {
+                $endereco = Endereco::create($enderecoData);
+                $inscrito->update(['endereco_id' => $endereco->id]);
+            }
+
             $cursoInscrito = CursoInscrito::updateOrCreate(
                 [
                     'pessoa_id' => $inscrito->id,
