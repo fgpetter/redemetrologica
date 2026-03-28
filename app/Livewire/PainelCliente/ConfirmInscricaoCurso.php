@@ -47,7 +47,12 @@ class ConfirmInscricaoCurso extends Component
 
     public function mount() // metodo chamado quando o componente é montado
     {
-        $this->pessoaId_usuario = auth()->user()->pessoa->id;
+        $user = auth()->user();
+        if ($user->pessoa === null) {
+            throw new \LogicException('Usuário autenticado sem pessoa vinculada ao carregar inscrição em curso.');
+        }
+
+        $this->pessoaId_usuario = $user->pessoa->id;
         $this->curso = session('curso');
         $this->agendacurso = AgendaCursos::where('id', session('curso')->id ?? null)->with('curso')->first();
         // Verifica se o usuário já está inscrito no agendacurso

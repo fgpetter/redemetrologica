@@ -28,18 +28,7 @@ class ConfirmaInscricaoRequest extends FormRequest
             'telefone' => ['required', 'celular_com_ddd'],
             'cpf_cnpj' => ['required', 'cpf'],
             'id_empresa' => ['nullable', 'exists:pessoas,id'],
-            'id_pessoa' => [
-                'required',
-                'exists:pessoas,id',
-                function (string $attribute, mixed $value, \Closure $fail): void {
-                    $esperado = auth()->user()?->pessoa?->id;
-                    if ($esperado === null || (int) $value !== (int) $esperado) {
-                        $fail('Os dados do participante não correspondem ao usuário autenticado.');
-                    }
-                },
-            ],
             'convidado' => ['nullable', 'boolean'],
-
             'id_endereco' => ['nullable', 'exists:enderecos,uid'],
             'cep' => ['required_without:id_empresa', 'string'],
             'uf' => ['required_without:id_empresa', 'string'],
@@ -68,7 +57,6 @@ class ConfirmaInscricaoRequest extends FormRequest
             'telefone.celular_com_ddd' => 'O dado enviado não é um telefone válido',
             'cpf_cnpj.required' => 'Preencha o campo CPF',
             'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
-
             'cep.required' => 'Preencha o campo CEP',
             'cep.string' => 'Dado inválido',
             'uf.required' => 'Preencha o campo UF',

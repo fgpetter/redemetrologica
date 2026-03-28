@@ -6,7 +6,6 @@ use App\Http\Requests\ConfirmaInscricaoRequest;
 use App\Mail\ConfirmacaoInscricaoCursoNotification;
 use App\Models\AgendaCursos;
 use App\Models\Convite;
-use App\Models\Curso;
 use App\Models\CursoInscrito;
 use App\Models\Endereco;
 use App\Models\LancamentoFinanceiro;
@@ -40,6 +39,10 @@ class InscricaoCursoController extends Controller
             session()->put('convite-email', true);
         }
 
+        if (auth()->check() && auth()->user()->pessoa === null) {
+            throw new \LogicException('Usuário autenticado sem pessoa vinculada ao acessar inscrição em curso.');
+        }
+
         return redirect('painel');
     }
 
@@ -51,6 +54,10 @@ class InscricaoCursoController extends Controller
     public function confirmaInscricao(ConfirmaInscricaoRequest $request): RedirectResponse
     {
         $pessoaUsuario = auth()->user()->pessoa;
+        if ($pessoaUsuario === null) {
+            throw new \LogicException('Usuário autenticado sem pessoa vinculada ao confirmar inscrição em curso.');
+        }
+
         $agendacurso = AgendaCursos::where('id', $request->id_curso)->with('curso')->firstOrFail();
         $empresa = $request->id_empresa ? Pessoa::where('id', $request->id_empresa)->first() : null;
 
