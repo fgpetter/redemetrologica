@@ -523,12 +523,18 @@ class InscricaoCursoController extends Controller
             ->where('agenda_curso_id', $inscrito->agenda_curso_id)
             ->first();
 
-        // sim atualiza o lançamento financeiro da empresa e recalcula o total do valor
+        // se sim atualiza o lançamento financeiro da empresa e recalcula o total do valor
         if ($lancamento_pj) {
             $dados_empresa = CursoInscrito::where('empresa_id', $inscrito->empresa_id)
                 ->where('agenda_curso_id', $inscrito->agenda_curso_id)
                 ->with('pessoa')
                 ->get();
+
+            if ($dados_empresa->isEmpty()) {
+                $lancamento_pj->delete();
+
+                return;
+            }
 
             $observacoes = '';
             foreach ($dados_empresa as $dado) {
