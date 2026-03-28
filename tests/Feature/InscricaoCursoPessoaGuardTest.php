@@ -6,11 +6,13 @@ use App\Http\Requests\ConfirmaInscricaoRequest;
 use App\Livewire\PainelCliente\ConfirmInscricaoCurso;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
+use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\Pessoa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -159,5 +161,44 @@ class InscricaoCursoPessoaGuardTest extends TestCase
                 $root->getMessage()
             );
         }
+    }
+
+    public function test_fluxo_cpf_disponivel_quando_ja_inscrito_via_cnpj(): void
+    {
+        $agenda = $this->createAgendaCursoAbertoParaInscricao();
+        $user = $this->createClienteUser(withPessoa: true);
+        $pessoaCliente = $user->pessoa;
+
+        $cnpjLimpo = str_pad((string) random_int(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT);
+        $empresa = Pessoa::query()->create([
+            'nome_razao' => 'Empresa PJ Teste',
+            'cpf_cnpj' => $cnpjLimpo,
+            'tipo_pessoa' => 'PJ',
+        ]);
+
+        $inscritoCnpj = [
+            'pessoa_id' => $pessoaCliente->id,
+            'agenda_curso_id' => $agenda->id,
+            'empresa_id' => $empresa->id,
+            'valor' => 100,
+            'data_inscricao' => now(),
+        ];
+        if (Schema::hasColumn('curso_inscritos', 'nome')) {
+            $inscritoCnpj['nome'] = 'Participante via CNPJ';
+            $inscritoCnpj['email'] = strtolower($user->email);
+            $inscritoCnpj['telefone'] = '11999998888';
+        }
+        CursoInscrito::query()->create($inscritoCnpj);
+
+        $this->actingAs($user);
+        session()->put('curso', $agenda);
+
+        Livewire::test(ConfirmInscricaoCurso::class)
+            ->assertSet('jaInscritoCpf', false)
+            ->assertSet('jaInscritoCnpj', true)
+            ->assertSet('jaInscrito', true)
+            ->call('inscreverCPF')
+            ->assertSee('Confirme os dados abaixo para prosseguir com a inscrição', false)
+            ->assertDontSee('Você já está inscrito', false);
     }
 }

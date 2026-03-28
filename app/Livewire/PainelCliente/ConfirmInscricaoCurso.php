@@ -25,6 +25,16 @@ class ConfirmInscricaoCurso extends Component
 
     public $jaInscrito = false;
 
+    /**
+     * Inscrição no curso como pessoa física (sem empresa no vínculo).
+     */
+    public bool $jaInscritoCpf = false;
+
+    /**
+     * Inscrição no curso vinculada a empresa (CNPJ).
+     */
+    public bool $jaInscritoCnpj = false;
+
     public $showTipoInscricao = true;
 
     public $tipoInscricao = '';
@@ -55,10 +65,21 @@ class ConfirmInscricaoCurso extends Component
         $this->pessoaId_usuario = $user->pessoa->id;
         $this->curso = session('curso');
         $this->agendacurso = AgendaCursos::where('id', session('curso')->id ?? null)->with('curso')->first();
-        // Verifica se o usuário já está inscrito no agendacurso
-        $this->jaInscrito = CursoInscrito::where('agenda_curso_id', $this->agendacurso->id ?? null)
+        $agendaCursoId = $this->agendacurso->id ?? null;
+
+        $this->jaInscritoCpf = CursoInscrito::query()
+            ->where('agenda_curso_id', $agendaCursoId)
             ->where('pessoa_id', $this->pessoaId_usuario)
+            ->whereNull('empresa_id')
             ->exists();
+
+        $this->jaInscritoCnpj = CursoInscrito::query()
+            ->where('agenda_curso_id', $agendaCursoId)
+            ->where('pessoa_id', $this->pessoaId_usuario)
+            ->whereNotNull('empresa_id')
+            ->exists();
+
+        $this->jaInscrito = $this->jaInscritoCpf || $this->jaInscritoCnpj;
     }
 
     public function ProcuraCnpj() // Método chamado quando o usuário clica no botão de busca de CNPJ
