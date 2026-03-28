@@ -22,12 +22,22 @@ class ConfirmaInscricaoRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id_curso' => ['required', 'exists:agenda_cursos,id'],
             'nome' => ['required', 'string', 'max:190'],
             'email' => ['required', 'email', 'max:190'],
             'telefone' => ['required', 'celular_com_ddd'],
             'cpf_cnpj' => ['required', 'cpf'],
             'id_empresa' => ['nullable', 'exists:pessoas,id'],
-            'id_pessoa' => ['required', 'exists:pessoas,id'],
+            'id_pessoa' => [
+                'required',
+                'exists:pessoas,id',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $esperado = auth()->user()?->pessoa?->id;
+                    if ($esperado === null || (int) $value !== (int) $esperado) {
+                        $fail('Os dados do participante não correspondem ao usuário autenticado.');
+                    }
+                },
+            ],
             'convidado' => ['nullable', 'boolean'],
 
             'id_endereco' => ['nullable', 'exists:enderecos,uid'],
@@ -69,6 +79,6 @@ class ConfirmaInscricaoRequest extends FormRequest
             'bairro.string' => 'Dado inválido',
             'cidade.required' => 'Preencha o campo Cidade',
             'cidade.string' => 'Dado inválido',
-      ];
+        ];
     }
 }

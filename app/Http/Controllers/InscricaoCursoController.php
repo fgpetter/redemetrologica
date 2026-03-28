@@ -14,6 +14,7 @@ use App\Models\Pessoa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -49,65 +50,78 @@ class InscricaoCursoController extends Controller
      */
     public function confirmaInscricao(ConfirmaInscricaoRequest $request): RedirectResponse
     {
-        $agendacurso = AgendaCursos::where('id', $request->id_curso)->with('curso')->first();
-        $inscrito = Pessoa::where('id', $request->id_pessoa)->first();
-        $empresa = Pessoa::where('id', $request->id_empresa)->first() ?? null;
-        $associado = $empresa->associado ?? null;
+        $pessoaUsuario = auth()->user()->pessoa;
+        $agendacurso = AgendaCursos::where('id', $request->id_curso)->with('curso')->firstOrFail();
+        $empresa = $request->id_empresa ? Pessoa::where('id', $request->id_empresa)->first() : null;
 
-        // atribui valor de associado ao inscrito
-        if ($empresa) {
-            $associado = $empresa->associado ?? null;
-        } else {
-            $associado = $inscrito->associado ?? null;
-        }
+        $associado = $empresa
+            ? ($empresa->associado ?? null)
+            : ($pessoaUsuario->associado ?? null);
 
-        // verifica se a empresa já tem cadastro no curso, se não cria
-        // atribui empresa ao cadastro da pessoa caso não haja
-        if ($empresa) {
-            CursoInscrito::firstOrCreate([
-                'pessoa_id' => $request->id_empresa,
-                'agenda_curso_id' => $request->id_curso,
-            ], [
-                'data_inscricao' => now(),
+        DB::transaction(function () use ($request, $agendacurso, $pessoaUsuario, $empresa, $associado) {
+            if ($empresa) {
+                $pessoaUsuario->empresas()->sync([$empresa->id]);
+            }
+
+            $pessoaUsuario->update([
+                'nome_razao' => $request->nome,
+                'email' => $request->email,
+                'telefone' => $request->telefone,
+                'cpf_cnpj' => $request->cpf_cnpj,
             ]);
 
-            $inscrito->empresas()->sync($empresa->id);
-        }
+            if (! $empresa) {
+                Endereco::updateOrCreate(
+                    [
+                        'pessoa_id' => $pessoaUsuario->id,
+                    ],
+                    [
+                        'cep' => $request->cep,
+                        'uf' => $request->uf,
+                        'endereco' => $request->endereco,
+                        'complemento' => $request->complemento,
+                        'bairro' => $request->bairro,
+                        'cidade' => $request->cidade,
+                    ]
+                );
+            }
 
-        // atualiza dados da do inscrito na tabela de pessoas
-        $inscrito->update([
-            'nome_razao' => $request->nome,
-            'email' => $request->email,
-            'telefone' => $request->telefone,
-            'cpf_cnpj' => $request->cpf_cnpj,
-        ]);
+            $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($request->nome));
+            $email = strtolower(trim($request->email));
 
-        // atializa dados de endereço da pessoa se inscrição individual
-        if (! $empresa) {
-            Endereco::updateOrCreate([
-                'pessoa_id' => $request->id_pessoa,
-            ], [
-                'cep' => $request->cep,
-                'uf' => $request->uf,
-                'endereco' => $request->endereco,
-                'complemento' => $request->complemento,
-                'bairro' => $request->bairro,
-                'cidade' => $request->cidade,
+            $cursoInscrito = CursoInscrito::updateOrCreate(
+                [
+                    'pessoa_id' => $pessoaUsuario->id,
+                    'agenda_curso_id' => $agendacurso->id,
+                ],
+                [
+                    'empresa_id' => $empresa?->id,
+                    'nome' => $nome,
+                    'email' => $email,
+                    'telefone' => $request->telefone,
+                    'valor' => ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento,
+                    'data_inscricao' => now(),
+                ]
+            );
+
+            $lancamento = $this->adicionaLancamentoFinanceiro(
+                $agendacurso,
+                $pessoaUsuario,
+                $empresa,
+                (bool) $associado,
+                null,
+                $nome
+            );
+
+            $cursoInscrito->update([
+                'lancamento_financeiro_id' => $lancamento->id,
             ]);
-        }
+        });
 
-        // adiciona inscrito ao curso
-        $this->adicionaInscrito($agendacurso, $inscrito, $empresa, $associado);
-
-        // salva dados financeiros
-        $this->adicionaLancamentoFinanceiro($agendacurso, $inscrito, $empresa, $associado);
-
-        // se o inscrito for um convidado ou inscrição avusa, limpa sessão para concluir o processo
         if ($request->convidado || ! $empresa) {
             session()->forget(['curso', 'empresa', 'convite']);
         }
 
-        // redireciona para painel
         return redirect('painel');
     }
 
@@ -365,11 +379,10 @@ class InscricaoCursoController extends Controller
         $agendacurso = AgendaCursos::find($request->agenda_curso_id);
         if ($request->tipo_inscricao == 'cnpj' && $empresa_id) {
             $empresa = Pessoa::find($empresa_id);
-            $pessoaInscrita = Pessoa::find($pessoa_id);
-            $lancamento = $this->adicionaLancamentoFinanceiro($agendacurso, $empresa, $empresa, false, $request->valor);
+            $lancamento = $this->adicionaLancamentoFinanceiro($agendacurso, $empresa, $empresa, false, $request->valor, $nome);
         } elseif ($request->tipo_inscricao == 'cpf') {
             $pessoa = Pessoa::find($pessoa_id);
-            $lancamento = $this->adicionaLancamentoFinanceiro($agendacurso, $pessoa, null, false, $request->valor);
+            $lancamento = $this->adicionaLancamentoFinanceiro($agendacurso, $pessoa, null, false, $request->valor, $nome);
         }
 
         $novoInscrito->update([
@@ -419,31 +432,12 @@ class InscricaoCursoController extends Controller
     }
 
     /**
-     * Adiciona os dados de inscricao no curso
-     *
-     * @param  bool  $associado
-     */
-    private function adicionaInscrito(AgendaCursos $agendacurso, Pessoa $inscrito, ?Pessoa $empresa = null, $associado = false): void
-    {
-
-        CursoInscrito::updateOrCreate([
-            'pessoa_id' => $inscrito->id,
-            'agenda_curso_id' => $agendacurso->id,
-        ], [
-            'empresa_id' => $empresa?->id ?? null,
-            'valor' => ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento,
-            'data_inscricao' => now(),
-        ]);
-
-    }
-
-    /**
      * Adiciona lançamentos financeiros referentes a inscrição no curso
      *
      * @param  bool  $associado
      * @param  string|null  $valor
      */
-    private function adicionaLancamentoFinanceiro(AgendaCursos $agendacurso, Pessoa $inscrito, ?Pessoa $empresa = null, $associado = false, $valor = null): LancamentoFinanceiro
+    private function adicionaLancamentoFinanceiro(AgendaCursos $agendacurso, Pessoa $inscrito, ?Pessoa $empresa = null, $associado = false, $valor = null, ?string $nomeParticipante = null): LancamentoFinanceiro
     {
         if (! $valor) {
             $valor = ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento;
@@ -488,18 +482,23 @@ class InscricaoCursoController extends Controller
             }
 
         } else { // se a inscrição é de pessoa física
+            $nomeObs = $nomeParticipante ?? $inscrito->nome_razao;
 
-            $lancamento = LancamentoFinanceiro::create([
-                'pessoa_id' => $inscrito->id,
-                'agenda_curso_id' => $agendacurso->id,
-                'historico' => 'Inscrição no curso - '.$agendacurso->curso->descricao,
-                'valor' => formataMoeda($valor),
-                'centro_custo_id' => '3', // TREINAMENTO
-                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
-                'data_emissao' => now(),
-                'status' => 'PROVISIONADO',
-                'observacoes' => "Inscrição de {$inscrito->nome_razao}, com valor de R$ {$valor}, em ".now()->format('d/m/Y H:i')." \n",
-            ]);
+            $lancamento = LancamentoFinanceiro::updateOrCreate(
+                [
+                    'pessoa_id' => $inscrito->id,
+                    'agenda_curso_id' => $agendacurso->id,
+                ],
+                [
+                    'historico' => 'Inscrição no curso - '.$agendacurso->curso->descricao,
+                    'valor' => formataMoeda($valor),
+                    'centro_custo_id' => '3', // TREINAMENTO
+                    'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+                    'data_emissao' => now(),
+                    'status' => 'PROVISIONADO',
+                    'observacoes' => 'Inscrição de '.$nomeObs.', com valor de R$ '.formataMoeda($valor).', em '.now()->format('d/m/Y H:i')." \n",
+                ]
+            );
 
         }
 
