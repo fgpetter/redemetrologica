@@ -14,16 +14,16 @@ return new class extends Migration
     {
         // 1. Adicionar novas FKs nas tabelas que possuem endereço
         Schema::table('pessoas', function (Blueprint $table) {
-            $table->foreignId('endereco_id')->nullable()->after('updated_at')->constrained('enderecos')->nullOnDelete();
+            $table->foreignId('endereco_id')->nullable()->after('user_id')->constrained('enderecos')->nullOnDelete();
             $table->foreignId('endereco_cobranca_id')->nullable()->after('endereco_id')->constrained('enderecos')->nullOnDelete();
         });
 
         Schema::table('unidades', function (Blueprint $table) {
-            $table->foreignId('endereco_id')->nullable()->after('updated_at')->constrained('enderecos')->nullOnDelete();
+            $table->foreignId('endereco_id')->nullable()->after('pessoa_id')->constrained('enderecos')->nullOnDelete();
         });
 
         Schema::table('avaliadores', function (Blueprint $table) {
-            $table->foreignId('endereco_comercial_id')->nullable()->after('updated_at')->constrained('enderecos')->nullOnDelete();
+            $table->foreignId('endereco_comercial_id')->nullable()->after('pessoa_id')->constrained('enderecos')->nullOnDelete();
             $table->foreignId('endereco_pessoal_id')->nullable()->after('endereco_comercial_id')->constrained('enderecos')->nullOnDelete();
         });
 
