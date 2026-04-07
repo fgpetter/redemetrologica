@@ -29,27 +29,68 @@ return new class extends Migration
 
         // 2. Migrar dados existentes
 
-        // pessoas.endereco_id <- pessoas.end_padrao (já aponta para enderecos.id)
+        // 2a. pessoas.endereco_id <- end_padrao (onde existir)
         DB::statement('UPDATE pessoas SET endereco_id = end_padrao WHERE end_padrao IS NOT NULL');
 
-        // pessoas.endereco_cobranca_id <- pessoas.end_cobranca
+        // 2b. pessoas.endereco_id <- endereço mais recente não-cobrança (onde end_padrao era NULL)
+        DB::statement('
+            UPDATE pessoas p
+            INNER JOIN (
+                SELECT pessoa_id, MAX(id) as eid
+                FROM enderecos
+                WHERE (cobranca = 0 OR cobranca IS NULL)
+                AND pessoa_id IS NOT NULL
+                GROUP BY pessoa_id
+            ) e ON e.pessoa_id = p.id
+            SET p.endereco_id = e.eid
+            WHERE p.endereco_id IS NULL
+        ');
+
+        // 2c. pessoas sem endereço ainda — usar qualquer endereço disponível (mesmo cobrança)
+        DB::statement('
+            UPDATE pessoas p
+            INNER JOIN (
+                SELECT pessoa_id, MAX(id) as eid
+                FROM enderecos
+                WHERE pessoa_id IS NOT NULL
+                GROUP BY pessoa_id
+            ) e ON e.pessoa_id = p.id
+            SET p.endereco_id = e.eid
+            WHERE p.endereco_id IS NULL
+        ');
+
+        // 2d. pessoas.endereco_cobranca_id <- end_cobranca (onde existir)
         DB::statement('UPDATE pessoas SET endereco_cobranca_id = end_cobranca WHERE end_cobranca IS NOT NULL');
 
-        // unidades.endereco_id <- enderecos.id WHERE enderecos.unidade_id = unidades.id
+        // 2e. pessoas sem endereco_cobranca_id — usar endereço com flag cobranca=1
+        DB::statement('
+            UPDATE pessoas p
+            INNER JOIN (
+                SELECT pessoa_id, MAX(id) as eid
+                FROM enderecos
+                WHERE cobranca = 1
+                AND pessoa_id IS NOT NULL
+                GROUP BY pessoa_id
+            ) e ON e.pessoa_id = p.id
+            SET p.endereco_cobranca_id = e.eid
+            WHERE p.endereco_cobranca_id IS NULL
+        ');
+
+        // 2f. unidades.endereco_id
         DB::statement('
             UPDATE unidades u
             INNER JOIN enderecos e ON e.unidade_id = u.id
             SET u.endereco_id = e.id
         ');
 
-        // avaliadores.endereco_comercial_id <- enderecos.id WHERE enderecos.avaliador_id = avaliadores.id
+        // 2g. avaliadores.endereco_comercial_id
         DB::statement('
             UPDATE avaliadores a
             INNER JOIN enderecos e ON e.avaliador_id = a.id
             SET a.endereco_comercial_id = e.id
         ');
 
-        // avaliadores.endereco_pessoal_id <- enderecos.id WHERE pessoa_id = avaliador.pessoa_id AND avaliador_id IS NULL AND unidade_id IS NULL
+        // 2h. avaliadores.endereco_pessoal_id
         DB::statement('
             UPDATE avaliadores a
             INNER JOIN enderecos e ON e.pessoa_id = a.pessoa_id AND e.avaliador_id IS NULL AND e.unidade_id IS NULL
@@ -83,7 +124,7 @@ return new class extends Migration
         // 2. Restaurar colunas na tabela enderecos
         Schema::table('enderecos', function (Blueprint $table) {
             $table->integer('unidade_id')->nullable()->after('uid');
-            $table->foreignId('pessoa_id')->after('unidade_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('pessoa_id')->nullable()->after('unidade_id')->constrained()->nullOnDelete();
             $table->foreignId('avaliador_id')->nullable()->after('updated_at')->constrained('avaliadores')->cascadeOnDelete();
             $table->boolean('cobranca')->default(false)->after('uf');
             $table->string('email', 50)->nullable()->after('uf');
@@ -92,6 +133,28 @@ return new class extends Migration
         // 3. Migrar dados de volta
         DB::statement('UPDATE pessoas SET end_padrao = endereco_id WHERE endereco_id IS NOT NULL');
         DB::statement('UPDATE pessoas SET end_cobranca = endereco_cobranca_id WHERE endereco_cobranca_id IS NOT NULL');
+
+        // Restaurar pessoa_id nos enderecos a partir de pessoas.endereco_id
+        DB::statement('
+            UPDATE enderecos e
+            INNER JOIN pessoas p ON p.endereco_id = e.id
+            SET e.pessoa_id = p.id
+        ');
+
+        // Restaurar pessoa_id nos enderecos de cobrança
+        DB::statement('
+            UPDATE enderecos e
+            INNER JOIN pessoas p ON p.endereco_cobranca_id = e.id
+            SET e.pessoa_id = p.id
+            WHERE e.pessoa_id IS NULL
+        ');
+
+        // Restaurar cobranca flag
+        DB::statement('
+            UPDATE enderecos e
+            INNER JOIN pessoas p ON p.endereco_cobranca_id = e.id
+            SET e.cobranca = 1
+        ');
 
         DB::statement('
             UPDATE enderecos e
