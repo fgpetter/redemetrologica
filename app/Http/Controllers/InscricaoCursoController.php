@@ -82,18 +82,24 @@ class InscricaoCursoController extends Controller
             'cpf_cnpj' => $request->cpf_cnpj,
         ]);
 
-        // atializa dados de endereço da pessoa se inscrição individual
         if (! $empresa) {
-            Endereco::updateOrCreate([
-                'pessoa_id' => $request->id_pessoa,
-            ], [
-                'cep' => $request->cep,
-                'uf' => $request->uf,
-                'endereco' => $request->endereco,
-                'complemento' => $request->complemento,
-                'bairro' => $request->bairro,
-                'cidade' => $request->cidade,
-            ]);
+            $pessoa = Pessoa::find($request->id_pessoa);
+            if ($pessoa) {
+                $enderecoData = [
+                    'cep' => $request->cep,
+                    'uf' => $request->uf,
+                    'endereco' => $request->endereco,
+                    'complemento' => $request->complemento,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                ];
+                if ($pessoa->endereco) {
+                    $pessoa->endereco->update($enderecoData);
+                } else {
+                    $endereco = Endereco::create($enderecoData);
+                    $pessoa->update(['endereco_id' => $endereco->id]);
+                }
+            }
         }
 
         // adiciona inscrito ao curso
@@ -251,16 +257,20 @@ class InscricaoCursoController extends Controller
                     'cpf_cnpj' => preg_replace('/[^0-9]/', '', $request->cpf),
                 ]);
 
-                Endereco::updateOrCreate([
-                    'pessoa_id' => $pessoa->id,
-                ], [
+                $enderecoData = [
                     'cep' => $request->cep,
                     'uf' => $request->uf,
                     'cidade' => $request->cidade,
                     'bairro' => $request->bairro,
                     'endereco' => $request->endereco,
                     'complemento' => $request->complemento,
-                ]);
+                ];
+                if ($pessoa->endereco) {
+                    $pessoa->endereco->update($enderecoData);
+                } else {
+                    $endereco = Endereco::create($enderecoData);
+                    $pessoa->update(['endereco_id' => $endereco->id]);
+                }
             }
 
             $this->atualizaFinanceiro($inscrito);
@@ -335,16 +345,20 @@ class InscricaoCursoController extends Controller
                 'tipo_pessoa' => 'PF',
             ]);
 
-            Endereco::updateOrCreate([
-                'pessoa_id' => $pessoa->id,
-            ], [
+            $enderecoData = [
                 'cep' => $request->cep,
                 'uf' => $request->uf,
                 'cidade' => $request->cidade,
                 'bairro' => $request->bairro,
                 'endereco' => $request->endereco,
                 'complemento' => $request->complemento,
-            ]);
+            ];
+            if ($pessoa->endereco) {
+                $pessoa->endereco->update($enderecoData);
+            } else {
+                $endereco = Endereco::create($enderecoData);
+                $pessoa->update(['endereco_id' => $endereco->id]);
+            }
 
             $pessoa_id = $pessoa->id;
             $empresa_id = null;

@@ -51,7 +51,7 @@
     @if(!$empresa)
       <div class="col-7"> {{-- Endereço pessoal --}}
         <h6 class="card-subtitle mb-2 text-primary-emphasis">Endereço para emissão da Nota Fiscal:</h6>
-        <input type="hidden" name="id_endereco" value="{{ $pessoa->enderecos->first()->uid ?? '' }}">
+        <input type="hidden" name="id_endereco" value="{{ $pessoa->endereco->uid ?? '' }}">
 
         <div class="row mt-3 gy-2">
           <x-painel.enderecos.form-endereco :nome="false" :padrao="false" />

@@ -124,7 +124,7 @@
                          </div>
                      </div>
                      <h6 class="mb-0">Dados de endereço</h6>
-                     <x-painel.enderecos.form-endereco :endereco="$funcionario->pessoa->enderecos[0] ?? null" />
+                     <x-painel.enderecos.form-endereco :endereco="$funcionario->pessoa->endereco ?? null" />
 
                      <div class="row mt-3">
                          <div class="col">

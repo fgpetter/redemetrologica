@@ -80,7 +80,6 @@ class FuncionarioController extends Controller
 
     // cria um endereço vinculado a pessoa
     $endereco = Endereco::create([
-      'pessoa_id' => $pessoa->id,
       'endereco' => $request->get('endereco'),
       'complemento' => $request->get('complemento'),
       'bairro' => $request->get('bairro'),
@@ -89,10 +88,7 @@ class FuncionarioController extends Controller
       'uf' => $request->get('uf')
     ]);
 
-    // Adiciona endereço padrao
-    if ($request->end_padrao) {
-      $pessoa->update(['end_padrao' => $endereco->id]);
-    }
+    $pessoa->update(['endereco_id' => $endereco->id]);
 
     if (!$endereco) {
       return redirect()->back()
@@ -206,18 +202,25 @@ class FuncionarioController extends Controller
       'email' => $request->get('email')
     ]);
 
-    $funcionario->pessoa->enderecos->first()->update([
-      'endereco' => $request->get('endereco'),
-      'complemento' => $request->get('complemento'),
-      'bairro' => $request->get('bairro'),
-      'cep' => $request->get('cep'),
-      'cidade' => $request->get('cidade'),
-      'uf' => $request->get('uf')
-    ]);
-
-    // Adiciona endereço padrao
-    if ($request->end_padrao) {
-      $funcionario->pessoa->update(['end_padrao' => $funcionario->pessoa->enderecos->first()->id]);
+    if ($funcionario->pessoa->endereco) {
+      $funcionario->pessoa->endereco->update([
+        'endereco' => $request->get('endereco'),
+        'complemento' => $request->get('complemento'),
+        'bairro' => $request->get('bairro'),
+        'cep' => $request->get('cep'),
+        'cidade' => $request->get('cidade'),
+        'uf' => $request->get('uf')
+      ]);
+    } else {
+      $endereco = Endereco::create([
+        'endereco' => $request->get('endereco'),
+        'complemento' => $request->get('complemento'),
+        'bairro' => $request->get('bairro'),
+        'cep' => $request->get('cep'),
+        'cidade' => $request->get('cidade'),
+        'uf' => $request->get('uf')
+      ]);
+      $funcionario->pessoa->update(['endereco_id' => $endereco->id]);
     }
 
 

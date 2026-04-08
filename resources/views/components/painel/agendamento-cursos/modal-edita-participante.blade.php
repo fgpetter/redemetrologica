@@ -48,7 +48,7 @@
                       <h6 class="text-muted border-bottom">Dados de Endereço</h6>
                   </div>
 
-                  @php $endereco = $inscrito->pessoa->enderecos->first(); @endphp
+                  @php $endereco = $inscrito->pessoa->endereco; @endphp
                   <div class="row m-0 p-0">
                     <div class="col-md-4 mb-2">
                       <x-forms.input-field :value="$endereco->cep ?? null" name="cep" label="CEP" class="cep" required="true" />

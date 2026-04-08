@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pessoa;
 use App\Models\Endereco;
 use App\Models\InterlabLaboratorio;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
@@ -22,21 +24,22 @@ class EnderecoController extends Controller
   public function create(Request $request): RedirectResponse
   {
     $validator = Validator::make($request->all(), [
-        'pessoa_id' => ['required', 'integer'],
+        'pessoa_id' => ['required', 'integer', 'exists:pessoas,id'],
         'info' => ['nullable', 'string'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
         'complemento' => ['nullable', 'string'],
         'cidade' => ['required', 'string'],
         'uf' => ['required', 'string'],
-        'end_padrao' => ['nullable', 'integer']
+        'tipo_endereco' => ['required', 'in:principal,cobranca'],
       ],[
         'info.string' => 'Formato de texto inválido',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
         'uf.required' => 'Preencha o uf',
-        'end_padrao.integer' => 'Dado inválido'
+        'tipo_endereco.required' => 'Selecione o tipo de endereço',
+        'tipo_endereco.in' => 'Tipo de endereço inválido',
       ]
     );
 
@@ -59,24 +62,24 @@ class EnderecoController extends Controller
     }
 
     $prepared_data = $validator->validate();
+    $pessoa = Pessoa::findOrFail($prepared_data['pessoa_id']);
 
-    $endereco = Endereco::create([
-      'pessoa_id' => $prepared_data['pessoa_id'],
-      'info' => $prepared_data['info'],
-      'cep' => $prepared_data['cep'],
-      'endereco' => $prepared_data['endereco'],
-      'complemento' => $prepared_data['complemento'],
-      'cidade' => $prepared_data['cidade'],
-      'uf' => $prepared_data['uf']
-    ]);
+    DB::transaction(function () use ($prepared_data, $pessoa) {
+      $endereco = Endereco::create([
+        'info' => $prepared_data['info'],
+        'cep' => $prepared_data['cep'],
+        'endereco' => $prepared_data['endereco'],
+        'complemento' => $prepared_data['complemento'],
+        'cidade' => $prepared_data['cidade'],
+        'uf' => $prepared_data['uf']
+      ]);
 
-    if (!$endereco) {
-      return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
-    }
+      $fkColumn = $prepared_data['tipo_endereco'] === 'cobranca'
+        ? 'endereco_cobranca_id'
+        : 'endereco_id';
 
-    if (isset($request->end_padrao)) {
-      $endereco->pessoa->update(['end_padrao' => $endereco->id]);
-    }
+      $pessoa->update([$fkColumn => $endereco->id]);
+    });
 
     return redirect()->back()->with('success', 'Endereço cadastrado com sucesso');
   }
@@ -91,21 +94,18 @@ class EnderecoController extends Controller
   public function update(Request $request, Endereco $endereco): RedirectResponse
   {
     $validator = Validator::make($request->all(), [
-        'pessoa_id' => ['required', 'integer'],
         'info' => ['nullable', 'string'],
         'cep' => ['required', 'string'],
         'endereco' => ['required', 'string'],
         'complemento' => ['nullable', 'string'],
         'cidade' => ['required', 'string'],
         'uf' => ['required', 'string'],
-        'end_padrao' => ['nullable', 'integer']
       ],[
         'info.string' => 'Formato de texto inválido',
         'cep.required' => 'Preencha o campo CEP',
         'endereco.required' => 'Preencha o campo endereço',
         'cidade.required' => 'Preencha o campo cidade',
         'uf.required' => 'Preencha o uf',
-        'end_padrao.integer' => 'Dado inválido'
       ]
     );
 
@@ -129,7 +129,6 @@ class EnderecoController extends Controller
 
     $prepared_data = $validator->validate();
     $endereco->update([
-      'pessoa_id' => $prepared_data['pessoa_id'],
       'info' => $prepared_data['info'],
       'cep' => $prepared_data['cep'],
       'endereco' => $prepared_data['endereco'],
@@ -137,12 +136,6 @@ class EnderecoController extends Controller
       'cidade' => $prepared_data['cidade'],
       'uf' => $prepared_data['uf']
     ]);
-
-    if (isset($request->end_padrao)) {
-      $endereco->pessoa->update(['end_padrao' => $endereco->id]);
-    } elseif ($endereco->pessoa->end_padrao == $endereco->id) {
-      $endereco->pessoa->update(['end_padrao' => null]);
-    }
 
     return redirect()->back()->with('success', 'Endereço atualizado');
   }
@@ -160,8 +153,12 @@ class EnderecoController extends Controller
     if ($laboratorio->where('endereco_id', $endereco->id)->exists()) {
       return redirect()->back()->with('error', 'Não é possível remover este endereço, pois o mesmo está vinculado a um PEP.');
     }
-    $endereco->pessoa->update(['end_padrao' => null]);
-    $endereco->delete();
+
+    DB::transaction(function () use ($endereco) {
+      Pessoa::where('endereco_id', $endereco->id)->update(['endereco_id' => null]);
+      Pessoa::where('endereco_cobranca_id', $endereco->id)->update(['endereco_cobranca_id' => null]);
+      $endereco->delete();
+    });
 
     return redirect()->back()->with('warning', 'Endereco removido');
   }

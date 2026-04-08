@@ -31,7 +31,6 @@ class InscricaoInterlabAction
 
         if (empty($dados['laboratorio_id'])) {
             $endereco = Endereco::create([
-                'pessoa_id' => $dados['empresa_id'],
                 'info' => $info,
                 'cep' => $enderecoData['cep'] ?? '',
                 'endereco' => $enderecoData['endereco'] ?? '',

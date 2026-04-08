@@ -3,6 +3,7 @@
 namespace App\Livewire\PainelCliente;
 
 use App\Actions\BuscaCepAction;
+use App\Models\Endereco;
 use App\Models\Pessoa;
 use App\Models\InterlabInscrito;
 use Livewire\Component;
@@ -47,12 +48,10 @@ class ConfirmaCNPJ extends Component
             $this->empresa = $empresaModel->toArray();
             
             if (empty($this->empresa['endereco_cobranca'])) {
-                $empresa_end = Pessoa::with('enderecos')
-                    ->where('id', $id_pessoa)
-                    ->first();
-                
-                if ($empresa_end && $empresa_end->enderecos->count() === 1) {
-                    $endereco = $empresa_end->enderecos->first();
+                $empresa_end = Pessoa::with('endereco')->find($id_pessoa);
+
+                if ($empresa_end && $empresa_end->endereco) {
+                    $endereco = $empresa_end->endereco;
                     $this->empresa['endereco_cobranca'] = [
                         'cep' => $endereco['cep'],
                         'endereco' => $endereco['endereco'],
@@ -142,24 +141,26 @@ class ConfirmaCNPJ extends Component
              ]
         );
  
-        $enderecoCobranca = $empresa->enderecoCobranca()->updateOrCreate(
-             ['pessoa_id' => $empresa->id],
-             [
-                 'info' => 'Cobrança',
-                 'cep' => $this->empresa['endereco_cobranca']['cep'],
-                 'endereco' => $this->empresa['endereco_cobranca']['endereco'],
-                 'complemento' => $this->empresa['endereco_cobranca']['complemento'] ?? null,
-                 'bairro' => $this->empresa['endereco_cobranca']['bairro'],
-                 'cidade' => $this->empresa['endereco_cobranca']['cidade'],
-                 'uf' => $this->empresa['endereco_cobranca']['uf'],
-                 'email' => $this->empresa['endereco_cobranca']['email'],
-                 'cobranca' => 1,
-             ]
-        );
- 
+        $enderecoData = [
+            'info' => 'Cobrança',
+            'cep' => $this->empresa['endereco_cobranca']['cep'],
+            'endereco' => $this->empresa['endereco_cobranca']['endereco'],
+            'complemento' => $this->empresa['endereco_cobranca']['complemento'] ?? null,
+            'bairro' => $this->empresa['endereco_cobranca']['bairro'],
+            'cidade' => $this->empresa['endereco_cobranca']['cidade'],
+            'uf' => $this->empresa['endereco_cobranca']['uf'],
+        ];
+
+        if ($empresa->enderecoCobranca) {
+            $empresa->enderecoCobranca->update($enderecoData);
+            $enderecoCobranca = $empresa->enderecoCobranca;
+        } else {
+            $enderecoCobranca = Endereco::create($enderecoData);
+            $empresa->update(['endereco_cobranca_id' => $enderecoCobranca->id]);
+        }
+
         $empresa->update([
-             'end_cobranca' => $enderecoCobranca->id,
-             'email_cobranca' => $enderecoCobranca->email,
+            'email_cobranca' => $this->empresa['endereco_cobranca']['email'] ?? null,
         ]);
 
         $empresaReloaded = Pessoa::with('enderecoCobranca')->find($empresa->id);

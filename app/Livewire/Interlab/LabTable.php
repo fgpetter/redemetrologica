@@ -159,7 +159,6 @@ class LabTable extends Component
         DB::transaction(function () {
 
             $enderecoData = [
-                'pessoa_id' => $this->empresa_id,
                 'info' => 'Laboratório Interlab',
                 'cep' => $this->cep,
                 'endereco' => $this->endereco,

@@ -23,20 +23,25 @@
     <div class="card-body px-1">
 
         <ul class="list-group list-group-flush">
-            @forelse ($pessoa->enderecos as $endereco)
-                @if (!$endereco->unidade_id)
-                    {{-- Lista somente endereços sem unidade atrelada --}}
+            @php
+                $enderecos = collect();
+                if ($pessoa->endereco) { $enderecos->push($pessoa->endereco); }
+                if ($pessoa->enderecoCobranca && $pessoa->endereco_cobranca_id !== $pessoa->endereco_id) {
+                    $enderecos->push($pessoa->enderecoCobranca);
+                }
+            @endphp
+            @forelse ($enderecos as $endereco)
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         {{ $endereco->info }} <br>
                         {{ $endereco->endereco }}, {{ $endereco->complemento }} <br>
                         {{ $endereco->bairro }}, {{ $endereco->cidade }} <br>
                         {{ $endereco->uf }} - CEP: {{ $endereco->cep }}
                         <div>
-                            @if ($pessoa->end_padrao == $endereco->id)
-                                <span class="badge bg-primary align-top mt-1">Padrão</span>
+                            @if ($pessoa->endereco_id == $endereco->id)
+                                <span class="badge bg-primary align-top mt-1">Principal</span>
                             @endif
-                            @if ($pessoa->end_cobranca == $endereco->id)
-                                <span class="badge bg-primary align-top mt-1">Cobrança</span>
+                            @if ($pessoa->endereco_cobranca_id == $endereco->id)
+                                <span class="badge bg-info align-top mt-1">Cobrança</span>
                             @endif
                             <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown"
                                 aria-expanded="false">
@@ -55,7 +60,6 @@
                         </div>
                     </div>
                     <x-painel.enderecos.modal :endereco="$endereco" :pessoa="$pessoa" />
-                @endif
             @empty
                 <p>Não há endereço cadastrado</p>
             @endforelse

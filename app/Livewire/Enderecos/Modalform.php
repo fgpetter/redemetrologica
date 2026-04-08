@@ -12,11 +12,11 @@ class ModalForm extends Component
 {
     public Pessoa $pessoa;
     public ?string $enderecoUid;
+    public bool $cobranca = false;
     public array $endereco = [];
     public bool $saved = false;
 
     protected $rules = [
-        'endereco.pessoa_id' => 'required|integer',
         'endereco.info' => 'nullable|string|max:255',
         'endereco.cep' => 'required|string|size:9',
         'endereco.endereco' => 'required|string|max:255',
@@ -40,19 +40,17 @@ class ModalForm extends Component
         if ($this->enderecoUid) {
             $endereco = Endereco::where('uid', $this->enderecoUid)->first();
             $this->endereco = $endereco->toArray();
-            $this->endereco['end_padrao'] = $this->pessoa->end_padrao === $endereco->id;
+            $this->cobranca = $this->pessoa->endereco_cobranca_id === $endereco->id;
         } else {
             $this->endereco = [
                 'uid' => uniqid(),
-                'pessoa_id' => $this->pessoa->id,
-                'end_padrao' => false,
             ];
         }
     }
 
     public function buscaCep()
     {
-        $cep = $this->endereco['cep'];
+        $cep = $this->endereco['cep'] ?? '';
 
         if (strlen($cep) === 9) {
             $localEndereco = Endereco::where('cep', $cep)
@@ -88,12 +86,11 @@ class ModalForm extends Component
                 $dadosValidados['endereco']
             );
 
-            if ($this->endereco['end_padrao']) {
-                $this->pessoa->update(['end_padrao' => $endereco->id]);
-            } elseif ($this->pessoa->end_padrao === $endereco->id) {
-                $this->pessoa->update(['end_padrao' => null]);
-            }
+            $fkColumn = $this->cobranca ? 'endereco_cobranca_id' : 'endereco_id';
+            $this->pessoa->update([$fkColumn => $endereco->id]);
         });
+
+        $this->pessoa->refresh();
 
         $this->saved = true;
         $this->dispatch('refresh-enderecos-list');

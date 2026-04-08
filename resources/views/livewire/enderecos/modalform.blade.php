@@ -1,8 +1,6 @@
 
 <form wire:submit.prevent="salvar">
     <div class="row gy-2">
-        <input type="hidden" wire:model="endereco.pessoa_id">
-
         <div class="col-12">
             <x-forms.input-field wire:model.lazy="endereco.info" name="endereco.info"
                 label="Nome do endereço" placeholder="Ex. Filial Caxias" />
@@ -61,12 +59,12 @@
             @enderror
         </div>
 
-        <div class="col-6 col-sm-4">
-            <x-forms.input-check-pill wire:model.lazy="endereco.end_padrao" name="endereco.end_padrao"
-                label="Endereço Padrão" />
-            @error('endereco.end_padrao')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
+        <div class="col-12 col-sm-4">
+            <label class="form-label mb-0"> &nbsp; </label>
+            <div class="form-check bg-light rounded check-bg" style="padding: 0.65rem 1.8rem 0.65rem;">
+                <input class="form-check-input" wire:model="cobranca" id="check-cobranca" type="checkbox">
+                <label class="form-check-label" for="check-cobranca">Endereço de Cobrança</label>
+            </div>
         </div>
 
         <div class="col-lg-12 mt-4">

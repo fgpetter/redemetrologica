@@ -6,7 +6,6 @@ use App\Traits\SetDefaultUid;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
@@ -39,9 +38,9 @@ class Unidade extends Model
     /**
      * Retorna o endereço da unidade.
      */
-    public function endereco(): HasOne
+    public function endereco(): BelongsTo
     {
-        return $this->hasOne(Endereco::class, 'unidade_id', 'id');
+        return $this->belongsTo(Endereco::class);
     }
 
 }

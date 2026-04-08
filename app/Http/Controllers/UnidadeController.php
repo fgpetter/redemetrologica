@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pessoa;
 use App\Models\Unidade;
+use App\Models\Endereco;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -76,6 +77,15 @@ class UnidadeController extends Controller
 
       $pessoa = Pessoa::where('uid', $prepared_data['pessoa_uid'])->first();
 
+      $endereco = Endereco::create([
+        'cep' => return_only_nunbers($prepared_data['cep']),
+        'endereco' => $prepared_data['endereco'],
+        'complemento' => $prepared_data['complemento'] ?? null,
+        'bairro' => $prepared_data['bairro'],
+        'cidade' => $prepared_data['cidade'],
+        'uf' => $prepared_data['uf'],
+      ]);
+
       $unidade = Unidade::create([
         'pessoa_id' => $pessoa->id,
         'nome' => strtoupper($prepared_data['nome']),
@@ -83,16 +93,7 @@ class UnidadeController extends Controller
         'telefone' => return_only_nunbers($prepared_data['telefone']) ?? null,
         'email' => $prepared_data['email'] ?? null,
         'nome_responsavel' => $prepared_data['nome_responsavel'] ?? null,
-      ]);
-
-      $pessoa->enderecos()->create([
-        'unidade_id' => $unidade->id,
-        'cep' => return_only_nunbers($prepared_data['cep']),
-        'endereco' => $prepared_data['endereco'],
-        'complemento' => $prepared_data['complemento'] ?? null,
-        'bairro' => $prepared_data['bairro'],
-        'cidade' => $prepared_data['cidade'],
-        'uf' => $prepared_data['uf'],
+        'endereco_id' => $endereco->id,
       ]);
 
       if (!$unidade) {
@@ -168,7 +169,7 @@ class UnidadeController extends Controller
     DB::transaction(function () use ($prepared_data, $unidade, $request) {
 
       $pessoa = Pessoa::where('uid', $prepared_data['pessoa_uid'])->first();
-      $pessoa->unidades()->where('id', $unidade->id)->update([
+      $unidade->update([
         'nome' => strtoupper($prepared_data['nome']),
         'cnpj' => return_only_nunbers($prepared_data['cnpj']) ?? null,
         'telefone' => return_only_nunbers($prepared_data['telefone']) ?? null,
@@ -176,14 +177,26 @@ class UnidadeController extends Controller
         'nome_responsavel' => $prepared_data['nome_responsavel'] ?? null,
       ]);
 
-      $pessoa->enderecos()->where('unidade_id', $unidade->id)->update([
-        'cep' => return_only_nunbers($prepared_data['cep']),
-        'endereco' => $prepared_data['endereco'],
-        'complemento' => $prepared_data['complemento'] ?? null,
-        'bairro' => $prepared_data['bairro'],
-        'cidade' => $prepared_data['cidade'],
-        'uf' => $prepared_data['uf'],
-      ]);
+      if ($unidade->endereco) {
+        $unidade->endereco->update([
+          'cep' => return_only_nunbers($prepared_data['cep']),
+          'endereco' => $prepared_data['endereco'],
+          'complemento' => $prepared_data['complemento'] ?? null,
+          'bairro' => $prepared_data['bairro'],
+          'cidade' => $prepared_data['cidade'],
+          'uf' => $prepared_data['uf'],
+        ]);
+      } else {
+        $endereco = Endereco::create([
+          'cep' => return_only_nunbers($prepared_data['cep']),
+          'endereco' => $prepared_data['endereco'],
+          'complemento' => $prepared_data['complemento'] ?? null,
+          'bairro' => $prepared_data['bairro'],
+          'cidade' => $prepared_data['cidade'],
+          'uf' => $prepared_data['uf'],
+        ]);
+        $unidade->update(['endereco_id' => $endereco->id]);
+      }
     });
 
     return redirect()->back()->with('success', 'Unidade cadastrada com sucesso');
@@ -197,8 +210,9 @@ class UnidadeController extends Controller
    **/
   public function delete(Unidade $unidade): RedirectResponse
   {
-    $unidade->endereco()->delete();
+    $endereco = $unidade->endereco;
     $unidade->delete();
+    $endereco?->delete();
 
     return redirect()->back()->with('warning', 'Unidade removida');
   }
