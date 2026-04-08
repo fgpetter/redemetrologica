@@ -2,17 +2,6 @@
 <form wire:submit.prevent="salvar">
     <div class="row gy-2">
         <div class="col-12">
-            <label class="form-label mb-0">Tipo de endereço<small class="text-danger"> *</small></label>
-            <select wire:model="tipoEndereco" class="form-select">
-                <option value="principal">Principal</option>
-                <option value="cobranca">Cobrança</option>
-            </select>
-            @error('tipoEndereco')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <div class="col-12">
             <x-forms.input-field wire:model.lazy="endereco.info" name="endereco.info"
                 label="Nome do endereço" placeholder="Ex. Filial Caxias" />
             @error('endereco.info')
@@ -68,6 +57,14 @@
             @error('endereco.uf')
                 <div class="text-danger">{{ $message }}</div>
             @enderror
+        </div>
+
+        <div class="col-12 col-sm-4">
+            <label class="form-label mb-0"> &nbsp; </label>
+            <div class="form-check bg-light rounded check-bg" style="padding: 0.65rem 1.8rem 0.65rem;">
+                <input class="form-check-input" wire:model="cobranca" id="check-cobranca" type="checkbox">
+                <label class="form-check-label" for="check-cobranca">Endereço de Cobrança</label>
+            </div>
         </div>
 
         <div class="col-lg-12 mt-4">

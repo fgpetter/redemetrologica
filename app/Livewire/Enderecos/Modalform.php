@@ -12,7 +12,7 @@ class ModalForm extends Component
 {
     public Pessoa $pessoa;
     public ?string $enderecoUid;
-    public string $tipoEndereco = 'principal';
+    public bool $cobranca = false;
     public array $endereco = [];
     public bool $saved = false;
 
@@ -40,9 +40,7 @@ class ModalForm extends Component
         if ($this->enderecoUid) {
             $endereco = Endereco::where('uid', $this->enderecoUid)->first();
             $this->endereco = $endereco->toArray();
-            $this->tipoEndereco = $this->pessoa->endereco_cobranca_id === $endereco->id
-                ? 'cobranca'
-                : 'principal';
+            $this->cobranca = $this->pessoa->endereco_cobranca_id === $endereco->id;
         } else {
             $this->endereco = [
                 'uid' => uniqid(),
@@ -52,7 +50,7 @@ class ModalForm extends Component
 
     public function buscaCep()
     {
-        $cep = $this->endereco['cep'];
+        $cep = $this->endereco['cep'] ?? '';
 
         if (strlen($cep) === 9) {
             $localEndereco = Endereco::where('cep', $cep)
@@ -88,10 +86,7 @@ class ModalForm extends Component
                 $dadosValidados['endereco']
             );
 
-            $fkColumn = $this->tipoEndereco === 'cobranca'
-                ? 'endereco_cobranca_id'
-                : 'endereco_id';
-
+            $fkColumn = $this->cobranca ? 'endereco_cobranca_id' : 'endereco_id';
             $this->pessoa->update([$fkColumn => $endereco->id]);
         });
 

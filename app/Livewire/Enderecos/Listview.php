@@ -10,10 +10,12 @@ class Listview extends Component
 {
     public Pessoa $pessoa;
     public ?string $enderecoAtivo = null;
+    public string $modalKey = 'init';
 
     public function abrirModal($uid = null)
     {
         $this->enderecoAtivo = $uid;
+        $this->modalKey = ($uid ?? 'new') . '-' . uniqid();
     }
 
     #[On('refresh-enderecos-list')]

@@ -83,7 +83,7 @@
                     <livewire:enderecos.modalform 
                         :pessoa="$pessoa" 
                         :enderecoUid="$enderecoAtivo"
-                        key="{{ $enderecoAtivo ?? 'new' }}" />
+                        :key="$modalKey" />
                 </div>
             </div>
         </div>
