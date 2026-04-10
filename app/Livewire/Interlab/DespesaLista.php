@@ -46,9 +46,9 @@ class DespesaLista extends Component
             ->get();
 
         $agrupadas = $despesas->groupBy('fornecedor_id')->map(function (Collection $itens, $fornecedorId) {
-            $materiais = $itens->pluck('material_servico')->filter()->values()->implode(' | ');
-            if ($materiais === '') {
-                $materiais = $itens->map(fn ($d) => $d->materialPadrao?->descricao)->filter()->values()->implode(' | ');
+            $materiais = $itens->pluck('material_servico')->filter()->values();
+            if ($materiais->isEmpty()) {
+                $materiais = $itens->map(fn ($d) => $d->materialPadrao?->descricao)->filter()->values();
             }
             $total = $itens->sum('total');
             $fornecedorNome = $itens->first()?->interlabFornecedor?->pessoa?->nome_razao ?? '—';
@@ -56,7 +56,7 @@ class DespesaLista extends Component
             return [
                 'fornecedor_id' => (int) $fornecedorId,
                 'fornecedor_nome' => $fornecedorNome,
-                'materiais' => $materiais ?: '—',
+                'materiais' => $materiais->toArray(),
                 'total' => $total,
             ];
         })->filter(fn ($g) => $g['fornecedor_id'] > 0)->values();

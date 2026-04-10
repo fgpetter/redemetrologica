@@ -24,7 +24,19 @@
                     @forelse ($agrupadas as $grupo)
                         <tr wire:key="despesa-{{ $grupo['fornecedor_id'] }}">
                             <td>{{ $grupo['fornecedor_nome'] }}</td>
-                            <td>{{ $grupo['materiais'] }}</td>
+                            <td>
+                                @if (count($grupo['materiais']) > 1)
+                                    <ul class="mb-0 ps-3">
+                                        @foreach ($grupo['materiais'] as $material)
+                                            <li>{{ $material }}</li>
+                                        @endforeach
+                                    </ul>
+                                @elseif (count($grupo['materiais']) === 1)
+                                    {{ $grupo['materiais'][0] }}
+                                @else
+                                    —
+                                @endif
+                            </td>
                             <td>{{ 'R$ ' . number_format($grupo['total'], 2, ',', '.') }}</td>
                             <td>
                                 <div class="dropdown">

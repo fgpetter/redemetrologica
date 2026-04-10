@@ -18,6 +18,8 @@ class DespesaModal extends Component
 
     public string $fornecedorId = '';
 
+    public ?int $editingIndex = 0;
+
     public array $produtos = [
         [
             'material_servico' => '',
@@ -51,6 +53,7 @@ class DespesaModal extends Component
         $this->resetValidation();
         $this->fornecedorId = '';
         $this->despesaEditandoId = null;
+        $this->editingIndex = 0;
         $this->produtos = [
             [
                 'material_servico' => '',
@@ -91,8 +94,14 @@ class DespesaModal extends Component
             'validade' => $d->validade?->format('Y-m-d') ?? '',
             'data_compra' => $d->data_compra?->format('Y-m-d') ?? '',
         ])->toArray();
+        $this->editingIndex = null;
         $this->resetValidation();
         $this->showModal = true;
+    }
+
+    public function editarProduto(int $index): void
+    {
+        $this->editingIndex = $index;
     }
 
     public function adicionarProduto(): void
@@ -107,6 +116,7 @@ class DespesaModal extends Component
             'validade' => '',
             'data_compra' => '',
         ];
+        $this->editingIndex = count($this->produtos) - 1;
     }
 
     public function removerProduto(int $index): void
@@ -115,6 +125,12 @@ class DespesaModal extends Component
             return;
         }
         array_splice($this->produtos, $index, 1);
+
+        if ($this->editingIndex === $index) {
+            $this->editingIndex = null;
+        } elseif ($this->editingIndex !== null && $this->editingIndex > $index) {
+            $this->editingIndex--;
+        }
     }
 
     public function salvar(): void
