@@ -39,11 +39,21 @@
                                     @if ($editingIndex === $index)
                                         @include('livewire.interlab.partials.despesa-produto-form', ['index' => $index, 'produto' => $produto])
                                     @else
+                                        @php
+                                            $qtd = (float) str_replace(',', '.', $produto['quantidade'] ?: '0');
+                                            $val = (float) str_replace(['.', ','], ['', '.'], $produto['valor'] ?: '0');
+                                            $totalCalc = $qtd * $val;
+                                        @endphp
                                         <div class="text-muted small">
-                                            <strong>{{ $produto['material_servico'] ?: '—' }}</strong>
-                                            @if ($produto['quantidade'] || $produto['valor'])
-                                                — Qtd: {{ $produto['quantidade'] ?: '—' }} | Valor: R$ {{ $produto['valor'] ?: '—' }}
-                                            @endif
+                                            <strong>Material/Serviço:</strong> {{ $produto['material_servico'] ?: '—' }}<br>
+                                            <strong>Fabricante:</strong> {{ $produto['fabricante'] ?: '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Cód Fabricante:</strong> {{ $produto['cod_fabricante'] ?: '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Lote:</strong> {{ $produto['lote'] ?: '—' }}<br>
+                                            <strong>Quantidade:</strong> {{ $produto['quantidade'] ?: '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Valor:</strong> {{ $produto['valor'] ? 'R$ ' . $produto['valor'] : '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Total:</strong> {{ $totalCalc > 0 ? 'R$ ' . number_format($totalCalc, 2, ',', '.') : '—' }}<br>
+                                            <strong>Validade:</strong> {{ $produto['validade'] ? \Carbon\Carbon::parse($produto['validade'])->format('d/m/Y') : '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Data Compra:</strong> {{ $produto['data_compra'] ? \Carbon\Carbon::parse($produto['data_compra'])->format('d/m/Y') : '—' }}
                                         </div>
                                     @endif
                                 </div>
