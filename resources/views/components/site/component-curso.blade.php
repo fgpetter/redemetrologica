@@ -4,8 +4,12 @@
         style=" background-repeat: no-repeat; background-size: contain; background-image: url('{{ asset('build/images/site/LAB-SOLICITAR-RECONHECIMENTO-1349-x-443.png') }}'); width: 100%; ">
 
         <div class=" container align-self-center text-start text-white ">
-            <p class="SiteBanner--titulocursos  my-5"><strong>
-                    {{ $agendacursos->curso->descricao ?? '' }}</strong></p>
+            <p class="SiteBanner--titulocursos my-5">
+                <strong>
+                    {{ $agendacursos->curso->descricao ?? '' }}
+                    @if( $agendacursos->status == 'CONFIRMADO' ) - CONFIRMADO @endif
+                </strong>
+            </p>
             <p><i class="bi bi-clock text-warning mx-1"></i> Data:
                 @if($agendacursos->data_inicio) {{ \Carbon\Carbon::parse($agendacursos->data_inicio)->format('d/m/Y') }} @endif
                 a
