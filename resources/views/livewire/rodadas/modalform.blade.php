@@ -20,7 +20,7 @@
     <div class="col-12">
         <div class="row g-1 align-items-end">
             <div class="col-12">
-                <span class="fw-bold text-primary small"><i class="ri-send-plane-fill me-1"></i> 1. Envio de Amostras</span>
+                <span class="fw-bold text-primary">1. Envio de Amostras</span>
             </div>
             <div class="col-md-3">
                 <x-forms.input-field 
@@ -35,10 +35,11 @@
                     wireModel="arquivo_envio"
                     campo="arquivo_envio" />
             </div>
-            <div class="col-12">
+            <div class="col-12 py-2">
                 <x-forms.input-textarea 
                     wire:model.lazy="form.descricao_arquivo_envio"
-                    name="form.descricao_arquivo_envio" label="Descrição" rows="2" />
+                    name="form.descricao_arquivo_envio" label="Texto Complementar" rows="2" 
+                    placeholder="Texto complementar no email de notificação" />
             </div>
         </div>
     </div>
@@ -49,7 +50,7 @@
     <div class="col-12">
         <div class="row g-1 align-items-end">
             <div class="col-12">
-                <span class="fw-bold text-primary small"><i class="ri-play-circle-fill me-1"></i> 2. Início de Ensaios</span>
+                <span class="fw-bold text-primary">2. Início de Ensaios</span>
             </div>
             <div class="col-md-3">
                 <x-forms.input-field 
@@ -64,10 +65,11 @@
                     wireModel="arquivo_inicio_ensaios"
                     campo="arquivo_inicio_ensaios" />
             </div>
-            <div class="col-12">
+            <div class="col-12 py-2">
                 <x-forms.input-textarea 
                     wire:model.lazy="form.descricao_arquivo_inicio_ensaios"
-                    name="form.descricao_arquivo_inicio_ensaios" label="Descrição" rows="2" />
+                    name="form.descricao_arquivo_inicio_ensaios" label="Texto Complementar" rows="2" 
+                    placeholder="Texto complementar no email de notificação" />
             </div>
         </div>
     </div>
@@ -78,7 +80,7 @@
     <div class="col-12">
         <div class="row g-1 align-items-end">
             <div class="col-12">
-                <span class="fw-bold text-primary small"><i class="ri-timer-fill me-1"></i> 3. Limite de Envio de Resultados</span>
+                <span class="fw-bold text-primary">3. Limite de Envio de Resultados</span>
             </div>
             <div class="col-md-3">
                 <x-forms.input-field 
@@ -93,10 +95,11 @@
                     wireModel="arquivo_limite_envio_resultados"
                     campo="arquivo_limite_envio_resultados" />
             </div>
-            <div class="col-12">
+            <div class="col-12 py-2">
                 <x-forms.input-textarea 
                     wire:model.lazy="form.descricao_arquivo_limite_envio_resultados"
-                    name="form.descricao_arquivo_limite_envio_resultados" label="Descrição" rows="2" />
+                    name="form.descricao_arquivo_limite_envio_resultados" label="Texto Complementar" rows="2" 
+                    placeholder="Texto complementar no email de notificação" />
             </div>
         </div>
     </div>
@@ -107,7 +110,7 @@
     <div class="col-12">
         <div class="row g-1 align-items-end">
             <div class="col-12">
-                <span class="fw-bold text-primary small"><i class="ri-article-fill me-1"></i> 4. Divulgação de Relatórios</span>
+                <span class="fw-bold text-primary">4. Divulgação de Relatórios</span>
             </div>
             <div class="col-md-3">
                 <x-forms.input-field 
@@ -122,10 +125,11 @@
                     wireModel="arquivo_divulgacao_relatorios"
                     campo="arquivo_divulgacao_relatorios" />
             </div>
-            <div class="col-12">
+            <div class="col-12 py-2">
                 <x-forms.input-textarea 
                     wire:model.lazy="form.descricao_arquivo_divulgacao_relatorios"
-                    name="form.descricao_arquivo_divulgacao_relatorios" label="Descrição" rows="2" />
+                    name="form.descricao_arquivo_divulgacao_relatorios" label="Texto Complementar" rows="2" 
+                    placeholder="Texto complementar no email de notificação" />
             </div>
         </div>
     </div>
