@@ -130,7 +130,7 @@
                                     @endif
                                     <!-- Botão para gerar certificado -->
                                     <li>
-                                        @livewire('interlab.gerar-certificado-button', ['participanteId' => $participante->id], key('cert-btn-' . $participante->id))
+                                        @livewire('interlab.gerar-certificado-button', ['participanteId' => $participante->id, 'email' => $participante->email], key('cert-btn-' . $participante->id))
                                     </li>
                                     <li>
                                         <x-painel.form-delete.delete route='cancela-inscricao-interlab'
@@ -147,6 +147,15 @@
                                 <div class="row m-3 pe-2">
                                     <div class="col-6 text-wrap">
                                         <b>Informações:</b> {{ $participante->informacoes_inscricao }}
+                                        <br>
+                                        @if($participante->analistas->isNotEmpty())
+                                            <b>Analistas inscritos:</b> <br>
+                                            @foreach($participante->analistas as $analista)
+                                                {{ $analista->nome }} - {{ $analista->email }} - {{ $analista->telefone }} <br>
+                                            @endforeach
+                                        @endif
+
+
                                     </div>
                                     <div class="col-6 text-wrap">
                                         <b>Responsável técnico:</b>

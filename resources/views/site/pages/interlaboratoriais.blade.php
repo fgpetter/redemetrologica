@@ -2,15 +2,13 @@
 @section('title') Ensaios de Proficiência @endsection
 @section('content')
   {{-- banner inicial --}}
-  <div class="card text-bg-dark">
-    <img src="{{ asset('build\images\site\PEP-BANNER-DE-TOPO-1920-x-575-px_B.png') }}" class="card-img" alt="...">
-
-    <div class="card-img-overlay d-flex justify-content-center">
-      <div class="align-self-center text-center ">
+  <div class="d-flex justify-content-center align-items-center"
+    style="height: 300px; background-image: url('{{ asset('build/images/site/PEP-BANNER-DE-TOPO-1920-x-575-px_B.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+    <div class="d-flex justify-content-center align-items-center">
+      <div class="text-center">
         <p class="SiteBanner--interlab"><strong>ENSAIOS DE PROFICIÊNCIA</strong></p>
       </div>
     </div>
-
   </div>
   {{-- banner inicial --}}
 
@@ -34,17 +32,24 @@
     @foreach ($interlabs as $agendaInterlab)
     <div class="col-12 col-sm-6 col-lg-3"> 
       <div class="card ribbon-box border shadow-none mb-lg-0 card-interlab h-100">
-        @if( $agendaInterlab->inscricao == 1 )
-          <div class="ribbon ribbon-primary round-shape">Inscrições abertas</div>
+        @if( $agendaInterlab->status == 'CONFIRMADO' )
+          <div class="ribbon ribbon-primary round-shape">CONFIRMADO</div>
+        @elseif( $agendaInterlab->inscricao == 1 )
+          <div class="ribbon ribbon-success round-shape">Inscrições abertas</div>
         @endif
         <img src="{{ url( asset('build/images/site/').'/'.$agendaInterlab->interlab->thumb ) }}" 
-          class="card-img-top align-self-center pt-2 img-fluid" alt="" style="max-width: 170px"> 
+          class="card-img-top align-self-center pt-2 img-fluid" alt="" style="max-width: 150px"> 
         <div class="card-body text-white d-flex flex-column overflow-hidden" 
              style="background-color: #405D71; margin-top: -15px; height: 150px;">
           <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" 
              class="text-white bold flex-grow-1 overflow-hidden">
             <h5 class="card-title pb-2">{{ $agendaInterlab->interlab->nome }}</h5>
-            <p class="card-text">{{ $agendaInterlab->ano_referencia ?? '' }}</p>
+            <p class="card-text">
+              {{ $agendaInterlab->ano_referencia ?? '' }}
+              @if( $agendaInterlab->status == 'CONFIRMADO' )
+               - <strong>PEP CONFIRMADO</strong>
+              @endif
+            </p>
           </a>
 
           <a href="{{ route('site-single-interlaboratorial', $agendaInterlab->uid)}}" 

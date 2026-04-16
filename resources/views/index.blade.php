@@ -9,6 +9,22 @@
   @endcomponent
 
   @if( auth()->user()->pessoa )
+  
+    {{-- Apresenta links para páginas de cursos e interlabs --}}
+    @if(!auth()->user()->pessoa->funcionario && !session('curso') && !session('interlab'))
+      <div class="row">
+        <div class="col-12 col-xxl-4">
+          <div class="card mb-4">
+            <a href="{{ route('cursos-agendados-list') }}" class="btn btn-primary">Inscreva-se em um curso</a>
+          </div>
+        </div>
+        <div class="col-12 col-xxl-4">
+          <div class="card mb-4">
+            <a href="{{ route('site-list-interlaboratoriais') }}" class="btn btn-primary">Inscreva-se em um Ensaio de Proficiência</a>
+          </div>
+        </div>
+      </div>
+    @endif
 
     {{-- Habilita impersonamento --}}
     @canany(['admin','funcionario'])
@@ -66,10 +82,10 @@
           @include('painel.painel-cliente.nova-inscricao-pd')
       @else
           {{-- Lista de interlabs inscritos --}}
-          <x-painel.painel-cliente.inscritos-interlab :interlabs="auth()->user()->pessoa->interlabs()->get()" />
+          <livewire:painel-cliente.inscritos-interlab />
 
           {{-- Lista de cursos inscritos e convites --}}
-          <x-painel.painel-cliente.inscritos-cursos :cursos="auth()->user()->pessoa->cursos" />
+          <x-painel.cliente.listagem-cursos-inscritos :cursos="auth()->user()->pessoa->cursos" />
       @endif
     @endif
 

@@ -2,90 +2,109 @@
 
 namespace App\Livewire\Cursos;
 
-use App\Models\Curso;
-use Livewire\Component;
 use App\Models\AgendaCursos;
+use App\Models\Curso;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\CursoInscrito;
 
 class AgendaCursosTable extends Component
 {
     use WithPagination;
 
     public $tipoAgendaIni;
-    //Itens exibidos por paginação
-    #[Url(as : 'p', history:false)]
+
+    // Itens exibidos por paginação
+    #[Url(as : 'p', history: false)]
     public $perPage = 15;
-    //Busca por status, descricao, data_inicio
-    #[Url(as : 's', history:false)]
+
+    // Busca por status, descricao, data_inicio
+    #[Url(as : 's', history: false)]
     public $search = '';
-    //Filtro por Status
-    #[Url(as : 'st', history:false)]
+
+    // Filtro por Status
+    #[Url(as : 'st', history: false)]
     public $status = '';
-    //Filtro por tipo_agendamento
-    #[Url(as : 'ta', history:false)]
+
+    // Filtro por tipo_agendamento
+    #[Url(as : 'ta', history: false)]
     public $tipo_agendamento = '';
-    //Filtro entre Datas
-    #[Url(as : 'di', history:false)]
+
+    // Filtro entre Datas
+    #[Url(as : 'di', history: false)]
     public $dataIni = '';
-    #[Url(as : 'df', history:false)]
+
+    #[Url(as : 'df', history: false)]
     public $dataFim = '';
-    //Ordenação
-    #[Url(as : 'sb', history:false)]
+
+    // Ordenação
+    #[Url(as : 'sb', history: false)]
     public $sortBy = 'data_inicio';
-    #[Url(as : 'sd', history:false)]
+
+    #[Url(as : 'sd', history: false)]
     public $sortDirection = 'ASC';
 
-    //Metodo sortBy
-    public function setSortBy($sortByField){
-        if($this->sortBy === $sortByField){
-            $this->sortDirection = ($this->sortDirection == "ASC") ? 'DESC' : "ASC";
+    // Metodo sortBy
+    public function setSortBy($sortByField)
+    {
+        if ($this->sortBy === $sortByField) {
+            $this->sortDirection = ($this->sortDirection == 'ASC') ? 'DESC' : 'ASC';
+
             return;
         }
         $this->sortBy = $sortByField;
         $this->sortDirection = 'ASC';
     }
 
-    //Método para resetar os filtros
+    // Método para resetar os filtros
     public function resetFilters()
     {
         $this->reset(['search', 'status', 'dataIni', 'dataFim', 'tipo_agendamento']);
     }
 
-    //Metodos para resetar paginação se alterar filtros
-    public function updatedSearch(){
-        $this->resetPage();
-    }
-    public function updatedStatus(){
-        $this->resetPage();
-    }
-    public function updatedTipo_agendamento(){
-        $this->resetPage();
-    }
-    public function updatedDataIni(){
-        $this->resetPage();
-    }
-    public function updatedDataFim(){
-        $this->resetPage();
-    }
-    public function updatedperPage(){
+    // Metodos para resetar paginação se alterar filtros
+    public function updatedSearch()
+    {
         $this->resetPage();
     }
 
+    public function updatedStatus()
+    {
+        $this->resetPage();
+    }
 
-    //Método para construir a query (reutilizável)
+    public function updatedTipo_agendamento()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDataIni()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDataFim()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedperPage()
+    {
+        $this->resetPage();
+    }
+
+    // Método para construir a query (reutilizável)
     protected function getQuery()
     {
         $sortField = $this->sortBy;
         $sortDirection = $this->sortDirection;
 
         $query = AgendaCursos::with('curso')
-              ->withCount([
+            ->withCount([
                 'inscritos',
                 'inscritos as inscritos_validos_count' => function ($query) {
                     $query->whereNotNull('valor');
-                }
+                },
             ])
             ->where(function ($query) {
                 $query->whereHas('curso', function ($q) {
@@ -93,10 +112,15 @@ class AgendaCursosTable extends Component
                 });
             })
             ->when($this->status !== '', function ($query) {
+                if ($this->status === 'INSCRICOES_ABERTAS') {
+                    $query->where('inscricoes', true);
+
+                    return;
+                }
                 $query->where('status', $this->status);
             })
-            ->when($this->tipo_agendamento !== '', function ($query) {  
-                    $query->where('tipo_agendamento', $this->tipo_agendamento);
+            ->when($this->tipo_agendamento !== '', function ($query) {
+                $query->where('tipo_agendamento', $this->tipo_agendamento);
             })
             ->when($this->dataIni || $this->dataFim, function ($query) {
                 if ($this->dataIni && $this->dataFim) {
@@ -122,7 +146,7 @@ class AgendaCursosTable extends Component
         return $query;
     }
 
-    //Método render
+    // Método render
     public function render()
     {
 
@@ -134,4 +158,3 @@ class AgendaCursosTable extends Component
         ]);
     }
 }
-    

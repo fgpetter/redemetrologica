@@ -28,7 +28,7 @@
                     </div>
 
                     <!-- Filtro por Empresa -->
-                    <div class="col-3" wire:ignore>
+                    <div class="col-4" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
                         <select wire:model.live="empresaSelecionada" id="empresa-select" class="form-select form-select-sm">
                             <option value="">Selecione...</option>
@@ -88,30 +88,6 @@
                             </a>
                         </th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
-                        <th scope="col" style="width: 5%; white-space: nowrap;">
-                            <a href="#" wire:click.prevent="setSortBy('data_inicio')">
-                                Data Inicio
-                                @if ($sortBy == 'data_inicio')
-                                    @if ($sortDirection == 'ASC')
-                                        <i class="ri-arrow-up-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @endif
-                                @endif
-                            </a>
-                        </th>
-                        <th scope="col" style="width: 5%; white-space: nowrap;">
-                            <a href="#" wire:click.prevent="setSortBy('data_fim')">
-                                Data Fim
-                                @if ($sortBy == 'data_fim')
-                                    @if ($sortDirection == 'ASC')
-                                        <i class="ri-arrow-up-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @endif
-                                @endif
-                            </a>
-                        </th>
                         <th scope="col" style="width: 45%; white-space: nowrap;">
                             <a href="#" wire:click.prevent="setSortBy('nome')">
                                 Nome do Interlab
@@ -124,6 +100,8 @@
                                 @endif
                             </a>
                         </th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;">Tipo</th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;">Avaliação</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">
                             <a href="#" wire:click.prevent="setSortBy('inscritos')">
                                 Inscritos
@@ -173,9 +151,9 @@
                                     </span>
                                 @endif
                             </td>
-                            <td>{{ $agendainterlab->data_inicio?->format('d/m/Y') }}</td>
-                            <td>{{ $agendainterlab->data_fim?->format('d/m/Y') }}</td>
                             <td>{{ $agendainterlab->interlab->nome ?? '' }}</td>
+                            <td>{{ $agendainterlab->interlab->tipo ?? '' }}</td>
+                            <td>{{ $agendainterlab->interlab->avaliacao ?? '' }}</td>
                             <td class="text-end pe-2">{{ $agendainterlab->inscritos->count() }}</td>
                             <td>
                                 <div class="dropdown">

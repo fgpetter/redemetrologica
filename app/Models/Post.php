@@ -17,7 +17,7 @@ class Post extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['titulo', 'slug', 'conteudo', 'thumb', 'rascunho', 'tipo', 'data_publicacao'];
+    protected $guarded = [];
 
     public function getActivitylogOptions(): LogOptions
     {

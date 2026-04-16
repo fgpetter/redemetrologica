@@ -17,12 +17,11 @@
 
         <div class="table-responsive" style="min-height: 25vh">
             <div>
-                        <input type="text" class="form-control form-control-sm" 
-                            onkeypress="search(event, window.location.href, 'buscanome')"
-                            placeholder="Buscar por nome" value="{{ $searchTerm }}"> 
+                <input type="text" class="form-control form-control-sm" 
+                    onkeypress="search(event, window.location.href, 'buscanome')"
+                    placeholder="Buscar por nome" value="{{ $searchTerm }}"> 
             </div>
-            <table class="table table-responsive table-striped align-middle mb-0"
-                style="table-layout: fixed">
+            <table class="table table-responsive table-striped align-middle mb-0" style="table-layout: fixed">
                 <thead>
                     <tr>
                         <th scope="col" class="d-none d-sm-table-cell" style="width: 10%; white-space: nowrap;">ID</th>
@@ -33,6 +32,19 @@
                                 ]) }}">
                                 Nome
                                 {!! $currentSortField == 'nome' 
+                                    ? ($sortDirection == 'asc' 
+                                        ? '<i class="ri-arrow-up-s-line"></i>' 
+                                        : '<i class="ri-arrow-down-s-line"></i>') 
+                                    : '' !!}
+                            </a>
+                        </th>
+                        <th scope="col" style="width: 15%; white-space: nowrap;">
+                            <a href="{{ request()->fullUrlWithQuery([
+                                'orderBy' => 'avaliacao', 
+                                'order' => $sortDirection
+                                ]) }}">
+                                Avaliação
+                                {!! $currentSortField == 'avaliacao' 
                                     ? ($sortDirection == 'asc' 
                                         ? '<i class="ri-arrow-up-s-line"></i>' 
                                         : '<i class="ri-arrow-down-s-line"></i>') 
@@ -64,6 +76,7 @@
                                 </a>
                             </th>
                             <td>{{ $interlab->nome }}</td>
+                            <td class="text-nowrap">{{ $interlab->avaliacao }}</td>
                             <td class="text-nowrap">{{ $interlab->tipo }}</td>
                             <td>
                                 <div class="dropdown">

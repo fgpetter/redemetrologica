@@ -14,8 +14,8 @@
                     @error('nome') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="col-6">
-                    <label class="form-label">Tipo Interlab</label>
+                <div class="col-6 col-sm-4">
+                    <label class="form-label">Tipo</label>
                     <select class="form-select" name="tipo" aria-label="Default select example">
                         <option value="BILATERAL" @selected($interlab->tipo == 'BILATERAL')>BILATERAL</option>
                         <option value="INTERLABORATORIAL" @selected($interlab->tipo == 'INTERLABORATORIAL')>INTERLABORATORIAL</option>
@@ -23,7 +23,16 @@
                     @error('tipo') <div class="text-warning">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-6 col-sm-4">
+                    <label class="form-label">Avaliação</label>
+                    <select class="form-select" name="avaliacao" aria-label="Default select example">
+                        <option value="LABORATORIAL" @selected($interlab->avaliacao == 'LABORATORIAL')>LABORATORIAL</option>
+                        <option value="ANALISTA" @selected($interlab->avaliacao == 'ANALISTA')>ANALISTA</option>
+                    </select>
+                    @error('avaliacao') <div class="text-warning">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-6 col-sm-4">
                     @php
                         $readonlyTag = false;
                         if($interlab->exists) {
@@ -61,7 +70,7 @@
                     <div class="form-text"> Imagem que irá aparecer no site </div>
                     <div class="row">
                         @foreach($thumbs as $key => $thumb)
-                        <div class="col-sm-2 p-1">
+                        <div class="col-6 col-sm-2 p-1">
                             <div class="bg-light align-items-center text-center p-2">
                                 <div class="form-check rounded check-bg" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $key }}"
                                     style="height: 80px; background: center / contain no-repeat url({{url( asset('build/images/site/').'/'.$thumb )}})">

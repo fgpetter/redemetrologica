@@ -8,9 +8,6 @@ use App\Models\Parametro;
 use App\Exports\LabExport;
 use Illuminate\Http\Request;
 use App\Models\AgendaInterlab;
-use App\Models\MaterialPadrao;
-use Illuminate\Support\Carbon;
-use App\Models\InterlabDespesa;
 use App\Models\InterlabInscrito;
 use App\Models\DadosGeraDoc;
 use App\Actions\FileUploadAction;
@@ -48,23 +45,24 @@ class AgendaInterlabController extends Controller
    */
   public function insert(AgendaInterlab $agendainterlab): View
   {
-    // remover 'inscritos' daqui - o Livewire já carrega com eager loading
-    $agendainterlab->load(['despesas', 'parametros', 'rodadas', 'valores']);
-    
-    // contar inscritos sem carregar a collection inteira
+    $agendainterlab->load([
+      'interlab',
+      'despesas.materialPadrao',
+      'parametros.parametro',
+      'rodadas',
+      'valores',
+      'materiais',
+    ]);
+
     $inscritosCount = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)->count();
 
-    $data = [ 
-      'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get(),
+    $data = [
+      'pessoas' => Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa', 'associado'])->orderBy('nome_razao')->get(),
       'agendainterlab' => $agendainterlab,
       'interlabs' => Interlab::all(),
-      'materiaisPadrao' => MaterialPadrao::whereIn('tipo', ['INTERLAB', 'AMBOS'])->orderBy('descricao')->get(),
-      'interlabDespesa' => $agendainterlab->despesas,
-      'fabricantes' => DB::table('interlab_despesas')->distinct()->get(['fabricante']),
-      'fornecedores' => DB::table('interlab_despesas')->distinct()->get(['fornecedor']),
       'interlabParametros' => $agendainterlab->parametros,
       'parametros' => Parametro::orderBy('descricao')->get(),
-      'inscritosCount' => $inscritosCount, // Passar apenas o count
+      'inscritosCount' => $inscritosCount,
       'idinterlab' => $agendainterlab->id,
     ];
 
@@ -79,13 +77,9 @@ class AgendaInterlabController extends Controller
    **/
   public function create(StoreAgendaInterlabRequest $request): RedirectResponse
   {
-
     $validated = $request->validated();
-
     $valores_data = $validated['valores'] ?? [];
-    if (array_key_exists('valores', $validated)) {
-      unset($validated['valores']);
-    }
+    unset($validated['valores']);
 
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($request->valor_desconto),
@@ -94,24 +88,8 @@ class AgendaInterlabController extends Controller
 
     try {
       DB::transaction(function () use ($prepared_data, $valores_data, &$agenda_interlab) {
-
         $agenda_interlab = AgendaInterlab::create($prepared_data);
-
-        if (!empty($valores_data) && is_array($valores_data)) {
-          foreach ($valores_data as $valor_data) {
-            $descricao = $valor_data['descricao'] ?? null;
-            $valor = $valor_data['valor'] ?? null;
-            $valor_assoc = $valor_data['valor_assoc'] ?? null;
-
-            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
-              $agenda_interlab->valores()->create([
-                'descricao' => $descricao,
-                'valor' => formataMoeda($valor),
-                'valor_assoc' => formataMoeda($valor_assoc),
-              ]);
-            }
-          }
-        }
+        $this->syncValores($agenda_interlab, $valores_data);
       });
     } catch (\Throwable $e) {
       report($e);
@@ -135,11 +113,8 @@ class AgendaInterlabController extends Controller
     $oldStatus = $agendainterlab->status;
 
     $validated = $request->validated();
-
     $valores_data = $validated['valores'] ?? [];
-    if (array_key_exists('valores', $validated)) {
-      unset($validated['valores']);
-    }
+    unset($validated['valores']);
 
     $prepared_data = array_merge($validated, [
       'valor_desconto' => formataMoeda($validated['valor_desconto']),
@@ -149,33 +124,15 @@ class AgendaInterlabController extends Controller
       'destaque' => ($request->status === 'CONCLUIDO') ? 0 : ($request->destaque ?? 0),
     ]);
 
-
     try {
       DB::transaction(function () use ($agendainterlab, $prepared_data, $valores_data) {
-
         $agendainterlab->update($prepared_data);
 
+        // Remove valores antigos e cria os novos
         $agendainterlab->valores()->delete();
-
-        if (!empty($valores_data) && is_array($valores_data)) {
-          foreach ($valores_data as $valor_data) {
-
-            $descricao = $valor_data['descricao'] ?? null;
-            $valor = $valor_data['valor'] ?? null;
-            $valor_assoc = $valor_data['valor_assoc'] ?? null;
-
-            if (!is_null($descricao) || !is_null($valor) || !is_null($valor_assoc)) {
-              $agendainterlab->valores()->create([
-                'descricao' => $descricao,
-                'valor' => formataMoeda($valor),
-                'valor_assoc' => formataMoeda($valor_assoc),
-              ]);
-            }
-          }
-        }
+        $this->syncValores($agendainterlab, $valores_data);
       });
     } catch (\Throwable $e) {
-
       report($e);
 
       return back()
@@ -219,113 +176,6 @@ class AgendaInterlabController extends Controller
 
     return redirect()->route('agenda-interlab-index')->with('warning', 'Agenda interlab removido');
   }
-
-  /**
-   * Salva despesa do agendamento de interlab
-   *
-   * @param Request $request
-   * @return RedirectResponse
-   */
-  public function salvaDespesa(Request $request): RedirectResponse
-  {
-    $validator = Validator::make($request->all(), [
-      'agenda_interlab_id' => ['nullable', 'exists:agenda_interlabs,id'],
-      'despesa_id' => ['nullable', 'exists:interlab_despesas,id'],
-      'material_padrao' => ['required', 'exists:materiais_padroes,id'],
-      'quantidade' => ['nullable', 'regex:/[\d.,]+$/'],
-      'valor' => ['nullable','regex:/[\d.,]+$/'],
-      'total' => ['nullable', 'regex:/[\d.,]+$/'],
-      'lote' => ['nullable', 'string'],
-      'validade' => ['nullable', 'date'],
-      'data_compra' => ['nullable', 'date'],
-      'fornecedor' => ['nullable', 'string'],
-      'fabricante' => ['nullable', 'string'],
-      'cod_fabricante' => ['nullable', 'string'],
-    ],[
-      'agenda_interlab_id.exists' => 'O campo descrição não tem um material válido',
-      'despesa_id.exists' => 'Você está tentando editar uma despesa que nao existe',
-      'material_padrao.exists' => 'Selecione uma opção de material ou padrão válida',
-      'quantidade.regex' => 'Quantidade não é um número válido',
-      'valor.regex' => 'Valor não é um número válido',
-      'total.regex' => 'Valor total não é um número válido',
-      'lote.string' => 'Iformação de lote não é valida',
-      'validade.date' => 'Validade permite somente data',
-      'data_compra.date' => 'Data de compra permite somente data',
-      'fornecedor.string' => 'Nome de fornecedor não é um texto válido',
-      'fabricante.string' => 'Nome de fabricante não é um texto válido',
-      'cod_fabricante.string' => 'Código de fornecedor não é um texto válido',
-
-    ]);
-
-    if ($validator->fails()) {
-
-      Log::channel('validation')->info("Erro de validação", 
-      [
-          'user' => auth()->user() ?? null,
-          'request' => $request->all() ?? null,
-          'uri' => request()->fullUrl() ?? null,
-          'method' => get_class($this) .'::'. __FUNCTION__ ,
-          'errors' => $validator->errors() ?? null,
-      ]);
-
-      return back()
-      ->withErrors($validator, 'despesas')
-      ->withInput()
-      ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente')
-      ->withFragment('despesas');
-    }
-
-    $prepared_data = $validator->validate();
-    InterlabDespesa::updateOrCreate([
-        'id' => $prepared_data['despesa_id'],
-      ],[
-        'agenda_interlab_id' => $prepared_data['agenda_interlab_id'],
-        'material_padrao_id' => $prepared_data['material_padrao'],
-        'quantidade' => $prepared_data['quantidade'],
-        'valor' => formataMoeda( $prepared_data['valor'] ),
-        'total' => formataMoeda( $prepared_data['total'] ),
-        'lote' => $prepared_data['lote'],
-        'validade' => $prepared_data['validade'],
-        'data_compra' => $prepared_data['data_compra'],
-        'fornecedor' => $prepared_data['fornecedor'],
-        'fabricante' => $prepared_data['fabricante'],
-        'cod_fabricante' => $prepared_data['cod_fabricante'],
-    ]);
-
-    return back()->with('success', 'Material salvo com sucesso')->withFragment('despesas');
-  }
-
-  /**
-   * Duplica despesa do agendamento de interlab removendo campos 
-   * que não devem sere duplicados como id, uid, and timestamps.
-   *
-   * @param InterlabDespesa $despesa
-   * @return \Illuminate\Http\RedirectResponse
-   */
-  public function duplicarDespesa(InterlabDespesa $despesa): RedirectResponse 
-  {
-    $despesa = collect($despesa)->forget(['id','uid', 'created_at', 'updated_at', 'deleted_at'])->toArray();
-
-    $despesa['validade'] = ($despesa['validade']) ? Carbon::parse($despesa['validade'])->format('Y-m-d') : null;
-    $despesa['data_compra'] = ($despesa['data_compra']) ? Carbon::parse($despesa['data_compra'])->format('Y-m-d') : null;
-
-    InterlabDespesa::create($despesa);
-
-    return back()->with('success', 'Material duplicado com sucesso')->withFragment('despesas');
-  }
-
-  /**
-   * Remove despesa do agendamento de interlab
-   *
-   * @param InterlabDespesa $despesa
-   * @return RedirectResponse
-   */
-  public function deleteDespesa(InterlabDespesa $despesa): RedirectResponse
-  {
-    $despesa->delete();
-    return back()->with('warning', 'Material removido')->withFragment('despesas');
-  }
-
 
   /**
    * Adiciona parametros no agendamento de PEP
@@ -619,6 +469,40 @@ class AgendaInterlabController extends Controller
     $agendainterlab->update(['protocolo' => null]);
 
     return redirect()->back()->with('success', 'Protocolo removido');
+  }
+
+  /**
+   * Sincroniza os valores do interlab
+   *
+   * @param AgendaInterlab $agendaInterlab
+   * @param array $valoresData
+   * @return void
+   */
+  private function syncValores(AgendaInterlab $agendaInterlab, array $valoresData): void
+  {
+    if (empty($valoresData)) {
+      return;
+    }
+
+    $valoresParaCriar = collect($valoresData)
+      ->filter(function ($valorData) {
+        return !empty($valorData['descricao']) 
+          || !empty($valorData['valor']) 
+          || !empty($valorData['valor_assoc']);
+      })
+      ->map(function ($valorData) {
+        return [
+          'descricao' => $valorData['descricao'] ?? null,
+          'valor' => !empty($valorData['valor']) ? formataMoeda($valorData['valor']) : null,
+          'valor_assoc' => !empty($valorData['valor_assoc']) ? formataMoeda($valorData['valor_assoc']) : null,
+          'analistas' => $valorData['analistas'] ?? null,
+        ];
+      })
+      ->toArray();
+
+    if (!empty($valoresParaCriar)) {
+      $agendaInterlab->valores()->createMany($valoresParaCriar);
+    }
   }
 
 }

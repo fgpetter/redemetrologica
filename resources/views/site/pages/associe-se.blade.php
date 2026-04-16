@@ -4,14 +4,12 @@
 @endsection
 @section('content')
     {{-- banner inicial --}}
-    {{-- banner inicial --}}
-    <div class="card text-bg-dark">
-        <img src="{{ asset('build/images/site/banner-associe-se.png') }}" class="card-img" alt="...">
-        <div class="container card-img-overlay d-flex justify-content-center align-items-center">
+    <div class="d-flex justify-content-center align-items-center"
+        style="height: 300px; background-image: url('{{ asset('build/images/site/banner-associe-se.png') }}'); 
+        background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="container d-flex justify-content-center align-items-center">
             <div class="text-center">
                 <p class="SiteBanner--titulo"><strong>Associe-se</strong></p>
-                {{-- <button type="button" class="btn btn-warning">VANTAGENS</button>
-            <button type="button" class="btn btn-warning">VALORES</button> --}}
             </div>
         </div>
     </div>

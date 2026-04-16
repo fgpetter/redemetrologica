@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Fornecedor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -25,7 +26,6 @@ class InterlabDespesa extends Model
             ->useLogName(get_class($this));
     }
 
-
     /**
      * Carrega Interlab
      * @return BelongsTo
@@ -33,6 +33,16 @@ class InterlabDespesa extends Model
     public function interlab(): BelongsTo
     {
         return $this->belongsTo(Interlab::class);
+    }
+
+
+    /**
+     * Carrega fornecedor relacionado
+     * @return BelongsTo
+     */
+    public function interlabFornecedor(): BelongsTo
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
     }
 
     /**

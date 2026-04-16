@@ -45,12 +45,9 @@
 
 
         
-        <!-- Laboratórios inscritos -->
+        <!-- Laboratórios inscritos e adicionar novo laboratório -->
         <livewire:painel-cliente.lab-inscritos />
 
-        <!-- Adicionar novo laboratório -->
-        <livewire:painel-cliente.novo-lab-inscrito />
-        
     </div>
     
 </div>

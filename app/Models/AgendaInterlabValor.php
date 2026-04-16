@@ -12,12 +12,7 @@ class AgendaInterlabValor extends Model
 
     protected $table = 'agendainterlab_valores';
 
-    protected $fillable = [
-        'agenda_interlab_id',
-        'descricao',
-        'valor',
-        'valor_assoc',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'valor' => 'decimal:2',
