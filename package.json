@@ -25,6 +25,6 @@
         "rtlcss": "^4.1.0",
         "sass-loader": "^13.2.2",
         "sweetalert2": "^11.10.6",
-        "vite-plugin-static-copy": "^4.0.0"
+        "vite-plugin-static-copy": "^4.0.1"
     }
 }

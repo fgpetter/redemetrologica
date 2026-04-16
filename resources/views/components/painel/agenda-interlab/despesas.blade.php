@@ -1,7 +1,4 @@
-@if( $errors->despesas->any() )
-  <x-alerts.warning :errors="$errors->despesas->all()"/>
-@endif
-
+@if ($agendainterlab->id)
 <div class="row">
   <div class="col-12 col-md-7 col-xxl-8 pe-3">
     <div class="row">
@@ -24,12 +21,9 @@
             <option value="{{ $parametro->id }}">{{ $parametro->descricao }}</option>
             @endforeach
           </select>
-  
           <button type="submit" class="btn btn-sm btn-success text-nowrap" >
             <i class="ri-add-line align-bottom me-1"></i> Adicionar
           </button>
-
-          
         </div>
       </form>
       {{-- Tabela --}}
@@ -79,3 +73,4 @@
   </div>
 
 </div>
+@endif

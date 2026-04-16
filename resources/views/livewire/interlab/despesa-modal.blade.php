@@ -23,87 +23,39 @@
                             </div>
 
                             @foreach ($produtos as $index => $produto)
-                                <div
-                                    class="col-12 border rounded p-3 mb-2"
-                                    wire:key="produto-{{ $index }}"
-                                    x-data="{
-                                        quantidade: '{{ $produto['quantidade'] }}',
-                                        valor: '{{ $produto['valor'] }}',
-                                        get total() {
-                                            const qtd = parseFloat(this.quantidade.replace(',', '.')) || 0;
-                                            const val = parseFloat(this.valor.replace(',', '.')) || 0;
-                                            if (qtd === 0 || val === 0) return '';
-                                            return (qtd * val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                        }
-                                    }"
-                                >
+                                <div class="col-12 border rounded p-3 mb-2" wire:key="produto-{{ $index }}">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="fw-semibold">Produto {{ $index + 1 }}</span>
-                                        @if (count($produtos) > 1)
-                                            <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removerProduto({{ $index }})">
-                                                Remover
-                                            </button>
-                                        @endif
-                                    </div>
-                                    <div class="row g-2">
-                                        <div class="col-12">
-                                            <label class="form-label mb-0">Material/Serviço <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" wire:model="produtos.{{ $index }}.material_servico" required />
-                                            @error("produtos.{$index}.material_servico")
-                                                <span class="text-danger small">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="col-6 col-md-4">
-                                            <label class="form-label mb-0">Fabricante</label>
-                                            <input type="text" class="form-control" wire:model="produtos.{{ $index }}.fabricante" />
-                                        </div>
-                                        <div class="col-6 col-md-2">
-                                            <label class="form-label mb-0">Cod Fabricante</label>
-                                            <input type="text" class="form-control" wire:model="produtos.{{ $index }}.cod_fabricante" />
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label mb-0">Quantidade</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                wire:model="produtos.{{ $index }}.quantidade"
-                                                x-model="quantidade"
-                                                placeholder="0,00"
-                                            />
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label mb-0">Valor</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                wire:model="produtos.{{ $index }}.valor"
-                                                x-model="valor"
-                                                placeholder="0,00"
-                                            />
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label mb-0">Total</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                readonly
-                                                :value="total"
-                                                :placeholder="total ? '' : 'Calculado automaticamente'"
-                                            />
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label mb-0">Lote</label>
-                                            <input type="text" class="form-control" wire:model="produtos.{{ $index }}.lote" />
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label mb-0">Validade</label>
-                                            <input type="date" class="form-control" wire:model="produtos.{{ $index }}.validade" />
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label mb-0">Data da compra</label>
-                                            <input type="date" class="form-control" wire:model="produtos.{{ $index }}.data_compra" />
+                                        <div class="d-flex gap-1">
+                                            @if ($editingIndex !== $index)
+                                                <button type="button" class="btn btn-sm btn-dark" wire:click="editarProduto({{ $index }})">Editar</button>
+                                            @endif
+                                            @if (count($produtos) > 1)
+                                                <button type="button" class="btn btn-sm btn-outline-danger" wire:click="removerProduto({{ $index }})">Remover</button>
+                                            @endif
                                         </div>
                                     </div>
+
+                                    @if ($editingIndex === $index)
+                                        @include('livewire.interlab.partials.despesa-produto-form', ['index' => $index, 'produto' => $produto])
+                                    @else
+                                        @php
+                                            $qtd = (float) str_replace(',', '.', $produto['quantidade'] ?: '0');
+                                            $val = (float) str_replace(['.', ','], ['', '.'], $produto['valor'] ?: '0');
+                                            $totalCalc = $qtd * $val;
+                                        @endphp
+                                        <div class="text-muted small">
+                                            <strong>Material/Serviço:</strong> {{ $produto['material_servico'] ?: '—' }}<br>
+                                            <strong>Fabricante:</strong> {{ $produto['fabricante'] ?: '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Cód Fabricante:</strong> {{ $produto['cod_fabricante'] ?: '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Lote:</strong> {{ $produto['lote'] ?: '—' }}<br>
+                                            <strong>Quantidade:</strong> {{ $produto['quantidade'] ?: '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Valor:</strong> {{ $produto['valor'] ? 'R$ ' . $produto['valor'] : '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Total:</strong> {{ $totalCalc > 0 ? 'R$ ' . number_format($totalCalc, 2, ',', '.') : '—' }}<br>
+                                            <strong>Validade:</strong> {{ $produto['validade'] ? \Carbon\Carbon::parse($produto['validade'])->format('d/m/Y') : '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Data Compra:</strong> {{ $produto['data_compra'] ? \Carbon\Carbon::parse($produto['data_compra'])->format('d/m/Y') : '—' }}
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
 

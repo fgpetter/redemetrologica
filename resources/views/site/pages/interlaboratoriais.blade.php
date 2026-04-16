@@ -32,8 +32,10 @@
     @foreach ($interlabs as $agendaInterlab)
     <div class="col-12 col-sm-6 col-lg-3"> 
       <div class="card ribbon-box border shadow-none mb-lg-0 card-interlab h-100">
-        @if( $agendaInterlab->inscricao == 1 )
-          <div class="ribbon ribbon-primary round-shape">Inscrições abertas</div>
+        @if( $agendaInterlab->status == 'CONFIRMADO' )
+          <div class="ribbon ribbon-primary round-shape">CONFIRMADO</div>
+        @elseif( $agendaInterlab->inscricao == 1 )
+          <div class="ribbon ribbon-success round-shape">Inscrições abertas</div>
         @endif
         <img src="{{ url( asset('build/images/site/').'/'.$agendaInterlab->interlab->thumb ) }}" 
           class="card-img-top align-self-center pt-2 img-fluid" alt="" style="max-width: 150px"> 
