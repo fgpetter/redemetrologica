@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Interlab;
 
-use App\Models\Pessoa;
-use Livewire\Component;
-use App\Models\DadosGeraDoc;
 use App\Models\AgendaInterlab;
+use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Models\Pessoa;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Component;
 
 class ListParticipantes extends Component
 {
@@ -27,16 +27,16 @@ class ListParticipantes extends Component
         Validator::make(
             ['id' => $id, 'valor' => $valor],
             [
-                'id'    => ['required', 'exists:interlab_inscritos,id'],
+                'id' => ['required', 'exists:interlab_inscritos,id'],
                 'valor' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             ],
             [
-                'id.required'    => 'O ID é obrigatório.',
-                'id.exists'      => 'Participante não encontrado.',
+                'id.required' => 'O ID é obrigatório.',
+                'id.exists' => 'Participante não encontrado.',
                 'valor.required' => 'O valor é obrigatório.',
-                'valor.numeric'  => 'O valor deve ser numérico.',
-                'valor.min'      => 'O valor deve ser maior ou igual a zero.',
-                'valor.max'      => 'O valor máximo permitido é 999.999,99.',
+                'valor.numeric' => 'O valor deve ser numérico.',
+                'valor.min' => 'O valor deve ser maior ou igual a zero.',
+                'valor.max' => 'O valor máximo permitido é 999.999,99.',
             ]
         )->validate();
 
@@ -50,7 +50,7 @@ class ListParticipantes extends Component
         $agendainterlab = AgendaInterlab::findOrFail($this->idinterlab);
 
         $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-            ->with(['empresa', 'pessoa', 'laboratorio.endereco', 'laboratorio.analistas'])
+            ->with(['empresa', 'pessoa', 'laboratorio.endereco', 'laboratorio.analistas', 'lancamentoFinanceiro'])
             ->orderBy('data_inscricao', 'desc')
             ->get();
 

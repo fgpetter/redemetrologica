@@ -57,6 +57,18 @@
             </div>
           </div>
         </div>
+
+        @if ($participante->lancamentoFinanceiro)
+        <div class="row mb-3">
+          <div class="col-12 text-end">
+            <a href="{{ route('lancamento-financeiro-insert', $participante->lancamentoFinanceiro->uid) }}" class="link-primary fw-medium">
+              Editar Lançamento Financeiro
+              <i class="ri-arrow-right-line align-middle"></i>
+            </a>
+          </div>
+        </div>
+        @endif
+
         <div class="row">
           <form method="POST" action="{{ route('salvar-inscrito-interlab', $participante->uid) }}" id="form-{{ $participante->uid }}">
             @csrf
