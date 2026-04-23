@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('app:envia-convites')->everyTenSeconds();
         // $schedule->command('certificados:clean')->dailyAt('01:00');
+        $schedule->command('certificados:enviar-pendente')->everyMinute()->between('00:00', '06:00');
     }
 
     /**
