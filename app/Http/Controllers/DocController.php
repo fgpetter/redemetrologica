@@ -2,14 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\DadosGeraDoc;
-use Spatie\LaravelPdf\Facades\Pdf;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\View\View;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class DocController extends Controller
 {
+    public function certificadoMockHtml(): View
+    {
+        $dadosDoc = (object) [
+            'content' => [
+                'participante_nome' => 'Maria da Silva',
+                'curso_nome' => 'Boas Práticas em Metrologia e Ensaios',
+                'curso_data' => 'Realizado em 24 de abril de 2026, com carga horária de 8 horas',
+                'participante_id' => 1,
+            ],
+        ];
+
+        return view('certificados.certificado', [
+            'dadosDoc' => $dadosDoc,
+        ]);
+    }
+
     /**
      * Download de documento pelo link unico
      */
@@ -19,7 +34,7 @@ class DocController extends Controller
 
         if ($dadosDoc->file_name && Storage::exists($dadosDoc->file_name)) {
             return response()->download(
-                Storage::path($dadosDoc->file_name), 
+                Storage::path($dadosDoc->file_name),
                 basename($dadosDoc->file_name)
             );
         }
@@ -47,7 +62,7 @@ class DocController extends Controller
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists(dirname($path))) {
+        if (! Storage::exists(dirname($path))) {
             Storage::makeDirectory(dirname($path));
         }
 
@@ -56,9 +71,10 @@ class DocController extends Controller
         ])->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
-       
+
         return response()->download(Storage::path($path), $fileName);
     }
+
     /**
      * Geração do PDF para certificado
      */
@@ -67,7 +83,7 @@ class DocController extends Controller
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists(dirname($path))) {
+        if (! Storage::exists(dirname($path))) {
             Storage::makeDirectory(dirname($path));
         }
 
@@ -79,10 +95,10 @@ class DocController extends Controller
 
         if (isset($dadosDoc->content['participante_id'])) {
             \App\Models\CursoInscrito::where('id', $dadosDoc->content['participante_id'])->update([
-                'certificado_path' => $path
+                'certificado_path' => $path,
             ]);
         }
-       
+
         return response()->download(Storage::path($path), $fileName);
     }
 
@@ -94,7 +110,7 @@ class DocController extends Controller
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists(dirname($path))) {
+        if (! Storage::exists(dirname($path))) {
             Storage::makeDirectory(dirname($path));
         }
 
@@ -110,10 +126,10 @@ class DocController extends Controller
 
         if (isset($dadosDoc->content['participante_id'])) {
             \App\Models\InterlabInscrito::where('id', $dadosDoc->content['participante_id'])->update([
-                'certificado_path' => $path
+                'certificado_path' => $path,
             ]);
         }
-       
+
         return response()->download(Storage::path($path), $fileName);
     }
 }

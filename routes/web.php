@@ -46,6 +46,7 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 Route::get('/', [HomeController::class, 'root'])->name('root');
 
 /* Rota para download de documentos */
+Route::get('/certificado/mock-html', [DocController::class, 'certificadoMockHtml'])->name('certificado.mock-html');
 Route::get('/dados-doc/{link}', [DocController::class, 'download'])->name('dados-doc.download');
 
 /* Rotas estáticas */
