@@ -3,12 +3,13 @@
 namespace App\Livewire\DadosBancarios;
 
 use App\Models\Pessoa;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Listview extends Component
 {
     public Pessoa $pessoa;
+
     public ?string $contaAtiva = null;
 
     public function abrirModal($uid = null)
@@ -19,8 +20,8 @@ class Listview extends Component
     #[On('refresh-list')]
     public function render()
     {
-        return view('livewire.dados-bancarios.listview', [
-            'contas' => $this->pessoa->dadosBancarios
+        return view('livewire.dados-bancarios.list-view', [
+            'contas' => $this->pessoa->dadosBancarios,
         ]);
     }
 }

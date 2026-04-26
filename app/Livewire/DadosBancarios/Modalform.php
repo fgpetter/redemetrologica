@@ -2,15 +2,18 @@
 
 namespace App\Livewire\DadosBancarios;
 
+use App\Models\DadoBancario;
 use App\Models\Pessoa;
 use Livewire\Component;
-use App\Models\DadoBancario;
 
 class ModalForm extends Component
 {
     public Pessoa $pessoa;
+
     public ?string $contaUid;
+
     public array $conta = [];
+
     public bool $saved = false;
 
     protected $rules = [
@@ -19,6 +22,7 @@ class ModalForm extends Component
         'conta.agencia' => 'required|string|max:20',
         'conta.conta' => 'required|string|max:50',
     ];
+
     protected $messages = [
         'conta.nome_banco.required' => 'O campo nome do banco é obrigatório',
         'conta.nome_banco.max' => 'Máximo de 50 caracteres permitido',
@@ -37,7 +41,7 @@ class ModalForm extends Component
         } else {
             $this->conta = [
                 'pessoa_id' => $this->pessoa->id,
-                'uid' => uniqid()
+                'uid' => uniqid(),
             ];
         }
     }
@@ -55,6 +59,6 @@ class ModalForm extends Component
 
     public function render()
     {
-        return view('livewire.dados-bancarios.modalform');
+        return view('livewire.dados-bancarios.modal-form');
     }
 }

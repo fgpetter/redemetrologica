@@ -10,7 +10,7 @@
     @if ($post->tipo == 'noticia')
         <x-site.component-post :post="$post" />
     @else
-        <x-site.component-postGaleria :post="$post" :postMedia="$postMedia" />
+        <x-site.component-post-galeria :post="$post" :postMedia="$postMedia" />
     @endif
 
 @endsection

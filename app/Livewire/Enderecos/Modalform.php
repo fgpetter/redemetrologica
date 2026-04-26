@@ -2,17 +2,20 @@
 
 namespace App\Livewire\Enderecos;
 
-use App\Models\Pessoa;
-use Livewire\Component;
 use App\Models\Endereco;
+use App\Models\Pessoa;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Livewire\Component;
 
 class ModalForm extends Component
 {
     public Pessoa $pessoa;
+
     public ?string $enderecoUid;
+
     public array $endereco = [];
+
     public bool $saved = false;
 
     protected $rules = [
@@ -67,7 +70,7 @@ class ModalForm extends Component
             } else {
                 $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
 
-                if ($response->successful() && !isset($response->json()['erro'])) {
+                if ($response->successful() && ! isset($response->json()['erro'])) {
                     $data = $response->json();
                     $this->endereco['endereco'] = $data['logradouro'] ?? '';
                     $this->endereco['bairro'] = $data['bairro'] ?? '';
@@ -101,6 +104,6 @@ class ModalForm extends Component
 
     public function render()
     {
-        return view('livewire.enderecos.modalform');
+        return view('livewire.enderecos.modal-form');
     }
 }
