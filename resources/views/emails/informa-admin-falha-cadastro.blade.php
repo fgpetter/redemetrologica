@@ -24,7 +24,8 @@
         </i></blockquote>
       </p>
       <p>
-        Para editar o cadastro da pessoa <a href="{{ 'https://redemetrologica.com.br/painel/pessoa/insert/'.$content['pessoa_uid'] }}"> CLIQUE AQUI </a>
+        Para editar o cadastro da pessoa <a href="{{ env('APP_URL').'/painel/pessoa/insert/'.$content['pessoa_uid'] }}"> CLIQUE AQUI </a>
+   
       </p>
       <p>Atenciosamente,<br>Equipe Rede Metrológica RS</p>
     </div>
