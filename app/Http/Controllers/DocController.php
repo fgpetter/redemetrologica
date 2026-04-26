@@ -16,6 +16,10 @@ class DocController extends Controller
                 'participante_nome' => 'Maria da Silva',
                 'curso_nome' => 'Boas Práticas em Metrologia e Ensaios',
                 'curso_data' => 'Realizado em 24 de abril de 2026, com carga horária de 8 horas',
+                'conteudo_programatico' => 'Fundamentos de metrologia, rastreabilidade, incerteza de medição e exercícios práticos.',
+                'carga_horaria' => 8,
+                'instrutor_nome' => 'João da Silva',
+                'local_realizacao' => 'Porto Alegre - RS',
                 'participante_id' => 1,
             ],
         ];
