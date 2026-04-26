@@ -32,7 +32,7 @@ class InscricaoInterlabController extends Controller
         // salva dados da inscrição na sessão
         session()->put('interlab', AgendaInterlab::where('uid', $request->target)->where('inscricao', 1)->firstOrFail());
 
-        // redireciona para o painel e carrega a lógica do componente em app\view\ConfirmaInscricao
+        // redireciona ao painel: com session('interlab'), o index renderiza nova-inscricao-pd e os Livewire de interlab (BuscaCNPJ, LabInscritos, etc.)
         return redirect('painel');
     }
 
@@ -137,8 +137,8 @@ class InscricaoInterlabController extends Controller
             'informacoes_inscricao' => $validator->safe()->string('informacoes_inscricao'),
         ]);
         // se valor > 0 atualiza lancamento financeiro
-        if ($inscrito->valor > 0) {
-            app(GerarLancamentoInterlabAction::class)->execute($inscrito);
+        if ($request->valor > 0) {
+            app(GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
         }
 
         return back()->with('success', 'Dados salvos com sucesso!')->withFragment('participantes');

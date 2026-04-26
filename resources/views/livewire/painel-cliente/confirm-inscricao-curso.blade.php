@@ -285,7 +285,7 @@
                 </div>
             </div>
         @elseif ($tipoInscricao === 'CPF') {{-- Exibe informações para inscrição pelo CPF --}}
-            @if ($jaInscrito)
+            @if ($jaInscritoCpf)
                 <div class="alert alert-success alert-dismissible bg-body-secondary fade show text-dark"
                     role="alert">
                     <strong>Tudo certo!</strong> <br>

@@ -15,6 +15,7 @@
       <h3>Certificado Disponível - {{ $dadosDoc->content['curso_nome'] }}</h3>
       <p>Olá {{ $dadosDoc->content['participante_nome'] }},</p>
       <p>Seu certificado para o curso <strong>{{ $dadosDoc->content['curso_nome'] }}</strong> já está disponível para download.</p>
+      <p><strong>IMPORTANTE:</strong> se você já recebeu esse certificado anteriormente, esta é uma versão atualizada.</p>
       
         <a href="{{ route('dados-doc.download', $dadosDoc->link) }}" 
            target="_blank"

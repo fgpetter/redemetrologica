@@ -10,6 +10,7 @@ use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
@@ -23,6 +24,16 @@ class ConfirmInscricaoCurso extends Component
     public $pessoaId_usuario;
 
     public $jaInscrito = false;
+
+    /**
+     * Inscrição no curso como pessoa física (sem empresa no vínculo).
+     */
+    public bool $jaInscritoCpf = false;
+
+    /**
+     * Inscrição no curso vinculada a empresa (CNPJ).
+     */
+    public bool $jaInscritoCnpj = false;
 
     public $showTipoInscricao = true;
 
@@ -46,13 +57,29 @@ class ConfirmInscricaoCurso extends Component
 
     public function mount() // metodo chamado quando o componente é montado
     {
-        $this->pessoaId_usuario = auth()->user()->pessoa->id;
+        $user = auth()->user();
+        if ($user->pessoa === null) {
+            throw new \LogicException('Usuário autenticado sem pessoa vinculada ao carregar inscrição em curso.');
+        }
+
+        $this->pessoaId_usuario = $user->pessoa->id;
         $this->curso = session('curso');
         $this->agendacurso = AgendaCursos::where('id', session('curso')->id ?? null)->with('curso')->first();
-        // Verifica se o usuário já está inscrito no agendacurso
-        $this->jaInscrito = CursoInscrito::where('agenda_curso_id', $this->agendacurso->id ?? null)
+        $agendaCursoId = $this->agendacurso->id ?? null;
+
+        $this->jaInscritoCpf = CursoInscrito::query()
+            ->where('agenda_curso_id', $agendaCursoId)
             ->where('pessoa_id', $this->pessoaId_usuario)
+            ->whereNull('empresa_id')
             ->exists();
+
+        $this->jaInscritoCnpj = CursoInscrito::query()
+            ->where('agenda_curso_id', $agendaCursoId)
+            ->where('pessoa_id', $this->pessoaId_usuario)
+            ->whereNotNull('empresa_id')
+            ->exists();
+
+        $this->jaInscrito = $this->jaInscritoCpf || $this->jaInscritoCnpj;
     }
 
     public function ProcuraCnpj() // Método chamado quando o usuário clica no botão de busca de CNPJ
@@ -357,10 +384,12 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarInscricaoCNPJ() // Método com regras para salvar inscrição de CNPJ
     {
-        $pessoa_empresa = Pessoa::where('id', $this->empresa['id'])->first();
+        $pessoa_empresa = Pessoa::where('id', $this->empresa['id'])->firstOrFail();
+        $pessoaIdUsuario = auth()->user()->pessoa->id;
+
         foreach ($this->inscricoes as $inscricao) {
             $cursoInscrito = CursoInscrito::create([
-                'pessoa_id' => $inscricao['id_pessoa'],
+                'pessoa_id' => $pessoaIdUsuario,
                 'agenda_curso_id' => $this->agendacurso->id,
                 'empresa_id' => $pessoa_empresa->id,
                 'nome' => $inscricao['nome'],
@@ -419,63 +448,66 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarInscricaoCPF() // Método com regras para salvar inscrição de CPF
     {
+        $pessoaUsuario = auth()->user()->pessoa;
         $inscricao = $this->inscricoes[0];
-        $inscrito = Pessoa::where('id', $inscricao['id_pessoa'])
-            ->where('tipo_pessoa', 'PF')
-            ->first();
-        if ($inscrito) {
-            $inscrito->update([
-                'nome_razao' => $inscricao['nome'],
+
+        $pessoaUsuario->update([
+            'nome_razao' => $inscricao['nome'],
+            'email' => $inscricao['email'],
+            'telefone' => $inscricao['telefone'],
+            'cpf_cnpj' => $inscricao['cpf_cnpj'],
+        ]);
+
+        Endereco::updateOrCreate(
+            [
+                'pessoa_id' => $pessoaUsuario->id,
+            ],
+            [
+                'cep' => $inscricao['cep'],
+                'uf' => $inscricao['uf'],
+                'endereco' => $inscricao['endereco'],
+                'complemento' => $inscricao['complemento'],
+                'bairro' => $inscricao['bairro'],
+                'cidade' => $inscricao['cidade'],
+            ]
+        );
+
+        $valorUnitario = $pessoaUsuario->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento;
+
+        $cursoInscrito = CursoInscrito::updateOrCreate(
+            [
+                'pessoa_id' => $pessoaUsuario->id,
+                'agenda_curso_id' => $this->agendacurso->id,
+                'empresa_id' => null,
+            ],
+            [
+                'valor' => $valorUnitario,
+                'data_inscricao' => now(),
+                'nome' => $inscricao['nome'],
                 'email' => $inscricao['email'],
                 'telefone' => $inscricao['telefone'],
-                'cpf_cnpj' => $inscricao['cpf_cnpj'],
-            ]);
-        }
-        if ($inscrito) {
-            Endereco::updateOrCreate(
-                [
-                    'pessoa_id' => $inscrito->id,
-                ],
-                [
-                    'cep' => $inscricao['cep'],
-                    'uf' => $inscricao['uf'],
-                    'endereco' => $inscricao['endereco'],
-                    'complemento' => $inscricao['complemento'],
-                    'bairro' => $inscricao['bairro'],
-                    'cidade' => $inscricao['cidade'],
-                ]
-            );
-            $cursoInscrito = CursoInscrito::updateOrCreate(
-                [
-                    'pessoa_id' => $inscrito->id,
-                    'agenda_curso_id' => $this->agendacurso->id,
-                    'empresa_id' => null,
-                ],
-                [
-                    'valor' => $inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
-                    'data_inscricao' => now(),
-                    'nome' => $inscricao['nome'],
-                    'email' => $inscricao['email'],
-                    'telefone' => $inscricao['telefone'],
-                ]
-            );
-            // Adiciona lançamento financeiro
-            $lancamento = LancamentoFinanceiro::create([
-                'pessoa_id' => $inscrito->id,
+            ]
+        );
+
+        $lancamento = LancamentoFinanceiro::updateOrCreate(
+            [
+                'pessoa_id' => $pessoaUsuario->id,
                 'agenda_curso_id' => $this->agendacurso->id,
+            ],
+            [
                 'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
-                'valor' => formataMoeda($inscrito->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento),
+                'valor' => formataMoeda($valorUnitario),
                 'centro_custo_id' => '3', // TREINAMENTO
                 'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
                 'data_emissao' => now(),
                 'status' => 'PROVISIONADO',
                 'observacoes' => 'Inscrição de '.$inscricao['nome'].', em '.now()->format('d/m/Y H:i'),
-            ]);
+            ]
+        );
 
-            $cursoInscrito->update([
-                'lancamento_financeiro_id' => $lancamento->id,
-            ]);
-        }
+        $cursoInscrito->update([
+            'lancamento_financeiro_id' => $lancamento->id,
+        ]);
     }
 
     public function enviaEmail() // Método com regras para envio de emails para os inscritos
@@ -498,14 +530,13 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarInscricoes() // método que consolida e conclui a inscrição
     {
-
         if ($this->tipoInscricao === 'CNPJ') {
             $this->incluirMeInscrever();
             $this->validateInscricao();
-            $this->salvarInscricaoCNPJ();
+            DB::transaction(fn () => $this->salvarInscricaoCNPJ());
         } elseif ($this->tipoInscricao === 'CPF') {
             $this->validateInscricao();
-            $this->salvarInscricaoCPF();
+            DB::transaction(fn () => $this->salvarInscricaoCPF());
         }
 
         $this->enviaEmail();

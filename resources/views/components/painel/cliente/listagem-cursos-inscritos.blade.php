@@ -4,10 +4,10 @@
     // Separar inscrições individuais (CPF) e por empresa (CNPJ)
     $inscricoesIndividuais = $cursos->whereNull('empresa_id');
     $inscricoesEmpresa = $cursos->whereNotNull('empresa_id');
-    
+
     // Agrupar inscrições por empresa por agenda_curso_id e empresa_id
-    $inscricoesAgrupadasPorCurso = $inscricoesEmpresa->groupBy(function($inscricao) {
-        return $inscricao->agenda_curso_id . '_' . $inscricao->empresa_id;
+    $inscricoesAgrupadasPorCurso = $inscricoesEmpresa->groupBy(function ($inscricao) {
+        return $inscricao->agenda_curso_id.'_'.$inscricao->empresa_id;
     });
 @endphp
 
@@ -49,9 +49,9 @@
                                     @foreach ($inscricao->agendaCurso->cursoMateriais as $material)
                                         <li class="mb-1">
                                             <i class="bx bx-file me-1"></i>
-                                            <a href="{{ asset('curso-material/' . $material->arquivo) }}"
+                                            <a href="{{ asset('curso-material/'.$material->arquivo) }}"
                                                 target="_blank" class="text-primary">
-                                                {{ $material->descricao ?: 'Material ' . $loop->iteration }}
+                                                {{ $material->descricao ?: 'Material '.$loop->iteration }}
                                             </a>
                                         </li>
                                     @endforeach
@@ -106,9 +106,9 @@
                                     @foreach ($primeiraInscricao->agendaCurso->cursoMateriais as $material)
                                         <li class="mb-1">
                                             <i class="bx bx-file me-1"></i>
-                                            <a href="{{ asset('curso-material/' . $material->arquivo) }}"
+                                            <a href="{{ asset('curso-material/'.$material->arquivo) }}"
                                                 target="_blank" class="text-primary">
-                                                {{ $material->descricao ?: 'Material ' . $loop->iteration }}
+                                                {{ $material->descricao ?: 'Material '.$loop->iteration }}
                                             </a>
                                         </li>
                                     @endforeach
@@ -131,4 +131,3 @@
         </div>
     </div>
 @endif
-

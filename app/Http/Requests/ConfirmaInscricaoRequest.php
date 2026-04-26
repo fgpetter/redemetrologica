@@ -22,14 +22,13 @@ class ConfirmaInscricaoRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id_curso' => ['required', 'exists:agenda_cursos,id'],
             'nome' => ['required', 'string', 'max:190'],
             'email' => ['required', 'email', 'max:190'],
             'telefone' => ['required', 'celular_com_ddd'],
             'cpf_cnpj' => ['required', 'cpf'],
             'id_empresa' => ['nullable', 'exists:pessoas,id'],
-            'id_pessoa' => ['required', 'exists:pessoas,id'],
             'convidado' => ['nullable', 'boolean'],
-
             'id_endereco' => ['nullable', 'exists:enderecos,uid'],
             'cep' => ['required_without:id_empresa', 'string'],
             'uf' => ['required_without:id_empresa', 'string'],
@@ -58,7 +57,6 @@ class ConfirmaInscricaoRequest extends FormRequest
             'telefone.celular_com_ddd' => 'O dado enviado não é um telefone válido',
             'cpf_cnpj.required' => 'Preencha o campo CPF',
             'cpf_cnpj.cpf' => 'O dado enviado não é um CPF válido',
-
             'cep.required' => 'Preencha o campo CEP',
             'cep.string' => 'Dado inválido',
             'uf.required' => 'Preencha o campo UF',
@@ -69,6 +67,6 @@ class ConfirmaInscricaoRequest extends FormRequest
             'bairro.string' => 'Dado inválido',
             'cidade.required' => 'Preencha o campo Cidade',
             'cidade.string' => 'Dado inválido',
-      ];
+        ];
     }
 }

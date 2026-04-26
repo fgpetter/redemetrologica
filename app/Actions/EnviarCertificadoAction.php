@@ -16,7 +16,7 @@ class EnviarCertificadoAction
      */
     public function execute(CursoInscrito $inscrito, int $delay = 0): DadosGeraDoc
     {
-        $inscrito->load(['agendaCurso.curso', 'empresa']);
+        $inscrito->load(['agendaCurso.curso', 'agendaCurso.instrutor.pessoa', 'empresa']);
 
         $dadosDoc = DadosGeraDoc::create([
             'content' => [
@@ -25,6 +25,10 @@ class EnviarCertificadoAction
                 'participante_email' => $inscrito->email,
                 'curso_nome' => $inscrito->agendaCurso->curso->descricao,
                 'curso_data' => $this->gerarDataFormatada($inscrito->agendaCurso->data_inicio, $inscrito->agendaCurso->data_fim),
+                'conteudo_programatico' => $inscrito->agendaCurso->curso->conteudo_programatico,
+                'carga_horaria' => $inscrito->agendaCurso->carga_horaria ?? $inscrito->agendaCurso->carga_horaria,
+                'instrutor_nome' => $inscrito->agendaCurso->instrutor?->pessoa?->nome_razao,
+                'local_realizacao' => $inscrito->agendaCurso->endereco_local,
                 'empresa_nome' => $inscrito->empresa->nome_razao ?? null,
             ],
             'tipo' => 'certificado',
