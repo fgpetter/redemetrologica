@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Actions\EnviarCertificadoAction;
+use App\Console\Commands\EnviarCertificadoPendenteCommand;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoInscrito;
@@ -11,6 +12,7 @@ use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -19,12 +21,21 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Cache::forget(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY);
+    }
+
     public function test_nao_faz_nada_quando_nao_ha_inscritos_pendentes(): void
     {
         $action = $this->mock(EnviarCertificadoAction::class);
         $action->shouldNotReceive('execute');
 
         Artisan::call('certificados:enviar-pendente');
+
+        $this->assertTrue(Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
     }
 
     public function test_ignora_inscrito_com_certificado_ja_emitido(): void
@@ -105,12 +116,51 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         Artisan::call('certificados:enviar-pendente');
     }
 
+    public function test_ignora_agenda_com_tipo_agendamento_in_company(): void
+    {
+        $action = $this->mock(EnviarCertificadoAction::class);
+        $action->shouldNotReceive('execute');
+
+        [$agenda, $pessoa] = $this->criarAgendaEPessoa([
+            'tipo_agendamento' => 'IN-COMPANY',
+        ]);
+        $lancamento = $this->criarLancamento($pessoa, $agenda, ['status' => 'EFETIVADO']);
+        $this->criarCursoInscrito([
+            'pessoa_id' => $pessoa->id,
+            'agenda_curso_id' => $agenda->id,
+            'lancamento_financeiro_id' => $lancamento->id,
+            'certificado_emitido' => null,
+        ]);
+
+        Artisan::call('certificados:enviar-pendente');
+    }
+
+    public function test_ignora_agenda_com_status_diferente_de_realizado(): void
+    {
+        $action = $this->mock(EnviarCertificadoAction::class);
+        $action->shouldNotReceive('execute');
+
+        [$agenda, $pessoa] = $this->criarAgendaEPessoa([
+            'status' => 'AGENDADO',
+        ]);
+        $lancamento = $this->criarLancamento($pessoa, $agenda, ['status' => 'EFETIVADO']);
+        $this->criarCursoInscrito([
+            'pessoa_id' => $pessoa->id,
+            'agenda_curso_id' => $agenda->id,
+            'lancamento_financeiro_id' => $lancamento->id,
+            'certificado_emitido' => null,
+        ]);
+
+        Artisan::call('certificados:enviar-pendente');
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 
+    /** @param array<string, mixed> $agendaAttributes */
     /** @return array{AgendaCursos, Pessoa} */
-    private function criarAgendaEPessoa(): array
+    private function criarAgendaEPessoa(array $agendaAttributes = []): array
     {
         $pessoaInstrutor = Pessoa::query()->create([
             'nome_razao' => 'Instrutor Cert Teste',
@@ -123,17 +173,17 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
             'situacao' => true,
         ]);
 
-        $agenda = AgendaCursos::query()->create([
+        $agenda = AgendaCursos::query()->create(array_merge([
             'uid' => (string) Str::uuid(),
             'curso_id' => Curso::query()->create(['descricao' => 'Curso Cert Teste', 'tipo_curso' => 'OFICIAL'])->id,
             'instrutor_id' => $instrutor->id,
             'empresa_id' => null,
-            'status' => 'AGENDADO',
+            'status' => 'REALIZADO',
             'tipo_agendamento' => 'ONLINE',
             'inscricoes' => 1,
             'investimento' => 100,
             'investimento_associado' => 80,
-        ]);
+        ], $agendaAttributes));
 
         $pessoa = Pessoa::query()->create([
             'nome_razao' => 'Participante Cert Teste',

@@ -2,8 +2,10 @@
 
 namespace App\Console;
 
+use App\Console\Commands\EnviarCertificadoPendenteCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Cache;
 
 class Kernel extends ConsoleKernel
 {
@@ -12,9 +14,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('app:envia-convites')->everyTenSeconds();
         // $schedule->command('certificados:clean')->dailyAt('01:00');
-        $schedule->command('certificados:enviar-pendente')->everyMinute()->between('00:00', '06:00'); 
+        $schedule->command('certificados:enviar-pendente')
+            ->everyMinute()
+            ->between('00:00', '06:00')
+            ->skip(fn () => Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
     }
 
     /**
