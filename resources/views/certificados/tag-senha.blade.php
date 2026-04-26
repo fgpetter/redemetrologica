@@ -39,6 +39,10 @@
             width: 25%;
         }
 
+        .logo-cell img {
+            width: 150px;
+        }
+
         .title-cell {
             width: 50%;
             font-weight: bold;
@@ -66,6 +70,11 @@
             object-fit: cover;
         }
 
+        .watermark img {
+            width: 100%;
+            object-fit: cover;
+        }
+
         .main-title {
             text-align: center;
             font-size: 18pt;
@@ -88,7 +97,7 @@
         }
 
         .label {
-            color: #0000FF;
+            color: #006699;
             font-weight: bold;
         }
 
@@ -110,13 +119,13 @@
         }
 
         .tag-label {
-            color: #0056b3;
+            color: #006699;
             font-weight: bold;
             margin-right: 20px;
         }
 
         .tag-value {
-            color: #0000FF;
+            color: #006699;
         }
 
         .footer {
@@ -144,13 +153,14 @@
 </head>
 
 <body>
-    <img src="{{ resource_path('images/certificados/marcadagua.png') }}" class="watermark">
+    <div class="watermark">
+        @inlinedImage(resource_path('images/certificados/marcadagua.png'))
+    </div>
 
     <table class="header-table">
         <tr>
             <td class="logo-cell">
-                <img src="{{ resource_path('images/certificados/LOGO_REDE_COLOR.png') }}" alt="Logo Rede Metrológica RS"
-                    style="width: 150px;">
+                @inlinedImage(resource_path('images/certificados/LOGO_REDE_COLOR.png'))
             </td>
             <td class="title-cell">
                 CARTA SENHA
@@ -193,8 +203,8 @@
 
     <div class="tag-container">
         <div class="tag-box">
-            <span class="tag-label" style="color: #006699; font-size: 28pt;">TAG:</span>
-            <span class="tag-value" style="color: #0000FF; font-size: 28pt;">{{ $dadosDoc->content['tag_senha'] }}</span>
+            <span class="tag-label">TAG:</span>
+            <span class="tag-value">{{ $dadosDoc->content['tag_senha'] }}</span>
         </div>
     </div>
 

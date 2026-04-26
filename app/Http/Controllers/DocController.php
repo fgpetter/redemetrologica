@@ -51,7 +51,7 @@ class DocController extends Controller
 
         Pdf::view('certificados.tag-senha', [
             'dadosDoc' => $dadosDoc,
-        ])->save(Storage::path($path));
+        ])->driver('dompdf')->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
 
