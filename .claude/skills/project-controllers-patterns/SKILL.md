@@ -81,7 +81,7 @@ O projeto utiliza Actions para encapsular lógica de negócio reutilizável e co
 | Mais de 4 regras de validação inline | Criar `FormRequest`                      |
 | `FormRequest` sem log de falha       | Implementar `failedValidation()` com Log |
 | Lógica de negócio no Controller      | Delegar a `Actions/`                     |
-| E-mails síncronos no fluxo principal | Usar `Job::dispatch()->delay()`          |
+| E-mails síncronos no fluxo principal | Usar mailables ou notificações enfileiráveis (`ShouldQueue`), p.ex. `Mail::queue()` / `Mail::later()` |
 
 ## 5. Checklist
 
