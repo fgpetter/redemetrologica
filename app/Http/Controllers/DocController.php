@@ -4,31 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\DadosGeraDoc;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
 use Spatie\LaravelPdf\Facades\Pdf;
 
 class DocController extends Controller
 {
-    public function certificadoMockHtml(): View
-    {
-        $dadosDoc = (object) [
-            'content' => [
-                'participante_nome' => 'Maria da Silva',
-                'curso_nome' => 'Boas Práticas em Metrologia e Ensaios',
-                'curso_data' => 'Realizado em 24 de abril de 2026, com carga horária de 8 horas',
-                'conteudo_programatico' => 'Fundamentos de metrologia, rastreabilidade, incerteza de medição e exercícios práticos.',
-                'carga_horaria' => 8,
-                'instrutor_nome' => 'João da Silva',
-                'local_realizacao' => 'Porto Alegre - RS',
-                'participante_id' => 1,
-            ],
-        ];
-
-        return view('certificados.certificado', [
-            'dadosDoc' => $dadosDoc,
-        ]);
-    }
-
     /**
      * Download de documento pelo link unico
      */
