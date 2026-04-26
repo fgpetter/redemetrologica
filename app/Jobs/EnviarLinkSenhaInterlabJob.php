@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\DadosGeraDoc;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\LinkSenhaInterlabNotification;
 use Illuminate\Bus\Queueable;
