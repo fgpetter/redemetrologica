@@ -50,7 +50,7 @@ class ListParticipantes extends Component
         $agendainterlab = AgendaInterlab::findOrFail($this->idinterlab);
 
         $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-            ->with(['empresa', 'pessoa', 'laboratorio.endereco', 'laboratorio.analistas'])
+            ->with(['empresa', 'pessoa', 'laboratorio.endereco', 'laboratorio.analistas', 'lancamentoFinanceiro'])
             ->orderBy('data_inscricao', 'desc')
             ->get();
 
