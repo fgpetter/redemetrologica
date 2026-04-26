@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CriarEnviarSenhaAction;
+use App\Actions\CriarEnviarSenhaInterlabAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Actions\InscricaoInterlabAction;
 use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
@@ -92,7 +92,7 @@ class InscricaoInterlabController extends Controller
             ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
 
         if ($agenda_interlab->status === 'CONFIRMADO' && ! empty($agenda_interlab->interlab?->tag)) {
-            app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
+            app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, 15);
         }
 
         if ($request->encerra_cadastro == 1) {

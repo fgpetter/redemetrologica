@@ -29,18 +29,18 @@ class NotifyInscricaoInterlabAction
             ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $interlab));
 
         if ($inscrito->analistas()->exists()) {
-            foreach ($inscrito->analistas as $analista) {
+            foreach ($inscrito->analistas as $index => $analista) {
                 Mail::to($analista->email)
                     ->send(new ConfirmacaoInscricaoAnalistaNotification($analista, $inscrito, $interlab));
 
                 if ($interlab->status === 'CONFIRMADO' && ! empty($interlab->interlab->tag)) {
-                    app(CriarEnviarSenhaAnalistaAction::class)->execute($inscrito, $analista, 1);
+                    app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, $index * 15, $analista);
                 }
 
             }
         } else {
             if ($interlab->status === 'CONFIRMADO' && ! empty($interlab->interlab->tag)) {
-                app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
+                app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, 15);
             }
         }
     }

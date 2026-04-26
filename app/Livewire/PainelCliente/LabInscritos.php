@@ -3,7 +3,6 @@
 namespace App\Livewire\PainelCliente;
 
 use App\Actions\BuscaCepAction;
-use App\Actions\CriarEnviarSenhaAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Actions\InscricaoInterlabAction;
 use App\Actions\NotifyInscricaoInterlabAction;
@@ -12,9 +11,9 @@ use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use App\Models\Pessoa;
-use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class LabInscritos extends Component
 {
@@ -375,7 +374,7 @@ class LabInscritos extends Component
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $this->interlab);
 
         app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal, $this->editingId);
-        
+
         if ($this->editingId) {
             $this->editingId = null;
             session()->flash('success', 'Laboratório atualizado com sucesso!');

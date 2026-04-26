@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ReenviarLinkSenhaInterlabJob;
+use App\Actions\CriarEnviarSenhaInterlabAction;
 use App\Models\AgendaInterlab;
-use App\Models\DadosGeraDoc;
 use Illuminate\Console\Command;
 
 class ReenviarSenhasInterlab extends Command
@@ -48,44 +47,14 @@ class ReenviarSenhasInterlab extends Command
             return self::SUCCESS;
         }
 
-        $enfileirados = 0;
-        $ignorados = 0;
-
         foreach ($inscritos as $index => $inscrito) {
-            $destinatario = $inscrito->pessoa?->email;
-            $copia = $inscrito->email;
-
-            if (blank($destinatario)) {
-                $ignorados++;
-                $this->warn("Inscrito {$inscrito->id} ignorado por falta de e-mail da pessoa.");
-
-                continue;
-            }
-
-            $dadosDoc = DadosGeraDoc::create([
-                'content' => [
-                    'participante_id' => $inscrito->id,
-                    'tag_senha' => $inscrito->tag_senha,
-                    'informacoes_inscricao' => $inscrito->informacoes_inscricao,
-                    'laboratorio_nome' => $inscrito->laboratorio->nome,
-                    'laboratorio_email' => $inscrito->email,
-                    'empresa_nome_razao' => $inscrito->empresa->nome_razao,
-                    'empresa_cpf_cnpj' => $inscrito->empresa->cpf_cnpj,
-                    'interlab_nome' => $inscrito->agendaInterlab->interlab->nome,
-                ],
-                'tipo' => 'tag_senha',
-            ]);
-
-            ReenviarLinkSenhaInterlabJob::dispatch(
-                dadosDocId: $dadosDoc->id,
-                emailDestinatario: $destinatario,
-                emailCopia: filled($copia) ? $copia : null,
-            )->delay(now()->addSeconds(($index + 1) * 30));
-
-            $enfileirados++;
+            app(CriarEnviarSenhaInterlabAction::class)->execute(
+                inscrito: $inscrito,
+                delaySecs: ($index + 1) * 30,
+            );
         }
 
-        $this->info("Enfileirados: {$enfileirados}. Ignorados: {$ignorados}.");
+        $this->info("Processados {$inscritos->count()} inscrito(s).");
 
         return self::SUCCESS;
     }
