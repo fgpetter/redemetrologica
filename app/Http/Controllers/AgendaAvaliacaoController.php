@@ -220,7 +220,7 @@ class AgendaAvaliacaoController extends Controller
             'data_final' => ['nullable', 'date'],
             'avaliador_id' => ['required', 'exists:avaliadores,id'],
             'num_ensaios' => ['nullable', 'integer'],
-            'dias' => ['nullable', 'integer'],
+            'dias' => ['nullable', 'numeric', 'min:0.5'],
         ], [
             'avaliacao_id.required' => 'Dados inválidos, selecione uma avaliação e envie novamente',
             'avaliacao_id.exists' => 'Dados inválidos, selecione uma avaliação e envie novamente',

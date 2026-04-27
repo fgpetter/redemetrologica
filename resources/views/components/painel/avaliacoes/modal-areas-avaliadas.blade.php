@@ -45,6 +45,7 @@
             <div class="col-md-3">
               <x-forms.input-field name="dias" id="area-avaliada-dias" label="Dias" type="number"
                 value="{{ old('dias') ?? $areaavaliada->dias ?? null }}" 
+                step="0.5" min="0.5"
                 @input="$dispatch('aa-recalcular-valor-avaliador')" />
               @error('dias') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
