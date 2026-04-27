@@ -121,16 +121,12 @@
     </div>
 
     <div class="second-page">
-        <h2 class="section-title">Informações Complementares</h2>
 
         <p class="field-label">Conteúdo Programático:</p>
         <p class="field-value">{{ $dadosDoc->content['conteudo_programatico'] ?? '' }}</p>
 
-        <p class="field-label">Carga-horária:
-            @if(!empty($dadosDoc->content['carga_horaria']))
-                {{ $dadosDoc->content['carga_horaria'] }} horas
-            @endif
-        </p>
+        <p class="field-label">Carga-horária:</p>
+        <p class="field-value">{{ $dadosDoc->content['carga_horaria'] ?? '' }} horas</p>
 
         <p class="field-label">Instrutor(a):</p>
         <p class="field-value">{{ $dadosDoc->content['instrutor_nome'] ?? '' }}</p>
