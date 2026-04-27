@@ -14,6 +14,7 @@
         :avaliadores="$avaliadores" 
         :tipoavaliacao="$tipo_avaliacao" 
         :totalavaliadores="$totalavaliadores" 
+        :totalgeralavaliadores="$totalgeralavaliadores"
       />
     </div>
 

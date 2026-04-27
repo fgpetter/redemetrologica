@@ -1,6 +1,9 @@
 {{-- modal --}}
 <div class="modal fade" id="{{ isset($areaavaliada) ? 'areaAvaliadaModal'.$areaavaliada->uid : 'areaAvaliadaModal' }}" tabindex="-1" 
-  aria-labelledby="areaAvaliadaModalLabel" aria-hidden="true" x-data="areaAvaliadaData">
+  aria-labelledby="areaAvaliadaModalLabel" aria-hidden="true" x-data="areaAvaliadaData"
+  @aa-recalcular-valor-avaliador="calcularValorAvaliador()"
+  @aa-recalcular-total-estim="calcularTotalGastosEstim()"
+  @aa-recalcular-total-reais="calcularTotalGastosReais()">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -40,9 +43,9 @@
               @error('data_final') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-3">
-              <x-forms.input-field name="dias" label="Dias" type="number" x-ref="dias" 
+              <x-forms.input-field name="dias" id="area-avaliada-dias" label="Dias" type="number"
                 value="{{ old('dias') ?? $areaavaliada->dias ?? null }}" 
-                @input="calcularValorAvaliador()" />
+                @input="$dispatch('aa-recalcular-valor-avaliador')" />
               @error('dias') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-3">
@@ -78,20 +81,20 @@
           <!-- Grupo 4: Valores Líder & Avaliador -->
           <div class="row gy-3">
             <div class="col-md-3">
-              <x-forms.input-field name="valor_dia" label="Valor Dia" class="money" x-ref="valorDia" 
+              <x-forms.input-field name="valor_dia" id="area-avaliada-valor-dia" label="Valor Dia" class="money"
                 value="{{ old('valor_dia') ?? $areaavaliada->valor_dia ?? null }}" 
-                @input="calcularValorAvaliador()" />
+                @input="$dispatch('aa-recalcular-valor-avaliador')" />
               @error('valor_dia') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <div class="col-md-3">
-              <x-forms.input-field name="valor_lider" label="Valor Líder" class="money" x-ref="valorLider" 
+              <x-forms.input-field name="valor_lider" id="area-avaliada-valor-lider" label="Valor Líder" class="money"
                 value="{{ old('valor_lider') ?? $areaavaliada->valor_lider ?? null }}" 
-                @input="calcularValorAvaliador()" />
+                @input="$dispatch('aa-recalcular-valor-avaliador')" />
               @error('valor_lider') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-3">
-              <x-forms.input-field name="valor_avaliador" label="Valor Avaliador" class="money" x-ref="valorAvaliador" 
+              <x-forms.input-field name="valor_avaliador" id="area-avaliada-valor-avaliador" label="Valor Avaliador" class="money"
                 readonly placeholder="Calculado automaticamente" value="{{ $areaavaliada->valor_avaliador ?? null }}" />
             </div>
           </div>
@@ -99,52 +102,57 @@
           <hr class="my-3">
           <!-- Grupo 5: Deslocamento, Alimentação, Hospedagem, Extras -->
           <div class="row gy-3">
+            
             <div class="col-md-3">
-              <x-forms.input-field name="valor_estim_desloc" label="Estim Desloc" class="money" x-ref="valor_estim_desloc" 
+              <x-forms.input-field name="valor_estim_desloc" id="area-avaliada-valor-estim-desloc" label="Estim Desloc" class="money"
                 value="{{ old('valor_estim_desloc') ?? $areaavaliada->valor_estim_desloc ?? null }}" 
-                @input="calcularTotalGastosEstim()" />
+                @input="$dispatch('aa-recalcular-total-estim')" />
               @error('valor_estim_desloc') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-3">
-              <x-forms.input-field name="valor_real_desloc" label="Real Desloc" class="money" x-ref="valor_real_desloc" 
-                value="{{ old('valor_real_desloc') ?? $areaavaliada->valor_real_desloc ?? null }}" 
-                @input="calcularTotalGastosReais()" />
-              @error('valor_real_desloc') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
-            <div class="col-md-3">
-              <x-forms.input-field name="valor_estim_alim" label="Estim Alim" class="money" x-ref="valor_estim_alim" 
+              <x-forms.input-field name="valor_estim_alim" id="area-avaliada-valor-estim-alim" label="Estim Alimentação" class="money"
                 value="{{ old('valor_estim_alim') ?? $areaavaliada->valor_estim_alim ?? null }}" 
-                @input="calcularTotalGastosEstim()" />
+                @input="$dispatch('aa-recalcular-total-estim')" />
               @error('valor_estim_alim') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-3">
-              <x-forms.input-field name="valor_real_alim" label="Real Alim" class="money" x-ref="valor_real_alim" 
-                value="{{ old('valor_real_alim') ?? $areaavaliada->valor_real_alim ?? null }}" 
-                @input="calcularTotalGastosReais()" />
-              @error('valor_real_alim') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
-            <div class="col-md-3">
-              <x-forms.input-field name="valor_estim_hosped" label="Estim Hospedagem" class="money" x-ref="valor_estim_hosped" 
+              <x-forms.input-field name="valor_estim_hosped" id="area-avaliada-valor-estim-hosped" label="Estim Hospedagem" class="money"
                 value="{{ old('valor_estim_hosped') ?? $areaavaliada->valor_estim_hosped ?? null }}" 
-                @input="calcularTotalGastosEstim()" />
+                @input="$dispatch('aa-recalcular-total-estim')" />
               @error('valor_estim_hosped') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-3">
-              <x-forms.input-field name="valor_real_hosped" label="Real Hospedagem" class="money" x-ref="valor_real_hosped" 
-                value="{{ old('valor_real_hosped') ?? $areaavaliada->valor_real_hosped ?? null }}" 
-                @input="calcularTotalGastosReais()" />
-              @error('valor_real_hosped') <div class="text-warning">{{ $message }}</div> @enderror
-            </div>
-            <div class="col-md-3">
-              <x-forms.input-field name="valor_estim_extras" label="Estim Extras" class="money" x-ref="valor_estim_extras" 
+              <x-forms.input-field name="valor_estim_extras" id="area-avaliada-valor-estim-extras" label="Estim Extras" class="money"
                 value="{{ old('valor_estim_extras') ?? $areaavaliada->valor_estim_extras ?? null }}" 
-                @input="calcularTotalGastosEstim()" />
+                @input="$dispatch('aa-recalcular-total-estim')" />
               @error('valor_estim_extras') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
+
             <div class="col-md-3">
-              <x-forms.input-field name="valor_real_extras" label="Real Extras" class="money" x-ref="valor_real_extras" 
+              <x-forms.input-field name="valor_real_desloc" id="area-avaliada-valor-real-desloc" label="Real Desloc" class="money"
+                value="{{ old('valor_real_desloc') ?? $areaavaliada->valor_real_desloc ?? null }}" 
+                @input="$dispatch('aa-recalcular-total-reais')" />
+              @error('valor_real_desloc') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+            
+            <div class="col-md-3">
+              <x-forms.input-field name="valor_real_alim" id="area-avaliada-valor-real-alim" label="Real Alimentação" class="money"
+                value="{{ old('valor_real_alim') ?? $areaavaliada->valor_real_alim ?? null }}" 
+                @input="$dispatch('aa-recalcular-total-reais')" />
+              @error('valor_real_alim') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+            
+            <div class="col-md-3">
+              <x-forms.input-field name="valor_real_hosped" id="area-avaliada-valor-real-hosped" label="Real Hospedagem" class="money"
+                value="{{ old('valor_real_hosped') ?? $areaavaliada->valor_real_hosped ?? null }}" 
+                @input="$dispatch('aa-recalcular-total-reais')" />
+              @error('valor_real_hosped') <div class="text-warning">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col-md-3">
+              <x-forms.input-field name="valor_real_extras" id="area-avaliada-valor-real-extras" label="Real Extras" class="money"
                 value="{{ old('valor_real_extras') ?? $areaavaliada->valor_real_extras ?? null }}" 
-                @input="calcularTotalGastosReais()" />
+                @input="$dispatch('aa-recalcular-total-reais')" />
               @error('valor_real_extras') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
           </div>
@@ -153,11 +161,11 @@
           <!-- Grupo 6: Totais -->
           <div class="row gy-3">
             <div class="col-md-4">
-              <x-forms.input-field name="total_gastos_estim" label="Total Gastos Estim" class="money" x-ref="totalGastosEstim" 
+              <x-forms.input-field name="total_gastos_estim" id="area-avaliada-total-gastos-estim" label="Total Gastos Estim" class="money"
                 readonly placeholder="Auto preenchido" value="{{ $areaavaliada->total_gastos_estim ?? null }}" />
             </div>
             <div class="col-md-4">
-              <x-forms.input-field name="total_gastos_reais" label="Total Gastos Reais" class="money" x-ref="totalGastosReais" readonly placeholder="Auto preenchido" value="{{ $areaavaliada->total_gastos_reais ?? null }}" />
+              <x-forms.input-field name="total_gastos_reais" id="area-avaliada-total-gastos-reais" label="Total Gastos Reais" class="money" readonly placeholder="Auto preenchido" value="{{ $areaavaliada->total_gastos_reais ?? null }}" />
             </div>
           </div>
 
@@ -193,51 +201,71 @@ document.addEventListener('alpine:init', () => {
       return isNaN(result) ? 0 : result;
     },
 
+    getFieldByName(fieldName) {
+      return this.$el.querySelector(`[name="${fieldName}"]`);
+    },
+
     calcularValorAvaliador() {
-      const valorDia = this.parseMoney(this.$refs.valorDia.value);
-      const dias = parseFloat(this.$refs.dias.value) || 0;
-      const valorLider = this.parseMoney(this.$refs.valorLider.value);
+      const valorDiaEl = this.getFieldByName('valor_dia');
+      const diasEl = this.getFieldByName('dias');
+      const valorLiderEl = this.getFieldByName('valor_lider');
+      const valorAvaliadorEl = this.getFieldByName('valor_avaliador');
+      if (!valorDiaEl || !diasEl || !valorLiderEl || !valorAvaliadorEl) {
+        return;
+      }
+
+      const valorDia = this.parseMoney(valorDiaEl.value);
+      const dias = parseFloat(diasEl.value) || 0;
+      const valorLider = this.parseMoney(valorLiderEl.value);
 
       if (valorDia > 0 && dias > 0) {
         const resultado = (valorDia * dias) + valorLider;
-        this.$refs.valorAvaliador.value = resultado.toFixed(2);
+        valorAvaliadorEl.value = resultado.toFixed(2);
       } else {
-        this.$refs.valorAvaliador.value = '';
+        valorAvaliadorEl.value = '';
       }
     },
     
     calcularTotalGastosEstim() {
       const camposEstim = [
         'valor_estim_desloc',
-        'valor_estim_alim', 
+        'valor_estim_alim',
         'valor_estim_hosped',
-        'valor_estim_extras'
+        'valor_estim_extras',
       ];
       
       let total = 0;
-      camposEstim.forEach(campo => {
-        const valor = this.parseMoney(this.$refs[campo].value);
+      camposEstim.forEach((campoName) => {
+        const campo = this.getFieldByName(campoName);
+        const valor = this.parseMoney(campo?.value ?? '');
         total += valor;
       });
       
-      this.$refs.totalGastosEstim.value = total.toFixed(2);
+      const totalGastosEstimEl = this.getFieldByName('total_gastos_estim');
+      if (totalGastosEstimEl) {
+        totalGastosEstimEl.value = total.toFixed(2);
+      }
     },
     
     calcularTotalGastosReais() {
       const camposReais = [
         'valor_real_desloc',
-        'valor_real_alim', 
+        'valor_real_alim',
         'valor_real_hosped',
-        'valor_real_extras'
+        'valor_real_extras',
       ];
       
       let total = 0;
-      camposReais.forEach(campo => {
-        const valor = this.parseMoney(this.$refs[campo].value);
+      camposReais.forEach((campoName) => {
+        const campo = this.getFieldByName(campoName);
+        const valor = this.parseMoney(campo?.value ?? '');
         total += valor;
       });
       
-      this.$refs.totalGastosReais.value = total.toFixed(2);
+      const totalGastosReaisEl = this.getFieldByName('total_gastos_reais');
+      if (totalGastosReaisEl) {
+        totalGastosReaisEl.value = total.toFixed(2);
+      }
     }
   }));
 });

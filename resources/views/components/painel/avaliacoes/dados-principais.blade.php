@@ -1,18 +1,23 @@
-<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}" x-data="dadosPrincipaisData">
+<form method="POST" action="{{ route('avaliacao-update', $avaliacao->uid) }}" x-data="dadosPrincipaisData"
+  @dp-data-inicio-changed="updateDataProcLaboratorio()"
+  @dp-data-fim-changed="updateDataPropostaAcoesCorretivas()"
+  @dp-carta-reconhecimento-changed="confirmarLancamentoFinanceiro($event.detail.value)">
   @csrf
 
   {{-- Grupo 1: Período & Tipo --}}
   <div class="row gy-3">
     <div class="col-md-3">
-      <x-forms.input-field name="data_inicio" :value="old('data_inicio') ?? $avaliacao->data_inicio" 
-        label="Data Início" type="date" x-ref="dataInicio" 
-        @change="updateDataProcLaboratorio()" />
+      <x-forms.input-field name="data_inicio" id="avaliacao-dados-principais-data-inicio"
+        :value="old('data_inicio') ?? $avaliacao->data_inicio"
+        label="Data Início" type="date"
+        @change="$dispatch('dp-data-inicio-changed')" />
       @error('data_inicio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_fim" :value="old('data_fim') ?? $avaliacao->data_fim" 
-        label="Data Fim" type="date" x-ref="dataFim" 
-        @change="updateDataPropostaAcoesCorretivas()" />
+      <x-forms.input-field name="data_fim" id="avaliacao-dados-principais-data-fim"
+        :value="old('data_fim') ?? $avaliacao->data_fim"
+        label="Data Fim" type="date"
+        @change="$dispatch('dp-data-fim-changed')" />
       @error('data_fim') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-4">
@@ -28,7 +33,7 @@
   {{-- Grupo 2: Laboratório & Interno --}}
   <div class="row gy-3">
     <div class="col-12 col-xxl-7">
-      <label for="laboratorio" class="f">Laboratório</label>
+      <label for="laboratorio" class="form-label">Laboratório</label>
       <input type="text" class="form-control" id="laboratorio" name="laboratorio" value="{{ $laboratorio->nome_laboratorio }} - {{ $laboratorio->pessoa->nome_razao }}" readonly>
       @error('laboratorio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
@@ -106,8 +111,9 @@
       </x-forms.input-select>
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_proc_laboratorio" :value="old('data_proc_laboratorio') ?? $avaliacao->data_proc_laboratorio" 
-        label="Data Procedim. Laboratório" type="date" x-ref="dataProcLaboratorio" />
+      <x-forms.input-field name="data_proc_laboratorio" id="avaliacao-dados-principais-data-proc-laboratorio"
+        :value="old('data_proc_laboratorio') ?? $avaliacao->data_proc_laboratorio"
+        label="Data Procedim. Laboratório" type="date" />
       @error('data_proc_laboratorio') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
@@ -128,7 +134,8 @@
       </x-forms.input-select>
     </div>
     <div class="col-md-3">
-      <x-forms.input-select name="carta_reconhecimento" label="Carta Reconhecimento">
+      <x-forms.input-select name="carta_reconhecimento" id="avaliacao-dados-principais-carta-reconhecimento"
+        label="Carta Reconhecimento" @change="$dispatch('dp-carta-reconhecimento-changed', { value: $event.target.value })">
         <option value="0">NÃO</option>
         <option @selected($avaliacao->carta_reconhecimento) value="1">SIM</option>
       </x-forms.input-select>
@@ -145,7 +152,7 @@
       @error('retorno_fr06') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="pesq_satisfacao" :value="old('pesq_satisfacao') ?? $avaliacao->pesq_sativacao" label="Pesquisa Satisfação" type="date" />
+      <x-forms.input-field name="pesq_satisfacao" :value="old('pesq_satisfacao') ?? $avaliacao->pesq_satisfacao" label="Pesquisa Satisfação" type="date" />
       @error('pesq_satisfacao') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
@@ -158,13 +165,15 @@
   {{-- Grupo 9: Ações Corretivas --}}
   <div class="row mt-3">
     <div class="col-md-3">
-      <x-forms.input-field name="data_proposta_acoes_corretivas" :value="old('data_proposta_acoes_corretivas') ?? $avaliacao->data_proposta_acoes_corretivas" 
-        label="Data Proposta Ações Corretivas" type="date" x-ref="dataPropostaAcoesCorretivas" />
+      <x-forms.input-field name="data_proposta_acoes_corretivas" id="avaliacao-dados-principais-data-proposta-acoes"
+        :value="old('data_proposta_acoes_corretivas') ?? $avaliacao->data_proposta_acoes_corretivas"
+        label="Data Proposta Ações Corretivas" type="date" />
       @error('data_proposta_acoes_corretivas') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="data_acoes_corretivas" :value="old('data_acoes_corretivas') ?? $avaliacao->data_acoes_corretivas" 
-        label="Data Ações Corretivas" type="date" x-ref="dataAcoesCorretivas" />
+      <x-forms.input-field name="data_acoes_corretivas" id="avaliacao-dados-principais-data-acoes"
+        :value="old('data_acoes_corretivas') ?? $avaliacao->data_acoes_corretivas"
+        label="Data Ações Corretivas" type="date" />
       @error('data_acoes_corretivas') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
@@ -267,31 +276,76 @@
 <script>
 document.addEventListener('alpine:init', () => {
   Alpine.data('dadosPrincipaisData', () => ({
+    /**
+     * Soma dias a uma data Y-m-d no fuso local (evita deslocamento de UTC com new Date('Y-m-d')).
+     *
+     * @param {string} ymd
+     * @param {number} deltaDays
+     * @return {string}
+     */
+    shiftYmdByDays(ymd, deltaDays) {
+      const partes = ymd.split('-').map(Number);
+      if (partes.length !== 3 || partes.some(Number.isNaN)) {
+        return '';
+      }
+      const [ano, mes, dia] = partes;
+      const data = new Date(ano, mes - 1, dia);
+      data.setDate(data.getDate() + deltaDays);
+      const y = data.getFullYear();
+      const m = String(data.getMonth() + 1).padStart(2, '0');
+      const d = String(data.getDate()).padStart(2, '0');
+
+      return `${y}-${m}-${d}`;
+    },
     updateDataProcLaboratorio() {
-      const dataInicio = this.$refs.dataInicio.value;
+      const dataInicioEl = document.getElementById('avaliacao-dados-principais-data-inicio');
+      const dataProcEl = document.getElementById('avaliacao-dados-principais-data-proc-laboratorio');
+      if (! dataInicioEl || ! dataProcEl) {
+        return;
+      }
+      const dataInicio = dataInicioEl.value;
       if (dataInicio) {
-        const data = new Date(dataInicio);
-        data.setDate(data.getDate() - 10);
-        const dataFormatada = data.toISOString().split('T')[0];
-        this.$refs.dataProcLaboratorio.value = dataFormatada;
+        dataProcEl.value = this.shiftYmdByDays(dataInicio, -10);
       }
     },
     updateDataPropostaAcoesCorretivas() {
-      const dataFim = this.$refs.dataFim.value;
-      if (dataFim) {
-        const data = new Date(dataFim);
-        
-        const dataProposta = new Date(dataFim);
-        dataProposta.setDate(dataProposta.getDate() + 7);
-        const dataPropostaFormatada = dataProposta.toISOString().split('T')[0];
-        this.$refs.dataPropostaAcoesCorretivas.value = dataPropostaFormatada;
-        
-        const dataAcoes = new Date(dataFim);
-        dataAcoes.setDate(dataAcoes.getDate() + 45);
-        const dataAcoesFormatada = dataAcoes.toISOString().split('T')[0];
-        this.$refs.dataAcoesCorretivas.value = dataAcoesFormatada;
+      const dataFimEl = document.getElementById('avaliacao-dados-principais-data-fim');
+      const dataPropostaEl = document.getElementById('avaliacao-dados-principais-data-proposta-acoes');
+      const dataAcoesEl = document.getElementById('avaliacao-dados-principais-data-acoes');
+      if (! dataFimEl || ! dataPropostaEl || ! dataAcoesEl) {
+        return;
       }
-    }
+      const dataFim = dataFimEl.value;
+      if (dataFim) {
+        dataPropostaEl.value = this.shiftYmdByDays(dataFim, 7);
+        dataAcoesEl.value = this.shiftYmdByDays(dataFim, 45);
+      }
+    },
+    confirmarLancamentoFinanceiro(valorCartaReconhecimento) {
+      if (valorCartaReconhecimento !== '1') {
+        return;
+      }
+
+      Swal.fire({
+        title: 'Adicionar lançamento financeiro?',
+        showCancelButton: true,
+        confirmButtonColor: '#29B768',
+        confirmButtonText: 'SIM',
+        cancelButtonText: 'CANCELAR',
+      }).then((result) => {
+        if (! result.isConfirmed) {
+          return;
+        }
+
+        if (typeof this.$el.requestSubmit === 'function') {
+          this.$el.requestSubmit();
+
+          return;
+        }
+
+        this.$el.submit();
+      });
+    },
   }));
 });
 </script> 

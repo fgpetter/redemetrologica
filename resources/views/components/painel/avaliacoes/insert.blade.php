@@ -52,7 +52,8 @@
       </div>
 
       <div class="tab-pane" id="valavaliadores" role="tabpanel"> <!-- Valor Avaliadores -->
-        <x-painel.avaliacoes.agenda-avaliacoes-val-avaliadores :avaliacao="$avaliacao" :totalavaliadores="$totalavaliadores" /> 
+        <x-painel.avaliacoes.agenda-avaliacoes-val-avaliadores :avaliacao="$avaliacao"
+          :totalavaliadores="$totalavaliadores" :totalgeralavaliadores="$totalgeralavaliadores" />
       </div>
 
     </div>
