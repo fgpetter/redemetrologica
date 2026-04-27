@@ -126,8 +126,7 @@
         <p class="field-label">Conteúdo Programático:</p>
         <p class="field-value">{{ $dadosDoc->content['conteudo_programatico'] ?? '' }}</p>
 
-        <p class="field-label">Carga-horária:</p>
-        <p class="field-value">
+        <p class="field-label">Carga-horária:
             @if(!empty($dadosDoc->content['carga_horaria']))
                 {{ $dadosDoc->content['carga_horaria'] }} horas
             @endif
@@ -137,7 +136,7 @@
         <p class="field-value">{{ $dadosDoc->content['instrutor_nome'] ?? '' }}</p>
 
         <p class="field-label">Local de Realização:</p>
-        <p class="field-value">{{ $dadosDoc->content['local_realizacao'] ?? '' }}</p>
+        <p class="field-value">{{ $localRealizacaoCertificado ?? '' }}</p>
     </div>
 </body>
 

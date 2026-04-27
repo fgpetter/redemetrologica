@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -70,19 +71,38 @@ class DocController extends Controller
             Storage::makeDirectory(dirname($path));
         }
 
+        $participanteId = $dadosDoc->content['participante_id'] ?? throw new \Exception('Certificado sem identificação do participante.');
+
+        $inscrito = CursoInscrito::with(['empresa', 'agendaCurso'])
+            ->findOrFail($participanteId) ?? throw new \Exception('Inscrição sem agenda de curso associada.');
+
+        $localRealizacaoCertificado = $this->resolverLocalRealizacaoCertificado($inscrito);
+
         Pdf::view('certificados.certificado', [
             'dadosDoc' => $dadosDoc,
+            'localRealizacaoCertificado' => $localRealizacaoCertificado,
         ])->format('a4')->landscape()->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
 
-        if (isset($dadosDoc->content['participante_id'])) {
-            \App\Models\CursoInscrito::where('id', $dadosDoc->content['participante_id'])->update([
-                'certificado_path' => $path,
-            ]);
-        }
+        CursoInscrito::where('id', $participanteId)->update([
+            'certificado_path' => $path,
+        ]);
 
         return response()->download(Storage::path($path), $fileName);
+    }
+
+    /**
+     * Local exibido no certificado: agenda IN-COMPANY usa o nome da empresa do inscrito;
+     * demais tipos usam o nome da associação.
+     */
+    private function resolverLocalRealizacaoCertificado(CursoInscrito $inscrito): string
+    {
+        if ($inscrito->agendaCurso->tipo_agendamento === 'IN-COMPANY') {
+            return $inscrito->empresa?->nome_razao ?? '';
+        }
+
+        return 'Associação Rede de Metrologia e Ensaios do RS';
     }
 
     /**
