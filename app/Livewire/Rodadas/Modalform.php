@@ -27,7 +27,7 @@ class Modalform extends Component
         'mimes' => 'O arquivo de envio de amostras deve ser do tipo: doc, docx ou pdf',
         'max' => 'O arquivo de envio de amostras não pode ser maior que 5MB',
     ])]
-    public $arquivo_envio;
+    public $arquivo_envio_amostras;
 
     #[Validate('nullable|file|mimes:doc,docx,pdf|max:5120', message: [
         'file' => 'O arquivo de início de ensaios deve ser válido',
@@ -82,7 +82,7 @@ class Modalform extends Component
 
     private function limparArquivos(): void
     {
-        $this->arquivo_envio = null;
+        $this->arquivo_envio_amostras = null;
         $this->arquivo_inicio_ensaios = null;
         $this->arquivo_limite_envio_resultados = null;
         $this->arquivo_divulgacao_relatorios = null;
@@ -115,7 +115,7 @@ class Modalform extends Component
         $isNew = empty($this->rodadaUid);
 
         $arquivos = [
-            'arquivo_envio' => $this->arquivo_envio,
+            'arquivo_envio_amostras' => $this->arquivo_envio_amostras,
             'arquivo_inicio_ensaios' => $this->arquivo_inicio_ensaios,
             'arquivo_limite_envio_resultados' => $this->arquivo_limite_envio_resultados,
             'arquivo_divulgacao_relatorios' => $this->arquivo_divulgacao_relatorios,
@@ -158,7 +158,7 @@ class Modalform extends Component
     {
         if (empty($this->rodadaUid)) {
             return [
-                'arquivo_envio' => null,
+                'arquivo_envio_amostras' => null,
                 'arquivo_inicio_ensaios' => null,
                 'arquivo_limite_envio_resultados' => null,
                 'arquivo_divulgacao_relatorios' => null,
@@ -168,7 +168,7 @@ class Modalform extends Component
         $rodada = InterlabRodada::where('uid', $this->rodadaUid)->first();
 
         return [
-            'arquivo_envio' => $rodada?->arquivo_envio,
+            'arquivo_envio_amostras' => $rodada?->arquivo_envio_amostras,
             'arquivo_inicio_ensaios' => $rodada?->arquivo_inicio_ensaios,
             'arquivo_limite_envio_resultados' => $rodada?->arquivo_limite_envio_resultados,
             'arquivo_divulgacao_relatorios' => $rodada?->arquivo_divulgacao_relatorios,

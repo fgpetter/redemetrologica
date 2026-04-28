@@ -31,14 +31,14 @@
             <div class="col-md-9">
                 <x-forms.input-file-upload 
                     label="Documento"
-                    :arquivoSalvo="$this->arquivosSalvos['arquivo_envio'] ?? null"
-                    wireModel="arquivo_envio"
-                    campo="arquivo_envio" />
+                    :arquivoSalvo="$this->arquivosSalvos['arquivo_envio_amostras'] ?? null"
+                    wireModel="arquivo_envio_amostras"
+                    campo="arquivo_envio_amostras" />
             </div>
             <div class="col-12 py-2">
                 <x-forms.input-textarea 
-                    wire:model.lazy="form.descricao_arquivo_envio"
-                    name="form.descricao_arquivo_envio" label="Texto Complementar" rows="2" 
+                    wire:model.lazy="form.descricao_arquivo_envio_amostras"
+                    name="form.descricao_arquivo_envio_amostras" label="Texto Complementar" rows="2" 
                     placeholder="Texto complementar no email de notificação" />
             </div>
         </div>
