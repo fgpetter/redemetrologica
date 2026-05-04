@@ -77,14 +77,26 @@
 </div>
 
 <div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <span>Lançamentos a receber</span>
+        <button type="button"
+            class="btn btn-primary btn-sm"
+            id="btnEditarLoteAReceber"
+            style="display: none;"
+            data-bs-toggle="modal"
+            data-bs-target="#modalLoteAReceber">
+            Editar em lote (<span id="contadorSelecionadosAReceber">0</span>)
+        </button>
+    </div>
     <div class="card-body">
         <div class="table-responsive" style="min-height: 25vh">
             <table class="table table-striped align-middle mb-0" style="table-layout: fixed;">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 25%;">Nome</th>
+                        <th scope="col" style="width: 2.5rem;"></th>
+                        <th scope="col" style="width: 22%;">Nome</th>
                         <th scope="col" style="width: 10%;">Vencimento</th>
-                        <th scope="col" style="width: 45%;">Historico</th>
+                        <th scope="col" style="width: 40%;">Historico</th>
                         <th scope="col" style="width: 10%;">NF</th>
                         <th scope="col" style="width: 10%;">Valor</th>
                         <th scope="col" style="width: 5%;"></th>
@@ -93,6 +105,9 @@
                 <tbody>
                     @forelse ($lancamentosfinanceiros as $lancamento)
                         <tr>
+                            <td class="align-middle">
+                                <input class="form-check-input js-batch-checkbox-areceber" type="checkbox" value="{{ $lancamento->uid }}">
+                            </td>
                             <td class="text-truncate">
                                 <a data-bs-toggle="collapse" href="{{ '#collapse' . $lancamento->uid }}" role="button"
                                     aria-expanded="false" aria-controls="collapseExample">
@@ -133,7 +148,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="5" class="p-0">
+                            <td colspan="7" class="p-0">
                                 <div class="collapse" id="{{ 'collapse' . $lancamento->uid }}">
                                     <div class="row gy-2 m-3 mt-2">
                                         <div class="col-2"><b>Status:</b> {{ $lancamento->status ?? '-' }}</div>
@@ -145,7 +160,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center"> Não há lançamentos na base. </td>
+                            <td colspan="7" class="text-center"> Não há lançamentos na base. </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -157,3 +172,83 @@
 
     </div>
 </div>
+
+<div class="modal fade" id="modalLoteAReceber" tabindex="-1" aria-labelledby="modalLoteAReceberLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('lancamento-financeiro-batch-update') }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLoteAReceberLabel">Editar lançamentos em lote</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body d-flex flex-column gap-2">
+                    <div id="batchSelectedUidsAReceber"></div>
+                    <x-forms.input-field
+                        label="Conciliação"
+                        type="text"
+                        id="lote_a_receber_consiliacao"
+                        name="consiliacao"
+                    />
+                    <x-forms.input-field
+                        label="Nota fiscal"
+                        type="text"
+                        id="lote_a_receber_nota_fiscal"
+                        name="nota_fiscal"
+                    />
+                    <x-forms.input-field
+                        label="Data de pagamento"
+                        type="date"
+                        id="lote_a_receber_data_pagamento"
+                        name="data_pagamento"
+                    />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formLote = document.querySelector('#modalLoteAReceber form');
+        const botaoLote = document.getElementById('btnEditarLoteAReceber');
+        const contadorSelecionados = document.getElementById('contadorSelecionadosAReceber');
+        const checkboxesLote = document.querySelectorAll('.js-batch-checkbox-areceber');
+        const selectedUidsContainer = document.getElementById('batchSelectedUidsAReceber');
+
+        const atualizarEstadoEdicaoLote = () => {
+            const checked = document.querySelectorAll('.js-batch-checkbox-areceber:checked').length;
+            if (botaoLote) {
+                botaoLote.style.display = checked > 0 ? '' : 'none';
+            }
+            if (contadorSelecionados) {
+                contadorSelecionados.textContent = checked.toString();
+            }
+        };
+
+        checkboxesLote.forEach((checkbox) => {
+            checkbox.addEventListener('change', atualizarEstadoEdicaoLote);
+        });
+
+        atualizarEstadoEdicaoLote();
+
+        if (formLote) {
+            formLote.addEventListener('submit', function () {
+                if (selectedUidsContainer) {
+                    selectedUidsContainer.innerHTML = '';
+                    document.querySelectorAll('.js-batch-checkbox-areceber:checked').forEach((checkbox) => {
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'uids[]';
+                        hiddenInput.value = checkbox.value;
+                        selectedUidsContainer.appendChild(hiddenInput);
+                    });
+                }
+            });
+        }
+    });
+</script>
