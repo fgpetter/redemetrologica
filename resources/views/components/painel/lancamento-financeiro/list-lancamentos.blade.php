@@ -107,7 +107,7 @@
               @forelse ($lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento') as $lancamento)
                 <tr>
                   <td class="align-middle">
-                    <input class="form-check-input js-batch-checkbox" type="checkbox" value="{{ $lancamento->uid }}">
+                    <input class="form-check-input js-batch-checkbox-receitas" type="checkbox" value="{{ $lancamento->uid }}">
                   </td>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -173,8 +173,16 @@
   {{-- DESPESAS --}}
   <div class="col-6">
     <div class="card border-start border-danger border-4">
-      <div class="card-header bg-danger-subtle">
+      <div class="card-header bg-danger-subtle d-flex align-items-center justify-content-between">
         <h5>DESPESAS</h5>
+        <button type="button"
+          class="btn btn-primary btn-sm"
+          id="btnEditarLoteDespesas"
+          style="margin-top: -18px; display: none;"
+          data-bs-toggle="modal"
+          data-bs-target="#modalLoteDespesas">
+          Editar em lote (<span id="contadorSelecionadosDespesas">0</span>)
+        </button>
       </div>
       <div class="card-body">
     
@@ -182,6 +190,7 @@
           <table class="table border-1" style="table-layout: fixed">
             <thead>
               <tr>
+                <th scope="col" style="width: 2.5rem;"></th>
                 <th scope="col" >Nome</th>
                 <th scope="col" style="width: 20%;">Vencimento</th>
                 <th scope="col" style="width: 15%;">Valor</th>
@@ -192,6 +201,9 @@
             <tbody>
               @forelse ($lancamentosfinanceiros->where('tipo_lancamento', 'DEBITO') as $lancamento)
                 <tr>
+                  <td class="align-middle">
+                    <input class="form-check-input js-batch-checkbox-despesas" type="checkbox" value="{{ $lancamento->uid }}">
+                  </td>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
                       <i class="ri-file-text-line btn-ghost  pe-1 fs-5"></i>
@@ -223,7 +235,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="5" class="p-0">
+                  <td colspan="6" class="p-0">
                     <div class="collapse" id="{{"collapse".$lancamento->uid}}">
                       <div class="row gy-2 m-3 mt-2">
                         <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
@@ -242,7 +254,7 @@
                 </tr>
               @endforelse
               <tr>
-                <td colspan="5" class="border-0"> 
+                <td colspan="6" class="border-0"> 
                   <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'DEBITO')->sum('valor') }} </h6> 
                 </td>
               </tr>
@@ -284,6 +296,57 @@
             id="lote_data_pagamento"
             name="data_pagamento"
           />
+          <x-forms.input-field
+            label="Data de vencimento"
+            type="date"
+            id="lote_data_vencimento_receitas"
+            name="data_vencimento"
+          />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalLoteDespesas" tabindex="-1" aria-labelledby="modalLoteDespesasLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{{ route('lancamento-financeiro-batch-update') }}">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLoteDespesasLabel">Editar lançamentos em lote</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-2">
+          <div id="batchSelectedUidsDespesas"></div>
+          <x-forms.input-field
+            label="Conciliação"
+            type="text"
+            id="lote_consiliacao_despesas"
+            name="consiliacao"
+          />
+          <x-forms.input-field
+            label="Nota fiscal"
+            type="text"
+            id="lote_nota_fiscal_despesas"
+            name="nota_fiscal"
+          />
+          <x-forms.input-field
+            label="Data de pagamento"
+            type="date"
+            id="lote_data_pagamento_despesas"
+            name="data_pagamento"
+          />
+          <x-forms.input-field
+            label="Data de vencimento"
+            type="date"
+            id="lote_data_vencimento_despesas"
+            name="data_vencimento"
+          />
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
@@ -299,49 +362,81 @@
   document.addEventListener('DOMContentLoaded', function () {
     const select = document.getElementById('mesAnoExport');
     const link = document.getElementById('linkExportLancamentos');
-    const formLote = document.querySelector('#modalLoteReceitas form');
-    const botaoLote = document.querySelector('[data-bs-target="#modalLoteReceitas"]');
-    const contadorSelecionados = document.getElementById('contadorSelecionadosReceitas');
-    const checkboxesLote = document.querySelectorAll('.js-batch-checkbox');
-    const selectedUidsContainer = document.getElementById('batchSelectedUids');
+    if (select && link) {
+      select.addEventListener('change', function () {
+        if (this.value) {
+          link.classList.remove('disabled');
+        } else {
+          link.classList.add('disabled');
+        }
+      });
+    }
 
-    select.addEventListener('change', function () {
-      if (this.value) {
-        link.classList.remove('disabled');
-      } else {
-        link.classList.add('disabled');
-      }
-    });
+    const formLoteReceitas = document.querySelector('#modalLoteReceitas form');
+    const botaoLoteReceitas = document.getElementById('btnEditarLoteReceitas');
+    const contadorSelecionadosReceitas = document.getElementById('contadorSelecionadosReceitas');
+    const selectedUidsReceitas = document.getElementById('batchSelectedUids');
 
-    const atualizarEstadoEdicaoLote = () => {
-      const checked = document.querySelectorAll('.js-batch-checkbox:checked').length;
-      if (botaoLote) {
-        botaoLote.style.display = checked > 0 ? '' : 'none';
+    const atualizarEstadoEdicaoLoteReceitas = () => {
+      const checked = document.querySelectorAll('.js-batch-checkbox-receitas:checked').length;
+      if (botaoLoteReceitas) {
+        botaoLoteReceitas.style.display = checked > 0 ? '' : 'none';
       }
-      if (contadorSelecionados) {
-        contadorSelecionados.textContent = checked.toString();
+      if (contadorSelecionadosReceitas) {
+        contadorSelecionadosReceitas.textContent = checked.toString();
       }
     };
 
-    checkboxesLote.forEach((checkbox) => {
-      checkbox.addEventListener('change', atualizarEstadoEdicaoLote);
+    document.querySelectorAll('.js-batch-checkbox-receitas').forEach((checkbox) => {
+      checkbox.addEventListener('change', atualizarEstadoEdicaoLoteReceitas);
     });
 
-    atualizarEstadoEdicaoLote();
+    atualizarEstadoEdicaoLoteReceitas();
 
-    if (formLote) {
-      formLote.addEventListener('submit', function () {
-        if (selectedUidsContainer) {
-          selectedUidsContainer.innerHTML = '';
-          document.querySelectorAll('.js-batch-checkbox:checked').forEach((checkbox) => {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'uids[]';
-            hiddenInput.value = checkbox.value;
-            selectedUidsContainer.appendChild(hiddenInput);
-          });
-        }
+    if (formLoteReceitas && selectedUidsReceitas) {
+      formLoteReceitas.addEventListener('submit', function () {
+        selectedUidsReceitas.innerHTML = '';
+        document.querySelectorAll('.js-batch-checkbox-receitas:checked').forEach((checkbox) => {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'uids[]';
+          hiddenInput.value = checkbox.value;
+          selectedUidsReceitas.appendChild(hiddenInput);
+        });
+      });
+    }
 
+    const formLoteDespesas = document.querySelector('#modalLoteDespesas form');
+    const botaoLoteDespesas = document.getElementById('btnEditarLoteDespesas');
+    const contadorSelecionadosDespesas = document.getElementById('contadorSelecionadosDespesas');
+    const selectedUidsDespesas = document.getElementById('batchSelectedUidsDespesas');
+
+    const atualizarEstadoEdicaoLoteDespesas = () => {
+      const checked = document.querySelectorAll('.js-batch-checkbox-despesas:checked').length;
+      if (botaoLoteDespesas) {
+        botaoLoteDespesas.style.display = checked > 0 ? '' : 'none';
+      }
+      if (contadorSelecionadosDespesas) {
+        contadorSelecionadosDespesas.textContent = checked.toString();
+      }
+    };
+
+    document.querySelectorAll('.js-batch-checkbox-despesas').forEach((checkbox) => {
+      checkbox.addEventListener('change', atualizarEstadoEdicaoLoteDespesas);
+    });
+
+    atualizarEstadoEdicaoLoteDespesas();
+
+    if (formLoteDespesas && selectedUidsDespesas) {
+      formLoteDespesas.addEventListener('submit', function () {
+        selectedUidsDespesas.innerHTML = '';
+        document.querySelectorAll('.js-batch-checkbox-despesas:checked').forEach((checkbox) => {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'uids[]';
+          hiddenInput.value = checkbox.value;
+          selectedUidsDespesas.appendChild(hiddenInput);
+        });
       });
     }
   });

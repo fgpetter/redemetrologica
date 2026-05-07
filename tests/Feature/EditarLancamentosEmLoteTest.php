@@ -50,6 +50,7 @@ class EditarLancamentosEmLoteTest extends TestCase
             'nota_fiscal' => 'NF-NOVA',
             'consiliacao' => '',
             'data_pagamento' => '',
+            'data_vencimento' => '',
         ]);
 
         $response->assertRedirect();
@@ -167,6 +168,7 @@ class EditarLancamentosEmLoteTest extends TestCase
             'nota_fiscal' => '',
             'consiliacao' => '',
             'data_pagamento' => '',
+            'data_vencimento' => '',
         ]);
 
         $response->assertRedirect();
@@ -204,6 +206,7 @@ class EditarLancamentosEmLoteTest extends TestCase
             'nota_fiscal' => 'NF-LOTE-AR',
             'consiliacao' => '',
             'data_pagamento' => '',
+            'data_vencimento' => '',
         ]);
 
         $response->assertRedirect();
@@ -254,6 +257,110 @@ class EditarLancamentosEmLoteTest extends TestCase
             'consiliacao' => 'CONC-888',
             'data_pagamento' => $novaData,
             'status' => 'EFETIVADO',
+        ]);
+    }
+
+    public function test_atualiza_data_vencimento_em_credito_sem_alterar_quando_campo_vazio(): void
+    {
+        $user = $this->userComPermissaoFinanceiro();
+
+        $vencimentoOriginal = now()->addDays(10)->toDateString();
+
+        $l = LancamentoFinanceiro::factory()->create([
+            'tipo_lancamento' => 'CREDITO',
+            'data_pagamento' => now()->toDateString(),
+            'status' => 'EFETIVADO',
+            'data_vencimento' => $vencimentoOriginal,
+            'nota_fiscal' => 'NF-KEEP',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('lancamento-financeiro-batch-update'), [
+            'uids' => [$l->uid],
+            'nota_fiscal' => 'NF-ATUALIZADA',
+            'consiliacao' => '',
+            'data_pagamento' => '',
+            'data_vencimento' => '',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('lancamentos_financeiros', [
+            'id' => $l->id,
+            'nota_fiscal' => 'NF-ATUALIZADA',
+            'data_vencimento' => $vencimentoOriginal,
+        ]);
+    }
+
+    public function test_atualiza_data_vencimento_em_credito_quando_preenchida(): void
+    {
+        $user = $this->userComPermissaoFinanceiro();
+
+        $l = LancamentoFinanceiro::factory()->create([
+            'tipo_lancamento' => 'CREDITO',
+            'data_pagamento' => now()->toDateString(),
+            'status' => 'EFETIVADO',
+            'data_vencimento' => now()->addDay()->toDateString(),
+            'nota_fiscal' => 'X',
+        ]);
+
+        $novaVencimento = now()->addDays(30)->toDateString();
+
+        $response = $this->actingAs($user)->post(route('lancamento-financeiro-batch-update'), [
+            'uids' => [$l->uid],
+            'nota_fiscal' => '',
+            'consiliacao' => '',
+            'data_pagamento' => '',
+            'data_vencimento' => $novaVencimento,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('lancamentos_financeiros', [
+            'id' => $l->id,
+            'data_vencimento' => $novaVencimento,
+            'nota_fiscal' => 'X',
+        ]);
+    }
+
+    public function test_atualiza_lote_homogeneo_de_debitos(): void
+    {
+        $user = $this->userComPermissaoFinanceiro();
+
+        $d1 = LancamentoFinanceiro::factory()->create([
+            'tipo_lancamento' => 'DEBITO',
+            'data_pagamento' => now()->toDateString(),
+            'status' => 'EFETIVADO',
+            'nota_fiscal' => 'A',
+        ]);
+
+        $d2 = LancamentoFinanceiro::factory()->create([
+            'tipo_lancamento' => 'DEBITO',
+            'data_pagamento' => now()->subDay()->toDateString(),
+            'status' => 'EFETIVADO',
+            'nota_fiscal' => 'B',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('lancamento-financeiro-batch-update'), [
+            'uids' => [$d1->uid, $d2->uid],
+            'nota_fiscal' => 'NF-DEB-LOTE',
+            'consiliacao' => '',
+            'data_pagamento' => '',
+            'data_vencimento' => '',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('lancamentos_financeiros', [
+            'id' => $d1->id,
+            'nota_fiscal' => 'NF-DEB-LOTE',
+        ]);
+
+        $this->assertDatabaseHas('lancamentos_financeiros', [
+            'id' => $d2->id,
+            'nota_fiscal' => 'NF-DEB-LOTE',
         ]);
     }
 }

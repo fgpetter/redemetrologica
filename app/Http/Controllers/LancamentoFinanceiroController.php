@@ -256,7 +256,7 @@ class LancamentoFinanceiroController extends Controller
     }
 
     /**
-     * Atualiza em lote consiliacao, nota_fiscal e data_pagamento (apenas créditos).
+     * Atualiza em lote consiliacao, nota_fiscal, data_pagamento e data_vencimento (lote homogêneo: créditos ou débitos).
      */
     public function batchUpdate(Request $request, EditarLancamentosEmLoteAction $editarLancamentosEmLoteAction): RedirectResponse
     {
@@ -266,6 +266,7 @@ class LancamentoFinanceiroController extends Controller
             'consiliacao' => ['nullable', 'string', 'max:191'],
             'nota_fiscal' => ['nullable', 'string', 'max:191'],
             'data_pagamento' => ['nullable', 'date'],
+            'data_vencimento' => ['nullable', 'date'],
         ]);
 
         try {
@@ -275,6 +276,7 @@ class LancamentoFinanceiroController extends Controller
                     'consiliacao' => $validated['consiliacao'] ?? null,
                     'nota_fiscal' => $validated['nota_fiscal'] ?? null,
                     'data_pagamento' => $validated['data_pagamento'] ?? null,
+                    'data_vencimento' => $validated['data_vencimento'] ?? null,
                 ]
             );
         } catch (RuntimeException $e) {

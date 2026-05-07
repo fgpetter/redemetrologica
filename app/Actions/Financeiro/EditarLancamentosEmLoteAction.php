@@ -9,10 +9,10 @@ use RuntimeException;
 class EditarLancamentosEmLoteAction
 {
     /**
-     * Atualiza em lote campos opcionais de lançamentos financeiros de crédito.
+     * Atualiza em lote campos opcionais de lançamentos financeiros (todos do mesmo tipo: crédito ou débito).
      *
      * @param  array<int, string>  $uids
-     * @param  array{consiliacao?: string|null, nota_fiscal?: string|null, data_pagamento?: string|null}  $input
+     * @param  array{consiliacao?: string|null, nota_fiscal?: string|null, data_pagamento?: string|null, data_vencimento?: string|null}  $input
      * @return int Número de lançamentos atualizados (0 se não houver campos para persistir)
      */
     public function execute(array $uids, array $input): int
@@ -36,15 +36,17 @@ class EditarLancamentosEmLoteAction
         return (int) DB::transaction(function () use ($uniqueUids, $campos): int {
             $lancamentos = LancamentoFinanceiro::query()
                 ->whereIn('uid', $uniqueUids)
-                ->where('tipo_lancamento', 'CREDITO')
                 ->lockForUpdate()
                 ->get();
 
-            $encontrados = $lancamentos->pluck('uid')->all();
-            $faltando = array_diff($uniqueUids, $encontrados);
+            if ($lancamentos->count() !== count($uniqueUids)) {
+                throw new RuntimeException('Um ou mais lançamentos não foram encontrados.');
+            }
 
-            if ($faltando !== []) {
-                throw new RuntimeException('Um ou mais lançamentos não são créditos ou não foram encontrados.');
+            $tiposDistintos = $lancamentos->pluck('tipo_lancamento')->unique()->values();
+
+            if ($tiposDistintos->count() > 1) {
+                throw new RuntimeException('Não é permitido atualizar receitas e despesas no mesmo lote.');
             }
 
             foreach ($lancamentos as $lancamento) {
@@ -63,7 +65,7 @@ class EditarLancamentosEmLoteAction
     {
         $campos = [];
 
-        foreach (['consiliacao', 'nota_fiscal', 'data_pagamento'] as $campo) {
+        foreach (['consiliacao', 'nota_fiscal', 'data_pagamento', 'data_vencimento'] as $campo) {
             if (! array_key_exists($campo, $input)) {
                 continue;
             }

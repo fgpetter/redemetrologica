@@ -202,6 +202,12 @@
                         id="lote_a_receber_data_pagamento"
                         name="data_pagamento"
                     />
+                    <x-forms.input-field
+                        label="Data de vencimento"
+                        type="date"
+                        id="lote_a_receber_data_vencimento"
+                        name="data_vencimento"
+                    />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
