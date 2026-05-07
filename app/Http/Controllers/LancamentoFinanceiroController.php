@@ -61,10 +61,21 @@ class LancamentoFinanceiroController extends Controller
             ->groupBy('mes_ano')
             ->pluck('mes_ano');
 
+        $centrosdecusto = CentroCusto::all()->sortBy('descricao');
+        $planosconta = PlanoConta::all();
+        $modalidadepagamento = ModalidadePagamento::all();
+        $pessoasModal = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')
+            ->orderBy('nome_razao')
+            ->get();
+
         return view('painel.lancamento-financeiro.index', [
             'lancamentosfinanceiros' => $lancamentosfinanceiros,
             'pessoas' => $pessoas,
             'mesesanos' => $meses_anos,
+            'centrosdecusto' => $centrosdecusto,
+            'planosconta' => $planosconta,
+            'modalidadepagamento' => $modalidadepagamento,
+            'pessoasModal' => $pessoasModal,
         ]);
     }
 
@@ -89,6 +100,8 @@ class LancamentoFinanceiroController extends Controller
             'data_pagamento' => ['nullable', 'date'],
             'modalidade_pagamento_id' => ['nullable', 'exists:modalidade_pagamentos,id'],
             'observacoes' => ['nullable', 'string'],
+            'duplicar_lancamento' => ['nullable', 'boolean'],
+            'lancamento_original_uid' => ['nullable', 'string', Rule::exists('lancamentos_financeiros', 'uid')],
         ], [
             'data_emissao.date' => 'A data de emissão deve ser uma data válida',
             'nota_fiscal.string' => 'O número da nota fiscal é inválido',
@@ -127,13 +140,27 @@ class LancamentoFinanceiroController extends Controller
                     'errors' => $validator->errors() ?? null,
                 ]);
 
-            return back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
+            $redirect = back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
+
+            if ($request->boolean('duplicar_lancamento')) {
+                $redirect->with('duplicar_lancamento_uid', $request->input('lancamento_original_uid'));
+            }
+
+            return $redirect;
         }
 
-        $prepared_data = array_merge($validator->validate(), [
+        $validated = $validator->validate();
+
+        $prepared_data = array_merge($validated, [
             'valor' => formataMoeda($request->valor),
             'status' => $request->data_pagamento ? 'EFETIVADO' : 'PROVISIONADO',
         ]);
+
+        unset($prepared_data['duplicar_lancamento'], $prepared_data['lancamento_original_uid']);
+
+        if ($request->boolean('duplicar_lancamento')) {
+            $prepared_data['observacoes'] = null;
+        }
 
         $lancamento_financeiro = LancamentoFinanceiro::create($prepared_data);
 

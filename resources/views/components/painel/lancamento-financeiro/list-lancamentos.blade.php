@@ -1,3 +1,12 @@
+@props([
+    'lancamentosfinanceiros',
+    'pessoas',
+    'mesesanos',
+    'centrosdecusto',
+    'planosconta',
+    'modalidadepagamento',
+    'pessoasModal',
+])
 @php
   if (isset($_GET['data_inicial']) && $_GET['data_inicial'] != "") {
     $data_inicial = \Carbon\Carbon::parse($_GET['data_inicial'])->format('Y-m-d');
@@ -131,6 +140,9 @@
                             href="{{ route('lancamento-financeiro-insert', ['lancamento' => $lancamento->uid]) }}">Editar</a>
                         </li>
                         <li>
+                          <x-painel.lancamento-financeiro.botao-duplicar-lancamento :lancamento="$lancamento" />
+                        </li>
+                        <li>
                           <x-painel.form-delete.delete route="lancamento-financeiro-delete"
                             id="{{ $lancamento->uid }}" />
                         </li>
@@ -226,6 +238,9 @@
                             href="{{ route('lancamento-financeiro-insert', ['lancamento' => $lancamento->uid]) }}">Editar</a>
                         </li>
                         <li>
+                          <x-painel.lancamento-financeiro.botao-duplicar-lancamento :lancamento="$lancamento" />
+                        </li>
+                        <li>
                           <x-painel.form-delete.delete route="lancamento-financeiro-delete"
                             id="{{ $lancamento->uid }}" />
                         </li>
@@ -267,6 +282,14 @@
     </div>
   </div>
 </div>
+
+<x-painel.lancamento-financeiro.modal-duplicar-lancamento
+  :centrosdecusto="$centrosdecusto"
+  :planosconta="$planosconta"
+  :modalidadepagamento="$modalidadepagamento"
+  :pessoasModal="$pessoasModal"
+/>
+
 <div class="modal fade" id="modalLoteReceitas" tabindex="-1" aria-labelledby="modalLoteReceitasLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
