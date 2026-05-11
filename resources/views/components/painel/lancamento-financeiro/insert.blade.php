@@ -39,7 +39,8 @@
 
         <div class="col-6">
           <label class="form-label">Pessoa <span class="text-danger">*</span> </label>
-          <select class="form-select" name="pessoa_id" id="pessoa">
+          <select class="form-select" name="pessoa_id" id="tom-select-lancamento-pessoa"
+            placeholder="Digite para pesquisar..." autocomplete="off">
             <option value="" > Selecione uma pessoa </option>
             @if($lancamento->pessoa_id)
               <option selected value="{{ $lancamento->pessoa->id }}">
@@ -72,7 +73,8 @@
 
         <div class="col-3">
           <label class="form-label">Plano Conta <span class="text-danger">*</span></label>
-          <select class="form-select" name="plano_conta_id" id="plano_conta">
+          <select class="form-select" name="plano_conta_id" id="tom-select-lancamento-plano-conta"
+            placeholder="Digite para pesquisar..." autocomplete="off">
             <option value=""> Selecione um plano de conta </option>
             @foreach ($planosconta as $planoconta)
             <option @selected($lancamento->plano_conta_id == $planoconta->id) value="{{ $planoconta->id }}">

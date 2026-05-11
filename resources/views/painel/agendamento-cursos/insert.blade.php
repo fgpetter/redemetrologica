@@ -25,22 +25,3 @@
     </div>
   </div>
 @endsection
-
-@section('script')
-  <script defer>
-    const pessoa = document.getElementById('pessoa')
-    const empresa = document.getElementById('empresa')
-    if(pessoa){
-      const choices = new Choices(pessoa,{
-        searchFields: ['label'],
-        allowHTML: true
-      });
-    }
-    if(empresa){
-      const choices = new Choices(empresa,{
-        searchFields: ['label'],
-        allowHTML: true
-      });
-    }
-  </script>
-@endsection

@@ -26,15 +26,3 @@
     </div>
   </div>
 @endsection
-
-@section('script')
-  <script defer>
-    const pessoa = document.getElementById('pessoa')
-    if(pessoa){
-      const choices = new Choices(pessoa,{
-        searchFields: ['label'],
-        allowHTML: true
-      });
-    }
-  </script>
-@endsection

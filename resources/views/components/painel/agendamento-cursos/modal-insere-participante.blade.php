@@ -25,7 +25,8 @@
           <div class="row">
             <div class="col-12 mb-2" x-show="tipoInscricao === 'cnpj'">
               <label for="empresa" class="form-label mb-1">Empresa para cobrança <span class="text-danger">*</span></label>
-              <select class="form-control" name="empresa_id" id="empresa">
+              <select class="form-control" name="empresa_id" id="tom-select-agendamento-curso-empresa-modal"
+                placeholder="Digite para pesquisar..." autocomplete="off">
                 <option value="">Selecione uma empresa</option>
                 @foreach($empresas as $empresa)
                   <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}</option>

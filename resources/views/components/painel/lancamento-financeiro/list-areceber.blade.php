@@ -58,7 +58,8 @@
             </div>
             <div class="row mt-2">
                 <div class="col-10">
-                    <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
+                    <x-forms.input-select name="pessoa" id="tom-select" label="Pessoa"
+                        placeholder="Digite para pesquisar..." autocomplete="off">
                         <option value=""> - </option>
                         @foreach ($pessoas as $pessoa)
                             <option @selected($pessoa->id == $busca_pessoa) value="{{ $pessoa->id }}">{{$pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>

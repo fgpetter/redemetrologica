@@ -13,7 +13,8 @@
                             <p>Selecione o novo responsável para a inscrição de <strong>{{ $interlabInscrito->laboratorio->nome }}</strong>.</p>
                             <div class="mb-3">
                                 <label for="novo_responsavel_id" class="form-label">Novo Responsável</label>
-                                <select class="form-control"  data-choices  wire:model="novo_responsavel_id" id="novo_responsavel_id"required>
+                                <select class="form-control" wire:model="novo_responsavel_id" id="novo_responsavel_id"
+                                    required placeholder="Digite para pesquisar..." autocomplete="off">
                                     <option value="">Selecione...</option>
                                     @foreach($pessoas->where('tipo_pessoa', 'PF') as $pessoa)
                                         <option value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
@@ -37,20 +38,24 @@
 </div>
 
 <script>
-
-    window.addEventListener('choices:init', () => {
-        setTimeout(() => {      
-                        const select = document.getElementById('novo_responsavel_id');
-                        if (select && !select.choicesInstanciado) {
-                                initSelect(select);
-                        }
-            }, 50);
-        });
-    function initSelect(element) {
-        new Choices(element, {
-            searchEnabled: true,
-            searchFields: ['label'],
-            removeItemButton: true,
-        });
-    }
+    window.addEventListener('tom-select:init', () => {
+        setTimeout(() => {
+            const select = document.getElementById('novo_responsavel_id');
+            if (!select) {
+                return;
+            }
+            if (select.tomselect) {
+                select.tomselect.destroy();
+            }
+            new TomSelect(select, {
+                create: false,
+                sortField: { field: 'text', direction: 'asc' },
+                onChange(value) {
+                    select.value = value ?? '';
+                    select.dispatchEvent(new Event('input', { bubbles: true }));
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                },
+            });
+        }, 50);
+    });
 </script>

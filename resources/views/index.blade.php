@@ -36,7 +36,8 @@
               @csrf
               <div class="row">
                 <div class="col-9">
-                  <select class="form-control" data-choices name="user_id" id="user_id">
+                  <select class="form-control" name="user_id" id="tom-select"
+                    placeholder="Digite para pesquisar..." autocomplete="off">
                     <option value="">Selecione um usuário</option>
                     @foreach(App\Models\User::whereHas('permissions', fn($q) => $q->where('permission', 'cliente'))
                       ->select('id', 'name', 'email')->orderBy('name')->get() as $user)

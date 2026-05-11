@@ -15,4 +15,6 @@
 <link rel="stylesheet" href="{{ URL::asset('build/css/custom.min.css') }}" type="text/css" />
 {{-- Driver.JS --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.css"/>
+{{-- tom-select --}}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.6.1/dist/css/tom-select.css" rel="stylesheet">
 

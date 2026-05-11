@@ -16,7 +16,8 @@
                   @csrf
                   <div class="row">
                     <div class="col-10">
-                      <select class="form-control" data-choices name="laboratorio_uid" id="choices-single-default">
+                      <select class="form-control" name="laboratorio_uid" id="tom-select"
+                        placeholder="Digite para pesquisar..." autocomplete="off">
                         <option value="">Selecione na lista</option>
                         @foreach($this->laboratorios as $laboratorio)
                           <option value="{{ $laboratorio->uid }}">{{ ($laboratorio->nome_laboratorio) ? $laboratorio->nome_laboratorio : $laboratorio->pessoa->nome_razao }}</option>
