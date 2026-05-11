@@ -2,11 +2,11 @@
 
 namespace App\Actions;
 
+use App\Exceptions\InvalidEmailException;
 use App\Mail\LinkSenhaInterlabNotification;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class CriarEnviarSenhaInterlabAction
@@ -55,10 +55,16 @@ class CriarEnviarSenhaInterlabAction
         )));
 
         if ($destinatarios === []) {
-            Log::warning('Envio de senha interlab ignorado: nenhum destinatário', [
+            $content = [
+                'class' => self::class,
                 'inscrito_id' => $inscrito->id,
-                'dados_doc_id' => $dadosDoc->id,
-            ]);
+                'inscrito_nome' => $inscrito->nome,
+                'inscrito_email' => $inscrito->email,
+                'inscrito_pessoa_email' => $inscrito->pessoa?->email,
+                'inscrito_pessoa_nome' => $inscrito->pessoa?->nome,
+                'inscrito_pessoa_uid' => $inscrito->pessoa?->uid,
+            ];
+            new InvalidEmailException($content);
 
             return $dadosDoc;
         }

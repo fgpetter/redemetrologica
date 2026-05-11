@@ -2,13 +2,13 @@
 
 namespace App\Livewire\PainelCliente;
 
+use App\Exceptions\InvalidEmailException;
 use App\Mail\ConfirmacaoInscricaoCursoNotification;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Models\Endereco;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
-use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -521,9 +521,16 @@ class ConfirmInscricaoCurso extends Component
                 'empresa_nome' => $this->empresa['nome_razao'] ?? null,
             ];
 
-            Mail::to($inscricao['email'])
-                ->later(now()->addSeconds($delay), new ConfirmacaoInscricaoCursoNotification($dadosParticipante, $this->agendacurso));
-
+            if (empty($inscricao['email'])) {
+                $content = [
+                    'class' => self::class,
+                    'inscricao_id' => $inscricao['id'],
+                ];
+                new InvalidEmailException($content);
+            } else {
+                Mail::to($inscricao['email'])
+                    ->later(now()->addSeconds($delay), new ConfirmacaoInscricaoCursoNotification($dadosParticipante, $this->agendacurso));
+            }
             $delay += 5;
         }
     }
