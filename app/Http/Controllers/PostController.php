@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\PostMedia;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -43,10 +44,8 @@ class PostController extends Controller
 
     /**
      * Salva imagem do form de conteúdo
-     *
-     * @return Response
      */
-    public function storeImage(Request $request)
+    public function storeImage(Request $request): JsonResponse
     {
         if ($request->hasFile('upload')) { // imagem de post
             $originName = $request->file('upload')->getClientOriginalName();
@@ -85,6 +84,8 @@ class PostController extends Controller
 
             return response()->json(['fileName' => $fileName, 'uploaded' => 1, 'url' => $url]);
         }
+
+        return response()->json(['uploaded' => 0, 'error' => ['message' => 'Nenhum arquivo enviado.']], 422);
     }
 
     /**
