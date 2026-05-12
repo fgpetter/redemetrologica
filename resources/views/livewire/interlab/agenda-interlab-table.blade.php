@@ -30,7 +30,7 @@
                     <!-- Filtro por Empresa -->
                     <div class="col-4" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
-                        <select wire:model.live="empresaSelecionada" id="empresa-select" class="form-select form-select-sm">
+                        <select wire:model.live="empresaSelecionada" id="empresa-select" >
                             <option value="">Selecione...</option>
                             @foreach ($this->empresas as $empresa)
                                 <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} -

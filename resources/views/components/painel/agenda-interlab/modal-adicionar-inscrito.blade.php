@@ -16,9 +16,8 @@
 
               <div class="col-12 my-1">
                 <label for="pessoa_id" class="form-label">Empresa para cobrança</label>
-                <select class="form-control" name="empresa_uid" id="tom-select-agenda-interlab-empresa"
-                  placeholder="Digite para pesquisar..." autocomplete="off">
-                  <option value="">Selecione na lista</option>
+                <select name="empresa_uid" id="tom-select-agenda-interlab-empresa" autocomplete="off">
+                  <option value="">Digite para pesquisar</option>
                   @foreach($pessoas->where('tipo_pessoa', 'PJ') as $empresa)
                     <option value="{{ $empresa->uid }}">{{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}</option>
                   @endforeach
@@ -29,9 +28,8 @@
 
               <div class="col-12 my-1">
                 <label for="pessoa_uid" class="form-label">Pessoa responsável</label>
-                <select class="form-control" name="pessoa_uid" id="tom-select-agenda-interlab-pessoa"
-                  placeholder="Digite para pesquisar..." autocomplete="off">
-                  <option value="">Selecione na lista</option>
+                <select name="pessoa_uid" id="tom-select-agenda-interlab-pessoa" autocomplete="off">
+                  <option value="">Digite para pesquisar</option>
                   @foreach($pessoas->where('tipo_pessoa', 'PF') as $pessoa)
                     <option value="{{ $pessoa->uid }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
                   @endforeach

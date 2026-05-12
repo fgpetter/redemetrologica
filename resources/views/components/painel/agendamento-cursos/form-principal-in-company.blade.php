@@ -23,13 +23,14 @@
     </div>
 
     <div class="col-12">
-      <x-forms.input-select name="empresa_id" label="Empresa" id="tom-select-agendamento-curso-empresa-incompany">
-        <option value="">Selecione</option>
+      <label class="form-label mb-0">Empresa <span class="text-danger">*</span> </label>
+      <select name="empresa_id" id="tom-select-agendamento-curso-empresa-incompany">
+        <option value="">Digite para pesquisar</option>
         @foreach ($empresas as $empresa)
           <option @selected($agendacurso->empresa_id == $empresa->id) value="{{ $empresa->id }}">
             {{ $empresa->nome_razao }}</option>
         @endforeach
-      </x-forms.input-select>
+      </select>
     </div>
 
     <div class="col-sm-4">

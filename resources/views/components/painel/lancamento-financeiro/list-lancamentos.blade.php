@@ -45,13 +45,14 @@
                             </x-forms.input-select>
                         </div>
                         <div class="col-12 col-lg-4">
-                            <x-forms.input-select name="pessoa" id="tom-select" label="Pessoa"
+                          <label class="form-label mb-0">Pessoa <span class="text-danger">*</span> </label>
+                            <select name="pessoa" id="tom-select" label="Pessoa"
                                 placeholder="Digite para pesquisar..." autocomplete="off">
                                 <option value=""> - </option>
                                 @foreach ($pessoas as $pessoa)
                                     <option @selected($busca_pessoa == $pessoa->id) value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
                                 @endforeach
-                            </x-forms.input-select>
+                            </select>
                         </div>
                         <div class="col-12 col-lg-2 d-flex gap-2 align-items-center justify-content-end">
                           <button type="submit" class="btn btn-primary ">Pesquisar</button>

@@ -31,9 +31,8 @@
       @csrf
       <div class="row align-items-end mt-3">
         <div class="col-8 col-xxl-9">
-          <select class="form-control" name="empresa_id" id="tom-select"
-            placeholder="Digite para pesquisar..." autocomplete="off">
-            <option value="">Selecione na lista</option>
+          <select name="empresa_id" id="tom-select" autocomplete="off">
+            <option value="">Digite para pesquisar</option>
             @foreach ($empresas as $empresa)
               <option value="{{ $empresa->uid }}">{{ $empresa->cpf_cnpj . ' - ' . $empresa->nome_razao }}</option>
             @endforeach

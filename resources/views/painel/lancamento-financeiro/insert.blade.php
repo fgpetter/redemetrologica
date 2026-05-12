@@ -48,28 +48,26 @@
       })
     }
 
-    if (!sendButton) {
-      return
+    if (sendButton) {
+      sendButton.addEventListener('click', function validFields() {
+        if (selectedPlanoConta && selectedPessoa) {
+          document.getElementById('submit-button').click()
+        }
+        if (!selectedPlanoConta && invalidPlanoConta) {
+          invalidPlanoConta.classList.remove('d-none')
+        }
+        if (!selectedPessoa && invalidPessoa) {
+          invalidPessoa.classList.remove('d-none')
+        }
+      })
+
+      $("#data_pagamento").change(function() {
+        if(Date.parse($(this).val())) {
+          $("input[name=status]").val('EFETIVADO');
+        } else {
+          $("input[name=status]").val('PROVISIONADO');
+        }
+      });
     }
-
-    sendButton.addEventListener('click', function validFields() {
-      if (selectedPlanoConta && selectedPessoa) {
-        document.getElementById('submit-button').click()
-      }
-      if (!selectedPlanoConta && invalidPlanoConta) {
-        invalidPlanoConta.classList.remove('d-none')
-      }
-      if (!selectedPessoa && invalidPessoa) {
-        invalidPessoa.classList.remove('d-none')
-      }
-    })
-
-    $("#data_pagamento").change(function() {
-      if(Date.parse($(this).val())) {
-        $("input[name=status]").val('EFETIVADO');
-      } else {
-        $("input[name=status]").val('PROVISIONADO');
-      }
-    });
   </script>
 @endsection

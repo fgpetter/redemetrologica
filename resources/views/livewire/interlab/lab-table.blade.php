@@ -19,7 +19,7 @@
                     <!-- Filtro por Empresa -->
                     <div class="col-4" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
-                        <select wire:model.live="empresaSelecionada" id="empresa-select-filter" class="form-select form-select-sm">
+                        <select wire:model.live="empresaSelecionada" id="empresa-select-filter">
                             <option value="">Selecione...</option>
                             @foreach ($this->empresas as $empresa)
                                 <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} - {{ $empresa->nome_razao }}</option>
@@ -159,7 +159,7 @@
                             <div class="col-md-12">
                                 <label class="form-label">Empresa <span class="text-danger">*</span></label>
                                 <div wire:ignore>
-                                    <select id="empresa-select-modal" class="form-select">
+                                    <select id="empresa-select-modal">
                                         <option value="">Selecione a empresa...</option>
                                         @foreach($allEmpresas as $emp)
                                             <option value="{{ $emp->id }}">{{ $emp->cpf_cnpj }} - {{ $emp->nome_razao }}</option>

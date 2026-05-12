@@ -121,7 +121,9 @@ window.onload = function(){
      * Carrega aba conforme URI
     */
     const anchor = window.location.hash;
-    $(`a[href="${anchor}"]`).tab('show');
+    if(anchor){
+      $(`a[href="${anchor}"]`).tab('show');
+    }
   }  // end if jQuery
 
   /**
