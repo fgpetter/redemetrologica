@@ -40,7 +40,7 @@
                         <td>
                             <div class="d-flex flex-wrap align-items-center">
                                 <div class="me-3">
-                                    <b>Laboratório: </b>{{ $participante->laboratorio->nome }}
+                                    <b>Laboratório: </b>{{ $participante->laboratorio?->nome ?? '—' }}
                                 </div>
                                 <div class="flex-grow-1 ">
                                     <b>Inscrito por:</b>
@@ -59,13 +59,6 @@
                                         let numero = Number(valor).toFixed(2);
                                         return 'R$ ' + numero.replace('.', ',');
                                     }
-                                },
-                                atualizarModal() {
-                                    const novoValorFormatado = this.formatarValor(this.valorLocal);
-                                    const modalValorInput = document.getElementById('valor-{{ $participante->uid }}');
-                                    if (modalValorInput) {
-                                        modalValorInput.value = Number(novoValorFormatado.replace(/[^\d,]/g, '').replace(',', '.'));
-                                    }
                                 }
                             }"
                         >
@@ -82,13 +75,11 @@
                                         @keydown.enter.prevent="
                                         $wire.call('atualizarValor', participanteId, valorLocal);
                                         editandoId = null;
-                                        atualizarModal();
                                     ">
                                     <button class="btn btn-success btn-sm ms-1"
                                         @click="
                                         $wire.call('atualizarValor', participanteId, valorLocal);
                                         editandoId = null;
-                                        atualizarModal();
                                     ">
                                         ✔
                                     </button>
@@ -114,8 +105,8 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                                     <li>
-                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                            data-bs-target="{{ '#participanteModal' . $participante->uid }}">
+                                        <a class="dropdown-item" href="#"
+                                            wire:click.prevent="$dispatch('abrir-editar-inscrito', { id: {{ $participante->id }} })">
                                             Editar
                                         </a>
                                     </li>
@@ -164,12 +155,12 @@
                                         <b>Telefone:</b> {{ $participante->telefone }} <b>Email:</b>
                                         {{ $participante->email }}<br>
                                         <b>Endereço:</b>
-                                        {{ $participante->laboratorio->endereco?->endereco ?? 'N/A' }},
-                                        {{ $participante->laboratorio->endereco->complemento ?? 'N/A' }},
-                                        Bairro: {{ $participante->laboratorio->endereco->bairro ?? 'N/A' }} <br>
-                                        Cidade: {{ $participante->laboratorio->endereco->cidade ?? 'N/A' }}
-                                        / {{ $participante->laboratorio->endereco->uf ?? 'N/A' }}, CEP:
-                                        {{ $participante->laboratorio->endereco->cep ?? 'N/A' }}
+                                        {{ $participante->laboratorio?->endereco?->endereco ?? 'N/A' }},
+                                        {{ $participante->laboratorio?->endereco?->complemento ?? 'N/A' }},
+                                        Bairro: {{ $participante->laboratorio?->endereco?->bairro ?? 'N/A' }} <br>
+                                        Cidade: {{ $participante->laboratorio?->endereco?->cidade ?? 'N/A' }}
+                                        / {{ $participante->laboratorio?->endereco?->uf ?? 'N/A' }}, CEP:
+                                        {{ $participante->laboratorio?->endereco?->cep ?? 'N/A' }}
                                         <br>
                                         <b>Certificado:</b>
                                         @if($participante->certificado_emitido)
@@ -183,8 +174,6 @@
                         </td>
                     </tr>
            
-                    
-                    <x-painel.agenda-interlab.modal-inscritos :participante="$participante" :agendainterlab="$agendainterlab" />
                 @endforeach
             @empty
                 <tr>
@@ -205,8 +194,7 @@
                 </tfoot>
             @endif
         </table>
-        {{-- Componente p/ substituir responsavel pela inscrição--}}
-        <livewire:interlab.substituir-responsavel />
+        <livewire:interlab.editar-inscrito />
 
         <x-painel.agenda-interlab.modal-adicionar-inscrito :agendainterlab="$agendainterlab" :pessoas="$pessoas" />
 
