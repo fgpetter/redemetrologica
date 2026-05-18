@@ -20,8 +20,8 @@ class EditarInscrito extends Component
 
     public ?InterlabInscrito $inscrito = null;
 
-    /** @var \Illuminate\Support\Collection<int, Pessoa>|null */
-    public $pessoas = null;
+    /** @var list<array{id: int, cpf_cnpj: string|null, nome_razao: string|null}> */
+    public array $pessoas = [];
 
     public ?string $novoResponsavelId = null;
 
@@ -37,12 +37,7 @@ class EditarInscrito extends Component
 
         $this->form->setFromInscrito($this->inscrito);
 
-        $this->pessoas = Pessoa::query()
-            ->where('id', '!=', $this->inscrito->pessoa_id)
-            ->where('tipo_pessoa', 'PF')
-            ->select(['id', 'nome_razao', 'tipo_pessoa', 'cpf_cnpj'])
-            ->orderBy('nome_razao')
-            ->get();
+        $this->pessoas = $this->pessoasFisicas((int) $this->inscrito->pessoa_id);
 
         $this->dispatch('offcanvas:open');
     }
@@ -135,12 +130,7 @@ class EditarInscrito extends Component
         $this->inscrito->save();
         $this->inscrito->refresh()->load(['empresa', 'pessoa', 'laboratorio.endereco']);
 
-        $this->pessoas = Pessoa::query()
-            ->where('id', '!=', $this->inscrito->pessoa_id)
-            ->where('tipo_pessoa', 'PF')
-            ->select(['id', 'nome_razao', 'tipo_pessoa', 'cpf_cnpj'])
-            ->orderBy('nome_razao')
-            ->get();
+        $this->pessoas = $this->pessoasFisicas((int) $this->inscrito->pessoa_id);
 
         $this->novoResponsavelId = null;
 
@@ -185,5 +175,30 @@ class EditarInscrito extends Component
     public function render(): View
     {
         return view('livewire.interlab.editar-inscrito');
+    }
+
+    /**
+     * @return list<array{id: int, cpf_cnpj: string|null, nome_razao: string|null}>
+     */
+    private function pessoasFisicas(int $excluirPessoaId): array
+    {
+        $rows = DB::select(
+            'SELECT id, cpf_cnpj, nome_razao
+             FROM pessoas
+             WHERE id != ?
+               AND tipo_pessoa = ?
+               AND deleted_at IS NULL
+             ORDER BY nome_razao ASC',
+            [$excluirPessoaId, 'PF']
+        );
+
+        return array_map(
+            static fn ($row) => [
+                'id' => (int) $row->id,
+                'cpf_cnpj' => $row->cpf_cnpj,
+                'nome_razao' => $row->nome_razao,
+            ],
+            $rows
+        );
     }
 }

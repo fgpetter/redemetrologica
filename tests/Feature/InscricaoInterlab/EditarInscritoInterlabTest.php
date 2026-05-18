@@ -129,6 +129,26 @@ class EditarInscritoInterlabTest extends TestCase
         ]);
     }
 
+    public function test_abrir_carrega_opcoes_de_responsavel_como_array_leve(): void
+    {
+        $inscrito = $this->criarInscritoCompleto();
+
+        PessoaFactory::new()->count(2)->create(['tipo_pessoa' => 'PF']);
+
+        $component = Livewire::test(EditarInscrito::class)
+            ->call('abrir', $inscrito->id);
+
+        $pessoas = $component->get('pessoas');
+
+        $this->assertIsArray($pessoas);
+        $this->assertNotEmpty($pessoas);
+        $this->assertArrayHasKey('id', $pessoas[0]);
+        $this->assertArrayHasKey('cpf_cnpj', $pessoas[0]);
+        $this->assertArrayHasKey('nome_razao', $pessoas[0]);
+        $this->assertArrayNotHasKey('tipo_pessoa', $pessoas[0]);
+        $this->assertNotContains($inscrito->pessoa_id, array_column($pessoas, 'id'));
+    }
+
     public function test_alterar_responsavel_atualiza_pessoa_id(): void
     {
         $inscrito = $this->criarInscritoCompleto();

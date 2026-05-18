@@ -63,8 +63,8 @@
                                 <select id="novo-responsavel-id" autocomplete="off"
                                     data-placeholder="Digite para pesquisar...">
                                     <option value="">Selecione...</option>
-                                    @foreach ($pessoas ?? [] as $pessoa)
-                                        <option value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}
+                                    @foreach ($pessoas as $pessoa)
+                                        <option value="{{ $pessoa['id'] }}">{{ $pessoa['cpf_cnpj'] }} | {{ $pessoa['nome_razao'] }}
                                         </option>
                                     @endforeach
                                 </select>

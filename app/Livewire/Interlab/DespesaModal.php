@@ -230,10 +230,12 @@ class DespesaModal extends Component
 
     public function render()
     {
-        $fornecedores = Fornecedor::with('pessoa')
-            ->whereHas('areas', fn ($q) => $q->where('area', FornecedorArea::PEP))
-            ->orderBy('id')
-            ->get();
+        $fornecedores = $this->showModal
+            ? Fornecedor::with('pessoa')
+                ->whereHas('areas', fn ($q) => $q->where('area', FornecedorArea::PEP))
+                ->orderBy('id')
+                ->get()
+            : collect();
 
         return view('livewire.interlab.despesa-modal', [
             'fornecedores' => $fornecedores,
