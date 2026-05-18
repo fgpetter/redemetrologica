@@ -15,9 +15,7 @@ use App\Models\InterlabInscrito;
 use App\Models\Pessoa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 
 class InscricaoInterlabController extends Controller
 {
@@ -112,46 +110,6 @@ class InscricaoInterlabController extends Controller
         }
 
         return back()->with('success', 'Laboratório cadastrado com sucesso!')->withFragment('participantes');
-    }
-
-    /**
-     * Adiciona / Edita inscrito manualmente na tela de agenda de interlabs
-     */
-    public function salvaInscrito(Request $request, InterlabInscrito $inscrito): RedirectResponse
-    {
-        // valida valor e informacoes_inscricao
-        $validator = Validator::make($request->all(), [
-            'valor' => ['nullable', 'string'],
-            'informacoes_inscricao' => ['nullable', 'string', 'max:1000'],
-        ], [
-            'valor.string' => 'O valor digitado é inválido',
-            'informacoes_inscricao.max' => 'As informações não podem ter mais que :max caracteres',
-        ]);
-
-        if ($validator->fails()) {
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]);
-
-            return back()->with('error', 'Dados informados não são válidos')->withErrors($validator)->withFragment('participantes');
-        }
-
-        // atualiza dados de inscrito
-        $inscrito->update([
-            'valor' => formataMoeda($request->valor),
-            'informacoes_inscricao' => $validator->safe()->string('informacoes_inscricao'),
-        ]);
-        // se valor > 0 atualiza lancamento financeiro
-        if ($request->valor > 0) {
-            app(GerarLancamentoInterlabAction::class)->execute($inscrito, $request->valor);
-        }
-
-        return back()->with('success', 'Dados salvos com sucesso!')->withFragment('participantes');
     }
 
     /**

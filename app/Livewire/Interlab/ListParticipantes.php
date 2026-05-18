@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Interlab;
 
-use App\Models\Pessoa;
-use Livewire\Component;
-use App\Models\DadosGeraDoc;
+use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Models\AgendaInterlab;
+use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Models\Pessoa;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class ListParticipantes extends Component
 {
@@ -15,6 +17,12 @@ class ListParticipantes extends Component
 
     /** @var \Illuminate\Support\Collection|null */
     public $pessoas = null;
+
+    #[On('refresh-interlab-participantes')]
+    public function refreshParticipantesList(): void
+    {
+        // Re-renderiza a listagem após edição no OffCanvas.
+    }
 
     public function mount(int $idinterlab, $pessoas = null)
     {
@@ -27,22 +35,26 @@ class ListParticipantes extends Component
         Validator::make(
             ['id' => $id, 'valor' => $valor],
             [
-                'id'    => ['required', 'exists:interlab_inscritos,id'],
+                'id' => ['required', 'exists:interlab_inscritos,id'],
                 'valor' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             ],
             [
-                'id.required'    => 'O ID é obrigatório.',
-                'id.exists'      => 'Participante não encontrado.',
+                'id.required' => 'O ID é obrigatório.',
+                'id.exists' => 'Participante não encontrado.',
                 'valor.required' => 'O valor é obrigatório.',
-                'valor.numeric'  => 'O valor deve ser numérico.',
-                'valor.min'      => 'O valor deve ser maior ou igual a zero.',
-                'valor.max'      => 'O valor máximo permitido é 999.999,99.',
+                'valor.numeric' => 'O valor deve ser numérico.',
+                'valor.min' => 'O valor deve ser maior ou igual a zero.',
+                'valor.max' => 'O valor máximo permitido é 999.999,99.',
             ]
         )->validate();
 
         $participante = InterlabInscrito::findOrFail($id);
         $participante->valor = $valor;
         $participante->save();
+
+        if ($valor > 0) {
+            app(GerarLancamentoInterlabAction::class)->execute($participante, $valor);
+        }
     }
 
     public function render()
@@ -69,13 +81,13 @@ class ListParticipantes extends Component
             ? $this->pessoas
             : Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get();
 
+        $this->pessoas = $pessoasCollection;
+
         $interlabempresasinscritas = $pessoasCollection->whereIn('id', $empresaIds)
             ->sortBy(function ($empresa) use ($empresaIds) {
                 return $empresaIds->search($empresa->id);
             })
             ->values();
-
-        $pessoas = $pessoasCollection;
 
         // pré-carregar todos os tag_senha_doc de uma vez (evita N+1)
         $participanteIds = $intelabinscritos->pluck('id')->toArray();
@@ -95,7 +107,7 @@ class ListParticipantes extends Component
             'intelabinscritos' => $intelabinscritos,
             'interlabempresasinscritas' => $interlabempresasinscritas,
             'inscritosPorEmpresa' => $inscritosPorEmpresa,
-            'pessoas' => $pessoas,
+            'pessoas' => $this->pessoas,
             'tagsSenhaDoc' => $tagsSenhaDoc,
         ]);
     }
