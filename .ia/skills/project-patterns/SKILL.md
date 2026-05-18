@@ -17,6 +17,7 @@ Os padrões deste projeto foram modularizados para facilitar a consulta. Siga o 
 6.  **[Livewire Development](livewire-development/SKILL.md)**: Guia operacional para desenvolvimento e depuração de componentes Livewire 3.
 7.  **[Laravel PDF](laravel-pdf/SKILL.md)**: Geração e configuração de PDFs com `spatie/laravel-pdf` (drivers, testes e entrega).
 8.  **[Efficiency Guidelines](efficiency-guidelines/SKILL.md)**: Guias de eficiência para reduzir erros comuns de LLM.
+9.  **[Sail Debug Logging](sail-debug-logging/SKILL.md)**: Logs NDJSON e contagem de queries no ambiente Laravel Sail (debug mode / N+1).
 
 ---
 
