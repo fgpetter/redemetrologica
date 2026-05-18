@@ -32,7 +32,7 @@ class UserController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('painel.users.user-index', ['users' => $users]);
+        return view('painel.users.index', ['users' => $users]);
     }
 
     /**
@@ -97,7 +97,7 @@ class UserController extends Controller
             $permissions = $user->permissions()->pluck('permission')->toArray();
             $endereco = $user->pessoa->enderecos()->first();
 
-            return view('painel.users.user-update', ['user' => $user, 'permissions' => $permissions, 'endereco' => $endereco]);
+            return view('painel.users.edit', ['user' => $user, 'permissions' => $permissions, 'endereco' => $endereco]);
         }
         abort(404);
     }

@@ -22,7 +22,7 @@
       @endif
       
       <p style="margin: 30px 0;">
-        <a href="https://redemetrologica.com.br/dados-doc/{{ $dadosDoc->link }}" 
+        <a href="{{ env('APP_URL').'/dados-doc/'.$dadosDoc->link }}" 
            target="_blank"
            style="display: inline-block; padding: 12px 30px; background-color: #0056b3; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
           Baixar Carta Senha
@@ -31,7 +31,7 @@
 
       <p style="font-size: 12px; color: #888;">
         Ou copie e cole o link abaixo no seu navegador:<br>
-        <a href="https://redemetrologica.com.br/dados-doc/{{ $dadosDoc->link }}" style="color: #0056b3; word-break: break-all;">https://redemetrologica.com.br/dados-doc/{{ $dadosDoc->link }}</a>
+        <a href="{{ env('APP_URL').'/dados-doc/'.$dadosDoc->link }}" style="color: #0056b3; word-break: break-all;">{{ env('APP_URL').'/dados-doc/'.$dadosDoc->link }}</a>
       </p>
       
       <br>

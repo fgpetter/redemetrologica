@@ -30,7 +30,7 @@
                     <!-- Filtro por Empresa -->
                     <div class="col-4" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
-                        <select wire:model.live="empresaSelecionada" id="empresa-select" class="form-select form-select-sm">
+                        <select wire:model.live="empresaSelecionada" id="empresa-select" >
                             <option value="">Selecione...</option>
                             @foreach ($this->empresas as $empresa)
                                 <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} -
@@ -193,25 +193,20 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             const element = document.getElementById('empresa-select');
-            const choices = new Choices(element, {
-                searchFields: ['label'],
-                allowHTML: true,
-                itemSelectText: '',
-                noResultsText: 'Nenhum resultado encontrado',
-                noChoicesText: 'Sem opções para escolher',
-                classNames: {
-                    listSingle: 'choices__list--single p-0',
-                    item: 'choices__item text-truncate mw-100',
+            const ts = new TomSelect(element, {
+                create: false,
+                sortField: { field: 'text', direction: 'asc' },
+                onChange(value) {
+                    element.value = value ?? '';
+                    element.dispatchEvent(new Event('input', { bubbles: true }));
+                    element.dispatchEvent(new Event('change', { bubbles: true }));
                 },
             });
 
-            element.addEventListener('change', function(event) {
-                @this.set('empresaSelecionada', event.target.value);
-            });
-
             Livewire.on('reset-empresa-filter', () => {
-                choices.setChoiceByValue('');
-                element.dispatchEvent(new Event('change'));
+                ts.clear(false);
+                element.dispatchEvent(new Event('input', { bubbles: true }));
+                element.dispatchEvent(new Event('change', { bubbles: true }));
             });
         });
     </script>

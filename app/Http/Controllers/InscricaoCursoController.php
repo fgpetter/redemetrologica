@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\InvalidEmailException;
 use App\Http\Requests\ConfirmaInscricaoRequest;
 use App\Mail\ConfirmacaoInscricaoCursoNotification;
 use App\Models\AgendaCursos;
@@ -403,8 +404,17 @@ class InscricaoCursoController extends Controller
             'empresa_nome' => (isset($empresa) && $empresa) ? $empresa->nome_razao : null,
         ];
 
-        Mail::to($novoInscrito->email)
-            ->send(new ConfirmacaoInscricaoCursoNotification($dadosParticipante, $agendacurso));
+        if (empty($novoInscrito->email)) {
+            $content = [
+                'class' => self::class,
+                'inscrito_id' => $novoInscrito->id,
+                'inscrito_pessoa_uid' => $novoInscrito->pessoa?->id ?? '',
+            ];
+            new InvalidEmailException($content);
+        } else {
+            Mail::to($novoInscrito->email)
+                ->send(new ConfirmacaoInscricaoCursoNotification($dadosParticipante, $agendacurso));
+        }
 
         return back()->with('success', 'Inscrito adicionado com sucesso')->withFragment('participantes');
     }

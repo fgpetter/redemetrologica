@@ -2,19 +2,22 @@
 
 namespace App\Livewire\Interlab;
 
-
 use App\Models\InterlabInscrito;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\Validator;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class SubstituirResponsavel extends Component
 {
     public $showModal = false;
+
     public $interlabInscritoId;
+
     public ?InterlabInscrito $interlabInscrito = null;
+
     public $pessoas;
+
     public $novo_responsavel_id;
 
     #[On('showSubstituirResponsavelModal')]
@@ -29,7 +32,7 @@ class SubstituirResponsavel extends Component
                 ->orderBy('nome_razao')
                 ->get();
             $this->showModal = true;
-            $this->dispatch('choices:init');
+            $this->dispatch('tom-select:init');
         }
     }
 
@@ -38,7 +41,7 @@ class SubstituirResponsavel extends Component
         if (is_array($this->novo_responsavel_id) && isset($this->novo_responsavel_id['value'])) {
             $this->novo_responsavel_id = $this->novo_responsavel_id['value'];
         }
-        
+
         $validated = Validator::make(
             ['novo_responsavel_id' => $this->novo_responsavel_id],
             [
@@ -49,14 +52,15 @@ class SubstituirResponsavel extends Component
                 'novo_responsavel_id.exists' => 'Responsável não encontrado.',
             ]
         )->validate();
-                
+
         if ($this->interlabInscrito) {
             $this->interlabInscrito->pessoa_id = $validated['novo_responsavel_id'];
             $this->interlabInscrito->save();
 
             $this->closeModal();
+
             return redirect(request()->header('Referer'))->with('success', 'Responsável atualizado com sucesso.');
-            
+
         }
     }
 

@@ -11,7 +11,7 @@ export default defineConfig({
             output: {
                 assetFileNames: (css) => {
                     if (css.name.split('.').pop() === 'css') {
-                        return 'css/' + `[name]` + '.min.css';
+                        return 'css/[name].min.css';
                     } else {
                         return 'icons/' + css.name;
                     }
@@ -21,22 +21,44 @@ export default defineConfig({
         },
     },
     plugins: [
-        laravel({
-            input: [
-                'resources/scss/bootstrap.scss',
-                'resources/scss/icons.scss',
-                'resources/scss/app.scss',
-                'resources/scss/custom.scss',
-            ],
-            refresh: true,
-        }),
+        laravel(
+            {
+                input: [
+                    'resources/scss/bootstrap.scss',
+                    'resources/scss/icons.scss',
+                    'resources/scss/app.scss',
+                    'resources/scss/custom.scss',
+                ],
+                refresh: true,
+            }
+        ),
         viteStaticCopy({
             targets: [
-                { src: 'resources/fonts/**/*', dest: 'fonts', rename: { stripBase: 2 } },
-                { src: 'resources/images/**/*', dest: 'images', rename: { stripBase: 2 } },
-                { src: 'resources/js/**/*', dest: 'js', rename: { stripBase: 2 } },
-                { src: 'resources/json/**/*', dest: 'json', rename: { stripBase: 2 } },
-                { src: 'resources/libs/**/*', dest: 'libs', rename: { stripBase: 2 } },
+                {
+                    src: 'resources/fonts/**/*',
+                    dest: '',
+                    rename: { stripBase: 1 },
+                },
+                {
+                    src: 'resources/images/**/*',
+                    dest: '',
+                    rename: { stripBase: 1 },
+                },
+                {
+                    src: 'resources/js/**/*',
+                    dest: '',
+                    rename: { stripBase: 1 },
+                },
+                {
+                    src: 'resources/json/**/*',
+                    dest: '',
+                    rename: { stripBase: 1 },
+                },
+                {
+                    src: 'resources/libs/**/*',
+                    dest: '',
+                    rename: { stripBase: 1 },
+                },
             ],
         }),
     ],

@@ -2,15 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\InvalidEmailException;
+use App\Mail\ConfirmacaoInterlabMail;
+use App\Models\InterlabInscrito;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-use App\Models\InterlabInscrito;
-use App\Mail\ConfirmacaoInterlabMail;
+use Illuminate\Support\Facades\Mail;
 
 class EnviarConfirmacaoInterlabJob implements ShouldQueue
 {
@@ -41,22 +42,31 @@ class EnviarConfirmacaoInterlabJob implements ShouldQueue
      */
     public function handle(): void
     {
-        if (!$this->participante->pessoa || !$this->participante->pessoa->email) {
-            Log::warning("Tentativa de envio de confirmação para participante sem email de responsável cadastrado.", [
-                'participante_id' => $this->participante->id
+        if (! $this->participante->pessoa || ! $this->participante->pessoa->email) {
+            Log::warning('Tentativa de envio de confirmação para participante sem email de responsável cadastrado.', [
+                'participante_id' => $this->participante->id,
             ]);
+
             return;
         }
 
-        Mail::to($this->participante->pessoa->email)
-            ->send(new ConfirmacaoInterlabMail($this->participante));
+        if (empty($this->participante->pessoa->email)) {
+            $content = [
+                'class' => self::class,
+                'participante_id' => $this->participante->id,
+            ];
+            new InvalidEmailException($content);
+        } else {
+            Mail::to($this->participante->pessoa->email)
+                ->send(new ConfirmacaoInterlabMail($this->participante));
+        }
     }
 
     public function failed(\Throwable $exception): void
     {
-        Log::error('Falha ao enviar email de confirmação para participante ID: ' . $this->participante->id, [
+        Log::error('Falha ao enviar email de confirmação para participante ID: '.$this->participante->id, [
             'error' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString()
+            'trace' => $exception->getTraceAsString(),
         ]);
     }
 }

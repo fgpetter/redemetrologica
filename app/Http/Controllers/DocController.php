@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
-use Spatie\LaravelPdf\Facades\Pdf;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class DocController extends Controller
 {
@@ -19,7 +18,7 @@ class DocController extends Controller
 
         if ($dadosDoc->file_name && Storage::exists($dadosDoc->file_name)) {
             return response()->download(
-                Storage::path($dadosDoc->file_name), 
+                Storage::path($dadosDoc->file_name),
                 basename($dadosDoc->file_name)
             );
         }
@@ -47,18 +46,19 @@ class DocController extends Controller
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists(dirname($path))) {
+        if (! Storage::exists(dirname($path))) {
             Storage::makeDirectory(dirname($path));
         }
 
         Pdf::view('certificados.tag-senha', [
             'dadosDoc' => $dadosDoc,
-        ])->save(Storage::path($path));
+        ])->driver('dompdf')->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
-       
+
         return response()->download(Storage::path($path), $fileName);
     }
+
     /**
      * Geração do PDF para certificado
      */
@@ -67,23 +67,42 @@ class DocController extends Controller
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists(dirname($path))) {
+        if (! Storage::exists(dirname($path))) {
             Storage::makeDirectory(dirname($path));
         }
 
+        $participanteId = $dadosDoc->content['participante_id'] ?? throw new \Exception('Certificado sem identificação do participante.');
+
+        $inscrito = CursoInscrito::with(['empresa', 'agendaCurso'])
+            ->findOrFail($participanteId) ?? throw new \Exception('Inscrição sem agenda de curso associada.');
+
+        $localRealizacaoCertificado = $this->resolverLocalRealizacaoCertificado($inscrito);
+
         Pdf::view('certificados.certificado', [
             'dadosDoc' => $dadosDoc,
+            'localRealizacaoCertificado' => $localRealizacaoCertificado,
         ])->format('a4')->landscape()->save(Storage::path($path));
 
         $dadosDoc->update(['file_name' => $path]);
 
-        if (isset($dadosDoc->content['participante_id'])) {
-            \App\Models\CursoInscrito::where('id', $dadosDoc->content['participante_id'])->update([
-                'certificado_path' => $path
-            ]);
-        }
-       
+        CursoInscrito::where('id', $participanteId)->update([
+            'certificado_path' => $path,
+        ]);
+
         return response()->download(Storage::path($path), $fileName);
+    }
+
+    /**
+     * Local exibido no certificado: agenda IN-COMPANY usa o nome da empresa do inscrito;
+     * demais tipos usam o nome da associação.
+     */
+    private function resolverLocalRealizacaoCertificado(CursoInscrito $inscrito): string
+    {
+        if ($inscrito->agendaCurso->tipo_agendamento === 'IN-COMPANY') {
+            return $inscrito->empresa?->nome_razao ?? '';
+        }
+
+        return 'Associação Rede de Metrologia e Ensaios do RS';
     }
 
     /**
@@ -94,7 +113,7 @@ class DocController extends Controller
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
 
-        if (!Storage::exists(dirname($path))) {
+        if (! Storage::exists(dirname($path))) {
             Storage::makeDirectory(dirname($path));
         }
 
@@ -110,10 +129,10 @@ class DocController extends Controller
 
         if (isset($dadosDoc->content['participante_id'])) {
             \App\Models\InterlabInscrito::where('id', $dadosDoc->content['participante_id'])->update([
-                'certificado_path' => $path
+                'certificado_path' => $path,
             ]);
         }
-       
+
         return response()->download(Storage::path($path), $fileName);
     }
 }

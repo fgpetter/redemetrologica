@@ -25,8 +25,8 @@
           <div class="row">
             <div class="col-12 mb-2" x-show="tipoInscricao === 'cnpj'">
               <label for="empresa" class="form-label mb-1">Empresa para cobrança <span class="text-danger">*</span></label>
-              <select class="form-control" name="empresa_id" id="empresa">
-                <option value="">Selecione uma empresa</option>
+              <select name="empresa_id" id="tom-select-agendamento-curso-empresa-modal" autocomplete="off">
+                <option value="">Digite para pesquisar</option>
                 @foreach($empresas as $empresa)
                   <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}</option>
                 @endforeach
@@ -41,8 +41,6 @@
             <div class="col-md-6 mb-2">
               <x-forms.input-field :value="null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
             </div>
-
-
 
             <template x-if="tipoInscricao === 'cpf'">
               <div class="row m-0 p-0">

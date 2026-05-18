@@ -74,7 +74,7 @@
                      </div>
 
                      <div class="tab-pane" id="areasatuacao" role="tabpanel">
-                         <x-painel.avaliadores.areas-atucao :areasatuacao="$areasatuacao" :avaliador="$avaliador" />
+                         <x-painel.avaliadores.areas-atuacao :areasatuacao="$areasatuacao" :avaliador="$avaliador" />
                      </div>
 
                      <div class="tab-pane" id="qualificacoes" role="tabpanel">

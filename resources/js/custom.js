@@ -121,7 +121,9 @@ window.onload = function(){
      * Carrega aba conforme URI
     */
     const anchor = window.location.hash;
-    $(`a[href="${anchor}"]`).tab('show');
+    if(anchor){
+      $(`a[href="${anchor}"]`).tab('show');
+    }
   }  // end if jQuery
 
   /**
@@ -238,5 +240,55 @@ window.onload = function(){
     })
   }
 
+  const tomSelectSearchDefaults = {
+    create: false,
+    sortField: {
+      field: 'text',
+      direction: 'asc',
+    },
+    score: function(search) {
+      const score = this.getScoreFunction(search);
+
+      return function(item) {
+
+        const text = item.text.toLowerCase();
+        const term = search.toLowerCase();
+
+        // prioridade máxima para itens que começam com o termo
+        if (text.startsWith(term)) {
+            return 1;
+        }
+
+        // reduz bastante itens que só contém o termo
+        if (text.includes(term)) {
+            return 0.2;
+        }
+
+        return score(item);
+      };
+    }
+
+  }
+
+  if (document.getElementById('tom-select')) {
+    new TomSelect('#tom-select', tomSelectSearchDefaults)
+  }
+
+  const tomSelectBySelector = [
+    '#tom-select-lancamento-pessoa',
+    '#tom-select-lancamento-plano-conta',
+    '#tom-select-agenda-interlab-empresa',
+    '#tom-select-agenda-interlab-pessoa',
+    '#tom-select-agendamento-curso-empresa-modal',
+    '#tom-select-agendamento-curso-empresa-incompany',
+  ]
+  tomSelectBySelector.forEach((selector) => {
+    const el = document.querySelector(selector)
+    if (el && !el.tomselect) {
+      new TomSelect(el, tomSelectSearchDefaults)
+    }
+  })
+
 };
+
 console.log('Custom JS loaded!')

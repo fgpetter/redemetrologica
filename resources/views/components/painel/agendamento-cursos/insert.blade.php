@@ -55,7 +55,8 @@
                                 <i class="ri-add-line align-bottom"></i> Adicionar inscrito
                             </a>
                         @endif
-                        @if ($tipoagenda == 'ABERTO' && $agendacurso?->id && $agendacurso?->inscritos()->count() > 0)
+                        @if ($agendacurso?->id && $agendacurso?->inscritos()->count() > 0
+                            && in_array($tipoagenda, ['ABERTO', 'IN-COMPANY'], true))
                             <a href="{{ route('agendamento-curso.export-lista-presenca', $agendacurso) }}"
                                 class="btn btn-sm btn-primary">
                                 Baixar Lista de Presença

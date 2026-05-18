@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CriarEnviarSenhaAction;
+use App\Actions\CriarEnviarSenhaInterlabAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Actions\InscricaoInterlabAction;
+use App\Exceptions\InvalidEmailException;
 use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
 use App\Mail\NovoCadastroInterlabNotification;
@@ -87,12 +88,21 @@ class InscricaoInterlabController extends Controller
             ->cc('tecnico@redemetrologica.com.br')
             ->send(new NovoCadastroInterlabNotification($inscrito, $agenda_interlab));
 
-        Mail::to($inscrito->pessoa->email)
-            ->cc('sistema@redemetrologica.com.br')
-            ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
+        if (empty($inscrito->pessoa->email)) {
+            $content = [
+                'class' => self::class,
+                'inscrito_id' => $inscrito->id,
+                'inscrito_pessoa_uid' => $inscrito->pessoa?->id ?? '',
+            ];
+            new InvalidEmailException($content);
+        } else {
+            Mail::to($inscrito->pessoa->email)
+                ->cc('sistema@redemetrologica.com.br')
+                ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $agenda_interlab));
+        }
 
         if ($agenda_interlab->status === 'CONFIRMADO' && ! empty($agenda_interlab->interlab?->tag)) {
-            app(CriarEnviarSenhaAction::class)->execute($inscrito, 1);
+            app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, 15);
         }
 
         if ($request->encerra_cadastro == 1) {

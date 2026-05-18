@@ -1,3 +1,12 @@
+@props([
+    'lancamentosfinanceiros',
+    'pessoas',
+    'mesesanos',
+    'centrosdecusto',
+    'planosconta',
+    'modalidadepagamento',
+    'pessoasModal',
+])
 @php
   if (isset($_GET['data_inicial']) && $_GET['data_inicial'] != "") {
     $data_inicial = \Carbon\Carbon::parse($_GET['data_inicial'])->format('Y-m-d');
@@ -36,12 +45,14 @@
                             </x-forms.input-select>
                         </div>
                         <div class="col-12 col-lg-4">
-                            <x-forms.input-select name="pessoa" id="pessoa" label="Pessoa">
+                          <label class="form-label mb-0">Pessoa <span class="text-danger">*</span> </label>
+                            <select name="pessoa" id="tom-select" label="Pessoa"
+                                placeholder="Digite para pesquisar..." autocomplete="off">
                                 <option value=""> - </option>
                                 @foreach ($pessoas as $pessoa)
                                     <option @selected($busca_pessoa == $pessoa->id) value="{{ $pessoa->id }}">{{ $pessoa->cpf_cnpj }} - {{ $pessoa->nome_razao }}</option>
                                 @endforeach
-                            </x-forms.input-select>
+                            </select>
                         </div>
                         <div class="col-12 col-lg-2 d-flex gap-2 align-items-center justify-content-end">
                           <button type="submit" class="btn btn-primary ">Pesquisar</button>
@@ -79,17 +90,24 @@
   {{-- RECEITAS --}}
   <div class="col-6">
     <div class="card border-start border-success border-4">
-      <div class="card-header bg-success-subtle">
+      <div class="card-header bg-success-subtle d-flex align-items-center justify-content-between">
         <h5>RECEITAS</h5>
+        <button type="button"
+          class="btn btn-primary btn-sm"
+          id="btnEditarLoteReceitas"
+          style="margin-top: -18px; display: none;"
+          data-bs-toggle="modal"
+          data-bs-target="#modalLoteReceitas">
+          Editar em lote (<span id="contadorSelecionadosReceitas">0</span>)
+        </button>
       </div>
       <div class="card-body">
-            
-    
         <div class="table-responsive" style="min-height: 25vh">
           <table class="table border-1" style="table-layout: fixed">
             <thead>
               <tr>
-                <th scope="col" >Nome</th>
+                <th scope="col" style="width: 2.5rem;"></th>
+                <th scope="col">Nome</th>
                 <th scope="col" style="width: 20%;">Vencimento</th>
                 <th scope="col" style="width: 15%;">Valor</th>
                 <th scope="col" style="width: 15%;">NF</th>
@@ -99,13 +117,16 @@
             <tbody>
               @forelse ($lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento') as $lancamento)
                 <tr>
+                  <td class="align-middle">
+                    <input class="form-check-input js-batch-checkbox-receitas" type="checkbox" value="{{ $lancamento->uid }}">
+                  </td>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
                       <i class="ri-file-text-line btn-ghost  pe-1 fs-5"></i>
                     </a> {{ $lancamento->pessoa->nome_razao }}
                   </td>
                   <td>{{ ($lancamento->data_vencimento) ? Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m/Y') : '-'  }} </td>
-                  
+
                   <td> <input type="text" class="money border-0 bg-transparent" value="{{ $lancamento->valor }}"> </td>
                   <td>  {{ $lancamento->nota_fiscal ?? '-' }} </td>
                   <td>
@@ -121,16 +142,19 @@
                             href="{{ route('lancamento-financeiro-insert', ['lancamento' => $lancamento->uid]) }}">Editar</a>
                         </li>
                         <li>
+                          <x-painel.lancamento-financeiro.botao-duplicar-lancamento :lancamento="$lancamento" />
+                        </li>
+                        <li>
                           <x-painel.form-delete.delete route="lancamento-financeiro-delete"
                             id="{{ $lancamento->uid }}" />
                         </li>
                       </ul>
                     </div>
-    
+
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="5" class="p-0">
+                  <td colspan="6" class="p-0">
                     <div class="collapse" id="{{"collapse".$lancamento->uid}}">
                       <div class="row gy-2 m-3 mt-2">
                         <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
@@ -148,14 +172,14 @@
                 </tr>
               @endforelse
               <tr>
-                <td colspan="5" class="border-0"> 
-                  <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento')->sum('valor') }} </h6> 
+                <td colspan="6" class="border-0">
+                  <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'CREDITO')->whereNotNull('data_pagamento')->sum('valor') }} </h6>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-    
+
       </div>
     </div>
   </div>
@@ -163,8 +187,16 @@
   {{-- DESPESAS --}}
   <div class="col-6">
     <div class="card border-start border-danger border-4">
-      <div class="card-header bg-danger-subtle">
+      <div class="card-header bg-danger-subtle d-flex align-items-center justify-content-between">
         <h5>DESPESAS</h5>
+        <button type="button"
+          class="btn btn-primary btn-sm"
+          id="btnEditarLoteDespesas"
+          style="margin-top: -18px; display: none;"
+          data-bs-toggle="modal"
+          data-bs-target="#modalLoteDespesas">
+          Editar em lote (<span id="contadorSelecionadosDespesas">0</span>)
+        </button>
       </div>
       <div class="card-body">
     
@@ -172,6 +204,7 @@
           <table class="table border-1" style="table-layout: fixed">
             <thead>
               <tr>
+                <th scope="col" style="width: 2.5rem;"></th>
                 <th scope="col" >Nome</th>
                 <th scope="col" style="width: 20%;">Vencimento</th>
                 <th scope="col" style="width: 15%;">Valor</th>
@@ -182,6 +215,9 @@
             <tbody>
               @forelse ($lancamentosfinanceiros->where('tipo_lancamento', 'DEBITO') as $lancamento)
                 <tr>
+                  <td class="align-middle">
+                    <input class="form-check-input js-batch-checkbox-despesas" type="checkbox" value="{{ $lancamento->uid }}">
+                  </td>
                   <td class="text-truncate">
                     <a data-bs-toggle="collapse" href="{{"#collapse".$lancamento->uid}}" role="button" aria-expanded="false" aria-controls="collapseExample">
                       <i class="ri-file-text-line btn-ghost  pe-1 fs-5"></i>
@@ -204,6 +240,9 @@
                             href="{{ route('lancamento-financeiro-insert', ['lancamento' => $lancamento->uid]) }}">Editar</a>
                         </li>
                         <li>
+                          <x-painel.lancamento-financeiro.botao-duplicar-lancamento :lancamento="$lancamento" />
+                        </li>
+                        <li>
                           <x-painel.form-delete.delete route="lancamento-financeiro-delete"
                             id="{{ $lancamento->uid }}" />
                         </li>
@@ -213,7 +252,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="5" class="p-0">
+                  <td colspan="6" class="p-0">
                     <div class="collapse" id="{{"collapse".$lancamento->uid}}">
                       <div class="row gy-2 m-3 mt-2">
                         <div class="col-12"><b>Historico:</b> {{ $lancamento->historico ?? '-' }}</div>
@@ -232,7 +271,7 @@
                 </tr>
               @endforelse
               <tr>
-                <td colspan="5" class="border-0"> 
+                <td colspan="6" class="border-0"> 
                   <h6> Total da seleção: R$ {{ $lancamentosfinanceiros->where('tipo_lancamento', 'DEBITO')->sum('valor') }} </h6> 
                 </td>
               </tr>
@@ -246,17 +285,184 @@
   </div>
 </div>
 
+<x-painel.lancamento-financeiro.modal-duplicar-lancamento
+  :centrosdecusto="$centrosdecusto"
+  :planosconta="$planosconta"
+  :modalidadepagamento="$modalidadepagamento"
+  :pessoasModal="$pessoasModal"
+/>
+
+<div class="modal fade" id="modalLoteReceitas" tabindex="-1" aria-labelledby="modalLoteReceitasLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{{ route('lancamento-financeiro-batch-update') }}">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLoteReceitasLabel">Editar lançamentos em lote</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-2">
+          <div id="batchSelectedUids"></div>
+          <x-forms.input-field
+            label="Conciliação"
+            type="text"
+            id="lote_consiliacao"
+            name="consiliacao"
+          />
+          <x-forms.input-field
+            label="Nota fiscal"
+            type="text"
+            id="lote_nota_fiscal"
+            name="nota_fiscal"
+          />
+          <x-forms.input-field
+            label="Data de pagamento"
+            type="date"
+            id="lote_data_pagamento"
+            name="data_pagamento"
+          />
+          <x-forms.input-field
+            label="Data de vencimento"
+            type="date"
+            id="lote_data_vencimento_receitas"
+            name="data_vencimento"
+          />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalLoteDespesas" tabindex="-1" aria-labelledby="modalLoteDespesasLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{{ route('lancamento-financeiro-batch-update') }}">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLoteDespesasLabel">Editar lançamentos em lote</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-2">
+          <div id="batchSelectedUidsDespesas"></div>
+          <x-forms.input-field
+            label="Conciliação"
+            type="text"
+            id="lote_consiliacao_despesas"
+            name="consiliacao"
+          />
+          <x-forms.input-field
+            label="Nota fiscal"
+            type="text"
+            id="lote_nota_fiscal_despesas"
+            name="nota_fiscal"
+          />
+          <x-forms.input-field
+            label="Data de pagamento"
+            type="date"
+            id="lote_data_pagamento_despesas"
+            name="data_pagamento"
+          />
+          <x-forms.input-field
+            label="Data de vencimento"
+            type="date"
+            id="lote_data_vencimento_despesas"
+            name="data_vencimento"
+          />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const select = document.getElementById('mesAnoExport');
     const link = document.getElementById('linkExportLancamentos');
+    if (select && link) {
+      select.addEventListener('change', function () {
+        if (this.value) {
+          link.classList.remove('disabled');
+        } else {
+          link.classList.add('disabled');
+        }
+      });
+    }
 
-    select.addEventListener('change', function () {
-      if (this.value) {
-        link.classList.remove('disabled');
-      } else {
-        link.classList.add('disabled');
+    const formLoteReceitas = document.querySelector('#modalLoteReceitas form');
+    const botaoLoteReceitas = document.getElementById('btnEditarLoteReceitas');
+    const contadorSelecionadosReceitas = document.getElementById('contadorSelecionadosReceitas');
+    const selectedUidsReceitas = document.getElementById('batchSelectedUids');
+
+    const atualizarEstadoEdicaoLoteReceitas = () => {
+      const checked = document.querySelectorAll('.js-batch-checkbox-receitas:checked').length;
+      if (botaoLoteReceitas) {
+        botaoLoteReceitas.style.display = checked > 0 ? '' : 'none';
       }
+      if (contadorSelecionadosReceitas) {
+        contadorSelecionadosReceitas.textContent = checked.toString();
+      }
+    };
+
+    document.querySelectorAll('.js-batch-checkbox-receitas').forEach((checkbox) => {
+      checkbox.addEventListener('change', atualizarEstadoEdicaoLoteReceitas);
     });
+
+    atualizarEstadoEdicaoLoteReceitas();
+
+    if (formLoteReceitas && selectedUidsReceitas) {
+      formLoteReceitas.addEventListener('submit', function () {
+        selectedUidsReceitas.innerHTML = '';
+        document.querySelectorAll('.js-batch-checkbox-receitas:checked').forEach((checkbox) => {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'uids[]';
+          hiddenInput.value = checkbox.value;
+          selectedUidsReceitas.appendChild(hiddenInput);
+        });
+      });
+    }
+
+    const formLoteDespesas = document.querySelector('#modalLoteDespesas form');
+    const botaoLoteDespesas = document.getElementById('btnEditarLoteDespesas');
+    const contadorSelecionadosDespesas = document.getElementById('contadorSelecionadosDespesas');
+    const selectedUidsDespesas = document.getElementById('batchSelectedUidsDespesas');
+
+    const atualizarEstadoEdicaoLoteDespesas = () => {
+      const checked = document.querySelectorAll('.js-batch-checkbox-despesas:checked').length;
+      if (botaoLoteDespesas) {
+        botaoLoteDespesas.style.display = checked > 0 ? '' : 'none';
+      }
+      if (contadorSelecionadosDespesas) {
+        contadorSelecionadosDespesas.textContent = checked.toString();
+      }
+    };
+
+    document.querySelectorAll('.js-batch-checkbox-despesas').forEach((checkbox) => {
+      checkbox.addEventListener('change', atualizarEstadoEdicaoLoteDespesas);
+    });
+
+    atualizarEstadoEdicaoLoteDespesas();
+
+    if (formLoteDespesas && selectedUidsDespesas) {
+      formLoteDespesas.addEventListener('submit', function () {
+        selectedUidsDespesas.innerHTML = '';
+        document.querySelectorAll('.js-batch-checkbox-despesas:checked').forEach((checkbox) => {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'uids[]';
+          hiddenInput.value = checkbox.value;
+          selectedUidsDespesas.appendChild(hiddenInput);
+        });
+      });
+    }
   });
 </script>

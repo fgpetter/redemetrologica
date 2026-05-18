@@ -21,7 +21,7 @@
       <p>
         Para acessar o sistema pela primeira vez, clique no link abaixo e faça login com os seguintes dados: <br><br>
 
-        Link: <a href="https://redemetrologica.com.br/painel">https://redemetrologica.com.br/painel</a> <br>
+        Link: <a href="{{ env('APP_URL').'/painel' }}">{{ env('APP_URL').'/painel' }}</a> <br>
         Email: {{ $user_data['email'] }} <br>
         Senha: {{ $user_data['password'] }}
       </p>

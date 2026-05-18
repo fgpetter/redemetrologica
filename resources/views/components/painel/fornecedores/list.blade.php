@@ -22,8 +22,8 @@
                                 @csrf
                                 <div class="row">
                                     <div class="col-10">
-                                        <select class="form-control" data-choices name="pessoa_uid" id="choices-single-default">
-                                            <option value="">Selecione na lista</option>
+                                        <select name="pessoa_uid" id="tom-select" autocomplete="off">
+                                            <option value="">Digite para pesquisar</option>
                                             @foreach ($pessoas as $pessoa)
                                                 <option value="{{ $pessoa->uid }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
                                             @endforeach

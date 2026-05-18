@@ -16,7 +16,7 @@
   </thead>
   <tbody>
     @foreach($agendacurso->inscritos as $inscrito)
-      @if($inscrito->valor)
+      @if($agendacurso->tipo_agendamento === 'IN-COMPANY' || $inscrito->valor)
         <tr>
           <td>{{ $inscrito->nome }}</td>
           <td>{{ $inscrito->empresa?->nome_razao ?? 'Individual' }}</td>

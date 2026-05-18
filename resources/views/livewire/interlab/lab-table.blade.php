@@ -19,7 +19,7 @@
                     <!-- Filtro por Empresa -->
                     <div class="col-4" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
-                        <select wire:model.live="empresaSelecionada" id="empresa-select-filter" class="form-select form-select-sm">
+                        <select wire:model.live="empresaSelecionada" id="empresa-select-filter">
                             <option value="">Selecione...</option>
                             @foreach ($this->empresas as $empresa)
                                 <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} - {{ $empresa->nome_razao }}</option>
@@ -159,7 +159,7 @@
                             <div class="col-md-12">
                                 <label class="form-label">Empresa <span class="text-danger">*</span></label>
                                 <div wire:ignore>
-                                    <select id="empresa-select-modal" class="form-select">
+                                    <select id="empresa-select-modal">
                                         <option value="">Selecione a empresa...</option>
                                         @foreach($allEmpresas as $emp)
                                             <option value="{{ $emp->id }}">{{ $emp->cpf_cnpj }} - {{ $emp->nome_razao }}</option>
@@ -227,44 +227,41 @@
 @section('script')
 <script>
     document.addEventListener('livewire:initialized', () => {
-        // Filter Choices
         const filterElement = document.getElementById('empresa-select-filter');
-        const filterChoices = new Choices(filterElement, {
-            searchFields: ['label'],
-            allowHTML: true,
-            itemSelectText: '',
-            noResultsText: 'Nenhum resultado',
-        });
-
-        filterElement.addEventListener('change', (event) => {
-            @this.set('empresaSelecionada', event.target.value);
+        const filterTs = new TomSelect(filterElement, {
+            create: false,
+            sortField: { field: 'text', direction: 'asc' },
+            onChange(value) {
+                filterElement.value = value ?? '';
+                filterElement.dispatchEvent(new Event('input', { bubbles: true }));
+                filterElement.dispatchEvent(new Event('change', { bubbles: true }));
+            },
         });
 
         Livewire.on('reset-empresa-filter', () => {
-            filterChoices.setChoiceByValue('');
+            filterTs.clear(false);
+            filterElement.dispatchEvent(new Event('input', { bubbles: true }));
         });
 
-
-        // Modal Choices
         const modalElement = document.getElementById('empresa-select-modal');
-        const modalChoices = new Choices(modalElement, {
-            searchFields: ['label'],
-            allowHTML: true,
-            itemSelectText: '',
-            noResultsText: 'Nenhum resultado',
-            shouldSort: false,
-        });
-
-        modalElement.addEventListener('change', (event) => {
-            @this.set('empresa_id', event.target.value);
+        const modalTs = new TomSelect(modalElement, {
+            create: false,
+            sortField: { field: 'text', direction: 'asc' },
+            onChange(value) {
+                @this.set('empresa_id', value ?? '');
+            },
         });
 
         Livewire.on('reset-empresa-modal', () => {
-            modalChoices.setChoiceByValue('');
+            modalTs.clear(false);
+            @this.set('empresa_id', '');
         });
 
-        Livewire.on('set-empresa-modal', (id) => {
-             if(id) modalChoices.setChoiceByValue(String(id));
+        Livewire.on('set-empresa-modal', (payload) => {
+            const id = Array.isArray(payload) ? payload[0] : payload;
+            if (id) {
+                modalTs.setValue(String(id), false);
+            }
         });
 
         // Modal Control

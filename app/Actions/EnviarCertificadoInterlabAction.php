@@ -2,19 +2,14 @@
 
 namespace App\Actions;
 
+use App\Jobs\GerarCertificadoInterlabJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
-use App\Jobs\EnviarLinkCertificadoInterlabJob;
 
 class EnviarCertificadoInterlabAction
 {
     /**
      * Cria registro de log e dispara e-mail com link do certificado
-     *
-     * @param InterlabInscrito $inscrito
-     * @param string|null $email
-     * @param int $delay
-     * @return DadosGeraDoc
      */
     public function execute(InterlabInscrito $inscrito, ?string $email = null, int $delay = 0): DadosGeraDoc
     {
@@ -36,9 +31,7 @@ class EnviarCertificadoInterlabAction
             'certificado_path' => $dadosDoc->storage_path,
         ]);
 
-      
-        EnviarLinkCertificadoInterlabJob::dispatch($dadosDoc->id)->delay(now()->addSeconds($delay));
-
+        GerarCertificadoInterlabJob::dispatch($dadosDoc->id)->delay(now()->addSeconds($delay));
 
         return $dadosDoc;
     }

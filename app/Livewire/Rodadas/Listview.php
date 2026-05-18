@@ -4,12 +4,13 @@ namespace App\Livewire\Rodadas;
 
 use App\Models\AgendaInterlab;
 use App\Models\InterlabRodada;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Listview extends Component
 {
     public AgendaInterlab $agendainterlab;
+
     public ?string $rodadaAtiva = null;
 
     public function abrirModal($uid = null): void
@@ -29,9 +30,8 @@ class Listview extends Component
     #[On('refresh-rodadas-list')]
     public function render()
     {
-        return view('livewire.rodadas.listview', [
+        return view('livewire.rodadas.list-view', [
             'rodadas' => $this->agendainterlab->rodadas,
         ]);
     }
 }
-

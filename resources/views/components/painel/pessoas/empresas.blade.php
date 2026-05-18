@@ -31,8 +31,8 @@
       @csrf
       <div class="row align-items-end mt-3">
         <div class="col-8 col-xxl-9">
-          <select class="form-control" data-choices name="empresa_id" id="empresa">
-            <option value="">Selecione na lista</option>
+          <select name="empresa_id" id="tom-select" autocomplete="off">
+            <option value="">Digite para pesquisar</option>
             @foreach ($empresas as $empresa)
               <option value="{{ $empresa->uid }}">{{ $empresa->cpf_cnpj . ' - ' . $empresa->nome_razao }}</option>
             @endforeach
@@ -45,15 +45,3 @@
     </form>
   </div>
 </div>
-
-@section('script')
-  <script defer>
-    const empresa = document.getElementById('empresa')
-    if(empresa){
-      const choices = new Choices(empresa,{
-        searchFields: ['label'],
-        allowHTML: true
-      });
-    }
-  </script>
-@endsection
