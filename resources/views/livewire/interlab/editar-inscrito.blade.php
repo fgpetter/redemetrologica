@@ -6,7 +6,20 @@
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
-        @if ($inscrito)
+        @if ($carregando)
+            <div class="offcanvas-body d-flex flex-column align-items-center justify-content-center py-5"
+                wire:key="editar-inscrito-loading-{{ $inscritoId }}" style="min-height: 12rem;">
+                <div class="text-center text-muted">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                        <span class="visually-hidden">Carregando</span>
+                    </div>
+                    <p class="small mb-0">Carregando dados do participante…</p>
+                </div>
+            </div>
+            <div class="border-top bg-light p-3 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">FECHAR</button>
+            </div>
+        @elseif ($inscrito)
             <div class="offcanvas-body" wire:key="editar-inscrito-body-{{ $inscrito->id }}">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                     <div>
@@ -187,6 +200,13 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">FECHAR</button>
                 <button type="button" class="btn btn-primary" wire:click="salvar">SALVAR</button>
             </div>
+        @else
+            <div class="offcanvas-body d-flex align-items-center justify-content-center py-5" wire:key="editar-inscrito-empty">
+                <p class="text-muted small mb-0 text-center">Nenhum participante selecionado.</p>
+            </div>
+            <div class="border-top bg-light p-3 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">FECHAR</button>
+            </div>
         @endif
     </div>
 
@@ -227,15 +247,17 @@
             }
 
             $wire.on('offcanvas:open', () => {
-                setTimeout(() => {
-                    const el = document.getElementById('editar-inscrito-offcanvas');
-                    if (!el) {
-                        return;
-                    }
-                    const instance = window.bootstrap.Offcanvas.getOrCreateInstance(el);
-                    instance.show();
-                    setTimeout(() => initTomSelectResponsavel(), 80);
-                }, 50);
+                const el = document.getElementById('editar-inscrito-offcanvas');
+                if (!el) {
+                    return;
+                }
+                const instance = window.bootstrap.Offcanvas.getOrCreateInstance(el);
+                instance.show();
+                $wire.carregarInscrito();
+            });
+
+            $wire.on('editar-inscrito:carregado', () => {
+                setTimeout(() => initTomSelectResponsavel(), 80);
             });
 
             $wire.on('offcanvas:close', () => {

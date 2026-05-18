@@ -34,6 +34,7 @@ class EditarInscritoInterlabTest extends TestCase
 
         Livewire::test(EditarInscrito::class)
             ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
             ->set('form.informacoes_inscricao', 'Observação atualizada')
             ->set('form.responsavel_tecnico', 'Dr. Teste')
             ->set('form.email', 'lab@teste.com')
@@ -78,6 +79,7 @@ class EditarInscritoInterlabTest extends TestCase
 
         Livewire::test(EditarInscrito::class)
             ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
             ->set('form.valor', '1.500,00')
             ->call('salvar')
             ->assertHasNoErrors();
@@ -114,6 +116,7 @@ class EditarInscritoInterlabTest extends TestCase
 
         Livewire::test(EditarInscrito::class)
             ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
             ->set('form.valor', '2.000,00')
             ->call('salvar')
             ->assertHasNoErrors();
@@ -136,7 +139,8 @@ class EditarInscritoInterlabTest extends TestCase
         PessoaFactory::new()->count(2)->create(['tipo_pessoa' => 'PF']);
 
         $component = Livewire::test(EditarInscrito::class)
-            ->call('abrir', $inscrito->id);
+            ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito');
 
         $pessoas = $component->get('pessoas');
 
@@ -147,6 +151,38 @@ class EditarInscritoInterlabTest extends TestCase
         $this->assertArrayHasKey('nome_razao', $pessoas[0]);
         $this->assertArrayNotHasKey('tipo_pessoa', $pessoas[0]);
         $this->assertNotContains($inscrito->pessoa_id, array_column($pessoas, 'id'));
+    }
+
+    public function test_abrir_define_carregando_antes_de_carregar_dados(): void
+    {
+        $inscrito = $this->criarInscritoCompleto();
+
+        $component = Livewire::test(EditarInscrito::class);
+
+        $component->call('abrir', $inscrito->id);
+
+        $this->assertTrue($component->get('carregando'));
+        $this->assertNull($component->get('inscrito'));
+
+        $component->call('carregarInscrito');
+
+        $this->assertFalse($component->get('carregando'));
+        $this->assertNotNull($component->get('inscrito'));
+        $this->assertSame($inscrito->id, $component->get('inscrito')->id);
+    }
+
+    public function test_carregar_inscrito_id_inexistente_limpa_estado_e_dispara_erro(): void
+    {
+        $idInexistente = (int) (InterlabInscrito::query()->max('id') ?? 0) + 99_999;
+
+        Livewire::test(EditarInscrito::class)
+            ->call('abrir', $idInexistente)
+            ->call('carregarInscrito')
+            ->assertSet('inscrito', null)
+            ->assertSet('inscritoId', null)
+            ->assertSet('carregando', false)
+            ->assertDispatched('show-error-alert', message: 'Inscrição não encontrada.')
+            ->assertDispatched('offcanvas:close');
     }
 
     public function test_alterar_responsavel_atualiza_pessoa_id(): void
@@ -161,6 +197,7 @@ class EditarInscritoInterlabTest extends TestCase
 
         Livewire::test(EditarInscrito::class)
             ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
             ->set('novoResponsavelId', (string) $novoResponsavel->id)
             ->call('alterarResponsavel')
             ->assertHasNoErrors();

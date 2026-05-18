@@ -9,6 +9,7 @@ use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use App\Models\Pessoa;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\On;
@@ -19,6 +20,10 @@ class EditarInscrito extends Component
     public EditarInscritoForm $form;
 
     public ?InterlabInscrito $inscrito = null;
+
+    public ?int $inscritoId = null;
+
+    public bool $carregando = false;
 
     /** @var list<array{id: int, cpf_cnpj: string|null, nome_razao: string|null}> */
     public array $pessoas = [];
@@ -31,15 +36,50 @@ class EditarInscrito extends Component
         $this->resetValidation();
         $this->novoResponsavelId = null;
 
-        $this->inscrito = InterlabInscrito::query()
-            ->with(['empresa', 'pessoa', 'laboratorio.endereco'])
-            ->findOrFail($id);
-
-        $this->form->setFromInscrito($this->inscrito);
-
-        $this->pessoas = $this->pessoasFisicas((int) $this->inscrito->pessoa_id);
+        $this->inscrito = null;
+        $this->pessoas = [];
+        $this->inscritoId = $id;
+        $this->carregando = true;
 
         $this->dispatch('offcanvas:open');
+    }
+
+    public function carregarInscrito(): void
+    {
+        if ($this->inscritoId === null) {
+            return;
+        }
+
+        $solicitadoId = $this->inscritoId;
+
+        try {
+            $inscrito = InterlabInscrito::query()
+                ->with(['empresa', 'pessoa', 'laboratorio.endereco'])
+                ->findOrFail($solicitadoId);
+
+            if ($this->inscritoId !== $solicitadoId) {
+                return;
+            }
+
+            $this->inscrito = $inscrito;
+            $this->form->setFromInscrito($this->inscrito);
+            $this->pessoas = $this->pessoasFisicas((int) $this->inscrito->pessoa_id);
+
+            $this->dispatch('editar-inscrito:carregado');
+        } catch (ModelNotFoundException) {
+            if ($this->inscritoId === $solicitadoId) {
+                $this->dispatch('show-error-alert', message: 'Inscrição não encontrada.');
+                $this->dispatch('offcanvas:close');
+                $this->inscrito = null;
+                $this->pessoas = [];
+                $this->inscritoId = null;
+                $this->carregando = false;
+            }
+        } finally {
+            if ($this->inscritoId === $solicitadoId) {
+                $this->carregando = false;
+            }
+        }
     }
 
     public function salvar(): void
