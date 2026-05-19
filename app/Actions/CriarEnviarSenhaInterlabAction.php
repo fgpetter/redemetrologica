@@ -3,11 +3,10 @@
 namespace App\Actions;
 
 use App\Exceptions\InvalidEmailException;
-use App\Mail\LinkSenhaInterlabNotification;
+use App\Jobs\EnviaSenhaPepJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
-use Illuminate\Support\Facades\Mail;
 
 class CriarEnviarSenhaInterlabAction
 {
@@ -69,9 +68,8 @@ class CriarEnviarSenhaInterlabAction
             return $dadosDoc;
         }
 
-        Mail::to($destinatarios)
-            ->cc('sistema@redemetrologica.com.br')
-            ->later(now()->addSeconds($delaySecs), new LinkSenhaInterlabNotification($dadosDoc));
+        EnviaSenhaPepJob::dispatch($dadosDoc->id, $destinatarios, $inscrito->id)
+            ->delay(now()->addSeconds($delaySecs));
 
         return $dadosDoc;
     }

@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\Mail;
 
 class NotifyInscricaoInterlabAction
 {
-    public function execute(InterlabInscrito $inscrito, AgendaInterlab $interlab, $editingId = null)
+    public function execute(InterlabInscrito $inscrito, AgendaInterlab $interlab, mixed $editingId = null): void
     {
+        $interlab->loadMissing('interlab');
         if (! $editingId) {
             Mail::to('interlab@redemetrologica.com.br')
                 ->cc(['tecnico@redemetrologica.com.br'])
@@ -48,6 +49,14 @@ class NotifyInscricaoInterlabAction
                         ->send(new ConfirmacaoInscricaoAnalistaNotification($analista, $inscrito, $interlab));
                 }
             }
+        }
+
+        if (
+            ! $editingId
+            && $interlab->status === 'CONFIRMADO'
+            && ! empty($interlab->interlab?->tag)
+        ) {
+            app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, 15);
         }
     }
 }
