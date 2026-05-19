@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class InscricaoCursoController extends Controller
 {
@@ -215,8 +216,8 @@ class InscricaoCursoController extends Controller
                 'endereco' => [(! $inscrito->empresa_id) ? 'required' : 'nullable', 'string'],
                 'complemento' => ['nullable', 'string'],
                 'valor' => ['nullable', 'string'],
-                'certificado_emitido' => ['nullable', 'date'],
-                'resposta_pesquisa' => ['nullable', 'date'],
+                'certificado_emitido' => ['nullable', Rule::date()->format('Y-m-d')],
+                'resposta_pesquisa' => ['nullable', Rule::date()->format('Y-m-d')],
             ], [
                 'nome.min' => 'O nome deve ter no mínimo 3 caracteres',
                 'email.email' => 'O e-mail informado é inválido',
@@ -228,7 +229,9 @@ class InscricaoCursoController extends Controller
                 'bairro.required' => 'Bairro é obrigatório',
                 'endereco.required' => 'Endereço é obrigatório',
                 'certificado_emitido.date' => 'O campo Certificado Enviado não é uma data valida',
+                'certificado_emitido.date_format' => 'O campo Certificado Enviado não é uma data valida',
                 'resposta_pesquisa.date' => 'O o campo Pesqisa Respondida não é uma data valida',
+                'resposta_pesquisa.date_format' => 'O o campo Pesqisa Respondida não é uma data valida',
             ]);
 
             if ($validator->fails()) {
@@ -305,8 +308,8 @@ class InscricaoCursoController extends Controller
             'endereco' => ['required_if:tipo_inscricao,cpf', 'nullable', 'string'],
             'complemento' => ['nullable', 'string'],
             'valor' => ['nullable', 'string'],
-            'certificado_emitido' => ['nullable', 'date'],
-            'resposta_pesquisa' => ['nullable', 'date'],
+            'certificado_emitido' => ['nullable', Rule::date()->format('Y-m-d')],
+            'resposta_pesquisa' => ['nullable', Rule::date()->format('Y-m-d')],
         ], [
             'agenda_curso_id.required' => 'O agendamento de cursos não foi encontrado',
             'agenda_curso_id.exists' => 'O agendamento de cursos não foi encontrado',
@@ -324,7 +327,9 @@ class InscricaoCursoController extends Controller
             'bairro.required_if' => 'Bairro é obrigatório',
             'endereco.required_if' => 'Endereço é obrigatório',
             'certificado_emitido.date' => 'O campo Certificado Enviado não é uma data valida',
+            'certificado_emitido.date_format' => 'O campo Certificado Enviado não é uma data valida',
             'resposta_pesquisa.date' => 'O o campo Pesqisa Respondida não é uma data valida',
+            'resposta_pesquisa.date_format' => 'O o campo Pesqisa Respondida não é uma data valida',
         ]);
 
         if ($validator->fails()) {
