@@ -70,7 +70,14 @@
                     </div>
 
                 @if ($agendainterlab->id)
-                    <livewire:interlab.list-participantes :idinterlab="$idinterlab" :pessoas="$pessoas" />
+                    <livewire:interlab.list-participantes
+                        :idinterlab="$idinterlab"
+                        :agendainterlab="$agendainterlab"
+                    />
+                    <x-painel.agenda-interlab.modal-adicionar-inscrito
+                        :agendainterlab="$agendainterlab"
+                        :pessoas="$pessoas"
+                    />
                 @endif
 
                 </div>

@@ -2,24 +2,73 @@
 
 namespace App\Livewire\Interlab;
 
-use App\Models\Pessoa;
-use Livewire\Component;
-use App\Models\DadosGeraDoc;
+use App\Actions\EnviarCertificadoInterlabAction;
+use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Models\AgendaInterlab;
+use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class ListParticipantes extends Component
 {
     public int $idinterlab;
 
-    /** @var \Illuminate\Support\Collection|null */
-    public $pessoas = null;
+    public AgendaInterlab $agendainterlab;
 
-    public function mount(int $idinterlab, $pessoas = null)
+    public ?int $certificadoParticipanteId = null;
+
+    public string $certificadoEmail = '';
+
+    public bool $showCertificadoModal = false;
+
+    #[On('refresh-interlab-participantes')]
+    public function refreshParticipantesList(): void
+    {
+        // Re-renderiza a listagem após edição no OffCanvas.
+    }
+
+    public function mount(int $idinterlab, AgendaInterlab $agendainterlab): void
     {
         $this->idinterlab = $idinterlab;
-        $this->pessoas = $pessoas ? (is_array($pessoas) ? collect($pessoas) : $pessoas) : null;
+        $this->agendainterlab = $agendainterlab;
+    }
+
+    public function confirmarEnvioCertificado(int $participanteId, string $email = ''): void
+    {
+        $this->certificadoParticipanteId = $participanteId;
+        $this->certificadoEmail = $email !== '' ? $email : (InterlabInscrito::query()->find($participanteId)?->email ?? '');
+        $this->showCertificadoModal = true;
+    }
+
+    public function enviarCertificado(): void
+    {
+        $this->validate([
+            'certificadoEmail' => 'required|email|max:191',
+        ], [
+            'certificadoEmail.required' => 'O email é obrigatório.',
+            'certificadoEmail.email' => 'O email deve ser um endereço válido.',
+            'certificadoEmail.max' => 'O email deve ter no máximo 191 caracteres.',
+        ]);
+
+        try {
+            $inscrito = InterlabInscrito::query()->findOrFail($this->certificadoParticipanteId);
+            app(EnviarCertificadoInterlabAction::class)->execute($inscrito, $this->certificadoEmail);
+            $this->fecharCertificadoModal();
+            $this->dispatch('show-success-alert', message: 'Certificado está sendo gerado e será enviado por email em breve.');
+        } catch (\Exception $e) {
+            $this->dispatch('show-error-alert', message: 'Erro ao gerar certificado: '.$e->getMessage());
+        }
+    }
+
+    public function fecharCertificadoModal(): void
+    {
+        $this->showCertificadoModal = false;
+        $this->certificadoParticipanteId = null;
+        $this->certificadoEmail = '';
+        $this->resetValidation();
     }
 
     public function atualizarValor($id, $valor)
@@ -27,30 +76,37 @@ class ListParticipantes extends Component
         Validator::make(
             ['id' => $id, 'valor' => $valor],
             [
-                'id'    => ['required', 'exists:interlab_inscritos,id'],
+                'id' => ['required', 'exists:interlab_inscritos,id'],
                 'valor' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             ],
             [
-                'id.required'    => 'O ID é obrigatório.',
-                'id.exists'      => 'Participante não encontrado.',
+                'id.required' => 'O ID é obrigatório.',
+                'id.exists' => 'Participante não encontrado.',
                 'valor.required' => 'O valor é obrigatório.',
-                'valor.numeric'  => 'O valor deve ser numérico.',
-                'valor.min'      => 'O valor deve ser maior ou igual a zero.',
-                'valor.max'      => 'O valor máximo permitido é 999.999,99.',
+                'valor.numeric' => 'O valor deve ser numérico.',
+                'valor.min' => 'O valor deve ser maior ou igual a zero.',
+                'valor.max' => 'O valor máximo permitido é 999.999,99.',
             ]
         )->validate();
 
         $participante = InterlabInscrito::findOrFail($id);
         $participante->valor = $valor;
         $participante->save();
+
+        if ($valor > 0) {
+            app(GerarLancamentoInterlabAction::class)->execute($participante, $valor);
+        }
     }
 
     public function render()
     {
-        $agendainterlab = AgendaInterlab::findOrFail($this->idinterlab);
-
         $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
-            ->with(['empresa', 'pessoa', 'laboratorio.endereco', 'laboratorio.analistas'])
+            ->with([
+                'empresa:id,cpf_cnpj,nome_razao,associado',
+                'pessoa:id,nome_razao,email',
+                'laboratorio.endereco',
+                'analistas',
+            ])
             ->orderBy('data_inscricao', 'desc')
             ->get();
 
@@ -65,38 +121,37 @@ class ListParticipantes extends Component
             ];
         })->sortByDesc('data_mais_recente')->pluck('empresa_id');
 
-        $pessoasCollection = $this->pessoas && $this->pessoas->isNotEmpty()
-            ? $this->pessoas
-            : Pessoa::select(['id', 'uid', 'cpf_cnpj', 'nome_razao', 'tipo_pessoa'])->orderBy('nome_razao')->get();
+        $interlabempresasinscritas = $this->empresasInscritasOrdenadas($inscritosPorEmpresa, $empresaIds);
 
-        $interlabempresasinscritas = $pessoasCollection->whereIn('id', $empresaIds)
-            ->sortBy(function ($empresa) use ($empresaIds) {
-                return $empresaIds->search($empresa->id);
-            })
-            ->values();
-
-        $pessoas = $pessoasCollection;
-
-        // pré-carregar todos os tag_senha_doc de uma vez (evita N+1)
-        $participanteIds = $intelabinscritos->pluck('id')->toArray();
-        $tagsSenhaDoc = DadosGeraDoc::where('tipo', 'tag_senha')
-            ->get()
-            ->filter(function ($doc) use ($participanteIds) {
-                $participanteId = $doc->content['participante_id'] ?? null;
-
-                return in_array($participanteId, $participanteIds);
-            })
-            ->keyBy(function ($doc) {
-                return $doc->content['participante_id'] ?? null;
-            });
+        $participanteIds = $intelabinscritos->pluck('id')->all();
+        $tagsSenhaDoc = $participanteIds === []
+            ? collect()
+            : DadosGeraDoc::query()
+                ->where('tipo', 'tag_senha')
+                ->whereIn('content->participante_id', $participanteIds)
+                ->get()
+                ->keyBy(fn ($doc) => $doc->content['participante_id'] ?? null);
 
         return view('livewire.interlab.list-participantes', [
-            'agendainterlab' => $agendainterlab,
             'intelabinscritos' => $intelabinscritos,
             'interlabempresasinscritas' => $interlabempresasinscritas,
             'inscritosPorEmpresa' => $inscritosPorEmpresa,
-            'pessoas' => $pessoas,
             'tagsSenhaDoc' => $tagsSenhaDoc,
         ]);
+    }
+
+    /**
+     * Empresas já carregadas via eager load nos inscritos (evita filtrar milhares de Pessoa no PHP).
+     *
+     * @param  Collection<int, Collection<int, InterlabInscrito>>  $inscritosPorEmpresa
+     * @param  Collection<int, int>  $empresaIds
+     * @return Collection<int, \App\Models\Pessoa>
+     */
+    private function empresasInscritasOrdenadas(Collection $inscritosPorEmpresa, Collection $empresaIds): Collection
+    {
+        return $empresaIds
+            ->map(fn ($empresaId) => $inscritosPorEmpresa->get($empresaId)?->first()?->empresa)
+            ->filter()
+            ->values();
     }
 }
