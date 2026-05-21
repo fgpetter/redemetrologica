@@ -3,7 +3,10 @@
 namespace Tests\Feature\InscricaoInterlab;
 
 use App\Livewire\Interlab\EditarInscrito;
+use App\Models\AgendaInterlab;
 use App\Models\Endereco;
+use App\Models\Interlab;
+use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use App\Models\User;
@@ -185,6 +188,67 @@ class EditarInscritoInterlabTest extends TestCase
             ->assertDispatched('offcanvas:close');
     }
 
+    public function test_salvar_atualiza_analistas_quando_interlab_e_analista(): void
+    {
+        $inscrito = $this->criarInscritoComInterlabAvaliacao('ANALISTA');
+
+        $analista = InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista Original',
+            'email' => 'original@teste.com',
+            'telefone' => '11999998888',
+            'tag_senha' => 'TAG-ANALISTA-01',
+        ]);
+
+        Livewire::test(EditarInscrito::class)
+            ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
+            ->assertSet('requerAnalistas', true)
+            ->set('form.analistas.0.nome', 'Analista Atualizado')
+            ->set('form.analistas.0.email', 'novo@teste.com')
+            ->set('form.analistas.0.telefone', '(11) 98888-7777')
+            ->call('salvar')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('interlab_analistas', [
+            'id' => $analista->id,
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista Atualizado',
+            'email' => 'novo@teste.com',
+            'telefone' => '11988887777',
+            'tag_senha' => 'TAG-ANALISTA-01',
+        ]);
+    }
+
+    public function test_salvar_nao_altera_analistas_quando_interlab_e_laboratorial(): void
+    {
+        $inscrito = $this->criarInscritoComInterlabAvaliacao('LABORATORIAL');
+
+        $analista = InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista Intocado',
+            'email' => 'intocado@teste.com',
+            'telefone' => '11911112222',
+            'tag_senha' => 'TAG-ORFA',
+        ]);
+
+        Livewire::test(EditarInscrito::class)
+            ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
+            ->assertSet('requerAnalistas', false)
+            ->set('form.informacoes_inscricao', 'Só inscrição')
+            ->call('salvar')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('interlab_analistas', [
+            'id' => $analista->id,
+            'nome' => 'Analista Intocado',
+            'email' => 'intocado@teste.com',
+            'telefone' => '11911112222',
+            'tag_senha' => 'TAG-ORFA',
+        ]);
+    }
+
     public function test_alterar_responsavel_atualiza_pessoa_id(): void
     {
         $inscrito = $this->criarInscritoCompleto();
@@ -205,6 +269,16 @@ class EditarInscritoInterlabTest extends TestCase
         $inscrito->refresh();
 
         $this->assertSame($novoResponsavel->id, $inscrito->pessoa_id);
+    }
+
+    private function criarInscritoComInterlabAvaliacao(string $avaliacao): InterlabInscrito
+    {
+        $inscrito = $this->criarInscritoCompleto();
+
+        $agenda = AgendaInterlab::query()->findOrFail($inscrito->agenda_interlab_id);
+        Interlab::query()->whereKey($agenda->interlab_id)->update(['avaliacao' => $avaliacao]);
+
+        return $inscrito->refresh();
     }
 
     /**

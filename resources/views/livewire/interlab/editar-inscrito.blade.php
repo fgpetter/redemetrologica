@@ -153,6 +153,43 @@
                     </div>
                 </div>
 
+                @if ($requerAnalistas)
+                    <hr class="my-4">
+                    <h6 class="mb-3">Dados dos analistas</h6>
+                    @if (count($form->analistas) > 0)
+                        @foreach ($form->analistas as $i => $analista)
+                            <div class="row g-3 {{ $i > 0 ? 'mt-2 pt-3 border-top' : '' }}" wire:key="analista-{{ $analista['id'] }}">
+                                <div class="col-12">
+                                    <strong class="text-primary-emphasis small text-uppercase">Analista {{ $i + 1 }}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <x-forms.input-field wire:model.lazy="form.analistas.{{ $i }}.nome"
+                                        name="form.analistas.{{ $i }}.nome" label="Nome" required />
+                                    @error("form.analistas.{$i}.nome")
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <x-forms.input-field type="email" wire:model.lazy="form.analistas.{{ $i }}.email"
+                                        name="form.analistas.{{ $i }}.email" label="E-mail" required />
+                                    @error("form.analistas.{$i}.email")
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <x-forms.input-field wire:model.lazy="form.analistas.{{ $i }}.telefone"
+                                        name="form.analistas.{{ $i }}.telefone" label="Telefone" mask="telefone" required />
+                                    @error("form.analistas.{$i}.telefone")
+                                        <span class="text-danger small">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <p class="small text-muted mb-0">Nenhum analista cadastrado nesta inscrição.</p>
+                    @endif
+                @endif
+
                 <hr class="my-4">
                 <h6 class="mb-3">Endereço</h6>
                 <div class="row g-3">

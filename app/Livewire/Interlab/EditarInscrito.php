@@ -5,6 +5,7 @@ namespace App\Livewire\Interlab;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Livewire\Forms\EditarInscritoForm;
 use App\Models\Endereco;
+use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use App\Models\Pessoa;
@@ -25,6 +26,8 @@ class EditarInscrito extends Component
 
     public bool $carregando = false;
 
+    public bool $requerAnalistas = false;
+
     /** @var list<array{id: int, cpf_cnpj: string|null, nome_razao: string|null}> */
     public array $pessoas = [];
 
@@ -38,6 +41,8 @@ class EditarInscrito extends Component
 
         $this->inscrito = null;
         $this->pessoas = [];
+        $this->requerAnalistas = false;
+        $this->form->analistas = [];
         $this->inscritoId = $id;
         $this->carregando = true;
 
@@ -54,7 +59,7 @@ class EditarInscrito extends Component
 
         try {
             $inscrito = InterlabInscrito::query()
-                ->with(['empresa', 'pessoa', 'laboratorio.endereco'])
+                ->with(['empresa', 'pessoa', 'laboratorio.endereco', 'analistas', 'agendaInterlab.interlab'])
                 ->findOrFail($solicitadoId);
 
             if ($this->inscritoId !== $solicitadoId) {
@@ -62,7 +67,13 @@ class EditarInscrito extends Component
             }
 
             $this->inscrito = $inscrito;
+            $this->requerAnalistas = ($inscrito->agendaInterlab?->interlab?->avaliacao ?? null) === 'ANALISTA';
             $this->form->setFromInscrito($this->inscrito);
+            if ($this->requerAnalistas) {
+                $this->form->setAnalistasFromInscrito($this->inscrito);
+            } else {
+                $this->form->analistas = [];
+            }
             $this->pessoas = $this->pessoasFisicas((int) $this->inscrito->pessoa_id);
 
             $this->dispatch('editar-inscrito:carregado');
@@ -90,6 +101,13 @@ class EditarInscrito extends Component
 
         $this->form->validate();
 
+        if ($this->requerAnalistas && count($this->form->analistas) > 0) {
+            $this->validate(
+                $this->form->rulesAnalistas($this->inscrito->id),
+                $this->form->messagesAnalistas()
+            );
+        }
+
         $lab = $this->inscrito->laboratorio;
         if ($lab === null || $this->inscrito->empresa_id === null) {
             $this->dispatch('show-error-alert', message: 'Inscrição sem laboratório ou empresa vinculada.');
@@ -115,15 +133,45 @@ class EditarInscrito extends Component
                 $endereco = Endereco::query()->create($enderecoData);
                 InterlabLaboratorio::query()->whereKey($lab->id)->update(['endereco_id' => $endereco->id]);
             }
+
+            if ($this->requerAnalistas) {
+                foreach ($this->form->analistas as $row) {
+                    InterlabAnalista::query()
+                        ->where('id', $row['id'])
+                        ->where('interlab_inscrito_id', $this->inscrito->id)
+                        ->update([
+                            'nome' => $row['nome'],
+                            'email' => $row['email'],
+                            'telefone' => preg_replace('/\D/', '', $row['telefone'] ?? ''),
+                        ]);
+                }
+            }
         });
 
-        $this->inscrito->refresh()->load(['empresa', 'pessoa', 'laboratorio.endereco', 'lancamentoFinanceiro']);
+        $this->inscrito->refresh()->load([
+            'empresa',
+            'pessoa',
+            'laboratorio.endereco',
+            'lancamentoFinanceiro',
+            'analistas',
+            'agendaInterlab.interlab',
+        ]);
 
         if ($valorNumerico > 0) {
             app(GerarLancamentoInterlabAction::class)->execute($this->inscrito, $valorNumerico);
-            $this->inscrito->refresh()->load(['empresa', 'pessoa', 'laboratorio.endereco', 'lancamentoFinanceiro']);
+            $this->inscrito->refresh()->load([
+                'empresa',
+                'pessoa',
+                'laboratorio.endereco',
+                'lancamentoFinanceiro',
+                'analistas',
+                'agendaInterlab.interlab',
+            ]);
         }
         $this->form->setFromInscrito($this->inscrito);
+        if ($this->requerAnalistas) {
+            $this->form->setAnalistasFromInscrito($this->inscrito);
+        }
 
         $this->dispatch('offcanvas:close');
         $this->dispatch('refresh-interlab-participantes');

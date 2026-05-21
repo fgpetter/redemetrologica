@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\InterlabInscrito;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
@@ -47,6 +48,9 @@ class EditarInscritoForm extends Form
     #[Validate('required|string|size:2')]
     public string $uf = '';
 
+    /** @var list<array{id: int, nome: string, email: string, telefone: string}> */
+    public array $analistas = [];
+
     public function setFromInscrito(InterlabInscrito $inscrito): void
     {
         $this->informacoes_inscricao = $inscrito->informacoes_inscricao;
@@ -68,6 +72,57 @@ class EditarInscritoForm extends Form
         $this->bairro = $endereco?->bairro ?? '';
         $this->cidade = $endereco?->cidade ?? '';
         $this->uf = $endereco?->uf ?? '';
+    }
+
+    public function setAnalistasFromInscrito(InterlabInscrito $inscrito): void
+    {
+        $this->analistas = $inscrito->analistas
+            ->sortBy('id')
+            ->values()
+            ->map(fn ($analista) => [
+                'id' => $analista->id,
+                'nome' => $analista->nome,
+                'email' => $analista->email,
+                'telefone' => $analista->telefone,
+            ])
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function rulesAnalistas(int $inscritoId): array
+    {
+        $rules = [];
+        foreach ($this->analistas as $i => $analista) {
+            $rules["form.analistas.{$i}.id"] = [
+                'required',
+                'integer',
+                Rule::exists('interlab_analistas', 'id')->where('interlab_inscrito_id', $inscritoId),
+            ];
+            $rules["form.analistas.{$i}.nome"] = ['required', 'string', 'max:191'];
+            $rules["form.analistas.{$i}.email"] = ['required', 'email', 'max:191'];
+            $rules["form.analistas.{$i}.telefone"] = ['required', 'string', 'max:15'];
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messagesAnalistas(): array
+    {
+        $messages = [];
+        foreach ($this->analistas as $i => $_analista) {
+            $n = $i + 1;
+            $messages["form.analistas.{$i}.nome.required"] = "O nome do analista {$n} é obrigatório.";
+            $messages["form.analistas.{$i}.email.required"] = "O e-mail do analista {$n} é obrigatório.";
+            $messages["form.analistas.{$i}.email.email"] = "O e-mail do analista {$n} deve ser um endereço válido.";
+            $messages["form.analistas.{$i}.telefone.required"] = "O telefone do analista {$n} é obrigatório.";
+        }
+
+        return $messages;
     }
 
     /**
