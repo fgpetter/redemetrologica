@@ -66,7 +66,7 @@
                 </div>
                 @if( isset($agendainterlab->interlab) && $agendainterlab->interlab->avaliacao == 'ANALISTA')
                   <div class="col-5 col-md-1">
-                    <input type="number" class="form-control" 
+                    <input type="number" class="form-control @error('valores.*.analistas') is-invalid @enderror" 
                      :name="`valores[${index}][analistas]`"
                      x-model="valor.analistas" 
                      placeholder="Analistas">
@@ -221,7 +221,7 @@
 @endphp
 
 <script src="{{ URL::asset('build/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
-<script>
+<script defer>
   const ckClassicEditor = document.querySelectorAll(".ckeditor-classic");
   if (ckClassicEditor) {
     Array.from(ckClassicEditor).forEach(() => {
