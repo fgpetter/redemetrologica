@@ -19,6 +19,10 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->between('00:00', '06:00')
             ->skip(fn () => Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
+
+        $schedule->command('app:processar-senhas-interlab-confirmado')
+            ->dailyAt('07:00')
+            ->withoutOverlapping();
     }
 
     /**

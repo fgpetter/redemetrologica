@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Interlab;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class StoreAgendaInterlabRequest extends FormRequest
 {
@@ -40,8 +42,26 @@ class StoreAgendaInterlabRequest extends FormRequest
             'valores.*.descricao' => ['nullable', 'string'],
             'valores.*.valor' => ['nullable', 'string'],
             'valores.*.valor_assoc' => ['nullable', 'string'],
-            'valores.*.analistas' => ['nullable', 'integer', 'min:1'],
+            'valores.*.analistas' => [
+                Rule::requiredIf(fn () => $this->isAvaliacaoAnalista()),
+                'nullable',
+                'integer',
+                'min:1',
+            ],
         ];
+    }
+
+    private function isAvaliacaoAnalista(): bool
+    {
+        $interlabId = $this->input('interlab_id');
+
+        if (! $interlabId) {
+            return false;
+        }
+
+        return Interlab::query()
+            ->whereKey($interlabId)
+            ->value('avaliacao') === 'ANALISTA';
     }
 
     /**
@@ -72,9 +92,12 @@ class StoreAgendaInterlabRequest extends FormRequest
             'valores.*.descricao.string' => 'Descrição inválida',
             'valores.*.valor.string' => 'Valor inválido',
             'valores.*.valor_assoc.string' => 'Valor associado inválido',
+            'valores.*.analistas.required' => 'O campo analistas é obrigatório',
             'valores.*.analistas.integer' => 'Analistas inválidos',
+            'valores.*.analistas.min' => 'Informe ao menos 1 analista',
         ];
     }
+
     /**
      * Handle a failed validation attempt.
      */
@@ -84,7 +107,7 @@ class StoreAgendaInterlabRequest extends FormRequest
             'user' => auth()->user() ?? null,
             'request' => $this->all() ?? null,
             'uri' => request()->fullUrl() ?? null,
-            'method' => get_class($this) . '::' . __FUNCTION__,
+            'method' => get_class($this).'::'.__FUNCTION__,
             'errors' => $validator->errors() ?? null,
         ]);
 

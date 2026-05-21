@@ -371,9 +371,9 @@ class LabInscritos extends Component
         $analistas = $this->requer_analistas && $this->numero_analistas > 0 ? $this->analistas : [];
         $inscrito = app(InscricaoInterlabAction::class)->execute($this->interlab, $dados, $analistas);
 
-        app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $this->interlab);
+        app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $this->interlab, $this->editingId);
 
-        app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal, $this->editingId);
+        app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal);
 
         if ($this->editingId) {
             $this->editingId = null;

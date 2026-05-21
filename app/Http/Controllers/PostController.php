@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Intervention\Image\Facades\Image;
 
 class PostController extends Controller
@@ -103,7 +104,7 @@ class PostController extends Controller
                 'titulo' => ['required', 'string', 'max:191'],
                 'conteudo' => ['required_if:tipo,noticia', 'string'],
                 'thumb' => ['required', 'image', 'mimes:jpg,png,jpeg'],
-                'data_publicacao' => ['required', 'date'],
+                'data_publicacao' => ['required', Rule::date()->format('Y-m-d')],
             ],
             [
                 'titulo.required' => 'Preencha o campo titulo',
@@ -113,6 +114,7 @@ class PostController extends Controller
                 'conteudo.string' => 'O campo conteudo tem caracteres inválidos',
                 'data_publicacao.required' => 'Preencha o campo Data de publicação',
                 'data_publicacao.date' => 'Data de publicação invalida',
+                'data_publicacao.date_format' => 'Data de publicação invalida',
                 'thumb.required' => 'Imagem de capa é obrigatória',
             ]
         );
@@ -266,7 +268,7 @@ class PostController extends Controller
                 'titulo' => ['required', 'string', 'max:191'],
                 'conteudo' => ['required_if:tipo,noticia', 'string'],
                 'thumb' => ['required',  'sometimes:string', 'sometimes:image', 'sometimes:mimes:jpg,png,jpeg'],
-                'data_publicacao' => ['required', 'date'],
+                'data_publicacao' => ['required', Rule::date()->format('Y-m-d')],
             ],
             [
                 'titulo.required' => 'Preencha o campo titulo',
@@ -277,6 +279,7 @@ class PostController extends Controller
                 'conteudo.string' => 'O campo conteudo tem caracteres inválidos',
                 'data_publicacao.required' => 'Preencha o campo Data de publicação',
                 'data_publicacao.date' => 'Data de publicação invalida',
+                'data_publicacao.date_format' => 'Data de publicação invalida',
             ]
         );
 
