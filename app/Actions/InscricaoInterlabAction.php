@@ -2,11 +2,11 @@
 
 namespace App\Actions;
 
+use App\Models\AgendaInterlab;
 use App\Models\Endereco;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
-use App\Models\AgendaInterlab;
 use Illuminate\Support\Facades\DB;
 
 class InscricaoInterlabAction
@@ -27,7 +27,7 @@ class InscricaoInterlabAction
         $lab = $dados['laboratorio'];
         $enderecoData = $lab['endereco'] ?? [];
         $interlabNome = $agendaInterlab->interlab->nome ?? '';
-        $info = 'Laboratório: ' . ($lab['nome'] ?? '') . ' | Inscrito no PEP: ' . $interlabNome;
+        $info = 'Laboratório: '.($lab['nome'] ?? '').' | Inscrito no PEP: '.$interlabNome;
 
         if (empty($dados['laboratorio_id'])) {
             $endereco = Endereco::create([
@@ -86,7 +86,7 @@ class InscricaoInterlabAction
         }
 
         $senha = ! empty($agendaInterlab->interlab?->tag)
-            ? $this->geraTagSenha($agendaInterlab, 'interlab_laboratorios')
+            ? app(GerarTagSenhaInterlabAction::class)->execute($agendaInterlab, GerarTagSenhaInterlabAction::TIPO_LABORATORIO)
             : null;
 
         return InterlabInscrito::create(array_merge($camposComuns, [
@@ -112,7 +112,7 @@ class InscricaoInterlabAction
             }
 
             $tagSenha = ! empty($agendaInterlab->interlab->tag)
-                ? $this->geraTagSenha($agendaInterlab, 'interlab_analistas')
+                ? app(GerarTagSenhaInterlabAction::class)->execute($agendaInterlab, GerarTagSenhaInterlabAction::TIPO_ANALISTA)
                 : null;
 
             InterlabAnalista::create([
@@ -123,26 +123,6 @@ class InscricaoInterlabAction
                 'tag_senha' => $tagSenha,
             ]);
         }
-    }
-
-    protected function geraTagSenha(AgendaInterlab $agendaInterlab, string $tipo): string
-    {
-        $tag = $agendaInterlab->interlab->tag ?? throw new \Exception('Tag do interlab não encontrada');
-        $senha = $tag . rand(111, 999);
-
-        if ($tipo === 'interlab_laboratorios') {
-            while (InterlabInscrito::where('tag_senha', $senha)->where('agenda_interlab_id', $agendaInterlab->id)->exists()) {
-                $senha = $tag . rand(111, 999);
-            }
-        }
-
-        if ($tipo === 'interlab_analistas') {
-            while (InterlabAnalista::where('tag_senha', $senha)->exists()) {
-                $senha = $tag . rand(1111, 9999);
-            }
-        }
-
-        return $senha;
     }
 
     protected function normalizaTelefone(?string $telefone): ?string

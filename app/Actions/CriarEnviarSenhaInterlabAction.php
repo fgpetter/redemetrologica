@@ -48,8 +48,12 @@ class CriarEnviarSenhaInterlabAction
             'tipo' => 'tag_senha',
         ]);
 
+        $emails = $analista !== null
+            ? [$analista->email]
+            : [$inscrito->email, $inscrito->pessoa?->email];
+
         $destinatarios = array_values(array_unique(array_filter(
-            [$inscrito->email, $inscrito->pessoa?->email],
+            $emails,
             static fn (mixed $email): bool => filled($email)
         )));
 
@@ -62,6 +66,8 @@ class CriarEnviarSenhaInterlabAction
                 'inscrito_pessoa_email' => $inscrito->pessoa?->email,
                 'inscrito_pessoa_nome' => $inscrito->pessoa?->nome,
                 'inscrito_pessoa_uid' => $inscrito->pessoa?->uid,
+                'analista_id' => $analista?->id,
+                'analista_email' => $analista?->email,
             ];
             new InvalidEmailException($content);
 
