@@ -12,7 +12,6 @@ use App\Models\LancamentoFinanceiro;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\AgendaCursoRequest;
 use Illuminate\Http\Request;
-use Spatie\Browsershot\Browsershot;
 
 class AgendaCursoInCompanyController extends Controller
 {
