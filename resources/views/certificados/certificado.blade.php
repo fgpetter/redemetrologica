@@ -35,7 +35,7 @@
         }
 
         .footer img {
-            width: 100%;
+            width: 90%;
             display: block;
         }
 
@@ -93,7 +93,7 @@
 
             <p class="h4 font-weight-bold mt-3 mb-3">{{ $dadosDoc->content['curso_nome'] }}</p>
             
-            <p class="h5">{{ $dadosDoc->content['curso_data'] }}</p>
+            <p class="h6">{{ $dadosDoc->content['curso_data'] }}</p>
 
             @php
                 setlocale(LC_TIME, 'pt_BR.UTF-8');
