@@ -12,8 +12,29 @@
             margin: 0;
         }
 
+        html {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
+        }
+
+        .watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 297mm;
+            height: 210mm;
+            opacity: 0.45;
+            z-index: -1;
+        }
+
+        .watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .certificate-container {
@@ -21,10 +42,6 @@
             box-sizing: border-box;
             width: 100%;
             height: 100%;
-            background-image: url("{{ resource_path('images/certificados/marcadagua.png') }}");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
         }
 
          .footer {
@@ -37,19 +54,33 @@
         .footer img {
             width: 90%;
             display: block;
+            margin: 0 auto;
+        }
+
+        .cert-logo img {
+            width: 300px;
+        }
+
+        .cert-signature img {
+            max-height: 120px;
         }
 
         .second-page {
             page-break-before: always;
+            position: relative;
             width: 100%;
             min-height: 100vh;
             padding: 30mm 20mm 45mm 20mm;
             text-align: left;
             box-sizing: border-box;
-            background-image: url("{{ resource_path('images/certificados/marcadagua.png') }}");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
+        }
+
+        .second-page .watermark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
 
         .second-page .section-title {
@@ -71,14 +102,18 @@
 </head>
 
 <body class="text-center bg-white">
+    <div class="watermark">
+        @inlinedImage(resource_path('images/certificados/marcadagua.png'))
+    </div>
+
     <div class="certificate-container p-2">
 
         <div style="position: fixed; left: 0; top: 50%; transform: translateY(-50%); writing-mode: vertical-lr; z-index: 999;">
             FR93 - rev01
         </div>
 
-        <div class="text-center mb-3">
-            <img src="{{ resource_path('images/certificados/LOGO_REDE_COLOR.png') }}" alt="Logo" style="width: 300px;">
+        <div class="text-center mb-3 cert-logo">
+            @inlinedImage(resource_path('images/certificados/LOGO_REDE_COLOR.png'))
         </div>
 
         <div class="mt-2">
@@ -92,7 +127,7 @@
             <p class="h3">Participou do curso de</p>
 
             <p class="h4 font-weight-bold mt-3 mb-3">{{ $dadosDoc->content['curso_nome'] }}</p>
-            
+
             <p class="h6">{{ $dadosDoc->content['curso_data'] }}</p>
 
             @php
@@ -109,18 +144,20 @@
 
             <p class="h6 mt-5">{{ $dataFormatada }}</p>
 
-            <div class="mt-3">
-                <img src="{{ resource_path('images/certificados/assinatura.jpg') }}" alt="Assinatura">
+            <div class="mt-3 cert-signature">
+                @inlinedImage(resource_path('images/certificados/assinatura.jpg'))
             </div>
         </div>
-        
+
     </div>
     <div class="footer">
-        <img src="{{ resource_path('images/certificados/assets_antigos/rodape_atualizado.png') }}"
-             alt="Rodapé">
+        @inlinedImage(resource_path('images/certificados/assets_antigos/rodape_atualizado.png'))
     </div>
 
     <div class="second-page">
+        <div class="watermark">
+            @inlinedImage(resource_path('images/certificados/marcadagua.png'))
+        </div>
 
         <p class="field-label">Conteúdo Programático:</p>
         <p class="field-value">{{ $dadosDoc->content['conteudo_programatico'] ?? '' }}</p>
