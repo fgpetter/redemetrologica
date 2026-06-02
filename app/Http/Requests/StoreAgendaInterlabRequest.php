@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Interlab;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class StoreAgendaInterlabRequest extends FormRequest
 {
@@ -42,26 +40,8 @@ class StoreAgendaInterlabRequest extends FormRequest
             'valores.*.descricao' => ['nullable', 'string'],
             'valores.*.valor' => ['nullable', 'string'],
             'valores.*.valor_assoc' => ['nullable', 'string'],
-            'valores.*.analistas' => [
-                Rule::requiredIf(fn () => $this->isAvaliacaoAnalista()),
-                'nullable',
-                'integer',
-                'min:1',
-            ],
+            'valores.*.analistas' => ['nullable', 'integer', 'min:1'],
         ];
-    }
-
-    private function isAvaliacaoAnalista(): bool
-    {
-        $interlabId = $this->input('interlab_id');
-
-        if (! $interlabId) {
-            return false;
-        }
-
-        return Interlab::query()
-            ->whereKey($interlabId)
-            ->value('avaliacao') === 'ANALISTA';
     }
 
     /**
