@@ -5,12 +5,15 @@ namespace Tests\Feature;
 use App\Http\Requests\StoreAgendaInterlabRequest;
 use App\Models\Interlab;
 use Database\Factories\InterlabFactory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
 class StoreAgendaInterlabRequestTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_analistas_obrigatorio_quando_interlab_avaliacao_e_analista(): void
     {
         $interlab = InterlabFactory::new()->create(['avaliacao' => 'ANALISTA']);

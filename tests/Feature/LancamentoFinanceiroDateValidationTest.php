@@ -7,12 +7,12 @@ use App\Models\LancamentoFinanceiro;
 use App\Models\Permission;
 use App\Models\PlanoConta;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class LancamentoFinanceiroDateValidationTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function userComPermissaoFinanceiro(): User
     {

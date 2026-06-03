@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Convite extends Model
 {
+    use LogsActivity;
+
     protected $table = 'convites';
 
     protected $guarded = [];
@@ -17,7 +20,6 @@ class Convite extends Model
             ->logOnly(['*'])
             ->useLogName(get_class($this));
     }
-
 
     public function pessoa()
     {
@@ -34,7 +36,6 @@ class Convite extends Model
         return $this->belongsTo(AgendaInterlab::class, 'agenda_interlab_id');
     }
 
-    
     public function empresa()
     {
         return $this->belongsTo(Pessoa::class, 'empresa_id');

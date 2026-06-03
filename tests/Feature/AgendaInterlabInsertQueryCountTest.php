@@ -6,13 +6,13 @@ use App\Models\AgendaInterlab;
 use App\Models\Interlab;
 use App\Models\Permission;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AgendaInterlabInsertQueryCountTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function usuarioFuncionario(): User
     {

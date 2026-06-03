@@ -10,7 +10,7 @@ use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\Pessoa;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +20,7 @@ use Tests\TestCase;
 
 class InscricaoCursoPessoaGuardTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function uniqueCpfDigits(): string
     {

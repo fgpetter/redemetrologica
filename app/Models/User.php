@@ -4,18 +4,18 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
-use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Relations\{HasOne,BelongsTo, BelongsToMany};
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, LogsActivity, SetDefaultUid;
-
+    use HasApiTokens, HasFactory, LogsActivity, Notifiable, SetDefaultUid;
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'email_verified_at',
-        'temporary_password'
+        'temporary_password',
     ];
 
     /**
@@ -50,26 +50,23 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->dontLogIfAttributesChangedOnly(['remember_token'])
-        ->useLogName('Usuários');
+            ->logOnly(['*'])
+            ->dontLogIfAttributesChangedOnly(['remember_token'])
+            ->useLogName('Usuários');
 
         if (session('impersonator_id')) {
             $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function(string $eventName) use ($impersonator) {
+            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
                 return "{$eventName} impersonated by {$impersonator->name}";
             });
         }
     }
 
-
     /**
-     * Carrega pesoa
-     * @return BelongsTo
+     * Carrega pessoa
      */
     public function pessoa(): HasOne
     {
@@ -78,8 +75,6 @@ class User extends Authenticatable
 
     /**
      * Retorna as permissões do usuario
-     *
-     * @return BelongsToMany
      */
     public function permissions(): BelongsToMany
     {
@@ -89,9 +84,7 @@ class User extends Authenticatable
     /**
      * Adiciona permissão ao usuario.
      *
-     * @param string $permission A permissão a ser adicionada
-     *
-     * @return void
+     * @param  string  $permission  A permissão a ser adicionada
      */
     public function givePermission($permission): void
     {
@@ -104,15 +97,14 @@ class User extends Authenticatable
     /**
      * Verifica se o usuário possui uma determinada permissão.
      *
-     * @param string|string[] $permission A permissão a ser verificada
-     *
-     * @return bool
+     * @param  string|string[]  $permission  A permissão a ser verificada
      */
     public function hasPermissionTo($permission): bool
     {
-        if(is_string($permission)){
+        if (is_string($permission)) {
             $permission = [$permission];
         }
+
         return $this->permissions()->whereIn('permission', $permission)->exists();
     }
 }

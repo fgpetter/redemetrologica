@@ -8,7 +8,7 @@ use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -16,7 +16,7 @@ use Tests\TestCase;
 
 class BackfillCursoInscritoLancamentosCommandTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     public function test_comando_backfill_esta_registrado_no_artisan(): void
     {

@@ -23,7 +23,7 @@ class EnviarCertificadoAction
                 'curso_nome' => $inscrito->agendaCurso->curso->descricao,
                 'curso_data' => $this->gerarDataFormatada($inscrito->agendaCurso->data_inicio, $inscrito->agendaCurso->data_fim),
                 'conteudo_programatico' => $inscrito->agendaCurso->curso->conteudo_programatico,
-                'carga_horaria' => $inscrito->agendaCurso->carga_horaria ?? $inscrito->agendaCurso->carga_horaria,
+                'carga_horaria' => $inscrito->agendaCurso->carga_horaria ?? $inscrito->agendaCurso->curso->carga_horaria,
                 'instrutor_nome' => $inscrito->agendaCurso->instrutor?->pessoa?->nome_razao,
                 'empresa_nome' => $inscrito->empresa->nome_razao ?? null,
             ],

@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Permission;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class EditarLancamentosEmLoteTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function userComPermissaoFinanceiro(): User
     {

@@ -10,7 +10,7 @@ use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +19,7 @@ use Tests\TestCase;
 
 class EnviarCertificadoPendenteCommandTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {

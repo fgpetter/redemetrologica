@@ -9,14 +9,14 @@ use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CancelaInscricaoCursoLancamentoTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function uniqueCpfDigits(): string
     {

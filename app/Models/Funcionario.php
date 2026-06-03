@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
-
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Funcionario extends Model
 {
@@ -28,10 +26,8 @@ class Funcionario extends Model
             ->useLogName(get_class($this));
     }
 
-
     /**
      * Carrega pessoa
-     * @return BelongsToMany
      */
     public function pessoa(): BelongsTo
     {
