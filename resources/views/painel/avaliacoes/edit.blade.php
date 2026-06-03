@@ -8,7 +8,7 @@
   <div class="row">
 
     <div class="col col-12">
-      <x-painel.avaliacoes.insert 
+      <x-painel.avaliacoes.edit 
         :avaliacao="$avaliacao" 
         :laboratorio="$laboratorio" 
         :avaliadores="$avaliadores" 

@@ -8,7 +8,7 @@
 
   <div class="row">
     <div class="col">
-      <x-painel.lancamento-financeiro.insert 
+      <x-painel.lancamento-financeiro.edit 
         :lancamento="$lancamento" 
         :enderecocobranca="$enderecocobranca" 
         :pessoas="$pessoas" 

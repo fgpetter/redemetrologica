@@ -12,7 +12,7 @@
   <div class="row">
 
     <div class="col-xl-7 col-xxl-6">
-      <x-painel.interlabs.insert :interlab="$interlab" :thumbs="$thumbs"/>
+      <x-painel.interlabs.edit :interlab="$interlab" :thumbs="$thumbs"/>
     </div>
 
     <div class="col-xl-5 col-xxl-6">

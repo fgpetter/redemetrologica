@@ -8,7 +8,7 @@
   <div class="row">
 
     <div class="col col-xxl-8">
-      <x-painel.fornecedores.insert :fornecedor="$fornecedor"/>
+      <x-painel.fornecedores.edit :fornecedor="$fornecedor"/>
 
       <livewire:enderecos.listview :pessoa="$fornecedor->pessoa" />
     </div>

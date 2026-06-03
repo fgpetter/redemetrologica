@@ -8,7 +8,7 @@
 <div class="row">
 
   <div class="col-xl-7 col-xxl-6">
-    <x-painel.cursos.insert :curso="$curso"/>
+    <x-painel.cursos.edit :curso="$curso"/>
   </div>
 
   <div class="col-xl-5 col-xxl-6">

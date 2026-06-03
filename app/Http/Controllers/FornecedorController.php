@@ -61,7 +61,7 @@ class FornecedorController extends Controller
     {
         $fornecedor->load('pessoa', 'areas');
 
-        return view('painel.fornecedores.insert', ['fornecedor' => $fornecedor]);
+        return view('painel.fornecedores.edit', ['fornecedor' => $fornecedor]);
     }
 
     /**

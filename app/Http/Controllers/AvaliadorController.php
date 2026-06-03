@@ -136,7 +136,7 @@ class AvaliadorController extends Controller
             ->get();
 
         return view(
-            'painel.avaliadores.insert',
+            'painel.avaliadores.edit',
             [
                 'avaliador' => $avaliador,
                 'avaliacoes' => $avaliacoes,

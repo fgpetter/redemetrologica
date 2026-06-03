@@ -10,7 +10,7 @@
   
   <div class="row">
     <div class="col col-xxl-12">
-      <x-painel.agendamento-cursos.insert 
+      <x-painel.agendamento-cursos.edit 
       :instrutores="$instrutores" 
       :cursos="$cursos" 
       :empresas="$empresas" 

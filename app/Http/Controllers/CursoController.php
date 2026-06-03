@@ -105,7 +105,7 @@ class CursoController extends Controller
     {
         $curso->load('materiais');
 
-        return view('painel.cursos.insert', ['curso' => $curso]);
+        return view('painel.cursos.edit', ['curso' => $curso]);
     }
 
     /**

@@ -3,39 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Download;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
 class DownloadController extends Controller
 {
     /**
      * Lista de downloads
-     * @return View
      */
     public function index(): View
     {
         $downloads = Download::all();
+
         return view('painel.downloads.index', ['downloads' => $downloads]);
     }
 
     /**
      * Tela de edição de download
-     *
-     * @param Download $download
-     * @return View
      */
     public function insert(Download $download): View
     {
-        return view('painel.downloads.insert', ['download' => $download]);
+        return view('painel.downloads.edit', ['download' => $download]);
     }
 
     /**
      * Cria um novo download
      *
-     * @param Request $request description
-     * @return RedirectResponse
+     * @param  Request  $request  description
      */
     public function create(Request $request): RedirectResponse
     {
@@ -44,7 +40,7 @@ class DownloadController extends Controller
             'descricao' => ['nullable', 'string', 'max:191'],
             'categoria' => ['nullable', 'in:CURSOS,QUALIDADE,INTERLAB,INSTITUCIONAL'],
             'arquivo' => ['required', 'file', 'max:2048', 'mimes:doc,pdf,docx,xls,xlsx'],
-        ],[
+        ], [
             'arquivo.max' => 'O arquivo ultrapassa o limite de 2MB',
             'arquivo.mimes' => 'O arquivo deve ser do tipo: doc, docx, pdf, xls, xlsx',
             'arquivo.required' => 'O arquivo deve ser selecionado',
@@ -56,12 +52,12 @@ class DownloadController extends Controller
             'categoria.string' => 'O valor informado tem caracteres inválidos',
         ]);
 
-        if ($request->hasFile('arquivo')) { //arquivo
+        if ($request->hasFile('arquivo')) { // arquivo
             $originName = $request->file('arquivo')->getClientOriginalName();
             $fileName = pathinfo($originName, PATHINFO_FILENAME);
             $fileName = str_replace(' ', '-', $fileName);
             $extension = $request->file('arquivo')->getClientOriginalExtension();
-            $fileName = $fileName . '_' . time() . '.' . $extension;
+            $fileName = $fileName.'_'.time().'.'.$extension;
             $request->file('arquivo')->move(public_path('downloads'), $fileName);
         }
 
@@ -69,6 +65,7 @@ class DownloadController extends Controller
         $validated['site'] = $request->site ?? 0;
 
         Download::create($validated);
+
         return redirect()->route('download-index')->with('success', 'Download criado com sucesso');
 
     }
@@ -76,9 +73,7 @@ class DownloadController extends Controller
     /**
      * Edita um download
      *
-     * @param Request $request description
-     * @param Download $download
-     * @return RedirectResponse
+     * @param  Request  $request  description
      */
     public function update(Request $request, Download $download): RedirectResponse
     {
@@ -87,7 +82,7 @@ class DownloadController extends Controller
             'descricao' => ['nullable', 'string', 'max:191'],
             'categoria' => ['nullable', 'string', 'max:191'],
             'arquivo' => ['nullable', 'file', 'max:2048', 'mimes:doc,pdf,docx,xls,xlsx'],
-        ],[
+        ], [
             'arquivo.max' => 'O arquivo ultrapassa o limite de 2MB',
             'arquivo.mimes' => 'O arquivo deve ser do tipo: doc, docx, pdf, xls, xlsx',
             'titulo.max' => 'O valor informado ultrapassa o limite de :max caracteres',
@@ -106,9 +101,9 @@ class DownloadController extends Controller
             $fileName = pathinfo($originName, PATHINFO_FILENAME);
             $fileName = str_replace(' ', '-', $fileName);
             $extension = $request->file('arquivo')->getClientOriginalExtension();
-            $fileName = $fileName . '_' . time() . '.' . $extension;
+            $fileName = $fileName.'_'.time().'.'.$extension;
             $request->file('arquivo')->move(public_path('downloads'), $fileName);
-            
+
             $validated['arquivo'] = $fileName;
         } else {
             unset($validated['arquivo']);
@@ -116,6 +111,7 @@ class DownloadController extends Controller
         $validated['site'] = $request->site ?? 0;
 
         $download->update($validated);
+
         return redirect()->route('download-index')->with('success', 'Download editado com sucesso');
     }
 
@@ -126,22 +122,21 @@ class DownloadController extends Controller
         }
 
         $download->delete();
+
         return redirect()->route('download-index')->with('warning', 'Download removido com sucesso');
     }
 
     /**
      * Apresenta a tela de download no site
      *
-     * @param Request $request description
-     * @return View
+     * @param  Request  $request  description
      */
-
     public function siteIndex(Request $request): View
     {
         $categoria = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('categoria'));
         $titulo = preg_replace('/[^A-Za-z0-9\-]/', '', $request->input('descricao'));
 
-        $downloads = Download::select('titulo', 'descricao', 'arquivo','categoria','site')
+        $downloads = Download::select('titulo', 'descricao', 'arquivo', 'categoria', 'site')
             ->when($categoria, function ($query) use ($categoria) {
                 return $query->where('categoria', $categoria);
             })
@@ -151,5 +146,4 @@ class DownloadController extends Controller
 
         return view('site.pages.downloads', ['downloads' => $downloads]);
     }
-
 }

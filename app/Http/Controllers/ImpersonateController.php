@@ -7,36 +7,36 @@ use Illuminate\Http\Request;
 
 class ImpersonateController extends Controller
 {
-  public function impersonate(Request $request)
-  {
-    $request->validate([
-      'user_id' => 'required|exists:users,id'
-    ]);
+    public function impersonate(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
 
-    $user = User::findOrFail($request->user_id);
+        $user = User::findOrFail($request->user_id);
 
-    // Armazena o ID do admin original
-    session(['impersonator_id' => auth()->id()]);
+        // Armazena o ID do admin original
+        session(['impersonator_id' => auth()->id()]);
 
-    // Faz login como o usuário selecionado
-    auth()->login($user);
+        // Faz login como o usuário selecionado
+        auth()->login($user);
 
-    return back()->with('success', 'Agora você está atuando como ' . ($user->name ?? $user->email));
-  }
-
-  public function stop()
-  {
-    // Recupera o admin original
-    $originalId = session('impersonator_id');
-
-    if ($originalId) {
-      $originalUser = User::findOrFail($originalId);
-      auth()->login($originalUser);
-      session()->forget('impersonator_id');
-
-      return back()->with('success', 'Personificação finalizada');
+        return back()->with('success', 'Agora você está atuando como '.($user->name ?? $user->email));
     }
 
-    return back();
-  }
-} 
+    public function stop()
+    {
+        // Recupera o admin original
+        $originalId = session('impersonator_id');
+
+        if ($originalId) {
+            $originalUser = User::findOrFail($originalId);
+            auth()->login($originalUser);
+            session()->forget('impersonator_id');
+
+            return back()->with('success', 'Personificação finalizada');
+        }
+
+        return back();
+    }
+}

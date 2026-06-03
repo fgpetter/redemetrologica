@@ -19,7 +19,7 @@
 
         <div class="col col-xxl-8">
 
-            <x-painel.instrutores.insert :instrutor="$instrutor" :cursos="$cursos" :cursoshabilitados="$cursoshabilitados"/>
+            <x-painel.instrutores.edit :instrutor="$instrutor" :cursos="$cursos" :cursoshabilitados="$cursoshabilitados"/>
         </div>
 
     </div>

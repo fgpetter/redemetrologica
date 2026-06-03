@@ -17,7 +17,7 @@
     @endcomponent
     <div class="row">
         <div class="col-xl-6">
-            <x-painel.post.insert :post="$post" :postMedia="$postMedia" :tipo="$tipo" />
+            <x-painel.post.edit :post="$post" :postMedia="$postMedia" :tipo="$tipo" />
         </div>
 
     </div>

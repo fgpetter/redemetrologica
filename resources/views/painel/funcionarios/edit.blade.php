@@ -8,7 +8,7 @@
   <div class="row">
 
     <div class="col col-xxl-8">
-      <x-painel.funcionarios.insert :funcionario="$funcionario"/>
+      <x-painel.funcionarios.edit :funcionario="$funcionario"/>
     </div>
     @if ($funcionario->id)
       <div class="col-4">

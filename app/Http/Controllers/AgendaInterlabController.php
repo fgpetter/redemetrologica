@@ -65,7 +65,7 @@ class AgendaInterlabController extends Controller
             'idinterlab' => $agendainterlab->id,
         ];
 
-        return view('painel.agenda-interlab.insert', $data);
+        return view('painel.agenda-interlab.edit', $data);
     }
 
     /**

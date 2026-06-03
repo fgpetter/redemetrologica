@@ -15,7 +15,7 @@
 
     <div class="row">
         <div class="col-xl-6">
-            <x-painel.downloads.insert :download="$download" />
+            <x-painel.downloads.edit :download="$download" />
         </div>
 
     </div>

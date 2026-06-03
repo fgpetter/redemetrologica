@@ -8,7 +8,7 @@
 <div class="row">
 
   <div class="col-xl-7 col-xxl-6">
-    <x-painel.pessoas.insert :pessoa="$pessoa"/>
+    <x-painel.pessoas.edit :pessoa="$pessoa"/>
 
     {{-- Endereços --}}
     @if($pessoa->id)

@@ -190,7 +190,7 @@ class LancamentoFinanceiroController extends Controller
         $planoConta = PlanoConta::all();
         $modalidadePagamento = ModalidadePagamento::all();
 
-        return view('painel.lancamento-financeiro.insert', [
+        return view('painel.lancamento-financeiro.edit', [
             'lancamento' => $lancamento ?? null,
             'enderecocobranca' => $enderecocobranca ?? null,
             'pessoas' => $pessoas,
