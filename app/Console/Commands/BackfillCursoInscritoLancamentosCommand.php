@@ -136,7 +136,7 @@ class BackfillCursoInscritoLancamentosCommand extends Command
         $observacoes = '';
         foreach ($inscritos as $dado) {
             $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
-            $observacoes .= "Inscrição de {$dado->nome}, com valor de R$ {$dado->valor}, em {$data} \n";
+            $observacoes .= linhaObservacaoInscricao($dado->nome, $dado->valor, $data);
         }
 
         $lancamento->update([

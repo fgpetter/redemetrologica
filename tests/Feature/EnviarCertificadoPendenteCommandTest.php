@@ -5,11 +5,13 @@ namespace Tests\Feature;
 use App\Actions\EnviarCertificadoAction;
 use App\Console\Commands\EnviarCertificadoPendenteCommand;
 use App\Models\AgendaCursos;
+use App\Models\CentroCusto;
 use App\Models\Curso;
 use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
+use App\Models\PlanoConta;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -203,8 +205,8 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
             'historico' => 'Inscrição no curso',
             'tipo_lancamento' => 'CREDITO',
             'valor' => 100,
-            'centro_custo_id' => 3,
-            'plano_conta_id' => 3,
+            'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+            'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
             'data_emissao' => now()->toDateString(),
             'status' => 'PROVISIONADO',
         ], $attributes));

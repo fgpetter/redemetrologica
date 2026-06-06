@@ -5,10 +5,12 @@ namespace App\Livewire\PainelCliente;
 use App\Exceptions\InvalidEmailException;
 use App\Mail\ConfirmacaoInscricaoCursoNotification;
 use App\Models\AgendaCursos;
+use App\Models\CentroCusto;
 use App\Models\CursoInscrito;
 use App\Models\Endereco;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
+use App\Models\PlanoConta;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -410,11 +412,15 @@ class ConfirmInscricaoCurso extends Component
                     'agenda_curso_id' => $this->agendacurso->id,
                     'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
                     'valor' => formataMoeda($pessoa_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento),
-                    'centro_custo_id' => '3', // TREINAMENTO
-                    'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+                    'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+                    'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
+                    'tipo_lancamento' => 'CREDITO',
                     'data_emissao' => now(),
                     'status' => 'PROVISIONADO',
-                    'observacoes' => 'Inscrição de '.$inscricao['nome'].', com valor de R$ '.formataMoeda($pessoa_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento).', em '.now()->format('d/m/Y H:i'),
+                    'observacoes' => linhaObservacaoInscricao(
+                        $inscricao['nome'],
+                        $pessoa_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento
+                    ),
                 ]);
 
                 $cursoInscrito->update([
@@ -431,7 +437,7 @@ class ConfirmInscricaoCurso extends Component
                 $observacoes = '';
                 foreach ($inscritos_empresa as $dado) {
                     $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
-                    $observacoes .= "Inscrição de {$dado->nome}, com valor de R$ {$dado->valor}, em {$data} \n";
+                    $observacoes .= linhaObservacaoInscricao($dado->nome, $dado->valor, $data);
                 }
 
                 $lancamento->update([
@@ -497,11 +503,12 @@ class ConfirmInscricaoCurso extends Component
             [
                 'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
                 'valor' => formataMoeda($valorUnitario),
-                'centro_custo_id' => '3', // TREINAMENTO
-                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+                'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+                'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
+                'tipo_lancamento' => 'CREDITO',
                 'data_emissao' => now(),
                 'status' => 'PROVISIONADO',
-                'observacoes' => 'Inscrição de '.$inscricao['nome'].', em '.now()->format('d/m/Y H:i'),
+                'observacoes' => linhaObservacaoInscricao($inscricao['nome'], $valorUnitario),
             ]
         );
 

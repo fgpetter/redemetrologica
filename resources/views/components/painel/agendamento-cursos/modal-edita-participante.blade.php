@@ -13,8 +13,10 @@
     </div>
     <div class="modal-body" x-data="{ editMode: false }">
       <div class="row gy-3">
-        <form method="POST" action="{{route('salvar-inscrito', $inscrito->uid)}}">
+        <form method="POST" action="{{route('atualizar-inscrito', $inscrito->uid)}}">
           @csrf
+          @method('PUT')
+          <input type="hidden" name="empresa_id" value="{{ $inscrito->empresa_id }}">
           <div class="row">
             <div class="col-8">
               <div x-show="!editMode">

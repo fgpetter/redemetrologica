@@ -3,9 +3,11 @@
 namespace App\Livewire\Cursos;
 
 use App\Models\AgendaCursos;
+use App\Models\CentroCusto;
 use App\Models\CursoInscrito;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
+use App\Models\PlanoConta;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -114,11 +116,12 @@ class ListParticipantes extends Component
                         'agenda_curso_id' => $this->agendacurso->id,
                         'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
                         'valor' => formataMoeda($valorBase),
-                        'centro_custo_id' => '3',
-                        'plano_conta_id' => '3',
+                        'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+                        'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
+                        'tipo_lancamento' => 'CREDITO',
                         'data_emissao' => now(),
                         'status' => 'PROVISIONADO',
-                        'observacoes' => 'Inscrição de '.$nome.', com valor de R$ '.formataMoeda($valorBase).', em '.now()->format('d/m/Y H:i'),
+                        'observacoes' => linhaObservacaoInscricao($nome, $valorBase),
                     ]);
                 } else {
                     $inscritosEmpresa = CursoInscrito::query()
@@ -129,7 +132,7 @@ class ListParticipantes extends Component
                     $observacoes = '';
                     foreach ($inscritosEmpresa as $dado) {
                         $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
-                        $observacoes .= "Inscrição de {$dado->nome}, com valor de R$ {$dado->valor}, em {$data} \n";
+                        $observacoes .= linhaObservacaoInscricao($dado->nome, $dado->valor, $data);
                     }
 
                     $lancamento->update([
@@ -148,8 +151,9 @@ class ListParticipantes extends Component
                     [
                         'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
                         'valor' => formataMoeda($valorBase),
-                        'centro_custo_id' => '3',
-                        'plano_conta_id' => '3',
+                        'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+                        'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
+                        'tipo_lancamento' => 'CREDITO',
                         'data_emissao' => now(),
                         'status' => 'PROVISIONADO',
                         'observacoes' => 'Inscrição de '.$nome.', em '.now()->format('d/m/Y H:i'),

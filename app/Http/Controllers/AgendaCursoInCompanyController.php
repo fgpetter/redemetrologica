@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AgendaCursoRequest;
 use App\Models\AgendaCursos;
+use App\Models\CentroCusto;
 use App\Models\Curso;
 use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\MaterialPadrao;
 use App\Models\Pessoa;
+use App\Models\PlanoConta;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -17,7 +19,7 @@ class AgendaCursoInCompanyController extends Controller
     /**
      * Tela de cadastro e edição de agenda de cursos in-company
      *
-     * @param  AgendaCursos  $agendamento_curso
+     * @param  App\Models\AgendaCursos  $agendamento_curso
      */
     public function insert(AgendaCursos $agendacurso): View
     {
@@ -68,8 +70,9 @@ class AgendaCursoInCompanyController extends Controller
             ], [
                 'historico' => 'Curso In Company - '.$agendacurso->curso->descricao,
                 'valor' => formataMoeda($request->valor_orcamento),
-                'centro_custo_id' => '3', // TREINAMENTO
-                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+                'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+                'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
+                'tipo_lancamento' => 'CREDITO',
                 'data_emissao' => now(),
                 'status' => 'PROVISIONADO',
             ]);
@@ -104,8 +107,9 @@ class AgendaCursoInCompanyController extends Controller
             ], [
                 'historico' => 'Curso In Company - '.$agendacurso->curso->descricao,
                 'valor' => formataMoeda($request->valor_orcamento),
-                'centro_custo_id' => '3', // TREINAMENTO
-                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
+                'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+                'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
+                'tipo_lancamento' => 'CREDITO',
                 'data_emissao' => now(),
                 'status' => 'PROVISIONADO',
             ]);

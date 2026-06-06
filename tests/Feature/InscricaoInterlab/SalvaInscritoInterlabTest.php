@@ -3,9 +3,13 @@
 namespace Tests\Feature\InscricaoInterlab;
 
 use App\Livewire\Interlab\ListParticipantes;
+use App\Models\Endereco;
+use App\Models\InterlabLaboratorio;
+use App\Models\LancamentoFinanceiro;
 use App\Models\User;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\LancamentoFinanceiroFactory;
+use Database\Factories\PessoaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -92,6 +96,44 @@ class SalvaInscritoInterlabTest extends TestCase
             'agenda_interlab_id' => $inscrito->agenda_interlab_id,
             'pessoa_id' => $inscrito->empresa_id,
         ]);
+    }
+
+    public function test_observacoes_do_lancamento_usam_nome_do_laboratorio_e_valor_formatado(): void
+    {
+        $empresa = PessoaFactory::new()->create(['tipo_pessoa' => 'PJ']);
+        $endereco = Endereco::query()->create([
+            'pessoa_id' => $empresa->id,
+            'info' => 'Laboratório Interlab',
+            'cep' => '01001000',
+            'endereco' => 'Praça da Sé',
+            'complemento' => null,
+            'bairro' => 'Sé',
+            'cidade' => 'São Paulo',
+            'uf' => 'SP',
+        ]);
+        $laboratorio = InterlabLaboratorio::query()->create([
+            'empresa_id' => $empresa->id,
+            'endereco_id' => $endereco->id,
+            'nome' => 'Laboratório de Sementes e Fitopatologia - LASFI',
+        ]);
+
+        $inscrito = InterlabInscritoFactory::new()->create([
+            'empresa_id' => $empresa->id,
+            'laboratorio_id' => $laboratorio->id,
+            'valor' => null,
+            'lancamento_financeiro_id' => null,
+        ]);
+
+        Livewire::test(ListParticipantes::class, ['idinterlab' => $inscrito->agenda_interlab_id])
+            ->call('atualizarValor', $inscrito->id, 4900)
+            ->assertHasNoErrors();
+
+        $lancamento = LancamentoFinanceiro::query()->findOrFail($inscrito->fresh()->lancamento_financeiro_id);
+
+        $this->assertSame(
+            linhaObservacaoInscricaoInterlab('Laboratório de Sementes e Fitopatologia - LASFI', 4900),
+            $lancamento->observacoes
+        );
     }
 
     public function test_nao_gera_lancamento_quando_valor_esta_zero(): void
