@@ -114,6 +114,12 @@ class LabInscritos extends Component
             $this->laboratorios_disponiveis = InterlabLaboratorio::where('empresa_id', $this->empresaId)
                 ->whereNotIn('id', $labsJaInscritos)
                 ->get();
+
+            $empresaTemLabs = InterlabLaboratorio::where('empresa_id', $this->empresaId)->exists();
+
+            if (! $empresaTemLabs && $this->selecionadoId === null && $this->editingId === null) {
+                $this->selecionadoId = 'new';
+            }
         }
     }
 
@@ -128,6 +134,7 @@ class LabInscritos extends Component
             if ($labModel) {
                 $this->laboratorio = $labModel->toArray();
                 $this->laboratorio['endereco'] = $labModel->endereco ? $labModel->endereco->toArray() : [];
+                $this->aplicarSplitEnderecoNumero();
             }
         }
     }
@@ -142,6 +149,7 @@ class LabInscritos extends Component
         $this->laboratorio['endereco'] = $inscrito->laboratorio->endereco
             ? $inscrito->laboratorio->endereco->toArray()
             : [];
+        $this->aplicarSplitEnderecoNumero();
 
         $this->laboratorio['responsavel_tecnico'] = $inscrito->responsavel_tecnico;
         $this->laboratorio['telefone'] = $inscrito->telefone;
@@ -209,7 +217,7 @@ class LabInscritos extends Component
             'telefone' => '',
             'email' => '',
             'endereco' => [
-                'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '',
+                'cep' => '', 'endereco' => '', 'numero' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '',
             ],
         ];
         $this->blocos_selecionados = [];
@@ -276,6 +284,7 @@ class LabInscritos extends Component
             'laboratorio.email' => ['required', 'email', 'max:191'],
             'laboratorio.endereco.cep' => ['required', 'string'],
             'laboratorio.endereco.endereco' => ['required', 'string'],
+            'laboratorio.endereco.numero' => ['required', 'string', 'max:50'],
             'laboratorio.endereco.bairro' => ['required', 'string'],
             'laboratorio.endereco.uf' => ['required', 'string', 'size:2'],
             'laboratorio.endereco.cidade' => ['required', 'string'],
@@ -291,6 +300,7 @@ class LabInscritos extends Component
             'laboratorio.email.email' => 'O email deve ser um endereço de email válido.',
             'laboratorio.endereco.cep.required' => 'Preencha o campo CEP.',
             'laboratorio.endereco.endereco.required' => 'Preencha o campo endereço.',
+            'laboratorio.endereco.numero.required' => 'Preencha o campo número.',
             'laboratorio.endereco.bairro.required' => 'Preencha o campo bairro.',
             'laboratorio.endereco.cidade.required' => 'Preencha o campo cidade.',
             'laboratorio.endereco.uf.required' => 'Preencha o campo UF.',
@@ -343,6 +353,11 @@ class LabInscritos extends Component
             $infoFinal .= ' '.$obsExtras;
         }
 
+        $enderecoCompleto = $this->montarEnderecoCompleto(
+            $this->laboratorio['endereco']['endereco'],
+            $this->laboratorio['endereco']['numero']
+        );
+
         $dados = [
             'empresa_id' => $this->empresaId,
             'pessoa_id' => request()->user()->pessoa->id,
@@ -357,7 +372,7 @@ class LabInscritos extends Component
                 'email' => $this->laboratorio['email'],
                 'endereco' => [
                     'cep' => $this->laboratorio['endereco']['cep'],
-                    'endereco' => $this->laboratorio['endereco']['endereco'],
+                    'endereco' => $enderecoCompleto,
                     'complemento' => $this->laboratorio['endereco']['complemento'] ?? null,
                     'bairro' => $this->laboratorio['endereco']['bairro'],
                     'cidade' => $this->laboratorio['endereco']['cidade'],
@@ -432,5 +447,33 @@ class LabInscritos extends Component
 
         return (int) AgendaInterlabValor::where('id', $this->bloco_selecionado)
             ->value('analistas');
+    }
+
+    private function aplicarSplitEnderecoNumero(): void
+    {
+        $partes = $this->separarEnderecoNumero($this->laboratorio['endereco']['endereco'] ?? '');
+        $this->laboratorio['endereco']['endereco'] = $partes['endereco'];
+        $this->laboratorio['endereco']['numero'] = $partes['numero'];
+    }
+
+    /**
+     * @return array{endereco: string, numero: string}
+     */
+    private function separarEnderecoNumero(string $enderecoCompleto): array
+    {
+        $pos = strrpos($enderecoCompleto, ', ');
+        if ($pos === false) {
+            return ['endereco' => $enderecoCompleto, 'numero' => ''];
+        }
+
+        return [
+            'endereco' => substr($enderecoCompleto, 0, $pos),
+            'numero' => substr($enderecoCompleto, $pos + 2),
+        ];
+    }
+
+    private function montarEnderecoCompleto(string $logradouro, string $numero): string
+    {
+        return trim($logradouro).', '.trim($numero);
     }
 }

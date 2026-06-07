@@ -32,7 +32,7 @@ class EnviarCertificadoAction
 
         $inscrito->update([
             'certificado_emitido' => now(),
-            'certificado_path' => $dadosDoc->suggested_storage_path,
+            'certificado_path' => $dadosDoc->storage_path,
         ]);
 
         EnviarLinkCertificadoJob::dispatch($dadosDoc->id)->delay(now()->addSeconds($delay));
