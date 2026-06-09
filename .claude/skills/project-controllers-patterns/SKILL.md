@@ -64,8 +64,9 @@ O projeto utiliza Actions para encapsular lógica de negócio reutilizável e co
     - Chamadas diretas: `XxxAction::handle($params)`.
 
 2.  **`execute(...)` via Instância (Ações de Negócio com Dependências):**
-    - Ex: `EnviarCertificadoAction`, `InscricaoInterlabAction`.
+    - Ex: `EnviarCertificadoAction`, `EnviarCertificadoInterlabAction`, `InscricaoInterlabAction`.
     - Chamadas via container: `app(XxxAction::class)->execute($params)`.
+    - Fluxo completo de certificados: ver **[Certificados Patterns](../project-certificados-patterns/SKILL.md)**.
 
 ### Regras de Actions
 

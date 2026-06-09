@@ -17,6 +17,7 @@ Os padrões deste projeto foram modularizados para facilitar a consulta. Siga o 
 6.  **[Livewire Development](livewire-development/SKILL.md)**: Guia operacional para desenvolvimento e depuração de componentes Livewire 3.
 7.  **[Laravel PDF](laravel-pdf/SKILL.md)**: Geração e configuração de PDFs com `spatie/laravel-pdf` (drivers, testes e entrega).
 8.  **[Efficiency Guidelines](efficiency-guidelines/SKILL.md)**: Guias de eficiência para reduzir erros comuns de LLM.
+9.  **[Certificados Patterns](project-certificados-patterns/SKILL.md)**: Emissão, envio e download de certificados (Cursos e Interlab) via Action + Job + DadosGeraDoc.
 
 ---
 
