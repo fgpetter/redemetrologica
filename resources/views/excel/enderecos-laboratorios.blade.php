@@ -18,7 +18,7 @@
       <th>Fone Resp Téc</th>
       <th>Informações</th>
       <th>TAG Senha</th>
-      @if($agendainterlab->certificado === 'PARTICIPANTE')
+      @if($agendainterlab->exportaInscritosPorAnalista())
           <th>Nome Analista</th>
       @endif
   </tr>
@@ -26,7 +26,7 @@
   <tbody>
   @foreach($inscritos as $inscrito)
       @php
-          $linhas = $agendainterlab->certificado === 'PARTICIPANTE'
+          $linhas = $agendainterlab->exportaInscritosPorAnalista()
               ? $inscrito->analistas
               : collect([null]);
       @endphp
@@ -48,8 +48,8 @@
               <td>{{ $inscrito->email }}</td>
               <td>{{ $inscrito->telefone }}</td>
               <td>{{ $inscrito->informacoes_inscricao }}</td>
-              <td>{{ $agendainterlab->certificado === 'PARTICIPANTE' ? $analista->tag_senha : $inscrito->tag_senha }}</td>
-              @if($agendainterlab->certificado === 'PARTICIPANTE')
+              <td>{{ $agendainterlab->exportaInscritosPorAnalista() ? $analista->tag_senha : $inscrito->tag_senha }}</td>
+              @if($agendainterlab->exportaInscritosPorAnalista())
                   <td>{{ $analista->nome }}</td>
               @endif
           </tr>

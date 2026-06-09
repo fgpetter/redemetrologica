@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Exports\LabExport;
 use App\Models\AgendaInterlab;
 use App\Models\Endereco;
+use App\Models\Interlab;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
@@ -18,9 +19,9 @@ class LabExportTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_export_participante_duplica_linhas_por_analista(): void
+    public function test_export_analista_duplica_linhas_por_analista(): void
     {
-        $agenda = AgendaInterlabFactory::new()->create(['certificado' => 'PARTICIPANTE']);
+        $agenda = $this->criarAgendaComAvaliacao('ANALISTA');
         $inscrito = $this->criarInscritoCompleto($agenda, 'SENHA-INSCRITO');
 
         InterlabAnalista::query()->create([
@@ -52,9 +53,9 @@ class LabExportTest extends TestCase
         $this->assertEquals(2, substr_count($html, '<td>'.$inscrito->id.'</td>'));
     }
 
-    public function test_export_participante_omite_inscritos_sem_analistas(): void
+    public function test_export_analista_omite_inscritos_sem_analistas(): void
     {
-        $agenda = AgendaInterlabFactory::new()->create(['certificado' => 'PARTICIPANTE']);
+        $agenda = $this->criarAgendaComAvaliacao('ANALISTA');
         $inscritoComAnalista = $this->criarInscritoCompleto($agenda);
         $inscritoSemAnalista = $this->criarInscritoCompleto($agenda);
 
@@ -72,10 +73,10 @@ class LabExportTest extends TestCase
         $this->assertStringNotContainsString('<td>'.$inscritoSemAnalista->id.'</td>', $html);
     }
 
-    public function test_export_empresa_mantem_tag_senha_do_inscrito(): void
+    public function test_export_laboratorial_mantem_tag_senha_do_inscrito(): void
     {
-        $agenda = AgendaInterlabFactory::new()->create(['certificado' => 'EMPRESA']);
-        $inscrito = $this->criarInscritoCompleto($agenda, 'SENHA-EMPRESA');
+        $agenda = $this->criarAgendaComAvaliacao('LABORATORIAL');
+        $inscrito = $this->criarInscritoCompleto($agenda, 'SENHA-LAB');
 
         InterlabAnalista::query()->create([
             'interlab_inscrito_id' => $inscrito->id,
@@ -89,9 +90,23 @@ class LabExportTest extends TestCase
 
         $this->assertStringContainsString('TAG Senha</th>', $html);
         $this->assertStringNotContainsString('Nome Analista', $html);
-        $this->assertStringContainsString('SENHA-EMPRESA', $html);
+        $this->assertStringContainsString('SENHA-LAB', $html);
         $this->assertStringNotContainsString('TAG-ANALISTA', $html);
         $this->assertEquals(1, substr_count($html, '<td>'.$inscrito->id.'</td>'));
+    }
+
+    private function criarAgendaComAvaliacao(string $avaliacao): AgendaInterlab
+    {
+        $interlab = Interlab::query()->create([
+            'nome' => 'PEP Teste',
+            'descricao' => 'Descricao',
+            'tipo' => 'INTERLABORATORIAL',
+            'avaliacao' => $avaliacao,
+        ]);
+
+        return AgendaInterlabFactory::new()->create([
+            'interlab_id' => $interlab->id,
+        ]);
     }
 
     private function criarInscritoCompleto(AgendaInterlab $agenda, ?string $tagSenha = null): InterlabInscrito

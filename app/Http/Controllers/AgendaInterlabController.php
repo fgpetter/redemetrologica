@@ -321,6 +321,8 @@ class AgendaInterlabController extends Controller
      */
     public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab)
     {
+        $agendainterlab->loadMissing('interlab');
+
         $interlabName = $agendainterlab->interlab->nome ?? 'interlab';
         $interlabName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $interlabName); // Adicionar nome do PEP no nome do arquivo
         $filename = 'inscritos-interlab-ID'.$agendainterlab->id.'-'.$interlabName.'.xlsx';

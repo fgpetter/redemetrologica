@@ -13,10 +13,12 @@ class LabExport implements FromView
 
     public function view(): View
     {
+        $this->agendainterlab->loadMissing('interlab');
+
         $query = InterlabInscrito::where('agenda_interlab_id', $this->agendainterlab->id)
             ->with(['pessoa', 'empresa', 'laboratorio.endereco']);
 
-        if ($this->agendainterlab->certificado === 'PARTICIPANTE') {
+        if ($this->agendainterlab->exportaInscritosPorAnalista()) {
             $query->with('analistas')->whereHas('analistas');
         }
 

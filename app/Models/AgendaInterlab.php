@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Interlab;
 use App\Traits\SetDefaultUid;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AgendaInterlab extends Model
 {
@@ -32,14 +30,12 @@ class AgendaInterlab extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
     /**
      * Retorna interlab associado
-     *
-     * @return BelongsTo
      */
     public function interlab(): BelongsTo
     {
@@ -48,8 +44,6 @@ class AgendaInterlab extends Model
 
     /**
      * Retorna despesas associadas
-     *
-     * @return HasMany
      */
     public function despesas(): HasMany
     {
@@ -58,8 +52,6 @@ class AgendaInterlab extends Model
 
     /**
      * Retorna parametros associados
-     *
-     * @return HasMany
      */
     public function parametros(): HasMany
     {
@@ -68,8 +60,6 @@ class AgendaInterlab extends Model
 
     /**
      * Retorna rodadas associados
-     *
-     * @return HasMany
      */
     public function rodadas(): HasMany
     {
@@ -78,8 +68,6 @@ class AgendaInterlab extends Model
 
     /**
      * Retorna inscritos associados
-     *
-     * @return HasMany
      */
     public function inscritos(): HasMany
     {
@@ -88,8 +76,6 @@ class AgendaInterlab extends Model
 
     /**
      * Retorna materiais associados
-     *
-     * @return HasMany
      */
     public function materiais(): HasMany
     {
@@ -98,8 +84,6 @@ class AgendaInterlab extends Model
 
     /**
      * Retorna valores associados
-     *
-     * @return HasMany
      */
     public function valores(): HasMany
     {
@@ -108,10 +92,20 @@ class AgendaInterlab extends Model
 
     /**
      * Retorna analistas vinculados a esta agenda
-     * @return HasMany
      */
     public function analistas(): HasMany
     {
         return $this->hasMany(InterlabAnalista::class);
+    }
+
+    /**
+     * Exportação XLS deve gerar uma linha por analista (TAG e nome do analista)
+     * quando o PEP é por analista.
+     */
+    public function exportaInscritosPorAnalista(): bool
+    {
+        $this->loadMissing('interlab');
+
+        return ($this->interlab->avaliacao ?? null) === 'ANALISTA';
     }
 }

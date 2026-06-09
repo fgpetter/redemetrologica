@@ -37,7 +37,6 @@ class AgendaInterlabInsertQueryCountTest extends TestCase
         $agenda = AgendaInterlab::query()->create([
             'interlab_id' => $interlab->id,
             'status' => 'CONFIRMADO',
-            'certificado' => 'EMPRESA',
             'inscricao' => true,
             'ano_referencia' => (int) now()->format('Y'),
         ]);
