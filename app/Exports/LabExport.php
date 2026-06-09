@@ -9,15 +9,20 @@ use Maatwebsite\Excel\Concerns\FromView;
 
 class LabExport implements FromView
 {
-
     public function __construct(public AgendaInterlab $agendainterlab) {}
 
     public function view(): View
     {
-        return view('excel.enderecos-laboratorios',[
-            'inscritos' => InterlabInscrito::where('agenda_interlab_id', $this->agendainterlab->id)
-              ->with(['pessoa', 'empresa', 'laboratorio.endereco'])
-              ->get()
-          ]);
+        $query = InterlabInscrito::where('agenda_interlab_id', $this->agendainterlab->id)
+            ->with(['pessoa', 'empresa', 'laboratorio.endereco']);
+
+        if ($this->agendainterlab->certificado === 'PARTICIPANTE') {
+            $query->with('analistas')->whereHas('analistas');
+        }
+
+        return view('excel.enderecos-laboratorios', [
+            'inscritos' => $query->get(),
+            'agendainterlab' => $this->agendainterlab,
+        ]);
     }
 }
