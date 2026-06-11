@@ -181,8 +181,7 @@ class LancamentoFinanceiroController extends Controller
     public function insert(LancamentoFinanceiro $lancamento): View
     {
         if ($lancamento->exists) {
-            $lancamento->load(['pessoa', 'pessoa.enderecos']);
-            $enderecocobranca = ($lancamento->pessoa->end_padrao) ? $lancamento->pessoa->enderecos->find($lancamento->pessoa->end_padrao) : $lancamento->pessoa->enderecos->first();
+            $lancamento->load(['pessoa' => fn ($q) => $q->with(['enderecoCobranca', 'enderecos'])]);
         }
         $pessoas = Pessoa::select('id', 'nome_razao', 'cpf_cnpj')->whereNot('id', $lancamento?->pessoa_id)->get();
 
@@ -192,7 +191,6 @@ class LancamentoFinanceiroController extends Controller
 
         return view('painel.lancamento-financeiro.edit', [
             'lancamento' => $lancamento ?? null,
-            'enderecocobranca' => $enderecocobranca ?? null,
             'pessoas' => $pessoas,
             'centrosdecusto' => $centrosdecusto,
             'planosconta' => $planoConta,

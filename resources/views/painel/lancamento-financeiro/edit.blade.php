@@ -8,10 +8,9 @@
 
   <div class="row">
     <div class="col">
-      <x-painel.lancamento-financeiro.edit 
-        :lancamento="$lancamento" 
-        :enderecocobranca="$enderecocobranca" 
-        :pessoas="$pessoas" 
+      <x-painel.lancamento-financeiro.edit
+        :lancamento="$lancamento"
+        :pessoas="$pessoas"
         :centrosdecusto="$centrosdecusto"
         :planosconta="$planosconta"
         :modalidadepagamento="$modalidadepagamento"

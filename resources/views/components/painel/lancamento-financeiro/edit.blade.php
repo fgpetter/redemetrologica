@@ -108,10 +108,10 @@
             <div class="card-body pb-1 lh-lg">
               Nome ou razão social: {{ Str::title($lancamento->pessoa->nome_razao) }} <br>
               CPF ou CNPJ: {{ $lancamento->pessoa->cpf_cnpj }} <br>
-              @if($lancamento->pessoa->enderecos->first())
-              Endereço: {{$enderecocobranca->endereco }}, 
-              {{$enderecocobranca->complemento }} - {{$enderecocobranca->cidade }} / {{$enderecocobranca->uf }} - CEP: {{$enderecocobranca->cep }} <br>
-              E-mail: {{ $lancamento->pessoa->email }}
+              @if($lancamento->pessoa->enderecoFinanceiro)
+              Endereço: {{ $lancamento->pessoa->enderecoFinanceiro->endereco }},
+              {{ $lancamento->pessoa->enderecoFinanceiro->complemento }} - {{ $lancamento->pessoa->enderecoFinanceiro->cidade }} / {{ $lancamento->pessoa->enderecoFinanceiro->uf }} - CEP: {{ $lancamento->pessoa->enderecoFinanceiro->cep }} <br>
+              E-mail: {{ $lancamento->pessoa->emailFinanceiro }}
               @endif
               <div class="text-end">
                 <a href="{{ route('pessoa-insert', $lancamento->pessoa->uid) }}" class="link-primary fw-medium">

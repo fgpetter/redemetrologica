@@ -171,9 +171,10 @@ class ConfirmInscricaoCurso extends Component
             ]
         );
 
-        // Atualiza o campo end_cobranca na tabela Pessoa
+        // Atualiza os campos end_cobranca e email_cobranca na tabela Pessoa
         $empresa->update([
             'end_cobranca' => $enderecoCobranca->id,
+            'email_cobranca' => $enderecoCobranca->email,
         ]);
 
         // atualizar $empresa para mostrar os dados atualizados
