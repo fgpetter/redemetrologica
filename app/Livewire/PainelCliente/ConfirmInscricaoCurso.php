@@ -584,7 +584,7 @@ class ConfirmInscricaoCurso extends Component
         $this->inscricoes = [
             ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '', 'responsavel' => 0],
         ];
-        session()->forget(['curso', 'empresa', 'convite']);
+        session()->forget(['curso', 'empresa']);
 
         return redirect('painel');
     }

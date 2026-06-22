@@ -26,7 +26,7 @@ class InscricaoInterlabController extends Controller
     public function interlabInscricao(Request $request): RedirectResponse
     {
         // limpa a sessao
-        session()->forget(['interlab', 'curso', 'empresa', 'convite']);
+        session()->forget(['interlab', 'curso', 'empresa']);
 
         // salva dados da inscrição na sessão
         session()->put('interlab', AgendaInterlab::where('uid', $request->target)->where('inscricao', 1)->firstOrFail());
@@ -104,7 +104,7 @@ class InscricaoInterlabController extends Controller
         }
 
         if ($request->encerra_cadastro == 1) {
-            session()->forget(['interlab', 'empresa', 'convite']);
+            session()->forget(['interlab', 'empresa']);
 
             return back()->with('success', 'Inscrição realizada com sucesso!');
         }

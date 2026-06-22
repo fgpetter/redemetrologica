@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Http\Requests\ConfirmaInscricaoRequest;
 use App\Livewire\PainelCliente\ConfirmInscricaoCurso;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
@@ -13,7 +12,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -110,34 +108,7 @@ class InscricaoCursoPessoaGuardTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('curso-inscricao', ['target' => $agenda->uid]));
 
-        $response->assertRedirect('painel');
-    }
-
-    public function test_confirma_inscricao_request_valida_sem_campo_id_pessoa(): void
-    {
-        $agenda = $this->createAgendaCursoAbertoParaInscricao();
-        $user = $this->createClienteUser(withPessoa: true);
-
-        $payload = [
-            'id_curso' => $agenda->id,
-            'nome' => 'Nome Participante',
-            'email' => 'participante@example.com',
-            'telefone' => '(11) 98765-4321',
-            'cpf_cnpj' => '390.533.447-05',
-            'cep' => '01310100',
-            'uf' => 'SP',
-            'endereco' => 'Av Paulista',
-            'complemento' => null,
-            'bairro' => 'Bela Vista',
-            'cidade' => 'São Paulo',
-        ];
-
-        $this->actingAs($user);
-
-        $validator = Validator::make($payload, (new ConfirmaInscricaoRequest)->rules());
-
-        $this->assertFalse($validator->fails(), (string) $validator->errors());
-        $this->assertArrayNotHasKey('id_pessoa', $validator->errors()->toArray());
+        $response->assertRedirect(route('painel-index'));
     }
 
     public function test_confirm_inscricao_curso_livewire_lanca_excecao_sem_pessoa(): void
