@@ -1,4 +1,9 @@
 <header id="page-topbar">
+    @if (env('APP_ENV') == 'staging' || env('APP_ENV') == 'homolog')
+        <div class="alert alert-warning border-0">
+            Ambiente de homologação.
+        </div>
+    @endif
     <div class="layout-width">
         <div class="navbar-header">
             <div class="d-flex">

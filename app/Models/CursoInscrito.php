@@ -62,4 +62,29 @@ class CursoInscrito extends Model
     {
         return $this->hasOne(Pessoa::class, 'id', 'empresa_id');
     }
+
+    /**
+     * Carrega lancamento financeiro
+     * @return BelongsTo
+     */
+    public function lancamentoFinanceiro(): BelongsTo
+    {
+        return $this->belongsTo(LancamentoFinanceiro::class);
+    }
+
+    /**
+     * Verifica se o pagamento foi confirmado (baixado)
+     */
+    public function getIsPagoAttribute(): bool
+    {
+        return $this->lancamentoFinanceiro?->status === 'EFETIVADO';
+    }
+
+    /**
+     * Verifica se o certificado já foi emitido
+     */
+    public function getIsCertificadoEmitidoAttribute(): bool
+    {
+        return !empty($this->certificado_emitido);
+    }
 }

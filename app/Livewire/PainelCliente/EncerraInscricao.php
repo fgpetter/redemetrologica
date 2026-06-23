@@ -2,13 +2,14 @@
 
 namespace App\Livewire\PainelCliente;
 
+use App\Models\InterlabInscrito;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use App\Models\InterlabInscrito;
 
 class EncerraInscricao extends Component
 {
     public $empresaId = null;
+
     public $inscritosCount = 0;
 
     #[On('empresaSaved')]
@@ -26,8 +27,9 @@ class EncerraInscricao extends Component
 
     public function loadInscritosCount()
     {
-        if (!$this->empresaId) {
+        if (! $this->empresaId) {
             $this->inscritosCount = 0;
+
             return;
         }
 
@@ -41,7 +43,8 @@ class EncerraInscricao extends Component
 
     public function encerrarInscricoes()
     {
-        session()->forget(['interlab', 'empresa', 'convite']); 
+        session()->forget(['interlab', 'empresa']);
+
         return redirect('painel');
     }
 

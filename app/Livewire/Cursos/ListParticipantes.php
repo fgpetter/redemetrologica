@@ -2,25 +2,21 @@
 
 namespace App\Livewire\Cursos;
 
+use App\Actions\SalvaInscritoInCompanyAction;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
-use App\Models\Pessoa;
-use App\Actions\CreateUserForPessoaAction;
-use Illuminate\Support\Facades\DB;
-use LaravelLegends\PtBrValidator\Rules\CpfOuCnpj;
 use Livewire\Component;
 
 class ListParticipantes extends Component
 {
     public AgendaCursos $agendacurso;
+
     public string $sortBy = 'empresa';
+
     public string $sortDirection = 'ASC';
 
     /**
      * Define o campo de ordenação dos participantes e empresas
-     *
-     * @param string $field
-     * @return void
      */
     public function setSortBy(string $field): void
     {
@@ -34,17 +30,13 @@ class ListParticipantes extends Component
 
     /**
      * Renderiza a tela de lista de participantes
-     * 
      */
     public function render()
     {
-        // Consulta os inscritos com as pessoas e empresas
-        $inscritosQuery = $this->agendacurso->inscritos()->with(['pessoa', 'empresa']);
+        $inscritosQuery = $this->agendacurso->inscritos()->with(['empresa', 'lancamentoFinanceiro']);
 
         if ($this->sortBy === 'nome') {
-            $inscritosQuery->join('pessoas', 'curso_inscritos.pessoa_id', '=', 'pessoas.id')
-                ->orderBy('pessoas.nome_razao', $this->sortDirection)
-                ->select('curso_inscritos.*');
+            $inscritosQuery->orderBy('nome', $this->sortDirection);
         } elseif ($this->sortBy === 'empresa') {
             $inscritosQuery->leftJoin('pessoas as empresa_pessoas', 'curso_inscritos.empresa_id', '=', 'empresa_pessoas.id')
                 ->orderBy('empresa_pessoas.nome_razao', $this->sortDirection)
@@ -58,61 +50,63 @@ class ListParticipantes extends Component
         ]);
     }
 
-    public $cpf_cnpj;
-    public $nome_razao;
+    public $nome;
+
     public $email;
+
+    public $telefone;
 
     public function saveInscrito()
     {
         $this->validate([
-            'cpf_cnpj' => ['required', new CpfOuCnpj],
-            'nome_razao' => 'required|string|min:3',
+            'nome' => 'required|string|min:3',
             'email' => 'required|email',
+            'telefone' => 'nullable|string',
         ], [
-            'cpf_cnpj.required' => 'O CPF é obrigatório.',
-            'cpf_cnpj.CpfOuCnpj' => 'O CPF informado é inválido.',
-            'nome_razao.required' => 'O nome é obrigatório.',
-            'nome_razao.min' => 'O nome deve ter no mínimo 3 caracteres.',
+            'nome.required' => 'O nome é obrigatório.',
+            'nome.min' => 'O nome deve ter no mínimo 3 caracteres.',
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'O e-mail informado é inválido.',
         ]);
 
-        DB::transaction(function () {
-            // Remove caracteres especiais e espaços extras
-            $cpf_cnpj = preg_replace('/[^0-9]/', '', $this->cpf_cnpj);
-            $nome_razao = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($this->nome_razao));
-            $email = strtolower($this->email);
+        $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($this->nome));
+        $email = strtolower(trim($this->email));
+        $telefone = preg_replace('/[^0-9]/', '', $this->telefone ?? '');
 
-            // Pula se o e-mail for inválido
-            if (function_exists('isInvalidEmail') && isInvalidEmail($email)) {
-                $this->addError('email', 'E-mail inválido.');
-                return;
-            }
+        if (function_exists('isInvalidEmail') && isInvalidEmail($email)) {
+            $this->addError('email', 'E-mail inválido.');
 
-            //Verifica se a pessoa já existe ou cria uma nova
-            $pessoa = Pessoa::updateOrCreate(
-                ['cpf_cnpj' => $cpf_cnpj],
-                [
-                    'nome_razao' => $nome_razao,
-                    'email' => $email,
-                    'tipo_pessoa' => 'PF'
-                ]
-            );
+            return;
+        }
 
-            // Cria o usuário para a pessoa
-            CreateUserForPessoaAction::handle($pessoa);
+        app(SalvaInscritoInCompanyAction::class)->criar(
+            $this->agendacurso,
+            $nome,
+            $email,
+            $telefone ?: null
+        );
 
-            // Cria ou atualiza o registro de inscrição
-            CursoInscrito::updateOrCreate([
-                'pessoa_id' => $pessoa->id,
-                'agenda_curso_id' => $this->agendacurso->id,
-            ], [
-                'empresa_id' => $this->agendacurso->empresa_id,
-                'data_inscricao' => now()
-            ]);
+        $this->reset(['nome', 'email', 'telefone']);
+        session()->flash('success', 'Inscrito adicionado com sucesso!');
+    }
 
-            $this->reset(['cpf_cnpj', 'nome_razao', 'email']);
-            session()->flash('success', 'Inscrito adicionado com sucesso!');
-        });
+    public function enviarDocs(CursoInscrito $inscrito)
+    {
+        try {
+            app(\App\Actions\EnviarMaterialCursoAction::class)->execute($inscrito);
+            session()->flash('success', 'E-mail com materiais enviado com sucesso!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Houve um erro ao tentar enviar os materiais: '.$e->getMessage());
+        }
+    }
+
+    public function enviarCertificado(CursoInscrito $inscrito)
+    {
+        try {
+            app(\App\Actions\EnviarCertificadoAction::class)->execute($inscrito);
+            session()->flash('success', 'E-mail com certificado enviado com sucesso!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Houve um erro ao tentar enviar o certificado: '.$e->getMessage());
+        }
     }
 }

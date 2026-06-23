@@ -21,7 +21,7 @@
         <tfoot>
             <tr>
                 <th class="text-end">Total Geral:</th>
-                <th class="text-end">R$ {{ number_format($avaliacao->areas->sum('valor_avaliador'), 2, ',', '.') }}</th>
+                <th class="text-end">R$ {{ number_format($totalgeralavaliadores, 2, ',', '.') }}</th>
             </tr>
         </tfoot>
     </table>

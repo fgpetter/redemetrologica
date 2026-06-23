@@ -23,11 +23,11 @@
 
 <body>
 
-    @include('site.layouts.site-navbar')
+    <x-site.nav />
 
     @yield('content')
 
-    @include('site.layouts.site-footer')
+    <x-site.footer />
 
     @include('layouts.vendor-scripts')
 </body>

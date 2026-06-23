@@ -14,19 +14,15 @@
 
   <div class="row">
     <div class="col">
-      <x-painel.lancamento-financeiro.list-lancamentos :lancamentosfinanceiros="$lancamentosfinanceiros" :pessoas="$pessoas" :mesesanos="$mesesanos" />
+      <x-painel.lancamento-financeiro.list-lancamentos
+        :lancamentosfinanceiros="$lancamentosfinanceiros"
+        :pessoas="$pessoas"
+        :mesesanos="$mesesanos"
+        :centrosdecusto="$centrosdecusto"
+        :planosconta="$planosconta"
+        :modalidadepagamento="$modalidadepagamento"
+        :pessoasModal="$pessoasModal"
+      />
     </div>
   </div>
-@endsection
-
-@section('script')
-  <script defer>
-    const pessoa = document.getElementById('pessoa')
-    if(pessoa){
-      const choices = new Choices(pessoa,{
-        searchFields: ['label'],
-        allowHTML: true
-      });
-    }
-  </script>
 @endsection

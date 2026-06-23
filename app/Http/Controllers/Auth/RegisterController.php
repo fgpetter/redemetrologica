@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -43,18 +43,17 @@ class RegisterController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:191'],
-            'document' => ['required','cpf'],
-            'email' => ['required','email', 'max:191', 'unique:users'],
+            'document' => ['required', 'cpf'],
+            'email' => ['required', 'email', 'max:191', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
-            'password_confirmation' => ['required_with:password', 'string', 'min:8','same:password'],
-        ],[
+            'password_confirmation' => ['required_with:password', 'string', 'min:8', 'same:password'],
+        ], [
             'name.required' => 'O campo nome é obrigatório',
             'name.string' => 'O campo nome deve ser um texto',
             'name.max' => 'O campo nome deve ter no maximo 255 caracteres',
@@ -76,7 +75,6 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
      * @return \App\Models\User
      */
     protected function create(array $data)

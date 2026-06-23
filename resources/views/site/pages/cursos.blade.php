@@ -52,7 +52,9 @@
             : ($agendacurso->tipo_agendamento == 'ONLINE'
               ? asset('build/images/site/online-placeholder.jpg')
               : asset('build/images/site/evento-placeholder.jpg')) }}'); background-size: cover; background-repeat: no-repeat">
-            @if( $agendacurso->inscricoes == 1 )
+            @if( $agendacurso->status == 'CONFIRMADO' )
+              <div class="ribbon ribbon-primary round-shape">CONFIRMADO</div>
+            @elseif( $agendacurso->inscricoes == 1 )
               <div class="ribbon ribbon-success round-shape">Inscrições abertas</div>
             @endif
             <div style="margin-top: 8rem">

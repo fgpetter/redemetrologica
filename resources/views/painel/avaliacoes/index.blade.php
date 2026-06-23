@@ -15,15 +15,3 @@
 </div>
 
 @endsection
-
-@section('script')
-<script defer>
-  const element = document.getElementById('choices-single-default')
-  if(element){
-    const choices = new Choices(element,{
-      searchFields: ['label'],
-      allowHTML: true
-    });
-  }
-</script>
-@endsection

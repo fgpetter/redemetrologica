@@ -28,9 +28,9 @@
                     </div>
 
                     <!-- Filtro por Empresa -->
-                    <div class="col-3" wire:ignore>
+                    <div class="col-4" wire:ignore>
                         <label class="form-label mb-0">Empresa</label>
-                        <select wire:model.live="empresaSelecionada" id="empresa-select" class="form-select form-select-sm">
+                        <select wire:model.live="empresaSelecionada" id="empresa-select" >
                             <option value="">Selecione...</option>
                             @foreach ($this->empresas as $empresa)
                                 <option value="{{ $empresa->id }}">{{ $empresa->cpf_cnpj }} -
@@ -88,30 +88,6 @@
                             </a>
                         </th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
-                        <th scope="col" style="width: 5%; white-space: nowrap;">
-                            <a href="#" wire:click.prevent="setSortBy('data_inicio')">
-                                Data Inicio
-                                @if ($sortBy == 'data_inicio')
-                                    @if ($sortDirection == 'ASC')
-                                        <i class="ri-arrow-up-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @endif
-                                @endif
-                            </a>
-                        </th>
-                        <th scope="col" style="width: 5%; white-space: nowrap;">
-                            <a href="#" wire:click.prevent="setSortBy('data_fim')">
-                                Data Fim
-                                @if ($sortBy == 'data_fim')
-                                    @if ($sortDirection == 'ASC')
-                                        <i class="ri-arrow-up-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @endif
-                                @endif
-                            </a>
-                        </th>
                         <th scope="col" style="width: 45%; white-space: nowrap;">
                             <a href="#" wire:click.prevent="setSortBy('nome')">
                                 Nome do Interlab
@@ -124,6 +100,8 @@
                                 @endif
                             </a>
                         </th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;">Tipo</th>
+                        <th scope="col" style="width: 5%; white-space: nowrap;">Avaliação</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">
                             <a href="#" wire:click.prevent="setSortBy('inscritos')">
                                 Inscritos
@@ -173,9 +151,9 @@
                                     </span>
                                 @endif
                             </td>
-                            <td>{{ $agendainterlab->data_inicio?->format('d/m/Y') }}</td>
-                            <td>{{ $agendainterlab->data_fim?->format('d/m/Y') }}</td>
                             <td>{{ $agendainterlab->interlab->nome ?? '' }}</td>
+                            <td>{{ $agendainterlab->interlab->tipo ?? '' }}</td>
+                            <td>{{ $agendainterlab->interlab->avaliacao ?? '' }}</td>
                             <td class="text-end pe-2">{{ $agendainterlab->inscritos->count() }}</td>
                             <td>
                                 <div class="dropdown">
@@ -215,25 +193,20 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             const element = document.getElementById('empresa-select');
-            const choices = new Choices(element, {
-                searchFields: ['label'],
-                allowHTML: true,
-                itemSelectText: '',
-                noResultsText: 'Nenhum resultado encontrado',
-                noChoicesText: 'Sem opções para escolher',
-                classNames: {
-                    listSingle: 'choices__list--single p-0',
-                    item: 'choices__item text-truncate mw-100',
+            const ts = new TomSelect(element, {
+                create: false,
+                sortField: { field: 'text', direction: 'asc' },
+                onChange(value) {
+                    element.value = value ?? '';
+                    element.dispatchEvent(new Event('input', { bubbles: true }));
+                    element.dispatchEvent(new Event('change', { bubbles: true }));
                 },
             });
 
-            element.addEventListener('change', function(event) {
-                @this.set('empresaSelecionada', event.target.value);
-            });
-
             Livewire.on('reset-empresa-filter', () => {
-                choices.setChoiceByValue('');
-                element.dispatchEvent(new Event('change'));
+                ts.clear(false);
+                element.dispatchEvent(new Event('input', { bubbles: true }));
+                element.dispatchEvent(new Event('change', { bubbles: true }));
             });
         });
     </script>

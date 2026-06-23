@@ -3,12 +3,13 @@
 namespace App\Livewire\Enderecos;
 
 use App\Models\Pessoa;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Listview extends Component
 {
     public Pessoa $pessoa;
+
     public ?string $enderecoAtivo = null;
 
     public function abrirModal($uid = null)
@@ -19,8 +20,8 @@ class Listview extends Component
     #[On('refresh-enderecos-list')]
     public function render()
     {
-        return view('livewire.enderecos.listview', [
-            'enderecos' => $this->pessoa->enderecos
+        return view('livewire.enderecos.list-view', [
+            'enderecos' => $this->pessoa->enderecos,
         ]);
     }
 }

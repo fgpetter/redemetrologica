@@ -46,6 +46,7 @@
                             <option value="CONFIRMADO">CONFIRMADO</option>
                             <option value="REALIZADO">REALIZADO</option>
                             <option value="REAGENDAR">REAGENDAR</option>
+                            <option value="INSCRICOES_ABERTAS">INSCRIÇÕES ABERTAS</option>
                         </select>
                     </div>
                     <!-- Tipo -->

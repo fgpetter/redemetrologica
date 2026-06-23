@@ -2,81 +2,44 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Str;
-use Illuminate\Bus\Queueable;
-use App\Models\InterlabInscrito;
-use Spatie\LaravelPdf\Facades\Pdf;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use App\Exceptions\InvalidEmailException;
 use App\Mail\CertificadoInterlabMail;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\DadosGeraDoc;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Mail;
 
 class GerarCertificadoInterlabJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
-    public $participanteId;
+    public $dadosDocId;
 
-    /**
-     * The number of times the job may be attempted.
-     */
     public $tries = 3;
 
-    /**
-     * The maximum number of seconds the job can run.
-     */
-    public $timeout = 300; // 5 minutos para geração de PDF
-
-    /**
-     * Create a new job instance.
-     */
-    public function __construct($participanteId)
+    public function __construct($dadosDocId)
     {
-        $this->participanteId = $participanteId;
+        $this->dadosDocId = $dadosDocId;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        $participante = InterlabInscrito::with(['laboratorio', 'agendaInterlab.interlab'])
-            ->findOrFail($this->participanteId);
+        try {
+            $dadosDoc = DadosGeraDoc::findOrFail($this->dadosDocId);
 
-        $labNameSlug = Str::slug($participante->laboratorio->nome);
-        $fileName = 'certificado_interlab_' . $labNameSlug . '_' . $participante->agendaInterlab->interlab->id . '.pdf';
-        $Path = 'public/docs/certificados/' . $fileName;
+            if (empty($dadosDoc->content['laboratorio_email'])) {
+                $content = [
+                    'class' => self::class,
+                    'dadosDoc_id' => $dadosDoc->id,
+                ];
+                new InvalidEmailException($content);
+            } else {
+                Mail::to($dadosDoc->content['laboratorio_email'])
+                    ->sendNow(new CertificadoInterlabMail($dadosDoc));
+            }
 
-        // Atualizar dados do participante
-        $participante->certificado_emitido = now();
-        $participante->certificado_path = $fileName;
-        $participante->save();
-
-        // Remover arquivo existente, se houver
-        if (Storage::exists($Path)) {
-            Storage::delete($Path);
+        } catch (\Exception $e) {
+            report($e);
         }
-
-        // Gerar PDF do certificado
-        Pdf::view('certificados.certificado-interlab', [
-            'participante' => $participante,
-        ])->save(Storage::path($Path));
-
-        // Enviar email com certificado
-        Mail::to($participante->email)
-            ->queue(new CertificadoInterlabMail($participante, Storage::path($Path)));
-    }
-
-    public function failed(\Throwable $exception): void
-    {
-        // Log do erro ou notificação para administradores
-        Log::error('Falha ao gerar certificado para participante ID: ' . $this->participanteId, [
-            'error' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString()
-        ]);
     }
 }

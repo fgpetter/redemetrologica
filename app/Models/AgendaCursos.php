@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use App\Traits\SetDefaultUid;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AgendaCursos extends Model
 {
@@ -22,37 +22,41 @@ class AgendaCursos extends Model
      */
     protected $guarded = [];
 
+    protected $casts = [
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+        'validade_proposta' => 'date',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
     /**
      * Carrega curso
-     * @return BelongsTo
      */
-    public function curso() : BelongsTo
+    public function curso(): BelongsTo
     {
         return $this->belongsTo(Curso::class);
     }
 
     /**
      * Carrega custos atrelados
-     * @return HasMany 
      */
     public function despesas(): HasMany
     {
         return $this->hasMany(CursoDespesa::class);
     }
 
-    public function instrutor() : BelongsTo
+    public function instrutor(): BelongsTo
     {
         return $this->belongsTo(Instrutor::class)->withTrashed();
     }
 
-    public function inscritos() : HasMany
+    public function inscritos(): HasMany
     {
         return $this->hasMany(CursoInscrito::class, 'agenda_curso_id', 'id');
     }

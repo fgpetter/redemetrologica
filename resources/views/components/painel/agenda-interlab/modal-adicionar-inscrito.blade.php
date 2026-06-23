@@ -16,8 +16,8 @@
 
               <div class="col-12 my-1">
                 <label for="pessoa_id" class="form-label">Empresa para cobrança</label>
-                <select class="form-control" data-choices name="empresa_uid" id="empresa">
-                  <option value="">Selecione na lista</option>
+                <select name="empresa_uid" id="tom-select-agenda-interlab-empresa" autocomplete="off">
+                  <option value="">Digite para pesquisar</option>
                   @foreach($pessoas->where('tipo_pessoa', 'PJ') as $empresa)
                     <option value="{{ $empresa->uid }}">{{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}</option>
                   @endforeach
@@ -28,8 +28,8 @@
 
               <div class="col-12 my-1">
                 <label for="pessoa_uid" class="form-label">Pessoa responsável</label>
-                <select class="form-control" data-choices name="pessoa_uid" id="pessoa">
-                  <option value="">Selecione na lista</option>
+                <select name="pessoa_uid" id="tom-select-agenda-interlab-pessoa" autocomplete="off">
+                  <option value="">Digite para pesquisar</option>
                   @foreach($pessoas->where('tipo_pessoa', 'PF') as $pessoa)
                     <option value="{{ $pessoa->uid }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
                   @endforeach
@@ -91,40 +91,40 @@
   </div>
 </div>
 
-@section('script')
+<script>
+  window.addEventListener('load', function () {
+    const empresa = document.getElementById('tom-select-agenda-interlab-empresa')
+    const pessoa = document.getElementById('tom-select-agenda-interlab-pessoa')
+    const sendButton = document.getElementById('send-button')
+    const invalidEmpresa = document.getElementById('invalid-empresa')
+    const invalidPessoa = document.getElementById('invalid-pessoa')
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      let selectedEmpresa = false
-      let selectedPessoa = false
-      const empresa = document.getElementById('empresa')
-      const pessoa = document.getElementById('pessoa')
-      const form = document.getElementById('confirma-inscricao-interlab')
-      const sendButton = document.getElementById('send-button')
-      const warningDiv = document.getElementsByClassName('invalid-input')
-      const invalidEmpresa = document.getElementById('invalid-empresa')
-      const invalidPessoa = document.getElementById('invalid-pessoa')
+    if (!empresa || !pessoa || !sendButton) {
+      return
+    }
 
-      empresa.addEventListener('change', function(){
-        selectedEmpresa = empresa.value
-        invalidEmpresa.classList.add("d-none")
-      })
-      pessoa.addEventListener('change', function(){
-        selectedPessoa = pessoa.value
-        invalidPessoa.classList.add("d-none")
-      })
+    let selectedEmpresa = Boolean(empresa.value)
+    let selectedPessoa = Boolean(pessoa.value)
 
-      sendButton.addEventListener('click', function validFields() {
-        if(selectedEmpresa && selectedPessoa){
-          document.getElementById('submit-button').click()
-        }
-        if(!selectedEmpresa) { invalidEmpresa.classList.remove("d-none") }
-        if(!selectedPessoa) { invalidPessoa.classList.remove("d-none") }
-
-      })
-
+    empresa.addEventListener('change', function () {
+      selectedEmpresa = Boolean(empresa.value)
+      invalidEmpresa.classList.add('d-none')
+    })
+    pessoa.addEventListener('change', function () {
+      selectedPessoa = Boolean(pessoa.value)
+      invalidPessoa.classList.add('d-none')
     })
 
-  </script>
-
-@endsection
+    sendButton.addEventListener('click', function validFields () {
+      if (selectedEmpresa && selectedPessoa) {
+        document.getElementById('submit-button').click()
+      }
+      if (!selectedEmpresa) {
+        invalidEmpresa.classList.remove('d-none')
+      }
+      if (!selectedPessoa) {
+        invalidPessoa.classList.remove('d-none')
+      }
+    })
+  })
+</script>

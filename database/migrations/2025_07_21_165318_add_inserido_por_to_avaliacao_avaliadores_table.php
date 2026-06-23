@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('avaliacao_avaliadores', function (Blueprint $table) {
-            $table->enum('situacao', ['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO']);
+            if (! Schema::hasColumn('avaliacao_avaliadores', 'situacao')) {
+                $table->enum('situacao', ['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO']);
+            }
             $table->string('inserido_por')->nullable();
         });
     }

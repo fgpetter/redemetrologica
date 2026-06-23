@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg sticky-top py-3 SiteHeader border-bottom">
+<nav class="navbar navbar-expand-lg sticky-top SiteHeader border-bottom">
     <div class="container">
-        <a class="navbar-brand" href="/home">
+        <a class="navbar-brand py-1" href="/home">
             <img src="{{ asset('build\images\site\LOGO_REDE_COLOR.png') }}" alt="Rede Metrológica RS" height="95">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -8,15 +8,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-            <ul class="navbar-nav nav-underline h6">
-
-                {{-- @foreach ($menu as $menu_item)
-                    <x-nav.link nome='{{$menu_item->nome}}' link='{{$menu_item->item}}'/>
-                @endforeach --}}
-
-                {{-- <li class="nav-item">
-                    <a class="nav-link d-none d-xl-block" href="/noticias">Notícias</a>
-                </li> --}}
+            <ul class="navbar-nav nav-underline fs-sm-6 fs-xxl-5 fw-bold">
 
                 <li class="nav-item">
                     <a class="nav-link d-none d-xl-block" href="/associe-se">Associe-se</a>

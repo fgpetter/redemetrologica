@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\DadosGeraDoc;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,14 +10,12 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\InterlabInscrito;
 
 class CertificadoInterlabMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $participante;
-    public $pdfPath;
+    public $dadosDoc;
 
     /**
      * The number of times the job may be attempted.
@@ -31,23 +30,21 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct(InterlabInscrito $participante, $pdfPath)
+    public function __construct(DadosGeraDoc $dadosDoc)
     {
-        $this->participante = $participante;
-        $this->pdfPath = $pdfPath;
-        $this->delay = 5;
+        $this->dadosDoc = $dadosDoc;
     }
 
     /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
-    { 
+    {
         return new Envelope(
             replyTo: [
                 new Address('interlab@redemetrologica.com.br'),
             ],
-            subject: 'Certificado de Participação - '. $this->participante->agendaInterlab->interlab->nome,
+            subject: 'Certificado de Participação - '.$this->dadosDoc->content['interlab_nome'],
         );
     }
 
@@ -59,19 +56,5 @@ class CertificadoInterlabMail extends Mailable implements ShouldQueue
         return new Content(
             view: 'emails.certificado-interlab',
         );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    { 
-        return [
-            \Illuminate\Mail\Mailables\Attachment::fromPath($this->pdfPath)
-                ->as('certificado.pdf')
-                ->withMime('application/pdf'),
-        ];
     }
 }

@@ -2,20 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
-use App\Models\User;
-use App\Models\DadosGeraDoc;
-
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class InterlabInscrito extends Model
 {
-
     use LogsActivity, SetDefaultUid;
 
     /**
@@ -35,6 +31,7 @@ class InterlabInscrito extends Model
     // cast data inscrição as date and valor as money BRL
     protected $casts = [
         'data_inscricao' => 'date',
+        'senha_enviada' => 'datetime',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -45,7 +42,7 @@ class InterlabInscrito extends Model
 
         if (session('impersonator_id')) {
             $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function(string $eventName) use ($impersonator) {
+            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
                 return "{$eventName} impersonated by {$impersonator->name}";
             });
         }
@@ -53,28 +50,24 @@ class InterlabInscrito extends Model
         return $options;
     }
 
-
     /**
      * Agenda interlab da inscrição
-     * @return BelongsTo
      */
-    public function agendaInterlab() : BelongsTo
+    public function agendaInterlab(): BelongsTo
     {
         return $this->belongsTo(AgendaInterlab::class);
     }
 
     /**
      * Pessoa que realizou a inscrição
-     * @return BelongsTo
      */
-    public function pessoa() : BelongsTo
+    public function pessoa(): BelongsTo
     {
         return $this->belongsTo(Pessoa::class);
     }
 
     /**
      * Empresa relacionada a inscrição, para cobrança
-     * @return BelongsTo
      */
     public function empresa(): BelongsTo
     {
@@ -83,16 +76,16 @@ class InterlabInscrito extends Model
 
     /**
      * Laboratório inscrito no PEP
+     *
      * @return BelongsTo
      */
-    public function laboratorio() : HasOne
+    public function laboratorio(): HasOne
     {
         return $this->hasOne(InterlabLaboratorio::class, 'id', 'laboratorio_id');
     }
 
     /**
      * Pessoa inscrita no PEP
-     * @return BelongsTo
      */
     public function pessoaInscrita(): BelongsTo
     {
@@ -108,7 +101,6 @@ class InterlabInscrito extends Model
 
     /**
      * Lançamento financeiro desta inscrição
-     * @return BelongsTo
      */
     public function lancamentoFinanceiro(): BelongsTo
     {
@@ -116,23 +108,26 @@ class InterlabInscrito extends Model
     }
 
     /**
-     * Gera a tag senha para o inscrito
-     * @return string
+     * Verifica se o pagamento foi confirmado (baixado)
      */
-    public static function geraTagSenha(AgendaInterlab $agendaInterlab): string
+    public function getIsPagoAttribute(): bool
     {
-        $tag = $agendaInterlab->interlab->tag ?? throw new \Exception('Tag do interlab não encontrada');
-        $senha = $tag . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
-        
-        while (
-            self::where('tag_senha', $senha)
-                ->where('agenda_interlab_id', $agendaInterlab->id)
-            ->exists()
-        ) {
-            $senha = $tag . '-' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
-        }
-        
-        return $senha;
+        return $this->lancamentoFinanceiro?->status === 'EFETIVADO';
     }
 
+    /**
+     * Verifica se o certificado já foi emitido
+     */
+    public function getIsCertificadoEmitidoAttribute(): bool
+    {
+        return ! empty($this->certificado_emitido);
+    }
+
+    /**
+     * Analistas vinculados a esta inscrição
+     */
+    public function analistas(): HasMany
+    {
+        return $this->hasMany(InterlabAnalista::class, 'interlab_inscrito_id');
+    }
 }

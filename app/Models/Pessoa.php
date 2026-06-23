@@ -2,21 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Pessoa extends Model
 {
-    use SoftDeletes, LogsActivity, SetDefaultUid;
+    use LogsActivity, SetDefaultUid, SoftDeletes;
 
     /**
      * The attributes that aren't mass assignable.
@@ -28,12 +27,12 @@ class Pessoa extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
 
         if (session('impersonator_id')) {
             $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function(string $eventName) use ($impersonator) {
+            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
                 return "{$eventName} impersonated by {$impersonator->name}";
             });
         }
@@ -106,9 +105,7 @@ class Pessoa extends Model
 
     /**
      * Retorna usuário da pessoa
-     * @return BelongsTo
      */
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -116,7 +113,6 @@ class Pessoa extends Model
 
     /**
      * Retorna empresa a qual a pessoa pertence
-     * @return BelongsToMany
      */
     public function empresas(): BelongsToMany
     {
@@ -125,7 +121,6 @@ class Pessoa extends Model
 
     /**
      * Retorna cursos a qual a pessoa participou
-     * @return HasMany
      */
     public function cursos(): HasMany
     {
@@ -134,16 +129,14 @@ class Pessoa extends Model
 
     /**
      * Retorna interlabs a qual a empresa participou
-     * @return HasMany
      */
     public function empresaInterlabs(): HasMany
     {
         return $this->hasMany(InterlabInscrito::class, 'empresa_id', 'id');
     }
-    
+
     /**
      * Retorna interlabs a qual a pessoa participou
-     * @return HasMany
      */
     public function interlabs(): HasMany
     {
@@ -154,44 +147,62 @@ class Pessoa extends Model
     protected function cpfCnpj(): Attribute
     {
         return Attribute::make(
-            get: fn (string|null $value) => $this->formataDoc($value),
-            set: fn (string|null $value) => preg_replace("/[^\d]/", "", $value),
+            get: fn (?string $value) => $this->formataDoc($value),
+            set: fn (?string $value) => preg_replace("/[^\d]/", '', $value),
         );
     }
 
     protected function telefone(): Attribute
     {
         return Attribute::make(
-            get: fn (string|null $value) => $this->formataTel($value),
-            set: fn (string|null $value) => preg_replace("/[^\d]/", "", $value),
+            get: fn (?string $value) => $this->formataTel($value),
+            set: fn (?string $value) => preg_replace("/[^\d]/", '', $value),
         );
     }
 
-    protected function formataDoc(string|null $value): string
+    protected function formataDoc(?string $value): string
     {
-        if(strlen($value) === 11){
-            return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{2})/", "\$1.\$2.\$3-\$4", $value);
+        if (strlen($value) === 11) {
+            return preg_replace('/([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{2})/', '$1.$2.$3-$4', $value);
         } else {
-            return preg_replace("/([0-9]{2})([0-9]{3})([0-9]{3})([0-9]{4})([0-9]{2})/", "\$1.\$2.\$3/\$4-\$5", $value);
+            return preg_replace('/([0-9]{2})([0-9]{3})([0-9]{3})([0-9]{4})([0-9]{2})/', '$1.$2.$3/$4-$5', $value);
         }
     }
 
-    protected function formataTel(string|null $value): string
+    protected function formataTel(?string $value): string
     {
-        if(strlen($value) === 11){
-            return preg_replace("/([0-9]{2})([0-9]{5})([0-9]{4})/", "(\$1) \$2-\$3", $value);
+        if (strlen($value) === 11) {
+            return preg_replace('/([0-9]{2})([0-9]{5})([0-9]{4})/', '($1) $2-$3', $value);
         }
-        if(strlen($value) === 10){
-            return preg_replace("/([0-9]{2})([0-9]{4})([0-9]{4})/", "(\$1) \$2-\$3", $value);
+        if (strlen($value) === 10) {
+            return preg_replace('/([0-9]{2})([0-9]{4})([0-9]{4})/', '($1) $2-$3', $value);
         }
 
         return '';
 
     }
 
+    /**
+     * Email para fins financeiros: email_cobranca com fallback para email principal.
+     */
+    protected function emailFinanceiro(): Attribute
+    {
+        return Attribute::get(fn () => $this->email_cobranca ?: $this->email);
+    }
+
+    /**
+     * Endereço para fins financeiros: enderecoCobranca com fallback para endereço mais recente.
+     * Retorna null se não houver endereço nenhum.
+     */
+    protected function enderecoFinanceiro(): Attribute
+    {
+        return Attribute::get(fn () => $this->enderecoCobranca
+            ?? $this->enderecos()->latest('created_at')->first()
+        );
+    }
+
     public function lancamentosfinanceiros(): HasMany
     {
         return $this->hasMany(LancamentoFinanceiro::class);
     }
-
 }

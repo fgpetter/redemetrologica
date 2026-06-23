@@ -45,7 +45,7 @@ class Handler extends ExceptionHandler
 
             $content['message'] = $exception->getMessage();
             $content['file'] = $exception->getFile();
-            $content['line'] = $exception->getLine();            
+            $content['line'] = $exception->getLine();
             // Remove args from trace to avoid closure serialization errors
             $content['trace'] = collect($exception->getTrace())->map(function ($trace) {
                 return Arr::except($trace, ['args']);
