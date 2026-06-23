@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostMedia;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Laravel\Facades\Image;
 
 class PostController extends Controller
 {
@@ -65,21 +66,16 @@ class PostController extends Controller
             $request->file('upload')->move(public_path($this->PastaTemp), $fileName);
 
             // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-            $img = Image::make(public_path($this->PastaTemp.'/'.$fileName));
+            $img = Image::decodePath(public_path($this->PastaTemp.'/'.$fileName));
             // limita a imagem em 750px de altura
             if ($img->height() > 750) {
-                $img->resize(null, 750, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
+                $img->scaleDown(height: 750);
             }
             // limita a imagem em 750px de largura
             if ($img->width() > 750) {
-                $img->resize(750, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
+                $img->scaleDown(width: 750);
             }
-            $img->encode('jpg', 75);
-            $img->save(public_path($this->PastaTemp.'/'.$fileName));
+            $img->save(public_path($this->PastaTemp.'/'.$fileName), quality: 75);
 
             $url = asset($this->PastaTemp.'/'.$fileName);
 
@@ -132,14 +128,11 @@ class PostController extends Controller
             $request->file('thumb')->move(public_path('post-media'), $fileName);
 
             // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-            $img = Image::make(public_path('post-media/'.$fileName));
+            $img = Image::decodePath(public_path('post-media/'.$fileName));
             if ($img->height() > 1250) {
-                $img->resize(null, 750, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
+                $img->scaleDown(height: 750);
             }
-            $img->encode('jpg', 75);
-            $img->save(public_path('post-media/'.$fileName));
+            $img->save(public_path('post-media/'.$fileName), quality: 75);
 
             $image = $fileName;
         }
@@ -154,14 +147,11 @@ class PostController extends Controller
                 $file->move(public_path('post-media'), $fileName);
 
                 // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-                $img = Image::make(public_path('post-media/'.$fileName));
+                $img = Image::decodePath(public_path('post-media/'.$fileName));
                 if ($img->height() > 750) {
-                    $img->resize(null, 750, function ($constraint) {
-                        $constraint->aspectRatio();
-                    });
+                    $img->scaleDown(height: 750);
                 }
-                $img->encode('jpg', 75);
-                $img->save(public_path('post-media/'.$fileName));
+                $img->save(public_path('post-media/'.$fileName), quality: 75);
 
                 $imagePath = $fileName;
 
@@ -299,14 +289,11 @@ class PostController extends Controller
             $request->file('thumb')->move(public_path('post-media'), $fileName);
 
             // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-            $img = Image::make(public_path('post-media/'.$fileName));
+            $img = Image::decodePath(public_path('post-media/'.$fileName));
             if ($img->height() > 1250) {
-                $img->resize(null, 750, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
+                $img->scaleDown(height: 750);
             }
-            $img->encode('jpg', 75);
-            $img->save(public_path('post-media/'.$fileName));
+            $img->save(public_path('post-media/'.$fileName), quality: 75);
 
             $image = $fileName;
 
@@ -329,14 +316,11 @@ class PostController extends Controller
                 $file->move(public_path('post-media'), $fileName);
 
                 // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-                $img = Image::make(public_path('post-media/'.$fileName));
+                $img = Image::decodePath(public_path('post-media/'.$fileName));
                 if ($img->height() > 750) {
-                    $img->resize(null, 750, function ($constraint) {
-                        $constraint->aspectRatio();
-                    });
+                    $img->scaleDown(height: 750);
                 }
-                $img->encode('jpg', 75);
-                $img->save(public_path('post-media/'.$fileName));
+                $img->save(public_path('post-media/'.$fileName), quality: 75);
 
                 $imagePath = $fileName;
 
@@ -496,7 +480,7 @@ class PostController extends Controller
      **/
     public function ListNoticias(): View
     {
-        $DataAtual = \Carbon\Carbon::now();
+        $DataAtual = Carbon::now();
         $posts = Post::where('tipo', 'noticia')
             ->where('data_publicacao', '<=', $DataAtual)
             ->where('rascunho', 0)
@@ -514,7 +498,7 @@ class PostController extends Controller
             // Atualiza o conteúdo do post
             $post->conteudo = $primeirasDezPalavras.'...';
             // Trata a data
-            $post->data_publicacao = \Carbon\Carbon::parse($post->data_publicacao)->format('d/m/Y');
+            $post->data_publicacao = Carbon::parse($post->data_publicacao)->format('d/m/Y');
         }
 
         return view('site.pages.noticias', ['posts' => $posts, 'tipo' => 'noticia']);
@@ -526,7 +510,7 @@ class PostController extends Controller
      **/
     public function ListGalerias(): View
     {
-        $DataAtual = \Carbon\Carbon::now();
+        $DataAtual = Carbon::now();
         $posts = Post::where('tipo', 'galeria')
             ->where('data_publicacao', '<=', $DataAtual)
             ->where('rascunho', 0)
@@ -534,7 +518,7 @@ class PostController extends Controller
             ->get();
         foreach ($posts as $post) {
             // Trata a data
-            $post->data_publicacao = \Carbon\Carbon::parse($post->data_publicacao)->format('d/m/Y');
+            $post->data_publicacao = Carbon::parse($post->data_publicacao)->format('d/m/Y');
         }
 
         return view('site.pages.galerias', ['posts' => $posts, 'tipo' => 'galeria']);

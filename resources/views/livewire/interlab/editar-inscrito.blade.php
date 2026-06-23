@@ -194,7 +194,7 @@
                 <h6 class="mb-3">Endereço</h6>
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <x-forms.input-field wire:model.blur="form.cep" name="form.cep" label="CEP" required mask="cep" />
+                        <x-forms.input-field wire:model.live.blur="form.cep" name="form.cep" label="CEP" required mask="cep" />
                         @error('form.cep')
                             <span class="text-danger small">{{ $message }}</span>
                         @enderror

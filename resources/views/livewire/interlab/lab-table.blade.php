@@ -182,7 +182,7 @@
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label">CEP <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" wire:model.blur="cep" x-mask="99999-999">
+                                <input type="text" class="form-control" wire:model.live.blur="cep" x-mask="99999-999">
                                 @error('cep') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-9">
