@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\AtualizarInscritoCursoAction;
 use App\Actions\Financeiro\AtualizarLancamentoCursoAction;
-use App\Actions\InscreverParticipanteCursoAction;
+use App\Actions\SalvaInscritoAction;
+use App\Actions\SalvaInscritoInCompanyAction;
 use App\Http\Requests\StoreInscricaoCursoRequest;
 use App\Http\Requests\UpdateInscricaoCursoRequest;
 use App\Models\AgendaCursos;
@@ -43,7 +43,18 @@ class InscricaoCursoController extends Controller
      */
     public function salvaInscrito(StoreInscricaoCursoRequest $request): RedirectResponse
     {
-        app(InscreverParticipanteCursoAction::class)->execute($request->validated());
+        $agenda = AgendaCursos::query()->findOrFail($request->agenda_curso_id);
+
+        if ($agenda->tipo_agendamento === 'IN-COMPANY') {
+            app(SalvaInscritoInCompanyAction::class)->criar(
+                $agenda,
+                $request->nome,
+                $request->email,
+                $request->telefone
+            );
+        } else {
+            app(SalvaInscritoAction::class)->criar($agenda, $request->validated());
+        }
 
         return back()->with('success', 'Inscrito adicionado com sucesso')->withFragment('participantes');
     }
@@ -53,7 +64,13 @@ class InscricaoCursoController extends Controller
      */
     public function atualizaInscrito(CursoInscrito $inscrito, UpdateInscricaoCursoRequest $request): RedirectResponse
     {
-        app(AtualizarInscritoCursoAction::class)->execute($inscrito, $request->validated());
+        $inscrito->load('agendaCurso');
+
+        if ($inscrito->agendaCurso->tipo_agendamento === 'IN-COMPANY') {
+            app(SalvaInscritoInCompanyAction::class)->atualizar($inscrito, $request->validated());
+        } else {
+            app(SalvaInscritoAction::class)->atualizar($inscrito, $request->validated());
+        }
 
         return back()->with('success', 'Inscrito atualizado com sucesso')->withFragment('participantes');
     }
@@ -63,14 +80,19 @@ class InscricaoCursoController extends Controller
      */
     public function cancelaInscricao(CursoInscrito $inscrito): RedirectResponse
     {
+        $inscrito->load('agendaCurso');
+        $isInCompany = $inscrito->agendaCurso->tipo_agendamento === 'IN-COMPANY';
+
         $inscrito->delete();
 
-        if ($inscrito->empresa_id) {
-            app(AtualizarLancamentoCursoAction::class)->execute($inscrito);
-        } else {
-            LancamentoFinanceiro::where('pessoa_id', $inscrito->pessoa_id)
-                ->where('agenda_curso_id', $inscrito->agenda_curso_id)
-                ->delete();
+        if (! $isInCompany) {
+            if ($inscrito->empresa_id) {
+                app(AtualizarLancamentoCursoAction::class)->execute($inscrito);
+            } else {
+                LancamentoFinanceiro::where('pessoa_id', $inscrito->pessoa_id)
+                    ->where('agenda_curso_id', $inscrito->agenda_curso_id)
+                    ->delete();
+            }
         }
 
         return back()->with('success', 'Inscrição cancelada com sucesso!');

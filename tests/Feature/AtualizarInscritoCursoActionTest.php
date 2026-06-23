@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Actions\AtualizarInscritoCursoAction;
+use App\Actions\SalvaInscritoAction;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoInscrito;
@@ -157,7 +157,7 @@ class AtualizarInscritoCursoActionTest extends TestCase
             'valor' => 250.00,
         ];
 
-        app(AtualizarInscritoCursoAction::class)->execute($inscrito, $dados);
+        app(SalvaInscritoAction::class)->atualizar($inscrito, $dados);
 
         $inscrito->refresh();
 
@@ -200,7 +200,7 @@ class AtualizarInscritoCursoActionTest extends TestCase
             'valor' => 300.00,
         ];
 
-        app(AtualizarInscritoCursoAction::class)->execute($inscrito, $dados);
+        app(SalvaInscritoAction::class)->atualizar($inscrito, $dados);
 
         $inscrito->refresh();
 
@@ -227,7 +227,7 @@ class AtualizarInscritoCursoActionTest extends TestCase
             'valor' => 350.00,
         ];
 
-        app(AtualizarInscritoCursoAction::class)->execute($inscrito, $dados);
+        app(SalvaInscritoAction::class)->atualizar($inscrito, $dados);
 
         $inscrito->refresh();
 

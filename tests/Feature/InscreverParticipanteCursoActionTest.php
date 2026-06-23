@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Actions\Financeiro\GerarLancamentoCursoAction;
-use App\Actions\InscreverParticipanteCursoAction;
+use App\Actions\SalvaInscritoAction;
 use App\Mail\ConfirmacaoInscricaoCursoNotification;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
@@ -105,7 +105,7 @@ class InscreverParticipanteCursoActionTest extends TestCase
             'valor' => 150.00,
         ];
 
-        $inscrito = app(InscreverParticipanteCursoAction::class)->execute($dados);
+        $inscrito = app(SalvaInscritoAction::class)->criar($agenda, $dados);
 
         $this->assertInstanceOf(CursoInscrito::class, $inscrito);
         $this->assertDatabaseHas('curso_inscritos', [
@@ -170,7 +170,7 @@ class InscreverParticipanteCursoActionTest extends TestCase
             'valor' => null,
         ];
 
-        $inscrito = app(InscreverParticipanteCursoAction::class)->execute($dados);
+        $inscrito = app(SalvaInscritoAction::class)->criar($agenda, $dados);
 
         $this->assertInstanceOf(CursoInscrito::class, $inscrito);
         $this->assertEquals($empresa->id, $inscrito->empresa_id);
@@ -214,7 +214,7 @@ class InscreverParticipanteCursoActionTest extends TestCase
             'valor' => 150.00,
         ];
 
-        $inscrito = app(InscreverParticipanteCursoAction::class)->execute($dados);
+        $inscrito = app(SalvaInscritoAction::class)->criar($agenda, $dados);
 
         // Inscrição deve ser criada mesmo sem e-mail
         $this->assertInstanceOf(CursoInscrito::class, $inscrito);
@@ -257,7 +257,7 @@ class InscreverParticipanteCursoActionTest extends TestCase
         ];
 
         try {
-            app(InscreverParticipanteCursoAction::class)->execute($dados);
+            app(SalvaInscritoAction::class)->criar($agenda, $dados);
         } catch (RuntimeException $e) {
             // esperado
         }
