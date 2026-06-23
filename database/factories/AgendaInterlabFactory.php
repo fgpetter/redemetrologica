@@ -19,7 +19,6 @@ class AgendaInterlabFactory extends Factory
         return [
             'interlab_id' => InterlabFactory::new(),
             'status' => 'CONFIRMADO',
-            'certificado' => 'EMPRESA',
             'inscricao' => true,
             'site' => false,
             'destaque' => false,

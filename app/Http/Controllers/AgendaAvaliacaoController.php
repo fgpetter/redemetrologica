@@ -83,7 +83,7 @@ class AgendaAvaliacaoController extends Controller
 
         $total_geral_avaliadores = (float) $total_avaliadores->sum('total');
 
-        return view('painel.avaliacoes.insert',
+        return view('painel.avaliacoes.edit',
             [
                 'avaliacao' => $avaliacao,
                 'laboratorio' => $laboratorio,

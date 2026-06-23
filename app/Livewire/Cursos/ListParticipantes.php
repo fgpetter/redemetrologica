@@ -2,12 +2,9 @@
 
 namespace App\Livewire\Cursos;
 
+use App\Actions\SalvaInscritoInCompanyAction;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
-use App\Models\LancamentoFinanceiro;
-use App\Models\Pessoa;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class ListParticipantes extends Component
@@ -82,85 +79,12 @@ class ListParticipantes extends Component
             return;
         }
 
-        DB::transaction(function () use ($nome, $email, $telefone) {
-            $empresa = $this->agendacurso->empresa_id
-                ? Pessoa::query()->find($this->agendacurso->empresa_id)
-                : null;
-
-            $valorBase = $empresa && (int) $empresa->associado === 1
-                ? $this->agendacurso->investimento_associado
-                : $this->agendacurso->investimento;
-
-            $cursoInscrito = CursoInscrito::create([
-                'pessoa_id' => auth()->user()->pessoa->id,
-                'agenda_curso_id' => $this->agendacurso->id,
-                'empresa_id' => $this->agendacurso->empresa_id,
-                'nome' => $nome,
-                'email' => $email,
-                'telefone' => $telefone ?: null,
-                'valor' => $valorBase,
-                'data_inscricao' => now(),
-            ]);
-
-            if ($empresa) {
-                $lancamento = LancamentoFinanceiro::query()
-                    ->where('pessoa_id', $empresa->id)
-                    ->where('agenda_curso_id', $this->agendacurso->id)
-                    ->first();
-
-                if (! $lancamento) {
-                    $lancamento = LancamentoFinanceiro::create([
-                        'pessoa_id' => $empresa->id,
-                        'agenda_curso_id' => $this->agendacurso->id,
-                        'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
-                        'valor' => formataMoeda($valorBase),
-                        'centro_custo_id' => '3',
-                        'plano_conta_id' => '3',
-                        'data_emissao' => now(),
-                        'status' => 'PROVISIONADO',
-                        'observacoes' => 'Inscrição de '.$nome.', com valor de R$ '.formataMoeda($valorBase).', em '.now()->format('d/m/Y H:i'),
-                    ]);
-                } else {
-                    $inscritosEmpresa = CursoInscrito::query()
-                        ->where('empresa_id', $empresa->id)
-                        ->where('agenda_curso_id', $this->agendacurso->id)
-                        ->get();
-
-                    $observacoes = '';
-                    foreach ($inscritosEmpresa as $dado) {
-                        $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
-                        $observacoes .= "Inscrição de {$dado->nome}, com valor de R$ {$dado->valor}, em {$data} \n";
-                    }
-
-                    $lancamento->update([
-                        'valor' => $inscritosEmpresa->sum('valor'),
-                        'observacoes' => $observacoes,
-                    ]);
-                }
-            } else {
-                $pessoaUsuario = auth()->user()->pessoa;
-
-                $lancamento = LancamentoFinanceiro::updateOrCreate(
-                    [
-                        'pessoa_id' => $pessoaUsuario->id,
-                        'agenda_curso_id' => $this->agendacurso->id,
-                    ],
-                    [
-                        'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
-                        'valor' => formataMoeda($valorBase),
-                        'centro_custo_id' => '3',
-                        'plano_conta_id' => '3',
-                        'data_emissao' => now(),
-                        'status' => 'PROVISIONADO',
-                        'observacoes' => 'Inscrição de '.$nome.', em '.now()->format('d/m/Y H:i'),
-                    ]
-                );
-            }
-
-            $cursoInscrito->update([
-                'lancamento_financeiro_id' => $lancamento->id,
-            ]);
-        });
+        app(SalvaInscritoInCompanyAction::class)->criar(
+            $this->agendacurso,
+            $nome,
+            $email,
+            $telefone ?: null
+        );
 
         $this->reset(['nome', 'email', 'telefone']);
         session()->flash('success', 'Inscrito adicionado com sucesso!');

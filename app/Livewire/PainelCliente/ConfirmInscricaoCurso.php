@@ -2,17 +2,14 @@
 
 namespace App\Livewire\PainelCliente;
 
-use App\Exceptions\InvalidEmailException;
-use App\Mail\ConfirmacaoInscricaoCursoNotification;
+use App\Actions\NotifyInscricaoCursoAction;
+use App\Actions\SalvaInscritoAction;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Models\Endereco;
-use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class ConfirmInscricaoCurso extends Component
@@ -169,9 +166,10 @@ class ConfirmInscricaoCurso extends Component
             ]
         );
 
-        // Atualiza o campo end_cobranca na tabela Pessoa
+        // Atualiza os campos end_cobranca e email_cobranca na tabela Pessoa
         $empresa->update([
             'end_cobranca' => $enderecoCobranca->id,
+            'email_cobranca' => $enderecoCobranca->email,
         ]);
 
         // atualizar $empresa para mostrar os dados atualizados
@@ -384,65 +382,20 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarInscricaoCNPJ() // Método com regras para salvar inscrição de CNPJ
     {
-        $pessoa_empresa = Pessoa::where('id', $this->empresa['id'])->firstOrFail();
-        $pessoaIdUsuario = auth()->user()->pessoa->id;
+        $pessoaEmpresa = Pessoa::where('id', $this->empresa['id'])->firstOrFail();
+        $valor = $pessoaEmpresa->associado == 1
+            ? $this->agendacurso->investimento_associado
+            : $this->agendacurso->investimento;
 
         foreach ($this->inscricoes as $inscricao) {
-            $cursoInscrito = CursoInscrito::create([
-                'pessoa_id' => $pessoaIdUsuario,
-                'agenda_curso_id' => $this->agendacurso->id,
-                'empresa_id' => $pessoa_empresa->id,
+            app(SalvaInscritoAction::class)->criar($this->agendacurso, [
+                'tipo_inscricao' => 'cnpj',
+                'empresa_id' => $pessoaEmpresa->id,
                 'nome' => $inscricao['nome'],
                 'email' => $inscricao['email'],
                 'telefone' => $inscricao['telefone'],
-                'valor' => $pessoa_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento,
-                'data_inscricao' => now(),
-            ]);
-
-            $lancamento = LancamentoFinanceiro::where('pessoa_id', $this->empresa['id'])
-                ->where('agenda_curso_id', $this->agendacurso->id)
-                ->first();
-
-            // se a empresa não possui inscritos nesse curso, cria um novo lançamento
-            if (! $lancamento) {
-                $novoLancamentoFinanceiro = LancamentoFinanceiro::create([
-                    'pessoa_id' => $pessoa_empresa->id,
-                    'agenda_curso_id' => $this->agendacurso->id,
-                    'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
-                    'valor' => formataMoeda($pessoa_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento),
-                    'centro_custo_id' => '3', // TREINAMENTO
-                    'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
-                    'data_emissao' => now(),
-                    'status' => 'PROVISIONADO',
-                    'observacoes' => 'Inscrição de '.$inscricao['nome'].', com valor de R$ '.formataMoeda($pessoa_empresa->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento).', em '.now()->format('d/m/Y H:i'),
-                ]);
-
-                $cursoInscrito->update([
-                    'lancamento_financeiro_id' => $novoLancamentoFinanceiro->id,
-                ]);
-
-            } else { // se a empresa já possui inscritos nesse curso, atualiza o valor
-
-                $inscritos_empresa = CursoInscrito::where('empresa_id', $this->empresa['id'])
-                    ->where('agenda_curso_id', $this->agendacurso->id)
-                    ->with('pessoa')
-                    ->get();
-
-                $observacoes = '';
-                foreach ($inscritos_empresa as $dado) {
-                    $data = Carbon::parse($dado->data_inscricao)->format('d/m/Y H:i');
-                    $observacoes .= "Inscrição de {$dado->nome}, com valor de R$ {$dado->valor}, em {$data} \n";
-                }
-
-                $lancamento->update([
-                    'valor' => $inscritos_empresa->sum('valor'),
-                    'observacoes' => $observacoes,
-                ]);
-
-                $cursoInscrito->update([
-                    'lancamento_financeiro_id' => $lancamento->id,
-                ]);
-            }
+                'valor' => $valor,
+            ], enviarEmail: false);
         }
     }
 
@@ -450,89 +403,42 @@ class ConfirmInscricaoCurso extends Component
     {
         $pessoaUsuario = auth()->user()->pessoa;
         $inscricao = $this->inscricoes[0];
+        $valor = $pessoaUsuario->associado == 1
+            ? $this->agendacurso->investimento_associado
+            : $this->agendacurso->investimento;
 
-        $pessoaUsuario->update([
-            'nome_razao' => $inscricao['nome'],
+        app(SalvaInscritoAction::class)->criar($this->agendacurso, [
+            'tipo_inscricao' => 'cpf',
+            'idempotente' => true,
+            'pessoa_id' => $pessoaUsuario->id,
+            'nome' => $inscricao['nome'],
             'email' => $inscricao['email'],
             'telefone' => $inscricao['telefone'],
-            'cpf_cnpj' => $inscricao['cpf_cnpj'],
-        ]);
-
-        Endereco::updateOrCreate(
-            [
-                'pessoa_id' => $pessoaUsuario->id,
-            ],
-            [
-                'cep' => $inscricao['cep'],
-                'uf' => $inscricao['uf'],
-                'endereco' => $inscricao['endereco'],
-                'complemento' => $inscricao['complemento'],
-                'bairro' => $inscricao['bairro'],
-                'cidade' => $inscricao['cidade'],
-            ]
-        );
-
-        $valorUnitario = $pessoaUsuario->associado == 1 ? $this->agendacurso->investimento_associado : $this->agendacurso->investimento;
-
-        $cursoInscrito = CursoInscrito::updateOrCreate(
-            [
-                'pessoa_id' => $pessoaUsuario->id,
-                'agenda_curso_id' => $this->agendacurso->id,
-                'empresa_id' => null,
-            ],
-            [
-                'valor' => $valorUnitario,
-                'data_inscricao' => now(),
-                'nome' => $inscricao['nome'],
-                'email' => $inscricao['email'],
-                'telefone' => $inscricao['telefone'],
-            ]
-        );
-
-        $lancamento = LancamentoFinanceiro::updateOrCreate(
-            [
-                'pessoa_id' => $pessoaUsuario->id,
-                'agenda_curso_id' => $this->agendacurso->id,
-            ],
-            [
-                'historico' => 'Inscrição no curso - '.$this->agendacurso->curso->descricao,
-                'valor' => formataMoeda($valorUnitario),
-                'centro_custo_id' => '3', // TREINAMENTO
-                'plano_conta_id' => '3', // RECEITA PRESTAÇÃO DE SERVIÇOS
-                'data_emissao' => now(),
-                'status' => 'PROVISIONADO',
-                'observacoes' => 'Inscrição de '.$inscricao['nome'].', em '.now()->format('d/m/Y H:i'),
-            ]
-        );
-
-        $cursoInscrito->update([
-            'lancamento_financeiro_id' => $lancamento->id,
-        ]);
+            'cpf' => $inscricao['cpf_cnpj'],
+            'cep' => $inscricao['cep'],
+            'uf' => $inscricao['uf'],
+            'endereco' => $inscricao['endereco'],
+            'complemento' => $inscricao['complemento'],
+            'bairro' => $inscricao['bairro'],
+            'cidade' => $inscricao['cidade'],
+            'valor' => $valor,
+        ], enviarEmail: false);
     }
 
-    public function enviaEmail() // Método com regras para envio de emails para os inscritos
+    private function enviarConfirmacaoInscricao(): void
     {
-        $delay = 0;
-        foreach ($this->inscricoes as $inscricao) {
-            $dadosParticipante = [
-                'nome' => $inscricao['nome'],
-                'email' => $inscricao['email'],
-                'telefone' => $inscricao['telefone'] ?? '',
-                'empresa_nome' => $this->empresa['nome_razao'] ?? null,
-            ];
+        $participantes = collect($this->inscricoes)->map(fn (array $inscricao) => [
+            'nome' => $inscricao['nome'],
+            'email' => $inscricao['email'],
+            'telefone' => $inscricao['telefone'] ?? '',
+            'empresa_nome' => $this->empresa['nome_razao'] ?? null,
+        ])->values()->all();
 
-            if (empty($inscricao['email'])) {
-                $content = [
-                    'class' => self::class,
-                    'inscricao_id' => $inscricao['id'],
-                ];
-                new InvalidEmailException($content);
-            } else {
-                Mail::to($inscricao['email'])
-                    ->later(now()->addSeconds($delay), new ConfirmacaoInscricaoCursoNotification($dadosParticipante, $this->agendacurso));
-            }
-            $delay += 5;
-        }
+        app(NotifyInscricaoCursoAction::class)->execute(
+            $this->agendacurso,
+            $participantes,
+            intervaloSegundos: 5
+        );
     }
 
     public function salvarInscricoes() // método que consolida e conclui a inscrição
@@ -546,7 +452,7 @@ class ConfirmInscricaoCurso extends Component
             DB::transaction(fn () => $this->salvarInscricaoCPF());
         }
 
-        $this->enviaEmail();
+        $this->enviarConfirmacaoInscricao();
 
         // limpa os dados da sessão e volta para o painel
         session()->forget(['curso', 'empresa']);
@@ -576,7 +482,7 @@ class ConfirmInscricaoCurso extends Component
         $this->inscricoes = [
             ['id_pessoa' => '', 'nome' => '', 'email' => '', 'telefone' => '', 'cpf_cnpj' => '', 'cep' => '', 'endereco' => '', 'complemento' => '', 'bairro' => '', 'cidade' => '', 'uf' => '', 'responsavel' => 0],
         ];
-        session()->forget(['curso', 'empresa', 'convite']);
+        session()->forget(['curso', 'empresa']);
 
         return redirect('painel');
     }

@@ -69,7 +69,7 @@ class InterlabController extends Controller
             'VETERINARIO' => 'PEP_VETERINARIO.png',
         ];
 
-        return view('painel.interlabs.insert', ['interlab' => $interlab, 'thumbs' => $thumbs]);
+        return view('painel.interlabs.edit', ['interlab' => $interlab, 'thumbs' => $thumbs]);
     }
 
     /**

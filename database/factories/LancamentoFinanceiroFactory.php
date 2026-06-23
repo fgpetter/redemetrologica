@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\CentroCusto;
+use App\Models\PlanoConta;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,8 +25,8 @@ class LancamentoFinanceiroFactory extends Factory
             'documento' => null,
             'nota_fiscal' => null,
             'pessoa_id' => PessoaFactory::new(),
-            'centro_custo_id' => 4,
-            'plano_conta_id' => 3,
+            'centro_custo_id' => CentroCusto::ID_INTERLABORATORIAL,
+            'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
             'historico' => fake()->sentence(),
             'tipo_lancamento' => 'CREDITO',
             'valor' => 100.00,

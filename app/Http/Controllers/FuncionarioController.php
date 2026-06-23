@@ -133,7 +133,7 @@ class FuncionarioController extends Controller
      **/
     public function insert(Funcionario $funcionario): View
     {
-        return view('painel.funcionarios.insert', ['funcionario' => $funcionario]);
+        return view('painel.funcionarios.edit', ['funcionario' => $funcionario]);
     }
 
     /**

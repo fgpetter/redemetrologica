@@ -229,7 +229,7 @@ class PostController extends Controller
     {
         $postMedia = PostMedia::where('slug_post', $post->slug)->get();
 
-        return view('painel.post.insert', ['post' => $post, 'postMedia' => $postMedia,  'tipo' => 'noticia']);
+        return view('painel.post.edit', ['post' => $post, 'postMedia' => $postMedia,  'tipo' => 'noticia']);
     }
 
     /**
@@ -240,7 +240,7 @@ class PostController extends Controller
     {
         $postMedia = PostMedia::where('slug_post', $post->slug)->get();
 
-        return view('painel.post.insert', ['post' => $post, 'postMedia' => $postMedia, 'tipo' => 'galeria']);
+        return view('painel.post.edit', ['post' => $post, 'postMedia' => $postMedia, 'tipo' => 'galeria']);
     }
 
     /**

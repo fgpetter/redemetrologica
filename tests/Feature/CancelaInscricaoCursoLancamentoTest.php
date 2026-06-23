@@ -9,14 +9,14 @@ use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CancelaInscricaoCursoLancamentoTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function uniqueCpfDigits(): string
     {
@@ -195,8 +195,8 @@ class CancelaInscricaoCursoLancamentoTest extends TestCase
 
         $lancamento->refresh();
         $this->assertSame(80.0, (float) $lancamento->valor);
-        $this->assertStringContainsString('80.00', (string) $lancamento->observacoes);
-        $this->assertStringNotContainsString('100.00', (string) $lancamento->observacoes);
+        $this->assertStringContainsString('80,00', (string) $lancamento->observacoes);
+        $this->assertStringNotContainsString('100,00', (string) $lancamento->observacoes);
 
         if (Schema::hasColumn('curso_inscritos', 'nome')) {
             $this->assertStringContainsString('Participante B', (string) $lancamento->observacoes);

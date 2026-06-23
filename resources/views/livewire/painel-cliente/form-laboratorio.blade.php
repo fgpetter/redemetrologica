@@ -95,9 +95,13 @@
                 wire:blur="buscaCep" maxlength="9" x-mask="99999-999" required />
              @error('laboratorio.endereco.cep') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
-        <div class="col-md-8">
+        <div class="col-md-6">
              <x-forms.input-field wire:model="laboratorio.endereco.endereco" name="lab_end" label="Endereço" required />
              @error('laboratorio.endereco.endereco') <span class="text-danger small">{{ $message }}</span> @enderror
+        </div>
+        <div class="col-md-2">
+             <x-forms.input-field wire:model="laboratorio.endereco.numero" name="lab_num" label="Número" required />
+             @error('laboratorio.endereco.numero') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
          <div class="col-md-6">
              <x-forms.input-field wire:model="laboratorio.endereco.complemento" name="lab_comp" label="Complemento" />

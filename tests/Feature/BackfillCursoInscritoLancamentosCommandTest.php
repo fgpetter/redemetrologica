@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\AgendaCursos;
+use App\Models\CentroCusto;
 use App\Models\Curso;
 use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Models\PlanoConta;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -16,7 +18,7 @@ use Tests\TestCase;
 
 class BackfillCursoInscritoLancamentosCommandTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     public function test_comando_backfill_esta_registrado_no_artisan(): void
     {
@@ -242,8 +244,8 @@ class BackfillCursoInscritoLancamentosCommandTest extends TestCase
             'historico' => 'Inscrição no curso',
             'tipo_lancamento' => 'CREDITO',
             'valor' => 100,
-            'centro_custo_id' => 3,
-            'plano_conta_id' => 3,
+            'centro_custo_id' => CentroCusto::ID_TREINAMENTO,
+            'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
             'data_emissao' => now()->toDateString(),
             'status' => 'PROVISIONADO',
         ], $attributes));

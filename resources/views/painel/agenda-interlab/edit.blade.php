@@ -1,0 +1,25 @@
+@extends('layouts.master')
+@section('title')
+    @if ($agendainterlab->id) Editar Agendamento de Interlab @else Cadastrar Agendamento de Interlab @endif
+@endsection
+@section('content')
+
+    <x-breadcrumb 
+    li1="Agendamento de Interlab" 
+    li1link="agenda-interlab-index"
+    :title="$agendainterlab->id ? 'Editar Agendamento de Interlab' : 'Cadastrar Agendamento de Interlab'"/>
+
+    <div class="row">
+        <div class="col-12">
+            <x-painel.agenda-interlab.edit 
+                :pessoas="$pessoas" 
+                :agendainterlab="$agendainterlab" 
+                :interlabs="$interlabs"
+                :interlabParametros="$interlabParametros"
+                :parametros="$parametros"
+                :idinterlab="$idinterlab"
+                :inscritosCount="$inscritosCount"
+            />
+        </div>
+    </div>
+@endsection

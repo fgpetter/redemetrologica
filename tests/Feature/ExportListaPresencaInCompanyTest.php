@@ -10,13 +10,13 @@ use App\Models\Instrutor;
 use App\Models\Permission;
 use App\Models\Pessoa;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ExportListaPresencaInCompanyTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function userComPermissaoPainel(): User
     {

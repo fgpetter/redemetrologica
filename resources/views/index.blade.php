@@ -84,7 +84,7 @@
           {{-- Lista de interlabs inscritos --}}
           <livewire:painel-cliente.inscritos-interlab />
 
-          {{-- Lista de cursos inscritos e convites --}}
+          {{-- Lista de cursos inscritos --}}
           <x-painel.cliente.listagem-cursos-inscritos :cursos="auth()->user()->pessoa->cursos" />
       @endif
     @endif

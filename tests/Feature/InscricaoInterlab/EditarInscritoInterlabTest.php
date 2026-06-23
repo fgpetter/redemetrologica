@@ -89,7 +89,7 @@ class EditarInscritoInterlabTest extends TestCase
 
         $inscrito->refresh();
 
-        $this->assertSame('1500.00', (string) $inscrito->valor);
+        $this->assertSame(1500.0, (float) $inscrito->valor);
         $this->assertNotNull($inscrito->lancamento_financeiro_id);
         $this->assertDatabaseCount('lancamentos_financeiros', 1);
         $this->assertDatabaseHas('lancamentos_financeiros', [
