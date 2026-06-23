@@ -1,6 +1,6 @@
 <?php
  
-namespace App\View\Components\Painel\Unidades;
+namespace App\View\Components\Painel\PainelCliente\Unidades;
 
 use Illuminate\View\Component;
  
