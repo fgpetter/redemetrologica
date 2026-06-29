@@ -183,12 +183,12 @@
 
     <div class="info-group">
         <span class="label">Empresa:</span>
-        <span class="value">{{ $dadosDoc->content['empresa_nome_razao'] }}</span>
+        <span class="value">{{ strtoupper($dadosDoc->content['empresa_nome_razao']) }}</span>
     </div>
 
     <div class="info-group">
         <span class="label">Laboratório:</span>
-        <span class="value">{{ $dadosDoc->content['laboratorio_nome'] }}</span>
+        <span class="value">{{ strtoupper($dadosDoc->content['laboratorio_nome']) }}</span>
     </div>
 
     <div class="info-group">
