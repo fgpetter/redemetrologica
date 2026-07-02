@@ -122,7 +122,7 @@
 
             <p class="h3">Associação Rede de Metrologia e Ensaios do RS certifica que</p>
 
-            <p class="h4 font-weight-bold my-3">{{ $dadosDoc->content['participante_nome'] }}</p>
+            <p class="h4 font-weight-bold my-3">{{ strtoupper($dadosDoc->content['participante_nome']) }}</p>
 
             <p class="h3">Participou do curso de</p>
 
@@ -166,7 +166,7 @@
         <p class="field-value">{{ $dadosDoc->content['carga_horaria'] ?? '' }} horas</p>
 
         <p class="field-label">Instrutor(a):</p>
-        <p class="field-value">{{ $dadosDoc->content['instrutor_nome'] ?? '' }}</p>
+        <p class="field-value">{{ strtoupper($dadosDoc->content['instrutor_nome'] ?? '') }}</p>
 
         <p class="field-label">Local de Realização:</p>
         <p class="field-value">{{ $localRealizacaoCertificado ?? '' }}</p>
