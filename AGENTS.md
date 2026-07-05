@@ -5,6 +5,13 @@
 
 The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to ensure the best experience when building Laravel applications.
 
+## Agent Operating Rules
+
+- Never make free-form inferences. Always consult official Laravel documentation via the `laravel-boost` MCP `search-docs` tool, or the official docs at https://laravel.com/docs/11.x
+- Always prioritize generating code in idiomatic Laravel style.
+- Never write or run tests unless explicitly requested by the user.
+- Never run Laravel Pint or similar formatters unless explicitly requested by the user.
+
 ## Foundational Context
 
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
@@ -65,7 +72,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Searching Documentation (IMPORTANT)
 
-- Always use `search-docs` before making code changes. Do not skip this step. It returns version-specific docs based on installed packages automatically.
+- Never make free-form inferences about Laravel APIs or behavior. Always use `search-docs` before making code changes, or consult https://laravel.com/docs/11.x. Do not skip this step. It returns version-specific docs based on installed packages automatically.
 - Pass a `packages` array to scope results when you know which packages are relevant.
 - Use multiple broad, topic-based queries: `['rate limiting', 'routing rate limiting', 'routing']`. Expect the most relevant results first.
 - Do not add package names to queries because package info is already shared. Use `test resource table`, not `filament 4 test resource table`.
@@ -124,7 +131,8 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Test Enforcement
 
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
+- Do not write or run tests unless explicitly requested by the user.
+- When the user requests tests, write a new test or update an existing test, then run the affected tests to make sure they pass.
 - Run the minimum number of tests needed to ensure code quality and speed. Use `vendor/bin/sail artisan test --compact` with a specific filename or filter.
 
 === laravel/core rules ===
@@ -149,6 +157,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Testing
 
+- Only write or run tests when explicitly requested by the user.
 - When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
 - Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
 - When creating tests, make use of `vendor/bin/sail artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
@@ -202,22 +211,25 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Laravel Pint Code Formatter
 
-- If you have modified any PHP files, you must run `vendor/bin/sail bin pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
+- Do not run Laravel Pint or similar formatters unless explicitly requested by the user.
+- When the user requests formatting, run `vendor/bin/sail bin pint --dirty --format agent` to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/sail bin pint --test --format agent`, simply run `vendor/bin/sail bin pint --format agent` to fix any formatting issues.
 
 === phpunit/core rules ===
 
 # PHPUnit
 
+- Do not write or run tests unless explicitly requested by the user.
 - This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `vendor/bin/sail artisan make:test --phpunit {name}` to create a new test.
 - If you see a test using "Pest", convert it to PHPUnit.
-- Every time a test has been updated, run that singular test.
+- When the user requests tests and a test has been updated, run that singular test.
 - When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
 - Tests should cover all happy paths, failure paths, and edge cases.
 - You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files; these are core to the application.
 
 ## Running Tests
 
+- Only run tests when explicitly requested by the user.
 - Run the minimal number of tests, using an appropriate filter, before finalizing.
 - To run all tests: `vendor/bin/sail artisan test --compact`.
 - To run all tests in a file: `vendor/bin/sail artisan test --compact tests/Feature/ExampleTest.php`.
