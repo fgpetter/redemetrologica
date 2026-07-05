@@ -242,13 +242,13 @@
 
         {{-- CADASTROS ADICIONAIS --}}
         <li class="nav-item">
-          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
+          <a class="nav-link menu-link collapsed {{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/tipos-avaliacao']) ? 'active' : '' }}"
             href="#sidebarCadastrosAdicionais" data-bs-toggle="collapse" role="button"
-            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
+            aria-expanded="{{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/tipos-avaliacao']) ? 'true' : 'false' }}"
             aria-controls="sidebarCadastrosAdicionais">
             <i class="ph-list"></i> <span>CADASTROS ADICIONAIS</span>
           </a>
-          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/parametros', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
+          <div class="collapse menu-dropdown {{ in_array(request()->route()->getPrefix(), ['painel/plano-conta', 'painel/modalidade-pagamento', 'painel/centro-custo', 'painel/banco', 'painel/area-atuacao', 'painel/materiais-padroes', 'painel/tipos-avaliacao']) ? 'show' : '' }}"
             id="sidebarCadastrosAdicionais">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
@@ -263,13 +263,6 @@
                 class="nav-link {{ request()->is('painel/materiais-padroes/index') ? 'active' : '' }}"
                 role="button" data-key="t-materiais-padroes">
                 Materiais Padrões
-              </a>
-              </li>
-              <li class="nav-item">
-              <a href="{{ route('parametros-index') }}"
-                class="nav-link {{ request()->is('painel/parametros/index') ? 'active' : '' }}"
-                role="button" data-key="t-parametros">
-                Parâmetros
               </a>
               </li>
               <li class="nav-item">

@@ -2,14 +2,14 @@
 
 namespace App\Livewire\Interlab;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\Attributes\Url;
+use App\Models\Endereco;
 use App\Models\InterlabLaboratorio;
 use App\Models\Pessoa;
-use App\Models\Endereco;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Url;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class LabTable extends Component
 {
@@ -33,21 +33,29 @@ class LabTable extends Component
     #[Url(as: 'sd', history: false)]
     public $sortDirection = 'DESC';
 
-    // Modal 
+    // Modal
     public $showModal = false;
+
     public $isEdit = false;
 
     // Lab
     public $labId;
+
     public $nome;
+
     public $empresa_id;
 
     // Endereco
     public $cep;
+
     public $endereco;
+
     public $complemento;
+
     public $bairro;
+
     public $cidade;
+
     public $uf;
 
     protected function rules()
@@ -63,7 +71,6 @@ class LabTable extends Component
             'uf' => 'required|string|size:2',
         ];
     }
-
 
     public function setSortBy($field)
     {
@@ -105,7 +112,7 @@ class LabTable extends Component
             } else {
                 $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
 
-                if ($response->successful() && !isset($response->json()['erro'])) {
+                if ($response->successful() && ! isset($response->json()['erro'])) {
                     $data = $response->json();
                     $this->endereco = $data['logradouro'] ?? '';
                     $this->bairro = $data['bairro'] ?? '';
@@ -172,7 +179,7 @@ class LabTable extends Component
             // laboratório
             $lab = $this->isEdit && $this->labId
                 ? InterlabLaboratorio::findOrFail($this->labId)
-                : new InterlabLaboratorio();
+                : new InterlabLaboratorio;
 
             // endereço
             if ($lab->endereco_id) {
@@ -212,7 +219,7 @@ class LabTable extends Component
             'bairro',
             'cidade',
             'uf',
-            'isEdit'
+            'isEdit',
         ]);
         $this->dispatch('reset-empresa-modal');
     }
@@ -244,7 +251,7 @@ class LabTable extends Component
     {
         $query = InterlabLaboratorio::with([
             'empresa',
-            'inscritos.agendaInterlab.interlab'
+            'inscritos.agendaInterlab.interlab',
         ]);
 
         $query = $this->applySearchFilter($query);
@@ -258,6 +265,7 @@ class LabTable extends Component
     protected function applySearchFilter($query)
     {
         $search = trim($this->search);
+
         return $query->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nome', 'like', "%{$search}%")
@@ -272,6 +280,7 @@ class LabTable extends Component
     protected function applyPepFilter($query)
     {
         $searchPep = trim($this->searchPep);
+
         return $query->when($searchPep, function ($query) use ($searchPep) {
             $query->whereHas('inscritos.agendaInterlab.interlab', function ($subQuery) use ($searchPep) {
                 $subQuery->where('nome', 'like', "%{$searchPep}%");
@@ -307,7 +316,7 @@ class LabTable extends Component
 
         return view('livewire.interlab.lab-table', [
             'laboratorios' => $laboratorios,
-            'allEmpresas' => $this->getAllEmpresasProperty()
+            'allEmpresas' => $this->getAllEmpresasProperty(),
         ]);
     }
 }

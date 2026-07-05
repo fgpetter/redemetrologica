@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use App\Models\Fornecedor;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class InterlabDespesa extends Model
 {
-    use SoftDeletes, LogsActivity, SetDefaultUid;
+    use LogsActivity, SetDefaultUid, SoftDeletes;
 
     protected $table = 'interlab_despesas';
 
@@ -28,17 +27,14 @@ class InterlabDespesa extends Model
 
     /**
      * Carrega Interlab
-     * @return BelongsTo
      */
     public function interlab(): BelongsTo
     {
         return $this->belongsTo(Interlab::class);
     }
 
-
     /**
      * Carrega fornecedor relacionado
-     * @return BelongsTo
      */
     public function interlabFornecedor(): BelongsTo
     {
@@ -47,7 +43,6 @@ class InterlabDespesa extends Model
 
     /**
      * Carrega material padrão
-     * @return HasOne
      */
     public function materialPadrao(): HasOne
     {

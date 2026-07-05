@@ -51,11 +51,11 @@ class AgendaInterlab extends Model
     }
 
     /**
-     * Retorna parametros associados
+     * Retorna avaliações de fornecedores associadas
      */
-    public function parametros(): HasMany
+    public function fornecedorAvaliacoes(): HasMany
     {
-        return $this->hasMany(InterlabParametro::class);
+        return $this->hasMany(FornecedorAvaliacao::class);
     }
 
     /**

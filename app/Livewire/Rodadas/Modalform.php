@@ -21,9 +21,6 @@ class Modalform extends Component
 
     public RodadaForm $form;
 
-    // Propriedade separada para parâmetros (checkboxes não funcionam bem em Form Objects)
-    public array $parametros = [];
-
     // Propriedades separadas para upload de arquivos (Livewire não funciona bem com uploads em Form Objects)
     #[Validate('nullable|file|mimes:doc,docx,pdf|max:5120', message: [
         'file' => 'O arquivo de envio de amostras deve ser válido',
@@ -58,10 +55,8 @@ class Modalform extends Component
         if ($this->rodadaUid) {
             $rodada = InterlabRodada::where('uid', $this->rodadaUid)->first();
             $this->form->setRodada($rodada);
-            $this->parametros = $rodada->parametros->pluck('parametro_id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->form->setNew($this->agendainterlab->id);
-            $this->parametros = [];
         }
     }
 
@@ -137,7 +132,6 @@ class Modalform extends Component
             }
 
             $interlab_rodada->save();
-            $interlab_rodada->updateParametros($this->parametros);
         });
 
         // Atualiza rodadaUid se for nova
@@ -149,7 +143,6 @@ class Modalform extends Component
         $rodada = InterlabRodada::where('uid', $this->form->uid)->first();
         if ($rodada) {
             $this->form->setRodada($rodada);
-            $this->parametros = $rodada->parametros->pluck('parametro_id')->map(fn ($id) => (string) $id)->toArray();
         }
         $this->limparArquivos();
 
@@ -184,8 +177,6 @@ class Modalform extends Component
 
     public function render()
     {
-        return view('livewire.rodadas.modal-form', [
-            'interlabParametros' => $this->agendainterlab->parametros,
-        ]);
+        return view('livewire.rodadas.modal-form');
     }
 }

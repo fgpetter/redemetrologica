@@ -27,7 +27,6 @@ use App\Http\Controllers\LancamentoFinanceiroController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\PainelController;
-use App\Http\Controllers\ParametrosController;
 use App\Http\Controllers\PlanoContaController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostMediaController;
@@ -297,10 +296,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('upload-protocolo/{agendainterlab:uid}', [AgendaInterlabController::class, 'uploadProtocolo'])->name('agenda-interlab-upload-protocolo');
         Route::post('delete-protocolo/{agendainterlab:uid}', [AgendaInterlabController::class, 'deleteProtocolo'])->name('agenda-interlab-delete-protocolo');
 
-        /* Parametros */
-        Route::post('salva-parametro', [AgendaInterlabController::class, 'salvaParametro'])->name('salva-parametro');
-        Route::post('delete-parametro/{parametro}', [AgendaInterlabController::class, 'deleteParametro'])->name('delete-parametro');
-
         Route::get('export/{agendainterlab:uid}', [AgendaInterlabController::class, 'exportLaboratoriosToXLS'])->name('interlab-relatorio-inscritos');
     });
 
@@ -329,14 +324,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('store', [MateriaisPadroesController::class, 'store'])->name('materiais-padroes-store');
         Route::post('update/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('materiais-padroes-update');
         Route::post('delete/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'destroy'])->name('materiais-padroes-delete');
-    });
-
-    /* Cadastro de parâmetros */
-    Route::group(['prefix' => 'parametros', 'middleware' => 'permission:funcionario,admin'], function () {
-        Route::get('index', [ParametrosController::class, 'index'])->name('parametros-index');
-        Route::post('store', [ParametrosController::class, 'store'])->name('parametro-store');
-        Route::post('update/{parametro:uid}', [ParametrosController::class, 'update'])->name('parametro-update');
-        Route::post('delete/{parametro:uid}', [ParametrosController::class, 'destroy'])->name('parametro-delete');
     });
 
     /* Cadastro de tipos de avaliação */

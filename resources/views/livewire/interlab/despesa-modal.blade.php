@@ -59,6 +59,44 @@
                                 </div>
                             @endforeach
 
+                            @if (count($produtos) >= 1)
+                                <div class="col-12 border rounded p-3">
+                                    <h6 class="mb-3">Avaliar fornecedor</h6>
+                                    @error('avaliacao')
+                                        <div class="text-danger small mb-2">{{ $message }}</div>
+                                    @enderror
+                                    <div class="row gy-2">
+                                        <div class="col-md-4">
+                                            <label for="avaliacao_custo" class="form-label">Custo</label>
+                                            <select id="avaliacao_custo" class="form-select" wire:model="avaliacaoCusto">
+                                                <option value="">Não avaliar</option>
+                                                @for ($i = 0; $i <= 5; $i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="avaliacao_tempo" class="form-label">Tempo</label>
+                                            <select id="avaliacao_tempo" class="form-select" wire:model="avaliacaoTempo">
+                                                <option value="">Não avaliar</option>
+                                                @for ($i = 0; $i <= 5; $i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="avaliacao_qualidade" class="form-label">Qualidade</label>
+                                            <select id="avaliacao_qualidade" class="form-select" wire:model="avaliacaoQualidade">
+                                                <option value="">Não avaliar</option>
+                                                @for ($i = 0; $i <= 5; $i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="col-12">
                                 <button type="button" class="btn btn-sm btn-outline-primary" wire:click="adicionarProduto">
                                     <i class="ri-add-line align-bottom me-1"></i> Adicionar produto

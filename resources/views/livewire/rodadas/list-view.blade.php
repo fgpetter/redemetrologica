@@ -20,7 +20,6 @@
                     <tr>
                         <th scope="col">Descrição</th>
                         <th scope="col">Cronograma</th>
-                        <th scope="col">Parâmetros dessa rodada</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;">Vias</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
@@ -30,15 +29,6 @@
                         <tr wire:key="{{ $rodada->uid }}">
                             <td>{{ $rodada->descricao }}</td>
                             <td style="width: 30%; white-space: normal;">{!! nl2br($rodada->cronograma) !!}</td>
-                            <td style="width: 30%; white-space: normal;">
-                                <ul>
-                                    @forelse ($rodada->parametros as $parametro)
-                                        <li>{{ $parametro->parametro->descricao }}</li>
-                                    @empty
-                                        Nenhum Parâmetro
-                                    @endforelse
-                                </ul>
-                            </td>
                             <td class="text-center">{{ $rodada->vias }}</td>
                             <td>
                                 <div class="dropdown">
@@ -71,7 +61,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">Não há rodadas cadastradas</td>
+                            <td colspan="4" class="text-center">Não há rodadas cadastradas</td>
                         </tr>
                     @endforelse
                 </tbody>

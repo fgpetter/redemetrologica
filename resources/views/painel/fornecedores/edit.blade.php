@@ -16,6 +16,7 @@
     @if ($fornecedor->id)
       <div class="col-4">
          <livewire:dados-bancarios.listview :pessoa="$fornecedor->pessoa" />
+         <x-painel.fornecedores.avaliacoes :fornecedor="$fornecedor" />
       </div>
     @endif
 

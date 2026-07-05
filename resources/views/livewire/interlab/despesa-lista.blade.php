@@ -15,7 +15,6 @@
                 <thead>
                     <tr>
                         <th scope="col">Fornecedor</th>
-                        <th scope="col">Material/Serviço</th>
                         <th scope="col" style="width: 12%; white-space: nowrap;">Val total</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
@@ -24,19 +23,6 @@
                     @forelse ($agrupadas as $grupo)
                         <tr wire:key="despesa-{{ $grupo['fornecedor_id'] }}">
                             <td>{{ $grupo['fornecedor_nome'] }}</td>
-                            <td>
-                                @if (count($grupo['materiais']) > 1)
-                                    <ul class="mb-0 ps-3">
-                                        @foreach ($grupo['materiais'] as $material)
-                                            <li>{{ $material }}</li>
-                                        @endforeach
-                                    </ul>
-                                @elseif (count($grupo['materiais']) === 1)
-                                    {{ $grupo['materiais'][0] }}
-                                @else
-                                    —
-                                @endif
-                            </td>
                             <td>{{ 'R$ ' . number_format($grupo['total'], 2, ',', '.') }}</td>
                             <td>
                                 <div class="dropdown">
@@ -75,13 +61,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">Não há despesas cadastradas</td>
+                            <td colspan="3" class="text-center">Não há despesas cadastradas</td>
                         </tr>
                     @endforelse
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="2" class="text-end fw-bold">Total:</td>
+                        <td class="text-end fw-bold">Total:</td>
                         <td class="fw-bold">{{ 'R$ ' . number_format($totalGeral, 2, ',', '.') }}</td>
                         <td></td>
                     </tr>

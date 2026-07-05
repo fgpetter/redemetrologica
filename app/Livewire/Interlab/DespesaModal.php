@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Interlab;
 
+use App\Actions\Interlab\SyncFornecedorAvaliacaoAction;
 use App\Enums\FornecedorArea;
 use App\Models\Fornecedor;
+use App\Models\FornecedorAvaliacao;
 use App\Models\InterlabDespesa;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -19,6 +21,12 @@ class DespesaModal extends Component
     public string $fornecedorId = '';
 
     public ?int $editingIndex = 0;
+
+    public string $avaliacaoCusto = '';
+
+    public string $avaliacaoTempo = '';
+
+    public string $avaliacaoQualidade = '';
 
     public array $produtos = [
         [
@@ -54,6 +62,9 @@ class DespesaModal extends Component
         $this->fornecedorId = '';
         $this->despesaEditandoId = null;
         $this->editingIndex = 0;
+        $this->avaliacaoCusto = '';
+        $this->avaliacaoTempo = '';
+        $this->avaliacaoQualidade = '';
         $this->produtos = [
             [
                 'material_servico' => '',
@@ -95,6 +106,7 @@ class DespesaModal extends Component
             'data_compra' => $d->data_compra?->format('Y-m-d') ?? '',
         ])->toArray();
         $this->editingIndex = null;
+        $this->carregarAvaliacao($fornecedorId);
         $this->resetValidation();
         $this->showModal = true;
     }
@@ -183,7 +195,7 @@ class DespesaModal extends Component
             }
             if (count($produtosValidados) < count($ids)) {
                 foreach (array_slice($ids, count($produtosValidados)) as $id) {
-                    InterlabDespesa::where('id', $id)->delete();
+                    InterlabDespesa::find($id)?->delete();
                 }
             }
         } else {
@@ -193,6 +205,14 @@ class DespesaModal extends Component
                 InterlabDespesa::create($data);
             }
         }
+
+        app(SyncFornecedorAvaliacaoAction::class)->sync(
+            $this->agendaInterlabId,
+            $fornecedorId,
+            $this->avaliacaoComoInt($this->avaliacaoCusto),
+            $this->avaliacaoComoInt($this->avaliacaoTempo),
+            $this->avaliacaoComoInt($this->avaliacaoQualidade),
+        );
 
         $this->dispatch('despesa-salva');
         session()->flash('success', 'Despesa(s) salva(s) com sucesso.');
@@ -217,7 +237,8 @@ class DespesaModal extends Component
     {
         InterlabDespesa::where('agenda_interlab_id', $this->agendaInterlabId)
             ->where('fornecedor_id', $fornecedorId)
-            ->delete();
+            ->get()
+            ->each->delete();
         $this->dispatch('despesa-deletada');
         session()->flash('warning', 'Despesas do fornecedor removidas.');
         $this->fechar();
@@ -226,6 +247,27 @@ class DespesaModal extends Component
     public function fechar(): void
     {
         $this->showModal = false;
+    }
+
+    private function carregarAvaliacao(int $fornecedorId): void
+    {
+        $avaliacao = FornecedorAvaliacao::query()
+            ->where('agenda_interlab_id', $this->agendaInterlabId)
+            ->where('fornecedor_id', $fornecedorId)
+            ->first();
+
+        $this->avaliacaoCusto = $avaliacao?->custo !== null ? (string) $avaliacao->custo : '';
+        $this->avaliacaoTempo = $avaliacao?->tempo !== null ? (string) $avaliacao->tempo : '';
+        $this->avaliacaoQualidade = $avaliacao?->qualidade !== null ? (string) $avaliacao->qualidade : '';
+    }
+
+    private function avaliacaoComoInt(string $valor): ?int
+    {
+        if ($valor === '') {
+            return null;
+        }
+
+        return (int) $valor;
     }
 
     public function render()

@@ -5,8 +5,8 @@ namespace App\Livewire\Fornecedores;
 use App\Enums\FornecedorArea;
 use App\Models\Fornecedor;
 use App\Models\Pessoa;
-use Livewire\Component;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 use Livewire\WithPagination;
 
 class FornecedoresTable extends Component

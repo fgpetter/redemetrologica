@@ -2,14 +2,13 @@
 
 namespace App\Livewire\Interlab;
 
-use DB;
-use App\Models\Pessoa;
-use Livewire\Component;
-use App\Models\Interlab;
-use Livewire\Attributes\Url;
-use Livewire\WithPagination;
 use App\Models\AgendaInterlab;
+use App\Models\Interlab;
 use App\Models\InterlabInscrito;
+use App\Models\Pessoa;
+use Livewire\Attributes\Url;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class AgendaInterlabTable extends Component
 {
@@ -87,9 +86,9 @@ class AgendaInterlabTable extends Component
 
     protected function applyStatusFilter($query)
     {
-        return $query->when($this->status, 
-            fn($query) => $query->where('status', $this->status),
-            fn($query) => $query->where('status', '<>', 'CONCLUIDO')
+        return $query->when($this->status,
+            fn ($query) => $query->where('status', $this->status),
+            fn ($query) => $query->where('status', '<>', 'CONCLUIDO')
         );
     }
 

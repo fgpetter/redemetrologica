@@ -12,9 +12,6 @@ use App\Models\AgendainterlabMaterial;
 use App\Models\DadosGeraDoc;
 use App\Models\Interlab;
 use App\Models\InterlabInscrito;
-use App\Models\InterlabParametro;
-use App\Models\InterlabRodadaParametro;
-use App\Models\Parametro;
 use App\Models\Pessoa;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -43,8 +40,6 @@ class AgendaInterlabController extends Controller
         $agendainterlab->load([
             'interlab',
             'despesas.materialPadrao',
-            'parametros.parametro',
-            'rodadas.parametros.parametro',
             'valores',
             'materiais',
         ]);
@@ -59,8 +54,6 @@ class AgendaInterlabController extends Controller
                 ->get(),
             'agendainterlab' => $agendainterlab,
             'interlabs' => Interlab::all(),
-            'interlabParametros' => $agendainterlab->parametros,
-            'parametros' => Parametro::orderBy('descricao')->get(),
             'inscritosCount' => $inscritosCount,
             'idinterlab' => $agendainterlab->id,
         ];
@@ -171,71 +164,6 @@ class AgendaInterlabController extends Controller
         $agendainterlab->delete();
 
         return redirect()->route('agenda-interlab-index')->with('warning', 'Agenda interlab removido');
-    }
-
-    /**
-     * Adiciona parametros no agendamento de PEP
-     */
-    public function salvaParametro(Request $request): RedirectResponse
-    {
-
-        $validator = Validator::make($request->all(), [
-            'parametro_id' => ['required', 'exists:parametros,id'],
-            'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
-        ], [
-            'parametro_id.required' => 'O parametro é obrigatório',
-            'parametro_id.exists' => 'O parametro selecionado não existe',
-            'agenda_interlab_id.required' => 'Você está tentando editar um agendamento que não existe',
-            'agenda_interlab_id.exists' => 'Você está tentando editar um agendamento que não existe',
-        ]);
-
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]);
-
-            return back()
-                ->withErrors($validator, 'despesas')
-                ->withInput()
-                ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-        }
-        $prepared_data = $validator->validate();
-        $parametro = InterlabParametro::firstOrCreate([
-            'agenda_interlab_id' => $prepared_data['agenda_interlab_id'],
-            'parametro_id' => $prepared_data['parametro_id'],
-        ]);
-
-        if (! $parametro) {
-            return back()->with('error', 'Falha ao cadastrar parametro')->withFragment('despesas');
-        }
-
-        return back()->with('success', 'Parâmetro salvo com sucesso')->withFragment('despesas');
-    }
-
-    /**
-     * Remove parametros
-     */
-    public function deleteParametro(InterlabParametro $parametro, Request $request): RedirectResponse
-    {
-
-        $request->validate([
-            'agenda_interlab_id' => ['required', 'exists:agenda_interlabs,id'],
-            'parametro_id' => ['required', 'exists:parametros,id'],
-        ]);
-
-        InterlabRodadaParametro::where('agenda_interlab_id', $request->agenda_interlab_id)
-            ->where('parametro_id', $request->parametro_id)
-            ->delete();
-
-        $parametro->delete();
-
-        return back()->with('warning', 'Parâmetro removido')->withFragment('despesas');
     }
 
     /**
