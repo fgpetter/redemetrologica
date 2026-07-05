@@ -34,7 +34,7 @@ class ConfirmacaoInscricaoCursoNotification extends Mailable implements ShouldQu
     public function build()
     {
         return $this->subject('Confirmação de Inscrição em Curso - ' . $this->dados_email['curso_nome'])
-                    ->replyTo('cursos@redemetrologica.com.br')
+                    ->replyTo('eventos@redemetrologica.com.br')
                     ->view('emails.confirmacao-inscricao-curso');
     }
 }

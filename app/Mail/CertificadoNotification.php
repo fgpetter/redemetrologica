@@ -24,7 +24,7 @@ class CertificadoNotification extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Certificado Disponível - ' . $this->dadosDoc->content['curso_nome'])
-            ->replyTo('cursos@redemetrologica.com.br')
+            ->replyTo('eventos@redemetrologica.com.br')
             ->view('emails.certificado-notification');
     }
 }

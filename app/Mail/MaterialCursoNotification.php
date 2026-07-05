@@ -30,7 +30,7 @@ class MaterialCursoNotification extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Materiais do Curso - ' . $this->inscrito->agendaCurso->curso->descricao)
-            ->replyTo('cursos@redemetrologica.com.br')
+            ->replyTo('eventos@redemetrologica.com.br')
             ->view('emails.material-curso');
     }
 }
