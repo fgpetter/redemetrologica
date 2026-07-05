@@ -51,4 +51,14 @@ class Fornecedor extends Model
     {
         return $this->hasMany(FornecedorArea::class);
     }
+
+    /**
+     * Avaliações do fornecedor em agendas interlab
+     *
+     * @return HasMany
+     */
+    public function avaliacoes(): HasMany
+    {
+        return $this->hasMany(FornecedorAvaliacao::class);
+    }
 }
