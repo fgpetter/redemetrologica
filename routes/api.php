@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\PepAgendaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::prefix('v1')->middleware('pep.auth')->group(function () {
+    Route::post('peps', [PepAgendaController::class, 'index']);
+    Route::post('pep/{uid}', [PepAgendaController::class, 'show']);
 });
