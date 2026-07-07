@@ -108,7 +108,15 @@ class PepAgendaDetailResource extends JsonResource
         ];
 
         if ($incluirAnalistas) {
-            $dados['analistas'] = $inscrito->analistas;
+            $dados['analistas'] = $inscrito->analistas->map(fn ($analista) => [
+                'id' => $analista->id,
+                'uid' => $analista->uid,
+                'nome' => $analista->nome,
+                'email' => $analista->email,
+                'telefone' => $analista->telefone,
+                'created_at' => $analista->created_at,
+                'updated_at' => $analista->updated_at,
+            ])->all();
         }
 
         return $dados;
