@@ -15,6 +15,8 @@
                 <thead>
                     <tr>
                         <th scope="col">Fornecedor</th>
+                        <th scope="col" style="width: 10%; white-space: nowrap;">Data</th>
+                        <th scope="col" style="width: 8%; white-space: nowrap;">Avaliação</th>
                         <th scope="col" style="width: 12%; white-space: nowrap;">Val total</th>
                         <th scope="col" style="width: 5%; white-space: nowrap;"></th>
                     </tr>
@@ -23,6 +25,8 @@
                     @forelse ($agrupadas as $grupo)
                         <tr wire:key="despesa-{{ $grupo['fornecedor_id'] }}">
                             <td>{{ $grupo['fornecedor_nome'] }}</td>
+                            <td>{{ $grupo['ultima_data_compra'] ? $grupo['ultima_data_compra']->format('d/m/Y') : '—' }}</td>
+                            <td>{{ $grupo['media_avaliacao'] !== null ? number_format($grupo['media_avaliacao'], 1, '.', '') : '—' }}</td>
                             <td>{{ 'R$ ' . number_format($grupo['total'], 2, ',', '.') }}</td>
                             <td>
                                 <div class="dropdown">
@@ -61,13 +65,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center">Não há despesas cadastradas</td>
+                            <td colspan="5" class="text-center">Não há despesas cadastradas</td>
                         </tr>
                     @endforelse
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td class="text-end fw-bold">Total:</td>
+                        <td colspan="3" class="text-end fw-bold">Total:</td>
                         <td class="fw-bold">{{ 'R$ ' . number_format($totalGeral, 2, ',', '.') }}</td>
                         <td></td>
                     </tr>

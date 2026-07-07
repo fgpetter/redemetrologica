@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Interlab;
 
+use App\Models\FornecedorAvaliacao;
 use App\Models\InterlabDespesa;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
@@ -46,13 +47,20 @@ class DespesaLista extends Component
             ->orderBy('id')
             ->get();
 
-        $agrupadas = $despesas->groupBy('fornecedor_id')->map(function (Collection $itens, $fornecedorId) {
+        $avaliacoesPorFornecedor = FornecedorAvaliacao::query()
+            ->where('agenda_interlab_id', $this->agendaInterlabId)
+            ->get()
+            ->keyBy('fornecedor_id');
+
+        $agrupadas = $despesas->groupBy('fornecedor_id')->map(function (Collection $itens, $fornecedorId) use ($avaliacoesPorFornecedor) {
             $total = $itens->sum('total');
             $fornecedorNome = $itens->first()?->interlabFornecedor?->pessoa?->nome_razao ?? '—';
 
             return [
                 'fornecedor_id' => (int) $fornecedorId,
                 'fornecedor_nome' => $fornecedorNome,
+                'ultima_data_compra' => $itens->pluck('data_compra')->filter()->max(),
+                'media_avaliacao' => $avaliacoesPorFornecedor->get($fornecedorId)?->media,
                 'total' => $total,
             ];
         })->filter(fn ($g) => $g['fornecedor_id'] > 0)->values();
