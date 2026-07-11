@@ -84,7 +84,7 @@ function formataMoeda($valor): ?string
         }
 
         if (str_contains($valor, '.') && ! str_contains($valor, ',')) {
-            return $valor;
+            return substr_count($valor, '.') > 1 ? str_replace('.', '', $valor) : $valor;
         }
 
         if (str_contains($valor, ',') && ! str_contains($valor, '.')) {
