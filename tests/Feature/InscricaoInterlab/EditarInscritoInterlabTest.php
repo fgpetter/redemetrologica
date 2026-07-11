@@ -100,6 +100,25 @@ class EditarInscritoInterlabTest extends TestCase
         ]);
     }
 
+    public function test_salvar_aceita_valor_com_milhar_sem_centavos(): void
+    {
+        $inscrito = $this->criarInscritoCompleto([
+            'valor' => null,
+            'lancamento_financeiro_id' => null,
+        ]);
+
+        Livewire::test(EditarInscrito::class)
+            ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
+            ->set('form.valor', '6.400.000')
+            ->call('salvar')
+            ->assertHasNoErrors();
+
+        $inscrito->refresh();
+
+        $this->assertSame(6400000.0, (float) $inscrito->valor);
+    }
+
     public function test_salvar_atualiza_lancamento_existente_sem_criar_novo(): void
     {
         $inscrito = $this->criarInscritoCompleto([
