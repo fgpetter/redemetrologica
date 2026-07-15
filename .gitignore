@@ -26,3 +26,7 @@ _ide_helper.php
 .cursorrules
 laradumps.yaml
 .gitignore
+AGENTS.md
+opencode.json
+.agents
+boost.json
