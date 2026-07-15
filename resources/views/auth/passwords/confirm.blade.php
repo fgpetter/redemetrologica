@@ -33,8 +33,8 @@
                                     {{ __('Confirm Password') }}
                                 </button>
 
-                                @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}">
+                                @if (Route::has('forgot-password.request'))
+                                    <a class="btn btn-link" href="{{ route('forgot-password.request') }}">
                                         {{ __('Forgot Your Password?') }}
                                     </a>
                                 @endif

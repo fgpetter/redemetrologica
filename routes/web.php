@@ -37,7 +37,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
-Route::get('/forgot-password', [ForgotPasswordController::class, 'forgotPassword'])->name('password.request');
+Route::get('/forgot-password', [ForgotPasswordController::class, 'forgotPassword'])->name('forgot-password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('send-reset-link-email');
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('reset-password');
 
