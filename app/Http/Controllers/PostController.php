@@ -11,7 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Format;
+use Intervention\Image\Laravel\Facades\Image;
 
 class PostController extends Controller
 {
@@ -65,21 +66,10 @@ class PostController extends Controller
             $request->file('upload')->move(public_path($this->PastaTemp), $fileName);
 
             // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-            $img = Image::make(public_path($this->PastaTemp.'/'.$fileName));
-            // limita a imagem em 750px de altura
-            if ($img->height() > 750) {
-                $img->resize(null, 750, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-            }
-            // limita a imagem em 750px de largura
-            if ($img->width() > 750) {
-                $img->resize(750, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-            }
-            $img->encode('jpg', 75);
-            $img->save(public_path($this->PastaTemp.'/'.$fileName));
+            $img = Image::decodePath(public_path($this->PastaTemp.'/'.$fileName));
+            $img->scaleDown(width: 750, height: 750);
+            $img->encodeUsingFormat(Format::JPEG, quality: 75)
+                ->save(public_path($this->PastaTemp.'/'.$fileName));
 
             $url = asset($this->PastaTemp.'/'.$fileName);
 
@@ -132,14 +122,12 @@ class PostController extends Controller
             $request->file('thumb')->move(public_path('post-media'), $fileName);
 
             // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-            $img = Image::make(public_path('post-media/'.$fileName));
+            $img = Image::decodePath(public_path('post-media/'.$fileName));
             if ($img->height() > 1250) {
-                $img->resize(null, 750, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
+                $img->scale(height: 750);
             }
-            $img->encode('jpg', 75);
-            $img->save(public_path('post-media/'.$fileName));
+            $img->encodeUsingFormat(Format::JPEG, quality: 75)
+                ->save(public_path('post-media/'.$fileName));
 
             $image = $fileName;
         }
@@ -154,14 +142,10 @@ class PostController extends Controller
                 $file->move(public_path('post-media'), $fileName);
 
                 // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-                $img = Image::make(public_path('post-media/'.$fileName));
-                if ($img->height() > 750) {
-                    $img->resize(null, 750, function ($constraint) {
-                        $constraint->aspectRatio();
-                    });
-                }
-                $img->encode('jpg', 75);
-                $img->save(public_path('post-media/'.$fileName));
+                $img = Image::decodePath(public_path('post-media/'.$fileName));
+                $img->scaleDown(height: 750);
+                $img->encodeUsingFormat(Format::JPEG, quality: 75)
+                    ->save(public_path('post-media/'.$fileName));
 
                 $imagePath = $fileName;
 
@@ -299,14 +283,12 @@ class PostController extends Controller
             $request->file('thumb')->move(public_path('post-media'), $fileName);
 
             // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-            $img = Image::make(public_path('post-media/'.$fileName));
+            $img = Image::decodePath(public_path('post-media/'.$fileName));
             if ($img->height() > 1250) {
-                $img->resize(null, 750, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
+                $img->scale(height: 750);
             }
-            $img->encode('jpg', 75);
-            $img->save(public_path('post-media/'.$fileName));
+            $img->encodeUsingFormat(Format::JPEG, quality: 75)
+                ->save(public_path('post-media/'.$fileName));
 
             $image = $fileName;
 
@@ -329,14 +311,10 @@ class PostController extends Controller
                 $file->move(public_path('post-media'), $fileName);
 
                 // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
-                $img = Image::make(public_path('post-media/'.$fileName));
-                if ($img->height() > 750) {
-                    $img->resize(null, 750, function ($constraint) {
-                        $constraint->aspectRatio();
-                    });
-                }
-                $img->encode('jpg', 75);
-                $img->save(public_path('post-media/'.$fileName));
+                $img = Image::decodePath(public_path('post-media/'.$fileName));
+                $img->scaleDown(height: 750);
+                $img->encodeUsingFormat(Format::JPEG, quality: 75)
+                    ->save(public_path('post-media/'.$fileName));
 
                 $imagePath = $fileName;
 

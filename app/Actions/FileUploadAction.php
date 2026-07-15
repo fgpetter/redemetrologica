@@ -4,7 +4,7 @@ namespace App\Actions;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Laravel\Facades\Image;
 
 class FileUploadAction
 {
@@ -27,23 +27,19 @@ class FileUploadAction
             // Redimensionar e codificar a imagem para 'jpg' com 75% do tamanho original
             if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'webp') {
 
-                $img = Image::make($file);
+                $img = Image::decode($file);
 
                 if (isset($params['height']) || isset($params['width'])) {
 
                     $height = $params['height'] ?? null;
                     $width = $params['width'] ?? null;
 
-                    if ($img->height() > $height || $img->width() > $width) {
-                        $img->resize($width, $height, function ($constraint) {
-                            $constraint->aspectRatio();
-                        });
-                    }
+                    $img->scaleDown(width: $width, height: $height);
                 }
 
                 $file_name = $file_name.'_'.time().'.jpg';
 
-                $img->save(public_path($path.'/'.$file_name), 75, 'jpg');
+                $img->save(public_path($path.'/'.$file_name), quality: 75);
 
                 return $file_name;
             }
