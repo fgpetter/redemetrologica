@@ -20,15 +20,15 @@
         <div class="card-body p-0">
             <form wire:submit.prevent="saveInscrito" class="row g-2 align-items-start">
                 <div class="col-md-3">
-                    <input type="text" class="form-control" placeholder="Nome" wire:model.defer="nome">
+                    <input type="text" class="form-control" placeholder="Nome" wire:model="nome">
                     @error('nome') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                 </div>
                 <div class="col-md-3">
-                    <input type="email" class="form-control" placeholder="E-mail" wire:model.defer="email">
+                    <input type="email" class="form-control" placeholder="E-mail" wire:model="email">
                     @error('email') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                 </div>
                 <div class="col-md-3">
-                    <input type="text" class="form-control" placeholder="Telefone" wire:model.defer="telefone"
+                    <input type="text" class="form-control" placeholder="Telefone" wire:model="telefone"
                         x-mask="(99) 99999-9999">
                     @error('telefone') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                 </div>
