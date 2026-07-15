@@ -26,11 +26,3 @@ _ide_helper.php
 .cursorrules
 laradumps.yaml
 .gitignore
-GEMINI.md
-CLAUDE.md
-.gitignore
-boost.json
-/.agents
-/.claude
-/.ia
-/skills-lock.json
