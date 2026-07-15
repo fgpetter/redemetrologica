@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -38,38 +37,7 @@ class HomeController extends Controller
 
     public function root()
     {
-        $DataAtual = \Carbon\Carbon::now();
-        $galerias = Post::where('tipo', 'galeria')
-            ->where('data_publicacao', '<=', $DataAtual)
-            ->where('rascunho', 0)
-            ->orderBy('data_publicacao', 'desc') // ordenar por data_publicacao
-            ->take(4) // Pegar apenas os últimos 4 registros
-            ->get();
-        foreach ($galerias as $galeria) {
-            // Trata a data
-            $galeria->data_publicacao = \Carbon\Carbon::parse($galeria->data_publicacao)->format('d/m/Y');
-        }
-        $noticias = Post::where('tipo', 'noticia')
-            ->where('data_publicacao', '<=', $DataAtual)
-            ->where('rascunho', 0)
-            ->orderBy('data_publicacao', 'desc') // ordenar por data_publicacao
-            ->take(4) // Pegar apenas os últimos 4 registros
-            ->get();
-        foreach ($noticias as $noticia) {
-            // Remove todas as tags de imagem
-            $conteudoSemImagens = preg_replace('/<img[^>]+\>/i', '', $noticia->conteudo);
-            // Remove tags e "nbsp"
-            $textoSemHTML = strip_tags($conteudoSemImagens);
-            $textoSemHTML = str_replace('nbsp', '', $textoSemHTML);
-            // Limita o conteúdo para as primeiras 25 palavras
-            $primeirasDezPalavras = implode(' ', array_slice(str_word_count($textoSemHTML, 2), 0, 25));
-            // Atualiza o conteúdo do noticia
-            $noticia->conteudo = $primeirasDezPalavras.'...';
-            // Trata a data
-            $noticia->data_publicacao = \Carbon\Carbon::parse($noticia->data_publicacao)->format('d/m/Y');
-        }
-
-        return view('site.pages.site', ['galerias' => $galerias, 'noticias' => $noticias]);
+        return view('site.pages.site');
     }
 
     /* Language Translation */

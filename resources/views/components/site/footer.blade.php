@@ -44,7 +44,6 @@
                 <div class="col-12 col-sm-6 col-xl-4 px-2 d-none d-xl-block">
                     <h5 class="text-white">Acesso Rápido</h5>
                         <ul style="list-style-type: none">
-                            {{-- <li><a class="text-white" href="/noticias">Notícias</a></li> --}}
                             <li><a class="text-white" href="/associe-se">Associe-se</a></li>
                             <li><a class="text-white" href="/cursos">Cursos</a></li>
                             <li><a class="text-white"

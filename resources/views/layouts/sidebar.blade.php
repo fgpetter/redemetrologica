@@ -310,24 +310,6 @@
         {{-- // SITE // --}}
         <li class="menu-title"><span>SITE</span></li>
 
-        {{-- Notícias --}}
-        <li class="nav-item">
-          <a href="/painel/post/noticias"
-            class="nav-link {{ request()->is('painel/post/noticias/index') ? 'active' : '' }}"
-            role="button" data-key="t-signin">
-            <i class="ph-newspaper"></i> <span>NOTÍCIAS</span>
-          </a>
-        </li>
-        
-        {{-- Galeria --}}
-        <li class="nav-item">
-          <a href="/painel/post/galeria" 
-            class="nav-link {{ request()->is('painel/post/galeria/index') ? 'active' : '' }}"
-            role="button" data-key="t-signin">
-            <i class="ph-image"></i> <span>GALERIA</span>
-          </a>
-        </li>
-
         {{-- Downloads --}}
         <li class="nav-item">
           <a href="/painel/downloads/index" 

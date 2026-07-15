@@ -28,8 +28,7 @@ use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PlanoContaController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\PostMediaController;
+use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
@@ -47,9 +46,6 @@ Route::get('/', [HomeController::class, 'root'])->name('root');
 Route::get('/dados-doc/{link}', [DocController::class, 'download'])->name('dados-doc.download');
 
 /* Rotas estáticas */
-Route::get('home', [HomeController::class, 'root'])->name('root');
-Route::view('noticias', 'site.pages.noticias');
-Route::view('galerias', 'site.pages.galerias');
 Route::view('associe-se', 'site.pages.associe-se');
 Route::view('termos-de-uso', 'site.pages.termos-de-uso');
 
@@ -81,15 +77,7 @@ Route::get('laboratorios-downloads', [DownloadController::class, 'siteIndex']);
 Route::get('fale-conosco', [FaleconoscoController::class, 'index'])->name('faleconosco.form');
 Route::post('fale-conosco', [FaleconoscoController::class, 'enviar'])->name('faleconosco.submit');
 
-Route::view('slug-da-noticia', 'site.pages.slug-da-noticia');
-Route::view('slug-da-galeria', 'site.pages.slug-da-galeria');
 Route::view('sobre', 'site.pages.sobre');
-
-/* Rotas das slugs (noticia e galeria) */
-Route::get('noticias', [PostController::class, 'ListNoticias'])->name('show-list'); // mostra lista de noticias
-Route::get('galerias', [PostController::class, 'ListGalerias'])->name('show-list'); // mostra lista de galerias
-Route::get('noticia/{slug}', [PostController::class, 'show'])->name('noticia-show'); // mostra noticia
-Route::get('galeria/{slug}', [PostController::class, 'show'])->name('galeria-show'); // mostra galeria
 
 /* Rotas de cursos */
 Route::get('cursos', [AgendaCursoController::class, 'listCursosAgendados'])->name('cursos-agendados-list');
@@ -384,20 +372,9 @@ Route::prefix('painel')->middleware('auth')->group(function () {
      * Site
      */
 
-    // Rotas de noticia e galeria
-    Route::group(['prefix' => 'post', 'middleware' => 'permission:funcionario,admin'], function () {
-        Route::get('noticias', [PostController::class, 'indexNoticias'])->name('noticia-index'); // tela de lista
-        Route::get('galeria', [PostController::class, 'indexGaleria'])->name('galeria-index'); // tela de lista
-        Route::get('noticia-insert/{post:slug?}', [PostController::class, 'noticiaInsert'])->name('noticia-insert'); // tela de edicao
-        Route::get('galeria-insert/{post:slug?}', [PostController::class, 'galeriaInsert'])->name('galeria-insert'); // tela de edicao
-        Route::post('create', [PostController::class, 'create'])->name('post-create'); // tela de cadastro
-        Route::post('update/{post:slug}', [PostController::class, 'update'])->name('post-update'); // salvar
-        Route::post('delete/{post:id}', [PostController::class, 'delete'])->name('post-delete');
-        Route::post('image-upload', [PostController::class, 'storeImage'])->name('image-upload');
-        Route::post('delete-thumb/{post:id}', [PostController::class, 'thumbDelete'])->name('thumb-delete'); // deletar thumb
-
-        Route::delete('post-media/{id}', [PostMediaController::class, 'destroy'])->name('post-media.destroy'); // apaga postMedia
-    });
+    Route::post('image-upload', [ImageUploadController::class, 'store'])
+        ->name('image-upload')
+        ->middleware('permission:funcionario,admin');
 
     // Rotas de upload de arquivos
     Route::group(['prefix' => 'downloads', 'middleware' => 'permission:funcionario,admin'], function () {

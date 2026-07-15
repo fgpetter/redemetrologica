@@ -206,10 +206,4 @@
         </div>
     </div>
     <!-- destaques -->
-    @if(!$noticias->isEmpty())
-    <x-site.component-lista-noticias :noticias="$noticias" :galerias="$galerias" />
-    @endif
-    @if(!$galerias->isEmpty())
-    <x-site.component-lista-galerias :noticias="$noticias" :galerias="$galerias" />
-    @endif
 @endsection
