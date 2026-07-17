@@ -16,7 +16,9 @@ class ReenviarSenhasInterlab extends Command
      *
      * @var string
      */
-    protected $signature = 'app:reenviar-senhas-interlab {agenda_interlab_id : ID da agenda_interlabs}';
+    protected $signature = 'app:reenviar-senhas-interlab
+                            {agenda_interlab_id : ID da agenda_interlabs}
+                            {--resend-email : Reenfileira e-mails usando senhas existentes, sem gerar novas senhas}';
 
     /**
      * The console command description.
@@ -31,6 +33,7 @@ class ReenviarSenhasInterlab extends Command
     public function handle(): int
     {
         $agendaInterlabId = (int) $this->argument('agenda_interlab_id');
+        $resendEmail = (bool) $this->option('resend-email');
         $agendaInterlab = AgendaInterlab::query()->find($agendaInterlabId);
 
         if (! $agendaInterlab) {
@@ -56,13 +59,13 @@ class ReenviarSenhasInterlab extends Command
         $delayIndex = 0;
 
         foreach ($inscritos as $inscrito) {
-            $resultado = $this->processarInscrito($inscrito, $delayIndex);
+            $resultado = $this->processarInscrito($inscrito, $delayIndex, $resendEmail);
             $processados += $resultado['processados'];
             $ignorados += $resultado['ignorados'];
             $semTagInterlab += $resultado['sem_tag_interlab'];
         }
 
-        $this->info("Processados {$processados} envio(s). Ignorados {$ignorados}. Sem tag interlab {$semTagInterlab}.");
+        $this->info("Enfileirados {$processados} envio(s). Ignorados {$ignorados}. Sem tag interlab {$semTagInterlab}.");
 
         return self::SUCCESS;
     }
@@ -70,7 +73,7 @@ class ReenviarSenhasInterlab extends Command
     /**
      * @return array{processados: int, ignorados: int, sem_tag_interlab: int}
      */
-    private function processarInscrito(InterlabInscrito $inscrito, int &$delayIndex): array
+    private function processarInscrito(InterlabInscrito $inscrito, int &$delayIndex, bool $resendEmail): array
     {
         $agendaInterlab = $inscrito->agendaInterlab;
         $interlab = $agendaInterlab?->interlab;
@@ -82,7 +85,23 @@ class ReenviarSenhasInterlab extends Command
         }
 
         if (($interlab->avaliacao ?? null) === 'ANALISTA') {
-            return $this->processarAnalistas($inscrito, $agendaInterlab, $delayIndex);
+            return $this->processarAnalistas($inscrito, $agendaInterlab, $delayIndex, $resendEmail);
+        }
+
+        if ($resendEmail) {
+            if (empty($inscrito->tag_senha)) {
+                $this->warn("Inscrito {$inscrito->id} ignorado: sem tag_senha para reenvio.");
+
+                return ['processados' => 0, 'ignorados' => 1, 'sem_tag_interlab' => 0];
+            }
+
+            $delayIndex++;
+            app(CriarEnviarSenhaInterlabAction::class)->execute(
+                inscrito: $inscrito,
+                delaySecs: $delayIndex * 30,
+            );
+
+            return ['processados' => 1, 'ignorados' => 0, 'sem_tag_interlab' => 0];
         }
 
         if (filled($inscrito->tag_senha) && $inscrito->senha_enviada !== null) {
@@ -110,7 +129,12 @@ class ReenviarSenhasInterlab extends Command
     /**
      * @return array{processados: int, ignorados: int, sem_tag_interlab: int}
      */
-    private function processarAnalistas(InterlabInscrito $inscrito, AgendaInterlab $agendaInterlab, int &$delayIndex): array
+    private function processarAnalistas(
+        InterlabInscrito $inscrito,
+        AgendaInterlab $agendaInterlab,
+        int &$delayIndex,
+        bool $resendEmail,
+    ): array
     {
         $analistas = $inscrito->analistas;
 
@@ -121,14 +145,19 @@ class ReenviarSenhasInterlab extends Command
         }
 
         $processados = 0;
+        $ignorados = 0;
 
         foreach ($analistas as $analista) {
-            if ($this->processarAnalista($inscrito, $agendaInterlab, $analista, $delayIndex)) {
+            if ($this->processarAnalista($inscrito, $agendaInterlab, $analista, $delayIndex, $resendEmail)) {
                 $processados++;
+
+                continue;
             }
+
+            $ignorados++;
         }
 
-        return ['processados' => $processados, 'ignorados' => 0, 'sem_tag_interlab' => 0];
+        return ['processados' => $processados, 'ignorados' => $ignorados, 'sem_tag_interlab' => 0];
     }
 
     private function processarAnalista(
@@ -136,7 +165,14 @@ class ReenviarSenhasInterlab extends Command
         AgendaInterlab $agendaInterlab,
         InterlabAnalista $analista,
         int &$delayIndex,
+        bool $resendEmail,
     ): bool {
+        if ($resendEmail && empty($analista->tag_senha)) {
+            $this->warn("Analista {$analista->id} ignorado: sem tag_senha para reenvio.");
+
+            return false;
+        }
+
         if (empty($analista->tag_senha)) {
             $tagSenha = app(GerarTagSenhaInterlabAction::class)->execute(
                 $agendaInterlab,
