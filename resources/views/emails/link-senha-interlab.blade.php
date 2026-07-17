@@ -21,32 +21,6 @@
         <p>Segue código de identificação (senha) do laboratório - {{ $dadosDoc->content['laboratorio_nome'] }}.</p>
       @endif
       
-      {{-- #region agent log --}}
-      @php
-        $__dbgEnv = env('APP_URL');
-        $__dbgConfig = config('app.url');
-        $__dbgRoute = route('dados-doc.download', $dadosDoc->link);
-        $__dbgPayload = json_encode([
-          'sessionId' => 'b824d6',
-          'runId' => 'post-fix',
-          'hypothesisId' => 'H-B',
-          'location' => 'emails.link-senha-interlab',
-          'message' => 'Blade href after route() fix',
-          'data' => [
-            'envNull' => $__dbgEnv === null,
-            'configCached' => app()->configurationIsCached(),
-            'routeIsAbsolute' => str_starts_with($__dbgRoute, 'http'),
-            'routePreview' => preg_replace('#https?://[^/]+#', '[HOST]', $__dbgRoute),
-            'configPresent' => filled($__dbgConfig),
-          ],
-          'timestamp' => (int) (microtime(true) * 1000),
-        ], JSON_UNESCAPED_UNICODE);
-        if ($__dbgPayload !== false) {
-          @file_put_contents(base_path('storage/logs/debug-b824d6.log'), $__dbgPayload."\n", FILE_APPEND | LOCK_EX);
-          @file_put_contents(base_path('.cursor/debug-b824d6.log'), $__dbgPayload."\n", FILE_APPEND | LOCK_EX);
-        }
-      @endphp
-      {{-- #endregion --}}
       <p style="margin: 30px 0;">
         <a href="{{ route('dados-doc.download', $dadosDoc->link) }}" 
            target="_blank"
