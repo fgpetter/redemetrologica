@@ -35,7 +35,8 @@ class ConfirmacaoInscricaoInterlabNotification extends Mailable implements Shoul
               $inscrito->laboratorio->endereco->cidade.' / '.
               $inscrito->laboratorio->endereco->uf.' - '.
               $inscrito->laboratorio->endereco->cep,
-            'link_interlab' => route('site-single-interlaboratorial', $agenda_interlab->uid)
+            'link_interlab' => route('site-single-interlaboratorial', $agenda_interlab->uid),
+            'valor' => $inscrito->valor,
         ];
     }
 

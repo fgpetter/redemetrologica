@@ -26,6 +26,11 @@
         Endereço: {{ $dados_email['laboratorio_endereco'] }}
       </p>
 
+      @if(! empty($dados_email['valor']) && $dados_email['valor'] > 0)
+      <h4>Valor da Inscrição:</h4>
+      <p>R$ {{ formataValorBr($dados_email['valor']) }}</p>
+      @endif
+
       <p>Para acessar mais informações sobre o interlaboratorial, <a href="{{ $dados_email['link_interlab'] }}" style="color: #0d6efd;">clique aqui</a>.</p>
       
       <br>
