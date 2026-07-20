@@ -188,7 +188,7 @@ class ConfirmInscricaoCurso extends Component
     public function buscaCep() // Método chamado quando digita CEP
     {
         if ($this->tipoInscricao === 'CNPJ') {
-            $cep = $this->empresa['endereco_cobranca']['cep'] ?? $this->cep;
+            $cep = $this->empresa['endereco_cobranca']['cep'] ?? '';
         } elseif ($this->tipoInscricao === 'CPF') {
             $cep = $this->inscricoes[0]['cep'] ?? '';
         }
