@@ -54,6 +54,12 @@ class RecriarUsuariosOrfaosCommandTest extends TestCase
     {
         Mail::fake();
 
+        $logPath = storage_path('logs/RecriarUsuariosOrfaosLog.log');
+
+        if (file_exists($logPath)) {
+            unlink($logPath);
+        }
+
         PessoaFactory::new()->create([
             'user_id' => 999999,
             'email' => null,
@@ -65,6 +71,8 @@ class RecriarUsuariosOrfaosCommandTest extends TestCase
 
         $this->assertEquals(0, User::query()->count());
         Mail::assertNothingQueued();
+        $this->assertFileExists($logPath);
+        $this->assertStringContainsString('SKIP', (string) file_get_contents($logPath));
     }
 
     public function test_step_limita_quantidade_de_pessoas_processadas(): void

@@ -27,11 +27,14 @@ class RecriarUsuariosOrfaosCommand extends Command
      */
     protected $description = 'Recria usuários de pessoas com user_id órfão e envia e-mail de senha resetada';
 
+    private string $logPath;
+
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
+        $this->logPath = storage_path('logs/RecriarUsuariosOrfaosLog.log');
         $dryRun = (bool) $this->option('dry-run');
         $step = $this->option('step');
 
@@ -69,7 +72,13 @@ class RecriarUsuariosOrfaosCommand extends Command
 
         foreach ($pessoas as $pessoa) {
             if (! $this->hasValidEmail($pessoa->email)) {
-                $this->warn("Pessoa {$pessoa->id} ({$pessoa->nome_razao}) ignorada: e-mail inválido ou ausente.");
+                $message = "Pessoa {$pessoa->id} ({$pessoa->nome_razao}) ignorada: e-mail inválido ou ausente.";
+                $this->warn($message);
+                $this->writeLog('SKIP', $message, [
+                    'pessoa_id' => $pessoa->id,
+                    'email' => $pessoa->email,
+                    'user_id' => $pessoa->user_id,
+                ]);
                 $skipped++;
 
                 continue;
@@ -91,7 +100,14 @@ class RecriarUsuariosOrfaosCommand extends Command
                 $this->info("Pessoa {$pessoa->id} ({$pessoa->nome_razao}): usuário recriado (e-mail em {$delayIndex} min).");
                 $created++;
             } catch (Throwable $exception) {
-                $this->error("Pessoa {$pessoa->id} ({$pessoa->nome_razao}): falha — {$exception->getMessage()}");
+                $message = "Pessoa {$pessoa->id} ({$pessoa->nome_razao}): falha — {$exception->getMessage()}";
+                $this->error($message);
+                $this->writeLog('EXCEPTION', $message, [
+                    'pessoa_id' => $pessoa->id,
+                    'email' => $pessoa->email,
+                    'user_id' => $pessoa->user_id,
+                    'exception' => $exception::class,
+                ]);
                 $failed++;
             }
         }
@@ -103,6 +119,10 @@ class RecriarUsuariosOrfaosCommand extends Command
         }
 
         $this->info("Concluído. Criados {$created}. Ignorados {$skipped}. Falhas {$failed}.");
+
+        if ($skipped > 0 || $failed > 0) {
+            $this->info("Detalhes de skip/falha em: {$this->logPath}");
+        }
 
         return $failed > 0 ? self::FAILURE : self::SUCCESS;
     }
@@ -117,5 +137,21 @@ class RecriarUsuariosOrfaosCommand extends Command
             ['email' => $email],
             ['email' => ['required', 'email']]
         )->passes();
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    private function writeLog(string $type, string $message, array $context = []): void
+    {
+        $line = sprintf(
+            "[%s] %s: %s %s\n",
+            now()->toDateTimeString(),
+            $type,
+            $message,
+            $context === [] ? '' : json_encode($context, JSON_UNESCAPED_UNICODE)
+        );
+
+        file_put_contents($this->logPath, $line, FILE_APPEND | LOCK_EX);
     }
 }
