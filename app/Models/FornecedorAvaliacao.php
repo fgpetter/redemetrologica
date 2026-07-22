@@ -24,11 +24,11 @@ class FornecedorAvaliacao extends Model
     }
 
     /**
-     * @return BelongsTo<AgendaInterlab, $this>
+     * @return BelongsTo<InterlabDespesaLancamento, $this>
      */
-    public function agendaInterlab(): BelongsTo
+    public function lancamento(): BelongsTo
     {
-        return $this->belongsTo(AgendaInterlab::class);
+        return $this->belongsTo(InterlabDespesaLancamento::class, 'interlab_despesa_lancamento_id');
     }
 
     /**

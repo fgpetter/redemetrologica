@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -26,31 +25,18 @@ class InterlabDespesa extends Model
     }
 
     /**
-     * Carrega Interlab
+     * @return BelongsTo<InterlabDespesaLancamento, $this>
      */
-    public function interlab(): BelongsTo
+    public function lancamento(): BelongsTo
     {
-        return $this->belongsTo(Interlab::class);
+        return $this->belongsTo(InterlabDespesaLancamento::class, 'interlab_despesa_lancamento_id');
     }
 
-    /**
-     * Carrega fornecedor relacionado
-     */
-    public function interlabFornecedor(): BelongsTo
+    protected function casts(): array
     {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+        return [
+            'validade' => 'date',
+            'data_compra' => 'date',
+        ];
     }
-
-    /**
-     * Carrega material padrão
-     */
-    public function materialPadrao(): HasOne
-    {
-        return $this->hasOne(MaterialPadrao::class, 'id', 'material_padrao_id');
-    }
-
-    protected $casts = [
-        'validade' => 'date',
-        'data_compra' => 'date',
-    ];
 }

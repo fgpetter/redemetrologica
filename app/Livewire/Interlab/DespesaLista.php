@@ -2,9 +2,7 @@
 
 namespace App\Livewire\Interlab;
 
-use App\Models\FornecedorAvaliacao;
-use App\Models\InterlabDespesa;
-use Illuminate\Support\Collection;
+use App\Models\InterlabDespesaLancamento;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -24,51 +22,50 @@ class DespesaLista extends Component
         //
     }
 
-    public function editarFornecedor(int $fornecedorId): void
+    public function editarLancamento(int $lancamentoId): void
     {
-        $this->dispatch('abrir-despesa-modal', fornecedorId: $fornecedorId);
+        $this->dispatch('abrir-despesa-modal', lancamentoId: $lancamentoId);
     }
 
-    public function deletarPorFornecedor(int $fornecedorId): void
+    public function deletarLancamento(int $lancamentoId): void
     {
-        InterlabDespesa::where('agenda_interlab_id', $this->agendaInterlabId)
-            ->where('fornecedor_id', $fornecedorId)
-            ->get()
-            ->each->delete();
-        session()->flash('warning', 'Despesas do fornecedor removidas.');
+        $lancamento = InterlabDespesaLancamento::query()
+            ->where('agenda_interlab_id', $this->agendaInterlabId)
+            ->find($lancamentoId);
+
+        if (! $lancamento) {
+            return;
+        }
+
+        $lancamento->itens()->get()->each->delete();
+        $lancamento->avaliacao()->delete();
+        $lancamento->delete();
+
+        session()->flash('warning', 'Lançamento de despesa removido.');
         $this->dispatch('despesa-deletada');
     }
 
     public function render()
     {
-        $despesas = InterlabDespesa::where('agenda_interlab_id', $this->agendaInterlabId)
-            ->with(['interlabFornecedor.pessoa'])
-            ->orderBy('fornecedor_id')
-            ->orderBy('id')
-            ->get();
-
-        $avaliacoesPorFornecedor = FornecedorAvaliacao::query()
+        $lancamentos = InterlabDespesaLancamento::query()
             ->where('agenda_interlab_id', $this->agendaInterlabId)
+            ->with(['fornecedor.pessoa', 'itens', 'avaliacao'])
+            ->orderBy('id')
             ->get()
-            ->keyBy('fornecedor_id');
+            ->map(function (InterlabDespesaLancamento $lancamento) {
+                return [
+                    'id' => $lancamento->id,
+                    'fornecedor_nome' => $lancamento->fornecedor?->pessoa?->nome_razao ?? '—',
+                    'ultima_data_compra' => $lancamento->itens->pluck('data_compra')->filter()->max(),
+                    'media_avaliacao' => $lancamento->avaliacao?->media,
+                    'total' => $lancamento->itens->sum('total'),
+                ];
+            });
 
-        $agrupadas = $despesas->groupBy('fornecedor_id')->map(function (Collection $itens, $fornecedorId) use ($avaliacoesPorFornecedor) {
-            $total = $itens->sum('total');
-            $fornecedorNome = $itens->first()?->interlabFornecedor?->pessoa?->nome_razao ?? '—';
-
-            return [
-                'fornecedor_id' => (int) $fornecedorId,
-                'fornecedor_nome' => $fornecedorNome,
-                'ultima_data_compra' => $itens->pluck('data_compra')->filter()->max(),
-                'media_avaliacao' => $avaliacoesPorFornecedor->get($fornecedorId)?->media,
-                'total' => $total,
-            ];
-        })->filter(fn ($g) => $g['fornecedor_id'] > 0)->values();
-
-        $totalGeral = $despesas->sum('total');
+        $totalGeral = $lancamentos->sum('total');
 
         return view('livewire.interlab.despesa-lista', [
-            'agrupadas' => $agrupadas,
+            'lancamentos' => $lancamentos,
             'totalGeral' => $totalGeral,
         ]);
     }

@@ -39,7 +39,9 @@ class AgendaInterlabController extends Controller
     {
         $agendainterlab->load([
             'interlab',
-            'despesas.materialPadrao',
+            'despesaLancamentos.itens',
+            'despesaLancamentos.avaliacao',
+            'despesaLancamentos.fornecedor.pessoa',
             'valores',
             'materiais',
         ]);

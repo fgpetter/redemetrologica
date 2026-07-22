@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Actions\Interlab\SyncFornecedorAvaliacaoAction;
-use App\Models\InterlabDespesa;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -32,15 +30,6 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             } else {
                 abort(404);
-            }
-        });
-
-        InterlabDespesa::deleted(function (InterlabDespesa $despesa) {
-            if ($despesa->agenda_interlab_id && $despesa->fornecedor_id) {
-                app(SyncFornecedorAvaliacaoAction::class)->deleteIfSemDespesas(
-                    $despesa->agenda_interlab_id,
-                    $despesa->fornecedor_id
-                );
             }
         });
     }

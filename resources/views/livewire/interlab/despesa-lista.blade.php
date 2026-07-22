@@ -22,12 +22,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($agrupadas as $grupo)
-                        <tr wire:key="despesa-{{ $grupo['fornecedor_id'] }}">
-                            <td>{{ $grupo['fornecedor_nome'] }}</td>
-                            <td>{{ $grupo['ultima_data_compra'] ? $grupo['ultima_data_compra']->format('d/m/Y') : '—' }}</td>
-                            <td>{{ $grupo['media_avaliacao'] !== null ? number_format($grupo['media_avaliacao'], 1, '.', '') : '—' }}</td>
-                            <td>{{ 'R$ ' . number_format($grupo['total'], 2, ',', '.') }}</td>
+                    @forelse ($lancamentos as $lancamento)
+                        <tr wire:key="despesa-lancamento-{{ $lancamento['id'] }}">
+                            <td>{{ $lancamento['fornecedor_nome'] }}</td>
+                            <td>{{ $lancamento['ultima_data_compra'] ? $lancamento['ultima_data_compra']->format('d/m/Y') : '—' }}</td>
+                            <td>{{ $lancamento['media_avaliacao'] !== null ? number_format($lancamento['media_avaliacao'], 1, '.', '') : '—' }}</td>
+                            <td>{{ 'R$ ' . number_format($lancamento['total'], 2, ',', '.') }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -37,7 +37,7 @@
                                     <ul class="dropdown-menu">
                                         <li>
                                             <a class="dropdown-item" href="#"
-                                                wire:click="editarFornecedor({{ $grupo['fornecedor_id'] }})">
+                                                wire:click="editarLancamento({{ $lancamento['id'] }})">
                                                 Editar
                                             </a>
                                         </li>
@@ -45,7 +45,7 @@
                                             <button type="button" class="dropdown-item text-danger"
                                                 @click.prevent="Swal.fire({
                                                     title: 'Tem certeza?',
-                                                    text: 'Remover todas as despesas deste fornecedor?',
+                                                    text: 'Remover este lançamento de despesa?',
                                                     icon: 'warning',
                                                     showCancelButton: true,
                                                     confirmButtonColor: '#3085d6',
@@ -53,7 +53,7 @@
                                                     confirmButtonText: 'Sim, excluir!'
                                                 }).then((result) => {
                                                     if (result.isConfirmed) {
-                                                        $wire.deletarPorFornecedor({{ $grupo['fornecedor_id'] }});
+                                                        $wire.deletarLancamento({{ $lancamento['id'] }});
                                                     }
                                                 })">
                                                 Deletar

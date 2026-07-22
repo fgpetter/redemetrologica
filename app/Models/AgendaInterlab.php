@@ -6,6 +6,7 @@ use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -43,19 +44,43 @@ class AgendaInterlab extends Model
     }
 
     /**
-     * Retorna despesas associadas
+     * Retorna lançamentos de despesa associados
+     *
+     * @return HasMany<InterlabDespesaLancamento, $this>
      */
-    public function despesas(): HasMany
+    public function despesaLancamentos(): HasMany
     {
-        return $this->hasMany(InterlabDespesa::class);
+        return $this->hasMany(InterlabDespesaLancamento::class);
     }
 
     /**
-     * Retorna avaliações de fornecedores associadas
+     * Retorna itens de despesa associados via lançamentos
+     *
+     * @return HasManyThrough<InterlabDespesa, InterlabDespesaLancamento, $this>
      */
-    public function fornecedorAvaliacoes(): HasMany
+    public function despesas(): HasManyThrough
     {
-        return $this->hasMany(FornecedorAvaliacao::class);
+        return $this->hasManyThrough(
+            InterlabDespesa::class,
+            InterlabDespesaLancamento::class,
+            'agenda_interlab_id',
+            'interlab_despesa_lancamento_id'
+        );
+    }
+
+    /**
+     * Retorna avaliações de fornecedores associadas via lançamentos
+     *
+     * @return HasManyThrough<FornecedorAvaliacao, InterlabDespesaLancamento, $this>
+     */
+    public function fornecedorAvaliacoes(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            FornecedorAvaliacao::class,
+            InterlabDespesaLancamento::class,
+            'agenda_interlab_id',
+            'interlab_despesa_lancamento_id'
+        );
     }
 
     /**

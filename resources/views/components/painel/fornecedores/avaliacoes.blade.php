@@ -3,9 +3,9 @@
 @php
     $avaliacoes = $fornecedor->avaliacoes()
         ->whereNotNull('media')
-        ->with(['agendaInterlab.interlab'])
+        ->with(['lancamento.agendaInterlab.interlab'])
         ->get()
-        ->sortByDesc(fn ($a) => $a->agendaInterlab?->ano_referencia ?? 0)
+        ->sortByDesc(fn ($a) => $a->lancamento?->agendaInterlab?->ano_referencia ?? 0)
         ->values();
 @endphp
 
@@ -25,8 +25,8 @@
         <ul class="list-group list-group-flush">
             @forelse ($avaliacoes as $avaliacao)
                 <li class="list-group-item">
-                    <a href="{{ route('agenda-interlab-insert', ['agendainterlab' => $avaliacao->agendaInterlab->uid]) }}">
-                        {{ $avaliacao->agendaInterlab->interlab->nome }} - {{ $avaliacao->agendaInterlab->ano_referencia }}
+                    <a href="{{ route('agenda-interlab-insert', ['agendainterlab' => $avaliacao->lancamento->agendaInterlab->uid]) }}">
+                        {{ $avaliacao->lancamento->agendaInterlab->interlab->nome }} - {{ $avaliacao->lancamento->agendaInterlab->ano_referencia }}
                     </a>
                     | {{ number_format($avaliacao->media, 1, '.', '') }}
                 </li>

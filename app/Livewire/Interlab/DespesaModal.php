@@ -5,8 +5,9 @@ namespace App\Livewire\Interlab;
 use App\Actions\Interlab\SyncFornecedorAvaliacaoAction;
 use App\Enums\FornecedorArea;
 use App\Models\Fornecedor;
-use App\Models\FornecedorAvaliacao;
 use App\Models\InterlabDespesa;
+use App\Models\InterlabDespesaLancamento;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -14,7 +15,7 @@ class DespesaModal extends Component
 {
     public int $agendaInterlabId;
 
-    public ?int $despesaEditandoId = null;
+    public ?int $lancamentoId = null;
 
     public bool $showModal = false;
 
@@ -47,10 +48,10 @@ class DespesaModal extends Component
     }
 
     #[On('abrir-despesa-modal')]
-    public function abrirDespesaModal(?int $fornecedorId = null): void
+    public function abrirDespesaModal(?int $lancamentoId = null): void
     {
-        if ($fornecedorId !== null) {
-            $this->abrirParaEditar($fornecedorId);
+        if ($lancamentoId !== null) {
+            $this->abrirParaEditar($lancamentoId);
         } else {
             $this->abrirParaCriar();
         }
@@ -60,7 +61,7 @@ class DespesaModal extends Component
     {
         $this->resetValidation();
         $this->fornecedorId = '';
-        $this->despesaEditandoId = null;
+        $this->lancamentoId = null;
         $this->editingIndex = 0;
         $this->avaliacaoCusto = '';
         $this->avaliacaoTempo = '';
@@ -80,22 +81,22 @@ class DespesaModal extends Component
         $this->showModal = true;
     }
 
-    public function abrirParaEditar(int $fornecedorId): void
+    public function abrirParaEditar(int $lancamentoId): void
     {
-        $despesas = InterlabDespesa::where('agenda_interlab_id', $this->agendaInterlabId)
-            ->where('fornecedor_id', $fornecedorId)
-            ->orderBy('id')
-            ->get();
+        $lancamento = InterlabDespesaLancamento::query()
+            ->where('agenda_interlab_id', $this->agendaInterlabId)
+            ->with(['itens' => fn ($q) => $q->orderBy('id'), 'avaliacao'])
+            ->find($lancamentoId);
 
-        if ($despesas->isEmpty()) {
+        if (! $lancamento) {
             $this->abrirParaCriar();
 
             return;
         }
 
-        $this->fornecedorId = (string) $fornecedorId;
-        $this->despesaEditandoId = $despesas->first()->id;
-        $this->produtos = $despesas->map(fn (InterlabDespesa $d) => [
+        $this->lancamentoId = $lancamento->id;
+        $this->fornecedorId = (string) $lancamento->fornecedor_id;
+        $this->produtos = $lancamento->itens->map(fn (InterlabDespesa $d) => [
             'material_servico' => $d->material_servico ?? '',
             'fabricante' => $d->fabricante ?? '',
             'cod_fabricante' => $d->cod_fabricante ?? '',
@@ -104,9 +105,26 @@ class DespesaModal extends Component
             'lote' => $d->lote ?? '',
             'validade' => $d->validade?->format('Y-m-d') ?? '',
             'data_compra' => $d->data_compra?->format('Y-m-d') ?? '',
-        ])->toArray();
+        ])->values()->toArray();
+
+        if ($this->produtos === []) {
+            $this->produtos = [[
+                'material_servico' => '',
+                'fabricante' => '',
+                'cod_fabricante' => '',
+                'quantidade' => '',
+                'valor' => '',
+                'lote' => '',
+                'validade' => '',
+                'data_compra' => '',
+            ]];
+        }
+
+        $avaliacao = $lancamento->avaliacao;
+        $this->avaliacaoCusto = $avaliacao?->custo !== null ? (string) $avaliacao->custo : '';
+        $this->avaliacaoTempo = $avaliacao?->tempo !== null ? (string) $avaliacao->tempo : '';
+        $this->avaliacaoQualidade = $avaliacao?->qualidade !== null ? (string) $avaliacao->qualidade : '';
         $this->editingIndex = null;
-        $this->carregarAvaliacao($fornecedorId);
         $this->resetValidation();
         $this->showModal = true;
     }
@@ -178,87 +196,79 @@ class DespesaModal extends Component
             ];
         }
 
-        if ($this->despesaEditandoId !== null) {
-            $existentes = InterlabDespesa::where('agenda_interlab_id', $this->agendaInterlabId)
-                ->where('fornecedor_id', $fornecedorId)
-                ->orderBy('id')
-                ->get();
+        $lancamento = DB::transaction(function () use ($fornecedorId, $produtosValidados) {
+            if ($this->lancamentoId !== null) {
+                $lancamento = InterlabDespesaLancamento::query()
+                    ->where('agenda_interlab_id', $this->agendaInterlabId)
+                    ->findOrFail($this->lancamentoId);
+
+                $lancamento->update(['fornecedor_id' => $fornecedorId]);
+            } else {
+                $lancamento = InterlabDespesaLancamento::query()->create([
+                    'agenda_interlab_id' => $this->agendaInterlabId,
+                    'fornecedor_id' => $fornecedorId,
+                ]);
+            }
+
+            $existentes = $lancamento->itens()->orderBy('id')->get();
             $ids = $existentes->pluck('id')->toArray();
+
             foreach ($produtosValidados as $i => $data) {
-                $data['agenda_interlab_id'] = $this->agendaInterlabId;
-                $data['fornecedor_id'] = $fornecedorId;
+                $data['interlab_despesa_lancamento_id'] = $lancamento->id;
+
                 if (isset($ids[$i])) {
                     InterlabDespesa::where('id', $ids[$i])->update($data);
                 } else {
                     InterlabDespesa::create($data);
                 }
             }
+
             if (count($produtosValidados) < count($ids)) {
                 foreach (array_slice($ids, count($produtosValidados)) as $id) {
                     InterlabDespesa::find($id)?->delete();
                 }
             }
-        } else {
-            foreach ($produtosValidados as $data) {
-                $data['agenda_interlab_id'] = $this->agendaInterlabId;
-                $data['fornecedor_id'] = $fornecedorId;
-                InterlabDespesa::create($data);
-            }
-        }
 
-        app(SyncFornecedorAvaliacaoAction::class)->sync(
-            $this->agendaInterlabId,
-            $fornecedorId,
-            $this->avaliacaoComoInt($this->avaliacaoCusto),
-            $this->avaliacaoComoInt($this->avaliacaoTempo),
-            $this->avaliacaoComoInt($this->avaliacaoQualidade),
-        );
+            app(SyncFornecedorAvaliacaoAction::class)->sync(
+                $lancamento->fresh(),
+                $this->avaliacaoComoInt($this->avaliacaoCusto),
+                $this->avaliacaoComoInt($this->avaliacaoTempo),
+                $this->avaliacaoComoInt($this->avaliacaoQualidade),
+            );
 
+            return $lancamento;
+        });
+
+        $this->lancamentoId = $lancamento->id;
         $this->dispatch('despesa-salva');
         session()->flash('success', 'Despesa(s) salva(s) com sucesso.');
         $this->fechar();
     }
 
-    public function deletar(int $despesaId): void
+    public function deletarLancamento(): void
     {
-        $despesa = InterlabDespesa::where('agenda_interlab_id', $this->agendaInterlabId)
-            ->where('id', $despesaId)
-            ->first();
-
-        if ($despesa) {
-            $despesa->delete();
-            $this->dispatch('despesa-deletada');
-            session()->flash('warning', 'Despesa removida.');
+        if ($this->lancamentoId === null) {
+            return;
         }
-        $this->fechar();
-    }
 
-    public function deletarPorFornecedor(int $fornecedorId): void
-    {
-        InterlabDespesa::where('agenda_interlab_id', $this->agendaInterlabId)
-            ->where('fornecedor_id', $fornecedorId)
-            ->get()
-            ->each->delete();
-        $this->dispatch('despesa-deletada');
-        session()->flash('warning', 'Despesas do fornecedor removidas.');
+        $lancamento = InterlabDespesaLancamento::query()
+            ->where('agenda_interlab_id', $this->agendaInterlabId)
+            ->find($this->lancamentoId);
+
+        if ($lancamento) {
+            $lancamento->itens()->get()->each->delete();
+            $lancamento->avaliacao()->delete();
+            $lancamento->delete();
+            $this->dispatch('despesa-deletada');
+            session()->flash('warning', 'Lançamento de despesa removido.');
+        }
+
         $this->fechar();
     }
 
     public function fechar(): void
     {
         $this->showModal = false;
-    }
-
-    private function carregarAvaliacao(int $fornecedorId): void
-    {
-        $avaliacao = FornecedorAvaliacao::query()
-            ->where('agenda_interlab_id', $this->agendaInterlabId)
-            ->where('fornecedor_id', $fornecedorId)
-            ->first();
-
-        $this->avaliacaoCusto = $avaliacao?->custo !== null ? (string) $avaliacao->custo : '';
-        $this->avaliacaoTempo = $avaliacao?->tempo !== null ? (string) $avaliacao->tempo : '';
-        $this->avaliacaoQualidade = $avaliacao?->qualidade !== null ? (string) $avaliacao->qualidade : '';
     }
 
     private function avaliacaoComoInt(string $valor): ?int

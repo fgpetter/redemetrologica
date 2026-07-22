@@ -4,7 +4,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ $despesaEditandoId ? 'Editar Despesa' : 'Adicionar Despesa' }}</h5>
+                        <h5 class="modal-title">{{ $lancamentoId ? 'Editar Despesa' : 'Adicionar Despesa' }}</h5>
                         <button type="button" class="btn-close" wire:click="fechar" aria-label="Fechar"></button>
                     </div>
                     <div class="modal-body">
