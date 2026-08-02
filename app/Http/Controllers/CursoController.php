@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\FileUploadAction;
+use App\Actions\GenerateDocxFromTemplateAction;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoMaterial;
@@ -11,8 +12,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File as FileFacade;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\File;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CursoController extends Controller
 {
@@ -160,6 +164,36 @@ class CursoController extends Controller
         $curso->update($validated);
 
         return redirect()->back()->with('success', 'Curso atualizado com sucesso');
+    }
+
+    /**
+     * Gera e baixa o documento descritivo do curso
+     */
+    public function downloadDocumento(Curso $curso): BinaryFileResponse
+    {
+        $data = [
+            'descricao' => $curso->descricao ?? 'Não informado',
+            'carga_horaria' => $curso->carga_horaria ?? 'Não informado',
+            'objetivo' => $curso->objetivo ?? 'Não informado',
+            'publico_alvo' => $curso->publico_alvo ?? 'Não informado',
+            'pre_requisitos' => $curso->pre_requisitos ?? 'Não informado',
+            'exemplos_praticos' => $curso->exemplos_praticos ?? 'Não informado',
+            'referencias_utilizadas' => $curso->referencias_utilizadas ?? 'Não informado',
+            'conteudo_programatico' => $curso->conteudo_programatico ?? 'Não informado',
+        ];
+
+        $templatePath = storage_path('app/templates/Curso.docx');
+        $cursoSlug = Str::slug($curso->descricao ?? 'curso');
+        $outputRelativePath = "docs/Curso_{$cursoSlug}_".now()->timestamp.'.docx';
+
+        $gerar = (new GenerateDocxFromTemplateAction)
+            ->execute($templatePath, $data, [], $outputRelativePath);
+
+        $fullPath = Storage::path("public/{$gerar}");
+
+        return response()
+            ->download($fullPath, basename($fullPath))
+            ->deleteFileAfterSend(true);
     }
 
     /**
