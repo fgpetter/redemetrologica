@@ -17,6 +17,7 @@ use App\Http\Controllers\FaleconoscoController;
 use App\Http\Controllers\FornecedorController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\InscricaoCursoController;
 use App\Http\Controllers\InscricaoInterlabController;
@@ -28,7 +29,6 @@ use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PlanoContaController;
-use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
@@ -171,6 +171,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('curso-delete-despesa');
         Route::get('export-lista-presenca/{agendacurso}/export-lista-presenca', [AgendaCursoController::class, 'exportListaPresenca'])
             ->name('agendamento-curso.export-lista-presenca');
+        Route::get('download-certificado/{inscrito:uid}', [AgendaCursoController::class, 'downloadCertificado'])
+            ->name('agendamento-curso.download-certificado');
     });
 
     /* Agendamento de cursos in-company */
