@@ -172,6 +172,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('curso-delete-despesa');
         Route::get('export-lista-presenca/{agendacurso}/export-lista-presenca', [AgendaCursoController::class, 'exportListaPresenca'])
             ->name('agendamento-curso.export-lista-presenca');
+        Route::get('download-certificado/{inscrito:uid}', [AgendaCursoController::class, 'downloadCertificado'])
+            ->name('agendamento-curso.download-certificado');
     });
 
     /* Agendamento de cursos in-company */

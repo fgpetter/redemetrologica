@@ -13,9 +13,26 @@ class EnviarCertificadoAction
      */
     public function execute(CursoInscrito $inscrito, int $delay = 0): DadosGeraDoc
     {
+        $dadosDoc = $this->criarDadosDoc($inscrito);
+
+        $inscrito->update([
+            'certificado_emitido' => now(),
+            'certificado_path' => $dadosDoc->storage_path,
+        ]);
+
+        EnviarLinkCertificadoJob::dispatch($dadosDoc->id)->delay(now()->addSeconds($delay));
+
+        return $dadosDoc;
+    }
+
+    /**
+     * Cria o registro com os dados necessários para gerar o PDF do certificado
+     */
+    public function criarDadosDoc(CursoInscrito $inscrito): DadosGeraDoc
+    {
         $inscrito->load(['agendaCurso.curso', 'agendaCurso.instrutor.pessoa', 'empresa']);
 
-        $dadosDoc = DadosGeraDoc::create([
+        return DadosGeraDoc::create([
             'content' => [
                 'participante_id' => $inscrito->id,
                 'participante_nome' => $inscrito->nome,
@@ -29,15 +46,6 @@ class EnviarCertificadoAction
             ],
             'tipo' => 'certificado',
         ]);
-
-        $inscrito->update([
-            'certificado_emitido' => now(),
-            'certificado_path' => $dadosDoc->storage_path,
-        ]);
-
-        EnviarLinkCertificadoJob::dispatch($dadosDoc->id)->delay(now()->addSeconds($delay));
-
-        return $dadosDoc;
     }
 
     private function gerarDataFormatada(\Carbon\Carbon $dataInicio, \Carbon\Carbon $dataFim): string

@@ -8,6 +8,7 @@ use App\Http\Requests\AgendaCursoRequest;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoDespesa;
+use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\MaterialPadrao;
 use App\Models\Pessoa;
@@ -210,5 +211,15 @@ class AgendaCursoController extends Controller
         $filename = "lista_presenca_{$nome}_{$agendacurso->data_inicio}.xlsx";
 
         return Excel::download(new CursoInscritosExport($agendacurso), $filename);
+    }
+
+    /**
+     * Baixa o PDF do certificado de um participante
+     */
+    public function downloadCertificado(CursoInscrito $inscrito): RedirectResponse
+    {
+        $dadosDoc = app(EnviarCertificadoAction::class)->criarDadosDoc($inscrito);
+
+        return redirect()->route('dados-doc.download', $dadosDoc->link);
     }
 }

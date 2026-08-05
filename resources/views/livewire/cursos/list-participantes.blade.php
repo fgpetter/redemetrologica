@@ -127,6 +127,11 @@
                                         </button>
                                     </li>
                                     <li>
+                                        <a class="dropdown-item" href="{{ route('agendamento-curso.download-certificado', $inscrito->uid) }}">
+                                            Baixar Certificado
+                                        </a>
+                                    </li>
+                                    <li>
                                         <x-painel.form-delete.delete route='cancela-inscricao' id="{{ $inscrito->uid }}" />
                                     </li>
                                 </ul>
