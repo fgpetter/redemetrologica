@@ -14,10 +14,14 @@
   <div class="col-xl-5 col-xxl-6">
     @if($curso->id)
       <x-painel.cursos.arquivos-curso :curso="$curso"/>
-    @endif
-  </div>
 
-  <div class="col-xl-5 col-xxl-6">
+      <div class="card">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <span>Baixar doc com os dados do curso</span>
+          <a href="{{ route('curso-download-documento', $curso->uid) }}" class="btn btn-primary">Baixar</a>
+        </div>
+      </div>
+    @endif
   </div>
 
 </div>

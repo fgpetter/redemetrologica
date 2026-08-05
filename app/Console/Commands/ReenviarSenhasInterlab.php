@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\CriarEnviarSenhaInterlabAction;
-use App\Actions\GerarTagSenhaInterlabAction;
+use App\Actions\CriarEnviarSenhaAnalistaAction;
+use App\Actions\CriarEnviarSenhaLaboratorioAction;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
@@ -85,7 +85,7 @@ class ReenviarSenhasInterlab extends Command
         }
 
         if (($interlab->avaliacao ?? null) === 'ANALISTA') {
-            return $this->processarAnalistas($inscrito, $agendaInterlab, $delayIndex, $resendEmail);
+            return $this->processarAnalistas($inscrito, $delayIndex, $resendEmail);
         }
 
         if ($resendEmail) {
@@ -96,7 +96,7 @@ class ReenviarSenhasInterlab extends Command
             }
 
             $delayIndex++;
-            app(CriarEnviarSenhaInterlabAction::class)->execute(
+            app(CriarEnviarSenhaLaboratorioAction::class)->execute(
                 inscrito: $inscrito,
                 delaySecs: $delayIndex * 30,
             );
@@ -108,17 +108,8 @@ class ReenviarSenhasInterlab extends Command
             return ['processados' => 0, 'ignorados' => 1, 'sem_tag_interlab' => 0];
         }
 
-        if (empty($inscrito->tag_senha)) {
-            $tagSenha = app(GerarTagSenhaInterlabAction::class)->execute(
-                $agendaInterlab,
-                GerarTagSenhaInterlabAction::TIPO_LABORATORIO,
-            );
-            $inscrito->update(['tag_senha' => $tagSenha]);
-            $inscrito->refresh();
-        }
-
         $delayIndex++;
-        app(CriarEnviarSenhaInterlabAction::class)->execute(
+        app(CriarEnviarSenhaLaboratorioAction::class)->execute(
             inscrito: $inscrito,
             delaySecs: $delayIndex * 30,
         );
@@ -131,11 +122,9 @@ class ReenviarSenhasInterlab extends Command
      */
     private function processarAnalistas(
         InterlabInscrito $inscrito,
-        AgendaInterlab $agendaInterlab,
         int &$delayIndex,
         bool $resendEmail,
-    ): array
-    {
+    ): array {
         $analistas = $inscrito->analistas;
 
         if ($analistas->isEmpty()) {
@@ -148,7 +137,7 @@ class ReenviarSenhasInterlab extends Command
         $ignorados = 0;
 
         foreach ($analistas as $analista) {
-            if ($this->processarAnalista($inscrito, $agendaInterlab, $analista, $delayIndex, $resendEmail)) {
+            if ($this->processarAnalista($inscrito, $analista, $delayIndex, $resendEmail)) {
                 $processados++;
 
                 continue;
@@ -162,31 +151,36 @@ class ReenviarSenhasInterlab extends Command
 
     private function processarAnalista(
         InterlabInscrito $inscrito,
-        AgendaInterlab $agendaInterlab,
         InterlabAnalista $analista,
         int &$delayIndex,
         bool $resendEmail,
     ): bool {
-        if ($resendEmail && empty($analista->tag_senha)) {
-            $this->warn("Analista {$analista->id} ignorado: sem tag_senha para reenvio.");
+        if ($resendEmail) {
+            if (empty($analista->tag_senha)) {
+                $this->warn("Analista {$analista->id} ignorado: sem tag_senha para reenvio.");
 
+                return false;
+            }
+
+            $delayIndex++;
+            app(CriarEnviarSenhaAnalistaAction::class)->execute(
+                inscrito: $inscrito,
+                analista: $analista,
+                delaySecs: $delayIndex * 30,
+            );
+
+            return true;
+        }
+
+        if (filled($analista->tag_senha) && $analista->senha_enviada !== null) {
             return false;
         }
 
-        if (empty($analista->tag_senha)) {
-            $tagSenha = app(GerarTagSenhaInterlabAction::class)->execute(
-                $agendaInterlab,
-                GerarTagSenhaInterlabAction::TIPO_ANALISTA,
-            );
-            $analista->update(['tag_senha' => $tagSenha]);
-            $analista->refresh();
-        }
-
         $delayIndex++;
-        app(CriarEnviarSenhaInterlabAction::class)->execute(
+        app(CriarEnviarSenhaAnalistaAction::class)->execute(
             inscrito: $inscrito,
-            delaySecs: $delayIndex * 30,
             analista: $analista,
+            delaySecs: $delayIndex * 30,
         );
 
         return true;

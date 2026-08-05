@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\EnviaSenhaPepJob;
+use App\Jobs\EnviaSenhaAnalistaJob;
+use App\Jobs\EnviaSenhaLaboratorioJob;
 use App\Models\AgendaInterlab;
 use App\Models\Endereco;
 use App\Models\InterlabAnalista;
@@ -41,15 +42,15 @@ class ReenviarSenhasInterlabCommandTest extends TestCase
 
         $this->assertDatabaseCount('dados_gera_doc', 2);
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, 2);
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, 2);
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, function (EnviaSenhaPepJob $job) use ($inscritoUm) {
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, function (EnviaSenhaLaboratorioJob $job) use ($inscritoUm) {
             return $job->inscritoId === $inscritoUm->id
                 && in_array('responsavel1@example.com', $job->destinatarios, true)
                 && in_array('lab1@example.com', $job->destinatarios, true);
         });
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, function (EnviaSenhaPepJob $job) use ($inscritoDois) {
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, function (EnviaSenhaLaboratorioJob $job) use ($inscritoDois) {
             return $job->inscritoId === $inscritoDois->id
                 && in_array('responsavel2@example.com', $job->destinatarios, true)
                 && in_array('lab2@example.com', $job->destinatarios, true);
@@ -80,7 +81,7 @@ class ReenviarSenhasInterlabCommandTest extends TestCase
         $this->assertCount(2, $jobs);
 
         foreach ($jobs as $job) {
-            $this->assertStringContainsString('EnviaSenhaPepJob', $job->payload);
+            $this->assertStringContainsString('EnviaSenhaLaboratorioJob', $job->payload);
         }
 
         $primeiro = $jobs[0];
@@ -113,7 +114,7 @@ class ReenviarSenhasInterlabCommandTest extends TestCase
         $this->assertNotNull($inscrito->tag_senha);
         $this->assertStringStartsWith('PEP', $inscrito->tag_senha);
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, 1);
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, 1);
     }
 
     public function test_lab_atualiza_senha_enviada_apos_handle_do_job(): void
@@ -131,7 +132,7 @@ class ReenviarSenhasInterlabCommandTest extends TestCase
         $dadosDoc = $inscrito->fresh()->tagSenhaDoc;
         $this->assertNotNull($dadosDoc);
 
-        (new EnviaSenhaPepJob(
+        (new EnviaSenhaLaboratorioJob(
             $dadosDoc->id,
             ['resp@example.com', 'lab@example.com'],
             $inscrito->id,
@@ -153,7 +154,7 @@ class ReenviarSenhasInterlabCommandTest extends TestCase
             ->assertSuccessful();
 
         $this->assertSame('TAG-FIXA', $inscrito->fresh()->tag_senha);
-        Queue::assertPushed(EnviaSenhaPepJob::class, 1);
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, 1);
     }
 
     public function test_lab_ignora_quando_tag_e_senha_enviada_preenchidos(): void
@@ -222,15 +223,40 @@ class ReenviarSenhasInterlabCommandTest extends TestCase
         $this->assertNotNull($analistaSemTag->tag_senha);
         $this->assertStringStartsWith('PEP', $analistaSemTag->tag_senha);
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, 2);
+        Queue::assertPushed(EnviaSenhaAnalistaJob::class, 2);
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, function (EnviaSenhaPepJob $job) {
+        Queue::assertPushed(EnviaSenhaAnalistaJob::class, function (EnviaSenhaAnalistaJob $job) {
             return $job->destinatarios === ['analista-a@example.com'];
         });
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, function (EnviaSenhaPepJob $job) {
+        Queue::assertPushed(EnviaSenhaAnalistaJob::class, function (EnviaSenhaAnalistaJob $job) {
             return $job->destinatarios === ['analista-b@example.com'];
         });
+    }
+
+    public function test_analista_ignora_quando_tag_e_senha_enviada_preenchidos(): void
+    {
+        Queue::fake();
+
+        $agenda = AgendaInterlabFactory::new()->create();
+        $this->garantirInterlabComTag($agenda, 'PEP', 'ANALISTA');
+
+        $inscrito = $this->criarInscrito($agenda, 'resp@example.com', 'lab@example.com', 'TAG-LAB');
+
+        InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista OK',
+            'email' => 'analista@example.com',
+            'telefone' => '11999999999',
+            'tag_senha' => 'PEP9999',
+            'senha_enviada' => Carbon::parse('2025-01-01 10:00:00'),
+        ]);
+
+        $this->artisan('app:reenviar-senhas-interlab', ['agenda_interlab_id' => $agenda->id])
+            ->assertSuccessful()
+            ->expectsOutputToContain('Ignorados 1');
+
+        Queue::assertNothingPushed();
     }
 
     private function garantirInterlabComTag(

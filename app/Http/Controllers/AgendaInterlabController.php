@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CriarEnviarSenhaInterlabAction;
+use App\Actions\CriarEnviarSenhaAnalistaAction;
+use App\Actions\CriarEnviarSenhaLaboratorioAction;
 use App\Actions\FileUploadAction;
 use App\Exports\LabExport;
 use App\Http\Requests\StoreAgendaInterlabRequest;
@@ -135,16 +136,36 @@ class AgendaInterlabController extends Controller
         // se o status foi alterado para CONFIRMADO, envia a todos os participantes e-mail de confirmação e carta senha
         if ($oldStatus == 'AGENDADO' && $agendainterlab->status === 'CONFIRMADO' && ! empty($agendainterlab->interlab->tag)) {
             $inscritos = InterlabInscrito::where('agenda_interlab_id', $agendainterlab->id)
-                ->with('laboratorio')
+                ->with(['laboratorio', 'analistas', 'pessoa', 'empresa', 'agendaInterlab.interlab'])
                 ->get();
 
-            foreach ($inscritos as $index => $inscrito) {
-                $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
-                    ->whereJsonContains('content->participante_id', $inscrito->id)
-                    ->exists();
+            $avaliacaoAnalista = ($agendainterlab->interlab->avaliacao ?? null) === 'ANALISTA';
+            $delayIndex = 0;
 
-                if (! $jaGerado) {
-                    app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, $index * 15);
+            foreach ($inscritos as $index => $inscrito) {
+                if ($avaliacaoAnalista) {
+                    foreach ($inscrito->analistas as $analista) {
+                        $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha_analista')
+                            ->whereJsonContains('content->analista_id', $analista->id)
+                            ->exists();
+
+                        if (! $jaGerado) {
+                            $delayIndex++;
+                            app(CriarEnviarSenhaAnalistaAction::class)->execute(
+                                $inscrito,
+                                $analista,
+                                $delayIndex * 15,
+                            );
+                        }
+                    }
+                } else {
+                    $jaGerado = DadosGeraDoc::where('tipo', 'tag_senha')
+                        ->whereJsonContains('content->participante_id', $inscrito->id)
+                        ->exists();
+
+                    if (! $jaGerado) {
+                        app(CriarEnviarSenhaLaboratorioAction::class)->execute($inscrito, $index * 15);
+                    }
                 }
 
                 EnviarConfirmacaoInterlabJob::dispatch($inscrito)

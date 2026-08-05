@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use App\Traits\SetDefaultUid;
 
 class DadosGeraDoc extends Model
 {
@@ -54,16 +54,27 @@ class DadosGeraDoc extends Model
     {
         if ($this->tipo === 'tag_senha') {
             $nameSlug = Str::slug($this->content['laboratorio_nome'] ?? 'tag');
+
             return "tag_senha_{$nameSlug}_{$this->link}.pdf";
+        }
+
+        if ($this->tipo === 'tag_senha_analista') {
+            $nameSlug = Str::slug(
+                ($this->content['analista_nome'] ?? 'analista').'_'.($this->content['laboratorio_nome'] ?? 'tag')
+            );
+
+            return "tag_senha_analista_{$nameSlug}_{$this->link}.pdf";
         }
 
         if ($this->tipo === 'certificado') {
             $nameSlug = Str::slug($this->content['participante_nome'] ?? 'certificado');
+
             return "certificado_{$nameSlug}_{$this->link}.pdf";
         }
 
         if ($this->tipo === 'certificado_interlab') {
             $nameSlug = Str::slug($this->content['laboratorio_nome'] ?? 'certificado_interlab');
+
             return "certificado_interlab_{$nameSlug}_{$this->link}.pdf";
         }
 
@@ -75,7 +86,10 @@ class DadosGeraDoc extends Model
      */
     public function getStoragePathAttribute(): string
     {
-        $folder = $this->tipo === 'tag_senha' ? 'senhas' : 'certificados';
+        $folder = in_array($this->tipo, ['tag_senha', 'tag_senha_analista'], true)
+            ? 'senhas'
+            : 'certificados';
+
         return "public/docs/{$folder}/{$this->file_name}";
     }
 }
