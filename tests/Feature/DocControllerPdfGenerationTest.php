@@ -71,6 +71,30 @@ class DocControllerPdfGenerationTest extends TestCase
         Pdf::assertSaved($path);
     }
 
+    public function test_download_gera_pdf_tag_senha_analista_com_view_correta(): void
+    {
+        $dadosDoc = DadosGeraDoc::query()->create([
+            'tipo' => 'tag_senha_analista',
+            'content' => [
+                'tag_senha' => 'TAG-ANA-123',
+                'interlab_nome' => 'PEP Teste',
+                'empresa_nome_razao' => 'Empresa Teste',
+                'laboratorio_nome' => 'Lab Teste',
+                'analista_nome' => 'Analista Teste',
+                'empresa_cpf_cnpj' => '12.345.678/0001-90',
+                'informacoes_inscricao' => 'Opção A',
+            ],
+        ]);
+
+        $path = Storage::path($dadosDoc->storage_path);
+
+        $response = $this->get(route('dados-doc.download', ['link' => $dadosDoc->link]));
+
+        $response->assertOk();
+        Pdf::assertViewIs('certificados.tag-senha-analista');
+        Pdf::assertSaved($path);
+    }
+
     public function test_download_gera_pdf_certificado_com_view_correta(): void
     {
         $inscrito = $this->criarCursoInscritoParaCertificado();

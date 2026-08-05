@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Commands;
 
-use App\Jobs\GerarEEnviarSenhaInterlabJob;
+use App\Jobs\EnviaSenhaAnalistaJob;
+use App\Jobs\EnviaSenhaLaboratorioJob;
 use App\Models\AgendaInterlab;
 use App\Models\Endereco;
+use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use Database\Factories\AgendaInterlabFactory;
@@ -31,8 +33,36 @@ class ProcessarSenhasInterlabConfirmadoCommandTest extends TestCase
         $this->artisan('app:processar-senhas-interlab-confirmado')
             ->assertSuccessful();
 
-        Queue::assertPushed(GerarEEnviarSenhaInterlabJob::class, function (GerarEEnviarSenhaInterlabJob $job) use ($inscrito) {
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, function (EnviaSenhaLaboratorioJob $job) use ($inscrito) {
             return $job->inscritoId === $inscrito->id;
+        });
+    }
+
+    public function test_enfileira_job_para_analista_elegivel(): void
+    {
+        Queue::fake();
+
+        $agenda = AgendaInterlabFactory::new()->create(['status' => 'CONFIRMADO']);
+        $agenda->interlab->update(['tag' => 'ABCDE', 'avaliacao' => 'ANALISTA']);
+
+        $inscrito = $this->criarInscrito($agenda, 'resp@example.com', 'lab@example.com');
+
+        $analista = InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista Teste',
+            'email' => 'analista@example.com',
+            'telefone' => '11999999999',
+            'tag_senha' => 'ABCDE1234',
+            'senha_enviada' => null,
+        ]);
+
+        $this->artisan('app:processar-senhas-interlab-confirmado')
+            ->assertSuccessful();
+
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
+        Queue::assertPushed(EnviaSenhaAnalistaJob::class, function (EnviaSenhaAnalistaJob $job) use ($analista) {
+            return $job->analistaId === $analista->id
+                && $job->destinatarios === ['analista@example.com'];
         });
     }
 
@@ -48,7 +78,7 @@ class ProcessarSenhasInterlabConfirmadoCommandTest extends TestCase
         $this->artisan('app:processar-senhas-interlab-confirmado')
             ->assertSuccessful();
 
-        Queue::assertNotPushed(GerarEEnviarSenhaInterlabJob::class);
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
     }
 
     public function test_nao_enfileira_quando_senha_ja_enviada(): void
@@ -65,7 +95,31 @@ class ProcessarSenhasInterlabConfirmadoCommandTest extends TestCase
         $this->artisan('app:processar-senhas-interlab-confirmado')
             ->assertSuccessful();
 
-        Queue::assertNotPushed(GerarEEnviarSenhaInterlabJob::class);
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
+    }
+
+    public function test_nao_enfileira_analista_quando_senha_ja_enviada(): void
+    {
+        Queue::fake();
+
+        $agenda = AgendaInterlabFactory::new()->create(['status' => 'CONFIRMADO']);
+        $agenda->interlab->update(['tag' => 'ABCDE', 'avaliacao' => 'ANALISTA']);
+
+        $inscrito = $this->criarInscrito($agenda, 'resp@example.com', 'lab@example.com');
+
+        InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista Teste',
+            'email' => 'analista@example.com',
+            'telefone' => '11999999999',
+            'tag_senha' => 'ABCDE1234',
+            'senha_enviada' => Carbon::parse('2025-01-01 10:00:00'),
+        ]);
+
+        $this->artisan('app:processar-senhas-interlab-confirmado')
+            ->assertSuccessful();
+
+        Queue::assertNotPushed(EnviaSenhaAnalistaJob::class);
     }
 
     public function test_nao_enfileira_quando_interlab_sem_tag(): void
@@ -80,7 +134,7 @@ class ProcessarSenhasInterlabConfirmadoCommandTest extends TestCase
         $this->artisan('app:processar-senhas-interlab-confirmado')
             ->assertSuccessful();
 
-        Queue::assertNotPushed(GerarEEnviarSenhaInterlabJob::class);
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
     }
 
     /**

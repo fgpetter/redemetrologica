@@ -3,33 +3,44 @@
 namespace App\Actions;
 
 use App\Exceptions\InvalidEmailException;
-use App\Jobs\EnviaSenhaPepJob;
+use App\Jobs\EnviaSenhaLaboratorioJob;
 use App\Models\DadosGeraDoc;
-use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 
-class CriarEnviarSenhaInterlabAction
+class CriarEnviarSenhaLaboratorioAction
 {
     /**
-     * Cria registro de tag senha e agenda envio do e-mail com link para download.
+     * Cria registro de Carta Senha do laboratório e agenda o envio do e-mail com link.
      *
-     * @param  InterlabInscrito  $inscrito  Inscrição alvo
-     * @param  int  $delaySecs  Atraso em segundos até o envio na fila
-     * @param  InterlabAnalista|null  $analista  Quando informado, inclui dados do analista no documento e na tag
-     * @return DadosGeraDoc Registro criado (o envio é omitido se não houver e-mails válidos)
+     * Content gravado em DadosGeraDoc (tipo `tag_senha`):
      */
-    public function execute(
-        InterlabInscrito $inscrito,
-        int $delaySecs,
-        ?InterlabAnalista $analista = null,
-    ): DadosGeraDoc {
+    public function execute(InterlabInscrito $inscrito, int $delaySecs = 0): DadosGeraDoc
+    {
         $inscrito->loadMissing(['laboratorio', 'empresa', 'agendaInterlab.interlab', 'pessoa']);
 
+        if (empty($inscrito->tag_senha)) {
+            $tagSenha = app(GerarTagSenhaInterlabAction::class)->execute(
+                $inscrito->agendaInterlab,
+                GerarTagSenhaInterlabAction::TIPO_LABORATORIO,
+            );
+            $inscrito->update(['tag_senha' => $tagSenha]);
+            $inscrito->refresh();
+        }
+
+        /** @var array{
+         *     participante_id: int,
+         *     tag_senha: string|null,
+         *     informacoes_inscricao: mixed,
+         *     laboratorio_nome: string,
+         *     laboratorio_email: string|null,
+         *     empresa_nome_razao: string,
+         *     empresa_cpf_cnpj: string,
+         *     interlab_nome: string
+         * } $content
+         */
         $content = [
             'participante_id' => $inscrito->id,
-            'tag_senha' => $analista !== null
-                ? ($analista->tag_senha ?? $inscrito->tag_senha)
-                : $inscrito->tag_senha,
+            'tag_senha' => $inscrito->tag_senha,
             'informacoes_inscricao' => $inscrito->informacoes_inscricao,
             'laboratorio_nome' => $inscrito->laboratorio->nome,
             'laboratorio_email' => $inscrito->email,
@@ -38,27 +49,18 @@ class CriarEnviarSenhaInterlabAction
             'interlab_nome' => $inscrito->agendaInterlab->interlab->nome,
         ];
 
-        if ($analista !== null) {
-            $content['analista_nome'] = $analista->nome ?? null;
-            $content['analista_email'] = $analista->email ?? null;
-        }
-
         $dadosDoc = DadosGeraDoc::create([
             'content' => $content,
             'tipo' => 'tag_senha',
         ]);
 
-        $emails = $analista !== null
-            ? [$analista->email]
-            : [$inscrito->email, $inscrito->pessoa?->email];
-
         $destinatarios = array_values(array_unique(array_filter(
-            $emails,
+            [$inscrito->email, $inscrito->pessoa?->email],
             static fn (mixed $email): bool => filled($email)
         )));
 
         if ($destinatarios === []) {
-            $content = [
+            new InvalidEmailException([
                 'class' => self::class,
                 'inscrito_id' => $inscrito->id,
                 'inscrito_nome' => $inscrito->nome,
@@ -66,15 +68,12 @@ class CriarEnviarSenhaInterlabAction
                 'inscrito_pessoa_email' => $inscrito->pessoa?->email,
                 'inscrito_pessoa_nome' => $inscrito->pessoa?->nome,
                 'inscrito_pessoa_uid' => $inscrito->pessoa?->uid,
-                'analista_id' => $analista?->id,
-                'analista_email' => $analista?->email,
-            ];
-            new InvalidEmailException($content);
+            ]);
 
             return $dadosDoc;
         }
 
-        EnviaSenhaPepJob::dispatch($dadosDoc->id, $destinatarios, $inscrito->id)
+        EnviaSenhaLaboratorioJob::dispatch($dadosDoc->id, $destinatarios, $inscrito->id)
             ->delay(now()->addSeconds($delaySecs));
 
         return $dadosDoc;

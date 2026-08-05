@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Mail\LinkSenhaInterlabNotification;
+use App\Mail\LinkSenhaLaboratorioNotification;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
 use Illuminate\Bus\Queueable;
@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class EnviaSenhaPepJob implements ShouldQueue
+class EnviaSenhaLaboratorioJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -35,7 +35,7 @@ class EnviaSenhaPepJob implements ShouldQueue
         $dadosDoc = DadosGeraDoc::query()->find($this->dadosGeraDocId);
 
         if (! $dadosDoc) {
-            Log::warning('EnviaSenhaPepJob: DadosGeraDoc não encontrado.', [
+            Log::warning('EnviaSenhaLaboratorioJob: DadosGeraDoc não encontrado.', [
                 'dados_gera_doc_id' => $this->dadosGeraDocId,
                 'inscrito_id' => $this->inscritoId,
             ]);
@@ -45,7 +45,7 @@ class EnviaSenhaPepJob implements ShouldQueue
 
         Mail::to($this->destinatarios)
             ->cc('sistema@redemetrologica.com.br')
-            ->sendNow(new LinkSenhaInterlabNotification($dadosDoc));
+            ->sendNow(new LinkSenhaLaboratorioNotification($dadosDoc));
 
         InterlabInscrito::query()
             ->whereKey($this->inscritoId)
@@ -54,7 +54,7 @@ class EnviaSenhaPepJob implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
-        Log::error('Falha ao enviar senha PEP para inscrito ID: '.$this->inscritoId, [
+        Log::error('Falha ao enviar senha de laboratório para inscrito ID: '.$this->inscritoId, [
             'dados_gera_doc_id' => $this->dadosGeraDocId,
             'error' => $exception->getMessage(),
         ]);

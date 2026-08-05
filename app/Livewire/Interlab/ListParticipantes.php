@@ -127,7 +127,7 @@ class ListParticipantes extends Component
         $tagsSenhaDoc = $participanteIds === []
             ? collect()
             : DadosGeraDoc::query()
-                ->where('tipo', 'tag_senha')
+                ->whereIn('tipo', ['tag_senha', 'tag_senha_analista'])
                 ->whereIn('content->participante_id', $participanteIds)
                 ->get()
                 ->keyBy(fn ($doc) => $doc->content['participante_id'] ?? null);

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CriarEnviarSenhaInterlabAction;
+use App\Actions\CriarEnviarSenhaAnalistaAction;
+use App\Actions\CriarEnviarSenhaLaboratorioAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Actions\InscricaoInterlabAction;
 use App\Exceptions\InvalidEmailException;
@@ -100,7 +101,19 @@ class InscricaoInterlabController extends Controller
         }
 
         if ($agenda_interlab->status === 'CONFIRMADO' && ! empty($agenda_interlab->interlab?->tag)) {
-            app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, 15);
+            if (($agenda_interlab->interlab->avaliacao ?? null) === 'ANALISTA') {
+                $inscrito->loadMissing('analistas');
+
+                foreach ($inscrito->analistas as $index => $analista) {
+                    app(CriarEnviarSenhaAnalistaAction::class)->execute(
+                        $inscrito,
+                        $analista,
+                        ($index + 1) * 15,
+                    );
+                }
+            } else {
+                app(CriarEnviarSenhaLaboratorioAction::class)->execute($inscrito, 15);
+            }
         }
 
         if ($request->encerra_cadastro == 1) {
