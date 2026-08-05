@@ -16,7 +16,7 @@ Use `search-docs` for detailed Livewire 3 patterns and documentation.
 
 ### Creating Components
 
-Use the `vendor/bin/sail artisan make:livewire [Posts\CreatePost]` Artisan command to create new components.
+Use the `php artisan make:livewire [Posts\CreatePost]` Artisan command to create new components.
 
 ### Fundamental Concepts
 
