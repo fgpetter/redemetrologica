@@ -3,7 +3,8 @@
 namespace Tests\Feature\InscricaoInterlab;
 
 use App\Actions\NotifyInscricaoInterlabAction;
-use App\Jobs\EnviaSenhaPepJob;
+use App\Jobs\EnviaSenhaAnalistaJob;
+use App\Jobs\EnviaSenhaLaboratorioJob;
 use App\Mail\NotifyInvalidEmailException;
 use App\Models\AgendaInterlab;
 use App\Models\Endereco;
@@ -34,10 +35,50 @@ class NotifyInscricaoInterlabActionTest extends TestCase
 
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $agenda);
 
-        Queue::assertPushed(EnviaSenhaPepJob::class, function (EnviaSenhaPepJob $job) use ($inscrito) {
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, function (EnviaSenhaLaboratorioJob $job) use ($inscrito) {
             return $job->inscritoId === $inscrito->id
                 && in_array('responsavel@example.com', $job->destinatarios, true)
                 && in_array('lab@example.com', $job->destinatarios, true);
+        });
+    }
+
+    public function test_dispara_envio_de_senha_para_analistas_quando_avaliacao_analista(): void
+    {
+        Mail::fake();
+        Queue::fake();
+
+        $agenda = AgendaInterlabFactory::new()->create(['status' => 'CONFIRMADO']);
+        $agenda->interlab->update(['tag' => 'ABCDE', 'avaliacao' => 'ANALISTA']);
+
+        $inscrito = $this->criarInscritoCompleto($agenda);
+
+        InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista A',
+            'email' => 'analista-a@example.com',
+            'telefone' => '11999999999',
+            'tag_senha' => 'ABCDE1111',
+        ]);
+
+        InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista B',
+            'email' => 'analista-b@example.com',
+            'telefone' => '11888888888',
+            'tag_senha' => 'ABCDE2222',
+        ]);
+
+        $inscrito->load('analistas');
+
+        app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $agenda);
+
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
+        Queue::assertPushed(EnviaSenhaAnalistaJob::class, 2);
+        Queue::assertPushed(EnviaSenhaAnalistaJob::class, function (EnviaSenhaAnalistaJob $job) {
+            return $job->destinatarios === ['analista-a@example.com'];
+        });
+        Queue::assertPushed(EnviaSenhaAnalistaJob::class, function (EnviaSenhaAnalistaJob $job) {
+            return $job->destinatarios === ['analista-b@example.com'];
         });
     }
 
@@ -53,7 +94,8 @@ class NotifyInscricaoInterlabActionTest extends TestCase
 
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $agenda);
 
-        Queue::assertNotPushed(EnviaSenhaPepJob::class);
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
+        Queue::assertNotPushed(EnviaSenhaAnalistaJob::class);
     }
 
     public function test_nao_dispara_envio_de_senha_em_edicao(): void
@@ -68,7 +110,8 @@ class NotifyInscricaoInterlabActionTest extends TestCase
 
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $agenda, $inscrito->id);
 
-        Queue::assertNotPushed(EnviaSenhaPepJob::class);
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
+        Queue::assertNotPushed(EnviaSenhaAnalistaJob::class);
     }
 
     public function test_nao_dispara_envio_de_senha_sem_tag_do_interlab(): void
@@ -83,7 +126,8 @@ class NotifyInscricaoInterlabActionTest extends TestCase
 
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $agenda);
 
-        Queue::assertNotPushed(EnviaSenhaPepJob::class);
+        Queue::assertNotPushed(EnviaSenhaLaboratorioJob::class);
+        Queue::assertNotPushed(EnviaSenhaAnalistaJob::class);
     }
 
     public function test_notifica_email_invalido_quando_pessoa_sem_email(): void
@@ -98,8 +142,6 @@ class NotifyInscricaoInterlabActionTest extends TestCase
 
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $agenda);
 
-        // Alerta interno por e-mail ausente; fluxo segue (sem throw)
-        // A execução continua e tenta dispatcher EnviaSenhaPepJob
         Mail::assertSent(NotifyInvalidEmailException::class);
     }
 
@@ -122,7 +164,6 @@ class NotifyInscricaoInterlabActionTest extends TestCase
 
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $agenda);
 
-        // Alerta interno por e-mail ausente; fluxo segue (sem throw)
         Mail::assertSent(NotifyInvalidEmailException::class);
     }
 

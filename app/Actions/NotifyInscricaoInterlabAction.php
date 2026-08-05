@@ -29,13 +29,12 @@ class NotifyInscricaoInterlabAction
             ];
             new InvalidEmailException($content);
         } else {
-
             Mail::to($inscrito->pessoa->email)
                 ->send(new ConfirmacaoInscricaoInterlabNotification($inscrito, $interlab));
         }
 
         if ($inscrito->analistas()->exists()) {
-            foreach ($inscrito->analistas as $index => $analista) {
+            foreach ($inscrito->analistas as $analista) {
                 if (empty($analista->email)) {
                     $content = [
                         'class' => self::class,
@@ -56,7 +55,26 @@ class NotifyInscricaoInterlabAction
             && $interlab->status === 'CONFIRMADO'
             && ! empty($interlab->interlab?->tag)
         ) {
-            app(CriarEnviarSenhaInterlabAction::class)->execute($inscrito, 15);
+            $this->dispararEnvioSenha($inscrito, $interlab);
         }
+    }
+
+    private function dispararEnvioSenha(InterlabInscrito $inscrito, AgendaInterlab $agenda): void
+    {
+        if (($agenda->interlab?->avaliacao ?? null) === 'ANALISTA') {
+            $inscrito->loadMissing('analistas');
+
+            foreach ($inscrito->analistas as $index => $analista) {
+                app(CriarEnviarSenhaAnalistaAction::class)->execute(
+                    $inscrito,
+                    $analista,
+                    ($index + 1) * 15,
+                );
+            }
+
+            return;
+        }
+
+        app(CriarEnviarSenhaLaboratorioAction::class)->execute($inscrito, 15);
     }
 }

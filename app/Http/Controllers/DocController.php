@@ -27,6 +27,10 @@ class DocController extends Controller
             return $this->generateTagSenhaPdf($dadosDoc);
         }
 
+        if ($dadosDoc->tipo === 'tag_senha_analista') {
+            return $this->generateTagSenhaAnalistaPdf($dadosDoc);
+        }
+
         if ($dadosDoc->tipo === 'certificado') {
             return $this->generateCertificadoPdf($dadosDoc);
         }
@@ -39,9 +43,22 @@ class DocController extends Controller
     }
 
     /**
-     * Geração do PDF para tag senha
+     * Geração do PDF para tag senha do laboratório
      */
     private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc)
+    {
+        return $this->gerarESalvarTagSenhaPdf($dadosDoc, 'certificados.tag-senha');
+    }
+
+    /**
+     * Geração do PDF para tag senha do analista
+     */
+    private function generateTagSenhaAnalistaPdf(DadosGeraDoc $dadosDoc)
+    {
+        return $this->gerarESalvarTagSenhaPdf($dadosDoc, 'certificados.tag-senha-analista');
+    }
+
+    private function gerarESalvarTagSenhaPdf(DadosGeraDoc $dadosDoc, string $view)
     {
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
@@ -50,7 +67,7 @@ class DocController extends Controller
             Storage::makeDirectory(dirname($path));
         }
 
-        Pdf::view('certificados.tag-senha', [
+        Pdf::view($view, [
             'dadosDoc' => $dadosDoc,
         ])->driver('dompdf')->save(Storage::path($path));
 

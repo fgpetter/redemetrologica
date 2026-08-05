@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GerarEEnviarSenhaInterlabJob;
+use App\Actions\CriarEnviarSenhaAnalistaAction;
+use App\Actions\CriarEnviarSenhaLaboratorioAction;
 use App\Models\InterlabInscrito;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +22,7 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Enfileira geração e envio de senha para inscritos em agendas CONFIRMADO com senha_enviada pendente';
+    protected $description = 'Enfileira geração e envio de senha para inscritos/analistas em agendas CONFIRMADO com senha_enviada pendente';
 
     /**
      * Execute the console command.
@@ -29,9 +30,8 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
     public function handle(): int
     {
         $inscritos = InterlabInscrito::query()
-            ->whereNull('senha_enviada')
             ->whereHas('agendaInterlab', fn ($query) => $query->where('status', 'CONFIRMADO'))
-            ->with(['agendaInterlab.interlab'])
+            ->with(['agendaInterlab.interlab', 'analistas', 'laboratorio', 'empresa', 'pessoa'])
             ->orderBy('id')
             ->get();
 
@@ -46,7 +46,9 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
         $index = 0;
 
         foreach ($inscritos as $inscrito) {
-            if (empty($inscrito->agendaInterlab?->interlab?->tag)) {
+            $interlab = $inscrito->agendaInterlab?->interlab;
+
+            if (empty($interlab?->tag)) {
                 Log::warning('ProcessarSenhasInterlabConfirmado: interlab sem tag, envio ignorado.', [
                     'inscrito_id' => $inscrito->id,
                     'agenda_interlab_id' => $inscrito->agenda_interlab_id,
@@ -57,14 +59,34 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
                 continue;
             }
 
-            $index++;
-            GerarEEnviarSenhaInterlabJob::dispatch($inscrito->id)
-                ->delay(now()->addSeconds($index * 15));
+            if (($interlab->avaliacao ?? null) === 'ANALISTA') {
+                foreach ($inscrito->analistas as $analista) {
+                    if ($analista->senha_enviada !== null) {
+                        continue;
+                    }
 
+                    $index++;
+                    app(CriarEnviarSenhaAnalistaAction::class)->execute(
+                        $inscrito,
+                        $analista,
+                        $index * 15,
+                    );
+                    $enfileirados++;
+                }
+
+                continue;
+            }
+
+            if ($inscrito->senha_enviada !== null) {
+                continue;
+            }
+
+            $index++;
+            app(CriarEnviarSenhaLaboratorioAction::class)->execute($inscrito, $index * 15);
             $enfileirados++;
         }
 
-        $this->info("Enfileirados {$enfileirados} inscrito(s). Ignorados {$pulados}.");
+        $this->info("Enfileirados {$enfileirados} envio(s). Ignorados {$pulados}.");
 
         return self::SUCCESS;
     }
