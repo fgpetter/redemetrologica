@@ -10,35 +10,9 @@
       <div class="col-12">
         
         <div class="hstack gap-2 flex-wrap mb-3 justify-content-end">
-            <button class="btn btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            <a class="btn btn-sm btn-success" href="{{ route('avaliador-insert') }}">
               <i class="ri-add-line align-bottom me-1"></i> Adicionar Avaliador
-            </button>
-          </div>
-
-          <div class="collapse" id="collapseExample">
-            <div class="card mb-3 shadow-none">
-                <div class="card-body">
-                  <form action="{{route('avaliador-create')}}" method="POST">
-                    @csrf
-                    <div class="row">
-                      <div class="col-10">
-                        <select id="tom-select" name="pessoa_uid" autocomplete="off">
-                          <option value="">Digite para pesquisar</option>
-                          @foreach($pessoas as $pessoa)
-                            <option value="{{ $pessoa->uid }}">{{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}</option>
-                          @endforeach
-                        </select>
-                        @error('pessoa_uid')<div class="text-warning">{{ $message }}</div>@enderror
-                      </div>
-                      <div class="col-2">
-                        <button class="btn btn-success" type="submit">Adicionar</button>
-                      </div>
-                    </div>
-                  </form>
-                  <p>Caso a pessoa não esteja cadastrada ainda, <a href="{{ route('pessoa-insert') }}">Clique Aqui</a></p>
-                  
-                </div>
-            </div>
+            </a>
           </div>
         </div>
       </div>

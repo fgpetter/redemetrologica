@@ -23,6 +23,7 @@
         :enderecopessoal="$endereco_pessoal"
         :enderecocomercial="$endereco_comercial"
         :empresas="$empresas"
+        :pessoas="$pessoas"
       />
     </div>
 

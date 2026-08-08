@@ -53,16 +53,8 @@ class AvaliadorController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')
-            ->where('tipo_pessoa', 'PF')
-            ->whereNotIn('id', function ($query) {
-                $query->select('pessoa_id')->from('avaliadores');
-            })
-            ->get();
-
         return view('painel.avaliadores.index', [
             'avaliadores' => $avaliadores,
-            'pessoas' => $pessoas,
         ]);
     }
 
@@ -72,28 +64,66 @@ class AvaliadorController extends Controller
      **/
     public function create(Request $request): RedirectResponse
     {
+        $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
+
+        $pessoa = Pessoa::where('uid', $request->pessoa_uid)->first();
+
         $request->validate(
             [
                 'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
+                'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'.$pessoa?->id], // TODO - adicionar validação de CPF/CNPJ
+                'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
+                'data_ingresso' => ['nullable', Rule::date()->format('Y-m-d')],
+                'situacao' => ['required', 'string', Rule::in(['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])],
             ],
             [
                 'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
                 'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
                 'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
+                'cpf_cnpj.required' => 'Preencha o campo CPF',
+                'cpf_cnpj.min' => 'CPF inválido',
+                'cpf_cnpj.max' => 'CPF inválido',
+                'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
+                'curriculo.max' => 'Tamanho máximo 5MB',
+                'situacao.required' => 'Selecione uma situação.',
+                'situacao.in' => 'Selecione uma situação válida.',
             ]
         );
 
-        $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
-
-        // cria um avaliador vinculado a pessoa
+        // cria um avaliador vinculado a pessoa, já com os dados principais
         $avaliador = Avaliador::create([
             'pessoa_id' => $pessoa->id,
+            'exp_min_comprovada' => $request->get('exp_min_comprovada') ?? 0,
+            'curso_incerteza' => $request->get('curso_incerteza') ?? 0,
+            'curso_iso' => $request->get('curso_iso') ?? 0,
+            'curso_aud_interna' => $request->get('curso_aud_interna') ?? 0,
+            'parecer_psicologico' => $request->get('parecer_psicologico') ?? 0,
+            'data_ingresso' => $request->get('data_ingresso'),
+            'situacao' => $request->get('situacao'),
         ]);
 
         if (! $avaliador) {
             return redirect()->back()
                 ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
         }
+
+        // se foi enviado currículo
+        if ($request->hasFile('curriculo')) {
+            $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
+            $extension = $request->file('curriculo')->getClientOriginalExtension();
+            $fileName = $fileName.'_'.time().'.'.$extension;
+            $request->file('curriculo')->move(public_path('curriculos'), $fileName);
+            $avaliador->update([
+                'curriculo' => 'curriculos/'.$fileName,
+            ]);
+        }
+
+        $pessoa->update([
+            'cpf_cnpj' => $request->get('cpf_cnpj'),
+            'rg_ie' => $request->get('rg_ie'),
+            'telefone' => $request->get('telefone'),
+            'email' => $request->get('email'),
+        ]);
 
         return redirect()->route('avaliador-insert', $avaliador->uid)
             ->with('success', 'Avaliador cadastrado com sucesso');
@@ -118,22 +148,36 @@ class AvaliadorController extends Controller
         // carrega areas de atuação do avaliador
         $areas_atuacao = AreaAtuacao::select('id', 'uid', 'descricao')->get();
 
-        // carrega endereço pessoal do avaliador
-        $endereco_pessoal = $avaliador->pessoa->enderecos()
-            ->where('pessoa_id', $avaliador->pessoa_id)
-            ->whereNull('avaliador_id')
-            ->first();
+        // carrega endereço pessoal e comercial do avaliador (avaliador novo ainda não tem pessoa vinculada)
+        $endereco_pessoal = null;
+        $endereco_comercial = null;
+        if ($avaliador->pessoa) {
+            $endereco_pessoal = $avaliador->pessoa->enderecos()
+                ->where('pessoa_id', $avaliador->pessoa_id)
+                ->whereNull('avaliador_id')
+                ->first();
 
-        // carrega endereço comercial do avaliador
-        $endereco_comercial = $avaliador->pessoa->enderecos()
-            ->where('avaliador_id', $avaliador->id)
-            ->first();
+            $endereco_comercial = $avaliador->pessoa->enderecos()
+                ->where('avaliador_id', $avaliador->id)
+                ->first();
+        }
 
         // carrega lista com empresas
         $empresas = Pessoa::select('id', 'uid', 'nome_razao', 'cpf_cnpj')
             ->where('tipo_pessoa', 'PJ')
             ->orderBy('nome_razao')
             ->get();
+
+        // avaliador novo: carrega pessoas físicas ainda não vinculadas a avaliadores, para o select da tela de inserção
+        $pessoas = collect();
+        if (! $avaliador->exists) {
+            $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'rg_ie', 'telefone', 'email')
+                ->where('tipo_pessoa', 'PF')
+                ->whereNotIn('id', function ($query) {
+                    $query->select('pessoa_id')->from('avaliadores');
+                })
+                ->get();
+        }
 
         return view(
             'painel.avaliadores.edit',
@@ -146,6 +190,7 @@ class AvaliadorController extends Controller
                 'endereco_pessoal' => $endereco_pessoal,
                 'endereco_comercial' => $endereco_comercial,
                 'empresas' => $empresas,
+                'pessoas' => $pessoas,
             ]
         );
     }

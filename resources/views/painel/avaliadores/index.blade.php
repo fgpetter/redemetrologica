@@ -8,7 +8,7 @@
 
 <div class="row">
   <div class="col">
-    <x-painel.avaliadores.list :avaliadores="$avaliadores" :pessoas="$pessoas"/>
+    <x-painel.avaliadores.list :avaliadores="$avaliadores"/>
   </div>
 </div>
 
