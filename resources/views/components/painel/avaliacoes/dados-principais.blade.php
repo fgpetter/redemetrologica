@@ -70,8 +70,12 @@
   {{-- Grupo 4: Proposta Financeira --}}
   <div class="row mt-3">
     <div class="col-md-3">
-      <x-forms.input-field name="valor_proposta" :value="old('valor_proposta') ?? $avaliacao->valor_proposta" label="Valor Proposta" class="money" />
-      @error('valor_proposta') <div class="text-warning">{{ $message }}</div> @enderror
+      <x-forms.input-field
+        :value="number_format((float) ($avaliacao->valor_proposta ?? 0), 2, ',', '.')"
+        label="Valor Proposta"
+        readonly
+        tooltip="Calculado na aba Orçamentos a partir do percentual de lucro."
+      />
     </div>
     <div class="col-md-3">
       <x-forms.input-select name="status_proposta" label="Status da Proposta">

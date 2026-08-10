@@ -176,9 +176,6 @@ class AgendaAvaliacaoController extends Controller
 
             ]);
 
-        $valor_proposta = formataMoeda($request->valor_proposta);
-        $validate['valor_proposta'] = $valor_proposta;
-
         $validate['validade_certificado'] = $request->validade_certificado
             ?? Carbon::parse($request->data_fim)->addYears(1)->addMonths(3)->format('Y-m-d');
 
