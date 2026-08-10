@@ -1,17 +1,53 @@
-<form method="POST" action="{{route('avaliador-update', $avaliador->uid)}}">
-  @csrf
-  <div class="row gy-3">
+<div class="row gy-3">
 
     <div class="col-8">
       <label class="form-label">Nome Completo<small class="text-danger-emphasis opacity-75"> *
         </small></label>
-      <input type="text" class="form-control" name="nome_razao"
-        value="{{ old('nome_razao') ?? ($avaliador->pessoa->nome_razao ?? null) }}" required>
-      @error('nome_razao')
-        <div class="text-warning">{{ $message }}</div>
-      @enderror
+      @if ($avaliador->uid)
+        <input type="text" class="form-control" name="nome_razao"
+          value="{{ old('nome_razao') ?? $avaliador->pessoa?->nome_razao }}" required>
+        @error('nome_razao')
+          <div class="text-warning">{{ $message }}</div>
+        @enderror
+      @else
+        <select id="tom-select-avaliador-pessoa" name="pessoa_uid" autocomplete="off" required>
+          <option value="">Digite para pesquisar</option>
+          @foreach ($pessoas as $pessoa)
+            <option value="{{ $pessoa->uid }}"
+              data-cpf="{{ $pessoa->cpf_cnpj }}"
+              data-rg="{{ $pessoa->rg_ie }}"
+              data-telefone="{{ $pessoa->telefone }}"
+              data-email="{{ $pessoa->email }}">
+              {{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}
+            </option>
+          @endforeach
+        </select>
+        @error('pessoa_uid')
+          <div class="text-warning">{{ $message }}</div>
+        @enderror
+        <p class="mt-2 mb-0">Caso a pessoa não esteja cadastrada ainda, <a href="{{ route('pessoa-insert') }}">Clique Aqui</a></p>
+
+        <script>
+          window.addEventListener('load', function () {
+            const pessoaSelect = document.getElementById('tom-select-avaliador-pessoa')
+
+            if (!pessoaSelect) {
+              return
+            }
+
+            pessoaSelect.addEventListener('change', function () {
+              const option = pessoaSelect.selectedOptions[0]
+
+              document.getElementById('input-cpf').value = option ? option.dataset.cpf : ''
+              document.getElementById('rg_ie').value = option ? option.dataset.rg : ''
+              document.getElementById('telefone').value = option ? option.dataset.telefone : ''
+              document.getElementById('email').value = option ? option.dataset.email : ''
+            })
+          })
+        </script>
+      @endif
     </div>
-    
+
     <div class="col-4">
       <label class="form-label">Situação<small class="text-danger-emphasis opacity-75"> *
         </small></label>
@@ -35,7 +71,7 @@
       <label class="form-label">CPF<small class="text-danger-emphasis opacity-75"> *
         </small></label>
       <input type="text" class="form-control" name="cpf_cnpj" id="input-cpf"
-        value="{{ old('cpf_cnpj') ?? ($avaliador->pessoa->cpf_cnpj ?? null) }}" required>
+        value="{{ old('cpf_cnpj') ?? $avaliador->pessoa?->cpf_cnpj }}" required>
       @error('cpf_cnpj')
         <div class="text-warning">{{ $message }}</div>
       @enderror
@@ -43,8 +79,8 @@
 
     <div class="col-4">
       <label class="form-label">RG</label>
-      <input type="number" class="form-control" name="rg_ie"
-        value="{{ old('rg_ie') ?? ($avaliador->pessoa->rg_ie ?? null) }}">
+      <input type="number" class="form-control" name="rg_ie" id="rg_ie"
+        value="{{ old('rg_ie') ?? $avaliador->pessoa?->rg_ie }}">
       @error('rg_ie')
         <div class="text-warning">{{ $message }}</div>
       @enderror
@@ -53,7 +89,7 @@
     <div class="col-4">
       <label class="form-label">Telefone</label>
       <input type="text" class="form-control" name="telefone" id="telefone"
-        value="{{ old('telefone') ?? ($avaliador->pessoa->telefone ?? null) }}">
+        value="{{ old('telefone') ?? $avaliador->pessoa?->telefone }}">
       @error('telefone')
         <div class="text-warning">{{ $message }}</div>
       @enderror
@@ -62,7 +98,7 @@
     <div class="col-4">
       <label class="form-label">Email</label>
       <input type="text" class="form-control" name="email" id="email"
-        value="{{ old('email') ?? ($avaliador->pessoa->email ?? null) }}">
+        value="{{ old('email') ?? $avaliador->pessoa?->email }}">
       @error('email')
         <div class="text-warning">{{ $message }}</div>
       @enderror
@@ -162,4 +198,3 @@
     </div>
 
   </div>
-</form>
