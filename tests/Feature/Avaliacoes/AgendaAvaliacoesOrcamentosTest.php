@@ -1,5 +1,7 @@
 <?php
 
+use App\Actions\Avaliacoes\CalcularOrcamentoAvaliacaoAction;
+use App\Enums\ImpostoAvaliacao;
 use App\Livewire\Avaliacoes\AgendaAvaliacoesOrcamentos;
 use App\Models\AgendaAvaliacao;
 use App\Models\AreaAtuacao;
@@ -109,7 +111,9 @@ test('monta o mini relatório com agregados das áreas', function () {
         'total_gastos_reais' => 25,
     ]);
 
-    // valor_proposta = 1800 + (1800 * 0.15) + 350 = 2420
+    // base_imposto = 1800 + 350 = 2150; nf = 2150 * 0.053 = 113.95
+    // valor_proposta = 1800 + (1800 * 0.15) + 350 + 113.95 = 2533.95
+    // superavit = 2533.95 - 1800 - 175 - 113.95 = 445.00
     Livewire::test(AgendaAvaliacoesOrcamentos::class, ['avaliacao' => $avaliacao->fresh()])
         ->assertSet('numAvaliadores', 2)
         ->assertSet('totalDiasTrabalho', 4.5)
@@ -119,16 +123,19 @@ test('monta o mini relatório com agregados das áreas', function () {
         ->assertSet('somaAvaliadores', 1800.0)
         ->assertSet('somaDespesasEstimadas', 350.0)
         ->assertSet('somaDespesasReais', 175.0)
-        ->assertSet('valorProposta', 2420.0)
+        ->assertSet('nf', 113.95)
+        ->assertSet('valorProposta', 2533.95)
         ->assertSet('superavit', 445.0)
         ->assertSee('DIMENSIONAL, FORÇA, DIMENSIONAL')
         ->assertSee('Perc Lucro (%)')
         ->assertSee('Data Envio Proposta')
+        ->assertSee('NF (Tributos)')
+        ->assertSee('113,95')
         ->assertDontSee('Num Aval Treinamento');
 });
 
-test('ao alterar perc lucro no blur recalcula e persiste valor e superavit', function () {
-    $avaliacao = criarAgendaAvaliacaoOrcamento(['perc_lucro' => 10, 'valor_proposta' => 100]);
+test('ao alterar perc lucro no blur recalcula e persiste apenas perc lucro', function () {
+    $avaliacao = criarAgendaAvaliacaoOrcamento(['perc_lucro' => 10]);
     $area = criarAreaAtuacaoOrcamento('TORQUE');
     $avaliador = criarAvaliadorOrcamento();
 
@@ -138,16 +145,18 @@ test('ao alterar perc lucro no blur recalcula e persiste valor e superavit', fun
         'total_gastos_reais' => 100,
     ]);
 
+    // nf = 1200 * 0.053 = 63.60
+    // valor_proposta = 1000 + 200 + 200 + 63.60 = 1463.60
+    // superavit = 1463.60 - 1000 - 100 - 63.60 = 300.00
     Livewire::test(AgendaAvaliacoesOrcamentos::class, ['avaliacao' => $avaliacao->fresh()])
         ->set('form.perc_lucro', 20)
-        ->assertSet('valorProposta', 1400.0)
+        ->assertSet('nf', 63.6)
+        ->assertSet('valorProposta', 1463.6)
         ->assertSet('superavit', 300.0);
 
     $avaliacao->refresh();
 
-    expect((float) $avaliacao->perc_lucro)->toBe(20.0)
-        ->and((float) $avaliacao->valor_proposta)->toBe(1400.0)
-        ->and((float) $avaliacao->superavit)->toBe(300.0);
+    expect((float) $avaliacao->perc_lucro)->toBe(20.0);
 });
 
 test('bloqueia gerar orçamento quando faltam dados principais', function (string $campo) {
@@ -160,7 +169,6 @@ test('bloqueia gerar orçamento quando faltam dados principais', function (strin
     $avaliacao = criarAgendaAvaliacaoOrcamento($atributos);
     $avaliacao->update([
         'observacoes_orcamento' => 'antes',
-        'valor_proposta' => 999,
     ]);
 
     Livewire::test(AgendaAvaliacoesOrcamentos::class, ['avaliacao' => $avaliacao->fresh()])
@@ -174,14 +182,12 @@ test('bloqueia gerar orçamento quando faltam dados principais', function (strin
 
     $avaliacao->refresh();
 
-    expect($avaliacao->observacoes_orcamento)->toBe('antes')
-        ->and((float) $avaliacao->valor_proposta)->toBe(999.0);
+    expect($avaliacao->observacoes_orcamento)->toBe('antes');
 })->with(['data_inicio', 'data_fim', 'tipo_avaliacao_id']);
 
-test('com dados principais válidos persiste orçamento ao gerar', function () {
+test('com dados principais válidos persiste dados do formulário ao gerar', function () {
     $avaliacao = criarAgendaAvaliacaoOrcamento([
         'observacoes_orcamento' => 'antiga',
-        'valor_proposta' => 1,
     ]);
     $area = criarAreaAtuacaoOrcamento('DUREZA');
     $avaliador = criarAvaliadorOrcamento();
@@ -200,17 +206,37 @@ test('com dados principais válidos persiste orçamento ao gerar', function () {
         ->set('form.data_envio_proposta', now()->addDay()->toDateString())
         ->set('form.observacoes_orcamento', 'nova observação')
         ->call('gerarOrcamento')
-        ->assertNotDispatched('show-orcamento-validation-alert');
+        ->assertNotDispatched('show-orcamento-validation-alert')
+        ->assertSet('nf', 63.6)
+        ->assertSet('valorProposta', 1413.6)
+        ->assertSet('superavit', 250.0)
+        ->assertSet('numAvalTreinamento', 1);
 
     $avaliacao->refresh();
 
-    expect((float) $avaliacao->num_ensaios)->toBe(4.0)
-        ->and((float) $avaliacao->soma_avaliadores)->toBe(1000.0)
-        ->and((float) $avaliacao->soma_despesas_estimadas)->toBe(200.0)
-        ->and((float) $avaliacao->soma_despesas_reais)->toBe(100.0)
-        ->and((float) $avaliacao->perc_lucro)->toBe(15.0)
-        ->and((float) $avaliacao->valor_proposta)->toBe(1350.0)
-        ->and((float) $avaliacao->superavit)->toBe(250.0)
-        ->and((int) $avaliacao->num_aval_treinamento)->toBe(1)
+    expect((float) $avaliacao->perc_lucro)->toBe(15.0)
         ->and($avaliacao->observacoes_orcamento)->toBe('nova observação');
+});
+
+test('action calcula orçamento em tempo de execução sem persistir totais', function () {
+    expect(ImpostoAvaliacao::Padrao->fator())->toBe(0.053);
+
+    $avaliacao = criarAgendaAvaliacaoOrcamento(['perc_lucro' => 15]);
+    $area = criarAreaAtuacaoOrcamento('MASSA');
+    $avaliador = criarAvaliadorOrcamento();
+
+    criarAreaAvaliadaOrcamento($avaliacao, $area, $avaliador, [
+        'valor_avaliador' => 1000,
+        'total_gastos_estim' => 200,
+        'total_gastos_reais' => 100,
+    ]);
+
+    $totais = app(CalcularOrcamentoAvaliacaoAction::class)->execute($avaliacao->fresh());
+
+    expect($totais['nf'])->toBe(63.6)
+        ->and($totais['valor_proposta'])->toBe(1413.6)
+        ->and($totais['superavit'])->toBe(250.0)
+        ->and($totais['soma_avaliadores'])->toBe(1000.0)
+        ->and($totais['soma_despesas_estimadas'])->toBe(200.0)
+        ->and($totais['soma_despesas_reais'])->toBe(100.0);
 });

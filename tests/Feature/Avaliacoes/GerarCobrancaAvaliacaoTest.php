@@ -5,16 +5,18 @@ namespace Tests\Feature\Avaliacoes;
 use App\Actions\Financeiro\GerarLancamentoAvaliacaoAction;
 use App\Mail\LancamentoAvaliacaoNotification;
 use App\Models\AgendaAvaliacao;
+use App\Models\AreaAtuacao;
+use App\Models\AreaAvaliada;
+use App\Models\Avaliador;
 use App\Models\CentroCusto;
 use App\Models\Laboratorio;
 use App\Models\LancamentoFinanceiro;
-use App\Models\Pessoa;
+use App\Models\Permission;
 use App\Models\PlanoConta;
 use App\Models\User;
+use Database\Factories\PessoaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class GerarCobrancaAvaliacaoTest extends TestCase
@@ -23,49 +25,63 @@ class GerarCobrancaAvaliacaoTest extends TestCase
 
     private function createFuncionarioUser(): User
     {
-        $user = User::query()->create([
-            'name' => 'Funcionário Teste',
-            'email' => 'func-'.Str::random(8).'@example.com',
-            'password' => bcrypt('password'),
-            'temporary_password' => false,
-        ]);
+        $user = User::factory()->create();
+        $permission = Permission::withoutEvents(function (): Permission {
+            return Permission::query()->firstOrCreate(['permission' => 'funcionario']);
+        });
+        $user->permissions()->syncWithoutDetaching([$permission->id]);
 
-        $permissionId = DB::table('permissions')->where('permission', 'funcionario')->value('id');
-        if ($permissionId === null) {
-            $permissionId = DB::table('permissions')->insertGetId([
-                'permission' => 'funcionario',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-
-        DB::table('permission_user')->insert([
-            'permission_id' => $permissionId,
-            'user_id' => $user->id,
-        ]);
-
-        return $user->fresh();
+        return $user;
     }
 
     private function createAvaliacao(array $atributos = []): AgendaAvaliacao
     {
-        $pessoa = Pessoa::query()->create([
+        $pessoa = PessoaFactory::new()->create([
             'nome_razao' => 'Laboratorio Teste Ltda',
-            'cpf_cnpj' => str_pad((string) random_int(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
             'tipo_pessoa' => 'PJ',
         ]);
 
         $laboratorio = Laboratorio::query()->create([
             'pessoa_id' => $pessoa->id,
             'nome_laboratorio' => 'Laboratorio Teste',
+            'contato' => 'Contato',
+            'telefone' => '11999999999',
+            'email' => 'lab-cobranca@example.com',
+            'responsavel_tecnico' => 'Responsável',
         ]);
 
         return AgendaAvaliacao::query()->create(array_merge([
             'laboratorio_id' => $laboratorio->id,
             'data_inicio' => now()->toDateString(),
-            'valor_proposta' => 1500,
+            'perc_lucro' => 15,
             'carta_reconhecimento' => 0,
         ], $atributos));
+    }
+
+    private function criarAreaComValorProposta(AgendaAvaliacao $avaliacao): void
+    {
+        $area = AreaAtuacao::query()->create(['descricao' => 'DIMENSIONAL', 'observacoes' => '']);
+        $pessoa = PessoaFactory::new()->create([
+            'tipo_pessoa' => 'PF',
+            'cpf_cnpj' => fake()->unique()->numerify('###########'),
+            'nome_razao' => 'Avaliador A',
+        ]);
+        $avaliador = Avaliador::query()->create([
+            'pessoa_id' => $pessoa->id,
+            'situacao' => 'AVALIADOR',
+        ]);
+
+        AreaAvaliada::query()->create([
+            'avaliacao_id' => $avaliacao->id,
+            'area_atuacao_id' => $area->id,
+            'avaliador_id' => $avaliador->id,
+            'situacao' => 'AVALIADOR',
+            'num_ensaios' => 2,
+            'dias' => 1.5,
+            'valor_avaliador' => 1800,
+            'total_gastos_estim' => 350,
+            'total_gastos_reais' => 175,
+        ]);
     }
 
     public function test_carta_sim_com_valor_proposta_cria_lancamento_e_notifica_financeiro(): void
@@ -73,6 +89,7 @@ class GerarCobrancaAvaliacaoTest extends TestCase
         Mail::fake();
 
         $avaliacao = $this->createAvaliacao();
+        $this->criarAreaComValorProposta($avaliacao);
         $user = $this->createFuncionarioUser();
 
         $response = $this->actingAs($user)->post(route('avaliacao-update', $avaliacao->uid), [
@@ -92,7 +109,7 @@ class GerarCobrancaAvaliacaoTest extends TestCase
             'status' => 'PROVISIONADO',
             'centro_custo_id' => CentroCusto::ID_AVALIACAO,
             'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
-            'valor' => 1500,
+            'valor' => 2533.95,
         ]);
 
         Mail::assertQueued(LancamentoAvaliacaoNotification::class, function ($mail) {
@@ -104,7 +121,7 @@ class GerarCobrancaAvaliacaoTest extends TestCase
     {
         Mail::fake();
 
-        $avaliacao = $this->createAvaliacao(['valor_proposta' => null]);
+        $avaliacao = $this->createAvaliacao();
         $user = $this->createFuncionarioUser();
 
         $response = $this->actingAs($user)->post(route('avaliacao-update', $avaliacao->uid), [
@@ -124,6 +141,7 @@ class GerarCobrancaAvaliacaoTest extends TestCase
         Mail::fake();
 
         $avaliacao = $this->createAvaliacao(['carta_reconhecimento' => 1]);
+        $this->criarAreaComValorProposta($avaliacao);
         app(GerarLancamentoAvaliacaoAction::class)->execute($avaliacao);
         $lancamentoOriginal = LancamentoFinanceiro::where('agenda_avaliacao_id', $avaliacao->id)->firstOrFail();
 
@@ -144,6 +162,7 @@ class GerarCobrancaAvaliacaoTest extends TestCase
         Mail::fake();
 
         $avaliacao = $this->createAvaliacao(['carta_reconhecimento' => 1]);
+        $this->criarAreaComValorProposta($avaliacao);
         app(GerarLancamentoAvaliacaoAction::class)->execute($avaliacao);
 
         $user = $this->createFuncionarioUser();

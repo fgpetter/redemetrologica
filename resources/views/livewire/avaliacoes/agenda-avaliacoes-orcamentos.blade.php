@@ -68,6 +68,10 @@
                     <span class="ms-1">{{ number_format($somaDespesasReais, 2, ',', '.') }}</span>
                 </div>
                 <div class="col-md-4">
+                    <span class="">NF (Tributos):</span>
+                    <span class="ms-1">{{ number_format($nf, 2, ',', '.') }}</span>
+                </div>
+                <div class="col-md-4">
                     <span class="">Superavit:</span>
                     <span class="ms-1">{{ number_format($superavit, 2, ',', '.') }}</span>
                 </div>

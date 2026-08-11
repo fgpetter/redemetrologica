@@ -281,6 +281,7 @@ window.onload = function(){
     '#tom-select-agenda-interlab-pessoa',
     '#tom-select-agendamento-curso-empresa-modal',
     '#tom-select-agendamento-curso-empresa-incompany',
+    '#tom-select-avaliador-pessoa',
   ]
   tomSelectBySelector.forEach((selector) => {
     const el = document.querySelector(selector)

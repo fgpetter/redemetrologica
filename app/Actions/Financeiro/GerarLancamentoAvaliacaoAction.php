@@ -2,6 +2,7 @@
 
 namespace App\Actions\Financeiro;
 
+use App\Actions\Avaliacoes\CalcularOrcamentoAvaliacaoAction;
 use App\Mail\LancamentoAvaliacaoNotification;
 use App\Models\AgendaAvaliacao;
 use App\Models\CentroCusto;
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Mail;
 
 class GerarLancamentoAvaliacaoAction
 {
+    public function __construct(
+        private CalcularOrcamentoAvaliacaoAction $calcularOrcamentoAvaliacaoAction,
+    ) {}
+
     /**
      * Gera o lançamento financeiro de uma avaliação (imutável: se já existir, apenas o retorna).
      */
@@ -24,12 +29,13 @@ class GerarLancamentoAvaliacaoAction
         }
 
         $avaliacao->loadMissing('laboratorio.pessoa');
+        $orcamento = $this->calcularOrcamentoAvaliacaoAction->execute($avaliacao);
 
         $lancamento = LancamentoFinanceiro::create([
             'pessoa_id' => $avaliacao->laboratorio->pessoa->id,
             'agenda_avaliacao_id' => $avaliacao->id,
             'historico' => 'Avaliação - '.$avaliacao->laboratorio->nome_laboratorio.' - '.Carbon::parse($avaliacao->data_inicio)->format('d/m/Y'),
-            'valor' => $avaliacao->valor_proposta,
+            'valor' => $orcamento['valor_proposta'],
             'centro_custo_id' => CentroCusto::ID_AVALIACAO,
             'plano_conta_id' => PlanoConta::ID_RECEITA_PRESTACAO_SERVICOS,
             'tipo_lancamento' => 'CREDITO',

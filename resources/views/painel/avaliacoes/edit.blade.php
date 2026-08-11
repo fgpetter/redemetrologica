@@ -15,6 +15,7 @@
         :tipoavaliacao="$tipo_avaliacao" 
         :totalavaliadores="$totalavaliadores" 
         :totalgeralavaliadores="$totalgeralavaliadores"
+        :valor-proposta="$valorProposta"
       />
     </div>
 
