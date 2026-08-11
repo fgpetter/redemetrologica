@@ -30,7 +30,6 @@ use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PlanoContaController;
 use App\Http\Controllers\TipoAvaliacaoController;
-use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -112,13 +111,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
     /* Endereços */
     Route::group(['prefix' => 'endereco', 'middleware' => 'permission:funcionario,admin'], base_path('routes/enderecos.php'));
-
-    /* Unidades */
-    Route::group(['prefix' => 'unidade', 'middleware' => 'permission:funcionario,admin'], function () {
-        Route::post('create', [UnidadeController::class, 'create'])->name('unidade-create');
-        Route::post('update/{unidade:uid}', [UnidadeController::class, 'update'])->name('unidade-update');
-        Route::post('delete/{unidade:uid}', [UnidadeController::class, 'delete'])->name('unidade-delete');
-    });
 
     /* Funcionarios */
     Route::group(['prefix' => 'funcionario', 'middleware' => 'permission:funcionario,admin'], function () {

@@ -48,14 +48,6 @@ class Pessoa extends Model
     }
 
     /**
-     * Lista os endereços de uma pessoa.
-     */
-    public function unidades(): HasMany
-    {
-        return $this->hasMany(Unidade::class)->with('endereco');
-    }
-
-    /**
      * Lista dados bancarios de uma pessoa.
      */
     public function dadosBancarios(): HasMany
