@@ -71,7 +71,7 @@
   <div class="row mt-3">
     <div class="col-md-3">
       <x-forms.input-field
-        :value="number_format((float) ($avaliacao->valor_proposta ?? 0), 2, ',', '.')"
+        :value="number_format((float) ($valorProposta ?? 0), 2, ',', '.')"
         label="Valor Proposta"
         readonly
         tooltip="Calculado na aba Orçamentos a partir do percentual de lucro."

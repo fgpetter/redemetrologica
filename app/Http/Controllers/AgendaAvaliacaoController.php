@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Avaliacoes\CalcularOrcamentoAvaliacaoAction;
+use App\Actions\Avaliacoes\ExcluirAreaAvaliadaAction;
+use App\Actions\Avaliacoes\SalvarAreaAvaliadaAction;
+use App\Http\Requests\SalvarAreaAvaliadaRequest;
 use App\Models\AgendaAvaliacao;
 use App\Models\AreaAvaliada;
 use App\Models\AvaliacaoAvaliador;
@@ -65,23 +69,7 @@ class AgendaAvaliacaoController extends Controller
         $laboratorio = Laboratorio::find($avaliacao->laboratorio_id);
         $avaliadores = Avaliador::with('pessoa:id,uid,nome_razao')->get();
         $tipo_avaliacao = TipoAvaliacao::select('id', 'descricao')->get();
-        $total_avaliadores = $avaliacao->areas()
-            ->with('avaliador.pessoa')
-            ->get()
-            ->groupBy(function ($area) {
-                return optional($area->avaliador)->id;
-            })
-            ->map(function ($areas) {
-                $avaliador = $areas->first()->avaliador;
-
-                return [
-                    'nome' => optional($avaliador->pessoa)->nome_razao ?? 'Não informado',
-                    'total' => (float) $areas->sum('valor_avaliador'),
-                ];
-            })
-            ->values();
-
-        $total_geral_avaliadores = (float) $total_avaliadores->sum('total');
+        $orcamento = app(CalcularOrcamentoAvaliacaoAction::class)->execute($avaliacao);
 
         return view('painel.avaliacoes.edit',
             [
@@ -89,8 +77,9 @@ class AgendaAvaliacaoController extends Controller
                 'laboratorio' => $laboratorio,
                 'avaliadores' => $avaliadores,
                 'tipo_avaliacao' => $tipo_avaliacao,
-                'totalavaliadores' => $total_avaliadores,
-                'totalgeralavaliadores' => $total_geral_avaliadores,
+                'totalavaliadores' => $orcamento['total_avaliadores'],
+                'totalgeralavaliadores' => $orcamento['total_geral_avaliadores'],
+                'valorProposta' => $orcamento['valor_proposta'],
             ]);
     }
 
@@ -218,66 +207,24 @@ class AgendaAvaliacaoController extends Controller
     /**
      * Salva uma nova area avaliada
      */
-    public function saveArea(AreaAvaliada $area, Request $request): RedirectResponse
-    {
-
-        $validate = $request->validate([
-            'avaliacao_id' => ['required', 'exists:agenda_avaliacoes,id'],
-            'area_atuacao_id' => ['required', 'exists:areas_atuacao,id'],
-            'situacao' => ['nullable', 'string', Rule::in(['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])],
-            'data_inicial' => ['nullable', Rule::date()->format('Y-m-d')],
-            'data_final' => ['nullable', Rule::date()->format('Y-m-d')],
-            'avaliador_id' => ['required', 'exists:avaliadores,id'],
-            'num_ensaios' => ['nullable', 'integer'],
-            'dias' => ['nullable', 'numeric', 'min:0.5'],
-        ], [
-            'avaliacao_id.required' => 'Dados inválidos, selecione uma avaliação e envie novamente',
-            'avaliacao_id.exists' => 'Dados inválidos, selecione uma avaliação e envie novamente',
-            'area_atuacao_id.required' => 'Dados inválidos, selecione uma area e envie novamente',
-            'area_atuacao_id.exists' => 'Dados inválidos, selecione uma area e envie novamente',
-            'situacao.in' => 'Selecione uma opção válida',
-            'data_inicial.date' => 'Data inicial inválida',
-            'data_inicial.date_format' => 'Data inicial inválida',
-            'data_final.date' => 'Data final inválida',
-            'data_final.date_format' => 'Data final inválida',
-            'avaliador_id.required' => 'Selecione um avaliador e envie novamente',
-            'avaliador_id.exists' => 'Selecione um avaliador e envie novamente',
-            'num_ensaios.integer' => 'O dado enviado não é valido',
-        ]);
-
-        $validate['valor_dia'] = formataMoeda($request->valor_dia);
-        $validate['valor_estim_desloc'] = formataMoeda($request->valor_estim_desloc);
-        $validate['valor_estim_alim'] = formataMoeda($request->valor_estim_alim);
-        $validate['valor_estim_hosped'] = formataMoeda($request->valor_estim_hosped);
-        $validate['valor_estim_extras'] = formataMoeda($request->valor_estim_extras);
-        $validate['valor_lider'] = formataMoeda($request->valor_lider);
-        $validate['valor_real_desloc'] = formataMoeda($request->valor_real_desloc);
-        $validate['valor_real_alim'] = formataMoeda($request->valor_real_alim);
-        $validate['valor_real_hosped'] = formataMoeda($request->valor_real_hosped);
-        $validate['valor_real_extras'] = formataMoeda($request->valor_real_extras);
-
-        $validate['valor_avaliador'] = ($validate['dias'] * $validate['valor_dia']) + ($validate['valor_lider']); // verificar regra correta
-
-        $validate['total_gastos_estim'] = $validate['valor_estim_desloc'] + $validate['valor_estim_alim'] + $validate['valor_estim_hosped'] + $validate['valor_estim_extras'];
-        // como estava
-        // $validate['total_gastos_reais'] = $validate['valor_lider'] + $validate['valor_avaliador'] + $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras']; //como estava
-
-        $validate['total_gastos_reais'] = $validate['valor_real_desloc'] + $validate['valor_real_alim'] + $validate['valor_real_hosped'] + $validate['valor_real_extras'];
-
-        if ($area->uid) {
-
-            $area->update($validate);
-        } else {
-
-            AreaAvaliada::create($validate);
-        }
+    public function saveArea(
+        SalvarAreaAvaliadaRequest $request,
+        SalvarAreaAvaliadaAction $salvarAreaAvaliadaAction,
+        ?AreaAvaliada $area = null,
+    ): RedirectResponse {
+        $salvarAreaAvaliadaAction->execute(
+            $area?->exists ? $area : null,
+            $request->validated(),
+        );
 
         return redirect()->back()->with('success', 'Dados atualizados com sucesso')->withFragment('laboratorios');
     }
 
-    public function deleteArea(AreaAvaliada $area): RedirectResponse
-    {
-        $area->delete();
+    public function deleteArea(
+        AreaAvaliada $area,
+        ExcluirAreaAvaliadaAction $excluirAreaAvaliadaAction,
+    ): RedirectResponse {
+        $excluirAreaAvaliadaAction->execute($area);
 
         return redirect()->back()->with('warning', 'Area removida com sucesso');
     }

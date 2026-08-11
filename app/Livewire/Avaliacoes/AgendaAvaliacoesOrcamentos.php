@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Avaliacoes;
 
-use App\Actions\GenerateDocxFromTemplateAction;
+use App\Actions\Avaliacoes\CalcularOrcamentoAvaliacaoAction;
+use App\Actions\Avaliacoes\GerarDocumentoOrcamentoAvaliacaoAction;
+use App\Actions\Avaliacoes\SalvarOrcamentoAvaliacaoAction;
 use App\Livewire\Forms\AgendaAvaliacoesOrcamentoForm;
 use App\Models\AgendaAvaliacao;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Livewire\Component;
 
 class AgendaAvaliacoesOrcamentos extends Component
@@ -36,6 +36,8 @@ class AgendaAvaliacoesOrcamentos extends Component
 
     public float $somaDespesasReais = 0;
 
+    public float $nf = 0;
+
     public float $valorProposta = 0;
 
     public float $superavit = 0;
@@ -44,7 +46,7 @@ class AgendaAvaliacoesOrcamentos extends Component
 
     public function mount(AgendaAvaliacao $avaliacao): void
     {
-        $this->avaliacao = $avaliacao->load(['areas.areaAtuacao']);
+        $this->avaliacao = $avaliacao;
         $this->form->setAgenda($this->avaliacao);
         $this->carregarRelatorio();
     }
@@ -53,81 +55,29 @@ class AgendaAvaliacoesOrcamentos extends Component
     {
         if ($propertyName === 'form.perc_lucro') {
             $this->form->validateOnly('perc_lucro');
-            $this->calculate();
-            $this->avaliacao->update([
+
+            app(SalvarOrcamentoAvaliacaoAction::class)->execute($this->avaliacao, [
                 'perc_lucro' => $this->form->perc_lucro,
-                'valor_proposta' => $this->valorProposta,
-                'superavit' => $this->superavit,
             ]);
+
+            $this->avaliacao->refresh();
+            $this->carregarRelatorio((float) $this->form->perc_lucro);
         }
-    }
-
-    public function calculate(): void
-    {
-        $this->valorProposta = round(
-            $this->somaAvaliadores
-            + ($this->somaAvaliadores * ($this->form->perc_lucro / 100))
-            + $this->somaDespesasEstimadas,
-            2
-        );
-
-        $this->superavit = round(
-            $this->valorProposta - $this->somaAvaliadores - $this->somaDespesasReais,
-            2
-        );
     }
 
     public function imprimirOrcamento()
     {
-        $this->avaliacao->load('areas.avaliador.pessoa', 'TipoAvaliacao', 'laboratorio.pessoa.enderecos');
-        $data = [
-            'nome_laboratorio' => $this->avaliacao->laboratorio->nome_laboratorio ?? 'Não informado',
-
-            'areas' => $this->avaliacao
-                ->areas
-                ->map(fn ($area) => $area->areaAtuacao->descricao ?? 'Não informado')
-                ->sort()
-                ->unique()
-                ->implode(', '),
-
-            'tipo_avaliacao' => $this->avaliacao->tipoAvaliacao->descricao ?? 'Não informado',
-            'data_envio_proposta' => $this->avaliacao->data_envio_proposta ? Carbon::parse($this->avaliacao->data_envio_proposta)->format('d/m/Y') : 'Não informado',
-            'data_inicio' => $this->avaliacao->data_inicio ? Carbon::parse($this->avaliacao->data_inicio)->format('d/m/Y') : 'Não informado',
-            'data_fim' => $this->avaliacao->data_fim ? Carbon::parse($this->avaliacao->data_fim)->format('d/m/Y') : 'Não informado',
-            'num_ensaios' => $this->avaliacao->num_ensaios ?? 'Não informado',
-            'num_avaliadores' => $this->avaliacao->areas->pluck('avaliador_id')->unique()->count() ?? 'Não informado',
-            'num_aval_treinamento' => $this->avaliacao->num_aval_treinamento ?? 'Não informado',
-            'dias_trabalho' => $this->avaliacao->areas->sum('dias') ?? 'Não informado',
-            'valor_proposta' => $this->avaliacao->valor_proposta ?? 'Não informado',
-            'responsavel_tecnico' => $this->avaliacao->laboratorio->responsavel_tecnico ?? 'Não informado',
-        ];
-
-        // garante a repetição de linhas no template
-        $blocks = [];
-
-        // define entradas e saidas
-        $labSlug = Str::slug($this->avaliacao->laboratorio->nome_laboratorio ?? 'laboratorio');
-        $templatePath = storage_path('app/templates/Orçamento.docx');
-        $outputRelativePath = "docs/Orçamento_{$labSlug}_".now()->timestamp.'.docx';
-
         try {
-            // Gera o arquivo e devolve o path relativo
-            $gerar = (new GenerateDocxFromTemplateAction)
-                ->execute($templatePath, $data, $blocks, $outputRelativePath);
+            $path = app(GerarDocumentoOrcamentoAvaliacaoAction::class)->execute(
+                $this->avaliacao,
+                (float) $this->form->perc_lucro,
+            );
 
-            // $fullPath = Storage::disk('public')->path($gerar);
-            $fullPath = Storage::path("public/{$gerar}");
+            $fullPath = Storage::path("public/{$path}");
 
-            // Resposta de download que deleta após enviar
             return response()
                 ->download($fullPath, basename($fullPath))
-                ->deleteFileAfterSend(true); // deleta o arquivo após enviar e mantem o action generica.
-
-            // Resposta de download que deleta após enviar
-            return response()
-                ->download($fullPath, basename($fullPath))
-                ->deleteFileAfterSend(true); // deleta o arquivo após enviar e mantem o action generico
-
+                ->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             $this->addError('template', 'Erro ao gerar documento: '.$e->getMessage());
         }
@@ -142,20 +92,10 @@ class AgendaAvaliacoesOrcamentos extends Component
         }
 
         $this->form->validate();
-        $this->calculate();
 
-        $this->avaliacao->update([
-            'num_ensaios' => $this->numEnsaios,
-            'soma_avaliadores' => $this->somaAvaliadores,
-            'soma_despesas_estimadas' => $this->somaDespesasEstimadas,
-            'soma_despesas_reais' => $this->somaDespesasReais,
-            'perc_lucro' => $this->form->perc_lucro,
-            'valor_proposta' => $this->valorProposta,
-            'superavit' => $this->superavit,
-            'data_envio_proposta' => $this->form->data_envio_proposta,
-            'num_aval_treinamento' => $this->numAvalTreinamento,
-            'observacoes_orcamento' => $this->form->observacoes_orcamento,
-        ]);
+        app(SalvarOrcamentoAvaliacaoAction::class)->execute($this->avaliacao, $this->form->toArray());
+        $this->avaliacao->refresh();
+        $this->carregarRelatorio((float) $this->form->perc_lucro);
 
         return $this->imprimirOrcamento();
     }
@@ -165,32 +105,26 @@ class AgendaAvaliacoesOrcamentos extends Component
         return view('livewire.avaliacoes.agenda-avaliacoes-orcamentos');
     }
 
-    protected function carregarRelatorio(): void
+    protected function carregarRelatorio(?float $percLucro = null): void
     {
-        $areas = $this->avaliacao->areas;
+        $orcamento = app(CalcularOrcamentoAvaliacaoAction::class)->execute(
+            $this->avaliacao,
+            $percLucro ?? (float) $this->form->perc_lucro,
+        );
 
-        $this->dataInicio = $this->avaliacao->data_inicio
-            ? Carbon::parse($this->avaliacao->data_inicio)->format('d/m/Y')
-            : null;
-        $this->dataFim = $this->avaliacao->data_fim
-            ? Carbon::parse($this->avaliacao->data_fim)->format('d/m/Y')
-            : null;
-
-        $this->numAvaliadores = $areas->pluck('avaliador_id')->unique()->count();
-        $this->totalDiasTrabalho = (float) $areas->sum('dias');
-        $this->numAvalTreinamento = $areas
-            ->where('situacao', 'AVALIADOR EM TREINAMENTO')
-            ->count();
-        $this->avaliacoes = $areas
-            ->map(fn ($area) => $area->areaAtuacao->descricao ?? 'Não informado')
-            ->implode(', ');
-
-        $this->numEnsaios = (float) $areas->sum('num_ensaios');
-        $this->somaAvaliadores = (float) $areas->sum('valor_avaliador');
-        $this->somaDespesasEstimadas = (float) $areas->sum('total_gastos_estim');
-        $this->somaDespesasReais = (float) $areas->sum('total_gastos_reais');
-
-        $this->calculate();
+        $this->dataInicio = $orcamento['data_inicio'];
+        $this->dataFim = $orcamento['data_fim'];
+        $this->numAvaliadores = $orcamento['num_avaliadores'];
+        $this->totalDiasTrabalho = $orcamento['total_dias_trabalho'];
+        $this->numAvalTreinamento = $orcamento['num_aval_treinamento'];
+        $this->avaliacoes = $orcamento['avaliacoes'];
+        $this->numEnsaios = $orcamento['num_ensaios'];
+        $this->somaAvaliadores = $orcamento['soma_avaliadores'];
+        $this->somaDespesasEstimadas = $orcamento['soma_despesas_estimadas'];
+        $this->somaDespesasReais = $orcamento['soma_despesas_reais'];
+        $this->nf = $orcamento['nf'];
+        $this->valorProposta = $orcamento['valor_proposta'];
+        $this->superavit = $orcamento['superavit'];
     }
 
     protected function dadosPrincipaisPreenchidos(): bool

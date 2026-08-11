@@ -36,7 +36,7 @@
 
     <div class="tab-content">
       <div class="tab-pane active" id="principal" role="tabpanel"> <!-- Dados principais -->
-            <x-painel.avaliacoes.dados-principais :avaliacao="$avaliacao" :laboratorio="$laboratorio" :tipoavaliacao="$tipoavaliacao" />
+            <x-painel.avaliacoes.dados-principais :avaliacao="$avaliacao" :laboratorio="$laboratorio" :tipoavaliacao="$tipoavaliacao" :valor-proposta="$valorProposta" />
       </div>
 
       <div class="tab-pane" id="laboratorios" role="tabpanel"> <!-- Áreas -->
