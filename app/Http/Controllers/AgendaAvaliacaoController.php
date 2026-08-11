@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Financeiro\GerarLancamentoAvaliacaoAction;
 use App\Models\AgendaAvaliacao;
 use App\Models\AreaAvaliada;
 use App\Models\AvaliacaoAvaliador;
 use App\Models\Avaliador;
 use App\Models\Laboratorio;
+use App\Models\LancamentoFinanceiro;
 use App\Models\TipoAvaliacao;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -179,10 +181,26 @@ class AgendaAvaliacaoController extends Controller
         $validate['validade_certificado'] = $request->validade_certificado
             ?? Carbon::parse($request->data_fim)->addYears(1)->addMonths(3)->format('Y-m-d');
 
+        $blockMessage = null;
+        $lancamentoExistente = LancamentoFinanceiro::where('agenda_avaliacao_id', $avaliacao->id)->exists();
+        $cartaSolicitada = $request->input('carta_reconhecimento');
+
+        if ($cartaSolicitada !== null) {
+            if ((int) $cartaSolicitada === 1 && (empty($avaliacao->valor_proposta) || (float) $avaliacao->valor_proposta <= 0)) {
+                unset($validate['carta_reconhecimento']);
+                $blockMessage = 'Defina um valor de proposta válido antes de marcar a Carta de Reconhecimento como SIM.';
+            }
+
+            if ((int) $cartaSolicitada === 0 && (int) $avaliacao->carta_reconhecimento === 1 && $lancamentoExistente) {
+                unset($validate['carta_reconhecimento']);
+                $blockMessage = 'Já há um lançamento financeiro para essa avaliação. Esse status só pode ser trocado se o lançamento for excluido.';
+            }
+        }
+
         $avaliacao->update($validate);
 
-        // SE CARTA RECONHECIMENTO = SIM adiciona AvaliacaoAvaliador para cada avaliador
-        if ($request->carta_reconhecimento == 1) {
+        // SE CARTA RECONHECIMENTO = SIM adiciona AvaliacaoAvaliador para cada avaliador e gera a cobrança
+        if ((int) $avaliacao->carta_reconhecimento === 1) {
 
             $avaliacao_avaliadores = AreaAvaliada::where('avaliacao_id', $avaliacao->id)->get();
 
@@ -200,6 +218,12 @@ class AgendaAvaliacaoController extends Controller
                 );
             }
 
+            app(GerarLancamentoAvaliacaoAction::class)->execute($avaliacao);
+
+        }
+
+        if ($blockMessage) {
+            return redirect()->back()->with('error', $blockMessage);
         }
 
         return redirect()->back()->with('success', 'Dados atualizados com sucesso');
