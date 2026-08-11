@@ -27,6 +27,9 @@ class CentroCusto extends Model
     /** ID do centro de custo INTERLABORATORIAL (inscrições em interlab). */
     public const ID_INTERLABORATORIAL = 4;
 
+    /** ID do centro de custo AVALIAÇÃO (cobrança de avaliações). */
+    public const ID_AVALIACAO = 5;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
