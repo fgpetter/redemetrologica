@@ -112,12 +112,29 @@
                                     </li>
 
                                     <!-- Botão para baixar carta-senha -->
-                                    @if($agendainterlab->status <> 'AGENDADO' && isset($tagsSenhaDoc[$participante->id]))
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('dados-doc.download', ['link' => $tagsSenhaDoc[$participante->id]->link]) }}" target="_blank">
-                                                Baixar Carta Senha
-                                            </a>
-                                        </li>
+                                    @if($agendainterlab->status <> 'AGENDADO')
+                                        @if($isAvaliacaoAnalista && $participante->analistas->isNotEmpty())
+                                            <li>
+                                                <button type="button"
+                                                    class="dropdown-item"
+                                                    wire:click="baixarCartasSenha({{ $participante->id }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="baixarCartasSenha({{ $participante->id }})">
+                                                    <span wire:loading.remove wire:target="baixarCartasSenha({{ $participante->id }})">
+                                                        Baixar Carta Senha
+                                                    </span>
+                                                    <span wire:loading wire:target="baixarCartasSenha({{ $participante->id }})">
+                                                        Preparando...
+                                                    </span>
+                                                </button>
+                                            </li>
+                                        @elseif(! $isAvaliacaoAnalista && isset($tagsSenhaDoc[$participante->id]))
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('dados-doc.download', ['link' => $tagsSenhaDoc[$participante->id]->link]) }}" target="_blank">
+                                                    Baixar Carta Senha
+                                                </a>
+                                            </li>
+                                        @endif
                                     @endif
                                     <!-- Botão para gerar certificado -->
                                     <li>
@@ -243,10 +260,26 @@
     @endif
 </div>
 
-@once
+@script
 <script>
-document.addEventListener('livewire:init', () => {
-    Livewire.on('show-success-alert', (event) => {
+    $wire.on('baixar-cartas-senha', ({ urls }) => {
+        if (! Array.isArray(urls) || urls.length === 0) {
+            return;
+        }
+
+        urls.forEach((url, index) => {
+            setTimeout(() => {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = url;
+                document.body.appendChild(iframe);
+
+                setTimeout(() => iframe.remove(), 15000);
+            }, index * 600);
+        });
+    });
+
+    $wire.on('show-success-alert', (event) => {
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-right',
@@ -260,7 +293,7 @@ document.addEventListener('livewire:init', () => {
         Toast.fire({ icon: 'success', title: event.message });
     });
 
-    Livewire.on('show-error-alert', (event) => {
+    $wire.on('show-error-alert', (event) => {
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-right',
@@ -273,7 +306,6 @@ document.addEventListener('livewire:init', () => {
         });
         Toast.fire({ icon: 'error', title: event.message });
     });
-});
 </script>
-@endonce
+@endscript
 

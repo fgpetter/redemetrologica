@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Interlab;
 
+use App\Actions\CriarCartaSenhaAnalistaAction;
 use App\Actions\EnviarCertificadoInterlabAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Models\AgendaInterlab;
@@ -98,8 +99,77 @@ class ListParticipantes extends Component
         }
     }
 
+    /**
+     * Prepara as Cartas Senha dos analistas da inscrição e dispara o download sequencial.
+     */
+    public function baixarCartasSenha(int $inscritoId): void
+    {
+        $inscrito = InterlabInscrito::query()
+            ->where('agenda_interlab_id', $this->idinterlab)
+            ->with([
+                'analistas',
+                'laboratorio',
+                'empresa',
+                'pessoa',
+                'agendaInterlab.interlab',
+            ])
+            ->find($inscritoId);
+
+        if (! $inscrito) {
+            $this->dispatch('show-error-alert', message: 'Inscrição não encontrada nesta agenda.');
+
+            return;
+        }
+
+        $agenda = $inscrito->agendaInterlab;
+        $isAvaliacaoAnalista = ($agenda->interlab->avaliacao ?? null) === 'ANALISTA';
+
+        if (! $isAvaliacaoAnalista) {
+            $this->dispatch('show-error-alert', message: 'Esta agenda não é por analista.');
+
+            return;
+        }
+
+        if ($agenda->status === 'AGENDADO') {
+            $this->dispatch('show-error-alert', message: 'Cartas Senha disponíveis apenas após a confirmação da agenda.');
+
+            return;
+        }
+
+        if ($inscrito->analistas->isEmpty()) {
+            $this->dispatch('show-error-alert', message: 'Esta inscrição não possui analistas.');
+
+            return;
+        }
+
+        $analistaIds = $inscrito->analistas->pluck('id')->all();
+        $docsExistentes = DadosGeraDoc::query()
+            ->where('tipo', 'tag_senha_analista')
+            ->whereIn('content->analista_id', $analistaIds)
+            ->get()
+            ->keyBy(fn (DadosGeraDoc $doc) => $doc->content['analista_id'] ?? null);
+
+        $urls = [];
+
+        foreach ($inscrito->analistas as $analista) {
+            $dadosDoc = $docsExistentes->get($analista->id);
+
+            if (! $dadosDoc) {
+                $dadosDoc = app(CriarCartaSenhaAnalistaAction::class)->execute($inscrito, $analista);
+            }
+
+            $urls[] = route('dados-doc.download', ['link' => $dadosDoc->link]);
+        }
+
+        $this->dispatch('baixar-cartas-senha', urls: $urls);
+    }
+
     public function render()
     {
+        $this->agendainterlab->loadMissing('interlab');
+
+        $isAvaliacaoAnalista = ($this->agendainterlab->interlab->avaliacao ?? null) === 'ANALISTA';
+
         $intelabinscritos = InterlabInscrito::where('agenda_interlab_id', $this->idinterlab)
             ->with([
                 'empresa:id,cpf_cnpj,nome_razao,associado',
@@ -124,10 +194,10 @@ class ListParticipantes extends Component
         $interlabempresasinscritas = $this->empresasInscritasOrdenadas($inscritosPorEmpresa, $empresaIds);
 
         $participanteIds = $intelabinscritos->pluck('id')->all();
-        $tagsSenhaDoc = $participanteIds === []
+        $tagsSenhaDoc = ($isAvaliacaoAnalista || $participanteIds === [])
             ? collect()
             : DadosGeraDoc::query()
-                ->whereIn('tipo', ['tag_senha', 'tag_senha_analista'])
+                ->where('tipo', 'tag_senha')
                 ->whereIn('content->participante_id', $participanteIds)
                 ->get()
                 ->keyBy(fn ($doc) => $doc->content['participante_id'] ?? null);
@@ -137,6 +207,7 @@ class ListParticipantes extends Component
             'interlabempresasinscritas' => $interlabempresasinscritas,
             'inscritosPorEmpresa' => $inscritosPorEmpresa,
             'tagsSenhaDoc' => $tagsSenhaDoc,
+            'isAvaliacaoAnalista' => $isAvaliacaoAnalista,
         ]);
     }
 
