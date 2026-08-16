@@ -19,8 +19,7 @@ if ! mysqladmin ping -h 127.0.0.1 --silent 2>/dev/null; then  # pragma: allowlis
 fi
 
 # Cloud secrets often use Sail-style host/db/user names. Alias host "mysql" to loopback.  # pragma: allowlist secret
-grep -qE $'^[0-9.]+[[:space:]]+mysql([[:space:]]|$)' /etc/hosts \  # pragma: allowlist secret
-  || echo '127.0.0.1 mysql' >> /etc/hosts  # pragma: allowlist secret
+grep -qE $'^[0-9.]+[[:space:]]+mysql([[:space:]]|$)' /etc/hosts || echo '127.0.0.1 mysql' >> /etc/hosts  # pragma: allowlist secret
 
 DB_NAME="$(printenv DB_DATABASE 2>/dev/null || echo laravel)"  # pragma: allowlist secret
 DB_USER="$(printenv DB_USERNAME 2>/dev/null || echo sail)"  # pragma: allowlist secret
