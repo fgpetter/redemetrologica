@@ -228,6 +228,17 @@ class PessoaController extends Controller
      */
     public function associaUsuario(Pessoa $pessoa): RedirectResponse
     {
+        if (blank($pessoa->email)) {
+            Log::channel('validation')->info('Erro de validação', [
+                'user' => auth()->user() ?? null,
+                'uri' => request()->fullUrl() ?? null,
+                'method' => get_class($this).'::'.__FUNCTION__,
+                'errors' => ['email' => 'É necessário preencher o e-mail da pessoa antes de criar o usuário.'],
+            ]);
+
+            return back()->with('error', 'É necessário preencher o e-mail da pessoa antes de criar o usuário.');
+        }
+
         CreateUserForPessoaAction::handle($pessoa);
 
         return back()->with('success', 'Pessoa atualizada com sucesso');
