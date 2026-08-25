@@ -15,6 +15,7 @@ use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\PessoaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -28,6 +29,8 @@ class DocControllerPdfGenerationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Carbon::setTestNow(Carbon::parse('2026-08-25 13:49:14'));
 
         $fake = new class extends FakePdfBuilder
         {
@@ -46,6 +49,13 @@ class DocControllerPdfGenerationTest extends TestCase
         };
 
         Pdf::swap($fake);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
     }
 
     public function test_download_gera_pdf_tag_senha_com_view_correta(): void
@@ -93,6 +103,43 @@ class DocControllerPdfGenerationTest extends TestCase
         $response->assertOk();
         Pdf::assertViewIs('certificados.tag-senha-analista');
         Pdf::assertSaved($path);
+    }
+
+    public function test_download_persiste_caminho_com_timestamp_para_nomes_longos(): void
+    {
+        $analistaNome = 'Elisabete Aparecida Lopes Guastalli';
+        $laboratorioNome = 'Instituto Biologico Servico Laboratorial Regional de Pesquisa em Sanidade Avicola';
+
+        $dadosDoc = DadosGeraDoc::query()->create([
+            'tipo' => 'tag_senha_analista',
+            'content' => [
+                'tag_senha' => 'TAG-ANA-123',
+                'interlab_nome' => 'PEP Teste',
+                'empresa_nome_razao' => 'Empresa Teste',
+                'laboratorio_nome' => $laboratorioNome,
+                'analista_nome' => $analistaNome,
+                'empresa_cpf_cnpj' => '12.345.678/0001-90',
+                'informacoes_inscricao' => 'Opção A',
+            ],
+        ]);
+
+        $linkUuid = $dadosDoc->link;
+        $timestamp = (string) now()->timestamp;
+        $expectedRelativePath = $dadosDoc->storage_path;
+
+        $response = $this->get(route('dados-doc.download', ['link' => $linkUuid]));
+
+        $response->assertOk();
+
+        $dadosDoc->refresh();
+
+        $persistedPath = $dadosDoc->getRawOriginal('file_name');
+
+        $this->assertSame($expectedRelativePath, $persistedPath);
+        $this->assertLessThanOrEqual(255, strlen($persistedPath));
+        $this->assertStringEndsWith("_{$timestamp}.pdf", $persistedPath);
+        $this->assertStringNotContainsString($linkUuid, $persistedPath);
+        $this->assertSame($linkUuid, $dadosDoc->link);
     }
 
     public function test_download_gera_pdf_certificado_com_view_correta(): void

@@ -52,10 +52,12 @@ class DadosGeraDoc extends Model
      */
     public function getFileNameAttribute(): string
     {
+        $timestamp = now()->timestamp;
+
         if ($this->tipo === 'tag_senha') {
             $nameSlug = Str::slug($this->content['laboratorio_nome'] ?? 'tag');
 
-            return "tag_senha_{$nameSlug}_{$this->link}.pdf";
+            return "tag_senha_{$nameSlug}_{$timestamp}.pdf";
         }
 
         if ($this->tipo === 'tag_senha_analista') {
@@ -63,22 +65,22 @@ class DadosGeraDoc extends Model
                 ($this->content['analista_nome'] ?? 'analista').'_'.($this->content['laboratorio_nome'] ?? 'tag')
             );
 
-            return "tag_senha_analista_{$nameSlug}_{$this->link}.pdf";
+            return "tag_senha_analista_{$nameSlug}_{$timestamp}.pdf";
         }
 
         if ($this->tipo === 'certificado') {
             $nameSlug = Str::slug($this->content['participante_nome'] ?? 'certificado');
 
-            return "certificado_{$nameSlug}_{$this->link}.pdf";
+            return "certificado_{$nameSlug}_{$timestamp}.pdf";
         }
 
         if ($this->tipo === 'certificado_interlab') {
             $nameSlug = Str::slug($this->content['laboratorio_nome'] ?? 'certificado_interlab');
 
-            return "certificado_interlab_{$nameSlug}_{$this->link}.pdf";
+            return "certificado_interlab_{$nameSlug}_{$timestamp}.pdf";
         }
 
-        return "documento_{$this->link}.pdf";
+        return "documento_{$timestamp}.pdf";
     }
 
     /**
