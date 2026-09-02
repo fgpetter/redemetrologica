@@ -249,12 +249,16 @@
         @forelse ($avaliacoes as $avaliacao)
           <tr>
             <td>{{ $avaliacao->data_inicio ? \Carbon\Carbon::parse($avaliacao->data_inicio)->format('d/m/Y') : '' }}</td>
-            <td style="max-width: 25ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
-              title="{{ $avaliacao->laboratorio->nome_laboratorio ?? $avaliacao->laboratorio->pessoa->nome_razao ?? 'Laboratório sem nome'}}">
+            <td title="{{ $avaliacao->laboratorio->nome_laboratorio ?? $avaliacao->laboratorio->pessoa->nome_razao ?? 'Laboratório sem nome'}}">
               @if ($avaliacao->laboratorio)
-              <a href="{{ route('laboratorio-insert', $avaliacao->laboratorio->uid) }}" target="_blank">
-                {{ $avaliacao->laboratorio->nome_laboratorio ?? $avaliacao->laboratorio->pessoa->nome_razao }}
-              </a>
+                <span class="d-inline-flex align-items-center gap-1" style="max-width: 25ch;">
+                  <span class="text-truncate">
+                    {{ $avaliacao->laboratorio->nome_laboratorio ?? $avaliacao->laboratorio->pessoa->nome_razao }}
+                  </span>
+                  <a href="{{ route('laboratorio-insert', $avaliacao->laboratorio->uid) }}" target="_blank" class="flex-shrink-0" title="Visualizar laboratório">
+                    <i class="ri-external-link-line"></i>
+                  </a>
+                </span>
               @else
                 Laboratório sem nome
               @endif

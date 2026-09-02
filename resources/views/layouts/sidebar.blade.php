@@ -135,6 +135,13 @@
                   Agendamento de Avaliações
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="{{ route('avaliacao-media-index') }}"
+                  class="nav-link {{ request()->routeIs('avaliacao-media-index') ? 'active' : '' }}"
+                  role="button" data-key="t-signin">
+                  Média de Avaliações
+                </a>
+              </li>
             </ul>
           </div>
         </li>

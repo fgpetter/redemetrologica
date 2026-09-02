@@ -28,6 +28,7 @@ use App\Http\Controllers\LancamentoFinanceiroController;
 use App\Http\Controllers\MateriaisPadroesController;
 use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\PainelController;
+use App\Http\Controllers\PesquisaSatisfacaoController;
 use App\Http\Controllers\PlanoContaController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\UserController;
@@ -75,6 +76,9 @@ Route::get('laboratorios-downloads', [DownloadController::class, 'siteIndex']);
 // Rotas para fale-conosco e envio de formulario de contato
 Route::get('fale-conosco', [FaleconoscoController::class, 'index'])->name('faleconosco.form');
 Route::post('fale-conosco', [FaleconoscoController::class, 'enviar'])->name('faleconosco.submit');
+
+Route::get('pesquisa-satisfacao/{avaliacao:uid}', [PesquisaSatisfacaoController::class, 'show'])->name('pesquisa-satisfacao.show');
+Route::post('pesquisa-satisfacao/{avaliacao:uid}', [PesquisaSatisfacaoController::class, 'submit'])->name('pesquisa-satisfacao.submit');
 
 Route::view('sobre', 'site.pages.sobre');
 
@@ -207,6 +211,9 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('delete/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'delete'])->name('avaliacao-delete');
         Route::post('save-area/{area:uid?}', [AgendaAvaliacaoController::class, 'saveArea'])->name('avaliacao-save-area');
         Route::post('delete-area/{area:uid?}', [AgendaAvaliacaoController::class, 'deleteArea'])->name('avaliacao-delete-area');
+        Route::post('update-pesquisa/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'updatePesquisa'])->name('avaliacao-pesquisa-update');
+        Route::get('pesquisa-pdf/{avaliacao:uid}', [AgendaAvaliacaoController::class, 'pdfPesquisa'])->name('avaliacao-pesquisa-pdf');
+        Route::get('media', [AgendaAvaliacaoController::class, 'media'])->name('avaliacao-media-index');
     });
 
     /* Avaliadores */

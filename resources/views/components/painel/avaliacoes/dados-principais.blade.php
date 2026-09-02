@@ -160,7 +160,7 @@
       @error('pesq_satisfacao') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3">
-      <x-forms.input-field name="med_pesquisa" :value="old('med_pesquisa') ?? $avaliacao->med_pesquisa" label="Média Pesquisa" readonly />
+      <x-forms.input-field name="med_pesquisa" :value="old('med_pesquisa') ?? ($avaliacao->med_pesquisa !== null ? formataValorBr($avaliacao->med_pesquisa) : '')" label="Média Pesquisa" readonly />
       @error('med_pesquisa') <div class="text-warning">{{ $message }}</div> @enderror
     </div>
     <div class="col-md-3"></div>

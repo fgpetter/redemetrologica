@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use App\Traits\SetDefaultUid;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AgendaAvaliacao extends Model
 {
@@ -26,13 +26,12 @@ class AgendaAvaliacao extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*'])
-        ->useLogName( get_class($this) );
+            ->logOnly(['*'])
+            ->useLogName(get_class($this));
     }
 
     /**
      * Carrega areas avaliadas
-     * @return HasMany 
      */
     public function areas(): HasMany
     {
@@ -49,4 +48,19 @@ class AgendaAvaliacao extends Model
         return $this->hasOne(TipoAvaliacao::class, 'id', 'tipo_avaliacao_id');
     }
 
+    /**
+     * Pesquisa de satisfação da avaliação.
+     */
+    public function pesquisa(): HasOne
+    {
+        return $this->hasOne(AvaliacaoPesquisa::class);
+    }
+
+    /**
+     * Laboratório interno da avaliação.
+     */
+    public function laboratorioInterno(): BelongsTo
+    {
+        return $this->belongsTo(LaboratorioInterno::class, 'laboratorio_interno_id');
+    }
 }

@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Avaliacoes\CalcularOrcamentoAvaliacaoAction;
+use App\Actions\Avaliacoes\EnviarPesquisaSatisfacaoAction;
 use App\Actions\Avaliacoes\ExcluirAreaAvaliadaAction;
+use App\Actions\Avaliacoes\GerarPdfPesquisaSatisfacaoAction;
 use App\Actions\Avaliacoes\SalvarAreaAvaliadaAction;
+use App\Actions\Avaliacoes\SalvarPesquisaSatisfacaoPainelAction;
 use App\Actions\Financeiro\GerarLancamentoAvaliacaoAction;
 use App\Http\Requests\SalvarAreaAvaliadaRequest;
+use App\Http\Requests\UpdatePesquisaSatisfacaoPainelRequest;
 use App\Models\AgendaAvaliacao;
 use App\Models\AreaAvaliada;
 use App\Models\AvaliacaoAvaliador;
@@ -19,6 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AgendaAvaliacaoController extends Controller
 {
@@ -190,6 +195,8 @@ class AgendaAvaliacaoController extends Controller
 
         $avaliacao->update($validate);
 
+        $pesquisaSemEmail = false;
+
         // SE CARTA RECONHECIMENTO = SIM adiciona AvaliacaoAvaliador para cada avaliador e gera a cobrança
         if ((int) $avaliacao->carta_reconhecimento === 1) {
 
@@ -211,10 +218,16 @@ class AgendaAvaliacaoController extends Controller
 
             app(GerarLancamentoAvaliacaoAction::class)->execute($avaliacao);
 
+            $pesquisaSemEmail = ! app(EnviarPesquisaSatisfacaoAction::class)->execute($avaliacao);
+
         }
 
         if ($blockMessage) {
             return redirect()->back()->with('error', $blockMessage);
+        }
+
+        if ($pesquisaSemEmail) {
+            return redirect()->back()->with('warning', 'Pesquisa gerada, mas o laboratório não tem e-mail cadastrado. Copie o link na aba Pesquisa de Avaliação.');
         }
 
         return redirect()->back()->with('success', 'Dados atualizados com sucesso');
@@ -253,5 +266,35 @@ class AgendaAvaliacaoController extends Controller
         $excluirAreaAvaliadaAction->execute($area);
 
         return redirect()->back()->with('warning', 'Area removida com sucesso');
+    }
+
+    /**
+     * Atualiza a pesquisa de satisfação pelo painel.
+     */
+    public function updatePesquisa(
+        UpdatePesquisaSatisfacaoPainelRequest $request,
+        AgendaAvaliacao $avaliacao,
+    ): RedirectResponse {
+        app(SalvarPesquisaSatisfacaoPainelAction::class)->execute($avaliacao, $request->validated());
+
+        return redirect()->back()->with('success', 'Dados atualizados com sucesso')->withFragment('pesquisa');
+    }
+
+    /**
+     * Relatório de média das pesquisas de satisfação.
+     */
+    public function media(): View
+    {
+        return view('painel.avaliacoes.media');
+    }
+
+    /**
+     * PDF da pesquisa de satisfação da avaliação.
+     */
+    public function pdfPesquisa(
+        AgendaAvaliacao $avaliacao,
+        GerarPdfPesquisaSatisfacaoAction $gerarPdfPesquisaSatisfacaoAction,
+    ): BinaryFileResponse {
+        return $gerarPdfPesquisaSatisfacaoAction->execute($avaliacao);
     }
 }

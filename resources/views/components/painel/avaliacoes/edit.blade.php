@@ -32,6 +32,12 @@
           Valor Avaliadores
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#pesquisa" role="tab"
+          aria-selected="false">
+          Pesquisa de Avaliação
+        </a>
+      </li>
     </ul>
 
     <div class="tab-content">
@@ -54,6 +60,10 @@
       <div class="tab-pane" id="valavaliadores" role="tabpanel"> <!-- Valor Avaliadores -->
         <x-painel.avaliacoes.agenda-avaliacoes-val-avaliadores :avaliacao="$avaliacao"
           :totalavaliadores="$totalavaliadores" :totalgeralavaliadores="$totalgeralavaliadores" />
+      </div>
+
+      <div class="tab-pane" id="pesquisa" role="tabpanel"> <!-- Pesquisa de Avaliação -->
+        <x-painel.avaliacoes.pesquisa :avaliacao="$avaliacao" />
       </div>
 
     </div>
