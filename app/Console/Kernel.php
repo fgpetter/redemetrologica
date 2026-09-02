@@ -23,6 +23,18 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:processar-senhas-interlab-confirmado')
             ->dailyAt('07:00')
             ->withoutOverlapping();
+
+        $schedule->command('avaliacoes:enviar-lembrete-proc-laboratorio')
+            ->dailyAt('00:00')
+            ->withoutOverlapping();
+
+        $schedule->command('avaliacoes:enviar-lembrete-proposta-acoes')
+            ->dailyAt('00:10')
+            ->withoutOverlapping();
+
+        $schedule->command('avaliacoes:enviar-lembrete-acoes-corretivas')
+            ->dailyAt('00:20')
+            ->withoutOverlapping();
     }
 
     /**
