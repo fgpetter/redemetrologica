@@ -150,6 +150,14 @@ return [
             'path' => storage_path('logs/validation_errors.log'),
             'ignore_exceptions' => true,
         ],
+
+        'correios' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/correios.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
     ],
 
 ];

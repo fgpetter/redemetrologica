@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InterlabLotePostagemStatus;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -97,6 +98,42 @@ class AgendaInterlab extends Model
     public function inscritos(): HasMany
     {
         return $this->hasMany(InterlabInscrito::class, 'agenda_interlab_id', 'id');
+    }
+
+    /**
+     * @return HasMany<InterlabLotePostagem, $this>
+     */
+    public function lotesPostagem(): HasMany
+    {
+        return $this->hasMany(InterlabLotePostagem::class);
+    }
+
+    public function lotePostagemAtivo(): ?InterlabLotePostagem
+    {
+        return $this->lotesPostagem()->emProcessamento()->latest('id')->first();
+    }
+
+    public function lotePostagemMaisRecenteComErro(): ?InterlabLotePostagem
+    {
+        $lote = $this->lotesPostagem()->latest('id')->first();
+
+        if ($lote === null || $lote->status !== InterlabLotePostagemStatus::Erro) {
+            return null;
+        }
+
+        return $lote;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, InterlabLotePostagem>
+     */
+    public function lotesPostagemConcluidos(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->lotesPostagem()
+            ->where('status', InterlabLotePostagemStatus::Concluido)
+            ->with(['etiquetas', 'itens'])
+            ->latest('id')
+            ->get();
     }
 
     /**
