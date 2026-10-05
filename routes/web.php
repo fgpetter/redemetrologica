@@ -22,6 +22,7 @@ use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\InscricaoCursoController;
 use App\Http\Controllers\InscricaoInterlabController;
 use App\Http\Controllers\InstrutorController;
+use App\Http\Controllers\Interlab\DownloadDocumentosLotePostagemController;
 use App\Http\Controllers\InterlabController;
 use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\LancamentoFinanceiroController;
@@ -285,6 +286,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('delete-material/{material:uid}', [AgendaInterlabController::class, 'deleteMaterial'])->name('agenda-interlab-delete-material');
         Route::post('upload-protocolo/{agendainterlab:uid}', [AgendaInterlabController::class, 'uploadProtocolo'])->name('agenda-interlab-upload-protocolo');
         Route::post('delete-protocolo/{agendainterlab:uid}', [AgendaInterlabController::class, 'deleteProtocolo'])->name('agenda-interlab-delete-protocolo');
+        Route::get('lote-postagem/{lotePostagem:uid}/documentos', DownloadDocumentosLotePostagemController::class)
+            ->name('agenda-interlab-lote-postagem-documentos');
 
         Route::get('export/{agendainterlab:uid}', [AgendaInterlabController::class, 'exportLaboratoriosToXLS'])->name('interlab-relatorio-inscritos');
     });
