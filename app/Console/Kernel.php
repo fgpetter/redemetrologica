@@ -20,6 +20,16 @@ class Kernel extends ConsoleKernel
             ->between('00:00', '06:00')
             ->skip(fn () => Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
 
+        $schedule->command('interlab:retomar-lotes-postagem-orfaos')
+            ->everyMinute()
+            ->withoutOverlapping();
+
+        $schedule->command('interlab:rastrear-itens-postagem')
+            ->weekdays()
+            ->at('06:00')
+            ->timezone('America/Sao_Paulo')
+            ->withoutOverlapping();
+
         $schedule->command('app:processar-senhas-interlab-confirmado')
             ->dailyAt('07:00')
             ->withoutOverlapping();

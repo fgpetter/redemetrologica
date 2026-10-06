@@ -16,6 +16,7 @@
                     </a>
                 </li>
 
+
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#despesas" role="tab" aria-selected="false">
                         Despesas
@@ -27,6 +28,13 @@
                         Rodadas
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#postagens" role="tab" aria-selected="false">
+                        Postagens
+                    </a>
+                </li>
+
             @endif
         </ul>
 
@@ -80,6 +88,15 @@
                     />
                 @endif
 
+                </div>
+            </div>
+
+            <div class="tab-pane" id="postagens" role="tabpanel">
+                <div class="col-12">
+                    <livewire:interlab.gerar-lote-postagem
+                        :agenda="$agendainterlab"
+                        :key="'lote-postagem-'.$agendainterlab->id"
+                    />
                 </div>
             </div>
 
