@@ -345,7 +345,7 @@
             role="button" data-key="t-signin"> Meus Cursos </a>
         </li>
         <li class="nav-item">
-          <a href="#" class="nav-link {{ request()->is('#') ? 'active' : '' }}"
+          <a href="{{ route('painel-meus-peps') }}" class="nav-link {{ request()->is('painel/meus-peps') ? 'active' : '' }}"
             role="button" data-key="t-signin"> Meus PEPs </a>
         </li>
       @endcan

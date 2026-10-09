@@ -99,6 +99,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
 
     Route::get('/', [PainelController::class, 'index'])->name('painel-index');
     Route::view('tutorial-pep', 'painel.painel-cliente.tutorial-pep')->name('painel-tutorial-pep');
+    Route::view('meus-peps', 'painel.painel-cliente.meus-peps')->middleware('permission:cliente')->name('painel-meus-peps');
 
     /* Usuários */
     Route::group(['prefix' => 'user'], function () {

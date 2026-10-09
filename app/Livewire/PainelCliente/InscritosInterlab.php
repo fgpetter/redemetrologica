@@ -13,13 +13,7 @@ class InscritosInterlab extends Component
         $this->interlabs = auth()->user()->pessoa
             ->interlabs()
             ->whereHas('agendaInterlab', fn ($q) => $q->where('status', '!=', 'CONCLUIDO'))
-            ->with([
-                'agendaInterlab.interlab',
-                'agendaInterlab.materiais',
-                'laboratorio.analistas',
-                'laboratorio.endereco',
-                'empresa',
-            ])
+            ->with('agendaInterlab.interlab')
             ->get();
     }
 
