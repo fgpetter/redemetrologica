@@ -336,6 +336,11 @@
             role="button" data-key="t-signin"> Painel </a>
         </li>
         <li class="nav-item">
+          <a href="{{ route('painel-tutorial-pep') }}" class="nav-link" target="_blank" rel="noopener">
+            Tutorial PEP
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="#" class="nav-link {{ request()->is('#') ? 'active' : '' }}"
             role="button" data-key="t-signin"> Meus Cursos </a>
         </li>

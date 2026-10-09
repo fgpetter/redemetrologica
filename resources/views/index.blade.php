@@ -23,6 +23,13 @@
             <a href="{{ route('site-list-interlaboratoriais') }}" class="btn btn-primary">Inscreva-se em um Ensaio de Proficiência</a>
           </div>
         </div>
+        <div class="col-12 col-xxl-4">
+          <div class="card mb-4">
+            <a href="{{ route('painel-tutorial-pep') }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
+              Como fazer uma inscrição em PEP?
+            </a>
+          </div>
+        </div>
       </div>
     @endif
 

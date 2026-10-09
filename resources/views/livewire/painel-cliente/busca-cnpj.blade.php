@@ -1,5 +1,19 @@
 <div>
     @if($isVisible)
+    @include('painel.painel-cliente.partials.tutorial-help', [
+        'items' => [
+            [
+                'section' => $tutorialSection,
+                'title' => $tutorialSection === 'outro-cnpj'
+                    ? 'Como fazer uma inscrição usando outro CNPJ?'
+                    : 'Como inscrever meu laboratório em um PEP?',
+            ],
+            [
+                'section' => 'dados-empresa',
+                'title' => 'Quais dados da empresa preciso preencher?',
+            ],
+        ],
+    ])
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <div class="row align-items-center">

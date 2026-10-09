@@ -8,6 +8,49 @@
         })
      ">
     @if($isVisible)
+        @if($editingId)
+            @include('painel.painel-cliente.partials.tutorial-help', ['items' => [[
+                'section' => 'corrigir-dados',
+                'title' => 'Como corrigir os dados de um laboratório inscrito?',
+            ]]])
+        @elseif($selecionadoId === 'new')
+            @include('painel.painel-cliente.partials.tutorial-help', ['items' => [[
+                'section' => 'laboratorio-novo',
+                'title' => 'Como adicionar um novo laboratório em um PEP?',
+            ]]])
+        @elseif($selecionadoId !== null)
+            @include('painel.painel-cliente.partials.tutorial-help', ['items' => [[
+                'section' => 'laboratorio-existente',
+                'title' => 'Como inscrever um laboratório já cadastrado?',
+            ]]])
+        @elseif(count($inscritos) > 0 && count($laboratorios_disponiveis) > 0)
+            @include('painel.painel-cliente.partials.tutorial-help', ['items' => [
+                [
+                    'section' => 'multiplos-laboratorios',
+                    'title' => 'Como cadastrar múltiplos laboratórios em um PEP?',
+                ],
+                [
+                    'section' => 'laboratorio-existente',
+                    'title' => 'Como inscrever um laboratório já cadastrado?',
+                ],
+                [
+                    'section' => 'laboratorio-novo',
+                    'title' => 'Como adicionar um novo laboratório em um PEP?',
+                ],
+            ]])
+        @elseif(count($laboratorios_disponiveis) > 0)
+            @include('painel.painel-cliente.partials.tutorial-help', ['items' => [
+                [
+                    'section' => 'laboratorio-existente',
+                    'title' => 'Como inscrever um laboratório já cadastrado?',
+                ],
+                [
+                    'section' => 'laboratorio-novo',
+                    'title' => 'Como adicionar um novo laboratório em um PEP?',
+                ],
+            ]])
+        @endif
+
         @if ($interlab->instrucoes_inscricao)
             <div class="alert alert-info alert-borderless shadow-sm mb-4" role="alert">
                 <div class="d-flex">
