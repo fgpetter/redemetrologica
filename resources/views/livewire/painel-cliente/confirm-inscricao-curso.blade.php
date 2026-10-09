@@ -148,6 +148,8 @@
                                         <span class="text-danger small">{{ $message }}</span>
                                     @enderror
                                 </div>
+
+                                @include('painel.painel-cliente.partials.dados-cobranca')
                             </div>
                             <div class="mt-4 d-flex justify-content-end gap-2">
                                 <button type="submit" class="btn btn-success">

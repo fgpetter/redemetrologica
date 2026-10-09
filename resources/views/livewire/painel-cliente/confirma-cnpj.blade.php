@@ -35,10 +35,6 @@
                         'title' => 'Quais dados da empresa preciso preencher?',
                     ]],
                 ])
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <strong> Atenção! </strong> Revise os dados da empresa e clique em "Continuar" para prosseguir com a inscrição.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
                 <form wire:submit.prevent="salvar">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -96,6 +92,8 @@
                                 :required="true" />
                             @error('empresa.endereco_cobranca.uf') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
+
+                        @include('painel.painel-cliente.partials.dados-cobranca')
                     </div>
                     <div class="mt-4 d-flex justify-content-end">
                         <button type="submit" class="btn btn-success btn-lg">

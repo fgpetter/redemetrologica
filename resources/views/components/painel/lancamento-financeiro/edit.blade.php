@@ -113,6 +113,13 @@
               {{ $lancamento->pessoa->enderecoFinanceiro->complemento }} - {{ $lancamento->pessoa->enderecoFinanceiro->cidade }} / {{ $lancamento->pessoa->enderecoFinanceiro->uf }} - CEP: {{ $lancamento->pessoa->enderecoFinanceiro->cep }} <br>
               E-mail: {{ $lancamento->pessoa->emailFinanceiro }}
               @endif
+              @if($lancamento->forma_pagamento)
+              <ul class="mb-2 ps-3">
+                <li>Forma de pagamento: {{ $lancamento->forma_pagamento->label() }}</li>
+                <li>Necessário envio de pedido/ordem de compra ou empenho: {{ $lancamento->exige_pedido_compra ? 'Sim' : 'Não' }}</li>
+                <li>É entidade governamental? {{ $lancamento->entidade_governamental ? 'Sim' : 'Não' }}@if($lancamento->esfera_governamental) - {{ $lancamento->esfera_governamental->label() }}@endif</li>
+              </ul>
+              @endif
               <div class="text-end">
                 <a href="{{ route('pessoa-insert', $lancamento->pessoa->uid) }}" class="link-primary fw-medium">
                   Editar dados

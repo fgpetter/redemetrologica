@@ -4,12 +4,16 @@ namespace App\Livewire\PainelCliente;
 
 use App\Actions\NotifyInscricaoCursoAction;
 use App\Actions\SalvaInscritoAction;
+use App\Enums\EsferaGovernamental;
+use App\Enums\FormaPagamentoCobranca;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Models\Endereco;
+use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class ConfirmInscricaoCurso extends Component
@@ -51,6 +55,13 @@ class ConfirmInscricaoCurso extends Component
     ];
 
     public $MeInscrever = false;
+
+    public array $dadosCobranca = [
+        'forma_pagamento' => null,
+        'exige_pedido_compra' => null,
+        'entidade_governamental' => null,
+        'esfera_governamental' => null,
+    ];
 
     public function mount() // metodo chamado quando o componente é montado
     {
@@ -123,6 +134,10 @@ class ConfirmInscricaoCurso extends Component
                 'empresa.endereco_cobranca.bairro' => ['required', 'string'],
                 'empresa.endereco_cobranca.cidade' => ['required', 'string'],
                 'empresa.endereco_cobranca.uf' => ['required', 'string', 'size:2'],
+                'dadosCobranca.forma_pagamento' => ['required', Rule::enum(FormaPagamentoCobranca::class)],
+                'dadosCobranca.exige_pedido_compra' => ['required', 'in:0,1'],
+                'dadosCobranca.entidade_governamental' => ['required', 'in:0,1'],
+                'dadosCobranca.esfera_governamental' => ['required_if:dadosCobranca.entidade_governamental,1', Rule::enum(EsferaGovernamental::class)],
             ],
             [
                 'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
@@ -136,6 +151,10 @@ class ConfirmInscricaoCurso extends Component
                 'empresa.endereco_cobranca.cidade.required' => 'Preencha o campo cidade de cobrança.',
                 'empresa.endereco_cobranca.uf.required' => 'Preencha o campo UF de cobrança.',
                 'empresa.endereco_cobranca.uf.size' => 'O campo UF de cobrança deve ter exatamente 2 caracteres.',
+                'dadosCobranca.forma_pagamento.required' => 'Selecione a forma de pagamento.',
+                'dadosCobranca.exige_pedido_compra.required' => 'Informe se é necessário envio de pedido/ordem de compra ou empenho.',
+                'dadosCobranca.entidade_governamental.required' => 'Informe se é entidade governamental.',
+                'dadosCobranca.esfera_governamental.required_if' => 'Selecione a esfera governamental.',
             ]
         );
 
@@ -390,6 +409,7 @@ class ConfirmInscricaoCurso extends Component
         foreach ($this->inscricoes as $inscricao) {
             app(SalvaInscritoAction::class)->criar($this->agendacurso, [
                 'tipo_inscricao' => 'cnpj',
+                'dados_cobranca' => LancamentoFinanceiro::dadosCobrancaDoFormulario($this->dadosCobranca),
                 'empresa_id' => $pessoaEmpresa->id,
                 'nome' => $inscricao['nome'],
                 'email' => $inscricao['email'],
