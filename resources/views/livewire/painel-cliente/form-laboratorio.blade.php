@@ -124,6 +124,15 @@
             </x-forms.input-textarea>
         </div>
 
+        <hr class="my-3"></div>
+
+        <div class="col-12">
+            @include('painel.painel-cliente.partials.tutorial-help', ['items' => [[
+                'section' => 'blocos-analistas',
+                'title' => 'Como selecionar os blocos e cadastrar os analistas?',
+            ]]])
+        </div>
+
         <!-- Dados dos Analistas -->
         <div class="col-12" x-cloak x-show="requerAnalistas && quantidadeAnalistas > 0">
                 <div class="card border border-info">
@@ -165,7 +174,7 @@
 
         <!-- Blocos de inscrição -->
         @if ($valores_inscricao && $valores_inscricao->isNotEmpty())
-            <div class="col-12"><hr class="my-3"></div>
+            <div class="col-12">
             <div class="col-12">
                 <div class="card border">
                     <div class="card-header bg-primary-subtle">
@@ -229,6 +238,12 @@
         @endif
 
         <!-- Solicita certificado -->
+        <div class="col-12">
+            @include('painel.painel-cliente.partials.tutorial-help', ['items' => [[
+                'section' => 'certificado',
+                'title' => 'Como solicitar o Certificado de Desempenho?',
+            ]]])
+        </div>
         <div class="col-12">
             <div class="card border-warning">
                 <div class="card-body">

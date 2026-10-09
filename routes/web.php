@@ -98,6 +98,7 @@ Route::view('slug-cursos', 'site.pages.slug-cursos');
 Route::prefix('painel')->middleware('auth')->group(function () {
 
     Route::get('/', [PainelController::class, 'index'])->name('painel-index');
+    Route::view('tutorial-pep', 'painel.painel-cliente.tutorial-pep')->name('painel-tutorial-pep');
 
     /* Usuários */
     Route::group(['prefix' => 'user'], function () {

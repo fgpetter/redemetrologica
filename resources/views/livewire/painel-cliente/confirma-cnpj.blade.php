@@ -29,6 +29,12 @@
         <div id="collapseConfirmaCNPJ" class="accordion-collapse collapse {{ $isOpen ? 'show' : '' }}" 
             aria-labelledby="headingConfirmaCNPJ" data-bs-parent="#mainInscricaoAccordion">
             <div class="accordion-body bg-light">
+                @include('painel.painel-cliente.partials.tutorial-help', [
+                    'items' => [[
+                        'section' => 'dados-empresa',
+                        'title' => 'Quais dados da empresa preciso preencher?',
+                    ]],
+                ])
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     <strong> Atenção! </strong> Revise os dados da empresa e clique em "Continuar" para prosseguir com a inscrição.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

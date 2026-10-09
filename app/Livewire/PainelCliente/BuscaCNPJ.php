@@ -2,14 +2,34 @@
 
 namespace App\Livewire\PainelCliente;
 
-use App\Models\Pessoa;
 use App\Models\InterlabInscrito;
+use App\Models\Pessoa;
 use Livewire\Component;
 
 class BuscaCNPJ extends Component
 {
     public $BuscaCnpj;
-    public $isVisible = true; 
+
+    public $isVisible = true;
+
+    public string $tutorialSection = 'como-comecar';
+
+    public function mount(): void
+    {
+        $interlabId = session('interlab')?->id;
+
+        if (! $interlabId) {
+            return;
+        }
+
+        $hasExistingInscriptions = InterlabInscrito::where('pessoa_id', request()->user()->pessoa->id)
+            ->where('agenda_interlab_id', $interlabId)
+            ->exists();
+
+        if ($hasExistingInscriptions) {
+            $this->tutorialSection = 'outro-cnpj';
+        }
+    }
 
     protected $rules = [
         'BuscaCnpj' => ['required', 'cnpj'],
@@ -34,9 +54,9 @@ class BuscaCNPJ extends Component
         $empresa = Pessoa::where('cpf_cnpj', $cnpjLimpo)
             ->where('tipo_pessoa', 'PJ')
             ->first();
-        
+
         $searchTerm = $this->BuscaCnpj;
-        $this->BuscaCnpj = null; 
+        $this->BuscaCnpj = null;
 
         $this->isVisible = false;
 
