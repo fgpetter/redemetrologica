@@ -84,7 +84,7 @@
 
             <p class="h3">Associação Rede de Metrologia e Ensaios do RS certifica que</p>
 
-            <p class="h4 font-weight-bold my-3">{{ strtoupper($participante->laboratorio->nome) }}</p>
+            <p class="h4 font-weight-bold my-3">{{ mb_strtoupper($participante->laboratorio->nome, 'UTF-8') }}</p>
 
             <p class="h3">Participou do</p>
 

@@ -35,7 +35,8 @@ class CriarEnviarSenhaLaboratorioAction
          *     laboratorio_email: string|null,
          *     empresa_nome_razao: string,
          *     empresa_cpf_cnpj: string,
-         *     interlab_nome: string
+         *     interlab_nome: string,
+         *     ano_referencia: int|null
          * } $content
          */
         $content = [
@@ -47,6 +48,7 @@ class CriarEnviarSenhaLaboratorioAction
             'empresa_nome_razao' => $inscrito->empresa->nome_razao,
             'empresa_cpf_cnpj' => $inscrito->empresa->cpf_cnpj,
             'interlab_nome' => $inscrito->agendaInterlab->interlab->nome,
+            'ano_referencia' => $inscrito->agendaInterlab->ano_referencia,
         ];
 
         $dadosDoc = DadosGeraDoc::create([

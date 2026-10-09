@@ -38,6 +38,7 @@ class CriarEnviarSenhaInterlabActionsTest extends TestCase
 
         $this->assertNotNull($dadosDoc->id);
         $this->assertEquals('tag_senha', $dadosDoc->tipo);
+        $this->assertSame($agenda->ano_referencia, $dadosDoc->content['ano_referencia']);
 
         Queue::assertPushed(EnviaSenhaLaboratorioJob::class, function (EnviaSenhaLaboratorioJob $job) use ($inscrito, $dadosDoc) {
             return $job->dadosGeraDocId === $dadosDoc->id
@@ -125,6 +126,7 @@ class CriarEnviarSenhaInterlabActionsTest extends TestCase
         $this->assertNotNull($dadosDoc->id);
         $this->assertEquals('tag_senha_analista', $dadosDoc->tipo);
         $this->assertEquals('Analista Teste', $dadosDoc->content['analista_nome']);
+        $this->assertSame($agenda->ano_referencia, $dadosDoc->content['ano_referencia']);
 
         Queue::assertPushed(EnviaSenhaAnalistaJob::class, function (EnviaSenhaAnalistaJob $job) use ($analista) {
             return $job->destinatarios === [$analista->email]

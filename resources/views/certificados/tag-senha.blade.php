@@ -178,7 +178,7 @@
     </div>
 
     <div class="program-title">
-        {{ $dadosDoc->content['interlab_nome'] }}
+        {{ $dadosDoc->content['interlab_nome'] }}@if (filled($dadosDoc->content['ano_referencia'] ?? null)) - {{ $dadosDoc->content['ano_referencia'] }}@endif
     </div>
 
     <div class="info-group">

@@ -36,6 +36,7 @@ class CriarCartaSenhaAnalistaAction
              *     empresa_nome_razao: string,
              *     empresa_cpf_cnpj: string,
              *     interlab_nome: string,
+             *     ano_referencia: int|null,
              *     analista_nome: string|null,
              *     analista_email: string|null
              * } $content
@@ -50,6 +51,7 @@ class CriarCartaSenhaAnalistaAction
                 'empresa_nome_razao' => $inscrito->empresa->nome_razao,
                 'empresa_cpf_cnpj' => $inscrito->empresa->cpf_cnpj,
                 'interlab_nome' => $inscrito->agendaInterlab->interlab->nome,
+                'ano_referencia' => $inscrito->agendaInterlab->ano_referencia,
                 'analista_nome' => $analista->nome ?? null,
                 'analista_email' => $analista->email ?? null,
             ];

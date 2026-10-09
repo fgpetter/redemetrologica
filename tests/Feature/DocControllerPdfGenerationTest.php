@@ -191,6 +191,21 @@ class DocControllerPdfGenerationTest extends TestCase
         Pdf::assertSaved($path);
     }
 
+    public function test_certificado_interlab_coloca_nome_do_laboratorio_em_maiusculas_com_acentos(): void
+    {
+        $inscrito = $this->criarInterlabInscritoParaCertificado();
+        $inscrito->laboratorio->update([
+            'nome' => 'Santé Laboratório de Análises Clínicas Ltda',
+        ]);
+        $inscrito->load(['laboratorio', 'agendaInterlab.interlab']);
+
+        $html = view('certificados.certificado-interlab', [
+            'participante' => $inscrito,
+        ])->render();
+
+        $this->assertStringContainsString('SANTÉ LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA', $html);
+    }
+
     private function criarCursoInscritoParaCertificado(): CursoInscrito
     {
         $pessoaInstrutor = Pessoa::query()->create([

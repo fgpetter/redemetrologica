@@ -81,7 +81,8 @@ test('action cria carta senha do analista sem enviar email', function () {
     expect($dadosDoc->tipo)->toBe('tag_senha_analista')
         ->and($dadosDoc->content['analista_id'])->toBe($analista->id)
         ->and($dadosDoc->content['participante_id'])->toBe($inscrito->id)
-        ->and($dadosDoc->content['tag_senha'])->toBe($analista->tag_senha);
+        ->and($dadosDoc->content['tag_senha'])->toBe($analista->tag_senha)
+        ->and($dadosDoc->content['ano_referencia'])->toBe($inscrito->agendaInterlab->ano_referencia);
 
     Queue::assertNothingPushed();
     Mail::assertNothingSent();
