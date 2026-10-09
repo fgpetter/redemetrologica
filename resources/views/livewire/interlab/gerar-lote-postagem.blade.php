@@ -211,45 +211,6 @@
                 </div>
             </form>
         @endif
-
-        @if ($lotesConcluidos->isNotEmpty())
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Lotes gerados</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th scope="col">Nome</th>
-                                    <th scope="col">Data</th>
-                                    <th scope="col">Itens</th>
-                                    <th scope="col" style="width: 1%;">Documentos</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($lotesConcluidos as $loteConcluido)
-                                    <tr wire:key="lote-concluido-{{ $loteConcluido->id }}">
-                                        <td>{{ $loteConcluido->nome }}</td>
-                                        <td>{{ $loteConcluido->created_at?->format('d/m/Y H:i') }}</td>
-                                        <td>{{ $loteConcluido->itens->count() }}</td>
-                                        <td class="text-nowrap">
-                                            <a
-                                                href="{{ route('agenda-interlab-lote-postagem-documentos', $loteConcluido) }}"
-                                                class="btn btn-sm btn-outline-primary"
-                                            >
-                                                <i class="ri-download-2-line align-bottom"></i> Baixar documentos (.zip)
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        @endif
     @endif
 </div>
 

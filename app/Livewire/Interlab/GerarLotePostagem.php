@@ -79,7 +79,6 @@ class GerarLotePostagem extends Component
             'inscritos' => $this->inscritosDaAgenda(),
             'loteAtivo' => $loteAtivo,
             'loteComErro' => $loteComErro,
-            'lotesConcluidos' => $this->agenda->lotesPostagemConcluidos(),
         ]);
     }
 

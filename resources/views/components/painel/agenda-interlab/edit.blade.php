@@ -35,6 +35,12 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#itens-postados" role="tab" aria-selected="false">
+                        Itens Postados
+                    </a>
+                </li>
+
             @endif
         </ul>
 
@@ -96,6 +102,15 @@
                     <livewire:interlab.gerar-lote-postagem
                         :agenda="$agendainterlab"
                         :key="'lote-postagem-'.$agendainterlab->id"
+                    />
+                </div>
+            </div>
+
+            <div class="tab-pane" id="itens-postados" role="tabpanel">
+                <div class="col-12">
+                    <livewire:interlab.itens-postados
+                        :agenda="$agendainterlab"
+                        :key="'itens-postados-'.$agendainterlab->id"
                     />
                 </div>
             </div>

@@ -4,6 +4,7 @@ use App\Actions\Interlab\CriarInterlabLotePostagemAction;
 use App\Enums\InterlabLotePostagemItemStatus;
 use App\Enums\InterlabLotePostagemStatus;
 use App\Livewire\Interlab\GerarLotePostagem;
+use App\Livewire\Interlab\ItensPostados;
 use App\Models\AgendaInterlab;
 use App\Models\Endereco;
 use App\Models\InterlabInscrito;
@@ -251,7 +252,9 @@ test('exibe a aba de postagens na agenda', function () {
         ->get(route('agenda-interlab-insert', $agenda->uid))
         ->assertOk()
         ->assertSee('Postagens')
-        ->assertSeeLivewire(GerarLotePostagem::class);
+        ->assertSeeLivewire(GerarLotePostagem::class)
+        ->assertSee('Itens Postados')
+        ->assertSeeLivewire(ItensPostados::class);
 });
 
 test('lote ativo oculta laboratorios e formulario', function () {
@@ -331,9 +334,8 @@ test('nao mostra erro antigo quando ha lote concluido mais recente', function ()
         ->assertDontSee('Erro antigo')
         ->assertDontSee('Lote antigo com erro')
         ->assertDontSee('Limpar status')
-        ->assertSee('Lote novo concluido')
-        ->assertSee('Lotes gerados')
-        ->assertSee('Baixar documentos (.zip)');
+        ->assertDontSee('Lotes gerados')
+        ->assertDontSee('Baixar documentos (.zip)');
 });
 
 /**
