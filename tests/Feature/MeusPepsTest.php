@@ -70,7 +70,7 @@ test('painel mostra apenas nome do PEP e link para Meus PEPs', function () {
         ->assertDontSee('Material oculto');
 });
 
-test('painel não lista PEP concluído', function () {
+test('painel lista PEP concluído com selo Concluído', function () {
     $user = usuarioClienteComPessoa();
     $agenda = agendaComNome('PEP Encerrado', 'CONCLUIDO');
     inscreverPessoaNoPep($user, $agenda, 'Laboratório Encerrado');
@@ -78,7 +78,21 @@ test('painel não lista PEP concluído', function () {
     $this->actingAs($user)
         ->get(route('painel-index'))
         ->assertOk()
-        ->assertDontSee('PEP Encerrado');
+        ->assertSee('PEP Encerrado')
+        ->assertSee('Concluído')
+        ->assertSee(route('painel-meus-peps').'#agenda-'.$agenda->id);
+});
+
+test('painel não exibe selo Concluído em PEP ativo', function () {
+    $user = usuarioClienteComPessoa();
+    $agenda = agendaComNome('PEP Em Andamento');
+    inscreverPessoaNoPep($user, $agenda, 'Laboratório Ativo');
+
+    $this->actingAs($user)
+        ->get(route('painel-index'))
+        ->assertOk()
+        ->assertSee('PEP Em Andamento')
+        ->assertDontSee('Concluído');
 });
 
 test('meus peps lista PEPs encerrados com dados do laboratório e materiais de apoio', function () {
