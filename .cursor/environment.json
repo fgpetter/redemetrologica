@@ -1,0 +1,15 @@
+{
+  "name": "Rede Metrologica",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "install": "composer install --no-interaction\nnpm install",
+  "start": "bash .cursor/start.sh",
+  "terminals": [
+    {
+      "name": "app",
+      "command": "php artisan serve --host=0.0.0.0 --port=8000"
+    }
+  ]
+}
