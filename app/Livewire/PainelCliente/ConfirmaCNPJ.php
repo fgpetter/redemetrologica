@@ -3,29 +3,42 @@
 namespace App\Livewire\PainelCliente;
 
 use App\Actions\BuscaCepAction;
+use App\Enums\EsferaGovernamental;
+use App\Enums\FormaPagamentoCobranca;
+use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
-use App\Models\InterlabInscrito;
-use Livewire\Component;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class ConfirmaCNPJ extends Component
 {
     public $empresa = [];
+
+    public array $dadosCobranca = [
+        'forma_pagamento' => null,
+        'exige_pedido_compra' => null,
+        'entidade_governamental' => null,
+        'esfera_governamental' => null,
+    ];
+
     public $isOpen = false;
-    public $isVisible = false; 
+
+    public $isVisible = false;
 
     public function mount()
     {
         $this->resetEmpresa();
     }
 
-    private function resetEmpresa() {
+    private function resetEmpresa()
+    {
         $this->empresa = [
             'id' => null,
             'nome_razao' => '',
             'cpf_cnpj' => '',
             'telefone' => '',
-            'email' => '', 
+            'email' => '',
             'endereco_cobranca' => [
                 'cep' => '',
                 'endereco' => '',
@@ -42,15 +55,15 @@ class ConfirmaCNPJ extends Component
     public function loadEmpresa($id_pessoa)
     {
         $empresaModel = Pessoa::with('enderecoCobranca')->find($id_pessoa);
-        
+
         if ($empresaModel) {
             $this->empresa = $empresaModel->toArray();
-            
+
             if (empty($this->empresa['endereco_cobranca'])) {
                 $empresa_end = Pessoa::with('enderecos')
                     ->where('id', $id_pessoa)
                     ->first();
-                
+
                 if ($empresa_end && $empresa_end->enderecos->count() === 1) {
                     $endereco = $empresa_end->enderecos->first();
                     $this->empresa['endereco_cobranca'] = [
@@ -64,13 +77,13 @@ class ConfirmaCNPJ extends Component
                     ];
                 } else {
                     $this->empresa['endereco_cobranca'] = [
-                        'cep' => '', 'endereco' => '', 'complemento' => '', 
-                        'bairro' => '', 'cidade' => '', 'uf' => '', 'email' => ''
+                        'cep' => '', 'endereco' => '', 'complemento' => '',
+                        'bairro' => '', 'cidade' => '', 'uf' => '', 'email' => '',
                     ];
                 }
             }
         }
-        
+
         $this->isVisible = true;
         $this->isOpen = true;
     }
@@ -86,14 +99,13 @@ class ConfirmaCNPJ extends Component
 
     public function toggleAccordion()
     {
-        $this->isOpen = !$this->isOpen;
+        $this->isOpen = ! $this->isOpen;
     }
-
 
     public function buscaCep(BuscaCepAction $buscaCepAction)
     {
         $cep = $this->empresa['endereco_cobranca']['cep'] ?? '';
-        
+
         $dados = $buscaCepAction->execute($cep);
 
         if ($dados) {
@@ -102,7 +114,7 @@ class ConfirmaCNPJ extends Component
             $this->empresa['endereco_cobranca']['cidade'] = $dados['cidade'];
             $this->empresa['endereco_cobranca']['uf'] = $dados['uf'];
         } else {
-             $this->addError('empresa.endereco_cobranca.cep', 'CEP não encontrado.');
+            $this->addError('empresa.endereco_cobranca.cep', 'CEP não encontrado.');
         }
     }
 
@@ -117,57 +129,69 @@ class ConfirmaCNPJ extends Component
             'empresa.endereco_cobranca.bairro' => ['required', 'string'],
             'empresa.endereco_cobranca.cidade' => ['required', 'string'],
             'empresa.endereco_cobranca.uf' => ['required', 'string', 'size:2'],
+            'dadosCobranca.forma_pagamento' => ['required', Rule::enum(FormaPagamentoCobranca::class)],
+            'dadosCobranca.exige_pedido_compra' => ['required', 'in:0,1'],
+            'dadosCobranca.entidade_governamental' => ['required', 'in:0,1'],
+            'dadosCobranca.esfera_governamental' => ['required_if:dadosCobranca.entidade_governamental,1', Rule::enum(EsferaGovernamental::class)],
         ], [
-                'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
-                'empresa.nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',
-                'empresa.cpf_cnpj.required' => 'Preencha o campo CPF/CNPJ.',
-                'empresa.endereco_cobranca.cep.required' => 'Preencha o campo CEP de cobrança.',
-                'empresa.endereco_cobranca.cep.min' => 'O campo CEP de cobrança deve ter no mínimo :min caracteres.',
-                'empresa.endereco_cobranca.endereco.required' => 'Preencha o campo endereço de cobrança.',
-                'empresa.endereco_cobranca.bairro.required' => 'Preencha o campo bairro de cobrança.',
-                'empresa.endereco_cobranca.email.required' => 'O email de cobrança é obrigatório.',
-                'empresa.endereco_cobranca.email.email' => 'O email de cobrança deve ser um endereço de email válido.',
-                'empresa.endereco_cobranca.cidade.required' => 'Preencha o campo cidade de cobrança.',
-                'empresa.endereco_cobranca.uf.required' => 'Preencha o campo UF de cobrança.',
-                'empresa.endereco_cobranca.uf.size' => 'O campo UF de cobrança deve ter exatamente 2 caracteres.',
+            'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
+            'empresa.nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',
+            'empresa.cpf_cnpj.required' => 'Preencha o campo CPF/CNPJ.',
+            'empresa.endereco_cobranca.cep.required' => 'Preencha o campo CEP de cobrança.',
+            'empresa.endereco_cobranca.cep.min' => 'O campo CEP de cobrança deve ter no mínimo :min caracteres.',
+            'empresa.endereco_cobranca.endereco.required' => 'Preencha o campo endereço de cobrança.',
+            'empresa.endereco_cobranca.bairro.required' => 'Preencha o campo bairro de cobrança.',
+            'empresa.endereco_cobranca.email.required' => 'O email de cobrança é obrigatório.',
+            'empresa.endereco_cobranca.email.email' => 'O email de cobrança deve ser um endereço de email válido.',
+            'empresa.endereco_cobranca.cidade.required' => 'Preencha o campo cidade de cobrança.',
+            'empresa.endereco_cobranca.uf.required' => 'Preencha o campo UF de cobrança.',
+            'empresa.endereco_cobranca.uf.size' => 'O campo UF de cobrança deve ter exatamente 2 caracteres.',
+            'dadosCobranca.forma_pagamento.required' => 'Selecione a forma de pagamento.',
+            'dadosCobranca.exige_pedido_compra.required' => 'Informe se é necessário envio de pedido/ordem de compra ou empenho.',
+            'dadosCobranca.entidade_governamental.required' => 'Informe se é entidade governamental.',
+            'dadosCobranca.esfera_governamental.required_if' => 'Selecione a esfera governamental.',
         ]);
 
         $empresa = Pessoa::updateOrCreate(
-             ['id' => $this->empresa['id'] ?? null],
-             [
-                 'nome_razao' => $this->empresa['nome_razao'],
-                 'cpf_cnpj' => $this->empresa['cpf_cnpj'],
-                 'telefone' => $this->empresa['telefone'] ?? null,
-                 'tipo_pessoa' => 'PJ',
-             ]
+            ['id' => $this->empresa['id'] ?? null],
+            [
+                'nome_razao' => $this->empresa['nome_razao'],
+                'cpf_cnpj' => $this->empresa['cpf_cnpj'],
+                'telefone' => $this->empresa['telefone'] ?? null,
+                'tipo_pessoa' => 'PJ',
+            ]
         );
- 
+
         $enderecoCobranca = $empresa->enderecoCobranca()->updateOrCreate(
-             ['pessoa_id' => $empresa->id],
-             [
-                 'info' => 'Cobrança',
-                 'cep' => $this->empresa['endereco_cobranca']['cep'],
-                 'endereco' => $this->empresa['endereco_cobranca']['endereco'],
-                 'complemento' => $this->empresa['endereco_cobranca']['complemento'] ?? null,
-                 'bairro' => $this->empresa['endereco_cobranca']['bairro'],
-                 'cidade' => $this->empresa['endereco_cobranca']['cidade'],
-                 'uf' => $this->empresa['endereco_cobranca']['uf'],
-                 'email' => $this->empresa['endereco_cobranca']['email'],
-                 'cobranca' => 1,
-             ]
+            ['pessoa_id' => $empresa->id],
+            [
+                'info' => 'Cobrança',
+                'cep' => $this->empresa['endereco_cobranca']['cep'],
+                'endereco' => $this->empresa['endereco_cobranca']['endereco'],
+                'complemento' => $this->empresa['endereco_cobranca']['complemento'] ?? null,
+                'bairro' => $this->empresa['endereco_cobranca']['bairro'],
+                'cidade' => $this->empresa['endereco_cobranca']['cidade'],
+                'uf' => $this->empresa['endereco_cobranca']['uf'],
+                'email' => $this->empresa['endereco_cobranca']['email'],
+                'cobranca' => 1,
+            ]
         );
- 
+
         $empresa->update([
-             'end_cobranca' => $enderecoCobranca->id,
-             'email_cobranca' => $enderecoCobranca->email,
+            'end_cobranca' => $enderecoCobranca->id,
+            'email_cobranca' => $enderecoCobranca->email,
         ]);
 
         $empresaReloaded = Pessoa::with('enderecoCobranca')->find($empresa->id);
         $this->empresa = $empresaReloaded->toArray();
-        
+
         $this->isOpen = false;
 
-        $this->dispatch('empresaSaved', empresa_id: $empresa->id);
+        $this->dispatch(
+            'empresaSaved',
+            empresa_id: $empresa->id,
+            dados_cobranca: LancamentoFinanceiro::dadosCobrancaDoFormulario($this->dadosCobranca),
+        );
     }
 
     public function render()

@@ -13,8 +13,9 @@ class GerarLancamentoInterlabAction
      * Gera ou atualiza um lançamento financeiro para uma inscrição do Interlab
      *
      * @param  float|null  $valor
+     * @param  array<string, mixed>|null  $dadosCobranca  Respostas de cobrança da empresa (colunas do lançamento)
      */
-    public function execute(InterlabInscrito $inscrito, $valor = null): LancamentoFinanceiro
+    public function execute(InterlabInscrito $inscrito, $valor = null, ?array $dadosCobranca = null): LancamentoFinanceiro
     {
         // Garante que os relacionamentos necessários estejam carregados
         $inscrito->loadMissing(['agendaInterlab.interlab', 'empresa', 'laboratorio', 'lancamentoFinanceiro']);
@@ -41,6 +42,7 @@ class GerarLancamentoInterlabAction
                 'valor' => formataMoeda($valor),
                 'observacoes' => $obsTexto,
                 'data_emissao' => now(),
+                ...($dadosCobranca ?? []),
             ]);
 
             return $lancamentoIndividual;
@@ -58,12 +60,27 @@ class GerarLancamentoInterlabAction
             'data_emissao' => now(),
             'status' => 'PROVISIONADO',
             'observacoes' => $obsTexto,
+            ...($dadosCobranca ?? []),
         ]);
 
         // VINCULA ao inscrito
         $inscrito->update(['lancamento_financeiro_id' => $novoLancamento->id]);
 
         return $novoLancamento;
+    }
+
+    /**
+     * Atualiza somente as respostas de cobrança do lançamento de uma inscrição do Interlab
+     *
+     * @param  array<string, mixed>  $dadosCobranca
+     */
+    public function atualizarDadosCobranca(InterlabInscrito $inscrito, array $dadosCobranca): void
+    {
+        $lancamento = $inscrito->lancamentoFinanceiro;
+
+        if ($lancamento) {
+            $lancamento->update($dadosCobranca);
+        }
     }
 
     /**

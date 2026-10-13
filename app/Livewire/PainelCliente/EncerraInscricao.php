@@ -13,7 +13,7 @@ class EncerraInscricao extends Component
     public $inscritosCount = 0;
 
     #[On('empresaSaved')]
-    public function setEmpresa($empresa_id)
+    public function setEmpresa($empresa_id, $dados_cobranca = null)
     {
         $this->empresaId = $empresa_id;
         $this->loadInscritosCount();

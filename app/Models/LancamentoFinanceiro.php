@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\EsferaGovernamental;
+use App\Enums\FormaPagamentoCobranca;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +25,16 @@ class LancamentoFinanceiro extends Model
      * @var array
      */
     protected $guarded = [];
+
+    protected function casts(): array
+    {
+        return [
+            'forma_pagamento' => FormaPagamentoCobranca::class,
+            'exige_pedido_compra' => 'boolean',
+            'entidade_governamental' => 'boolean',
+            'esfera_governamental' => EsferaGovernamental::class,
+        ];
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -106,6 +118,24 @@ class LancamentoFinanceiro extends Model
             ->when($validated['pep'] ?? null, function (Builder $query, $pep) {
                 $query->where('agenda_interlab_id', $pep);
             });
+    }
+
+    /**
+     * Normaliza as respostas de cobrança do formulário de empresa para as colunas do lançamento.
+     *
+     * @param  array{forma_pagamento: ?string, exige_pedido_compra: ?string, entidade_governamental: ?string, esfera_governamental: ?string}  $dadosFormulario
+     * @return array{forma_pagamento: string, exige_pedido_compra: bool, entidade_governamental: bool, esfera_governamental: ?string}
+     */
+    public static function dadosCobrancaDoFormulario(array $dadosFormulario): array
+    {
+        $entidadeGovernamental = (bool) $dadosFormulario['entidade_governamental'];
+
+        return [
+            'forma_pagamento' => $dadosFormulario['forma_pagamento'],
+            'exige_pedido_compra' => (bool) $dadosFormulario['exige_pedido_compra'],
+            'entidade_governamental' => $entidadeGovernamental,
+            'esfera_governamental' => $entidadeGovernamental ? $dadosFormulario['esfera_governamental'] : null,
+        ];
     }
 
     /**

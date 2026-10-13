@@ -20,6 +20,7 @@ class GerarLancamentoCursoAction
      * @param  bool  $associado  Se a empresa/pessoa é associada
      * @param  string|null  $valor  Valor manual (opcional)
      * @param  string|null  $nomeParticipante  Nome do participante para observação
+     * @param  array<string, mixed>|null  $dadosCobranca  Respostas de cobrança da empresa (colunas do lançamento)
      */
     public function execute(
         AgendaCursos $agendacurso,
@@ -27,7 +28,8 @@ class GerarLancamentoCursoAction
         ?Pessoa $empresa = null,
         bool $associado = false,
         ?string $valor = null,
-        ?string $nomeParticipante = null
+        ?string $nomeParticipante = null,
+        ?array $dadosCobranca = null
     ): LancamentoFinanceiro {
         if (! $valor) {
             $valor = ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento;
@@ -52,6 +54,7 @@ class GerarLancamentoCursoAction
                     'tipo_lancamento' => 'CREDITO',
                     'data_emissao' => now(),
                     'status' => 'PROVISIONADO',
+                    ...($dadosCobranca ?? []),
                 ]);
             } else { // se a empresa já possui inscritos nesse curso, atualiza o valor
 
@@ -69,6 +72,7 @@ class GerarLancamentoCursoAction
                 $lancamento->update([
                     'valor' => $dados_empresa->sum('valor'),
                     'observacoes' => $observacoes,
+                    ...($dadosCobranca ?? []),
                 ]);
             }
 

@@ -136,7 +136,8 @@ class SalvaInscritoAction
                     $empresa,
                     false,
                     $valor,
-                    $nome
+                    $nome,
+                    $dados['dados_cobranca'] ?? null
                 );
             } else {
                 throw new \InvalidArgumentException('Tipo de inscrição inválido ou dados incompletos.');

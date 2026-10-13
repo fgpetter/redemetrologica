@@ -39,6 +39,8 @@ class LabInscritos extends Component
 
     public $interlab;
 
+    public array $dadosCobranca = [];
+
     public $valores_inscricao;
 
     public $isVisible = false;
@@ -70,12 +72,25 @@ class LabInscritos extends Component
     }
 
     #[On('empresaSaved')]
-    public function setEmpresa($empresa_id): void
+    public function setEmpresa($empresa_id, $dados_cobranca = null): void
     {
         $this->empresaId = $empresa_id;
+        $this->dadosCobranca = $dados_cobranca ?? [];
         $this->isVisible = true;
         $this->loadInscritos();
+        $this->atualizarDadosCobrancaInscritos();
         $this->loadLaboratorios();
+    }
+
+    private function atualizarDadosCobrancaInscritos(): void
+    {
+        if (empty($this->dadosCobranca)) {
+            return;
+        }
+
+        foreach ($this->inscritos as $inscrito) {
+            app(GerarLancamentoInterlabAction::class)->atualizarDadosCobranca($inscrito, $this->dadosCobranca);
+        }
     }
 
     #[On('novoLabInscritoSaved')]
@@ -388,7 +403,7 @@ class LabInscritos extends Component
 
         app(NotifyInscricaoInterlabAction::class)->execute($inscrito, $this->interlab, $this->editingId);
 
-        app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal);
+        app(GerarLancamentoInterlabAction::class)->execute($inscrito, $valorFinal, $this->dadosCobranca ?: null);
 
         if ($this->editingId) {
             $this->editingId = null;
