@@ -68,6 +68,6 @@
                 <option value="{{ $esfera->value }}">{{ $esfera->label() }}</option>
             @endforeach
         </x-forms.input-select>
-        @error('dadosCobranca.esfera_governamental') <span class="text-danger small">{{ $message }}</span> @enderror
     </div>
 @endif
+@error('dadosCobranca.esfera_governamental') <div class="col-12"><span class="text-danger small">{{ $message }}</span></div> @enderror

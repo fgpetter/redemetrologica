@@ -132,7 +132,7 @@ class ConfirmaCNPJ extends Component
             'dadosCobranca.forma_pagamento' => ['required', Rule::enum(FormaPagamentoCobranca::class)],
             'dadosCobranca.exige_pedido_compra' => ['required', 'in:0,1'],
             'dadosCobranca.entidade_governamental' => ['required', 'in:0,1'],
-            'dadosCobranca.esfera_governamental' => ['required_if:dadosCobranca.entidade_governamental,1', Rule::enum(EsferaGovernamental::class)],
+            'dadosCobranca.esfera_governamental' => ['required_if:dadosCobranca.entidade_governamental,1', 'nullable', Rule::enum(EsferaGovernamental::class)],
         ], [
             'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
             'empresa.nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',

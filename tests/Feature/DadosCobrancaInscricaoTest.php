@@ -225,6 +225,27 @@ it('exige a esfera governamental quando a entidade é governamental no PEP', fun
         ->assertHasErrors(['dadosCobranca.esfera_governamental' => 'required_if']);
 });
 
+it('salva a empresa do PEP sem esfera quando não é entidade governamental', function () {
+    Livewire::test(ConfirmaCNPJ::class)
+        ->set('empresa', empresaComCobrancaValida())
+        ->set('dadosCobranca', [
+            'forma_pagamento' => 'boleto_bancario',
+            'exige_pedido_compra' => '0',
+            'entidade_governamental' => '0',
+            'esfera_governamental' => null,
+        ])
+        ->call('salvar')
+        ->assertHasNoErrors()
+        ->assertDispatched('empresaSaved', function (string $eventName, array $params) {
+            return $params['dados_cobranca'] === [
+                'forma_pagamento' => 'boleto_bancario',
+                'exige_pedido_compra' => false,
+                'entidade_governamental' => false,
+                'esfera_governamental' => null,
+            ];
+        });
+});
+
 it('envia as respostas de cobrança ao salvar a empresa no PEP', function () {
     Livewire::test(ConfirmaCNPJ::class)
         ->set('empresa', empresaComCobrancaValida())
@@ -271,6 +292,36 @@ it('exige as respostas de cobrança para salvar a empresa na inscrição do curs
             'dadosCobranca.exige_pedido_compra' => 'required',
             'dadosCobranca.entidade_governamental' => 'required',
         ]);
+});
+
+it('salva a empresa do curso sem esfera quando não é entidade governamental', function () {
+    seedCentroCustoParaCobranca();
+    $agenda = criarAgendaCursoComCobranca();
+
+    $user = User::factory()->create();
+    Pessoa::query()->create([
+        'user_id' => $user->id,
+        'nome_razao' => 'Cliente PF',
+        'cpf_cnpj' => str_pad((string) random_int(10000000000, 99999999999), 11, '0', STR_PAD_LEFT),
+        'tipo_pessoa' => 'PF',
+        'email' => $user->email,
+    ]);
+
+    session()->put('curso', $agenda);
+
+    Livewire::actingAs($user->fresh())
+        ->test(ConfirmInscricaoCurso::class)
+        ->set('tipoInscricao', 'CNPJ')
+        ->set('empresa', empresaComCobrancaValida())
+        ->set('dadosCobranca', [
+            'forma_pagamento' => 'boleto_bancario',
+            'exige_pedido_compra' => '0',
+            'entidade_governamental' => '0',
+            'esfera_governamental' => null,
+        ])
+        ->call('salvarEmpresa')
+        ->assertHasNoErrors()
+        ->assertSet('showSalvarEmpresa', false);
 });
 
 it('exibe as respostas de cobrança no cartão do lançamento financeiro', function () {
