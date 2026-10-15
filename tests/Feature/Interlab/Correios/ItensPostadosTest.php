@@ -30,9 +30,28 @@ test('mostra um card por lote concluido com itens, zip e status de cada objeto',
         ->assertSeeHtml(route('agenda-interlab-lote-postagem-documentos', $lote))
         ->assertSee('Baixar documentos (.zip)')
         ->assertSee('Lab Alfa')
-        ->assertSee('Entregue')
+        ->assertSee('Objeto entregue ao destinatário')
         ->assertSee('Lab Beta')
         ->assertSee('Etiqueta gerada');
+});
+
+test('mostra o ultimo evento do rastreio no lugar do status enquanto o objeto esta em transito', function () {
+    $agenda = AgendaInterlabFactory::new()->create();
+    $lote = InterlabLotePostagemFactory::new()->create([
+        'agenda_interlab_id' => $agenda->id,
+        'status' => InterlabLotePostagemStatus::Concluido,
+    ]);
+
+    InterlabLotePostagemItemFactory::new()->etiquetaGerada()->create([
+        'interlab_lote_postagem_id' => $lote->id,
+        'destinatario' => ['nome' => 'Lab Gama'],
+        'ultimo_evento' => 'Objeto em trânsito',
+    ]);
+
+    Livewire::test(ItensPostados::class, ['agenda' => $agenda->fresh()])
+        ->assertSee('Lab Gama')
+        ->assertSee('Objeto em trânsito')
+        ->assertDontSee('Etiqueta gerada');
 });
 
 test('nao lista lotes em processamento nem com erro', function () {

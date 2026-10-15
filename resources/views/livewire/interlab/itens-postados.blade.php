@@ -30,7 +30,7 @@
                                 <tr wire:key="itens-postados-item-{{ $item->id }}">
                                     <td class="text-wrap">{{ $item->destinatario['nome'] ?? '—' }}</td>
                                     <td>{{ $item->codigo_objeto ?? '—' }}</td>
-                                    <td>{{ $item->status->label() }}</td>
+                                    <td>{{ $item->ultimo_evento ?: $item->status->label() }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
