@@ -35,6 +35,8 @@
 
         {{-- // ADMINISTRAÇÃO // --}}
         <li class="menu-title"><span>ADMINISTRAÇÃO</span></li>
+
+
         
 
         {{-- Usuarios --}}
@@ -312,6 +314,12 @@
               </li>
             </ul>
           </div>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('suporte-index') }}" class="nav-link menu-link {{ request()->is('painel/suporte/*') ? 'active' : '' }}">
+            <i class="ph-lifebuoy"></i> <span>SUPORTE</span>
+          </a>
         </li>
 
         {{-- // SITE // --}}

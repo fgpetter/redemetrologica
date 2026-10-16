@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('suporte:limpar-uploads')->daily()->withoutOverlapping();
+
         // $schedule->command('certificados:clean')->dailyAt('01:00');
         $schedule->command('certificados:enviar-pendente')
             ->everyMinute()

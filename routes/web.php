@@ -31,6 +31,8 @@ use App\Http\Controllers\ModalidadePagamentoController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PesquisaSatisfacaoController;
 use App\Http\Controllers\PlanoContaController;
+use App\Http\Controllers\SuporteArquivoController;
+use App\Http\Controllers\SuporteController;
 use App\Http\Controllers\TipoAvaliacaoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -98,6 +100,14 @@ Route::view('slug-cursos', 'site.pages.slug-cursos');
 Route::prefix('painel')->middleware('auth')->group(function () {
 
     Route::get('/', [PainelController::class, 'index'])->name('painel-index');
+
+    Route::prefix('suporte')->middleware('permission:funcionario,admin')->group(function (): void {
+        Route::get('index', [SuporteController::class, 'index'])->name('suporte-index');
+        Route::get('insert/{demanda:uid?}', [SuporteController::class, 'insert'])->name('suporte-insert');
+        Route::post('imagens/{rascunho}', [SuporteArquivoController::class, 'upload'])->name('suporte-imagem-upload');
+        Route::get('arquivos/{arquivo:uid}/exibir', [SuporteArquivoController::class, 'exibir'])->name('suporte-arquivo-exibir');
+        Route::get('arquivos/{arquivo:uid}/download', [SuporteArquivoController::class, 'download'])->name('suporte-arquivo-download');
+    });
     Route::view('tutorial-pep', 'painel.painel-cliente.tutorial-pep')->name('painel-tutorial-pep');
     Route::view('meus-peps', 'painel.painel-cliente.meus-peps')->middleware('permission:cliente')->name('painel-meus-peps');
 
