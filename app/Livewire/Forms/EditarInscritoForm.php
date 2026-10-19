@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\InterlabInscrito;
+use App\Rules\TelefoneBrasileiro;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
@@ -15,7 +16,7 @@ class EditarInscritoForm extends Form
     #[Validate('nullable|string|max:255')]
     public ?string $responsavel_tecnico = null;
 
-    #[Validate('nullable|string|max:20')]
+    #[Validate(['nullable', new TelefoneBrasileiro])]
     public ?string $telefone = null;
 
     #[Validate('nullable|email|max:255')]
@@ -102,7 +103,7 @@ class EditarInscritoForm extends Form
             ];
             $rules["form.analistas.{$i}.nome"] = ['required', 'string', 'max:191'];
             $rules["form.analistas.{$i}.email"] = ['required', 'email', 'max:191'];
-            $rules["form.analistas.{$i}.telefone"] = ['required', 'string', 'max:15'];
+            $rules["form.analistas.{$i}.telefone"] = ['bail', 'required', new TelefoneBrasileiro];
         }
 
         return $rules;

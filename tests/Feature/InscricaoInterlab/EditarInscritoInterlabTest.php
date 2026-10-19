@@ -225,9 +225,15 @@ class EditarInscritoInterlabTest extends TestCase
             ->assertSet('requerAnalistas', true)
             ->set('form.analistas.0.nome', 'Analista Atualizado')
             ->set('form.analistas.0.email', 'novo@teste.com')
-            ->set('form.analistas.0.telefone', '(11) 98888-7777')
+            ->set('form.telefone', '(11) 9 8888-7777')
+            ->set('form.analistas.0.telefone', '(11) 9 8888-7777')
             ->call('salvar')
             ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('interlab_inscritos', [
+            'id' => $inscrito->id,
+            'telefone' => '11988887777',
+        ]);
 
         $this->assertDatabaseHas('interlab_analistas', [
             'id' => $analista->id,
@@ -236,6 +242,75 @@ class EditarInscritoInterlabTest extends TestCase
             'email' => 'novo@teste.com',
             'telefone' => '11988887777',
             'tag_senha' => 'TAG-ANALISTA-01',
+        ]);
+    }
+
+    public function test_telefones_invalidos_da_inscricao_e_dos_analistas_impedem_salvar(): void
+    {
+        $inscrito = $this->criarInscritoComInterlabAvaliacao('ANALISTA');
+
+        $analista = InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista',
+            'email' => 'analista@teste.com',
+            'telefone' => '11999998888',
+            'tag_senha' => 'TAG-ANALISTA-01',
+        ]);
+
+        foreach (['form.telefone', 'form.analistas.0.telefone'] as $campo) {
+            Livewire::test(EditarInscrito::class)
+                ->call('abrir', $inscrito->id)
+                ->call('carregarInscrito')
+                ->set('form.informacoes_inscricao', 'Não deve salvar')
+                ->set($campo, '(11) 1234-5678')
+                ->call('salvar')
+                ->assertHasErrors([$campo])
+                ->assertSee('Informe um telefone válido com DDD (fixo ou celular).')
+                ->assertNotDispatched('offcanvas:close');
+        }
+
+        $this->assertDatabaseHas('interlab_inscritos', [
+            'id' => $inscrito->id,
+            'informacoes_inscricao' => $inscrito->informacoes_inscricao,
+        ]);
+        $this->assertDatabaseHas('interlab_analistas', [
+            'id' => $analista->id,
+            'telefone' => '11999998888',
+        ]);
+    }
+
+    public function test_telefone_da_inscricao_e_opcional_mas_do_analista_e_obrigatorio(): void
+    {
+        $inscrito = $this->criarInscritoComInterlabAvaliacao('ANALISTA');
+
+        InterlabAnalista::query()->create([
+            'interlab_inscrito_id' => $inscrito->id,
+            'nome' => 'Analista',
+            'email' => 'analista@teste.com',
+            'telefone' => '11999998888',
+            'tag_senha' => 'TAG-ANALISTA-01',
+        ]);
+
+        Livewire::test(EditarInscrito::class)
+            ->call('abrir', $inscrito->id)
+            ->call('carregarInscrito')
+            ->set('form.telefone', null)
+            ->set('form.analistas.0.telefone', '')
+            ->call('salvar')
+            ->assertHasErrors(['form.analistas.0.telefone' => 'required'])
+            ->assertHasNoErrors(['form.telefone'])
+            ->assertSee('O telefone do analista 1 é obrigatório.')
+            ->set('form.analistas.0.telefone', '1133334444')
+            ->call('salvar')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('interlab_inscritos', [
+            'id' => $inscrito->id,
+            'telefone' => null,
+        ]);
+        $this->assertDatabaseHas('interlab_analistas', [
+            'interlab_inscrito_id' => $inscrito->id,
+            'telefone' => '1133334444',
         ]);
     }
 
