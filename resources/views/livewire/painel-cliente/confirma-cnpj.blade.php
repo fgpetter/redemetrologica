@@ -49,8 +49,7 @@
                         </div>
                         <div class="col-md-6">
                             <x-forms.input-field wire:model="empresa.telefone" name="empresa_telefone" label="Telefone"
-                                class="telefone" maxlength="15"
-                                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'" />
+                                mask="telefone" maxlength="15" />
                             @error('empresa.telefone') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
                         <div class="col-md-6">

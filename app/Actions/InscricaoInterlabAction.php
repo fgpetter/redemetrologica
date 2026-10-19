@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Helpers\Telefone;
 use App\Models\AgendaInterlab;
 use App\Models\Endereco;
 use App\Models\InterlabAnalista;
@@ -127,10 +128,6 @@ class InscricaoInterlabAction
 
     protected function normalizaTelefone(?string $telefone): ?string
     {
-        if (empty($telefone)) {
-            return null;
-        }
-
-        return preg_replace('/\D/', '', $telefone) ?: null;
+        return Telefone::somenteNumeros($telefone);
     }
 }

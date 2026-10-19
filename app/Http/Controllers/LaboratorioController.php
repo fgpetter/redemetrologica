@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Telefone;
 use App\Models\AreaAtuacao;
 use App\Models\Laboratorio;
 use App\Models\LaboratorioInterno;
@@ -97,12 +98,12 @@ class LaboratorioController extends Controller
      **/
     public function update(Request $request, Laboratorio $laboratorio): RedirectResponse
     {
-        $request->merge(return_only_nunbers($request->only('telefone')));
+        $request->merge(Telefone::prepararCampos($request->only('telefone')));
 
         $validated = $request->validate(
             [
                 'nome_laboratorio' => ['nullable', 'string'],
-                'telefone' => ['nullable', 'string'],
+                'telefone' => ['nullable', 'celular_com_ddd'],
                 'email' => ['nullable', 'email'],
                 'responsavel_tecnico' => ['nullable', 'string'],
                 'contato' => ['nullable', 'string'],
@@ -110,7 +111,7 @@ class LaboratorioController extends Controller
             ],
             [
                 'nome_laboratorio.string' => 'O dado enviado não é válido',
-                'telefone.string' => 'O dado enviado não é válido',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
                 'email.email' => 'O dado enviado não é válido',
                 'responsavel_tecnico.string' => 'O dado enviado não é válido',
                 'contato.string' => 'O dado enviado não é válido',
@@ -140,13 +141,14 @@ class LaboratorioController extends Controller
      **/
     public function saveInterno(LaboratorioInterno $laboratorio_interno, Request $request): RedirectResponse
     {
+        $request->merge(Telefone::prepararCampos($request->only('telefone')));
         $validated = $request->validate(
             [
                 'laboratorio_id' => ['required', 'numeric', 'exists:laboratorios,id'],
                 'area_atuacao_id' => ['required', 'numeric', 'exists:areas_atuacao,id'],
                 'nome' => ['nullable', 'string'],
                 'cod_labinterno' => ['nullable', 'string'],
-                'telefone' => ['nullable', 'string'],
+                'telefone' => ['nullable', 'celular_com_ddd'],
                 'email' => ['nullable', 'email'],
                 'responsavel_tecnico' => ['nullable', 'string'],
                 'reconhecido' => ['required', 'numeric', 'in:1,0'],
@@ -159,7 +161,7 @@ class LaboratorioController extends Controller
                 'area_atuacao_id.exists' => 'Selecione uma área válida',
                 'nome.string' => 'O dado enviado não é válido',
                 'cod_labinterno.string' => 'O dado enviado não é válido',
-                'telefone.string' => 'O dado enviado não é válido',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
                 'email.email' => 'O dado enviado não é válido',
                 'responsavel_tecnico.string' => 'O dado enviado não é válido',
                 'reconhecido.in' => 'Selecione uma opção',

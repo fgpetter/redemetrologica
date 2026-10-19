@@ -36,6 +36,7 @@
     <x-site.footer />
 
     @include('site.layouts.vendor-scripts')
+    @livewireScripts
 </body>
 
 </html>

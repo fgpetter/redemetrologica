@@ -6,6 +6,7 @@ use App\Actions\NotifyInscricaoCursoAction;
 use App\Actions\SalvaInscritoAction;
 use App\Enums\EsferaGovernamental;
 use App\Enums\FormaPagamentoCobranca;
+use App\Helpers\Telefone;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Models\Endereco;
@@ -124,10 +125,12 @@ class ConfirmInscricaoCurso extends Component
 
     public function salvarEmpresa() // Método chamado quando o usuário clica no botão de salvar empresa
     {
+        $this->empresa['telefone'] = Telefone::paraValidacao($this->empresa['telefone'] ?? null);
         $this->validate(
             [
                 'empresa.nome_razao' => ['required', 'string', 'max:191'],
                 'empresa.cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191'],
+                'empresa.telefone' => ['nullable', 'celular_com_ddd'],
                 'empresa.endereco_cobranca.email' => ['required', 'email', 'max:191'],
                 'empresa.endereco_cobranca.cep' => ['required', 'string'],
                 'empresa.endereco_cobranca.endereco' => ['required', 'string'],
@@ -143,6 +146,7 @@ class ConfirmInscricaoCurso extends Component
                 'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
                 'empresa.nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',
                 'empresa.cpf_cnpj.required' => 'Preencha o campo CPF/CNPJ.',
+                'empresa.telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
                 'empresa.endereco_cobranca.cep.required' => 'Preencha o campo CEP de cobrança.',
                 'empresa.endereco_cobranca.endereco.required' => 'Preencha o campo endereço de cobrança.',
                 'empresa.endereco_cobranca.bairro.required' => 'Preencha o campo bairro de cobrança.',
@@ -313,10 +317,14 @@ class ConfirmInscricaoCurso extends Component
 
     private function validateInscricao() // Método para validar os dados da inscrição
     {
+        foreach ($this->inscricoes as $index => $inscricao) {
+            $this->inscricoes[$index]['telefone'] = Telefone::paraValidacao($inscricao['telefone'] ?? null);
+        }
+
         $this->validate([
             'inscricoes.*.nome' => 'required|string|max:191',
             'inscricoes.*.email' => 'required|email|max:191|distinct',
-            'inscricoes.*.telefone' => 'string|min:10|max:15',
+            'inscricoes.*.telefone' => ['nullable', 'celular_com_ddd'],
         ], [
             'inscricoes.*.nome.required' => 'O campo nome é obrigatório.',
             'inscricoes.*.nome.max' => 'O campo nome deve ter no máximo 191 caracteres.',
@@ -324,8 +332,7 @@ class ConfirmInscricaoCurso extends Component
             'inscricoes.*.email.email' => 'O campo email deve ser um endereço válido.',
             'inscricoes.*.email.max' => 'O campo email deve ter no máximo 191 caracteres.',
             'inscricoes.*.email.distinct' => 'Não é permitido cadastrar e-mails duplicados.',
-            'inscricoes.*.telefone.min' => 'O telefone deve ter no mínimo 10 caracteres.',
-            'inscricoes.*.telefone.max' => 'O telefone deve ter no máximo 15 caracteres.',
+            'inscricoes.*.telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
         ]);
     }
 

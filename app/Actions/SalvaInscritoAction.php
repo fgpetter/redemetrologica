@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Actions\Financeiro\AtualizarLancamentoCursoAction;
 use App\Actions\Financeiro\GerarLancamentoCursoAction;
+use App\Helpers\Telefone;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Models\Endereco;
@@ -23,7 +24,7 @@ class SalvaInscritoAction
         return DB::transaction(function () use ($agenda, $dados, $enviarEmail) {
             $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($dados['nome']));
             $email = strtolower(trim($dados['email']));
-            $telefone = preg_replace('/[^0-9]/', '', $dados['telefone'] ?? '');
+            $telefone = Telefone::somenteNumeros($dados['telefone'] ?? null) ?? '';
 
             $tipoInscricao = strtolower((string) ($dados['tipo_inscricao'] ?? ''));
             $empresa = null;
@@ -176,7 +177,7 @@ class SalvaInscritoAction
                 $updateData['email'] = strtolower($dados['email']);
             }
             if (isset($dados['telefone'])) {
-                $updateData['telefone'] = preg_replace('/[^0-9]/', '', $dados['telefone']) ?: null;
+                $updateData['telefone'] = Telefone::somenteNumeros($dados['telefone']);
             }
 
             $inscrito->update($updateData);

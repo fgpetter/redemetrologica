@@ -14,6 +14,7 @@ use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\LancamentoFinanceiroFactory;
 use Database\Factories\PessoaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -24,6 +25,15 @@ class EditarInscritoInterlabTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Http::fake([
+            'viacep.com.br/*' => Http::response([
+                'logradouro' => 'Avenida Paulista',
+                'bairro' => 'Bela Vista',
+                'localidade' => 'São Paulo',
+                'uf' => 'SP',
+            ]),
+        ]);
 
         /** @var User $user */
         $user = User::factory()->createOne();
@@ -262,10 +272,12 @@ class EditarInscritoInterlabTest extends TestCase
                 ->call('abrir', $inscrito->id)
                 ->call('carregarInscrito')
                 ->set('form.informacoes_inscricao', 'Não deve salvar')
-                ->set($campo, '(11) 1234-5678')
+                ->set($campo, '(11) 98888-7777abc')
                 ->call('salvar')
                 ->assertHasErrors([$campo])
-                ->assertSee('Informe um telefone válido com DDD (fixo ou celular).')
+                ->assertSee($campo === 'form.telefone'
+                    ? 'Informe um telefone válido com DDD.'
+                    : 'O telefone do analista 1 deve ser válido com DDD.')
                 ->assertNotDispatched('offcanvas:close');
         }
 

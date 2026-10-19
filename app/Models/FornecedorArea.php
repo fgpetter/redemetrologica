@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use App\Enums\FornecedorArea as FornecedorAreaEnum;
-use App\Models\Fornecedor;
+use App\Helpers\Telefone;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\LogOptions;
@@ -12,7 +13,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class FornecedorArea extends Model
 {
-    use SetDefaultUid, LogsActivity;
+    use LogsActivity, SetDefaultUid;
 
     protected $fillable = [
         'fornecedor_id', 'area', 'atuacao',
@@ -20,6 +21,11 @@ class FornecedorArea extends Model
     ];
 
     protected $table = 'fornecedores_areas';
+
+    protected function pessoaContatoTelefone(): Attribute
+    {
+        return Attribute::set(fn (?string $value) => Telefone::somenteNumeros($value));
+    }
 
     protected function casts(): array
     {

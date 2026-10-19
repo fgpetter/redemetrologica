@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\Telefone;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ImportInterlabAnalistasCommand extends Command
 {
@@ -87,11 +89,24 @@ class ImportInterlabAnalistasCommand extends Command
                 continue;
             }
 
+            $telefonePreparado = Telefone::paraValidacao($telefone);
+            $validador = Validator::make(
+                ['telefone' => $telefonePreparado],
+                ['telefone' => ['required', 'celular_com_ddd']]
+            );
+
+            if ($validador->fails()) {
+                $this->warn("Registro {$linha} ignorado: informe um telefone válido com DDD.");
+                $ignorados++;
+
+                continue;
+            }
+
             InterlabAnalista::query()->create([
                 'interlab_inscrito_id' => $interlabInscritoId,
                 'nome' => $nome,
                 'email' => $email,
-                'telefone' => $telefone !== '' ? $telefone : '0',
+                'telefone' => Telefone::somenteNumeros($telefonePreparado),
                 'tag_senha' => $tagSenha,
             ]);
 

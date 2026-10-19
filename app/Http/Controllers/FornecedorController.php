@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\FornecedorArea;
+use App\Helpers\Telefone;
 use App\Models\Fornecedor;
 use App\Models\FornecedorArea as FornecedorAreaModel;
 use App\Models\Pessoa;
@@ -70,6 +71,14 @@ class FornecedorController extends Controller
      **/
     public function update(Request $request, Fornecedor $fornecedor): RedirectResponse
     {
+        $areasData = $request->input('areas_data', []);
+        foreach (is_array($areasData) ? $areasData : [] as $area => $data) {
+            if (is_array($data) && array_key_exists('pessoa_contato_telefone', $data)) {
+                $areasData[$area]['pessoa_contato_telefone'] = Telefone::paraValidacao($data['pessoa_contato_telefone']);
+            }
+        }
+        $request->merge(['areas_data' => $areasData]);
+
         $validator = Validator::make($request->all(), [
             'fornecedor_desde' => ['nullable', Rule::date()->format('Y-m-d')],
             'ativo' => ['required', 'in:0,1'],
@@ -80,7 +89,7 @@ class FornecedorController extends Controller
             'areas_data.*.atuacao' => ['nullable', 'string', 'max:191'],
             'areas_data.*.pessoa_contato' => ['nullable', 'string', 'max:191'],
             'areas_data.*.pessoa_contato_email' => ['nullable', 'email', 'max:191'],
-            'areas_data.*.pessoa_contato_telefone' => ['nullable', 'string', 'max:20'],
+            'areas_data.*.pessoa_contato_telefone' => ['nullable', 'celular_com_ddd'],
         ], [
             'fornecedor_desde.date' => 'Data de início inválida',
             'fornecedor_desde.date_format' => 'Data de início inválida',
@@ -88,6 +97,7 @@ class FornecedorController extends Controller
             'ativo.in' => 'Valor de ativo inválido',
             'observacoes.max' => 'Observações inválidas',
             'areas.*.in' => 'Área inválida',
+            'areas_data.*.pessoa_contato_telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
         ]);
 
         if ($validator->fails()) {

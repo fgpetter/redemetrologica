@@ -29,7 +29,7 @@
                 </div>
                 <div class="col-md-3">
                     <input type="text" class="form-control" placeholder="Telefone" wire:model="telefone"
-                        x-mask="(99) 99999-9999">
+                        maxlength="15" x-mask:dynamic="$input.replace(/\D/g, '').length > 10 ? '(99) 99999-9999' : '(99) 9999-9999'">
                     @error('telefone') <span class="text-danger small d-block mt-1">{{ $message }}</span> @enderror
                 </div>
                 <div class="col-md-3">

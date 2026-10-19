@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Telefone;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -42,7 +43,7 @@ class InterlabAnalista extends Model
     {
         return Attribute::make(
             get: fn (?string $value) => $this->formataTel($value),
-            set: fn (?string $value) => preg_replace("/[^\d]/", '', $value),
+            set: fn (?string $value) => Telefone::somenteNumeros($value),
         );
     }
 

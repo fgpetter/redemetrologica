@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Helpers\Telefone;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Models\LancamentoFinanceiro;
@@ -17,7 +18,7 @@ class SalvaInscritoInCompanyAction
         return DB::transaction(function () use ($agenda, $nome, $email, $telefone) {
             $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($nome));
             $email = strtolower(trim($email));
-            $telefone = preg_replace('/[^0-9]/', '', $telefone ?? '');
+            $telefone = Telefone::somenteNumeros($telefone) ?? '';
 
             $cursoInscrito = CursoInscrito::create([
                 'pessoa_id' => auth()->user()->pessoa->id,
@@ -67,7 +68,7 @@ class SalvaInscritoInCompanyAction
                 $updateData['email'] = strtolower($dados['email']);
             }
             if (isset($dados['telefone'])) {
-                $updateData['telefone'] = preg_replace('/[^0-9]/', '', $dados['telefone']) ?: null;
+                $updateData['telefone'] = Telefone::somenteNumeros($dados['telefone']);
             }
 
             $inscrito->update($updateData);

@@ -73,6 +73,9 @@
                           name="areas_data[{{ $area->value }}][pessoa_contato_telefone]"
                           :value="old('areas_data.'.$area->value.'.pessoa_contato_telefone', $areaData?->pessoa_contato_telefone)"
                           label="Telefone" mask="telefone" />
+                        @error("areas_data.{$area->value}.pessoa_contato_telefone")
+                          <div class="text-warning">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
                   </div>

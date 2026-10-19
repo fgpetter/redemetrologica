@@ -6,6 +6,7 @@ use App\Actions\BuscaCepAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
 use App\Actions\InscricaoInterlabAction;
 use App\Actions\NotifyInscricaoInterlabAction;
+use App\Helpers\Telefone;
 use App\Models\AgendaInterlabValor;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
@@ -292,10 +293,15 @@ class LabInscritos extends Component
 
     public function salvar(): void
     {
+        $this->laboratorio['telefone'] = Telefone::paraValidacao($this->laboratorio['telefone'] ?? null);
+        foreach ($this->analistas as $index => $analista) {
+            $this->analistas[$index]['telefone'] = Telefone::paraValidacao($analista['telefone'] ?? null);
+        }
+
         $rules = [
             'laboratorio.nome' => ['required', 'string', 'max:191'],
             'laboratorio.responsavel_tecnico' => ['required', 'string', 'max:191'],
-            'laboratorio.telefone' => ['nullable', 'string', 'max:15'],
+            'laboratorio.telefone' => ['nullable', 'celular_com_ddd'],
             'laboratorio.email' => ['required', 'email', 'max:191'],
             'laboratorio.endereco.cep' => ['required', 'string'],
             'laboratorio.endereco.endereco' => ['required', 'string'],
@@ -310,7 +316,7 @@ class LabInscritos extends Component
             'laboratorio.nome.max' => 'O campo laboratório deve ter no máximo :max caracteres.',
             'laboratorio.responsavel_tecnico.required' => 'Preencha o campo responsável técnico.',
             'laboratorio.responsavel_tecnico.max' => 'O campo responsável técnico deve ter no máximo :max caracteres.',
-            'laboratorio.telefone.*' => 'O telefone informado é inválido.',
+            'laboratorio.telefone.celular_com_ddd' => 'O telefone informado é inválido.',
             'laboratorio.email.required' => 'O email é obrigatório.',
             'laboratorio.email.email' => 'O email deve ser um endereço de email válido.',
             'laboratorio.endereco.cep.required' => 'Preencha o campo CEP.',
@@ -338,12 +344,13 @@ class LabInscritos extends Component
             for ($i = 0; $i < $this->numero_analistas; $i++) {
                 $rules["analistas.{$i}.nome"] = ['required', 'string', 'max:191'];
                 $rules["analistas.{$i}.email"] = ['required', 'email', 'max:191'];
-                $rules["analistas.{$i}.telefone"] = ['required', 'string', 'max:15'];
+                $rules["analistas.{$i}.telefone"] = ['required', 'celular_com_ddd'];
 
                 $messages["analistas.{$i}.nome.required"] = 'O nome do analista '.($i + 1).' é obrigatório.';
                 $messages["analistas.{$i}.email.required"] = 'O e-mail do analista '.($i + 1).' é obrigatório.';
                 $messages["analistas.{$i}.email.email"] = 'O e-mail do analista '.($i + 1).' deve ser um endereço válido.';
                 $messages["analistas.{$i}.telefone.required"] = 'O telefone do analista '.($i + 1).' é obrigatório.';
+                $messages["analistas.{$i}.telefone.celular_com_ddd"] = 'Informe um telefone válido com DDD.';
             }
         }
 
@@ -356,7 +363,7 @@ class LabInscritos extends Component
         })->validate($rules, $messages);
 
         if (! empty($this->laboratorio['telefone'])) {
-            $this->laboratorio['telefone'] = preg_replace('/\D/', '', $this->laboratorio['telefone']);
+            $this->laboratorio['telefone'] = Telefone::somenteNumeros($this->laboratorio['telefone']);
         }
 
         $dadosCalculados = $this->calcularValorEBlocos();

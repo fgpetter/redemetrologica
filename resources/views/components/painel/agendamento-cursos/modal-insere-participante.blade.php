@@ -40,6 +40,7 @@
             </div>
             <div class="col-md-6 mb-2">
               <x-forms.input-field :value="null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
+              @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
             </div>
 
             <template x-if="tipoInscricao === 'cpf'">
@@ -93,4 +94,4 @@
   </div>
 
   {{-- endmodal --}}
-  
+

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\Telefone;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,7 @@ class StoreInscricaoCursoRequest extends FormRequest
     {
         $this->merge([
             'valor' => formataMoeda($this->valor) ?? null,
+            'telefone' => Telefone::paraValidacao($this->telefone),
         ]);
     }
 
@@ -27,7 +29,7 @@ class StoreInscricaoCursoRequest extends FormRequest
             'agenda_curso_id' => ['required', 'exists:agenda_cursos,id'],
             'nome' => ['required', 'string', 'min:3'],
             'email' => ['required', 'email'],
-            'telefone' => ['nullable', 'string'],
+            'telefone' => ['nullable', 'celular_com_ddd'],
             'tipo_inscricao' => ['required', 'in:cpf,cnpj'],
             'empresa_id' => ['required_if:tipo_inscricao,cnpj', 'nullable', 'exists:pessoas,id'],
             'cpf' => ['required_if:tipo_inscricao,cpf', 'nullable', 'cpf'],
@@ -52,6 +54,7 @@ class StoreInscricaoCursoRequest extends FormRequest
             'nome.min' => 'O nome deve ter no mínimo 3 caracteres',
             'email.required' => 'É obrigatório informar o e-mail do participante',
             'email.email' => 'O e-mail informado é inválido',
+            'telefone.celular_com_ddd' => 'O telefone informado é inválido',
             'empresa_id.required_if' => 'É obrigatório selecionar uma empresa para inscrição CNPJ',
             'empresa_id.exists' => 'A empresa não foi encontrada',
             'cpf.required_if' => 'É obrigatório informar o CPF para inscrição CPF',

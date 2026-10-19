@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Forms;
 
+use App\Helpers\Telefone;
 use App\Models\InterlabInscrito;
-use App\Rules\TelefoneBrasileiro;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
@@ -16,7 +16,7 @@ class EditarInscritoForm extends Form
     #[Validate('nullable|string|max:255')]
     public ?string $responsavel_tecnico = null;
 
-    #[Validate(['nullable', new TelefoneBrasileiro])]
+    #[Validate(['nullable', 'celular_com_ddd'])]
     public ?string $telefone = null;
 
     #[Validate('nullable|email|max:255')]
@@ -89,6 +89,14 @@ class EditarInscritoForm extends Form
             ->all();
     }
 
+    /** @return array<string, string> */
+    protected function messages(): array
+    {
+        return [
+            'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -103,7 +111,7 @@ class EditarInscritoForm extends Form
             ];
             $rules["form.analistas.{$i}.nome"] = ['required', 'string', 'max:191'];
             $rules["form.analistas.{$i}.email"] = ['required', 'email', 'max:191'];
-            $rules["form.analistas.{$i}.telefone"] = ['bail', 'required', new TelefoneBrasileiro];
+            $rules["form.analistas.{$i}.telefone"] = ['bail', 'required', 'celular_com_ddd'];
         }
 
         return $rules;
@@ -121,6 +129,7 @@ class EditarInscritoForm extends Form
             $messages["form.analistas.{$i}.email.required"] = "O e-mail do analista {$n} é obrigatório.";
             $messages["form.analistas.{$i}.email.email"] = "O e-mail do analista {$n} deve ser um endereço válido.";
             $messages["form.analistas.{$i}.telefone.required"] = "O telefone do analista {$n} é obrigatório.";
+            $messages["form.analistas.{$i}.telefone.celular_com_ddd"] = "O telefone do analista {$n} deve ser válido com DDD.";
         }
 
         return $messages;
@@ -134,7 +143,7 @@ class EditarInscritoForm extends Form
         return [
             'informacoes_inscricao' => $this->informacoes_inscricao,
             'responsavel_tecnico' => $this->responsavel_tecnico,
-            'telefone' => (($digits = preg_replace('/\D/', '', (string) ($this->telefone ?? ''))) !== '') ? $digits : null,
+            'telefone' => Telefone::somenteNumeros($this->telefone),
             'email' => $this->email,
             'tag_senha' => $this->tag_senha,
             'valor' => formataMoeda($this->valor),

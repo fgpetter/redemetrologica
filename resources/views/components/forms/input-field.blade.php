@@ -22,7 +22,7 @@
         'cnpj' => 'x-mask="99.999.999/9999-99"',
         'cpf_cnpj' => 'x-mask:dynamic="$input.replace(/\D/g, \'\').length > 11 ? \'99.999.999/9999-99\' : \'999.999.999-99\'"',
         'cep' => 'x-mask="99999-999"',
-        'telefone' => 'x-mask:dynamic="$input.replace(/\D/g, \'\').length === 11 ? \'(99) 9 9999-9999\' : \'(99) 9999-9999\'"',
+        'telefone' => 'x-mask:dynamic="$input.replace(/\D/g, \'\').length > 10 ? \'(99) 99999-9999\' : \'(99) 9999-9999\'"',
         'money' => 'x-mask:dynamic="$money($input, \',\')"',
         default => null,
     };

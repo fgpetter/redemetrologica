@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Helpers\Telefone;
+use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class CursoInscrito extends Model
 {
@@ -20,6 +21,11 @@ class CursoInscrito extends Model
      * @var array
      */
     protected $guarded = [];
+
+    protected function telefone(): Attribute
+    {
+        return Attribute::set(fn (?string $value) => Telefone::somenteNumeros($value));
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -35,10 +41,8 @@ class CursoInscrito extends Model
         }
     }
 
-
     /**
      * Carrega curso
-     * @return BelongsTo
      */
     public function agendaCurso(): BelongsTo
     {
@@ -47,7 +51,6 @@ class CursoInscrito extends Model
 
     /**
      * Carrega pessoa
-     * @return BelongsTo
      */
     public function pessoa(): BelongsTo
     {
@@ -56,7 +59,6 @@ class CursoInscrito extends Model
 
     /**
      * Carrega Empresa associado
-     * @return HasOne
      */
     public function empresa(): HasOne
     {
@@ -65,7 +67,6 @@ class CursoInscrito extends Model
 
     /**
      * Carrega lancamento financeiro
-     * @return BelongsTo
      */
     public function lancamentoFinanceiro(): BelongsTo
     {
@@ -85,6 +86,6 @@ class CursoInscrito extends Model
      */
     public function getIsCertificadoEmitidoAttribute(): bool
     {
-        return !empty($this->certificado_emitido);
+        return ! empty($this->certificado_emitido);
     }
 }

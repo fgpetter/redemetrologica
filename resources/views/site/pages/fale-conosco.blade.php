@@ -56,7 +56,10 @@
                                 value="{{ old('email') }}" required>
         
                             <input class="form-control my-3" name="phone" type="text" placeholder="Telefone para Contato"
-                                value="{{ old('phone') }}" required>
+                                value="{{ old('phone') }}" maxlength="15" x-mask:dynamic="$input.replace(/\D/g, '').length > 10 ? '(99) 99999-9999' : '(99) 9999-9999'" required>
+                            @error('phone')
+                                <div class="text-danger small mb-3">{{ $message }}</div>
+                            @enderror
                             <p><strong>A Rede Metrológica conta com Data Protection Officer (DPO). O Usuário pode entrar em
                                     contato com o DPO no endereço físico ou através do e-mail
                                     lgpd@redemetrologica.com.br</strong></p>

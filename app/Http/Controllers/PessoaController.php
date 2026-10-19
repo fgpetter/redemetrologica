@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CreateUserForPessoaAction;
+use App\Helpers\Telefone;
 use App\Models\Pessoa;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -58,7 +59,8 @@ class PessoaController extends Controller
      **/
     public function create(Request $request): RedirectResponse
     {
-        $request->merge(return_only_nunbers($request->only('cpf_cnpj', 'telefone', 'telefone_alt', 'celular')));
+        $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
+        $request->merge(Telefone::prepararCampos($request->only('telefone', 'telefone_alt', 'celular')));
         $request->merge([
             'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
             'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
@@ -73,9 +75,9 @@ class PessoaController extends Controller
             'insc_municipal' => ['nullable', 'string', 'max:191'],
             'codigo_contabil' => ['nullable', 'string', 'max:191'],
             'tipo_pessoa' => ['required', 'string', 'max:2'],
-            'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
-            'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
-            'celular' => ['nullable', 'string', 'min:10', 'max:11'],
+            'telefone' => ['nullable', 'celular_com_ddd'],
+            'telefone_alt' => ['nullable', 'celular_com_ddd'],
+            'celular' => ['nullable', 'celular_com_ddd'],
             'email' => ['nullable', 'email', 'max:191'],
             'site' => ['nullable', 'string', 'max:191'],
             'associado' => ['nullable', 'boolean'],
@@ -84,6 +86,9 @@ class PessoaController extends Controller
             'cpf_cnpj.required' => 'Preencha o campo documento',
             'cpf_cnpj.unique' => 'Esse CPF/CNPJ ja foi registrado',
             'tipo_pessoa' => 'Preencha o campo tipo de pessoa',
+            'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
+            'telefone_alt.celular_com_ddd' => 'Informe um telefone válido com DDD.',
+            'celular.celular_com_ddd' => 'Informe um telefone válido com DDD.',
         ]
         );
 
@@ -135,7 +140,8 @@ class PessoaController extends Controller
      **/
     public function update(Request $request, Pessoa $pessoa): RedirectResponse
     {
-        $request->merge(return_only_nunbers($request->only('cpf_cnpj', 'telefone', 'telefone_alt', 'celular')));
+        $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
+        $request->merge(Telefone::prepararCampos($request->only('telefone', 'telefone_alt', 'celular')));
         $request->merge([
             'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
             'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
@@ -151,9 +157,9 @@ class PessoaController extends Controller
             'insc_municipal' => ['nullable', 'string', 'max:191'],
             'codigo_contabil' => ['nullable', 'string', 'max:191'],
             'tipo_pessoa' => ['required', 'string', 'max:2'],
-            'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
-            'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
-            'celular' => ['nullable', 'string', 'min:10', 'max:11'],
+            'telefone' => ['nullable', 'celular_com_ddd'],
+            'telefone_alt' => ['nullable', 'celular_com_ddd'],
+            'celular' => ['nullable', 'celular_com_ddd'],
             'email' => ['nullable', 'email', 'max:191'],
             'site' => ['nullable', 'string', 'max:191'],
             'associado' => ['nullable', 'boolean'],
@@ -162,6 +168,9 @@ class PessoaController extends Controller
                 'nome_razao.required' => 'Preencha o campo nome ou razão social',
                 'cpf_cnpj.required' => 'Preencha o campo documento',
                 'cpf_cnpj.unique' => 'Esse CPF/CNPJ ja foi registrado',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
+                'telefone_alt.celular_com_ddd' => 'Informe um telefone válido com DDD.',
+                'celular.celular_com_ddd' => 'Informe um telefone válido com DDD.',
             ]
         );
 

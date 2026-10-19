@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\Telefone;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,7 @@ class UpdateInscricaoCursoRequest extends FormRequest
     {
         $this->merge([
             'valor' => formataMoeda($this->valor) ?? null,
+            'telefone' => Telefone::paraValidacao($this->telefone),
         ]);
     }
 
@@ -26,7 +28,7 @@ class UpdateInscricaoCursoRequest extends FormRequest
         return [
             'nome' => ['nullable', 'string', 'min:3'],
             'email' => ['nullable', 'email'],
-            'telefone' => ['nullable', 'string'],
+            'telefone' => ['nullable', 'celular_com_ddd'],
             'cpf' => ['required_without:empresa_id', 'nullable', 'cpf'],
             'cep' => ['required_without:empresa_id', 'nullable', 'string'],
             'uf' => ['required_without:empresa_id', 'nullable', 'string', 'max:2'],
@@ -45,6 +47,7 @@ class UpdateInscricaoCursoRequest extends FormRequest
         return [
             'nome.min' => 'O nome deve ter no mínimo 3 caracteres',
             'email.email' => 'O e-mail informado é inválido',
+            'telefone.celular_com_ddd' => 'O telefone informado é inválido',
             'cpf.required_without' => 'CPF é obrigatório',
             'cpf.cpf' => 'O CPF informado é inválido',
             'cep.required_without' => 'CEP é obrigatório',

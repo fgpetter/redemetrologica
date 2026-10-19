@@ -2,10 +2,11 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Helpers\Telefone;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class AgendaCursoRequest extends FormRequest
 {
@@ -15,6 +16,7 @@ class AgendaCursoRequest extends FormRequest
             'investimento' => formataMoeda($this->investimento) ?? null,
             'investimento_associado' => formataMoeda($this->investimento_associado) ?? null,
             'valor_orcamento' => formataMoeda($this->valor_orcamento) ?? null,
+            'contato_telefone' => Telefone::paraValidacao($this->contato_telefone),
             'destaque' => $this->destaque ?: 0,
             'site' => $this->site ?: 0,
             'inscricoes' => $this->inscricoes ?: 0,
@@ -50,7 +52,7 @@ class AgendaCursoRequest extends FormRequest
             'observacoes' => ['nullable', 'string'],
             'contato' => ['nullable', 'string'],
             'contato_email' => ['nullable', 'string'],
-            'contato_telefone' => ['nullable', 'string'],
+            'contato_telefone' => ['nullable', 'celular_com_ddd'],
             'validade_proposta' => ['nullable', 'date'],
             'valor_orcamento' => ['nullable', 'string'],
             'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
@@ -86,7 +88,7 @@ class AgendaCursoRequest extends FormRequest
             'investimento_associado.string' => 'O dado enviado não é valido',
             'contato.string' => 'O dado enviado não é valido',
             'contato_email.string' => 'O dado enviado não é valido',
-            'contato_telefone.string' => 'O dado enviado não é valido',
+            'contato_telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
             'valor_orcamento.string' => 'O dado enviado não é valido',
             'observacoes.string' => 'O dado enviado não é valido',
         ];
@@ -94,11 +96,11 @@ class AgendaCursoRequest extends FormRequest
 
     public function failedValidation(Validator $validator)
     {
-        Log::channel('validation')->info("Erro de validação", [
+        Log::channel('validation')->info('Erro de validação', [
             'user' => auth()->user() ?? null,
             'request' => $this->all() ?? null,
             'uri' => request()->fullUrl() ?? null,
-            'method' => get_class($this) .'::'. __FUNCTION__,
+            'method' => get_class($this).'::'.__FUNCTION__,
             'errors' => $validator->errors() ?? null,
         ]);
 
@@ -109,10 +111,10 @@ class AgendaCursoRequest extends FormRequest
 
     private function defineStatus(): string
     {
-        if($this->tipo_agendamento == 'IN-COMPANY'){
+        if ($this->tipo_agendamento == 'IN-COMPANY') {
             return $this->status_proposta == 'APROVADA' ? 'CONFIRMADO' : 'AGENDADO';
         }
 
         return $this->status;
     }
-} 
+}

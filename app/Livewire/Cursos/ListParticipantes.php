@@ -3,6 +3,7 @@
 namespace App\Livewire\Cursos;
 
 use App\Actions\SalvaInscritoInCompanyAction;
+use App\Helpers\Telefone;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use Livewire\Component;
@@ -58,20 +59,22 @@ class ListParticipantes extends Component
 
     public function saveInscrito()
     {
+        $this->telefone = Telefone::paraValidacao($this->telefone);
         $this->validate([
             'nome' => 'required|string|min:3',
             'email' => 'required|email',
-            'telefone' => 'nullable|string',
+            'telefone' => ['nullable', 'celular_com_ddd'],
         ], [
             'nome.required' => 'O nome é obrigatório.',
             'nome.min' => 'O nome deve ter no mínimo 3 caracteres.',
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'O e-mail informado é inválido.',
+            'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
         ]);
 
         $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($this->nome));
         $email = strtolower(trim($this->email));
-        $telefone = preg_replace('/[^0-9]/', '', $this->telefone ?? '');
+        $telefone = Telefone::somenteNumeros($this->telefone);
 
         if (function_exists('isInvalidEmail') && isInvalidEmail($email)) {
             $this->addError('email', 'E-mail inválido.');

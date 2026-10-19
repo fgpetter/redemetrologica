@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Helpers\Telefone;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,6 +29,11 @@ class AgendaCursos extends Model
         'data_fim' => 'date',
         'validade_proposta' => 'date',
     ];
+
+    protected function contatoTelefone(): Attribute
+    {
+        return Attribute::set(fn (?string $value) => Telefone::somenteNumeros($value));
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

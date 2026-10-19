@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Telefone;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -110,7 +111,8 @@ class UserController extends Controller
     {
         if (auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id)) {
 
-            $request->merge(return_only_nunbers($request->only('cpf_cnpj', 'telefone', 'telefone_alt', 'celular')));
+            $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
+            $request->merge(Telefone::prepararCampos($request->only('telefone', 'telefone_alt', 'celular')));
             $request->merge(['nome' => ucwords(strtolower($request->get('nome'))), 'email' => strtolower($request->get('email'))]);
 
             $validator = Validator::make($request->all(), [
@@ -118,9 +120,9 @@ class UserController extends Controller
                 'email' => ['required', 'email', 'unique:users,email,'.$user->id],
                 'password' => ['nullable', 'string', 'min:8', 'confirmed'],
                 'cpf_cnpj' => [Rule::requiredIf($user->id == auth()->user()->id), 'cpf', 'unique:pessoas,cpf_cnpj,'.$user->pessoa->id],
-                'telefone' => ['nullable', 'string', 'min:10', 'max:11'],
-                'telefone_alt' => ['nullable', 'string', 'min:10', 'max:11'],
-                'celular' => ['nullable', 'string', 'min:10', 'max:11'],
+                'telefone' => ['nullable', 'celular_com_ddd'],
+                'telefone_alt' => ['nullable', 'celular_com_ddd'],
+                'celular' => ['nullable', 'celular_com_ddd'],
                 'cep' => ['nullable', 'string'],
                 'endereco' => ['nullable', 'string'],
                 'cidade' => ['nullable', 'string'],
@@ -132,6 +134,9 @@ class UserController extends Controller
                 'email.unique' => 'Esse email já está em uso',
                 'password.confirmed' => 'As senhas não conferem',
                 'password.min' => 'A senha deve ter pelo menos 8 caracteres',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
+                'telefone_alt.celular_com_ddd' => 'Informe um telefone válido com DDD.',
+                'celular.celular_com_ddd' => 'Informe um telefone válido com DDD.',
             ]
             );
 

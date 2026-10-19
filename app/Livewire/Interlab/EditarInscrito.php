@@ -3,6 +3,7 @@
 namespace App\Livewire\Interlab;
 
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
+use App\Helpers\Telefone;
 use App\Livewire\Forms\EditarInscritoForm;
 use App\Models\Endereco;
 use App\Models\InterlabAnalista;
@@ -99,6 +100,10 @@ class EditarInscrito extends Component
             return;
         }
 
+        $this->form->telefone = Telefone::paraValidacao($this->form->telefone);
+        foreach ($this->form->analistas as $index => $analista) {
+            $this->form->analistas[$index]['telefone'] = Telefone::paraValidacao($analista['telefone'] ?? null);
+        }
         $this->form->validate();
 
         if ($this->requerAnalistas && count($this->form->analistas) > 0) {
@@ -142,7 +147,7 @@ class EditarInscrito extends Component
                         ->update([
                             'nome' => $row['nome'],
                             'email' => $row['email'],
-                            'telefone' => preg_replace('/\D/', '', $row['telefone'] ?? ''),
+                            'telefone' => Telefone::somenteNumeros($row['telefone'] ?? null),
                         ]);
                 }
             }

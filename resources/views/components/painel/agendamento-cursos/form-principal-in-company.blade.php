@@ -50,7 +50,7 @@
 
     <div class="col-sm-4">
       <x-forms.input-field :value="old('contato_telefone') ?? ($agendacurso->contato_telefone ?? null)" 
-        name="contato_telefone" label="Telefone" />
+        name="contato_telefone" label="Telefone" mask="telefone" maxlength="15" />
       @error('contato_telefone')
         <div class="text-warning">{{ $message }}</div>
       @enderror

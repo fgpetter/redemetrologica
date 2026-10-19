@@ -16,14 +16,6 @@ document.querySelectorAll('.table-cpf-cnpj').forEach(el => {
   })
 });
 
-document.querySelectorAll('.telefone').forEach(el => {
-  IMask(el, {
-    mask: [
-      {mask: '(00)0000-0000'},
-      {mask: '(00)00000-0000'}
-    ]
-  })
-});
 
 /**
  * Impede upload de arquivos maiores de 2MB

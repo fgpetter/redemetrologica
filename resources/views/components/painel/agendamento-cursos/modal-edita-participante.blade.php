@@ -43,6 +43,7 @@
                     </div>
                     <div class="col-md-5 mb-2">
                       <x-forms.input-field :value="$inscrito->telefone ?? null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
+                      @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                     </div>
                   </div>
 
@@ -78,6 +79,7 @@
                     </div>
                     <div class="col-md-6 mb-2">
                       <x-forms.input-field :value="$inscrito->telefone ?? null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
+                      @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                     </div>
                   </div>
                 @endif
@@ -118,4 +120,4 @@
   </div>
   </div>
   {{-- endmodal --}}
-  
+

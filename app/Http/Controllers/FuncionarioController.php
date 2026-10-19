@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Telefone;
 use App\Models\Endereco;
 use App\Models\Funcionario;
 use App\Models\Pessoa;
@@ -30,6 +31,7 @@ class FuncionarioController extends Controller
      **/
     public function create(Request $request): RedirectResponse
     {
+        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
         $request->validate(
             [
                 'nome_razao' => ['required', 'string', 'max:191'],
@@ -38,6 +40,7 @@ class FuncionarioController extends Controller
                 'endereco' => ['required', 'string', 'max:191'],
                 'cidade' => ['required', 'string', 'max:191'],
                 'uf' => ['required', 'string', 'max:2', 'min:2'],
+                'telefone' => ['nullable', 'celular_com_ddd'],
                 'admissao' => ['required', Rule::date()->format('Y-m-d')],
                 'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
             ],
@@ -54,6 +57,7 @@ class FuncionarioController extends Controller
                 'uf.required' => 'Inválido',
                 'uf.min' => 'Inválido',
                 'uf.max' => 'Inválido',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
                 'admissao.required' => 'Preencha o campo admissão',
                 'admissao.date' => 'A data não é válida',
                 'admissao.date_format' => 'A data não é válida',
@@ -143,6 +147,7 @@ class FuncionarioController extends Controller
      **/
     public function update(Request $request, Funcionario $funcionario): RedirectResponse
     {
+        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
         $request->validate(
             [
                 'nome_razao' => ['required', 'string', 'max:191'],
@@ -151,6 +156,7 @@ class FuncionarioController extends Controller
                 'endereco' => ['required', 'string', 'max:191'],
                 'cidade' => ['required', 'string', 'max:191'],
                 'uf' => ['required', 'string', 'max:2', 'min:2'],
+                'telefone' => ['nullable', 'celular_com_ddd'],
                 'admissao' => ['required', Rule::date()->format('Y-m-d')],
                 'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
             ],
@@ -167,6 +173,7 @@ class FuncionarioController extends Controller
                 'uf.required' => 'Inválido',
                 'uf.min' => 'Inválido',
                 'uf.max' => 'Inválido',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
                 'admissao.required' => 'Preencha o campo admissão',
                 'admissao.date' => 'A data não é válida',
                 'admissao.date_format' => 'A data não é válida',

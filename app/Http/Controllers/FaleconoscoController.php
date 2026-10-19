@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Telefone;
 use App\Mail\FaleconoscoMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -20,19 +21,23 @@ class FaleconoscoController extends Controller
 
     public function enviar(Request $request)
     {
+        $request->merge(['phone' => Telefone::paraValidacao($request->input('phone'))]);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'celular_com_ddd'],
             'message' => 'nullable|string|max:2000',
             'areas' => 'sometimes|array',
             'areas.*' => 'string',
+        ], [
+            'phone.required' => 'Informe um telefone para contato.',
+            'phone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
         ]);
 
         // Sanitização dos dados validados
         $validated['name'] = strip_tags(trim($validated['name']));
         $validated['email'] = filter_var(trim($validated['email']), FILTER_SANITIZE_EMAIL);
-        $validated['phone'] = strip_tags(trim($validated['phone']));
+        $validated['phone'] = Telefone::somenteNumeros($validated['phone']);
 
         if (isset($validated['message'])) {
             $validated['message'] = strip_tags(trim($validated['message']));

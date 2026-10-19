@@ -79,8 +79,7 @@
         </div>
         <div class="col-12 col-sm-6">
             <x-forms.input-field wire:model="laboratorio.telefone" name="lab_tel" label="Telefone" 
-                class="telefone" maxlength="15"
-                x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'" />
+                mask="telefone" maxlength="15" />
             @error('laboratorio.telefone') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-12 col-sm-6">
@@ -161,8 +160,7 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <x-forms.input-field wire:model="analistas.{{ $i }}.telefone" name="analista_{{ $i }}_telefone" label="Telefone" 
-                                        class="telefone" maxlength="15"
-                                        x-mask:dynamic="$input.replace(/\D/g, '').length === 11 ? '(99) 99999-9999' : '(99) 9999-9999'"
+                                        mask="telefone" maxlength="15"
                                         x-bind:required="quantidadeAnalistas > {{ $i }}" />
                                     @error("analistas.{$i}.telefone") <span class="text-danger small">{{ $message }}</span> @enderror
                                 </div>

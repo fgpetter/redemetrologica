@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use App\Helpers\Telefone;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class LaboratorioInterno extends Model
 {
@@ -22,6 +24,13 @@ class LaboratorioInterno extends Model
      */
     protected $guarded = [];
 
+    protected function telefone(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => Telefone::somenteNumeros($value),
+        );
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -29,10 +38,8 @@ class LaboratorioInterno extends Model
             ->useLogName(get_class($this));
     }
 
-
     /**
      * Carrega pessoa
-     * @return BelongsTo
      */
     public function laboratorio(): BelongsTo
     {
@@ -41,7 +48,6 @@ class LaboratorioInterno extends Model
 
     /**
      * Carrega Empresa associado
-     * @return HasOne
      */
     public function area(): HasOne
     {

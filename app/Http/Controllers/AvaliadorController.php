@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Telefone;
 use App\Models\AreaAtuacao;
 use App\Models\AvaliacaoAvaliador;
 use App\Models\Avaliador;
@@ -65,6 +66,7 @@ class AvaliadorController extends Controller
     public function create(Request $request): RedirectResponse
     {
         $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
+        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
 
         $pessoa = Pessoa::where('uid', $request->pessoa_uid)->first();
 
@@ -72,6 +74,7 @@ class AvaliadorController extends Controller
             [
                 'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
                 'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'.$pessoa?->id], // TODO - adicionar validação de CPF/CNPJ
+                'telefone' => ['nullable', 'celular_com_ddd'],
                 'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
                 'data_ingresso' => ['nullable', Rule::date()->format('Y-m-d')],
                 'situacao' => ['required', 'string', Rule::in(['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])],
@@ -83,6 +86,7 @@ class AvaliadorController extends Controller
                 'cpf_cnpj.required' => 'Preencha o campo CPF',
                 'cpf_cnpj.min' => 'CPF inválido',
                 'cpf_cnpj.max' => 'CPF inválido',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
                 'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
                 'curriculo.max' => 'Tamanho máximo 5MB',
                 'situacao.required' => 'Selecione uma situação.',
@@ -203,11 +207,13 @@ class AvaliadorController extends Controller
     public function update(Request $request, Avaliador $avaliador): RedirectResponse
     {
         $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
+        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
 
         $request->validate(
             [
                 'nome_razao' => ['required', 'string', 'max:191'],
                 'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'.$avaliador->pessoa->id], // TODO - adicionar validação de CPF/CNPJ
+                'telefone' => ['nullable', 'celular_com_ddd'],
                 'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
                 'data_ingresso' => ['nullable', Rule::date()->format('Y-m-d')],
                 'situacao' => ['required', 'string', Rule::in(['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])],
@@ -217,6 +223,7 @@ class AvaliadorController extends Controller
                 'cpf_cnpj.required' => 'Preencha o campo CPF',
                 'cpf_cnpj.min' => 'CPF inválido',
                 'cpf_cnpj.max' => 'CPF inválido',
+                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
                 'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
                 'curriculo.max' => 'Tamanho máximo 5MB',
                 'situacao.required' => 'Selecione uma situação.',
