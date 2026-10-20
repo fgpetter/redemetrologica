@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use App\Helpers\Telefone;
+use App\Casts\TelefoneCast;
 use App\Traits\SetDefaultUid;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -22,10 +21,9 @@ class CursoInscrito extends Model
      */
     protected $guarded = [];
 
-    protected function telefone(): Attribute
-    {
-        return Attribute::set(fn (?string $value) => Telefone::somenteNumeros($value));
-    }
+    protected $casts = [
+        'telefone' => TelefoneCast::class,
+    ];
 
     public function getActivitylogOptions(): LogOptions
     {

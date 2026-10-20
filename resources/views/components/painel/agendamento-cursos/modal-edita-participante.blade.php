@@ -42,7 +42,7 @@
                       <x-forms.input-field :value="$inscrito->email ?? null" type="email" name="email" label="E-mail" required="true" />
                     </div>
                     <div class="col-md-5 mb-2">
-                      <x-forms.input-field :value="$inscrito->telefone ?? null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
+                      <x-forms.input-field :value="$inscrito->getRawOriginal('telefone')" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
                       @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                     </div>
                   </div>
@@ -78,7 +78,7 @@
                       <x-forms.input-field :value="$inscrito->email ?? null" type="email" name="email" label="E-mail" required="true" />
                     </div>
                     <div class="col-md-6 mb-2">
-                      <x-forms.input-field :value="$inscrito->telefone ?? null" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
+                      <x-forms.input-field :value="$inscrito->getRawOriginal('telefone')" name="telefone" label="Telefone" mask="telefone" maxlength="15" />
                       @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
                     </div>
                   </div>

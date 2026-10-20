@@ -56,7 +56,7 @@ class EditarInscritoForm extends Form
     {
         $this->informacoes_inscricao = $inscrito->informacoes_inscricao;
         $this->responsavel_tecnico = $inscrito->responsavel_tecnico;
-        $this->telefone = $inscrito->telefone;
+        $this->telefone = $inscrito->getRawOriginal('telefone');
         $this->email = $inscrito->email;
         $this->tag_senha = $inscrito->tag_senha;
         $this->valor = $inscrito->valor !== null
@@ -84,7 +84,7 @@ class EditarInscritoForm extends Form
                 'id' => $analista->id,
                 'nome' => $analista->nome,
                 'email' => $analista->email,
-                'telefone' => $analista->telefone,
+                'telefone' => $analista->getRawOriginal('telefone'),
             ])
             ->all();
     }

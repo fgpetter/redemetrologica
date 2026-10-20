@@ -233,6 +233,8 @@ class EditarInscritoInterlabTest extends TestCase
             ->call('abrir', $inscrito->id)
             ->call('carregarInscrito')
             ->assertSet('requerAnalistas', true)
+            ->assertSet('form.telefone', $inscrito->getRawOriginal('telefone'))
+            ->assertSet('form.analistas.0.telefone', $analista->getRawOriginal('telefone'))
             ->set('form.analistas.0.nome', 'Analista Atualizado')
             ->set('form.analistas.0.email', 'novo@teste.com')
             ->set('form.telefone', '(11) 9 8888-7777')

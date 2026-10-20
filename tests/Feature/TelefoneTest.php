@@ -8,6 +8,7 @@ use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\Laboratorio;
 use App\Models\LaboratorioInterno;
+use App\Models\NotaFiscalAvulsa;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\Validator;
 
@@ -64,4 +65,36 @@ it('persiste telefone somente com dígitos nos modelos que guardam contato', fun
         ->and($modelos[5]->getAttributes()['pessoa_contato_telefone'])->toBe('1133334444')
         ->and($modelos[6]->getAttributes()['telefone'])->toBe('11988887777')
         ->and($modelos[7]->getAttributes()['telefone'])->toBe('1133334444');
+});
+
+it('apresenta telefones formatados em todos os models e conserva dígitos fora dos inputs', function (): void {
+    $telefones = [
+        [Pessoa::make(['telefone' => '11988887777']), 'telefone', '(11) 98888-7777'],
+        [Pessoa::make(['telefone_alt' => '1133334444']), 'telefone_alt', '(11) 3333-4444'],
+        [Pessoa::make(['celular' => '11988887777']), 'celular', '(11) 98888-7777'],
+        [Laboratorio::make(['telefone' => '1133334444']), 'telefone', '(11) 3333-4444'],
+        [LaboratorioInterno::make(['telefone' => '11988887777']), 'telefone', '(11) 98888-7777'],
+        [AgendaCursos::make(['contato_telefone' => '1133334444']), 'contato_telefone', '(11) 3333-4444'],
+        [CursoInscrito::make(['telefone' => '11988887777']), 'telefone', '(11) 98888-7777'],
+        [FornecedorArea::make(['pessoa_contato_telefone' => '1133334444']), 'pessoa_contato_telefone', '(11) 3333-4444'],
+        [InterlabInscrito::make(['telefone' => '11988887777']), 'telefone', '(11) 98888-7777'],
+        [InterlabAnalista::make(['telefone' => '1133334444']), 'telefone', '(11) 3333-4444'],
+        [NotaFiscalAvulsa::make(['telefone' => '11988887777']), 'telefone', '(11) 98888-7777'],
+    ];
+
+    foreach ($telefones as [$model, $campo, $formatado]) {
+        expect($model->{$campo})->toBe($formatado)
+            ->and($model->getAttributes()[$campo])->toBe(Telefone::somenteNumeros($formatado))
+            ->and($model->toArray()[$campo])->toBe($formatado);
+    }
+
+    $telefoneInvalido = Pessoa::make();
+    $telefoneInvalido->setRawAttributes(['telefone' => '+55 (11) 98888-7777']);
+
+    expect($telefoneInvalido->telefone)->toBe('5511988887777');
+
+    $telefoneNulo = Pessoa::make();
+    $telefoneNulo->setRawAttributes(['telefone' => null]);
+
+    expect($telefoneNulo->telefone)->toBeNull();
 });

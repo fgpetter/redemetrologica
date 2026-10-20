@@ -46,19 +46,19 @@
           </div>
 
           <div class="col-6">
-            <x-forms.input-field :value="old('telefone') ?? ($user->pessoa->telefone ?? null)" name="telefone" mask="telefone"
+            <x-forms.input-field :value="old('telefone') ?? $user->pessoa->getRawOriginal('telefone')" name="telefone" mask="telefone"
               label="Telefone" /> 
             @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
           </div>
 
           <div class="col-6">
-            <x-forms.input-field :value="old('telefone_alt') ?? ($user->pessoa->telefone_alt ?? null)" name="telefone_alt" mask="telefone"
+            <x-forms.input-field :value="old('telefone_alt') ?? $user->pessoa->getRawOriginal('telefone_alt')" name="telefone_alt" mask="telefone"
               label="Telefone Alternativo" />
             @error('telefone_alt') <div class="text-warning">{{ $message }}</div> @enderror
           </div>
 
           <div class="col-6">
-            <x-forms.input-field :value="old('celular') ?? ($user->pessoa->celular ?? null)" name="celular" mask="telefone"
+            <x-forms.input-field :value="old('celular') ?? $user->pessoa->getRawOriginal('celular')" name="celular" mask="telefone"
               label="Celular" />
             @error('celular') <div class="text-warning">{{ $message }}</div> @enderror
           </div>

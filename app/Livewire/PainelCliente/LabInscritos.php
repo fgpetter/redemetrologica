@@ -168,7 +168,7 @@ class LabInscritos extends Component
         $this->aplicarSplitEnderecoNumero();
 
         $this->laboratorio['responsavel_tecnico'] = $inscrito->responsavel_tecnico;
-        $this->laboratorio['telefone'] = $inscrito->telefone;
+        $this->laboratorio['telefone'] = $inscrito->getRawOriginal('telefone');
         $this->laboratorio['email'] = $inscrito->email;
 
         $infoInscricao = $inscrito->informacoes_inscricao ?? '';
@@ -205,7 +205,7 @@ class LabInscritos extends Component
             ->map(fn (InterlabAnalista $analista) => [
                 'nome' => $analista->nome,
                 'email' => $analista->email,
-                'telefone' => $analista->telefone,
+                'telefone' => $analista->getRawOriginal('telefone'),
             ])
             ->values()
             ->toArray();

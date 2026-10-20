@@ -55,7 +55,7 @@
     </div>
     <div class="col-md-3">
       <label for="fone" class="form-label">Telefone</label>
-      <input type="text" class="form-control" id="fone" name="fone" value="{{ $laboratorio->telefone }}" readonly>
+      <input type="text" class="form-control" id="fone" name="fone" value="{{ $laboratorio->getRawOriginal('telefone') }}" readonly>
     </div>
     <div class="col-md-3">
       <label for="email" class="form-label">E-mail</label>
@@ -352,4 +352,4 @@ document.addEventListener('alpine:init', () => {
     },
   }));
 });
-</script> 
+</script>

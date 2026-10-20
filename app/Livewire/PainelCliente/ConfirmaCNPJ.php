@@ -59,6 +59,7 @@ class ConfirmaCNPJ extends Component
 
         if ($empresaModel) {
             $this->empresa = $empresaModel->toArray();
+            $this->empresa['telefone'] = $empresaModel->getRawOriginal('telefone');
 
             if (empty($this->empresa['endereco_cobranca'])) {
                 $empresa_end = Pessoa::with('enderecos')
@@ -188,6 +189,7 @@ class ConfirmaCNPJ extends Component
 
         $empresaReloaded = Pessoa::with('enderecoCobranca')->find($empresa->id);
         $this->empresa = $empresaReloaded->toArray();
+        $this->empresa['telefone'] = $empresaReloaded->getRawOriginal('telefone');
 
         $this->isOpen = false;
 

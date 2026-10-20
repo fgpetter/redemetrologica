@@ -49,7 +49,7 @@
     </div>
 
     <div class="col-sm-4">
-      <x-forms.input-field :value="old('contato_telefone') ?? ($agendacurso->contato_telefone ?? null)" 
+      <x-forms.input-field :value="old('contato_telefone') ?? $agendacurso->getRawOriginal('contato_telefone')"
         name="contato_telefone" label="Telefone" mask="telefone" maxlength="15" />
       @error('contato_telefone')
         <div class="text-warning">{{ $message }}</div>
@@ -187,4 +187,4 @@
 
 @if ($agendacurso->id)
   <x-painel.form-delete.delete route='agendamento-curso-delete' id="{{ $agendacurso->uid }}" label="Agendamento de curso" />
-@endif 
+@endif

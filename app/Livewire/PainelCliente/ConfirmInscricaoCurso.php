@@ -109,6 +109,7 @@ class ConfirmInscricaoCurso extends Component
 
         if ($empresa) {
             $this->empresa = $empresa->toArray();
+            $this->empresa['telefone'] = $empresa->getRawOriginal('telefone');
         } else {
             $this->empresa = [
                 'cpf_cnpj' => $this->BuscaCnpj,
@@ -197,6 +198,7 @@ class ConfirmInscricaoCurso extends Component
 
         // atualizar $empresa para mostrar os dados atualizados
         $this->empresa = $empresa->toArray();
+        $this->empresa['telefone'] = $empresa->getRawOriginal('telefone');
         $this->empresa['endereco_cobranca'] = $enderecoCobranca->toArray();
 
         $this->showSalvarEmpresa = false;
@@ -287,7 +289,7 @@ class ConfirmInscricaoCurso extends Component
                 'id_pessoa' => $pessoa->id,
                 'nome' => $pessoa->nome_razao ?? '',
                 'email' => strtolower(trim($usuario->email)),
-                'telefone' => $pessoa->telefone ?? '',
+                'telefone' => $pessoa->getRawOriginal('telefone') ?? '',
                 'cpf_cnpj' => $pessoa->cpf_cnpj ?? '',
                 'cep' => $endereco->cep ?? '',
                 'endereco' => $endereco->endereco ?? '',
@@ -396,7 +398,7 @@ class ConfirmInscricaoCurso extends Component
                 'id_pessoa' => $pessoa->id,
                 'nome' => $pessoa->nome_razao,
                 'email' => strtolower($user->email),
-                'telefone' => $pessoa->telefone ?? '',
+                'telefone' => $pessoa->getRawOriginal('telefone') ?? '',
                 'responsavel' => 1,
             ];
             // Remove linhas vazias (onde nem nome nem email foram preenchidos)

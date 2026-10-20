@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use App\Helpers\Telefone;
+use App\Casts\TelefoneCast;
 use App\Traits\SetDefaultUid;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,15 +29,11 @@ class InterlabInscrito extends Model
      */
     protected $table = 'interlab_inscritos';
 
-    protected function telefone(): Attribute
-    {
-        return Attribute::set(fn (?string $value) => Telefone::somenteNumeros($value));
-    }
-
     // cast data inscrição as date and valor as money BRL
     protected $casts = [
         'data_inscricao' => 'date',
         'senha_enviada' => 'datetime',
+        'telefone' => TelefoneCast::class,
     ];
 
     public function getActivitylogOptions(): LogOptions

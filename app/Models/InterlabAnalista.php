@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use App\Helpers\Telefone;
+use App\Casts\TelefoneCast;
 use App\Traits\SetDefaultUid;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\LogOptions;
@@ -30,6 +29,7 @@ class InterlabAnalista extends Model
 
     protected $casts = [
         'senha_enviada' => 'datetime',
+        'telefone' => TelefoneCast::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -37,26 +37,6 @@ class InterlabAnalista extends Model
         return LogOptions::defaults()
             ->logOnly(['*'])
             ->useLogName(get_class($this));
-    }
-
-    protected function telefone(): Attribute
-    {
-        return Attribute::make(
-            get: fn (?string $value) => $this->formataTel($value),
-            set: fn (?string $value) => Telefone::somenteNumeros($value),
-        );
-    }
-
-    protected function formataTel(?string $value): string
-    {
-        if (strlen($value) === 11) {
-            return preg_replace('/([0-9]{2})([0-9]{5})([0-9]{4})/', '($1) $2-$3', $value);
-        }
-        if (strlen($value) === 10) {
-            return preg_replace('/([0-9]{2})([0-9]{4})([0-9]{4})/', '($1) $2-$3', $value);
-        }
-
-        return '';
     }
 
     public function interlabInscrito(): BelongsTo

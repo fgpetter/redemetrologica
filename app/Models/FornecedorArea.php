@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
+use App\Casts\TelefoneCast;
 use App\Enums\FornecedorArea as FornecedorAreaEnum;
-use App\Helpers\Telefone;
 use App\Traits\SetDefaultUid;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\LogOptions;
@@ -22,15 +21,11 @@ class FornecedorArea extends Model
 
     protected $table = 'fornecedores_areas';
 
-    protected function pessoaContatoTelefone(): Attribute
-    {
-        return Attribute::set(fn (?string $value) => Telefone::somenteNumeros($value));
-    }
-
     protected function casts(): array
     {
         return [
             'area' => FornecedorAreaEnum::class,
+            'pessoa_contato_telefone' => TelefoneCast::class,
         ];
     }
 

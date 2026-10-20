@@ -30,8 +30,8 @@
       </div>
 
       <div class="col-4">
-        <x-forms.input-field name="telefone" 
-          :value="old('telefone') ?? ($laboratorio->telefone ?? $laboratorio->pessoa->telefone ?? null)" 
+        <x-forms.input-field name="telefone"
+          :value="old('telefone') ?? ($laboratorio->getRawOriginal('telefone') ?? $laboratorio->pessoa->getRawOriginal('telefone'))"
           label="Telefone" mask="telefone"/>
           @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
       </div>

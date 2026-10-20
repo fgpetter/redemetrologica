@@ -16,7 +16,7 @@
             <option value="{{ $pessoa->uid }}"
               data-cpf="{{ $pessoa->cpf_cnpj }}"
               data-rg="{{ $pessoa->rg_ie }}"
-              data-telefone="{{ $pessoa->telefone }}"
+              data-telefone="{{ $pessoa->getRawOriginal('telefone') }}"
               data-email="{{ $pessoa->email }}">
               {{ $pessoa->cpf_cnpj }} | {{ $pessoa->nome_razao }}
             </option>
@@ -40,7 +40,9 @@
 
               document.getElementById('input-cpf').value = option ? option.dataset.cpf : ''
               document.getElementById('rg_ie').value = option ? option.dataset.rg : ''
-              document.getElementById('telefone').value = option ? option.dataset.telefone : ''
+              const telefoneInput = document.getElementById('telefone')
+              telefoneInput.value = option ? option.dataset.telefone : ''
+              telefoneInput.dispatchEvent(new Event('input', { bubbles: true }))
               document.getElementById('email').value = option ? option.dataset.email : ''
             })
           })
@@ -89,7 +91,7 @@
     <div class="col-4">
       <label class="form-label">Telefone</label>
       <input type="text" class="form-control" name="telefone" id="telefone" maxlength="15" x-mask:dynamic="$input.replace(/\D/g, '').length > 10 ? '(99) 99999-9999' : '(99) 9999-9999'"
-        value="{{ old('telefone') ?? $avaliador->pessoa?->telefone }}">
+        value="{{ old('telefone') ?? $avaliador->pessoa?->getRawOriginal('telefone') }}">
       @error('telefone')
         <div class="text-warning">{{ $message }}</div>
       @enderror

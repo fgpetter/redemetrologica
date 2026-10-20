@@ -36,7 +36,7 @@
                      <div class="col-4">
                          <label class="form-label">Telefone</label>
                          <input type="text" class="form-control" name="telefone" id="telefone" maxlength="15" x-mask:dynamic="$input.replace(/\D/g, '').length > 10 ? '(99) 99999-9999' : '(99) 9999-9999'"
-                             value="{{ old('telefone') ?? ($funcionario->pessoa->telefone ?? null) }}">
+                             value="{{ old('telefone') ?? $funcionario->pessoa->getRawOriginal('telefone') }}">
                          @error('telefone')
                              <div class="text-warning">{{ $message }}</div>
                          @enderror

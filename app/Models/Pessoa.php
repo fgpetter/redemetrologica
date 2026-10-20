@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Helpers\Telefone;
+use App\Casts\TelefoneCast;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +24,12 @@ class Pessoa extends Model
      * @var array
      */
     protected $guarded = [];
+
+    protected $casts = [
+        'telefone' => TelefoneCast::class,
+        'telefone_alt' => TelefoneCast::class,
+        'celular' => TelefoneCast::class,
+    ];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -145,28 +151,6 @@ class Pessoa extends Model
         );
     }
 
-    protected function telefone(): Attribute
-    {
-        return Attribute::make(
-            get: fn (?string $value) => $this->formataTel($value),
-            set: fn (?string $value) => Telefone::somenteNumeros($value),
-        );
-    }
-
-    protected function telefoneAlt(): Attribute
-    {
-        return Attribute::make(
-            set: fn (?string $value) => Telefone::somenteNumeros($value),
-        );
-    }
-
-    protected function celular(): Attribute
-    {
-        return Attribute::make(
-            set: fn (?string $value) => Telefone::somenteNumeros($value),
-        );
-    }
-
     protected function formataDoc(?string $value): string
     {
         if (strlen($value) === 11) {
@@ -174,19 +158,6 @@ class Pessoa extends Model
         } else {
             return preg_replace('/([0-9]{2})([0-9]{3})([0-9]{3})([0-9]{4})([0-9]{2})/', '$1.$2.$3/$4-$5', $value);
         }
-    }
-
-    protected function formataTel(?string $value): string
-    {
-        if (strlen($value) === 11) {
-            return preg_replace('/([0-9]{2})([0-9]{5})([0-9]{4})/', '($1) $2-$3', $value);
-        }
-        if (strlen($value) === 10) {
-            return preg_replace('/([0-9]{2})([0-9]{4})([0-9]{4})/', '($1) $2-$3', $value);
-        }
-
-        return '';
-
     }
 
     /**
