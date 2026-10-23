@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\TelefoneCast;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -24,6 +25,19 @@ class CursoInscrito extends Model
     protected $casts = [
         'telefone' => TelefoneCast::class,
     ];
+
+    public static function certificadosPendentes(): Builder
+    {
+        return static::query()
+            ->whereNull('certificado_emitido')
+            ->whereHas('lancamentoFinanceiro', fn (Builder $query) => $query->where('status', 'EFETIVADO'))
+            ->whereHas('agendaCurso', function (Builder $query): void {
+                $query->where('status', 'REALIZADO')
+                    ->where(function (Builder $query): void {
+                        $query->whereNull('tipo_agendamento')->orWhere('tipo_agendamento', '!=', 'IN-COMPANY');
+                    });
+            });
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

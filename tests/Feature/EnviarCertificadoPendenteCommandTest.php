@@ -33,7 +33,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
     public function test_nao_faz_nada_quando_nao_ha_inscritos_pendentes(): void
     {
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldNotReceive('execute');
+        $action->shouldNotReceive('executePendente');
 
         Artisan::call('certificados:enviar-pendente');
 
@@ -43,7 +43,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
     public function test_ignora_inscrito_com_certificado_ja_emitido(): void
     {
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldNotReceive('execute');
+        $action->shouldNotReceive('executePendente');
 
         [$agenda, $pessoa] = $this->criarAgendaEPessoa();
         $lancamento = $this->criarLancamento($pessoa, $agenda, ['status' => 'EFETIVADO']);
@@ -60,7 +60,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
     public function test_ignora_inscrito_com_lancamento_provisionado(): void
     {
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldNotReceive('execute');
+        $action->shouldNotReceive('executePendente');
 
         [$agenda, $pessoa] = $this->criarAgendaEPessoa();
         $lancamento = $this->criarLancamento($pessoa, $agenda, ['status' => 'PROVISIONADO']);
@@ -86,7 +86,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         ]);
 
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldReceive('execute')->once()->with(\Mockery::on(fn ($arg) => $arg->id === $inscrito->id));
+        $action->shouldReceive('executePendente')->once()->with($inscrito->id)->andReturnTrue();
 
         Artisan::call('certificados:enviar-pendente');
     }
@@ -113,7 +113,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         ]);
 
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldReceive('execute')->once()->with(\Mockery::on(fn ($arg) => $arg->id === $inscritoAntigo->id));
+        $action->shouldReceive('executePendente')->once()->with($inscritoAntigo->id)->andReturnTrue();
 
         Artisan::call('certificados:enviar-pendente');
     }
@@ -121,7 +121,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
     public function test_ignora_agenda_com_tipo_agendamento_in_company(): void
     {
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldNotReceive('execute');
+        $action->shouldNotReceive('executePendente');
 
         [$agenda, $pessoa] = $this->criarAgendaEPessoa([
             'tipo_agendamento' => 'IN-COMPANY',
@@ -140,7 +140,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
     public function test_ignora_agenda_com_status_diferente_de_realizado(): void
     {
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldNotReceive('execute');
+        $action->shouldNotReceive('executePendente');
 
         [$agenda, $pessoa] = $this->criarAgendaEPessoa([
             'status' => 'AGENDADO',

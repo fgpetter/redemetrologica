@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\TelefoneCast;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,6 +36,14 @@ class InterlabInscrito extends Model
         'senha_enviada' => 'datetime',
         'telefone' => TelefoneCast::class,
     ];
+
+    public static function certificadosPendentes(): Builder
+    {
+        return static::query()
+            ->whereNull('certificado_emitido')
+            ->whereHas('agendaInterlab', fn (Builder $query) => $query->where('status', 'CONCLUIDO'))
+            ->whereHas('lancamentoFinanceiro', fn (Builder $query) => $query->where('status', 'EFETIVADO'));
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

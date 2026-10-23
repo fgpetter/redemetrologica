@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\EnviarCertificadoInterlabPendenteCommand;
 use App\Console\Commands\EnviarCertificadoPendenteCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -20,7 +21,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('certificados:enviar-pendente')
             ->everyMinute()
             ->between('00:00', '06:00')
+            ->withoutOverlapping()
             ->skip(fn () => Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
+
+        $schedule->command('interlab:enviar-certificado-pendente')
+            ->everyMinute()
+            ->timezone('America/Sao_Paulo')
+            ->between('00:00', '06:00')
+            ->withoutOverlapping()
+            ->skip(fn () => Cache::has(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
 
         $schedule->command('interlab:retomar-lotes-postagem-orfaos')
             ->everyMinute()

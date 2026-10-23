@@ -148,7 +148,7 @@ class InscricaoCursoCpfTest extends TestCase
             return true;
         });
 
-        Mail::assertQueued(CertificadoNotification::class);
+        Mail::assertSent(CertificadoNotification::class);
     }
 
     public function test_marcar_agenda_realizado_nao_dispara_certificado_para_inscrito_nao_pago(): void

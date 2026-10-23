@@ -52,6 +52,12 @@ return [
     */
 
     'channels' => [
+        'certificados_falha' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/certificados_falha.log'),
+            'level' => 'warning',
+            'replace_placeholders' => true,
+        ],
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
