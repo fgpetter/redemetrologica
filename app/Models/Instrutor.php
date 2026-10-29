@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Instrutor extends Model
 {
-    use SoftDeletes, LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid, SoftDeletes;
 
     protected $table = 'instrutores';
 
@@ -28,13 +27,12 @@ class Instrutor extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 
-
     /**
      * Carrega pessoa
-     * @return BelongsTo
      */
     public function pessoa(): BelongsTo
     {
@@ -43,7 +41,6 @@ class Instrutor extends Model
 
     /**
      * Cursos habilitados
-     * @return HasMany
      */
     public function cursosHabilitados(): HasMany
     {

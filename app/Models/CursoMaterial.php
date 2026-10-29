@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class CursoMaterial extends Model
 {
-    use HasFactory, LogsActivity, SetDefaultUid;
+    use HasFactory, LogsModelActivity, SetDefaultUid;
 
     protected $table = 'curso_materiais';
 
@@ -26,6 +26,7 @@ class CursoMaterial extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 

@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Download extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -22,6 +22,7 @@ class Download extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 }

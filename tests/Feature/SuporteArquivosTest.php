@@ -10,6 +10,7 @@ use App\Models\SuporteDemanda;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Livewire;
@@ -160,8 +161,8 @@ test('limpa apenas temporários antigos preservando recentes e arquivos publicad
     Storage::fake('local');
     Storage::fake('ckeditor-public');
     $this->freezeTime();
-    $antigo = SuporteArquivo::factory()->create(['demanda_id' => null, 'rascunho' => (string) \Illuminate\Support\Str::uuid(), 'created_at' => now()->subHours(25)]);
-    $recente = SuporteArquivo::factory()->create(['demanda_id' => null, 'rascunho' => (string) \Illuminate\Support\Str::uuid()]);
+    $antigo = SuporteArquivo::factory()->create(['demanda_id' => null, 'rascunho' => (string) Str::uuid(), 'created_at' => now()->subHours(25)]);
+    $recente = SuporteArquivo::factory()->create(['demanda_id' => null, 'rascunho' => (string) Str::uuid()]);
     $publicado = SuporteArquivo::factory()->create(['created_at' => now()->subDays(2)]);
     foreach ([$antigo, $recente, $publicado] as $arquivo) {
         Storage::disk('local')->put($arquivo->caminho, 'conteudo');
@@ -178,7 +179,7 @@ test('limpa apenas temporários antigos preservando recentes e arquivos publicad
     $this->assertDatabaseMissing('suporte_arquivos', ['id' => $antigo->id]);
 });
 
-test('preserva metadados ao mover upload temporário real no mesmo disco', function () {
+test('preserva metadados e remove upload temporário real após persistir', function () {
     Storage::fake('local');
     $user = usuarioArquivosSuporte();
     $this->actingAs($user);
@@ -194,16 +195,20 @@ test('preserva metadados ao mover upload temporário real no mesmo disco', funct
     Storage::disk('local')->assertMissing('livewire-tmp/'.$nome);
 });
 
-test('falha de persistência do upload remove arquivo gravado', function () {
+test('falha de persistência remove arquivo gravado e preserva upload temporário para nova tentativa', function () {
     Storage::fake('local');
     $user = usuarioArquivosSuporte();
     $this->actingAs($user);
     $token = SuporteArquivo::novoRascunho(null);
+    $nome = TemporaryUploadedFile::generateHashNameWithOriginalNameEmbedded(UploadedFile::fake()->create('erro.pdf', 1, 'application/pdf'));
+    Storage::disk('local')->put('livewire-tmp/'.$nome, "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF");
+    $upload = new TemporaryUploadedFile($nome, 'local');
     SuporteArquivo::creating(function (): void {
         throw new RuntimeException('Falha simulada');
     });
-    expect(fn () => app(ArquivosSuporteAction::class)->enviar($user, UploadedFile::fake()->image('erro.png'), $token, true))
+    expect(fn () => app(ArquivosSuporteAction::class)->enviar($user, $upload, $token))
         ->toThrow(RuntimeException::class, 'Falha simulada');
     Storage::disk('local')->assertDirectoryEmpty('/suporte/arquivos');
+    Storage::disk('local')->assertExists('livewire-tmp/'.$nome);
     expect(SuporteArquivo::count())->toBe(0);
 });

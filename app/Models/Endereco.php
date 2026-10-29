@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Endereco extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -24,16 +24,10 @@ class Endereco extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
 
-        if (session('impersonator_id')) {
-            $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
-                return "{$eventName} impersonated by {$impersonator->name}";
-            });
-        }
     }
-
 
     /**
      * Retorna pessoa do endereço.
@@ -47,8 +41,8 @@ class Endereco extends Model
     {
         return Attribute::make(
             // formatando o CEP para o formato 00000-000
-            get: fn(string|null $value) => preg_replace("/([0-9]{5})([0-9]{3})/", "\$1-\$2", $value),
-            set: fn(string|null $value) => preg_replace("/[^\d]/", "", $value),
+            get: fn (?string $value) => preg_replace('/([0-9]{5})([0-9]{3})/', '$1-$2', $value),
+            set: fn (?string $value) => preg_replace("/[^\d]/", '', $value),
         );
     }
 }

@@ -6,21 +6,21 @@ use App\Enums\CorreiosPrePostagemStatus;
 use App\Enums\InterlabConsultaPrazoStatusVisual;
 use App\Enums\InterlabLotePostagemItemStatus;
 use App\Enums\InterlabLotePostagemStatus;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Database\Factories\InterlabLotePostagemItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class InterlabLotePostagemItem extends Model
 {
     /** @use HasFactory<InterlabLotePostagemItemFactory> */
     use HasFactory;
 
-    use LogsActivity;
+    use LogsModelActivity;
     use SetDefaultUid;
 
     protected $table = 'interlab_lote_postagem_itens';
@@ -42,6 +42,7 @@ class InterlabLotePostagemItem extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 

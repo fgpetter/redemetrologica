@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,13 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class SuporteAtividade extends Model
 {
     use HasFactory;
-    use LogsActivity;
+    use LogsModelActivity;
     use SetDefaultUid;
     use SoftDeletes;
 

@@ -2,31 +2,31 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\Support\LogOptions;
 
 class CursoDespesa extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
+
     protected $guarded = [];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
-
 
     protected $table = 'curso_despesas';
 
     /**
      * Carrega planos de contas atrelados
-     * @return HasOne 
      */
     public function materialPadrao(): HasOne
     {
@@ -35,7 +35,6 @@ class CursoDespesa extends Model
 
     /**
      * Carrega agenda de cursos atrelados
-     * @return BelongsTo
      */
     public function agendaCurso(): BelongsTo
     {

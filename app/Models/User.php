@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,12 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, LogsActivity, Notifiable, SetDefaultUid;
+    use HasApiTokens, HasFactory, LogsModelActivity, Notifiable, SetDefaultUid;
 
     /**
      * The attributes that are mass assignable.
@@ -54,15 +54,10 @@ class User extends Authenticatable
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->dontLogIfAttributesChangedOnly(['remember_token'])
             ->useLogName('Usuários');
 
-        if (session('impersonator_id')) {
-            $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
-                return "{$eventName} impersonated by {$impersonator->name}";
-            });
-        }
     }
 
     /**

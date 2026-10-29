@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Interlab extends Model
 {
-    use SoftDeletes, LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid, SoftDeletes;
 
     protected $table = 'interlabs';
 
@@ -20,12 +21,14 @@ class Interlab extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
+
     /**
      * Get the agendas for the interlab.
      */
-    public function agendas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function agendas(): HasMany
     {
         return $this->hasMany(AgendaInterlab::class);
     }

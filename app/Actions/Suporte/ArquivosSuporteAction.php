@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use RuntimeException;
 use Throwable;
 
@@ -45,7 +46,7 @@ class ArquivosSuporteAction
         }
 
         try {
-            return SuporteArquivo::query()->create([
+            $arquivo = SuporteArquivo::query()->create([
                 'uid' => (string) Str::uuid(),
                 'user_id' => $user->id,
                 'rascunho' => $rascunho,
@@ -59,6 +60,12 @@ class ArquivosSuporteAction
             Storage::disk('local')->delete($caminho);
             throw $exception;
         }
+
+        if ($upload instanceof TemporaryUploadedFile) {
+            $upload->delete();
+        }
+
+        return $arquivo;
     }
 
     /** @return Collection<int, SuporteArquivo> */

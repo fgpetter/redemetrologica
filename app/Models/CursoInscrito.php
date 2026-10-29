@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use App\Casts\TelefoneCast;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class CursoInscrito extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     /**
      * The attributes that aren't mass assignable.
@@ -43,14 +43,9 @@ class CursoInscrito extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
 
-        if (session('impersonator_id')) {
-            $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
-                return "{$eventName} impersonated by {$impersonator->name}";
-            });
-        }
     }
 
     /**

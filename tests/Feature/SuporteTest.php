@@ -1,5 +1,7 @@
 <?php
 
+use App\Actions\Suporte\SalvarDemandaSuporteAction;
+use App\Enums\SuporteClassificacao;
 use App\Enums\SuporteStatus;
 use App\Livewire\Suporte\AtividadeForm;
 use App\Livewire\Suporte\DemandaDetalhe;
@@ -9,8 +11,8 @@ use App\Models\SuporteArquivo;
 use App\Models\SuporteAtividade;
 use App\Models\SuporteDemanda;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
 function usuarioDoSuporte(string $perfil = 'funcionario'): User
@@ -210,10 +212,11 @@ test('respostas não aceitam filhas nem atividades de outra demanda', function (
     $raiz = SuporteAtividade::factory()->create(['demanda_id' => $demanda->id]);
     $resposta = SuporteAtividade::factory()->create(['demanda_id' => $demanda->id, 'parent_id' => $raiz->id]);
     $outra = SuporteAtividade::factory()->create();
-    expect(fn () => Livewire::actingAs($user)->test(AtividadeForm::class, ['demanda' => $demanda])
-        ->call('responder', $resposta->uid))->toThrow(ModelNotFoundException::class);
-    expect(fn () => Livewire::test(AtividadeForm::class, ['demanda' => $demanda])->call('responder', $outra->uid))
-        ->toThrow(ModelNotFoundException::class);
+
+    Livewire::actingAs($user)->test(AtividadeForm::class, ['demanda' => $demanda])
+        ->call('responder', $resposta->uid)->assertStatus(404);
+    Livewire::actingAs($user)->test(AtividadeForm::class, ['demanda' => $demanda])
+        ->call('responder', $outra->uid)->assertStatus(404);
 });
 
 test('apenas autor ou admin edita atividade e owner é preservado', function () {
@@ -305,7 +308,7 @@ test('admin classifica demanda e registra horas inteiras ao criar e editar', fun
         ->set('form.horasGastas', '0')
         ->call('salvar')->assertHasNoErrors();
     $demanda = SuporteDemanda::query()->where('titulo', 'Classificar demanda')->firstOrFail();
-    expect($demanda->classificacao)->toBe(\App\Enums\SuporteClassificacao::Corretiva)
+    expect($demanda->classificacao)->toBe(SuporteClassificacao::Corretiva)
         ->and($demanda->horas_gastas)->toBe(0);
 
     Livewire::test(DemandaDetalhe::class, ['demanda' => $demanda])
@@ -313,7 +316,7 @@ test('admin classifica demanda e registra horas inteiras ao criar e editar', fun
         ->assertSet('form.horasGastas', '0')
         ->set('form.classificacao', 'evolutiva')->set('form.horasGastas', '3')
         ->call('salvar')->assertHasNoErrors();
-    expect($demanda->fresh()->classificacao)->toBe(\App\Enums\SuporteClassificacao::Evolutiva)
+    expect($demanda->fresh()->classificacao)->toBe(SuporteClassificacao::Evolutiva)
         ->and($demanda->fresh()->horas_gastas)->toBe(3);
 });
 
@@ -327,7 +330,7 @@ test('funcionário visualiza classificação e horas sem poder alterá-las mesmo
         ->set('form.classificacao', 'evolutiva')->set('form.horasGastas', '99')
         ->set('form.titulo', 'Título atualizado')
         ->call('salvar')->assertHasNoErrors();
-    expect($demanda->fresh()->classificacao)->toBe(\App\Enums\SuporteClassificacao::Corretiva)
+    expect($demanda->fresh()->classificacao)->toBe(SuporteClassificacao::Corretiva)
         ->and($demanda->fresh()->horas_gastas)->toBe(2)
         ->and($demanda->fresh()->titulo)->toBe('Título atualizado');
 });
@@ -367,16 +370,16 @@ test('admin atualiza dados administrativos de encerrada sem modificar conteúdo 
         ->set('form.titulo', 'Conteúdo não permitido')->call('salvar')->assertHasNoErrors();
     expect($demanda->fresh()->status)->toBe(SuporteStatus::Concluida)
         ->and($demanda->fresh()->titulo)->toBe($demanda->titulo)
-        ->and($demanda->fresh()->classificacao)->toBe(\App\Enums\SuporteClassificacao::Evolutiva)
+        ->and($demanda->fresh()->classificacao)->toBe(SuporteClassificacao::Evolutiva)
         ->and($demanda->fresh()->horas_gastas)->toBe(8);
 });
 
 test('action rejeita horas fracionadas mesmo sem a validação do formulário', function () {
     $admin = usuarioDoSuporte('admin');
-    expect(fn () => app(\App\Actions\Suporte\SalvarDemandaSuporteAction::class)->execute(
+    expect(fn () => app(SalvarDemandaSuporteAction::class)->execute(
         $admin, null,
         ['titulo' => 'Horas inválidas', 'descricao' => '<p>Teste</p>', 'participantes' => [], 'horas_gastas' => '1.5'],
         SuporteArquivo::novoRascunho(null),
-    ))->toThrow(\Illuminate\Validation\ValidationException::class);
+    ))->toThrow(ValidationException::class);
     expect(SuporteDemanda::count())->toBe(0);
 });

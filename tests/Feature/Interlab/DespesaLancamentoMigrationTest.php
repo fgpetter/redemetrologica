@@ -7,13 +7,13 @@ use App\Models\Interlab;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabDespesaLancamento;
 use Database\Factories\PessoaFactory;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 test('migra despesas antigas para lancamentos com itens e avaliacao', function () {
-    Artisan::call('migrate:rollback', ['--step' => 1]);
+    $migration = require database_path('migrations/2026_07_22_190742_create_interlab_despesa_lancamentos_table.php');
+    $migration->down();
 
     expect(Schema::hasTable('interlab_despesa_lancamentos'))->toBeFalse()
         ->and(Schema::hasColumn('interlab_despesas', 'agenda_interlab_id'))->toBeTrue()
@@ -74,7 +74,7 @@ test('migra despesas antigas para lancamentos com itens e avaliacao', function (
         'updated_at' => $now,
     ]);
 
-    Artisan::call('migrate');
+    $migration->up();
 
     expect(Schema::hasTable('interlab_despesa_lancamentos'))->toBeTrue()
         ->and(Schema::hasColumn('interlab_despesas', 'agenda_interlab_id'))->toBeFalse()

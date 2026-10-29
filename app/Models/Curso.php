@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Curso extends Model
 {
-    use SoftDeletes, LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid, SoftDeletes;
 
     /**
      * The attributes that aren't mass assignable.
@@ -24,6 +24,7 @@ class Curso extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 

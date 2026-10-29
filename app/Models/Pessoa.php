@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\TelefoneCast;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -11,12 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Pessoa extends Model
 {
-    use LogsActivity, SetDefaultUid, SoftDeletes;
+    use LogsModelActivity, SetDefaultUid, SoftDeletes;
 
     /**
      * The attributes that aren't mass assignable.
@@ -35,14 +35,8 @@ class Pessoa extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
-
-        if (session('impersonator_id')) {
-            $impersonator = User::find(session('impersonator_id'));
-            $options->setDescriptionForEvent(function (string $eventName) use ($impersonator) {
-                return "{$eventName} impersonated by {$impersonator->name}";
-            });
-        }
 
     }
 

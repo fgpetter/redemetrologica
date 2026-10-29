@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class InterlabDespesa extends Model
 {
-    use LogsActivity, SetDefaultUid, SoftDeletes;
+    use LogsModelActivity, SetDefaultUid, SoftDeletes;
 
     protected $table = 'interlab_despesas';
 
@@ -21,6 +21,7 @@ class InterlabDespesa extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 

@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\Support\LogOptions;
 
 class InstrutorCursoHabilitado extends Model
 {
-    use LogsActivity, SetDefaultUid;
-    protected $table = 'instrutor_curso_habilitado';
+    use LogsModelActivity, SetDefaultUid;
 
+    protected $table = 'instrutor_curso_habilitado';
 
     /**
      * The attributes that aren't mass assignable.
@@ -25,13 +25,12 @@ class InstrutorCursoHabilitado extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 
-
     /**
      * Carrega curso
-     * @return BelongsTo
      */
     public function curso(): BelongsTo
     {

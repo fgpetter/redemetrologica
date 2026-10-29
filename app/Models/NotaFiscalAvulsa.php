@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use App\Casts\TelefoneCast;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class NotaFiscalAvulsa extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     protected $table = 'notas_fiscais_avulsas';
 
@@ -24,6 +24,7 @@ class NotaFiscalAvulsa extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName('Usuários');
     }
 }

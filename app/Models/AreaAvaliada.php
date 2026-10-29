@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
-
+use Spatie\Activitylog\Support\LogOptions;
 
 class AreaAvaliada extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     protected $table = 'areas_avaliadas';
 
@@ -27,13 +26,12 @@ class AreaAvaliada extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 
-
     /**
      * Carrega avaliacao
-     * @return BelongsTo
      */
     public function avaliacao(): BelongsTo
     {
@@ -42,7 +40,6 @@ class AreaAvaliada extends Model
 
     /**
      * Carrega avaliador
-     * @return HasOne
      */
     public function avaliador(): HasOne
     {
@@ -51,7 +48,6 @@ class AreaAvaliada extends Model
 
     /**
      * Carrega area atuacao
-     * @return HasOne
      */
     public function areaAtuacao(): HasOne
     {

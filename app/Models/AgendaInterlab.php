@@ -3,17 +3,18 @@
 namespace App\Models;
 
 use App\Enums\InterlabLotePostagemStatus;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class AgendaInterlab extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     protected $table = 'agenda_interlabs';
 
@@ -33,6 +34,7 @@ class AgendaInterlab extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 
@@ -125,9 +127,9 @@ class AgendaInterlab extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, InterlabLotePostagem>
+     * @return Collection<int, InterlabLotePostagem>
      */
-    public function lotesPostagemConcluidos(): \Illuminate\Database\Eloquent\Collection
+    public function lotesPostagemConcluidos(): Collection
     {
         return $this->lotesPostagem()
             ->where('status', InterlabLotePostagemStatus::Concluido)

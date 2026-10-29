@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\Support\LogOptions;
 
 class AgendainterlabMaterial extends Model
 {
-    use SetDefaultUid, LogsActivity;
+    use LogsModelActivity, SetDefaultUid;
 
     protected $table = 'agendainterlab_materiais';
 
@@ -26,6 +25,7 @@ class AgendainterlabMaterial extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 

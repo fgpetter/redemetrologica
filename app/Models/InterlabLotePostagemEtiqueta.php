@@ -3,21 +3,21 @@
 namespace App\Models;
 
 use App\Enums\InterlabLotePostagemEtiquetaStatus;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Database\Factories\InterlabLotePostagemEtiquetaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class InterlabLotePostagemEtiqueta extends Model
 {
     /** @use HasFactory<InterlabLotePostagemEtiquetaFactory> */
     use HasFactory;
 
-    use LogsActivity;
+    use LogsModelActivity;
     use SetDefaultUid;
 
     protected $table = 'interlab_lote_postagem_etiquetas';
@@ -33,6 +33,7 @@ class InterlabLotePostagemEtiqueta extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 

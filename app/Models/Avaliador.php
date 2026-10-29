@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
-
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Avaliador extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     protected $table = 'avaliadores';
 
@@ -27,18 +26,16 @@ class Avaliador extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 
-
     protected $casts = [
-        'data_ingresso'  => 'date',
+        'data_ingresso' => 'date',
     ];
-
 
     /**
      * Carrega pessoa
-     * @return BelongsTo
      */
     public function pessoa(): BelongsTo
     {
@@ -47,7 +44,6 @@ class Avaliador extends Model
 
     /**
      * Qualificações
-     * @return HasMany
      */
     public function qualificacoes(): HasMany
     {
@@ -56,7 +52,6 @@ class Avaliador extends Model
 
     /**
      * Áreas de atuação
-     * @return HasMany
      */
     public function areas(): HasMany
     {
@@ -65,7 +60,6 @@ class Avaliador extends Model
 
     /**
      * Status
-     * @return HasMany
      */
     public function status(): HasMany
     {

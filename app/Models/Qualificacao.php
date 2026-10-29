@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\LogsModelActivity;
+use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SetDefaultUid;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Qualificacao extends Model
 {
-    use LogsActivity, SetDefaultUid;
+    use LogsModelActivity, SetDefaultUid;
 
     protected $table = 'avaliador_qualificacoes';
 
@@ -25,13 +25,12 @@ class Qualificacao extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName('Usuários');
     }
 
-
     /**
      * Carrega avalidor
-     * @return BelongsTo
      */
     public function avaliador(): BelongsTo
     {

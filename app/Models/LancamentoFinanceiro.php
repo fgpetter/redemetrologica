@@ -4,18 +4,18 @@ namespace App\Models;
 
 use App\Enums\EsferaGovernamental;
 use App\Enums\FormaPagamentoCobranca;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class LancamentoFinanceiro extends Model
 {
-    use HasFactory, LogsActivity, SetDefaultUid;
+    use HasFactory, LogsModelActivity, SetDefaultUid;
 
     protected $table = 'lancamentos_financeiros';
 
@@ -40,6 +40,7 @@ class LancamentoFinanceiro extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['*'])
+            ->logOnlyDirty()
             ->useLogName(get_class($this));
     }
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SuporteClassificacao;
 use App\Enums\SuporteStatus;
+use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,13 +15,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class SuporteDemanda extends Model
 {
     use HasFactory;
-    use LogsActivity;
+    use LogsModelActivity;
     use SetDefaultUid;
     use SoftDeletes;
 
