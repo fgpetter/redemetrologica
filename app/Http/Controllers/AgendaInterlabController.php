@@ -301,14 +301,27 @@ class AgendaInterlabController extends Controller
         );
 
         if ($validator->fails()) {
+            $arquivo = $request->file('arquivo');
+
             Log::channel('validation')->info(
-                'Erro de validação',
+                'Erro de validação de material do Interlab',
                 [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
+                    'user_id' => $request->user()?->id,
+                    'agenda_interlab_uid' => $agendainterlab->uid,
+                    'errors' => $validator->errors()->toArray(),
+                    'failed_rules' => $validator->failed(),
+                    'arquivo' => $arquivo ? [
+                        'nome' => $arquivo->getClientOriginalName(),
+                        'extensao' => $arquivo->getClientOriginalExtension(),
+                        'mime_informado' => $arquivo->getClientMimeType(),
+                        'mime_detectado' => $arquivo->isValid() ? $arquivo->getMimeType() : null,
+                        'tamanho_bytes' => $arquivo->isValid() ? $arquivo->getSize() : null,
+                        'upload_error' => $arquivo->getError(),
+                        'upload_error_message' => $arquivo->getErrorMessage(),
+                    ] : null,
+                    'content_length' => $request->server('CONTENT_LENGTH'),
+                    'upload_max_filesize' => ini_get('upload_max_filesize'),
+                    'post_max_size' => ini_get('post_max_size'),
                 ]
             );
 
