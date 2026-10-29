@@ -1,3 +1,5 @@
+@props(['labinterno' => null, 'laboratorio', 'areasatuacao'])
+
 {{-- modal --}}
 <div class="modal fade" id="{{ isset($labinterno) ? 'labinternoModal'.$labinterno->uid : 'labinternoModal' }}" tabindex="-1" aria-labelledby="labinternoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -33,7 +35,7 @@
               </div>
         
               <div class="col-4">
-                <x-forms.input-field name="telefone" :value="old('telefone') ?? $labinterno->getRawOriginal('telefone')" label="Telefone" mask="telefone" />
+                <x-forms.input-field name="telefone" :value="old('telefone') ?? $labinterno?->getRawOriginal('telefone')" label="Telefone" mask="telefone" />
                   @error('telefone') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
         
@@ -73,7 +75,7 @@
                   <label class="form-label">Arquivo atual</label><br>
                   <a href="{{ asset('laboratorios-certificados/' . $labinterno->certificado) }}">
                     <span>
-                      <i class="ph-file-arrow-down align-middle" style="font-size: 1rem"></i>
+                      <i class="ph-file-arrow-down align-middle fs-6"></i>
                     </span>
                     {{ $labinterno->certificado }}
                   </a>
@@ -82,7 +84,7 @@
                 @endif
                 <label for="certificado">@if ($labinterno->certificado ?? null) Alterar @else Inserir @endif Certificado
                   <span data-bs-toggle="tooltip" data-bs-html="true" title="Ao adicionar um arquivo o anterior será removido">
-                    <i class="ri-information-line align-middle text-warning-emphasis" style="font-size: 1rem"></i>
+                    <i class="ri-information-line align-middle text-warning-emphasis fs-6"></i>
                   </span>
                 </label>
                 <input class="form-control" type="file" name="certificado" id="certificado">
