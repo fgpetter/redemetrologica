@@ -6,12 +6,14 @@ use App\Enums\SuporteStatus;
 use App\Livewire\Suporte\AtividadeForm;
 use App\Livewire\Suporte\DemandaDetalhe;
 use App\Livewire\Suporte\SuporteTable;
+use App\Mail\SuporteDemandaAtualizadaMail;
 use App\Models\Permission;
 use App\Models\SuporteArquivo;
 use App\Models\SuporteAtividade;
 use App\Models\SuporteDemanda;
 use App\Models\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
@@ -23,6 +25,63 @@ function usuarioDoSuporte(string $perfil = 'funcionario'): User
 
     return $user;
 }
+
+test('atualização da demanda envia email aos participantes vinculados após salvar', function () {
+    $user = usuarioDoSuporte('admin');
+    $removido = usuarioDoSuporte();
+    $participante = usuarioDoSuporte();
+    $demanda = SuporteDemanda::factory()->create(['autor_id' => $user->id]);
+    $demanda->participantes()->sync([$removido->id]);
+    Mail::fake();
+
+    Livewire::actingAs($user)->test(DemandaDetalhe::class, ['demanda' => $demanda])
+        ->set('form.titulo', 'Relatório atualizado')
+        ->set('form.participantes', [$participante->id])
+        ->call('salvar')->assertHasNoErrors();
+
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, 1);
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, function ($mail) use ($participante, $demanda) {
+        return $mail->hasTo($participante->email)
+            && $mail->titulo === 'Relatório atualizado'
+            && $mail->url === route('suporte-insert', ['demanda' => $demanda->uid])
+            && $mail->afterCommit === true;
+    });
+    (new SuporteDemandaAtualizadaMail('Relatório atualizado', route('suporte-insert', ['demanda' => $demanda->uid])))
+        ->assertSeeInHtml('Relatório atualizado')
+        ->assertSeeInHtml(route('suporte-insert', ['demanda' => $demanda->uid]));
+});
+
+test('salvar demanda e atividade sem alterações não envia email', function () {
+    $user = usuarioDoSuporte();
+    $demanda = SuporteDemanda::factory()->create(['autor_id' => $user->id]);
+    $demanda->participantes()->sync([$user->id]);
+    $atividade = SuporteAtividade::factory()->create(['demanda_id' => $demanda->id, 'owner_id' => $user->id]);
+    Mail::fake();
+
+    Livewire::actingAs($user)->test(DemandaDetalhe::class, ['demanda' => $demanda])
+        ->call('salvar')->assertHasNoErrors();
+    Livewire::test(AtividadeForm::class, ['demanda' => $demanda])
+        ->call('editar', $atividade->uid)->call('salvar')->assertHasNoErrors();
+
+    Mail::assertNothingOutgoing();
+});
+
+test('atividade notifica participantes inclusive seu autor e validação inválida não envia email', function () {
+    $user = usuarioDoSuporte();
+    $participante = usuarioDoSuporte();
+    $demanda = SuporteDemanda::factory()->create();
+    $demanda->participantes()->sync([$participante->id]);
+    Mail::fake();
+
+    $component = Livewire::actingAs($user)->test(AtividadeForm::class, ['demanda' => $demanda]);
+    $component->call('salvar')->assertHasErrors('descricao');
+    Mail::assertNothingOutgoing();
+
+    $component->set('descricao', '<p>Atualização</p>')->call('salvar')->assertHasNoErrors();
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, 2);
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, fn ($mail) => $mail->hasTo($user->email));
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, fn ($mail) => $mail->hasTo($participante->email));
+});
 
 test('suporte exige login e perfil interno nas páginas', function () {
     $this->get(route('suporte-index'))->assertRedirect(route('login'));
@@ -253,8 +312,12 @@ test('apenas admin resolve pendência e nova publicação volta a acender aviso'
     $user = usuarioDoSuporte();
     $admin = usuarioDoSuporte('admin');
     $demanda = SuporteDemanda::factory()->concluida()->create(['pendencia_versao' => 1]);
+    $demanda->participantes()->sync([$user->id]);
+    Mail::fake();
     Livewire::actingAs($user)->test(DemandaDetalhe::class, ['demanda' => $demanda])->call('resolver')->assertForbidden();
+    Mail::assertNothingOutgoing();
     Livewire::actingAs($admin)->test(DemandaDetalhe::class, ['demanda' => $demanda])->call('resolver')->assertHasNoErrors();
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, fn ($mail) => $mail->hasTo($user->email));
     expect($demanda->fresh()->temPendencia())->toBeFalse()
         ->and($demanda->fresh()->status)->toBe(SuporteStatus::Concluida);
     Livewire::actingAs($user)->test(AtividadeForm::class, ['demanda' => $demanda])
@@ -278,9 +341,12 @@ test('soft delete exige admin preserva registros e oculta respostas e arquivos',
     $atividade = SuporteAtividade::factory()->create(['demanda_id' => $demanda->id]);
     $resposta = SuporteAtividade::factory()->create(['demanda_id' => $demanda->id, 'parent_id' => $atividade->id]);
     $arquivo = SuporteArquivo::factory()->create(['demanda_id' => $demanda->id, 'atividade_id' => $resposta->id]);
+    $demanda->participantes()->sync([$user->id]);
+    Mail::fake();
     Livewire::actingAs($user)->test(DemandaDetalhe::class, ['demanda' => $demanda])->call('excluir')->assertForbidden();
     Livewire::actingAs($admin)->test(DemandaDetalhe::class, ['demanda' => $demanda])
         ->call('excluirAtividade', $atividade->uid)->assertHasNoErrors();
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, fn ($mail) => $mail->hasTo($user->email));
     $this->assertSoftDeleted($atividade);
     $this->assertSoftDeleted($resposta);
     $this->assertSoftDeleted($arquivo);

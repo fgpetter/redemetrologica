@@ -4,11 +4,13 @@ use App\Actions\Suporte\ArquivosSuporteAction;
 use App\Actions\Suporte\SalvarDemandaSuporteAction;
 use App\Livewire\Suporte\AtividadeForm;
 use App\Livewire\Suporte\DemandaDetalhe;
+use App\Mail\SuporteDemandaAtualizadaMail;
 use App\Models\Permission;
 use App\Models\SuporteArquivo;
 use App\Models\SuporteDemanda;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -136,11 +138,14 @@ test('remover anexo exige edição permitida e bloqueia download preservando arq
     $user = usuarioArquivosSuporte();
     $demanda = SuporteDemanda::factory()->create(['autor_id' => $user->id]);
     $arquivo = SuporteArquivo::factory()->create(['demanda_id' => $demanda->id]);
+    $demanda->participantes()->sync([$user->id]);
+    Mail::fake();
     Storage::disk('local')->put($arquivo->caminho, 'conteudo');
     $this->actingAs($user)->get(route('suporte-arquivo-download', $arquivo->uid))->assertOk()->assertDownload('exemplo.pdf');
     Livewire::actingAs($user)->test(DemandaDetalhe::class, ['demanda' => $demanda])
         ->call('removerAnexo', $arquivo->uid)->call('salvar')->assertHasNoErrors();
     $this->assertSoftDeleted($arquivo);
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, fn ($mail) => $mail->hasTo($user->email));
     $this->get(route('suporte-arquivo-download', $arquivo->uid))->assertNotFound();
     Storage::disk('local')->assertExists($arquivo->caminho);
 });

@@ -42,6 +42,8 @@ class SalvarDemandaSuporteAction
                         $demanda->alterarStatus($user, $status);
                     }
 
+                    app(NotificarAtualizacaoDemandaAction::class)->execute($demanda);
+
                     return $demanda;
                 }
                 $demanda->exigirAberta();
@@ -69,14 +71,21 @@ class SalvarDemandaSuporteAction
                 ]);
             }
             $demanda->fill($administrativo);
-            $demanda->fill(['titulo' => $dados['titulo'], 'descricao' => $conteudo['html']])->save();
+            $demanda->fill(['titulo' => $dados['titulo'], 'descricao' => $conteudo['html']]);
+            $alterada = $demanda->isDirty();
+            $demanda->save();
             if ($nova) {
                 $participantes[] = $user->id;
             }
-            $demanda->participantes()->sync(array_unique($participantes));
-            $this->arquivos->vincular($disponiveis, $anexos, $conteudo['imagens'], $demanda);
+            $vinculos = $demanda->participantes()->sync(array_unique($participantes));
+            $arquivosAlterados = $this->arquivos->vincular($disponiveis, $anexos, $conteudo['imagens'], $demanda);
             if ($status && $status !== $demanda->status) {
+                $alterada = true;
                 $demanda->alterarStatus($user, $status);
+            }
+
+            if (! $nova && ($alterada || $arquivosAlterados || $vinculos['attached'] || $vinculos['detached'])) {
+                app(NotificarAtualizacaoDemandaAction::class)->execute($demanda);
             }
 
             return $demanda;

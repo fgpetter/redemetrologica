@@ -45,8 +45,10 @@ class SalvarAtividadeSuporteAction
                     'apos_encerramento' => $demanda->status->encerrada(),
                 ]);
             }
-            $atividade->fill(['descricao' => $conteudo['html']])->save();
-            $this->arquivos->vincular($disponiveis, $anexos, $conteudo['imagens'], $demanda, $atividade);
+            $atividade->fill(['descricao' => $conteudo['html']]);
+            $alterada = $nova || $atividade->isDirty();
+            $atividade->save();
+            $arquivosAlterados = $this->arquivos->vincular($disponiveis, $anexos, $conteudo['imagens'], $demanda, $atividade);
             if ($nova) {
                 $demanda->participantes()->syncWithoutDetaching([$user->id]);
                 if ($demanda->status->encerrada()) {
@@ -54,6 +56,9 @@ class SalvarAtividadeSuporteAction
                 }
             }
             $demanda->touch();
+            if ($alterada || $arquivosAlterados) {
+                app(NotificarAtualizacaoDemandaAction::class)->execute($demanda);
+            }
 
             return $atividade;
         });

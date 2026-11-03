@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Suporte;
 
+use App\Actions\Suporte\NotificarAtualizacaoDemandaAction;
 use App\Actions\Suporte\SalvarDemandaSuporteAction;
 use App\Enums\SuporteClassificacao;
 use App\Enums\SuporteStatus;
@@ -65,7 +66,11 @@ class DemandaDetalhe extends Component
 
     public function resolver(): void
     {
-        $this->demanda()?->resolverPendencia(auth()->user(), $this->pendenciaExibida);
+        $demanda = $this->demanda();
+        if ($demanda) {
+            $demanda->resolverPendencia(auth()->user(), $this->pendenciaExibida);
+            app(NotificarAtualizacaoDemandaAction::class)->execute($demanda);
+        }
     }
 
     public function excluir(): mixed
@@ -79,7 +84,11 @@ class DemandaDetalhe extends Component
     public function excluirAtividade(string $uid): void
     {
         SuporteDemanda::autorizarAcesso(auth()->user());
-        $this->demanda()?->atividades()->where('uid', $uid)->firstOrFail()->excluir(auth()->user());
+        $demanda = $this->demanda();
+        if ($demanda) {
+            $demanda->atividades()->where('uid', $uid)->firstOrFail()->excluir(auth()->user());
+            app(NotificarAtualizacaoDemandaAction::class)->execute($demanda);
+        }
         $this->dispatch('suporte-atualizado');
     }
 

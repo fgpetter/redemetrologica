@@ -90,7 +90,7 @@ class ArquivosSuporteAction
      * @param  array<int, string>  $anexos
      * @param  array<int, string>  $imagens
      */
-    public function vincular(Collection $disponiveis, array $anexos, array $imagens, SuporteDemanda $demanda, ?SuporteAtividade $atividade = null): void
+    public function vincular(Collection $disponiveis, array $anexos, array $imagens, SuporteDemanda $demanda, ?SuporteAtividade $atividade = null): bool
     {
         foreach ($anexos as $uid) {
             if (! $disponiveis->contains(fn (SuporteArquivo $arquivo) => $arquivo->uid === $uid && $arquivo->tipo === 'anexo')) {
@@ -98,13 +98,18 @@ class ArquivosSuporteAction
             }
         }
         $usados = array_merge($anexos, $imagens);
+        $alterados = false;
         foreach ($disponiveis as $arquivo) {
             if (in_array($arquivo->uid, $usados, true)) {
+                $alterados = $alterados || $arquivo->demanda_id === null;
                 $arquivo->update(['demanda_id' => $demanda->id, 'atividade_id' => $atividade?->id, 'rascunho' => null]);
 
                 continue;
             }
+            $alterados = $alterados || $arquivo->demanda_id !== null;
             $arquivo->delete();
         }
+
+        return $alterados;
     }
 }
