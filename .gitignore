@@ -20,6 +20,7 @@ yarn-error.log
 /.vscode
 /.cursor
 /.claude
+/.playwright-mcp
 public/vendor/log-viewer/*
 _ide_helper_models.php
 _ide_helper.php
