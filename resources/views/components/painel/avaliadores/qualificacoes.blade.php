@@ -25,7 +25,7 @@
                 <tr>
                     <th>
                         <a href="#" data-bs-toggle="modal"
-                            data-bs-target="{{ '#qualificacaoModal' . $qualificacao->uid }}">#{{ substr($qualificacao->uid, 7) }}
+                            data-bs-target="{{ '#qualificacaoModal' . $qualificacao->uid }}">#{{ $qualificacao->id }}
                         </a>
                     </th>
                     <td>{{ $qualificacao->ano }}</td>

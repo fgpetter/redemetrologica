@@ -23,7 +23,7 @@
                 <tr>
                     <th>
                         <a href="#" data-bs-toggle="modal"
-                            data-bs-target="{{ '#avaliadorStatusModal' . $status->uid }}">#{{ substr($status->uid, 7) }}
+                            data-bs-target="{{ '#avaliadorStatusModal' . $status->uid }}">#{{ $status->id }}
                         </a>
                     </th>
                     <td>

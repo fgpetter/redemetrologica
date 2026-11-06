@@ -25,6 +25,7 @@ class LaboratorioInterno extends Model
 
     protected $casts = [
         'telefone' => TelefoneCast::class,
+        'data_ultima_avaliacao' => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions

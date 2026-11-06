@@ -33,7 +33,7 @@
               </div>
 
               <div class="col-4">
-                <x-forms.input-field name="data_cadastro" type="date" :value="old('data_cadastro') ?? $area->data_cadastro ?? null" label="Data Cadastro" />
+                <x-forms.input-field name="data_cadastro" type="date" :value="old('data_cadastro', isset($area) ? $area->data_cadastro?->format('Y-m-d') : null)" label="Data Cadastro" />
                 @error('data_cadastro') <div class="text-warning">{{ $message }}</div> @enderror
               </div>
             </div>

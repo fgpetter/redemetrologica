@@ -2,8 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\AreaAtuacao;
+use App\Models\AvaliacaoAvaliador;
 use App\Models\Avaliador;
+use App\Models\AvaliadorArea;
 use App\Models\Permission;
+use App\Models\Qualificacao;
+use App\Models\StatusAvaliador;
 use App\Models\User;
 use Database\Factories\PessoaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -121,5 +126,87 @@ class AvaliadorCadastroTest extends TestCase
         $response->assertOk();
         $response->assertSee('id="enderecos"', false);
         $response->assertDontSee('id="tom-select-avaliador-pessoa"', false);
+    }
+
+    public function test_tela_de_edicao_exibe_os_ids_das_quatro_tabelas_do_avaliador(): void
+    {
+        $pessoa = PessoaFactory::new()->create(['tipo_pessoa' => 'PF']);
+        $avaliador = Avaliador::create(['pessoa_id' => $pessoa->id]);
+        $areaAtuacao = AreaAtuacao::create([
+            'descricao' => 'Engenharia',
+            'observacoes' => '',
+        ]);
+        $avaliacao = AvaliacaoAvaliador::create([
+            'avaliador_id' => $avaliador->id,
+            'empresa' => 'Empresa de teste',
+            'situacao' => 'AVALIADOR',
+        ]);
+        $area = AvaliadorArea::create([
+            'avaliador_id' => $avaliador->id,
+            'area_id' => $areaAtuacao->id,
+            'situacao' => 'ATIVO',
+        ]);
+        $qualificacao = Qualificacao::create([
+            'avaliador_id' => $avaliador->id,
+            'ano' => '2026',
+            'atividade' => 'Auditoria',
+        ]);
+        $status = StatusAvaliador::create([
+            'avaliador_id' => $avaliador->id,
+            'status' => 'ATIVO',
+        ]);
+
+        $response = $this->actingAs($this->usuarioFuncionario())->get(route('avaliador-insert', $avaliador->uid));
+
+        $response->assertOk();
+        foreach ([
+            ['avaliacaoModal', $avaliacao],
+            ['areaModal', $area],
+            ['qualificacaoModal', $qualificacao],
+            ['avaliadorStatusModal', $status],
+        ] as [$modal, $registro]) {
+            $this->assertMatchesRegularExpression(
+                '/data-bs-target="#'.preg_quote($modal.$registro->uid, '/').'">\s*#'.$registro->id.'\b/',
+                $response->getContent(),
+            );
+        }
+    }
+
+    public function test_tela_de_edicao_preserva_data_de_cadastro_da_area_e_deixa_data_nula_vazia(): void
+    {
+        $pessoa = PessoaFactory::new()->create(['tipo_pessoa' => 'PF']);
+        $avaliador = Avaliador::create(['pessoa_id' => $pessoa->id]);
+        $areaAtuacao = AreaAtuacao::create([
+            'descricao' => 'Engenharia',
+            'observacoes' => '',
+        ]);
+        $areaComData = AvaliadorArea::create([
+            'avaliador_id' => $avaliador->id,
+            'area_id' => $areaAtuacao->id,
+            'situacao' => 'ATIVO',
+            'data_cadastro' => '2024-03-14',
+        ]);
+        $areaSemData = AvaliadorArea::create([
+            'avaliador_id' => $avaliador->id,
+            'area_id' => $areaAtuacao->id,
+            'situacao' => 'INATIVO',
+            'data_cadastro' => null,
+        ]);
+
+        $response = $this->actingAs($this->usuarioFuncionario())->get(route('avaliador-insert', $avaliador->uid));
+
+        $response->assertOk();
+        expect($areaComData->refresh()->data_cadastro->format('Y-m-d'))->toBe('2024-03-14');
+        $response->assertSee('value="2024-03-14"', false);
+        $response->assertSee('14/03/2024');
+        $response->assertSee('id="areaModal'.$areaSemData->uid.'"', false);
+        $response->assertSee('name="data_cadastro"', false);
+        $response->assertDontSee('name="data_cadastro" type="date" value="', false);
+        $conteudo = $response->getContent();
+        $posicaoIdAreaSemData = strpos($conteudo, '>#'.$areaSemData->id);
+        $inicioLinhaAreaSemData = strrpos(substr($conteudo, 0, $posicaoIdAreaSemData), '<tr>');
+        $fimLinhaAreaSemData = strpos($conteudo, '</tr>', $posicaoIdAreaSemData);
+        $linhaAreaSemData = substr($conteudo, $inicioLinhaAreaSemData, $fimLinhaAreaSemData - $inicioLinhaAreaSemData);
+        expect($linhaAreaSemData)->not->toMatch('/\d{2}\/\d{2}\/\d{4}/');
     }
 }

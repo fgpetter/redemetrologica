@@ -26,13 +26,13 @@
                 <tr>
                     <th>
                         <a href="#" data-bs-toggle="modal"
-                            data-bs-target="{{ '#areaModal' . $area->uid }}">#{{ substr($area->uid, 7) }}
+                            data-bs-target="{{ '#areaModal' . $area->uid }}">#{{ $area->id }}
                         </a>
                     </th>
                     <td>{{ $area->situacao }}</td>
                     <td>{{ $area->area->descricao }}</td>
                     <td>
-                        {{ \Carbon\Carbon::parse($area->data_cadastro)->format('d/m/Y') }}
+                        {{ $area->data_cadastro?->format('d/m/Y') }}
                     </td>
                     <td>
                         <div class="dropdown">

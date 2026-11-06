@@ -20,6 +20,13 @@ class AvaliadorArea extends Model
      */
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'data_cadastro' => 'date',
+        ];
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

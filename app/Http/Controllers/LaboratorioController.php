@@ -11,6 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +35,8 @@ class LaboratorioController extends Controller
             })
             ->when($busca_nome, function (Builder $query, $busca_nome) {
                 $query->whereHas('pessoa', function ($q) use ($busca_nome) {
-                    $q->where('nome_razao', 'LIKE', "%$busca_nome%");
+                    $q->where('nome_razao', 'LIKE', "%$busca_nome%")
+                        ->orWhere('nome_fantasia', 'LIKE', "%$busca_nome%");
                 });
             })
             ->paginate(15);
@@ -66,19 +68,25 @@ class LaboratorioController extends Controller
             ]
         );
 
-        $pessoa = Pessoa::select('id')->where('uid', $request->pessoa_uid)->first();
+        $laboratorio = DB::transaction(function () use ($request) {
+            $pessoa = Pessoa::where('uid', $request->pessoa_uid)
+                ->where('tipo_pessoa', 'PJ')->lockForUpdate()->first();
 
-        // cria um laboratorio vinculado a pessoa
-        $laboratorio = Laboratorio::create([
-            'pessoa_id' => $pessoa->id,
-        ]);
+            if (! $pessoa) {
+                return null;
+            }
+
+            return Laboratorio::where('pessoa_id', $pessoa->id)->orderBy('id')->first()
+                ?? Laboratorio::create(['pessoa_id' => $pessoa->id]);
+        });
 
         if (! $laboratorio) {
             return redirect()->back()->with('error', 'Ocorreu um erro! Revise os dados e tente novamente');
         }
 
         return redirect()->route('laboratorio-insert', $laboratorio->uid)
-            ->with('success', 'Laboratório cadastrado com sucesso');
+            ->with($laboratorio->wasRecentlyCreated ? 'success' : 'warning',
+                $laboratorio->wasRecentlyCreated ? 'Laboratório cadastrado com sucesso' : 'Esta empresa já possui laboratório cadastrado');
     }
 
     /**

@@ -71,13 +71,14 @@
       <thead>
         <tr>
           <th scope="col" style="width: 5%">ID</th>
-          <th scope="col" style="width: 50%">
+          <th scope="col" style="width: 45%">
             <a href="{{ route('laboratorio-index', ['name' => $order_name]) }}">
               {!! $order_name == 'ASC' ? '<i class="ri-arrow-up-s-line"></i>' : '<i class="ri-arrow-down-s-line"></i>' !!}
               &nbsp Nome
             </a>
           </th>
-          <th scope="col" style="width: 40%">Nome do Laboratório</th>
+          <th scope="col" style="width: 30%">Nome do Laboratório</th>
+          <th scope="col" style="width: 15%">Associado</th>
           <th scope="col" style="width: 5%"></th>
         </tr>
       </thead>
@@ -89,8 +90,14 @@
                   #{{ substr($laboratorio->uid, 7) }} 
                 </a>
               </th>
-            <td>{{$laboratorio->pessoa->nome_razao}}</td>
+            <td>
+              <div>{{ $laboratorio->pessoa->nome_razao }}</div>
+              @if ($laboratorio->pessoa->nome_fantasia)
+                <div class="small fw-light text-muted">{{ $laboratorio->pessoa->nome_fantasia }}</div>
+              @endif
+            </td>
             <td>{{($laboratorio->nome_laboratorio != $laboratorio->pessoa->nome_razao) ? $laboratorio->nome_laboratorio : ''}}</td>
+            <td>{{ $laboratorio->pessoa->associado == 1 ? 'Sim' : 'Não' }}</td>
             <td>
               <div class="dropdown">
                 <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown" aria-expanded="false">

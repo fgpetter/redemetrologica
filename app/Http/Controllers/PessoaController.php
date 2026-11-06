@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateUserForPessoaAction;
 use App\Helpers\Telefone;
+use App\Models\Laboratorio;
 use App\Models\Pessoa;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +20,7 @@ class PessoaController extends Controller
     /**
      *Gera pagina de listagem de usuários
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request)
     {
@@ -29,7 +31,9 @@ class PessoaController extends Controller
         $associado = $request->associado;
         $busca_doc = preg_replace('/[^0-9]/', '', $request->buscadoc);
 
-        $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'created_at', 'associado')
+        $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj', 'created_at', 'associado', 'tipo_pessoa')
+            ->addSelect(['laboratorio_uid' => Laboratorio::select('uid')
+                ->whereColumn('pessoa_id', 'pessoas.id')->orderBy('id')->limit(1)])
             ->when($name, function (Builder $query, $name) {
                 $query->orderBy('nome_razao', $name);
             })

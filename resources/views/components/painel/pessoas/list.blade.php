@@ -107,6 +107,19 @@
                     <li><a class="dropdown-item"
                         href="{{ route('pessoa-insert', ['pessoa' => $pessoa->uid]) }}">Editar</a>
                     </li>
+                    @if ($pessoa->tipo_pessoa === 'PJ')
+                      <li>
+                        @if ($pessoa->laboratorio_uid)
+                          <a class="dropdown-item" href="{{ route('laboratorio-insert', ['laboratorio' => $pessoa->laboratorio_uid]) }}">Editar laboratório</a>
+                        @else
+                          <form action="{{ route('laboratorio-create') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="pessoa_uid" value="{{ $pessoa->uid }}">
+                            <button class="dropdown-item" type="submit">Adicionar laboratório</button>
+                          </form>
+                        @endif
+                      </li>
+                    @endif
                     <li>
                       <x-painel.form-delete.delete route='pessoa-delete'
                         id="{{ $pessoa->uid }}" />

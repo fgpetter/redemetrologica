@@ -28,7 +28,7 @@
                     <td>{!! ( $lab_interno->site )
                         ? '<span class="badge rounded-pill bg-success">Sim</span>'
                         : '<span class="badge rounded-pill bg-danger">Não</span>' !!}</td>
-                    <td>{{ now()->format('d/m/Y') }}</td>
+                    <td>{{ $lab_interno->data_ultima_avaliacao?->format('d/m/Y') }}</td>
                     <td>
                         <div class="dropdown">
                             <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown"
