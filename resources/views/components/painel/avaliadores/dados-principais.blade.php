@@ -55,14 +55,14 @@
         </small></label>
       <select class="form-select" name="situacao" required>
         <option value="">Selecione</option>
-        <option value="ATIVO" @if (old('situacao', $avaliador->situacao) == 'ATIVO') selected @endif>ATIVO</option>
-        <option value="AVALIADOR" @if (old('situacao', $avaliador->situacao) == 'AVALIADOR') selected @endif>AVALIADOR</option>
-        <option value="AVALIADOR EM TREINAMENTO" @if (old('situacao', $avaliador->situacao) == 'AVALIADOR EM TREINAMENTO') selected @endif>AVALIADOR EM
+        <option value="ATIVO" @if (($errors->getBag('default')->any() ? old('situacao', $avaliador->situacao) : $avaliador->situacao) == 'ATIVO') selected @endif>ATIVO</option>
+        <option value="AVALIADOR" @if (($errors->getBag('default')->any() ? old('situacao', $avaliador->situacao) : $avaliador->situacao) == 'AVALIADOR') selected @endif>AVALIADOR</option>
+        <option value="AVALIADOR EM TREINAMENTO" @if (($errors->getBag('default')->any() ? old('situacao', $avaliador->situacao) : $avaliador->situacao) == 'AVALIADOR EM TREINAMENTO') selected @endif>AVALIADOR EM
           TREINAMENTO</option>
-        <option value="AVALIADOR LIDER" @if (old('situacao', $avaliador->situacao) == 'AVALIADOR LIDER') selected @endif>AVALIADOR LIDER
+        <option value="AVALIADOR LIDER" @if (($errors->getBag('default')->any() ? old('situacao', $avaliador->situacao) : $avaliador->situacao) == 'AVALIADOR LIDER') selected @endif>AVALIADOR LIDER
         </option>
-        <option value="ESPECIALISTA" @if (old('situacao', $avaliador->situacao) == 'ESPECIALISTA') selected @endif>ESPECIALISTA</option>
-        <option value="INATIVO" @if (old('situacao', $avaliador->situacao) == 'INATIVO') selected @endif>INATIVO</option>
+        <option value="ESPECIALISTA" @if (($errors->getBag('default')->any() ? old('situacao', $avaliador->situacao) : $avaliador->situacao) == 'ESPECIALISTA') selected @endif>ESPECIALISTA</option>
+        <option value="INATIVO" @if (($errors->getBag('default')->any() ? old('situacao', $avaliador->situacao) : $avaliador->situacao) == 'INATIVO') selected @endif>INATIVO</option>
       </select>
       @error('situacao')
         <div class="text-warning">{{ $message }}</div>

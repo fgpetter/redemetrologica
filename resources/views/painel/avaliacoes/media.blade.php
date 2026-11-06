@@ -1,9 +1,9 @@
 @extends('layouts.master')
-@section('title') Média de Avaliações @endsection
+@section('title') Pesquisa de Satisfação @endsection
 @section('content')
 @component('components.breadcrumb')
 @slot('li_1') Avaliações @endslot
-@slot('title') Média de Avaliações @endslot
+@slot('title') Pesquisa de Satisfação @endslot
 @endcomponent
 
 <div class="row">

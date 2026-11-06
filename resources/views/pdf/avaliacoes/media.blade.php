@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Média de Avaliações</title>
+    <title>Pesquisa de Satisfação</title>
     <style>
         @page {
             size: A4 portrait;
@@ -96,7 +96,7 @@
             <td class="logo-cell">
                 @inlinedImage(resource_path('images/certificados/LOGO_REDE_COLOR.png'))
             </td>
-            <td class="title-cell">Média de Avaliações</td>
+            <td class="title-cell">Pesquisa de Satisfação</td>
         </tr>
     </table>
 

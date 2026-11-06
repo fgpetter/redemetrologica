@@ -408,7 +408,7 @@ class AvaliadorController extends Controller
      **/
     public function createAvaliacao(Request $request, Avaliador $avaliador): RedirectResponse
     {
-        $request->validate(
+        $request->validateWithBag('avaliacao_nova',
             [
                 'empresa' => ['required', 'integer', 'exists:pessoas,id'],
                 'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],
@@ -449,7 +449,7 @@ class AvaliadorController extends Controller
      **/
     public function updateAvaliacao(Request $request, AvaliacaoAvaliador $avaliacao): RedirectResponse
     {
-        $request->validate(
+        $request->validateWithBag('avaliacao_'.$avaliacao->uid,
             [
                 'empresa' => ['required', 'integer', 'exists:pessoas,id'],
                 'situacao' => ['required', Rule::in(['AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LÍDER', 'ESPECIALISTA'])],

@@ -1,3 +1,9 @@
+@php
+    $errorBag = isset($avaliacao) ? 'avaliacao_'.$avaliacao->uid : 'avaliacao_nova';
+    $hasErrors = $errors->getBag($errorBag)->any();
+    $situacao = $hasErrors ? old('situacao') : ($avaliacao->situacao ?? '');
+    $situacao = $situacao === 'AVALIADOR LIDER' ? 'AVALIADOR LÍDER' : $situacao;
+@endphp
 {{-- modal --}}
 <div class="modal fade" id="{{ isset($avaliacao) ? 'avaliacaoModal' . $avaliacao->uid : 'avaliacaoModal' }}" tabindex="-1"
     aria-labelledby="avaliacaoModalLabel" aria-hidden="true">
@@ -19,30 +25,30 @@
                                 @if (isset($empresas))
                                     @foreach ($empresas as $empresa)
                                         <option value="{{ $empresa->id }}"
-                                            @if (isset($avaliacao) && $avaliacao->empresa == $empresa->id) selected @endif>
+                                            @selected(($hasErrors ? old('empresa') : ($avaliacao->empresa ?? null)) == $empresa->id)>
                                             {{ $empresa->cpf_cnpj }} | {{ $empresa->nome_razao }}
                                         </option>
                                     @endforeach
                                 @endif
                             </select>
-                            @error('empresa')
+                            @error('empresa', $errorBag)
                                 <div class="text-warning">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-8">
                             <label for="situacao" class="form-label">Situação</label>
-                            <select id="situacao" name="situacao" class="form-select">
+                            <select id="situacao" name="situacao" class="form-select" required>
                                 <option value="">Selecione uma situação</option>
 
-                                @foreach (['ATIVO','AVALIADOR','AVALIADOR EM TREINAMENTO','AVALIADOR LIDER','ESPECIALISTA','INATIVO'] as $sit)
-                                    <option value="{{ $sit }}" @selected(old('situacao', $avaliacao->situacao ?? '') === $sit)>
+                                @foreach (['AVALIADOR','AVALIADOR EM TREINAMENTO','AVALIADOR LÍDER','ESPECIALISTA'] as $sit)
+                                    <option value="{{ $sit }}" @selected($situacao === $sit)>
                                         {{ $sit }}
                                     </option>
                                 @endforeach
                             </select>
 
-                            @error('situacao')
+                            @error('situacao', $errorBag)
                                 <div class="text-warning">{{ $message }}</div>
                             @enderror
                         </div>
@@ -50,8 +56,8 @@
                         <div class="col-4">
                             <label for="data" class="form-label">Data</label>
                             <input type="date" class="form-control" name="data" id="data"
-                                value="{{ old('data') ?? ($avaliacao->data ?? null) }}" required>
-                            @error('data')
+                                value="{{ $hasErrors ? old('data') : ($avaliacao->data ?? null) }}" required>
+                            @error('data', $errorBag)
                                 <div class="text-warning">{{ $message }}</div>
                             @enderror
                         </div>
@@ -91,4 +97,12 @@
         </div>
     </div>
 </div>
+@if ($hasErrors)
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            bootstrap.Tab.getOrCreateInstance(document.querySelector('a[href="#avaliacoes"]')).show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById(@js(isset($avaliacao) ? 'avaliacaoModal'.$avaliacao->uid : 'avaliacaoModal'))).show();
+        });
+    </script>
+@endif
 {{-- endmodal --}}

@@ -18,6 +18,59 @@ class AvaliadorCadastroTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_edicao_de_avaliacao_preserva_situacao_e_isola_erros(): void
+    {
+        $usuario = $this->usuarioFuncionario();
+        $pessoa = PessoaFactory::new()->create(['tipo_pessoa' => 'PF']);
+        $empresa = PessoaFactory::new()->create(['tipo_pessoa' => 'PJ']);
+        $avaliador = Avaliador::create(['pessoa_id' => $pessoa->id, 'situacao' => 'ATIVO']);
+        $avaliacao = AvaliacaoAvaliador::create([
+            'avaliador_id' => $avaliador->id, 'empresa' => $empresa->id,
+            'situacao' => 'AVALIADOR LÍDER', 'data' => '2026-11-06',
+        ]);
+        $tela = route('avaliador-insert', $avaliador->uid);
+        $this->actingAs($usuario)->get($tela)->assertSee('value="AVALIADOR LÍDER" selected', false);
+
+        $this->from($tela)->post(route('avaliador-update-avaliacao', $avaliacao->uid), [
+            'empresa' => $empresa->id, 'situacao' => '', 'data' => '2026-11-06',
+        ])->assertSessionHasErrorsIn('avaliacao_'.$avaliacao->uid, ['situacao']);
+
+        $html = $this->get($tela)->assertOk()->getContent();
+        $this->assertStringNotContainsString('Selecione uma situação válida.', explode('id="avaliacoes"', $html)[0]);
+        $this->assertStringContainsString('Selecione uma situação válida.', $html);
+
+        $this->post(route('avaliador-update-avaliacao', $avaliacao->uid), [
+            'empresa' => $empresa->id, 'situacao' => 'AVALIADOR LÍDER', 'data' => '2026-11-06',
+        ])->assertSessionHasNoErrors();
+        $this->assertSame('AVALIADOR LÍDER', $avaliacao->refresh()->situacao);
+    }
+
+    public function test_avaliacao_valida_situacao_no_proprio_modal_e_salva_lider(): void
+    {
+        $usuario = $this->usuarioFuncionario();
+        $pessoa = PessoaFactory::new()->create(['tipo_pessoa' => 'PF']);
+        $empresa = PessoaFactory::new()->create(['tipo_pessoa' => 'PJ']);
+        $avaliador = Avaliador::create(['pessoa_id' => $pessoa->id, 'situacao' => 'ATIVO']);
+        $tela = route('avaliador-insert', $avaliador->uid);
+
+        $this->actingAs($usuario)->from($tela)->post(route('avaliador-create-avaliacao', $avaliador->uid), [
+            'empresa' => $empresa->id, 'situacao' => 'INATIVO', 'data' => '2026-11-06',
+        ])->assertSessionHasErrorsIn('avaliacao_nova', ['situacao']);
+
+        $html = $this->get($tela)->assertOk()->getContent();
+        $principal = explode('id="avaliacoes"', $html)[0];
+        $this->assertStringNotContainsString('A situação selecionada é inválida.', $principal);
+        $this->assertStringContainsString('A situação selecionada é inválida.', $html);
+        $this->assertStringContainsString('avaliacaoModal', $html);
+
+        $this->post(route('avaliador-create-avaliacao', $avaliador->uid), [
+            'empresa' => $empresa->id, 'situacao' => 'AVALIADOR LÍDER', 'data' => '2026-11-06',
+        ])->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('avaliacao_avaliadores', [
+            'avaliador_id' => $avaliador->id, 'situacao' => 'AVALIADOR LÍDER',
+        ]);
+    }
+
     private function usuarioFuncionario(): User
     {
         $user = User::factory()->create();

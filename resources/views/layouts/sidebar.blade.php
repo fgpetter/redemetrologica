@@ -141,7 +141,7 @@
                 <a href="{{ route('avaliacao-media-index') }}"
                   class="nav-link {{ request()->routeIs('avaliacao-media-index') ? 'active' : '' }}"
                   role="button" data-key="t-signin">
-                  Média de Avaliações
+                  Pesquisa de Satisfação
                 </a>
               </li>
             </ul>
