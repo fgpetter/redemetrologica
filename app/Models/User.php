@@ -17,19 +17,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, LogsModelActivity, Notifiable, SetDefaultUid;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'uid',
-        'name',
-        'email',
-        'password',
-        'email_verified_at',
-        'temporary_password',
-    ];
+    protected $table = 'users';
+
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -81,7 +71,7 @@ class User extends Authenticatable
      *
      * @param  string  $permission  A permissão a ser adicionada
      */
-    public function givePermission($permission): void
+    public function givePermission(string $permission): void
     {
         /** @var Permission $permission */
         $permission = Permission::firstOrCreate(['permission' => $permission]);
@@ -94,7 +84,7 @@ class User extends Authenticatable
      *
      * @param  string|string[]  $permission  A permissão a ser verificada
      */
-    public function hasPermissionTo($permission): bool
+    public function hasPermissionTo(string|array $permission): bool
     {
         if (is_string($permission)) {
             $permission = [$permission];

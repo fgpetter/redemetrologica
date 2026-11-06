@@ -3,7 +3,7 @@
         <div class="col-md-3">
             <label for="perc_lucro" class="form-label">Perc Lucro (%)</label>
             <input type="number" step="0.01" class="form-control text-end" id="perc_lucro"
-                wire:model.blur.live="form.perc_lucro">
+                wire:model.live.blur="form.perc_lucro">
             @error('form.perc_lucro')
                 <span class="text-danger">{{ $message }}</span>
             @enderror

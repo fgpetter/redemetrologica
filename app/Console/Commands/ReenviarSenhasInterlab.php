@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\CriarEnviarSenhaAnalistaAction;
-use App\Actions\CriarEnviarSenhaLaboratorioAction;
+use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BancoRequest;
 use App\Models\Banco;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class BancosController extends Controller
 {
@@ -20,26 +20,9 @@ class BancosController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function create(BancoRequest $request): RedirectResponse
     {
-        $validated = $request->validate(
-            [
-                'numero_banco' => ['nullable', 'string'],
-                'nome_banco' => ['nullable', 'string'],
-                'agencia' => ['nullable', 'string'],
-                'conta' => ['nullable', 'string'],
-                'movimenta_financeiro' => ['nullable', 'string'],
-                'padrao' => ['nullable', 'string'],
-            ],
-            [
-                'numero_banco.string' => 'Conteúdo inválido',
-                'nome_banco.string' => 'Conteúdo inválido',
-                'agencia.string' => 'Conteúdo inválido',
-                'conta.string' => 'Conteúdo inválido',
-                'movimenta_financeiro.string' => 'Conteúdo inválido',
-                'padrao.string' => 'Conteúdo inválido',
-            ]
-        );
+        $validated = $request->validated();
 
         $banco = Banco::create($validated);
 
@@ -55,26 +38,9 @@ class BancosController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Banco $banco)
+    public function update(BancoRequest $request, Banco $banco): RedirectResponse
     {
-        $validated = $request->validate(
-            [
-                'numero_banco' => ['nullable', 'string'],
-                'nome_banco' => ['nullable', 'string'],
-                'agencia' => ['nullable', 'string'],
-                'conta' => ['nullable', 'string'],
-                'movimenta_financeiro' => ['nullable', 'string'],
-                'padrao' => ['nullable', 'string'],
-            ],
-            [
-                'numero_banco.string' => 'Conteúdo inválido',
-                'nome_banco.string' => 'Conteúdo inválido',
-                'agencia.string' => 'Conteúdo inválido',
-                'conta.string' => 'Conteúdo inválido',
-                'movimenta_financeiro.string' => 'Conteúdo inválido',
-                'padrao.string' => 'Conteúdo inválido',
-            ]
-        );
+        $validated = $request->validated();
 
         $validated['padrao'] = ($request->has('padrao')) ? 1 : 0;
         $validated['movimenta_financeiro'] = ($request->has('padrao')) ? 1 : 0;
@@ -88,7 +54,7 @@ class BancosController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Banco $banco)
+    public function delete(Banco $banco): RedirectResponse
     {
         $banco->delete();
 

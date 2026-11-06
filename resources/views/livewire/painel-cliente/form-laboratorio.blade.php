@@ -13,9 +13,9 @@
         x-data="{
             requerAnalistas: @js($requer_analistas),
             blocosMeta: @js($blocosMeta),
-            blocoSelecionado: $wire.entangle('bloco_selecionado').live,
-            blocosSelecionados: $wire.entangle('blocos_selecionados').live,
-            analistas: $wire.entangle('analistas').live,
+            blocoSelecionado: $wire.entangle('form.blocoSelecionado').live,
+            blocosSelecionados: $wire.entangle('form.blocosSelecionados').live,
+            analistas: $wire.entangle('form.analistas').live,
             analistasIniciais: @js((int) ($numero_analistas ?? 0)),
             get idsSelecionados() {
                 if (this.requerAnalistas) {
@@ -70,52 +70,52 @@
             },
         }">
         <div class="col-12 col-xl-6">
-            <x-forms.input-field wire:model="laboratorio.nome" name="lab_nome" label="Laboratório" required />
-            @error('laboratorio.nome') <span class="text-danger small">{{ $message }}</span> @enderror
+            <x-forms.input-field wire:model="form.laboratorio.nome" name="lab_nome" label="Laboratório" required />
+            @error('form.laboratorio.nome') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-12 col-xl-6">
-            <x-forms.input-field wire:model="laboratorio.responsavel_tecnico" name="lab_resp" label="Responsável Técnico" required />
-            @error('laboratorio.responsavel_tecnico') <span class="text-danger small">{{ $message }}</span> @enderror
+            <x-forms.input-field wire:model="form.laboratorio.responsavel_tecnico" name="lab_resp" label="Responsável Técnico" required />
+            @error('form.laboratorio.responsavel_tecnico') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-12 col-sm-6">
-            <x-forms.input-field wire:model="laboratorio.telefone" name="lab_tel" label="Telefone" 
+            <x-forms.input-field wire:model="form.laboratorio.telefone" name="lab_tel" label="Telefone"
                 mask="telefone" maxlength="15" />
-            @error('laboratorio.telefone') <span class="text-danger small">{{ $message }}</span> @enderror
+            @error('form.laboratorio.telefone') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-12 col-sm-6">
-            <x-forms.input-field wire:model="laboratorio.email" name="lab_email" label="E-mail" type="email" required />
-            @error('laboratorio.email') <span class="text-danger small">{{ $message }}</span> @enderror
+            <x-forms.input-field wire:model="form.laboratorio.email" name="lab_email" label="E-mail" type="email" required />
+            @error('form.laboratorio.email') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
 
         <div class="col-12"><hr class="my-2"><h6 class="text-muted">Endereço do Laboratório</h6></div>
         
         <div class="col-md-4">
-             <x-forms.input-field wire:model="laboratorio.endereco.cep" name="lab_cep" label="CEP" 
+             <x-forms.input-field wire:model="form.laboratorio.endereco.cep" name="lab_cep" label="CEP"
                 wire:blur="buscaCep" maxlength="9" x-mask="99999-999" required />
-             @error('laboratorio.endereco.cep') <span class="text-danger small">{{ $message }}</span> @enderror
+             @error('form.laboratorio.endereco.cep') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-md-6">
-             <x-forms.input-field wire:model="laboratorio.endereco.endereco" name="lab_end" label="Endereço" required />
-             @error('laboratorio.endereco.endereco') <span class="text-danger small">{{ $message }}</span> @enderror
+             <x-forms.input-field wire:model="form.laboratorio.endereco.endereco" name="lab_end" label="Endereço" required />
+             @error('form.laboratorio.endereco.endereco') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-md-2">
-             <x-forms.input-field wire:model="laboratorio.endereco.numero" name="lab_num" label="Número" required />
-             @error('laboratorio.endereco.numero') <span class="text-danger small">{{ $message }}</span> @enderror
+             <x-forms.input-field wire:model="form.laboratorio.endereco.numero" name="lab_num" label="Número" required />
+             @error('form.laboratorio.endereco.numero') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
          <div class="col-md-6">
-             <x-forms.input-field wire:model="laboratorio.endereco.complemento" name="lab_comp" label="Complemento" />
+             <x-forms.input-field wire:model="form.laboratorio.endereco.complemento" name="lab_comp" label="Complemento" />
         </div>
         <div class="col-md-6">
-             <x-forms.input-field wire:model="laboratorio.endereco.bairro" name="lab_bairro" label="Bairro" required />
-             @error('laboratorio.endereco.bairro') <span class="text-danger small">{{ $message }}</span> @enderror
+             <x-forms.input-field wire:model="form.laboratorio.endereco.bairro" name="lab_bairro" label="Bairro" required />
+             @error('form.laboratorio.endereco.bairro') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-md-6">
-             <x-forms.input-field wire:model="laboratorio.endereco.cidade" name="lab_cid" label="Cidade" required />
-             @error('laboratorio.endereco.cidade') <span class="text-danger small">{{ $message }}</span> @enderror
+             <x-forms.input-field wire:model="form.laboratorio.endereco.cidade" name="lab_cid" label="Cidade" required />
+             @error('form.laboratorio.endereco.cidade') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
         <div class="col-md-2">
-             <x-forms.input-field wire:model="laboratorio.endereco.uf" name="lab_uf" label="UF" maxlength="2" style="text-transform: uppercase;" required />
-             @error('laboratorio.endereco.uf') <span class="text-danger small">{{ $message }}</span> @enderror
+             <x-forms.input-field wire:model="form.laboratorio.endereco.uf" name="lab_uf" label="UF" maxlength="2" style="text-transform: uppercase;" required />
+             @error('form.laboratorio.endereco.uf') <span class="text-danger small">{{ $message }}</span> @enderror
         </div>
 
         <div class="col-12">
@@ -151,15 +151,15 @@
                                     <strong class="text-primary-emphasis small text-uppercase">Analista {{ $i + 1 }}</strong>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <x-forms.input-field wire:model="analistas.{{ $i }}.nome" name="analista_{{ $i }}_nome" label="Nome" x-bind:required="quantidadeAnalistas > {{ $i }}" />
+                                    <x-forms.input-field wire:model="form.analistas.{{ $i }}.nome" name="analista_{{ $i }}_nome" label="Nome" x-bind:required="quantidadeAnalistas > {{ $i }}" />
                                     @error("analistas.{$i}.nome") <span class="text-danger small">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <x-forms.input-field wire:model="analistas.{{ $i }}.email" name="analista_{{ $i }}_email" label="E-mail" type="email" x-bind:required="quantidadeAnalistas > {{ $i }}" />
+                                    <x-forms.input-field wire:model="form.analistas.{{ $i }}.email" name="analista_{{ $i }}_email" label="E-mail" type="email" x-bind:required="quantidadeAnalistas > {{ $i }}" />
                                     @error("analistas.{$i}.email") <span class="text-danger small">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <x-forms.input-field wire:model="analistas.{{ $i }}.telefone" name="analista_{{ $i }}_telefone" label="Telefone" 
+                                    <x-forms.input-field wire:model="form.analistas.{{ $i }}.telefone" name="analista_{{ $i }}_telefone" label="Telefone"
                                         mask="telefone" maxlength="15"
                                         x-bind:required="quantidadeAnalistas > {{ $i }}" />
                                     @error("analistas.{$i}.telefone") <span class="text-danger small">{{ $message }}</span> @enderror
@@ -188,13 +188,13 @@
                                         <div class="form-check mb-0">
                                             @if ($requer_analistas)
                                                 <input class="form-check-input fs-5 mt-0" type="radio"
-                                                    wire:model.live="bloco_selecionado"
+                                                    wire:model.live="form.blocoSelecionado"
                                                     name="bloco_selecionado"
                                                     value="{{ $valorItem->id }}"
                                                     id="bloco_{{ $valorItem->id }}">
                                             @else
                                                 <input class="form-check-input fs-5 mt-0" type="checkbox"
-                                                    wire:model.live="blocos_selecionados"
+                                                    wire:model.live="form.blocosSelecionados"
                                                     value="{{ $valorItem->id }}"
                                                     id="bloco_{{ $valorItem->id }}">
                                             @endif
@@ -226,9 +226,9 @@
                         @endif
 
                         @if ($requer_analistas)
-                            @error('bloco_selecionado') <span class="text-danger d-block mt-3">{{ $message }}</span> @enderror
+                            @error('form.blocoSelecionado') <span class="text-danger d-block mt-3">{{ $message }}</span> @enderror
                         @else
-                            @error('blocos_selecionados') <span class="text-danger d-block mt-3">{{ $message }}</span> @enderror
+                            @error('form.blocosSelecionados') <span class="text-danger d-block mt-3">{{ $message }}</span> @enderror
                         @endif
                     </div>
                 </div>

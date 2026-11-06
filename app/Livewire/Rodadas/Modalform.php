@@ -7,6 +7,7 @@ use App\Livewire\Forms\RodadaForm;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabRodada;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -17,6 +18,7 @@ class Modalform extends Component
 
     public AgendaInterlab $agendainterlab;
 
+    #[Locked]
     public ?string $rodadaUid = null;
 
     public RodadaForm $form;
@@ -53,7 +55,7 @@ class Modalform extends Component
     public function mount(): void
     {
         if ($this->rodadaUid) {
-            $rodada = InterlabRodada::where('uid', $this->rodadaUid)->first();
+            $rodada = $this->agendainterlab->rodadas()->where('uid', $this->rodadaUid)->firstOrFail();
             $this->form->setRodada($rodada);
         } else {
             $this->form->setNew($this->agendainterlab->id);
@@ -62,21 +64,18 @@ class Modalform extends Component
 
     public function removerArquivo(string $nomeArquivo, string $campo): void
     {
-        if (empty($nomeArquivo)) {
-            return;
-        }
+        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
+        abort_unless(in_array($campo, ['arquivo_envio', 'arquivo_inicio_ensaios', 'arquivo_limite_envio_resultados', 'arquivo_divulgacao_relatorios'], true), 404);
+        abort_unless($this->rodadaUid, 404);
 
-        $caminhoArquivo = public_path('interlab-material/'.$nomeArquivo);
-        if (file_exists($caminhoArquivo)) {
+        $rodada = $this->agendainterlab->rodadas()->where('uid', $this->rodadaUid)->firstOrFail();
+        $arquivo = $rodada->$campo;
+        abort_unless($arquivo && $arquivo === $nomeArquivo && basename($arquivo) === $arquivo, 404);
+
+        $rodada->update([$campo => null]);
+        $caminhoArquivo = public_path('interlab-material/'.$arquivo);
+        if (is_file($caminhoArquivo)) {
             unlink($caminhoArquivo);
-        }
-
-        if ($this->rodadaUid) {
-            $interlab_rodada = InterlabRodada::where('uid', $this->rodadaUid)->first();
-            if ($interlab_rodada) {
-                $interlab_rodada->$campo = null;
-                $interlab_rodada->save();
-            }
         }
     }
 
@@ -95,7 +94,7 @@ class Modalform extends Component
         }
 
         // Remove arquivo antigo se existir
-        if ($interlab_rodada->$campo) {
+        if ($interlab_rodada->$campo && basename($interlab_rodada->$campo) === $interlab_rodada->$campo) {
             $caminhoArquivoAntigo = public_path('interlab-material/'.$interlab_rodada->$campo);
             if (file_exists($caminhoArquivoAntigo)) {
                 unlink($caminhoArquivoAntigo);
@@ -110,6 +109,8 @@ class Modalform extends Component
 
     public function salvar(): void
     {
+        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
+        $this->form->agenda_interlab_id = $this->agendainterlab->id;
         $this->validate();
 
         $isNew = empty($this->rodadaUid);
@@ -122,31 +123,33 @@ class Modalform extends Component
         ];
 
         DB::transaction(function () use ($arquivos) {
-            $interlab_rodada = InterlabRodada::updateOrCreate(
-                ['uid' => $this->form->uid],
-                $this->form->toArray()
-            );
+            $dados = $this->form->toArray();
+            unset($dados['uid'], $dados['agenda_interlab_id']);
+            if ($this->rodadaUid) {
+                $interlab_rodada = $this->agendainterlab->rodadas()->where('uid', $this->rodadaUid)->firstOrFail();
+                $interlab_rodada->fill($dados);
+            } else {
+                $interlab_rodada = $this->agendainterlab->rodadas()->create($dados);
+            }
 
             foreach ($arquivos as $campo => $arquivo) {
                 $this->processarArquivo($arquivo, $campo, $interlab_rodada);
             }
 
             $interlab_rodada->save();
+            $this->rodadaUid = $interlab_rodada->uid;
         });
 
         // Atualiza rodadaUid se for nova
-        if ($isNew) {
-            $this->rodadaUid = $this->form->uid;
-        }
-
         // Recarrega os dados do form
-        $rodada = InterlabRodada::where('uid', $this->form->uid)->first();
+        $rodada = $this->agendainterlab->rodadas()->where('uid', $this->rodadaUid)->first();
         if ($rodada) {
             $this->form->setRodada($rodada);
         }
         $this->limparArquivos();
 
         $mensagem = $isNew ? 'Rodada criada com sucesso!' : 'Rodada atualizada com sucesso!';
+        $this->dispatch('refresh-rodadas-'.$this->agendainterlab->id);
         $this->dispatch('refresh-rodadas-list');
         $this->dispatch('show-rodada-success', message: $mensagem);
     }
@@ -165,7 +168,7 @@ class Modalform extends Component
             ];
         }
 
-        $rodada = InterlabRodada::where('uid', $this->rodadaUid)->first();
+        $rodada = $this->agendainterlab->rodadas()->where('uid', $this->rodadaUid)->first();
 
         return [
             'arquivo_envio' => $rodada?->arquivo_envio,

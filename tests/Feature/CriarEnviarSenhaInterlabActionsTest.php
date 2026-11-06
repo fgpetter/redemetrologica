@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Actions\CriarEnviarSenhaAnalistaAction;
-use App\Actions\CriarEnviarSenhaLaboratorioAction;
+use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
 use App\Jobs\EnviaSenhaAnalistaJob;
 use App\Jobs\EnviaSenhaLaboratorioJob;
 use App\Models\AgendaInterlab;

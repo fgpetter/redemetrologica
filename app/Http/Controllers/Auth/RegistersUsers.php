@@ -4,18 +4,22 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\InvalidEmailException;
 use App\Exceptions\InvalidEmailRegisterException;
+use App\Http\Requests\RegisterRequest;
 use App\Mail\UserRegistered;
 use App\Models\Pessoa;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Foundation\Auth\RedirectsUsers;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 trait RegistersUsers
 {
@@ -23,40 +27,17 @@ trait RegistersUsers
 
     /**
      * Show the application registration form.
-     *
-     * @return \Illuminate\View\View
      */
-    public function showRegistrationForm()
+    public function showRegistrationForm(): View
     {
         return view('auth.register');
     }
 
     /**
      * Handle a registration request for the application.
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request): RedirectResponse|JsonResponse
     {
-        Log::channel('register')->info('Tentativa de cadastro', $request->except(['password', 'password_confirmation']));
-
-        $validator = $this->validator($request->all());
-
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação', [
-                'user' => auth()->user() ?? null,
-                'request' => $request->all() ?? null,
-                'uri' => request()->fullUrl() ?? null,
-                'method' => get_class($this).'::'.__FUNCTION__,
-                'errors' => $validator->errors() ?? null,
-            ]);
-
-            return back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         $document = preg_replace('/[^0-9]/', '', $request['document']);
 
         // verifica se esse usuário foi importado do sistema antigo
@@ -103,7 +84,7 @@ trait RegistersUsers
                 );
         }
 
-        event(new Registered($user = $this->create($request->all())));
+        event(new Registered($user = $this->create($request->validated())));
 
         $this->guard()->login($user);
 
@@ -118,10 +99,8 @@ trait RegistersUsers
 
     /**
      * Get the guard to be used during registration.
-     *
-     * @return \Illuminate\Contracts\Auth\StatefulGuard
      */
-    protected function guard()
+    protected function guard(): StatefulGuard
     {
         return Auth::guard();
     }
@@ -132,7 +111,7 @@ trait RegistersUsers
      * @param  mixed  $user
      * @return mixed
      */
-    protected function registered(Request $request, $user)
+    protected function registered(Request $request, $user): RedirectResponse
     {
         Pessoa::updateOrCreate(
             ['cpf_cnpj' => preg_replace('/[^0-9]/', '', $request['document'])],

@@ -11,7 +11,10 @@ class AgendaCursoMaterial extends Model
 {
     use HasFactory;
 
+    // Pivô sem chave própria: o vínculo é persistido pela relação do curso.
     protected $table = 'agenda_curso_materiais';
+
+    protected $guarded = [];
 
     public function agendaCurso(): BelongsTo
     {

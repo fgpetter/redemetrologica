@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Telefone;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -10,18 +10,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     /**
      * Gera pagina de listagem de usuários
      *
-     * @return View
      **/
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $order = $request->input('name', 'asc');
+        $order = in_array($order, ['asc', 'desc', 'ASC', 'DESC'], true) ? $order : 'asc';
         $busca = $request->input('busca');
 
         $users = User::with(['permissions', 'pessoa'])
@@ -39,9 +38,8 @@ class UserController extends Controller
     /**
      * Adiciona usuários na base
      *
-     * @return RedirectResponse
      **/
-    public function create(Request $request)
+    public function create(Request $request): RedirectResponse
     {
         $request->merge([
             'nome' => ucwords(strtolower($request->get('nome'))),
@@ -107,54 +105,9 @@ class UserController extends Controller
      * Edita dados de usuário
      *
      **/
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UserUpdateRequest $request, User $user): RedirectResponse
     {
         if (auth()->user()->hasPermissionTo(['admin', 'funcionario']) || ($user->id == auth()->user()->id)) {
-
-            $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
-            $request->merge(Telefone::prepararCampos($request->only('telefone', 'telefone_alt', 'celular')));
-            $request->merge(['nome' => ucwords(strtolower($request->get('nome'))), 'email' => strtolower($request->get('email'))]);
-
-            $validator = Validator::make($request->all(), [
-                'nome' => ['required', 'string', 'max:191'],
-                'email' => ['required', 'email', 'unique:users,email,'.$user->id],
-                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-                'cpf_cnpj' => [Rule::requiredIf($user->id == auth()->user()->id), 'cpf', 'unique:pessoas,cpf_cnpj,'.$user->pessoa->id],
-                'telefone' => ['nullable', 'celular_com_ddd'],
-                'telefone_alt' => ['nullable', 'celular_com_ddd'],
-                'celular' => ['nullable', 'celular_com_ddd'],
-                'cep' => ['nullable', 'string'],
-                'endereco' => ['nullable', 'string'],
-                'cidade' => ['nullable', 'string'],
-                'uf' => ['nullable', 'string'],
-            ], [
-                'nome.required' => 'Preencha o campo nome',
-                'email.required' => 'Preencha o campo email',
-                'email.email' => 'Não é um email válido',
-                'email.unique' => 'Esse email já está em uso',
-                'password.confirmed' => 'As senhas não conferem',
-                'password.min' => 'A senha deve ter pelo menos 8 caracteres',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'telefone_alt.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'celular.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-            ]
-            );
-
-            if ($validator->fails()) {
-
-                Log::channel('validation')->info('Erro de validação', [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]);
-
-                return back()
-                    ->withErrors($validator)
-                    ->withInput()
-                    ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-            }
 
             $user->update([
                 'name' => ucwords($request->nome ?? ''),
@@ -214,7 +167,7 @@ class UserController extends Controller
         return redirect()->route('user-index')->with('warning', 'Usuário removido');
     }
 
-    public function updatePermission(User $user, Request $request)
+    public function updatePermission(User $user, Request $request): RedirectResponse
     {
         $request->validate([
             'permission' => ['nullable', 'array'],

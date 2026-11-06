@@ -13,6 +13,8 @@ class Curso extends Model
 {
     use LogsModelActivity, SetDefaultUid, SoftDeletes;
 
+    protected $table = 'cursos';
+
     /**
      * The attributes that aren't mass assignable.
      *

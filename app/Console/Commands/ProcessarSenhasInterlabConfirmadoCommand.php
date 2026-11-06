@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\CriarEnviarSenhaAnalistaAction;
-use App\Actions\CriarEnviarSenhaLaboratorioAction;
+use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
 use App\Models\InterlabInscrito;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;

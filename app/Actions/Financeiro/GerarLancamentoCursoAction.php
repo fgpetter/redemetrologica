@@ -8,6 +8,7 @@ use App\Models\CursoInscrito;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use App\Models\PlanoConta;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 
 class GerarLancamentoCursoAction
@@ -15,12 +16,14 @@ class GerarLancamentoCursoAction
     /**
      * Gera ou atualiza lançamento financeiro para inscrição em curso.
      *
+     * @param  AgendaCursos  $agendacurso  Agenda da inscrição
      * @param  Pessoa  $inscrito  Pessoa vinculada à inscrição
      * @param  Pessoa|null  $empresa  Empresa contratante (se CNPJ)
      * @param  bool  $associado  Se a empresa/pessoa é associada
      * @param  string|null  $valor  Valor manual (opcional)
      * @param  string|null  $nomeParticipante  Nome do participante para observação
      * @param  array<string, mixed>|null  $dadosCobranca  Respostas de cobrança da empresa (colunas do lançamento)
+     * @return LancamentoFinanceiro Lançamento individual ou da empresa
      */
     public function execute(
         AgendaCursos $agendacurso,
@@ -31,6 +34,8 @@ class GerarLancamentoCursoAction
         ?string $nomeParticipante = null,
         ?array $dadosCobranca = null
     ): LancamentoFinanceiro {
+        $camposCobranca = Arr::only($dadosCobranca ?? [], LancamentoFinanceiro::CAMPOS_COBRANCA);
+
         if (! $valor) {
             $valor = ($associado) ? $agendacurso->investimento_associado : $agendacurso->investimento;
         }
@@ -54,7 +59,7 @@ class GerarLancamentoCursoAction
                     'tipo_lancamento' => 'CREDITO',
                     'data_emissao' => now(),
                     'status' => 'PROVISIONADO',
-                    ...($dadosCobranca ?? []),
+                    ...$camposCobranca,
                 ]);
             } else { // se a empresa já possui inscritos nesse curso, atualiza o valor
 
@@ -72,7 +77,7 @@ class GerarLancamentoCursoAction
                 $lancamento->update([
                     'valor' => $dados_empresa->sum('valor'),
                     'observacoes' => $observacoes,
-                    ...($dadosCobranca ?? []),
+                    ...$camposCobranca,
                 ]);
             }
 

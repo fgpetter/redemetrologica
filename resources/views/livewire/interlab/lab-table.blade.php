@@ -166,13 +166,13 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                @error('empresa_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                                @error('form.empresa_id') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Nome do Laboratório <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" wire:model="nome">
-                                @error('nome') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <input type="text" class="form-control" wire:model="form.nome">
+                                @error('form.nome') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
@@ -182,34 +182,34 @@
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label">CEP <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" wire:model.live.blur="cep" x-mask="99999-999">
-                                @error('cep') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <input type="text" class="form-control" wire:model.live.blur="form.cep" x-mask="99999-999">
+                                @error('form.cep') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-9">
                                 <label class="form-label">Endereço <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" wire:model="endereco">
-                                @error('endereco') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <input type="text" class="form-control" wire:model="form.endereco">
+                                @error('form.endereco') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Bairro <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" wire:model="bairro">
-                                @error('bairro') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <input type="text" class="form-control" wire:model="form.bairro">
+                                @error('form.bairro') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Cidade <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" wire:model="cidade">
-                                @error('cidade') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <input type="text" class="form-control" wire:model="form.cidade">
+                                @error('form.cidade') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">UF <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" wire:model="uf" maxlength="2">
-                                @error('uf') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <input type="text" class="form-control" wire:model="form.uf" maxlength="2">
+                                @error('form.uf') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label">Complemento</label>
-                                <input type="text" class="form-control" wire:model="complemento">
-                                @error('complemento') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <input type="text" class="form-control" wire:model="form.complemento">
+                                @error('form.complemento') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
@@ -248,13 +248,13 @@
             create: false,
             sortField: { field: 'text', direction: 'asc' },
             onChange(value) {
-                @this.set('empresa_id', value ?? '');
+                @this.set('form.empresa_id', value ?? '');
             },
         });
 
         Livewire.on('reset-empresa-modal', () => {
             modalTs.clear(false);
-            @this.set('empresa_id', '');
+            @this.set('form.empresa_id', '');
         });
 
         Livewire.on('set-empresa-modal', (payload) => {

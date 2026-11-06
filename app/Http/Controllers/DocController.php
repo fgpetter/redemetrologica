@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
+use App\Models\InterlabInscrito;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DocController extends Controller
 {
     /**
      * Download de documento pelo link unico
      */
-    public function download(string $link)
+    public function download(string $link): BinaryFileResponse
     {
         $dadosDoc = DadosGeraDoc::where('link', $link)->firstOrFail();
 
@@ -45,7 +47,7 @@ class DocController extends Controller
     /**
      * Geração do PDF para tag senha do laboratório
      */
-    private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc)
+    private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc): BinaryFileResponse
     {
         return $this->gerarESalvarTagSenhaPdf($dadosDoc, 'certificados.tag-senha');
     }
@@ -53,12 +55,12 @@ class DocController extends Controller
     /**
      * Geração do PDF para tag senha do analista
      */
-    private function generateTagSenhaAnalistaPdf(DadosGeraDoc $dadosDoc)
+    private function generateTagSenhaAnalistaPdf(DadosGeraDoc $dadosDoc): BinaryFileResponse
     {
         return $this->gerarESalvarTagSenhaPdf($dadosDoc, 'certificados.tag-senha-analista');
     }
 
-    private function gerarESalvarTagSenhaPdf(DadosGeraDoc $dadosDoc, string $view)
+    private function gerarESalvarTagSenhaPdf(DadosGeraDoc $dadosDoc, string $view): BinaryFileResponse
     {
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
@@ -79,7 +81,7 @@ class DocController extends Controller
     /**
      * Geração do PDF para certificado
      */
-    private function generateCertificadoPdf(DadosGeraDoc $dadosDoc)
+    private function generateCertificadoPdf(DadosGeraDoc $dadosDoc): BinaryFileResponse
     {
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
@@ -125,7 +127,7 @@ class DocController extends Controller
     /**
      * Geração do PDF para certificado Interlab
      */
-    private function generateCertificadoInterlabPdf(DadosGeraDoc $dadosDoc)
+    private function generateCertificadoInterlabPdf(DadosGeraDoc $dadosDoc): BinaryFileResponse
     {
         $fileName = $dadosDoc->file_name;
         $path = $dadosDoc->storage_path;
@@ -135,7 +137,7 @@ class DocController extends Controller
         }
 
         // Buscar participante para gerar certificado
-        $participante = \App\Models\InterlabInscrito::with(['laboratorio', 'agendaInterlab.interlab'])
+        $participante = InterlabInscrito::with(['laboratorio', 'agendaInterlab.interlab'])
             ->findOrFail($dadosDoc->content['participante_id']);
 
         Pdf::view('certificados.certificado-interlab', [
@@ -145,7 +147,7 @@ class DocController extends Controller
         $dadosDoc->update(['file_name' => $path]);
 
         if (isset($dadosDoc->content['participante_id'])) {
-            \App\Models\InterlabInscrito::where('id', $dadosDoc->content['participante_id'])->update([
+            InterlabInscrito::where('id', $dadosDoc->content['participante_id'])->update([
                 'certificado_path' => $path,
             ]);
         }

@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\FornecedorArea;
-use App\Helpers\Telefone;
+use App\Http\Requests\FornecedorUpdateRequest;
 use App\Models\Fornecedor;
 use App\Models\FornecedorArea as FornecedorAreaModel;
 use App\Models\Pessoa;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class FornecedorController extends Controller
 {
@@ -69,75 +67,35 @@ class FornecedorController extends Controller
      * Edita dados de usuário
      *
      **/
-    public function update(Request $request, Fornecedor $fornecedor): RedirectResponse
+    public function update(FornecedorUpdateRequest $request, Fornecedor $fornecedor): RedirectResponse
     {
-        $areasData = $request->input('areas_data', []);
-        foreach (is_array($areasData) ? $areasData : [] as $area => $data) {
-            if (is_array($data) && array_key_exists('pessoa_contato_telefone', $data)) {
-                $areasData[$area]['pessoa_contato_telefone'] = Telefone::paraValidacao($data['pessoa_contato_telefone']);
-            }
-        }
-        $request->merge(['areas_data' => $areasData]);
 
-        $validator = Validator::make($request->all(), [
-            'fornecedor_desde' => ['nullable', Rule::date()->format('Y-m-d')],
-            'ativo' => ['required', 'in:0,1'],
-            'observacoes' => ['nullable', 'string', 'max:1000'],
-            'areas' => ['nullable', 'array'],
-            'areas.*' => ['in:'.implode(',', array_column(FornecedorArea::cases(), 'value'))],
-            'areas_data' => ['nullable', 'array'],
-            'areas_data.*.atuacao' => ['nullable', 'string', 'max:191'],
-            'areas_data.*.pessoa_contato' => ['nullable', 'string', 'max:191'],
-            'areas_data.*.pessoa_contato_email' => ['nullable', 'email', 'max:191'],
-            'areas_data.*.pessoa_contato_telefone' => ['nullable', 'celular_com_ddd'],
-        ], [
-            'fornecedor_desde.date' => 'Data de início inválida',
-            'fornecedor_desde.date_format' => 'Data de início inválida',
-            'ativo.required' => 'Informe se o fornecedor está ativo',
-            'ativo.in' => 'Valor de ativo inválido',
-            'observacoes.max' => 'Observações inválidas',
-            'areas.*.in' => 'Área inválida',
-            'areas_data.*.pessoa_contato_telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-        ]);
-
-        if ($validator->fails()) {
-            Log::channel('validation')->info('Erro de validação', [
-                'user' => auth()->user() ?? null,
-                'request' => $request->all() ?? null,
-                'uri' => request()->fullUrl() ?? null,
-                'method' => get_class($this).'::'.__FUNCTION__,
-                'errors' => $validator->errors() ?? null,
+        DB::transaction(function () use ($request, $fornecedor): void {
+            $fornecedor->update([
+                'fornecedor_desde' => $request->fornecedor_desde,
+                'ativo' => (int) $request->ativo,
+                'observacoes' => $request->observacoes,
             ]);
 
-            return back()
-                ->withErrors($validator, 'principal')
-                ->withInput()
-                ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-        }
+            $fornecedor->areas()->delete();
 
-        $fornecedor->update([
-            'fornecedor_desde' => $request->fornecedor_desde,
-            'ativo' => (int) $request->ativo,
-            'observacoes' => $request->observacoes,
-        ]);
-
-        $fornecedor->areas()->delete();
-
-        $validAreas = array_column(FornecedorArea::cases(), 'value');
-        foreach ($request->input('areas', []) as $index => $areaValue) {
-            if (! $areaValue || ! in_array($areaValue, $validAreas)) {
-                continue;
+            $validAreas = array_column(FornecedorArea::cases(), 'value');
+            foreach ($request->input('areas', []) as $index => $areaValue) {
+                if (! $areaValue || ! in_array($areaValue, $validAreas)) {
+                    continue;
+                }
+                $data = $request->input("areas_data.{$areaValue}", []);
+                FornecedorAreaModel::create([
+                    'fornecedor_id' => $fornecedor->id,
+                    'area' => $areaValue,
+                    'atuacao' => $data['atuacao'] ?? null,
+                    'pessoa_contato' => $data['pessoa_contato'] ?? null,
+                    'pessoa_contato_email' => $data['pessoa_contato_email'] ?? null,
+                    'pessoa_contato_telefone' => $data['pessoa_contato_telefone'] ?? null,
+                ]);
             }
-            $data = $request->input("areas_data.{$areaValue}", []);
-            FornecedorAreaModel::create([
-                'fornecedor_id' => $fornecedor->id,
-                'area' => $areaValue,
-                'atuacao' => $data['atuacao'] ?? null,
-                'pessoa_contato' => $data['pessoa_contato'] ?? null,
-                'pessoa_contato_email' => $data['pessoa_contato_email'] ?? null,
-                'pessoa_contato_telefone' => $data['pessoa_contato_telefone'] ?? null,
-            ]);
-        }
+
+        });
 
         return redirect()->back()->with('success', 'Fornecedor atualizado com sucesso');
     }

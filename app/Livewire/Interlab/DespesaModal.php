@@ -2,20 +2,27 @@
 
 namespace App\Livewire\Interlab;
 
-use App\Actions\Interlab\SyncFornecedorAvaliacaoAction;
+use App\Actions\Interlab\ExcluirDespesaInterlabAction;
+use App\Actions\Interlab\SalvarDespesaInterlabAction;
 use App\Enums\FornecedorArea;
+use App\Livewire\Forms\DespesaInterlabForm;
 use App\Models\Fornecedor;
 use App\Models\InterlabDespesa;
 use App\Models\InterlabDespesaLancamento;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class DespesaModal extends Component
 {
+    #[Locked]
     public int $agendaInterlabId;
 
+    #[Locked]
     public ?int $lancamentoId = null;
+
+    public DespesaInterlabForm $form;
 
     public bool $showModal = false;
 
@@ -163,81 +170,11 @@ class DespesaModal extends Component
         }
     }
 
-    public function salvar(): void
+    public function salvar(SalvarDespesaInterlabAction $salvarDespesa): void
     {
-        $this->validate([
-            'fornecedorId' => ['required', 'integer', 'exists:fornecedores,id'],
-            'produtos' => ['required', 'array', 'min:1'],
-            'produtos.*.material_servico' => ['required', 'string', 'max:255'],
-            'produtos.*.quantidade' => ['nullable', 'numeric', 'min:0'],
-            'produtos.*.valor' => ['nullable', 'string'],
-        ], [
-            'fornecedorId.required' => 'Selecione o fornecedor.',
-            'produtos.*.material_servico.required' => 'Material/Serviço é obrigatório.',
-        ]);
+        $dados = $this->validate($this->form->rules(), $this->form->messages());
 
-        $fornecedorId = (int) $this->fornecedorId;
-
-        $produtosValidados = [];
-        foreach ($this->produtos as $p) {
-            $qtd = isset($p['quantidade']) && $p['quantidade'] !== '' ? (float) str_replace(',', '.', $p['quantidade']) : 0;
-            $valor = isset($p['valor']) && $p['valor'] !== '' ? (float) formataMoeda($p['valor']) : null;
-
-            $produtosValidados[] = [
-                'material_servico' => $p['material_servico'] ?? '',
-                'fabricante' => $p['fabricante'] ?? '',
-                'cod_fabricante' => $p['cod_fabricante'] ?? '',
-                'quantidade' => $qtd ?: null,
-                'valor' => $valor,
-                'total' => $valor !== null && $qtd ? $valor * $qtd : null,
-                'lote' => $p['lote'] ?? null,
-                'validade' => ! empty($p['validade']) ? $p['validade'] : null,
-                'data_compra' => ! empty($p['data_compra']) ? $p['data_compra'] : null,
-            ];
-        }
-
-        $lancamento = DB::transaction(function () use ($fornecedorId, $produtosValidados) {
-            if ($this->lancamentoId !== null) {
-                $lancamento = InterlabDespesaLancamento::query()
-                    ->where('agenda_interlab_id', $this->agendaInterlabId)
-                    ->findOrFail($this->lancamentoId);
-
-                $lancamento->update(['fornecedor_id' => $fornecedorId]);
-            } else {
-                $lancamento = InterlabDespesaLancamento::query()->create([
-                    'agenda_interlab_id' => $this->agendaInterlabId,
-                    'fornecedor_id' => $fornecedorId,
-                ]);
-            }
-
-            $existentes = $lancamento->itens()->orderBy('id')->get();
-            $ids = $existentes->pluck('id')->toArray();
-
-            foreach ($produtosValidados as $i => $data) {
-                $data['interlab_despesa_lancamento_id'] = $lancamento->id;
-
-                if (isset($ids[$i])) {
-                    InterlabDespesa::where('id', $ids[$i])->update($data);
-                } else {
-                    InterlabDespesa::create($data);
-                }
-            }
-
-            if (count($produtosValidados) < count($ids)) {
-                foreach (array_slice($ids, count($produtosValidados)) as $id) {
-                    InterlabDespesa::find($id)?->delete();
-                }
-            }
-
-            app(SyncFornecedorAvaliacaoAction::class)->sync(
-                $lancamento->fresh(),
-                $this->avaliacaoComoInt($this->avaliacaoCusto),
-                $this->avaliacaoComoInt($this->avaliacaoTempo),
-                $this->avaliacaoComoInt($this->avaliacaoQualidade),
-            );
-
-            return $lancamento;
-        });
+        $lancamento = $salvarDespesa->execute($this->agendaInterlabId, $this->lancamentoId, $dados);
 
         $this->lancamentoId = $lancamento->id;
         $this->dispatch('despesa-salva');
@@ -245,20 +182,13 @@ class DespesaModal extends Component
         $this->fechar();
     }
 
-    public function deletarLancamento(): void
+    public function deletarLancamento(ExcluirDespesaInterlabAction $excluirDespesa): void
     {
         if ($this->lancamentoId === null) {
             return;
         }
 
-        $lancamento = InterlabDespesaLancamento::query()
-            ->where('agenda_interlab_id', $this->agendaInterlabId)
-            ->find($this->lancamentoId);
-
-        if ($lancamento) {
-            $lancamento->itens()->get()->each->delete();
-            $lancamento->avaliacao()->delete();
-            $lancamento->delete();
+        if ($excluirDespesa->execute($this->agendaInterlabId, $this->lancamentoId)) {
             $this->dispatch('despesa-deletada');
             session()->flash('warning', 'Lançamento de despesa removido.');
         }
@@ -271,16 +201,7 @@ class DespesaModal extends Component
         $this->showModal = false;
     }
 
-    private function avaliacaoComoInt(string $valor): ?int
-    {
-        if ($valor === '') {
-            return null;
-        }
-
-        return (int) $valor;
-    }
-
-    public function render()
+    public function render(): View
     {
         $fornecedores = $this->showModal
             ? Fornecedor::with('pessoa')

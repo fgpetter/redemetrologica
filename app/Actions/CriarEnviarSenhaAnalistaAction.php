@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Actions\Interlab\CriarCartaSenhaAnalistaAction;
 use App\Exceptions\InvalidEmailException;
 use App\Jobs\EnviaSenhaAnalistaJob;
 use App\Models\DadosGeraDoc;

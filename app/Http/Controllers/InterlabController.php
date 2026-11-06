@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AtualizarInterlabRequest;
+use App\Http\Requests\CriarInterlabRequest;
 use App\Models\Interlab;
 use App\Models\InterlabInscrito;
 use Illuminate\Contracts\View\View;
@@ -16,8 +18,8 @@ class InterlabController extends Controller
      **/
     public function index(Request $request): View
     {
-        $sortDirection = $request->input('order', 'asc');
-        $sortField = $request->input('orderBy', 'nome');
+        $sortDirection = in_array($request->input('order'), ['asc', 'desc'], true) ? $request->input('order') : 'asc';
+        $sortField = in_array($request->input('orderBy'), ['nome', 'avaliacao', 'tipo'], true) ? $request->input('orderBy') : 'nome';
         $searchTerm = $request->input('buscanome');
 
         $interlabs = Interlab::when($searchTerm, function ($query) use ($searchTerm) {
@@ -76,30 +78,9 @@ class InterlabController extends Controller
      * Adiciona interlab na base
      *
      **/
-    public function create(Request $request): RedirectResponse
+    public function create(CriarInterlabRequest $request): RedirectResponse
     {
-        $validated = $request->validate(
-            [
-                'nome' => ['required', 'string', 'max:190'],
-                'descricao' => ['nullable', 'string'],
-                'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
-                'avaliacao' => ['nullable', 'string', 'in:LABORATORIAL,ANALISTA'],
-                'tag' => ['required', 'min:3', 'max:5'],
-                'thumb' => ['nullable', 'string'],
-                'observacoes' => ['nullable', 'string'],
-            ],
-            [
-                'nome.required' => 'Preencha o campo Nome',
-                'nome.string' => 'O campo aceita somente texto.',
-                'nome.max' => 'O campo aceita no maximo 190 caracteres.',
-                'descricao.string' => 'O campo aceita somente texto.',
-                'tipo.in' => 'A opção selecionada é inválida',
-                'tag.required' => 'Preencha o campo TAG',
-                'tag.min' => 'O campo TAG deve ter no mínimo 3 caracteres.',
-                'tag.max' => 'O campo TAG deve ter no máximo 5 caracteres.',
-                'observacoes' => 'O campo aceita somente texto.',
-            ]
-        );
+        $validated = $request->validated();
 
         $interlab = Interlab::create($validated);
 
@@ -114,30 +95,9 @@ class InterlabController extends Controller
      * Altera interlab
      *
      **/
-    public function update(Request $request, Interlab $interlab): RedirectResponse
+    public function update(AtualizarInterlabRequest $request, Interlab $interlab): RedirectResponse
     {
-        $validated = $request->validate(
-            [
-                'nome' => ['required', 'string', 'max:190'],
-                'descricao' => ['nullable', 'string'],
-                'tipo' => ['nullable', 'string', 'in:BILATERAL,INTERLABORATORIAL'],
-                'avaliacao' => ['nullable', 'string', 'in:LABORATORIAL,ANALISTA'],
-                'tag' => ['required', 'min:2', 'max:5'],
-                'thumb' => ['nullable', 'string'],
-                'observacoes' => ['nullable', 'string'],
-            ],
-            [
-                'nome.required' => 'Preencha o campo Nome',
-                'nome.string' => 'O campo aceita somente texto.',
-                'nome.max' => 'O campo aceita no maximo 190 caracteres.',
-                'descricao.string' => 'O campo aceita somente texto.',
-                'tipo.in' => 'A opção selecionada é inválida',
-                'tag.required' => 'Preencha o campo TAG',
-                'tag.min' => 'O campo TAG deve ter no mínimo 2 caracteres.',
-                'tag.max' => 'O campo TAG deve ter no máximo 5 caracteres.',
-                'observacoes' => 'O campo aceita somente texto.',
-            ]
-        );
+        $validated = $request->validated();
 
         if ($interlab->tag !== $validated['tag']) {
             $existeInscritoComSenha = InterlabInscrito::whereHas('agendaInterlab', fn ($q) => $q->where('interlab_id', $interlab->id)

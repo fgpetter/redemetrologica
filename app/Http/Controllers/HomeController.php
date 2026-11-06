@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -24,9 +28,9 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @return Renderable
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         if (view()->exists($request->path())) {
             return view($request->path());
@@ -35,13 +39,13 @@ class HomeController extends Controller
         return abort(404);
     }
 
-    public function root()
+    public function root(): View
     {
         return view('site.pages.site');
     }
 
     /* Language Translation */
-    public function lang($locale)
+    public function lang($locale): RedirectResponse
     {
         if ($locale) {
             App::setLocale($locale);
@@ -54,7 +58,7 @@ class HomeController extends Controller
         }
     }
 
-    public function updateProfile(Request $request, $id)
+    public function updateProfile(Request $request, $id): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:191'],
@@ -88,7 +92,7 @@ class HomeController extends Controller
         }
     }
 
-    public function updatePassword(Request $request, $id)
+    public function updatePassword(Request $request, $id): JsonResponse
     {
         $request->validate([
             'current_password' => ['required', 'string'],

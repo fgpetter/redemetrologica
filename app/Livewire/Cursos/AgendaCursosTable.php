@@ -47,6 +47,12 @@ class AgendaCursosTable extends Component
     // Metodo sortBy
     public function setSortBy($sortByField)
     {
+        if (! in_array($sortByField, ['data_inicio', 'status', 'curso', 'tipo_agendamento'], true)) {
+            return;
+        }
+
+        $this->resetPage();
+
         if ($this->sortBy === $sortByField) {
             $this->sortDirection = ($this->sortDirection == 'ASC') ? 'DESC' : 'ASC';
 
@@ -59,6 +65,8 @@ class AgendaCursosTable extends Component
     // Método para resetar os filtros
     public function resetFilters()
     {
+        $this->resetPage();
+
         $this->reset(['search', 'status', 'dataIni', 'dataFim', 'tipo_agendamento']);
     }
 
@@ -149,6 +157,9 @@ class AgendaCursosTable extends Component
     // Método render
     public function render()
     {
+        $this->sortBy = in_array($this->sortBy, ['data_inicio', 'status', 'curso', 'tipo_agendamento'], true) ? $this->sortBy : 'data_inicio';
+        $this->sortDirection = in_array($this->sortDirection, ['ASC', 'DESC'], true) ? $this->sortDirection : 'ASC';
+        $this->perPage = max(1, min(100, (int) $this->perPage));
 
         $agendacursos = $this->getQuery()->paginate($this->perPage);
 

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CreateUserForPessoaAction;
-use App\Helpers\Telefone;
+use App\Http\Requests\PessoaCreateRequest;
+use App\Http\Requests\PessoaUpdateRequest;
 use App\Models\Laboratorio;
 use App\Models\Pessoa;
 use App\Models\User;
@@ -11,22 +12,18 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class PessoaController extends Controller
 {
     /**
      *Gera pagina de listagem de usuários
-     *
-     * @return Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $name = $request->name;
-        $data = $request->data;
-        $doc = $request->doc;
+        $name = in_array($request->name, ['asc', 'desc', 'ASC', 'DESC'], true) ? $request->name : null;
+        $data = in_array($request->data, ['asc', 'desc', 'ASC', 'DESC'], true) ? $request->data : null;
+        $doc = in_array($request->doc, ['asc', 'desc', 'ASC', 'DESC'], true) ? $request->doc : null;
         $busca_nome = $request->buscanome;
         $associado = $request->associado;
         $busca_doc = preg_replace('/[^0-9]/', '', $request->buscadoc);
@@ -61,59 +58,10 @@ class PessoaController extends Controller
      * Adiciona pessoa
      *
      **/
-    public function create(Request $request): RedirectResponse
+    public function create(PessoaCreateRequest $request): RedirectResponse
     {
-        $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
-        $request->merge(Telefone::prepararCampos($request->only('telefone', 'telefone_alt', 'celular')));
-        $request->merge([
-            'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
-            'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
-            'email' => strtolower($request->get('email')),
-        ]);
 
-        $validator = Validator::make($request->all(), [
-            'nome_razao' => ['required', 'string', 'max:191'],
-            'nome_fantasia' => ['nullable', 'string', 'max:191'],
-            'cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191', 'unique:pessoas,cpf_cnpj'],
-            'rg_ie' => ['nullable', 'string', 'max:191'],
-            'insc_municipal' => ['nullable', 'string', 'max:191'],
-            'codigo_contabil' => ['nullable', 'string', 'max:191'],
-            'tipo_pessoa' => ['required', 'string', 'max:2'],
-            'telefone' => ['nullable', 'celular_com_ddd'],
-            'telefone_alt' => ['nullable', 'celular_com_ddd'],
-            'celular' => ['nullable', 'celular_com_ddd'],
-            'email' => ['nullable', 'email', 'max:191'],
-            'site' => ['nullable', 'string', 'max:191'],
-            'associado' => ['nullable', 'boolean'],
-        ], [
-            'nome_razao.required' => 'Preencha o campo nome ou razão social',
-            'cpf_cnpj.required' => 'Preencha o campo documento',
-            'cpf_cnpj.unique' => 'Esse CPF/CNPJ ja foi registrado',
-            'tipo_pessoa' => 'Preencha o campo tipo de pessoa',
-            'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-            'telefone_alt.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-            'celular.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-        ]
-        );
-
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]);
-
-            return back()
-                ->withErrors($validator)
-                ->withInput()
-                ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-        }
-
-        $pessoa = Pessoa::create($validator->validated());
+        $pessoa = Pessoa::create($request->validated());
 
         if (! $pessoa) {
             return redirect()->back()->with('error', 'Ocorreu um erro!');
@@ -142,64 +90,14 @@ class PessoaController extends Controller
      * Edita dados de pessoa
      *
      **/
-    public function update(Request $request, Pessoa $pessoa): RedirectResponse
+    public function update(PessoaUpdateRequest $request, Pessoa $pessoa): RedirectResponse
     {
-        $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
-        $request->merge(Telefone::prepararCampos($request->only('telefone', 'telefone_alt', 'celular')));
-        $request->merge([
-            'nome_razao' => ($request->get('tipo_pessoa') == 'PJ') ? strtoupper($request->get('nome_razao')) : ucwords(strtolower($request->get('nome_razao'))),
-            'nome_fantasia' => strtoupper($request->get('nome_fantasia')),
-            'email' => strtolower($request->get('email')),
-            'associado' => $request->get('associado') ? 1 : 0,
-        ]);
 
-        $validator = Validator::make($request->all(), [
-            'nome_razao' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj'],
-            'nome_fantasia' => ['nullable', 'string', 'max:191'],
-            'cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191', 'unique:pessoas,cpf_cnpj,'.$pessoa->id],
-            'rg_ie' => ['nullable', 'string', 'max:191'],
-            'insc_municipal' => ['nullable', 'string', 'max:191'],
-            'codigo_contabil' => ['nullable', 'string', 'max:191'],
-            'tipo_pessoa' => ['required', 'string', 'max:2'],
-            'telefone' => ['nullable', 'celular_com_ddd'],
-            'telefone_alt' => ['nullable', 'celular_com_ddd'],
-            'celular' => ['nullable', 'celular_com_ddd'],
-            'email' => ['nullable', 'email', 'max:191'],
-            'site' => ['nullable', 'string', 'max:191'],
-            'associado' => ['nullable', 'boolean'],
-        ],
-            [
-                'nome_razao.required' => 'Preencha o campo nome ou razão social',
-                'cpf_cnpj.required' => 'Preencha o campo documento',
-                'cpf_cnpj.unique' => 'Esse CPF/CNPJ ja foi registrado',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'telefone_alt.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'celular.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-            ]
-        );
-
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]);
-
-            return back()
-                ->withErrors($validator)
-                ->withInput()
-                ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-        }
-
-        $pessoa->update($validator->validated());
+        $pessoa->update($request->validated());
 
         if ($pessoa->user()) {
             $pessoa->user()->update([
-                'name' => $validator->safe()->nome_razao,
+                'name' => $request->safe()->nome_razao,
             ]);
         }
 

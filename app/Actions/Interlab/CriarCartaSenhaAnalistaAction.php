@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Actions;
+namespace App\Actions\Interlab;
 
+use App\Actions\GerarTagSenhaInterlabAction;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
@@ -11,11 +12,19 @@ class CriarCartaSenhaAnalistaAction
 {
     /**
      * Garante a Tag Senha do analista e cria o registro de Carta Senha sem enviar e-mail.
+     *
+     * @param  InterlabInscrito  $inscrito  Inscrição a que pertence o analista
+     * @param  InterlabAnalista  $analista  Analista que recebe a carta
+     * @return DadosGeraDoc Carta-senha persistida
      */
     public function execute(InterlabInscrito $inscrito, InterlabAnalista $analista): DadosGeraDoc
     {
-        return DB::transaction(function () use ($inscrito, $analista) {
+        return DB::transaction(function () use ($inscrito, $analista): DadosGeraDoc {
             $inscrito->loadMissing(['laboratorio', 'empresa', 'agendaInterlab.interlab', 'pessoa']);
+            $analista = InterlabAnalista::query()
+                ->where('interlab_inscrito_id', $inscrito->getKey())
+                ->lockForUpdate()
+                ->findOrFail($analista->getKey());
 
             if (empty($analista->tag_senha)) {
                 $tagSenha = app(GerarTagSenhaInterlabAction::class)->execute(

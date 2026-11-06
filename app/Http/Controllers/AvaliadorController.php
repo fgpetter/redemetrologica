@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Telefone;
+use App\Http\Requests\AtualizarAvaliadorRequest;
+use App\Http\Requests\AtualizarEnderecosAvaliadorRequest;
+use App\Http\Requests\CriarAvaliadorRequest;
 use App\Models\AreaAtuacao;
 use App\Models\AvaliacaoAvaliador;
 use App\Models\Avaliador;
@@ -15,7 +17,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class AvaliadorController extends Controller
@@ -23,11 +24,10 @@ class AvaliadorController extends Controller
     /**
      * Gera pagina de listagem de avaliadores
      *
-     * @return View
      **/
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $order = $request->input('name', 'asc');
+        $order = in_array($request->input('name'), ['asc', 'desc'], true) ? $request->input('name') : 'asc';
         $busca_nome = $request->input('buscanome');
         $busca_area = $request->input('buscaarea');
         $busca_situacao = $request->input('buscasituacao');
@@ -63,71 +63,53 @@ class AvaliadorController extends Controller
      * Adiciona avaliadores na base
      *
      **/
-    public function create(Request $request): RedirectResponse
+    public function create(CriarAvaliadorRequest $request): RedirectResponse
     {
-        $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
-        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
 
         $pessoa = Pessoa::where('uid', $request->pessoa_uid)->first();
 
-        $request->validate(
-            [
-                'pessoa_uid' => ['required', 'string', 'exists:pessoas,uid'],
-                'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'.$pessoa?->id], // TODO - adicionar validação de CPF/CNPJ
-                'telefone' => ['nullable', 'celular_com_ddd'],
-                'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
-                'data_ingresso' => ['nullable', Rule::date()->format('Y-m-d')],
-                'situacao' => ['required', 'string', Rule::in(['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])],
-            ],
-            [
-                'pessoa_uid.required' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
-                'pessoa_uid.string' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
-                'pessoa_uid.exists' => 'Dados inválidos, seleciona uma pessoa e envie novamente',
-                'cpf_cnpj.required' => 'Preencha o campo CPF',
-                'cpf_cnpj.min' => 'CPF inválido',
-                'cpf_cnpj.max' => 'CPF inválido',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
-                'curriculo.max' => 'Tamanho máximo 5MB',
-                'situacao.required' => 'Selecione uma situação.',
-                'situacao.in' => 'Selecione uma situação válida.',
-            ]
-        );
+        $validated = $request->validated();
 
-        // cria um avaliador vinculado a pessoa, já com os dados principais
-        $avaliador = Avaliador::create([
-            'pessoa_id' => $pessoa->id,
-            'exp_min_comprovada' => $request->get('exp_min_comprovada') ?? 0,
-            'curso_incerteza' => $request->get('curso_incerteza') ?? 0,
-            'curso_iso' => $request->get('curso_iso') ?? 0,
-            'curso_aud_interna' => $request->get('curso_aud_interna') ?? 0,
-            'parecer_psicologico' => $request->get('parecer_psicologico') ?? 0,
-            'data_ingresso' => $request->get('data_ingresso'),
-            'situacao' => $request->get('situacao'),
-        ]);
+        $avaliador = DB::transaction(function () use ($request, $pessoa, $validated) {
+            $avaliador = Avaliador::create([
+                'pessoa_id' => $pessoa->id,
+                'exp_min_comprovada' => $validated['exp_min_comprovada'] ?? 0,
+                'curso_incerteza' => $validated['curso_incerteza'] ?? 0,
+                'curso_iso' => $validated['curso_iso'] ?? 0,
+                'curso_aud_interna' => $validated['curso_aud_interna'] ?? 0,
+                'parecer_psicologico' => $validated['parecer_psicologico'] ?? 0,
+                'data_ingresso' => $validated['data_ingresso'] ?? null,
+                'situacao' => $validated['situacao'],
+            ]);
+
+            if (! $avaliador) {
+                return null;
+            }
+
+            // se foi enviado currículo
+            if ($request->hasFile('curriculo')) {
+                $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
+                $extension = $request->file('curriculo')->getClientOriginalExtension();
+                $fileName = $fileName.'_'.time().'.'.$extension;
+                $request->file('curriculo')->move(public_path('curriculos'), $fileName);
+                $avaliador->update([
+                    'curriculo' => 'curriculos/'.$fileName,
+                ]);
+            }
+
+            $pessoa->update([
+                'cpf_cnpj' => $validated['cpf_cnpj'] ?? null,
+                'rg_ie' => $validated['rg_ie'] ?? null,
+                'telefone' => $validated['telefone'] ?? null,
+                'email' => $validated['email'] ?? null,
+            ]);
+
+            return $avaliador;
+        });
 
         if (! $avaliador) {
-            return redirect()->back()
-                ->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
+            return redirect()->back()->with('avaliador-error', 'Ocorreu um erro! Revise os dados e tente novamente');
         }
-
-        // se foi enviado currículo
-        if ($request->hasFile('curriculo')) {
-            $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
-            $extension = $request->file('curriculo')->getClientOriginalExtension();
-            $fileName = $fileName.'_'.time().'.'.$extension;
-            $request->file('curriculo')->move(public_path('curriculos'), $fileName);
-            $avaliador->update([
-                'curriculo' => 'curriculos/'.$fileName,
-            ]);
-        }
-
-        $pessoa->update([
-            'cpf_cnpj' => $request->get('cpf_cnpj'),
-            'rg_ie' => $request->get('rg_ie'),
-            'telefone' => $request->get('telefone'),
-            'email' => $request->get('email'),
-        ]);
 
         return redirect()->route('avaliador-insert', $avaliador->uid)
             ->with('success', 'Avaliador cadastrado com sucesso');
@@ -204,62 +186,43 @@ class AvaliadorController extends Controller
      *
      * @param  Avaliador  $user
      **/
-    public function update(Request $request, Avaliador $avaliador): RedirectResponse
+    public function update(AtualizarAvaliadorRequest $request, Avaliador $avaliador): RedirectResponse
     {
-        $request->merge(return_only_nunbers($request->only('cpf_cnpj')));
-        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
 
-        $request->validate(
-            [
-                'nome_razao' => ['required', 'string', 'max:191'],
-                'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'.$avaliador->pessoa->id], // TODO - adicionar validação de CPF/CNPJ
-                'telefone' => ['nullable', 'celular_com_ddd'],
-                'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
-                'data_ingresso' => ['nullable', Rule::date()->format('Y-m-d')],
-                'situacao' => ['required', 'string', Rule::in(['ATIVO', 'AVALIADOR', 'AVALIADOR EM TREINAMENTO', 'AVALIADOR LIDER', 'ESPECIALISTA', 'INATIVO'])],
-            ],
-            [
-                'nome_razao.required' => 'Preencha o campo nome ou razão social',
-                'cpf_cnpj.required' => 'Preencha o campo CPF',
-                'cpf_cnpj.min' => 'CPF inválido',
-                'cpf_cnpj.max' => 'CPF inválido',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
-                'curriculo.max' => 'Tamanho máximo 5MB',
-                'situacao.required' => 'Selecione uma situação.',
-                'situacao.in' => 'Selecione uma situação válida.',
-            ]
-        );
+        $validated = $request->validated();
 
-        // se foi enviado currículo
-        if ($request->hasFile('curriculo')) {
-            $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
-            $extension = $request->file('curriculo')->getClientOriginalExtension();
-            $fileName = $fileName.'_'.time().'.'.$extension;
-            $request->file('curriculo')->move(public_path('curriculos'), $fileName);
-            $curriculo = 'curriculos/'.$fileName;
+        DB::transaction(function () use ($request, $avaliador, $validated) {
+            // se foi enviado currículo
+            if ($request->hasFile('curriculo')) {
+                $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
+                $extension = $request->file('curriculo')->getClientOriginalExtension();
+                $fileName = $fileName.'_'.time().'.'.$extension;
+                $request->file('curriculo')->move(public_path('curriculos'), $fileName);
+                $curriculo = 'curriculos/'.$fileName;
+                $avaliador->update([
+                    'curriculo' => $curriculo,
+                ]);
+            }
+
             $avaliador->update([
-                'curriculo' => $curriculo,
+                'exp_min_comprovada' => $validated['exp_min_comprovada'] ?? 0,
+                'curso_incerteza' => $validated['curso_incerteza'] ?? 0,
+                'curso_iso' => $validated['curso_iso'] ?? 0,
+                'curso_aud_interna' => $validated['curso_aud_interna'] ?? 0,
+                'parecer_psicologico' => $validated['parecer_psicologico'] ?? 0,
+                'data_ingresso' => $validated['data_ingresso'] ?? null,
+                'situacao' => $validated['situacao'],
             ]);
-        }
 
-        $avaliador->update([
-            'exp_min_comprovada' => $request->get('exp_min_comprovada') ?? 0,
-            'curso_incerteza' => $request->get('curso_incerteza') ?? 0,
-            'curso_iso' => $request->get('curso_iso') ?? 0,
-            'curso_aud_interna' => $request->get('curso_aud_interna') ?? 0,
-            'parecer_psicologico' => $request->get('parecer_psicologico') ?? 0,
-            'data_ingresso' => $request->get('data_ingresso'),
-            'situacao' => $request->get('situacao'),
-        ]);
+            $avaliador->pessoa->update([
+                'nome_razao' => ucfirst($validated['nome_razao']),
+                'cpf_cnpj' => $validated['cpf_cnpj'] ?? null,
+                'rg_ie' => $validated['rg_ie'] ?? null,
+                'telefone' => $validated['telefone'] ?? null,
+                'email' => $validated['email'] ?? null,
+            ]);
 
-        $avaliador->pessoa->update([
-            'nome_razao' => ucfirst($request->get('nome_razao')),
-            'cpf_cnpj' => $request->get('cpf_cnpj'),
-            'rg_ie' => $request->get('rg_ie'),
-            'telefone' => $request->get('telefone'),
-            'email' => $request->get('email'),
-        ]);
+        });
 
         return redirect()->back()->with('success', 'Avaliador atualizado com sucesso');
     }
@@ -268,7 +231,7 @@ class AvaliadorController extends Controller
      * Atualiza endereços do avaliador
      *
      **/
-    public function updateEnderecos(Request $request, Avaliador $avaliador): RedirectResponse
+    public function updateEnderecos(AtualizarEnderecosAvaliadorRequest $request, Avaliador $avaliador): RedirectResponse
     {
 
         $pessoalFields = [
@@ -295,77 +258,46 @@ class AvaliadorController extends Controller
             }
         }
 
-        $rules = [
-            'pessoal_cep' => ['nullable', 'string', 'max:9', 'min:9', Rule::requiredIf($isPessoalGroupFilled)],
-            'pessoal_endereco' => ['nullable', 'string', 'max:255', Rule::requiredIf($isPessoalGroupFilled)],
-            'pessoal_complemento' => 'nullable|string|max:255',
-            'pessoal_bairro' => ['nullable', 'string', 'max:255', Rule::requiredIf($isPessoalGroupFilled)],
-            'pessoal_cidade' => ['nullable', 'string', 'max:255', Rule::requiredIf($isPessoalGroupFilled)],
-            'pessoal_uf' => ['nullable', 'string', 'max:2', Rule::requiredIf($isPessoalGroupFilled)],
-            'comercial_cep' => ['nullable', 'string', 'max:9', 'min:9', Rule::requiredIf($isComercialGroupFilled)],
-            'comercial_endereco' => ['nullable', 'string', 'max:255', Rule::requiredIf($isComercialGroupFilled)],
-            'comercial_complemento' => 'nullable|string|max:255',
-            'comercial_bairro' => ['nullable', 'string', 'max:255', Rule::requiredIf($isComercialGroupFilled)],
-            'comercial_cidade' => ['nullable', 'string', 'max:255', Rule::requiredIf($isComercialGroupFilled)],
-            'comercial_uf' => ['nullable', 'string', 'max:2', Rule::requiredIf($isComercialGroupFilled)],
-        ];
+        $validated = $request->validated();
 
-        $messages = [
-            'pessoal_cep.required' => 'O CEP  é obrigatório.',
-            'pessoal_endereco.required' => 'O endereço é obrigatório.',
-            'pessoal_bairro.required' => 'O bairro é obrigatório.',
-            'pessoal_cidade.required' => 'A cidade é obrigatória.',
-            'pessoal_uf.required' => 'O UF é obrigatório.',
-            'comercial_cep.required' => 'O CEP é obrigatório.',
-            'comercial_endereco.required' => 'O endereço comercial é obrigatório.',
-            'comercial_bairro.required' => 'O bairro é obrigatório.',
-            'comercial_cidade.required' => 'A cidade é obrigatória.',
-            'comercial_uf.required' => 'O UF é obrigatório.',
-            'pessoal_cep.min' => 'O CEP deve conter exatamente 9 caracteres (incluindo o hífen).',
-            'comercial_cep.min' => 'O CEP deve conter exatamente 9 caracteres (incluindo o hífen).',
-        ];
+        DB::transaction(function () use ($avaliador, $validated, $isPessoalGroupFilled, $isComercialGroupFilled) {
+            if ($isPessoalGroupFilled) {
+                $avaliador->pessoa->enderecos()->updateOrCreate(
+                    [
+                        'pessoa_id' => $avaliador->pessoa->id,
+                        'avaliador_id' => null,
+                    ],
+                    [
+                        'info' => 'Endereço pessoal',
+                        'cep' => $validated['pessoal_cep'] ?? null,
+                        'endereco' => $validated['pessoal_endereco'] ?? null,
+                        'complemento' => $validated['pessoal_complemento'] ?? null,
+                        'bairro' => $validated['pessoal_bairro'] ?? null,
+                        'cidade' => $validated['pessoal_cidade'] ?? null,
+                        'uf' => $validated['pessoal_uf'] ?? null,
+                    ]
+                );
+            }
 
-        $validator = Validator::make($request->all(), $rules, $messages);
+            if ($isComercialGroupFilled) {
+                $avaliador->pessoa->enderecos()->updateOrCreate(
+                    [
+                        'pessoa_id' => $avaliador->pessoa->id,
+                        'avaliador_id' => $avaliador->id,
+                    ],
+                    [
+                        'info' => 'Endereço comercial',
+                        'cep' => $validated['comercial_cep'] ?? null,
+                        'endereco' => $validated['comercial_endereco'] ?? null,
+                        'complemento' => $validated['comercial_complemento'] ?? null,
+                        'bairro' => $validated['comercial_bairro'] ?? null,
+                        'cidade' => $validated['comercial_cidade'] ?? null,
+                        'uf' => $validated['comercial_uf'] ?? null,
+                    ]
+                );
+            }
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput()->withFragment('enderecos');
-        }
-
-        if ($isPessoalGroupFilled) {
-            $avaliador->pessoa->enderecos()->updateOrCreate(
-                [
-                    'pessoa_id' => $avaliador->pessoa->id,
-                    'avaliador_id' => null,
-                ],
-                [
-                    'info' => 'Endereço pessoal',
-                    'cep' => $request->pessoal_cep,
-                    'endereco' => $request->pessoal_endereco,
-                    'complemento' => $request->pessoal_complemento,
-                    'bairro' => $request->pessoal_bairro,
-                    'cidade' => $request->pessoal_cidade,
-                    'uf' => $request->pessoal_uf,
-                ]
-            );
-        }
-
-        if ($isComercialGroupFilled) {
-            $avaliador->pessoa->enderecos()->updateOrCreate(
-                [
-                    'pessoa_id' => $avaliador->pessoa->id,
-                    'avaliador_id' => $avaliador->id,
-                ],
-                [
-                    'info' => 'Endereço comercial',
-                    'cep' => $request->comercial_cep,
-                    'endereco' => $request->comercial_endereco,
-                    'complemento' => $request->comercial_complemento,
-                    'bairro' => $request->comercial_bairro,
-                    'cidade' => $request->comercial_cidade,
-                    'uf' => $request->comercial_uf,
-                ]
-            );
-        }
+        });
 
         return redirect()->back()->with('success', 'Endereços atualizados com sucesso')->withFragment('enderecos');
     }

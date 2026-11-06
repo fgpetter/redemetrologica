@@ -11,6 +11,8 @@ class Download extends Model
 {
     use LogsModelActivity, SetDefaultUid;
 
+    protected $table = 'downloads';
+
     /**
      * The attributes that aren't mass assignable.
      *

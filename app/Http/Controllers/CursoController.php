@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\FileUploadAction;
 use App\Actions\GenerateDocxFromTemplateAction;
+use App\Http\Requests\AtualizarCursoRequest;
+use App\Http\Requests\CriarCursoRequest;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoMaterial;
@@ -15,7 +17,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\File;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CursoController extends Controller
@@ -23,11 +24,10 @@ class CursoController extends Controller
     /**
      * Gera pagina de listagem de cursos
      *
-     * @return View
      **/
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $order = $request->input('ordem', 'desc');
+        $order = in_array($request->input('ordem'), ['asc', 'desc'], true) ? $request->input('ordem') : 'desc';
         $busca = $request->input('busca');
 
         $cursos = Curso::when($busca, function ($query) use ($busca) {
@@ -45,40 +45,9 @@ class CursoController extends Controller
      * Adiciona curso na base
      *
      **/
-    public function create(Request $request): RedirectResponse
+    public function create(CriarCursoRequest $request): RedirectResponse
     {
-        $validated = $request->validate(
-            [
-                'descricao' => ['nullable', 'string', 'max:190'],
-                'tipo_curso' => ['nullable', 'string', 'in:OFICIAL,SUPLENTE,OUTROS'],
-                'carga_horaria' => ['nullable', 'numeric'],
-                'objetivo' => ['nullable', 'string'],
-                'publico_alvo' => ['nullable', 'string'],
-                'pre_requisitos' => ['nullable', 'string'],
-                'exemplos_praticos' => ['nullable', 'string'],
-                'referencias_utilizadas' => ['nullable', 'string'],
-                'conteudo_programatico' => ['nullable', 'string'],
-                'observacoes_internas' => ['nullable', 'string'],
-                'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
-                'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)],
-
-            ],
-            [
-                'descricao.string' => 'O campo aceita somente texto.',
-                'tipo_curso.in' => 'A opção selecionada é inválida',
-                'objetivo.string' => 'O campo aceita somente texto.',
-                'publico_alvo.string' => 'O campo aceita somente texto.',
-                'pre_requisitos.string' => 'O campo aceita somente texto.',
-                'exemplos_praticos.string' => 'O campo aceita somente texto.',
-                'referencias_utilizadas.string' => 'O campo aceita somente texto.',
-                'conteudo_programatico.string' => 'O campo aceita somente texto.',
-                'observacoes_internas.string' => 'O campo aceita somente texto.',
-                'folder.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
-                'folder.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
-                'thumb.mimes' => 'Apenas arquivos JPG,PNG são permitidos.',
-                'thumb.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.tinyjpg.com.',
-            ]
-        );
+        $validated = $request->validated();
 
         if ($request->hasFile('folder')) {
             $file_name = FileUploadAction::handle($request, 'folder', 'curso-folder');
@@ -117,39 +86,9 @@ class CursoController extends Controller
      *
      * @param  Curso  $user
      **/
-    public function update(Request $request, Curso $curso): RedirectResponse
+    public function update(AtualizarCursoRequest $request, Curso $curso): RedirectResponse
     {
-        $validated = $request->validate(
-            [
-                'descricao' => ['nullable', 'string', 'max:190'],
-                'tipo_curso' => ['nullable', 'string', 'in:OFICIAL,SUPLENTE,OUTROS'],
-                'carga_horaria' => ['nullable', 'numeric'],
-                'objetivo' => ['nullable', 'string'],
-                'publico_alvo' => ['nullable', 'string'],
-                'pre_requisitos' => ['nullable', 'string'],
-                'exemplos_praticos' => ['nullable', 'string'],
-                'referencias_utilizadas' => ['nullable', 'string'],
-                'conteudo_programatico' => ['nullable', 'string'],
-                'observacoes_internas' => ['nullable', 'string'],
-                'folder' => ['nullable', File::types(['jpg', 'jpeg', 'png', 'pdf'])->max(2 * 1024)],
-                'thumb' => ['nullable', File::types(['jpg', 'jpeg', 'png'])->max(2 * 1024)],
-            ],
-            [
-                'descricao.string' => 'O campo aceita somente texto.',
-                'tipo_curso.in' => 'A opção selecionada é inválida',
-                'objetivo.string' => 'O campo aceita somente texto.',
-                'publico_alvo.string' => 'O campo aceita somente texto.',
-                'pre_requisitos.string' => 'O campo aceita somente texto.',
-                'exemplos_praticos.string' => 'O campo aceita somente texto.',
-                'referencias_utilizadas.string' => 'O campo aceita somente texto.',
-                'conteudo_programatico.string' => 'O campo aceita somente texto.',
-                'observacoes_internas.string' => 'O campo aceita somente texto.',
-                'folder.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
-                'folder.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
-                'thumb.mimes' => 'Apenas arquivos JPG,PNG são permitidos.',
-                'thumb.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.tinyjpg.com.',
-            ]
-        );
+        $validated = $request->validated();
 
         if ($request->hasFile('folder')) {
             $file_name = FileUploadAction::handle($request, 'folder', 'curso-folder');

@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 
 class DadosGeraDoc extends Model
 {
+    // O conteúdo e os links de cartas de senha não são replicados no log de atividades.
     use SetDefaultUid;
 
     /**
@@ -36,7 +37,7 @@ class DadosGeraDoc extends Model
     /**
      * Boot the model and generate unique link UUID.
      */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 

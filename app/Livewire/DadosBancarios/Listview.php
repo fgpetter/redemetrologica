@@ -17,7 +17,7 @@ class Listview extends Component
         $this->contaAtiva = $uid;
     }
 
-    #[On('refresh-list')]
+    #[On('refresh-contas-{pessoa.id}')]
     public function render()
     {
         return view('livewire.dados-bancarios.list-view', [

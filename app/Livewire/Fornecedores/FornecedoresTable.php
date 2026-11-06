@@ -33,6 +33,12 @@ class FornecedoresTable extends Component
 
     public function setSortBy(string $sortByField): void
     {
+        if (! in_array($sortByField, ['nome_razao', 'cpf_cnpj'], true)) {
+            return;
+        }
+
+        $this->resetPage();
+
         if ($this->sortBy === $sortByField) {
             $this->sortDirection = $this->sortDirection === 'ASC' ? 'DESC' : 'ASC';
 
@@ -44,6 +50,8 @@ class FornecedoresTable extends Component
 
     public function resetFilters(): void
     {
+        $this->resetPage();
+
         $this->reset(['searchNome', 'searchCpfCnpj', 'area']);
     }
 
@@ -100,6 +108,10 @@ class FornecedoresTable extends Component
 
     public function render()
     {
+        $this->sortBy = in_array($this->sortBy, ['nome_razao', 'cpf_cnpj'], true) ? $this->sortBy : 'nome_razao';
+        $this->sortDirection = in_array($this->sortDirection, ['ASC', 'DESC'], true) ? $this->sortDirection : 'ASC';
+        $this->perPage = max(1, min(100, (int) $this->perPage));
+
         $fornecedores = $this->getQuery()->paginate($this->perPage)->withQueryString();
 
         $pessoas = Pessoa::select('uid', 'nome_razao', 'cpf_cnpj')

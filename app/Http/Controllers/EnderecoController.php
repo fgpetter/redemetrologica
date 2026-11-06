@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EnderecoRequest;
 use App\Models\Endereco;
 use App\Models\InterlabLaboratorio;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class EnderecoController extends Controller
 {
@@ -15,46 +15,10 @@ class EnderecoController extends Controller
      * Adiciona endereco
      *
      **/
-    public function create(Request $request): RedirectResponse
+    public function create(EnderecoRequest $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), [
-            'pessoa_id' => ['required', 'integer'],
-            'info' => ['nullable', 'string'],
-            'cep' => ['required', 'string'],
-            'endereco' => ['required', 'string'],
-            'complemento' => ['nullable', 'string'],
-            'cidade' => ['required', 'string'],
-            'uf' => ['required', 'string'],
-            'end_padrao' => ['nullable', 'integer'],
-        ], [
-            'info.string' => 'Formato de texto inválido',
-            'cep.required' => 'Preencha o campo CEP',
-            'endereco.required' => 'Preencha o campo endereço',
-            'cidade.required' => 'Preencha o campo cidade',
-            'uf.required' => 'Preencha o uf',
-            'end_padrao.integer' => 'Dado inválido',
-        ]
-        );
 
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-
-                ]);
-
-            return back()
-                ->withErrors($validator, 'principal')
-                ->withInput()
-                ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-        }
-
-        $prepared_data = $validator->validate();
+        $prepared_data = $request->validated();
 
         $endereco = Endereco::create([
             'pessoa_id' => $prepared_data['pessoa_id'],
@@ -81,46 +45,10 @@ class EnderecoController extends Controller
      * Edita dados de endereco
      *
      **/
-    public function update(Request $request, Endereco $endereco): RedirectResponse
+    public function update(EnderecoRequest $request, Endereco $endereco): RedirectResponse
     {
-        $validator = Validator::make($request->all(), [
-            'pessoa_id' => ['required', 'integer'],
-            'info' => ['nullable', 'string'],
-            'cep' => ['required', 'string'],
-            'endereco' => ['required', 'string'],
-            'complemento' => ['nullable', 'string'],
-            'cidade' => ['required', 'string'],
-            'uf' => ['required', 'string'],
-            'end_padrao' => ['nullable', 'integer'],
-        ], [
-            'info.string' => 'Formato de texto inválido',
-            'cep.required' => 'Preencha o campo CEP',
-            'endereco.required' => 'Preencha o campo endereço',
-            'cidade.required' => 'Preencha o campo cidade',
-            'uf.required' => 'Preencha o uf',
-            'end_padrao.integer' => 'Dado inválido',
-        ]
-        );
 
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-
-                ]);
-
-            return back()
-                ->withErrors($validator, 'principal')
-                ->withInput()
-                ->with('error', 'Ocorreu um erro, revise os dados salvos e tente novamente');
-        }
-
-        $prepared_data = $validator->validate();
+        $prepared_data = $request->validated();
         $endereco->update([
             'pessoa_id' => $prepared_data['pessoa_id'],
             'info' => $prepared_data['info'],
@@ -158,7 +86,7 @@ class EnderecoController extends Controller
         return redirect()->back()->with('warning', 'Endereco removido');
     }
 
-    public function check(Request $request)
+    public function check(Request $request): JsonResponse
     {
         $endereco = Endereco::select(['endereco', 'bairro', 'cidade', 'uf'])
             ->where(['cep' => $request->cep])

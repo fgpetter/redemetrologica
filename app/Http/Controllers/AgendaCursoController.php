@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\EnviarCertificadoAction;
 use App\Exports\CursoInscritosExport;
 use App\Http\Requests\AgendaCursoRequest;
+use App\Http\Requests\SalvarDespesaAgendaCursoRequest;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoDespesa;
@@ -153,7 +154,7 @@ class AgendaCursoController extends Controller
      **/
     public function showCursoAgendado($uid): View
     {
-        $agendacursos = Agendacursos::where('uid', $uid)->with('curso')->firstOrFail();
+        $agendacursos = AgendaCursos::where('uid', $uid)->with('curso')->firstOrFail();
 
         return view('site.pages.slug-cursos', ['agendacursos' => $agendacursos]);
     }
@@ -161,24 +162,9 @@ class AgendaCursoController extends Controller
     /**
      * Salva despesa do agendamento de curso
      */
-    public function salvaDespesa(Request $request): RedirectResponse
+    public function salvaDespesa(SalvarDespesaAgendaCursoRequest $request): RedirectResponse
     {
-        $request->validate([
-            'agenda_curso_id' => ['nullable', 'exists:agenda_cursos,id'],
-            'material_padrao' => ['required', 'exists:materiais_padroes,id'],
-            'quantidade' => ['required', 'regex:/[\d.,]+$/'],
-            'valor' => ['required', 'regex:/[\d.,]+$/'],
-            'total' => ['required', 'regex:/[\d.,]+$/'],
-        ], [
-            'agenda_curso_id.exists' => 'Houve um erro ao editar despesa. Tente novamente',
-            'material_padrao.exists' => 'Selecione uma opção válida',
-            'quantidade.regex' => 'O dado enviado não é valido',
-            'quantidade.required' => 'Preencha o campo',
-            'valor.required' => 'Preencha o campo',
-            'valor.regex' => 'Não é um número válido',
-            'total.required' => 'O campo não pode estar vazio',
-            'total.regex' => 'Não é um número válido',
-        ]);
+        $request->validated();
 
         CursoDespesa::updateOrCreate([
             'agenda_cursos_id' => $request->agenda_curso_id,

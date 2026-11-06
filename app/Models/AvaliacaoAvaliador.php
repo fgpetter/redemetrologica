@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Support\LogOptions;
 
 class AvaliacaoAvaliador extends Model
@@ -20,7 +21,7 @@ class AvaliacaoAvaliador extends Model
      */
     protected $guarded = [];
 
-    public function agendaAvaliacao()
+    public function agendaAvaliacao(): BelongsTo
     {
         return $this->belongsTo(AgendaAvaliacao::class, 'agenda_avaliacao_id');
     }

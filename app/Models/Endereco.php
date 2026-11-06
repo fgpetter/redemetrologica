@@ -13,6 +13,8 @@ class Endereco extends Model
 {
     use LogsModelActivity, SetDefaultUid;
 
+    protected $table = 'enderecos';
+
     /**
      * The attributes that aren't mass assignable.
      *

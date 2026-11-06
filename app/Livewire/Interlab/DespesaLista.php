@@ -2,12 +2,16 @@
 
 namespace App\Livewire\Interlab;
 
+use App\Actions\Interlab\ExcluirDespesaInterlabAction;
 use App\Models\InterlabDespesaLancamento;
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class DespesaLista extends Component
 {
+    #[Locked]
     public int $agendaInterlabId;
 
     public function mount(int $agendaInterlabId): void
@@ -27,25 +31,17 @@ class DespesaLista extends Component
         $this->dispatch('abrir-despesa-modal', lancamentoId: $lancamentoId);
     }
 
-    public function deletarLancamento(int $lancamentoId): void
+    public function deletarLancamento(int $lancamentoId, ExcluirDespesaInterlabAction $excluirDespesa): void
     {
-        $lancamento = InterlabDespesaLancamento::query()
-            ->where('agenda_interlab_id', $this->agendaInterlabId)
-            ->find($lancamentoId);
-
-        if (! $lancamento) {
+        if (! $excluirDespesa->execute($this->agendaInterlabId, $lancamentoId)) {
             return;
         }
-
-        $lancamento->itens()->get()->each->delete();
-        $lancamento->avaliacao()->delete();
-        $lancamento->delete();
 
         session()->flash('warning', 'Lançamento de despesa removido.');
         $this->dispatch('despesa-deletada');
     }
 
-    public function render()
+    public function render(): View
     {
         $lancamentos = InterlabDespesaLancamento::query()
             ->where('agenda_interlab_id', $this->agendaInterlabId)

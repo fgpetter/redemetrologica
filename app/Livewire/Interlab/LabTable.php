@@ -2,11 +2,13 @@
 
 namespace App\Livewire\Interlab;
 
+use App\Livewire\Forms\LaboratorioInterlabForm;
 use App\Models\Endereco;
 use App\Models\InterlabLaboratorio;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -36,44 +38,23 @@ class LabTable extends Component
     // Modal
     public $showModal = false;
 
+    #[Locked]
     public $isEdit = false;
 
     // Lab
+    #[Locked]
     public $labId;
 
-    public $nome;
-
-    public $empresa_id;
-
-    // Endereco
-    public $cep;
-
-    public $endereco;
-
-    public $complemento;
-
-    public $bairro;
-
-    public $cidade;
-
-    public $uf;
-
-    protected function rules()
-    {
-        return [
-            'empresa_id' => 'required|exists:pessoas,id',
-            'nome' => 'required|string|max:255',
-            'cep' => 'required|string|max:9',
-            'endereco' => 'required|string|max:255',
-            'complemento' => 'nullable|string|max:255',
-            'bairro' => 'required|string|max:255',
-            'cidade' => 'required|string|max:255',
-            'uf' => 'required|string|size:2',
-        ];
-    }
+    public LaboratorioInterlabForm $form;
 
     public function setSortBy($field)
     {
+        if (! in_array($field, ['created_at', 'empresa', 'nome'], true)) {
+            return;
+        }
+
+        $this->resetPage();
+
         if ($this->sortBy === $field) {
             $this->sortDirection = $this->sortDirection === 'ASC' ? 'DESC' : 'ASC';
         } else {
@@ -84,6 +65,8 @@ class LabTable extends Component
 
     public function resetFilters()
     {
+        $this->resetPage();
+
         $this->reset(['search', 'searchPep', 'empresaSelecionada']);
         $this->dispatch('reset-empresa-filter');
     }
@@ -95,7 +78,7 @@ class LabTable extends Component
         }
     }
 
-    public function updatedCep($value)
+    public function updatedFormCep($value)
     {
         $cep = preg_replace('/\D/', '', $value);
 
@@ -105,25 +88,25 @@ class LabTable extends Component
                 ->first();
 
             if ($localEndereco) {
-                $this->endereco = $localEndereco->endereco;
-                $this->bairro = $localEndereco->bairro;
-                $this->cidade = $localEndereco->cidade;
-                $this->uf = $localEndereco->uf;
+                $this->form->endereco = $localEndereco->endereco;
+                $this->form->bairro = $localEndereco->bairro;
+                $this->form->cidade = $localEndereco->cidade;
+                $this->form->uf = $localEndereco->uf;
             } else {
                 $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
 
                 if ($response->successful() && ! isset($response->json()['erro'])) {
                     $data = $response->json();
-                    $this->endereco = $data['logradouro'] ?? '';
-                    $this->bairro = $data['bairro'] ?? '';
-                    $this->cidade = $data['localidade'] ?? '';
-                    $this->uf = $data['uf'] ?? '';
+                    $this->form->endereco = $data['logradouro'] ?? '';
+                    $this->form->bairro = $data['bairro'] ?? '';
+                    $this->form->cidade = $data['localidade'] ?? '';
+                    $this->form->uf = $data['uf'] ?? '';
                 } else {
-                    $this->addError('cep', 'CEP não encontrado.');
+                    $this->addError('form.cep', 'CEP não encontrado.');
                 }
             }
         } elseif (strlen($cep) > 0) {
-            $this->addError('cep', 'CEP inválido. Certifique-se de que possui 8 dígitos.');
+            $this->addError('form.cep', 'CEP inválido. Certifique-se de que possui 8 dígitos.');
         }
     }
 
@@ -137,43 +120,45 @@ class LabTable extends Component
 
     public function edit($uid)
     {
+        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
         $this->resetForm();
         $this->isEdit = true;
 
         $lab = InterlabLaboratorio::where('uid', $uid)->with('endereco')->firstOrFail();
 
         $this->labId = $lab->id;
-        $this->empresa_id = $lab->empresa_id;
-        $this->nome = $lab->nome;
+        $this->form->empresa_id = $lab->empresa_id;
+        $this->form->nome = $lab->nome;
 
         if ($lab->endereco) {
-            $this->cep = $lab->endereco->cep;
-            $this->endereco = $lab->endereco->endereco;
-            $this->complemento = $lab->endereco->complemento;
-            $this->bairro = $lab->endereco->bairro;
-            $this->cidade = $lab->endereco->cidade;
-            $this->uf = $lab->endereco->uf;
+            $this->form->cep = $lab->endereco->cep;
+            $this->form->endereco = $lab->endereco->endereco;
+            $this->form->complemento = $lab->endereco->complemento;
+            $this->form->bairro = $lab->endereco->bairro;
+            $this->form->cidade = $lab->endereco->cidade;
+            $this->form->uf = $lab->endereco->uf;
         }
 
         $this->dispatch('open-modal');
-        $this->dispatch('set-empresa-modal', $this->empresa_id);
+        $this->dispatch('set-empresa-modal', $this->form->empresa_id);
     }
 
     public function save()
     {
-        $this->validate();
+        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
+        $this->form->validate();
 
         DB::transaction(function () {
 
             $enderecoData = [
-                'pessoa_id' => $this->empresa_id,
+                'pessoa_id' => $this->form->empresa_id,
                 'info' => 'Laboratório Interlab',
-                'cep' => $this->cep,
-                'endereco' => $this->endereco,
-                'complemento' => $this->complemento,
-                'bairro' => $this->bairro,
-                'cidade' => $this->cidade,
-                'uf' => $this->uf,
+                'cep' => $this->form->cep,
+                'endereco' => $this->form->endereco,
+                'complemento' => $this->form->complemento,
+                'bairro' => $this->form->bairro,
+                'cidade' => $this->form->cidade,
+                'uf' => $this->form->uf,
             ];
 
             // laboratório
@@ -192,8 +177,8 @@ class LabTable extends Component
                 $lab->endereco_id = $endereco->id;
             }
 
-            $lab->empresa_id = $this->empresa_id;
-            $lab->nome = $this->nome;
+            $lab->empresa_id = $this->form->empresa_id;
+            $lab->nome = $this->form->nome;
             $lab->save();
         });
 
@@ -209,18 +194,8 @@ class LabTable extends Component
 
     public function resetForm()
     {
-        $this->reset([
-            'labId',
-            'nome',
-            'empresa_id',
-            'cep',
-            'endereco',
-            'complemento',
-            'bairro',
-            'cidade',
-            'uf',
-            'isEdit',
-        ]);
+        $this->reset(['labId', 'isEdit']);
+        $this->form->reset();
         $this->dispatch('reset-empresa-modal');
     }
 
@@ -312,6 +287,10 @@ class LabTable extends Component
 
     public function render()
     {
+        $this->sortBy = in_array($this->sortBy, ['created_at', 'empresa', 'nome'], true) ? $this->sortBy : 'created_at';
+        $this->sortDirection = in_array($this->sortDirection, ['ASC', 'DESC'], true) ? $this->sortDirection : 'DESC';
+        $this->perPage = max(1, min(100, (int) $this->perPage));
+
         $laboratorios = $this->getQuery()->paginate($this->perPage);
 
         return view('livewire.interlab.lab-table', [

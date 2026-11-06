@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\CentroCusto;
 use App\Models\LancamentoFinanceiro;
 use App\Models\PlanoConta;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CentroCustoController extends Controller
@@ -12,7 +14,7 @@ class CentroCustoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
 
         return view('painel.centro-custo.index', ['centrocustos' => CentroCusto::all()]);
@@ -21,7 +23,7 @@ class CentroCustoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function create(Request $request): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -47,7 +49,7 @@ class CentroCustoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CentroCusto $centroCusto)
+    public function update(Request $request, CentroCusto $centroCusto): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -67,7 +69,7 @@ class CentroCustoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CentroCusto $centroCusto)
+    public function delete(CentroCusto $centroCusto): RedirectResponse
     {
         $tem_lac_financ = LancamentoFinanceiro::where('centro_custo_id', $centroCusto->id)->first();
         $tem_plano_contas = PlanoConta::where('centro_custo_id', $centroCusto->id)->first();

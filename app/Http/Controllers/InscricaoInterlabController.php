@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CriarEnviarSenhaAnalistaAction;
-use App\Actions\CriarEnviarSenhaLaboratorioAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
-use App\Actions\InscricaoInterlabAction;
+use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
+use App\Actions\Interlab\InscricaoInterlabAction;
 use App\Exceptions\InvalidEmailException;
 use App\Http\Requests\ConfirmaInscricaoInterlabRequest;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;
@@ -127,10 +127,8 @@ class InscricaoInterlabController extends Controller
 
     /**
      * Cancela a inscrição de um participante
-     *
-     * @return RedirectResponse
      */
-    public function cancelaInscricao(InterlabInscrito $inscrito)
+    public function cancelaInscricao(InterlabInscrito $inscrito): RedirectResponse
     {
         // Deleta analistas vinculados a esta inscrição
         InterlabAnalista::where('interlab_inscrito_id', $inscrito->id)->delete();

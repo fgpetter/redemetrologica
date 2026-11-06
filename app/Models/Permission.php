@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use App\Traits\LogsModelActivity;
-use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Support\LogOptions;
 
 class Permission extends Model
 {
-    use LogsModelActivity, SetDefaultUid;
+    // A tabela de permissões não possui UID nem é exposta por identificador público.
+    use LogsModelActivity;
+
+    protected $table = 'permissions';
 
     protected $guarded = [];
 

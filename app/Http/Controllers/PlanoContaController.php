@@ -62,7 +62,7 @@ class PlanoContaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function create(Request $request): RedirectResponse
     {
         // dd($request);
         $validated = $request->validate(
@@ -95,7 +95,7 @@ class PlanoContaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PlanoConta $planoconta)
+    public function update(Request $request, PlanoConta $planoconta): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -122,7 +122,7 @@ class PlanoContaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PlanoConta $planoconta)
+    public function delete(PlanoConta $planoconta): RedirectResponse
     {
         $planoconta->delete();
 

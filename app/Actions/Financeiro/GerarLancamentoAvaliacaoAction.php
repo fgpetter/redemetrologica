@@ -43,7 +43,8 @@ class GerarLancamentoAvaliacaoAction
             'status' => 'PROVISIONADO',
         ]);
 
-        Mail::to('financeiro@redemetrologica.com.br')->send(new LancamentoAvaliacaoNotification($avaliacao, $lancamento));
+        Mail::to('financeiro@redemetrologica.com.br')
+            ->queue((new LancamentoAvaliacaoNotification($avaliacao, $lancamento))->afterCommit());
 
         return $lancamento;
     }

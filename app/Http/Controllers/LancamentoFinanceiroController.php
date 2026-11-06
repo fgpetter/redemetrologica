@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Actions\Financeiro\EditarLancamentosEmLoteAction;
 use App\Exports\LancamentosMesExport;
+use App\Http\Requests\AtualizarLancamentoFinanceiroRequest;
+use App\Http\Requests\AtualizarLancamentosEmLoteRequest;
+use App\Http\Requests\CriarLancamentoFinanceiroRequest;
+use App\Http\Requests\FiltrarLancamentosAReceberRequest;
 use App\Models\AgendaCursos;
 use App\Models\AgendaInterlab;
 use App\Models\CentroCusto;
@@ -14,11 +18,10 @@ use App\Models\PlanoConta;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LancamentoFinanceiroController extends Controller
 {
@@ -83,76 +86,10 @@ class LancamentoFinanceiroController extends Controller
      * Adiciona lancamento financeiro
      *
      **/
-    public function store(Request $request): RedirectResponse
+    public function create(CriarLancamentoFinanceiroRequest $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), [
-            'data_emissao' => ['nullable', Rule::date()->format('Y-m-d')],
-            'nota_fiscal' => ['nullable', 'string', 'max:191'],
-            'consiliacao' => ['nullable', 'string', 'max:191'],
-            'documento' => ['nullable', 'string', 'max:191'],
-            'pessoa_id' => ['required', 'exists:pessoas,id'],
-            'centro_custo_id' => ['required', 'exists:centro_custos,id'],
-            'plano_conta_id' => ['required', 'exists:plano_contas,id'],
-            'historico' => ['nullable', 'string', 'max:900'],
-            'tipo_lancamento' => ['required', 'in:CREDITO,DEBITO'],
-            'valor' => ['nullable', 'string', 'max:11'],
-            'data_vencimento' => ['nullable', Rule::date()->format('Y-m-d')],
-            'data_pagamento' => ['nullable', Rule::date()->format('Y-m-d')],
-            'modalidade_pagamento_id' => ['nullable', 'exists:modalidade_pagamentos,id'],
-            'observacoes' => ['nullable', 'string'],
-            'duplicar_lancamento' => ['nullable', 'boolean'],
-            'lancamento_original_uid' => ['nullable', 'string', Rule::exists('lancamentos_financeiros', 'uid')],
-        ], [
-            'data_emissao.date' => 'A data de emissão deve ser uma data válida',
-            'data_emissao.date_format' => 'A data de emissão deve ser uma data válida',
-            'nota_fiscal.string' => 'O número da nota fiscal é inválido',
-            'nota_fiscal.max' => 'Máximo de caracteres excedido',
-            'consiliacao.string' => 'O número da consiliação é inválido',
-            'consiliacao.max' => 'Máximo de caracteres excedido',
-            'documento.string' => 'O número do documento é inválido',
-            'documento.max' => 'Máximo de caracteres excedido',
-            'pessoa_id.required' => 'É necessário selecionar uma pessoa',
-            'pessoa_id.exists' => 'A pessoa selecionada não existe no sistema',
-            'centro_custo_id.required' => 'É necessário selecionar um centro de custo',
-            'centro_custo_id.exists' => 'O centro de custo selecionado não existe no sistema',
-            'plano_conta_id.required' => 'É necessário selecionar um plano de conta',
-            'plano_conta_id.exists' => 'O plano de conta selecionado não existe no sistema',
-            'historico.string' => 'O histórico informado é inválido',
-            'historico.max' => 'Máximo de caracteres excedido',
-            'tipo_lancamento.required' => 'É necessário selecionar o tipo de lançamento',
-            'tipo_lancamento.in' => 'O tipo de lançamento selecionado é inválido',
-            'valor.numeric' => 'O valor deve ser um número válido',
-            'data_vencimento.date' => 'A data de vencimento deve ser uma data válida',
-            'data_vencimento.date_format' => 'A data de vencimento deve ser uma data válida',
-            'data_pagamento.date' => 'A data de pagamento deve ser uma data válida',
-            'data_pagamento.date_format' => 'A data de pagamento deve ser uma data válida',
-            'modalidade_pagamento_id.exists' => 'A modalidade de pagamento selecionada não existe no sistema',
-            'observacoes.string' => 'As observações informadas são inválidas',
-            'observacoes.max' => 'Máximo de caracteres excedido',
-        ]
-        );
 
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]);
-
-            $redirect = back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
-
-            if ($request->boolean('duplicar_lancamento')) {
-                $redirect->with('duplicar_lancamento_uid', $request->input('lancamento_original_uid'));
-            }
-
-            return $redirect;
-        }
-
-        $validated = $validator->validate();
+        $validated = $request->validated();
 
         $prepared_data = array_merge($validated, [
             'valor' => formataMoeda($request->valor),
@@ -202,70 +139,10 @@ class LancamentoFinanceiroController extends Controller
      * Atualiza dados de lancamento
      *
      **/
-    public function update(Request $request, LancamentoFinanceiro $lancamento): RedirectResponse
+    public function update(AtualizarLancamentoFinanceiroRequest $request, LancamentoFinanceiro $lancamento): RedirectResponse
     {
 
-        $validator = Validator::make($request->all(),
-            [
-                'data_emissao' => ['nullable', Rule::date()->format('Y-m-d')],
-                'nota_fiscal' => ['nullable', 'string', 'max:191'],
-                'consiliacao' => ['nullable', 'string', 'max:191'],
-                'documento' => ['nullable', 'string', 'max:191'],
-                'pessoa_id' => ['required', 'exists:pessoas,id'],
-                'centro_custo_id' => ['required', 'exists:centro_custos,id'],
-                'plano_conta_id' => ['required', 'exists:plano_contas,id'],
-                'historico' => ['nullable', 'string', 'max:900'],
-                'tipo_lancamento' => ['required', 'in:CREDITO,DEBITO'],
-                'valor' => ['nullable', 'string'],
-                'data_vencimento' => ['nullable', Rule::date()->format('Y-m-d')],
-                'data_pagamento' => ['nullable', Rule::date()->format('Y-m-d')],
-                'modalidade_pagamento_id' => ['nullable', 'exists:modalidade_pagamentos,id'],
-                'observacoes' => ['nullable', 'string'],
-            ], [
-                'data_emissao.date' => 'A data de emissão deve ser uma data válida',
-                'data_emissao.date_format' => 'A data de emissão deve ser uma data válida',
-                'nota_fiscal.string' => 'O número da nota fiscal é inválido',
-                'consiliacao.string' => 'O número da consiliação é inválido',
-                'documento.string' => 'O número do documento é inválido',
-                'pessoa_id.required' => 'É necessário selecionar uma pessoa',
-                'pessoa_id.exists' => 'A pessoa selecionada não existe no sistema',
-                'centro_custo_id.required' => 'É necessário selecionar um centro de custo',
-                'centro_custo_id.exists' => 'O centro de custo selecionado não existe no sistema',
-                'plano_conta_id.required' => 'É necessário selecionar um plano de conta',
-                'plano_conta_id.exists' => 'O plano de conta selecionado não existe no sistema',
-                'historico.string' => 'O histórico informado é inválido',
-                'tipo_lancamento.required' => 'É necessário selecionar o tipo de lançamento',
-                'tipo_lancamento.in' => 'O tipo de lançamento selecionado é inválido',
-                'valor.numeric' => 'O valor deve ser um número válido',
-                'data_vencimento.date' => 'A data de vencimento deve ser uma data válida',
-                'data_vencimento.date_format' => 'A data de vencimento deve ser uma data válida',
-                'data_pagamento.date' => 'A data de pagamento deve ser uma data válida',
-                'data_pagamento.date_format' => 'A data de pagamento deve ser uma data válida',
-                'modalidade_pagamento_id.exists' => 'A modalidade de pagamento selecionada não existe no sistema',
-                'observacoes.string' => 'As observações informadas são inválidas',
-                'nota_fiscal.max' => 'Máximo de caracteres excedido',
-                'consiliacao.max' => 'Máximo de caracteres excedido',
-                'documento.max' => 'Máximo de caracteres excedido',
-                'historico.max' => 'Máximo de caracteres excedido',
-                'observacoes.max' => 'Máximo de caracteres excedido',
-            ]
-        );
-
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info('Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]);
-
-            return back()->with('error', 'Houve um erro a processar os dados, tente novamente')->withErrors($validator)->withInput();
-        }
-
-        $prepared_data = array_merge($validator->validate(), [
+        $prepared_data = array_merge($request->validated(), [
             'valor' => formataMoeda($request->valor),
             'status' => $request->data_pagamento ? 'EFETIVADO' : 'PROVISIONADO',
         ]);
@@ -289,16 +166,9 @@ class LancamentoFinanceiroController extends Controller
     /**
      * Atualiza em lote consiliacao, nota_fiscal, data_pagamento e data_vencimento (lote homogêneo: créditos ou débitos).
      */
-    public function batchUpdate(Request $request, EditarLancamentosEmLoteAction $editarLancamentosEmLoteAction): RedirectResponse
+    public function batchUpdate(AtualizarLancamentosEmLoteRequest $request, EditarLancamentosEmLoteAction $editarLancamentosEmLoteAction): RedirectResponse
     {
-        $validated = $request->validate([
-            'uids' => ['required', 'array', 'min:1'],
-            'uids.*' => ['required', 'string', 'exists:lancamentos_financeiros,uid'],
-            'consiliacao' => ['nullable', 'string', 'max:191'],
-            'nota_fiscal' => ['nullable', 'string', 'max:191'],
-            'data_pagamento' => ['nullable', Rule::date()->format('Y-m-d')],
-            'data_vencimento' => ['nullable', Rule::date()->format('Y-m-d')],
-        ]);
+        $validated = $request->validated();
 
         try {
             $atualizados = $editarLancamentosEmLoteAction->execute(
@@ -330,18 +200,9 @@ class LancamentoFinanceiroController extends Controller
      * Gera pagina de listagem lancamentos a receber
      *
      **/
-    public function areceber(Request $request): View
+    public function areceber(FiltrarLancamentosAReceberRequest $request): View
     {
-        $validated = $request->validate([
-            'data_inicial' => ['nullable', Rule::date()->format('Y-m-d')],
-            'data_final' => ['nullable', Rule::date()->format('Y-m-d')],
-            'pessoa' => ['nullable', 'exists:pessoas,id'],
-            'area' => ['nullable', 'in:CURSO,PEP,AVALIACAO'],
-            'curso' => ['nullable', 'exists:agenda_cursos,id', Rule::prohibitedIf(boolval($request->pep))],
-            'pep' => ['nullable', 'exists:agenda_interlabs,id'],
-        ], [
-            'curso.prohibited' => 'Essa seleção é conflituosa',
-        ]);
+        $validated = $request->validated();
 
         if ($validated['area'] ?? false) {
             $validated['area'] = match ($validated['area']) {
@@ -391,9 +252,8 @@ class LancamentoFinanceiroController extends Controller
      *
      * @param  int  $mes
      * @param  int  $ano
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function exportLancamentosMes(Request $request)
+    public function exportLancamentosMes(Request $request): BinaryFileResponse
     {
         $mes_ano = explode('-', $request->mesano);
         $mes = $mes_ano[0];

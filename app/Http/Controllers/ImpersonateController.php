@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ImpersonateController extends Controller
 {
-    public function impersonate(Request $request)
+    public function impersonate(Request $request): RedirectResponse
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -24,7 +25,7 @@ class ImpersonateController extends Controller
         return back()->with('success', 'Agora você está atuando como '.($user->name ?? $user->email));
     }
 
-    public function stop()
+    public function stop(): RedirectResponse
     {
         // Recupera o admin original
         $originalId = session('impersonator_id');

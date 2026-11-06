@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ModalidadePagamento;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ModalidadePagamentoController extends Controller
@@ -10,7 +12,7 @@ class ModalidadePagamentoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
 
         return view('painel.modalidade-pagamento.index', ['modalidadepagamentos' => ModalidadePagamento::all()]);
@@ -19,7 +21,7 @@ class ModalidadePagamentoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function create(Request $request): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -45,7 +47,7 @@ class ModalidadePagamentoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ModalidadePagamento $modalidadePagamento)
+    public function update(Request $request, ModalidadePagamento $modalidadePagamento): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -65,7 +67,7 @@ class ModalidadePagamentoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ModalidadePagamento $modalidadePagamento)
+    public function delete(ModalidadePagamento $modalidadePagamento): RedirectResponse
     {
         $modalidadePagamento->delete();
 

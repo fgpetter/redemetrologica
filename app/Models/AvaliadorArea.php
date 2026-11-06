@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Support\LogOptions;
 
 class AvaliadorArea extends Model
@@ -35,12 +36,12 @@ class AvaliadorArea extends Model
             ->useLogName(get_class($this));
     }
 
-    public function avaliador()
+    public function avaliador(): BelongsTo
     {
         return $this->belongsTo(Avaliador::class);
     }
 
-    public function area()
+    public function area(): BelongsTo
     {
         return $this->belongsTo(AreaAtuacao::class, 'area_id', 'id');
     }

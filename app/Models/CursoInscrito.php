@@ -15,6 +15,8 @@ class CursoInscrito extends Model
 {
     use LogsModelActivity, SetDefaultUid;
 
+    protected $table = 'curso_inscritos';
+
     /**
      * The attributes that aren't mass assignable.
      *

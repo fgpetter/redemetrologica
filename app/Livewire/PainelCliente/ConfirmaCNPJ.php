@@ -3,17 +3,19 @@
 namespace App\Livewire\PainelCliente;
 
 use App\Actions\BuscaCepAction;
-use App\Enums\EsferaGovernamental;
-use App\Enums\FormaPagamentoCobranca;
+use App\Actions\SalvarEmpresaInscricaoAction;
 use App\Helpers\Telefone;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
-use Illuminate\Validation\Rule;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ConfirmaCNPJ extends Component
 {
+    #[Locked]
+    public ?int $empresaId = null;
+
     public $empresa = [];
 
     public array $dadosCobranca = [
@@ -34,6 +36,7 @@ class ConfirmaCNPJ extends Component
 
     private function resetEmpresa()
     {
+        $this->empresaId = null;
         $this->empresa = [
             'id' => null,
             'nome_razao' => '',
@@ -55,9 +58,10 @@ class ConfirmaCNPJ extends Component
     #[On('cnpjFound')]
     public function loadEmpresa($id_pessoa)
     {
-        $empresaModel = Pessoa::with('enderecoCobranca')->find($id_pessoa);
+        $empresaModel = Pessoa::with('enderecoCobranca')->where('tipo_pessoa', 'PJ')->find($id_pessoa);
 
         if ($empresaModel) {
+            $this->empresaId = $empresaModel->id;
             $this->empresa = $empresaModel->toArray();
             $this->empresa['telefone'] = $empresaModel->getRawOriginal('telefone');
 
@@ -120,76 +124,13 @@ class ConfirmaCNPJ extends Component
         }
     }
 
-    public function salvar()
+    public function salvar(SalvarEmpresaInscricaoAction $salvarEmpresa): void
     {
         $this->empresa['telefone'] = Telefone::paraValidacao($this->empresa['telefone'] ?? null);
-        $this->validate([
-            'empresa.nome_razao' => ['required', 'string', 'max:191'],
-            'empresa.cpf_cnpj' => ['required', 'cpf_ou_cnpj', 'max:191'],
-            'empresa.telefone' => ['nullable', 'celular_com_ddd'],
-            'empresa.endereco_cobranca.email' => ['required', 'email', 'max:191'],
-            'empresa.endereco_cobranca.cep' => ['required', 'string', 'min:9'],
-            'empresa.endereco_cobranca.endereco' => ['required', 'string'],
-            'empresa.endereco_cobranca.bairro' => ['required', 'string'],
-            'empresa.endereco_cobranca.cidade' => ['required', 'string'],
-            'empresa.endereco_cobranca.uf' => ['required', 'string', 'size:2'],
-            'dadosCobranca.forma_pagamento' => ['required', Rule::enum(FormaPagamentoCobranca::class)],
-            'dadosCobranca.exige_pedido_compra' => ['required', 'in:0,1'],
-            'dadosCobranca.entidade_governamental' => ['required', 'in:0,1'],
-            'dadosCobranca.esfera_governamental' => ['required_if:dadosCobranca.entidade_governamental,1', 'nullable', Rule::enum(EsferaGovernamental::class)],
-        ], [
-            'empresa.nome_razao.required' => 'Preencha o campo nome/razão social.',
-            'empresa.nome_razao.max' => 'O campo nome/razão social deve ter no máximo :max caracteres.',
-            'empresa.cpf_cnpj.required' => 'Preencha o campo CPF/CNPJ.',
-            'empresa.telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-            'empresa.endereco_cobranca.cep.required' => 'Preencha o campo CEP de cobrança.',
-            'empresa.endereco_cobranca.cep.min' => 'O campo CEP de cobrança deve ter no mínimo :min caracteres.',
-            'empresa.endereco_cobranca.endereco.required' => 'Preencha o campo endereço de cobrança.',
-            'empresa.endereco_cobranca.bairro.required' => 'Preencha o campo bairro de cobrança.',
-            'empresa.endereco_cobranca.email.required' => 'O email de cobrança é obrigatório.',
-            'empresa.endereco_cobranca.email.email' => 'O email de cobrança deve ser um endereço de email válido.',
-            'empresa.endereco_cobranca.cidade.required' => 'Preencha o campo cidade de cobrança.',
-            'empresa.endereco_cobranca.uf.required' => 'Preencha o campo UF de cobrança.',
-            'empresa.endereco_cobranca.uf.size' => 'O campo UF de cobrança deve ter exatamente 2 caracteres.',
-            'dadosCobranca.forma_pagamento.required' => 'Selecione a forma de pagamento.',
-            'dadosCobranca.exige_pedido_compra.required' => 'Informe se é necessário envio de pedido/ordem de compra ou empenho.',
-            'dadosCobranca.entidade_governamental.required' => 'Informe se é entidade governamental.',
-            'dadosCobranca.esfera_governamental.required_if' => 'Selecione a esfera governamental.',
-        ]);
-
-        $empresa = Pessoa::updateOrCreate(
-            ['id' => $this->empresa['id'] ?? null],
-            [
-                'nome_razao' => $this->empresa['nome_razao'],
-                'cpf_cnpj' => $this->empresa['cpf_cnpj'],
-                'telefone' => $this->empresa['telefone'] ?? null,
-                'tipo_pessoa' => 'PJ',
-            ]
-        );
-
-        $enderecoCobranca = $empresa->enderecoCobranca()->updateOrCreate(
-            ['pessoa_id' => $empresa->id],
-            [
-                'info' => 'Cobrança',
-                'cep' => $this->empresa['endereco_cobranca']['cep'],
-                'endereco' => $this->empresa['endereco_cobranca']['endereco'],
-                'complemento' => $this->empresa['endereco_cobranca']['complemento'] ?? null,
-                'bairro' => $this->empresa['endereco_cobranca']['bairro'],
-                'cidade' => $this->empresa['endereco_cobranca']['cidade'],
-                'uf' => $this->empresa['endereco_cobranca']['uf'],
-                'email' => $this->empresa['endereco_cobranca']['email'],
-                'cobranca' => 1,
-            ]
-        );
-
-        $empresa->update([
-            'end_cobranca' => $enderecoCobranca->id,
-            'email_cobranca' => $enderecoCobranca->email,
-        ]);
-
-        $empresaReloaded = Pessoa::with('enderecoCobranca')->find($empresa->id);
-        $this->empresa = $empresaReloaded->toArray();
-        $this->empresa['telefone'] = $empresaReloaded->getRawOriginal('telefone');
+        $empresa = $salvarEmpresa->execute($this->empresaId, $this->empresa, $this->dadosCobranca, cepCompleto: true);
+        $this->empresaId = $empresa->id;
+        $this->empresa = $empresa->toArray();
+        $this->empresa['telefone'] = $empresa->getRawOriginal('telefone');
 
         $this->isOpen = false;
 

@@ -65,6 +65,7 @@ class MediaAvaliacoesTable extends Component
 
     public function render()
     {
+        $this->perPage = max(1, min(100, (int) $this->perPage));
         $avaliacoes = $this->getQuery()->paginate($this->perPage);
 
         $grupos = $avaliacoes->getCollection()->groupBy(function (AgendaAvaliacao $avaliacao) {

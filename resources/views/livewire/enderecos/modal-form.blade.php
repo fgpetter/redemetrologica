@@ -1,8 +1,6 @@
 
 <form wire:submit.prevent="salvar">
     <div class="row gy-2">
-        <input type="hidden" wire:model="endereco.pessoa_id">
-
         <div class="col-12">
             <x-forms.input-field wire:model.lazy="endereco.info" name="endereco.info"
                 label="Nome do endereço" placeholder="Ex. Filial Caxias" />

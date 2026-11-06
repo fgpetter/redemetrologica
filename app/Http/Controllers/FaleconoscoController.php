@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Telefone;
+use App\Http\Requests\FaleconoscoRequest;
 use App\Mail\FaleconoscoMail;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Mail;
 
 class FaleconoscoController extends Controller
@@ -12,27 +14,15 @@ class FaleconoscoController extends Controller
     /**
      * Gera pagina de Fale-conosco
      *
-     * @return View
      **/
-    public function index()
+    public function index(): View
     {
         return view('site.pages.fale-conosco');
     }
 
-    public function enviar(Request $request)
+    public function enviar(FaleconoscoRequest $request): RedirectResponse
     {
-        $request->merge(['phone' => Telefone::paraValidacao($request->input('phone'))]);
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => ['required', 'celular_com_ddd'],
-            'message' => 'nullable|string|max:2000',
-            'areas' => 'sometimes|array',
-            'areas.*' => 'string',
-        ], [
-            'phone.required' => 'Informe um telefone para contato.',
-            'phone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-        ]);
+        $validated = $request->validated();
 
         // Sanitização dos dados validados
         $validated['name'] = strip_tags(trim($validated['name']));

@@ -6,24 +6,44 @@ use App\Models\CentroCusto;
 use App\Models\InterlabInscrito;
 use App\Models\LancamentoFinanceiro;
 use App\Models\PlanoConta;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class GerarLancamentoInterlabAction
 {
     /**
      * Gera ou atualiza um lançamento financeiro para uma inscrição do Interlab
      *
-     * @param  float|null  $valor
+     * @param  InterlabInscrito  $inscrito  Inscrição que recebe o lançamento
      * @param  array<string, mixed>|null  $dadosCobranca  Respostas de cobrança da empresa (colunas do lançamento)
+     * @return LancamentoFinanceiro Lançamento vinculado à inscrição
      */
-    public function execute(InterlabInscrito $inscrito, $valor = null, ?array $dadosCobranca = null): LancamentoFinanceiro
+    public function execute(InterlabInscrito $inscrito, float|int|string|null $valor = null, ?array $dadosCobranca = null): LancamentoFinanceiro
+    {
+        return DB::transaction(function () use ($inscrito, $valor, $dadosCobranca): LancamentoFinanceiro {
+            $inscricaoPersistida = InterlabInscrito::query()->lockForUpdate()->findOrFail($inscrito->getKey());
+
+            $lancamento = $this->salvarLancamento(
+                $inscricaoPersistida,
+                $valor ?? $inscrito->valor,
+                Arr::only($dadosCobranca ?? [], LancamentoFinanceiro::CAMPOS_COBRANCA),
+            );
+
+            $inscrito->lancamento_financeiro_id = $lancamento->id;
+            $inscrito->syncOriginalAttribute('lancamento_financeiro_id');
+            $inscrito->setRelation('lancamentoFinanceiro', $lancamento);
+
+            return $lancamento;
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $dadosCobranca
+     */
+    private function salvarLancamento(InterlabInscrito $inscrito, float|int|string|null $valor, array $dadosCobranca): LancamentoFinanceiro
     {
         // Garante que os relacionamentos necessários estejam carregados
         $inscrito->loadMissing(['agendaInterlab.interlab', 'empresa', 'laboratorio', 'lancamentoFinanceiro']);
-
-        // Se o valor for nulo, usa o valor da inscrição
-        if (is_null($valor)) {
-            $valor = $inscrito->valor;
-        }
 
         $agenda_interlab = $inscrito->agendaInterlab;
         $empresa = $inscrito->empresa;
@@ -42,7 +62,7 @@ class GerarLancamentoInterlabAction
                 'valor' => formataMoeda($valor),
                 'observacoes' => $obsTexto,
                 'data_emissao' => now(),
-                ...($dadosCobranca ?? []),
+                ...$dadosCobranca,
             ]);
 
             return $lancamentoIndividual;
@@ -60,7 +80,7 @@ class GerarLancamentoInterlabAction
             'data_emissao' => now(),
             'status' => 'PROVISIONADO',
             'observacoes' => $obsTexto,
-            ...($dadosCobranca ?? []),
+            ...$dadosCobranca,
         ]);
 
         // VINCULA ao inscrito
@@ -79,7 +99,7 @@ class GerarLancamentoInterlabAction
         $lancamento = $inscrito->lancamentoFinanceiro;
 
         if ($lancamento) {
-            $lancamento->update($dadosCobranca);
+            $lancamento->update(Arr::only($dadosCobranca, LancamentoFinanceiro::CAMPOS_COBRANCA));
         }
     }
 

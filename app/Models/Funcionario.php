@@ -12,6 +12,8 @@ class Funcionario extends Model
 {
     use LogsModelActivity, SetDefaultUid;
 
+    protected $table = 'funcionarios';
+
     /**
      * The attributes that aren't mass assignable.
      *

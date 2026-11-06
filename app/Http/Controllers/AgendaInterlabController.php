@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CriarEnviarSenhaAnalistaAction;
-use App\Actions\CriarEnviarSenhaLaboratorioAction;
 use App\Actions\FileUploadAction;
+use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
 use App\Exports\LabExport;
 use App\Http\Requests\StoreAgendaInterlabRequest;
 use App\Jobs\EnviarConfirmacaoInterlabJob;
@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AgendaInterlabController extends Controller
 {
@@ -236,10 +237,8 @@ class AgendaInterlabController extends Controller
 
     /**
      * Exibe no site a lista de interlaboratoriais
-     *
-     * @return View
      */
-    public function exibeInterlabsSite()
+    public function exibeInterlabsSite(): View
     {
 
         $interlabs = AgendaInterlab::with('interlab')
@@ -254,10 +253,8 @@ class AgendaInterlabController extends Controller
 
     /**
      * Exibe a página de detalhes de um agendamento específico de interlab.
-     *
-     * @return View
      */
-    public function exibePaginaAgendaInterlab(AgendaInterlab $agendainterlab)
+    public function exibePaginaAgendaInterlab(AgendaInterlab $agendainterlab): View
     {
 
         $agendainterlab->load('interlab');
@@ -270,7 +267,7 @@ class AgendaInterlabController extends Controller
      *
      * @return void
      */
-    public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab)
+    public function exportLaboratoriosToXLS(AgendaInterlab $agendainterlab): BinaryFileResponse
     {
         $agendainterlab->loadMissing('interlab');
 

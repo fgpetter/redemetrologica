@@ -17,7 +17,7 @@ class Listview extends Component
         $this->enderecoAtivo = $uid;
     }
 
-    #[On('refresh-enderecos-list')]
+    #[On('refresh-enderecos-{pessoa.id}')]
     public function render()
     {
         return view('livewire.enderecos.list-view', [

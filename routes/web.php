@@ -318,64 +318,64 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     /* Area de atuação */
     Route::group(['prefix' => 'area-atuacao', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [AreaAtuacaoController::class, 'index'])->name('area-atuacao-index');
-        Route::post('store', [AreaAtuacaoController::class, 'store'])->name('area-atuacao-store');
+        Route::post('store', [AreaAtuacaoController::class, 'create'])->name('area-atuacao-store');
         Route::post('update/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'update'])->name('area-atuacao-update');
-        Route::post('delete/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'destroy'])->name('area-atuacao-delete');
+        Route::post('delete/{areaAtuacao:uid}', [AreaAtuacaoController::class, 'delete'])->name('area-atuacao-delete');
     });
 
     /* Lista de materiais/padrões */
     Route::group(['prefix' => 'materiais-padroes', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [MateriaisPadroesController::class, 'index'])->name('materiais-padroes-index');
-        Route::post('store', [MateriaisPadroesController::class, 'store'])->name('materiais-padroes-store');
+        Route::post('store', [MateriaisPadroesController::class, 'create'])->name('materiais-padroes-store');
         Route::post('update/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'update'])->name('materiais-padroes-update');
-        Route::post('delete/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'destroy'])->name('materiais-padroes-delete');
+        Route::post('delete/{materiaisPadroes:uid}', [MateriaisPadroesController::class, 'delete'])->name('materiais-padroes-delete');
     });
 
     /* Cadastro de tipos de avaliação */
     Route::group(['prefix' => 'tipos-avaliacao', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [TipoAvaliacaoController::class, 'index'])->name('tipo-avaliacao-index');
-        Route::post('store', [TipoAvaliacaoController::class, 'store'])->name('tipo-avaliacao-store');
+        Route::post('store', [TipoAvaliacaoController::class, 'create'])->name('tipo-avaliacao-store');
         Route::post('update/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'update'])->name('tipo-avaliacao-update');
-        Route::post('delete/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'destroy'])->name('tipo-avaliacao-delete');
+        Route::post('delete/{tipoAvaliacao:uid}', [TipoAvaliacaoController::class, 'delete'])->name('tipo-avaliacao-delete');
     });
 
     /* Cadastro de bancos */
     Route::group(['prefix' => 'banco', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [BancosController::class, 'index'])->name('banco-index');
-        Route::post('store', [BancosController::class, 'store'])->name('banco-store');
+        Route::post('store', [BancosController::class, 'create'])->name('banco-store');
         Route::post('update/{banco:uid}', [BancosController::class, 'update'])->name('banco-update');
-        Route::post('delete/{banco:uid}', [BancosController::class, 'destroy'])->name('banco-delete');
+        Route::post('delete/{banco:uid}', [BancosController::class, 'delete'])->name('banco-delete');
     });
 
     /* Cadastro de centro de custo */
     Route::group(['prefix' => 'centro-custo', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [CentroCustoController::class, 'index'])->name('centro-custo-index');
-        Route::post('store', [CentroCustoController::class, 'store'])->name('centro-custo-store');
+        Route::post('store', [CentroCustoController::class, 'create'])->name('centro-custo-store');
         Route::post('update/{centroCusto:uid}', [CentroCustoController::class, 'update'])->name('centro-custo-update');
-        Route::post('delete/{centroCusto:uid}', [CentroCustoController::class, 'destroy'])->name('centro-custo-delete');
+        Route::post('delete/{centroCusto:uid}', [CentroCustoController::class, 'delete'])->name('centro-custo-delete');
     });
 
     /* Cadastro de centro de custo */
     Route::group(['prefix' => 'modalidade-pagamento', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [ModalidadePagamentoController::class, 'index'])->name('modalidade-pagamento-index');
-        Route::post('store', [ModalidadePagamentoController::class, 'store'])->name('modalidade-pagamento-store');
+        Route::post('store', [ModalidadePagamentoController::class, 'create'])->name('modalidade-pagamento-store');
         Route::post('update/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'update'])->name('modalidade-pagamento-update');
-        Route::post('delete/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'destroy'])->name('modalidade-pagamento-delete');
+        Route::post('delete/{modalidadePagamento:uid}', [ModalidadePagamentoController::class, 'delete'])->name('modalidade-pagamento-delete');
     });
 
     /* Cadastro de plano de contas */
     Route::group(['prefix' => 'plano-conta', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [PlanoContaController::class, 'index'])->name('plano-conta-index');
-        Route::post('store', [PlanoContaController::class, 'store'])->name('plano-conta-store');
+        Route::post('store', [PlanoContaController::class, 'create'])->name('plano-conta-store');
         Route::post('update/{planoconta:uid}', [PlanoContaController::class, 'update'])->name('plano-conta-update');
-        Route::post('delete/{planoconta:uid}', [PlanoContaController::class, 'destroy'])->name('plano-conta-delete');
+        Route::post('delete/{planoconta:uid}', [PlanoContaController::class, 'delete'])->name('plano-conta-delete');
     });
 
     /* Financeiro */
     Route::group(['prefix' => 'financeiro', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('lancamento/index', [LancamentoFinanceiroController::class, 'index'])->name('lancamento-financeiro-index');
         Route::get('lancamento/insert/{lancamento:uid?}', [LancamentoFinanceiroController::class, 'insert'])->name('lancamento-financeiro-insert');
-        Route::post('lancamento/store', [LancamentoFinanceiroController::class, 'store'])->name('lancamento-financeiro-store');
+        Route::post('lancamento/store', [LancamentoFinanceiroController::class, 'create'])->name('lancamento-financeiro-store');
         Route::post('lancamento/update/{lancamento:uid}', [LancamentoFinanceiroController::class, 'update'])->name('lancamento-financeiro-update');
         Route::post('lancamento/delete/{lancamento:uid}', [LancamentoFinanceiroController::class, 'delete'])->name('lancamento-financeiro-delete');
         Route::post('lancamento/batch-update', [LancamentoFinanceiroController::class, 'batchUpdate'])->name('lancamento-financeiro-batch-update');

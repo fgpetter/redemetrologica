@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
 use App\Exceptions\InvalidEmailException;
 use App\Mail\ConfirmacaoInscricaoAnalistaNotification;
 use App\Mail\ConfirmacaoInscricaoInterlabNotification;

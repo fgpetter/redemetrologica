@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AreaAtuacao;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -30,7 +31,7 @@ class AreaAtuacaoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function create(Request $request): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -58,7 +59,7 @@ class AreaAtuacaoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AreaAtuacao $areaAtuacao)
+    public function update(Request $request, AreaAtuacao $areaAtuacao): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -81,7 +82,7 @@ class AreaAtuacaoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AreaAtuacao $areaAtuacao)
+    public function delete(AreaAtuacao $areaAtuacao): RedirectResponse
     {
         $areaAtuacao->delete();
 

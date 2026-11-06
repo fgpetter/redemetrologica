@@ -49,35 +49,34 @@ class CreateUserForPessoaActionTest extends TestCase
         Mail::assertNothingQueued();
     }
 
-    public function test_recria_usuario_quando_user_id_esta_orfao(): void
+    public function test_recria_usuario_quando_usuario_anterior_foi_excluido(): void
     {
         Mail::fake();
 
-        $pessoa = PessoaFactory::new()->create([
-            'user_id' => 999999,
+        $pessoa = PessoaFactory::new()->withUser()->create([
             'email' => 'orfao@example.com',
             'nome_razao' => 'Cliente Orfao',
         ]);
 
-        $this->assertNull($pessoa->fresh()->user);
+        $pessoa->user->delete();
+        $this->assertNull($pessoa->fresh()->user_id);
 
         $user = CreateUserForPessoaAction::handle($pessoa->fresh());
 
         $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('orfao@example.com', $user->email);
         $this->assertEquals($user->id, $pessoa->fresh()->user_id);
-        $this->assertNotEquals(999999, $pessoa->fresh()->user_id);
         $this->assertTrue($user->hasPermissionTo('cliente'));
 
         Mail::assertQueued(UserRegistered::class);
     }
 
-    public function test_recria_usuario_orfao_com_mailable_de_senha_resetada(): void
+    public function test_cria_usuario_com_mailable_de_senha_resetada(): void
     {
         Mail::fake();
 
         $pessoa = PessoaFactory::new()->create([
-            'user_id' => 999999,
+            'user_id' => null,
             'email' => 'reset@example.com',
             'nome_razao' => 'Cliente Reset',
         ]);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TipoAvaliacao;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -30,7 +31,7 @@ class TipoAvaliacaoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function create(Request $request): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -56,7 +57,7 @@ class TipoAvaliacaoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TipoAvaliacao $tipoAvaliacao)
+    public function update(Request $request, TipoAvaliacao $tipoAvaliacao): RedirectResponse
     {
         $validated = $request->validate(
             [
@@ -76,7 +77,7 @@ class TipoAvaliacaoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TipoAvaliacao $tipoAvaliacao)
+    public function delete(TipoAvaliacao $tipoAvaliacao): RedirectResponse
     {
         $tipoAvaliacao->delete();
 

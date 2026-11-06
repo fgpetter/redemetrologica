@@ -28,15 +28,15 @@
                             <span class="input-group-text bg-primary text-white">
                                 <i class="ri-building-line"></i>
                             </span>
-                            <input type="text" id="cnpj" wire:model="BuscaCnpj" 
-                                class="form-control @error('BuscaCnpj') is-invalid @enderror" 
+                            <input type="text" id="cnpj" wire:model="form.BuscaCnpj"
+                                class="form-control @error('form.BuscaCnpj') is-invalid @enderror"
                                 placeholder="00.000.000/0000-00" 
                                 x-mask="99.999.999/9999-99">
                             <button type="submit" class="btn btn-primary px-4">
                                 <i class="ri-search-line me-2"></i>Buscar
                             </button>
                         </div>
-                        @error('BuscaCnpj')
+                        @error('form.BuscaCnpj')
                             <div class="text-danger mt-2">
                                 <i class="ri-error-warning-line me-1"></i>{{ $message }}
                             </div>

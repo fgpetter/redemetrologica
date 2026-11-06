@@ -2,13 +2,14 @@
 
 namespace App\Livewire\PainelCliente;
 
+use App\Livewire\Forms\BuscaCnpjForm;
 use App\Models\InterlabInscrito;
 use App\Models\Pessoa;
 use Livewire\Component;
 
 class BuscaCNPJ extends Component
 {
-    public $BuscaCnpj;
+    public BuscaCnpjForm $form;
 
     public $isVisible = true;
 
@@ -31,15 +32,6 @@ class BuscaCNPJ extends Component
         }
     }
 
-    protected $rules = [
-        'BuscaCnpj' => ['required', 'cnpj'],
-    ];
-
-    protected $messages = [
-        'BuscaCnpj.cnpj' => 'Não é um CNPJ válido.',
-        'BuscaCnpj.required' => 'Digite um CNPJ para cadastro.',
-    ];
-
     public function render()
     {
         return view('livewire.painel-cliente.busca-cnpj');
@@ -47,16 +39,16 @@ class BuscaCNPJ extends Component
 
     public function ProcuraCnpj()
     {
-        $this->validate();
+        $this->form->validate();
 
-        $cnpjLimpo = preg_replace('/[^0-9]/', '', $this->BuscaCnpj);
+        $cnpjLimpo = preg_replace('/[^0-9]/', '', $this->form->BuscaCnpj);
 
         $empresa = Pessoa::where('cpf_cnpj', $cnpjLimpo)
             ->where('tipo_pessoa', 'PJ')
             ->first();
 
-        $searchTerm = $this->BuscaCnpj;
-        $this->BuscaCnpj = null;
+        $searchTerm = $this->form->BuscaCnpj;
+        $this->form->BuscaCnpj = null;
 
         $this->isVisible = false;
 

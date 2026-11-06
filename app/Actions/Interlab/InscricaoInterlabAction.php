@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Actions;
+namespace App\Actions\Interlab;
 
+use App\Actions\GerarTagSenhaInterlabAction;
 use App\Helpers\Telefone;
 use App\Models\AgendaInterlab;
 use App\Models\Endereco;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\DB;
 
 class InscricaoInterlabAction
 {
+    /**
+     * @param  AgendaInterlab  $agendaInterlab  Agenda a que pertence a inscrição
+     * @param  array<string, mixed>  $dados  Dados já validados pelo chamador
+     * @param  list<array{nome?: string, email?: string|null, telefone?: string|null}>  $analistas
+     * @return InterlabInscrito Inscrição criada ou atualizada
+     */
     public function execute(AgendaInterlab $agendaInterlab, array $dados, array $analistas = []): InterlabInscrito
     {
         return DB::transaction(function () use ($agendaInterlab, $dados, $analistas) {
@@ -49,7 +56,9 @@ class InscricaoInterlabAction
             ]);
         }
 
-        $laboratorio = InterlabLaboratorio::find($dados['laboratorio_id']);
+        $laboratorio = InterlabLaboratorio::query()
+            ->where('empresa_id', $dados['empresa_id'])
+            ->findOrFail($dados['laboratorio_id']);
         $laboratorio->update(['nome' => $lab['nome']]);
 
         if ($laboratorio->endereco) {
@@ -80,7 +89,11 @@ class InscricaoInterlabAction
         ];
 
         if (! empty($dados['inscrito_id'])) {
-            $inscrito = InterlabInscrito::find($dados['inscrito_id']);
+            $inscrito = InterlabInscrito::query()
+                ->where('empresa_id', $dados['empresa_id'])
+                ->where('pessoa_id', $dados['pessoa_id'])
+                ->where('agenda_interlab_id', $agendaInterlab->id)
+                ->findOrFail($dados['inscrito_id']);
             $inscrito->update($camposComuns);
 
             return $inscrito;

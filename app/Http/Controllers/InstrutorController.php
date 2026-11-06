@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\InstrutorCursoRequest;
+use App\Http\Requests\InstrutorUpdateRequest;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\Instrutor;
@@ -17,7 +19,7 @@ class InstrutorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $name = $request->name;
         $data = $request->data;
@@ -108,34 +110,8 @@ class InstrutorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Instrutor $instrutor, Request $request): RedirectResponse
+    public function update(Instrutor $instrutor, InstrutorUpdateRequest $request): RedirectResponse
     {
-        $request->validate(
-            [
-                'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'.$instrutor->pessoa->id],
-                'rg_ie' => ['required', 'string'],
-                'nome' => ['required', 'string'],
-                'tipo_pessoa' => ['required', 'in:PF,PJ'],
-                'situacao' => ['required', 'integer'],
-                'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
-                'observacoes' => ['nullable', 'string'],
-            ],
-            [
-                'nome.required' => 'O nome não pode ficar em branco',
-                'nome.string' => 'O dado enviado não é válido',
-                'cpf_cnpj.required' => 'O CPF/CNPJ não pode ficar em branco',
-                'cpf_cnpj.string' => 'O dado enviado não é válido',
-                'rg_ie.required' => 'O RG/IE não pode ficar em branco',
-                'rg_ie.string' => 'O dado enviado não é válido',
-                'situacao.required' => 'Selecione uma opção válida',
-                'situacao.integer' => 'Selecione uma opção válida',
-                'curriculo.mimes' => 'Arquivo inválido',
-                'curriculo.max' => 'O arquivo é muito grande, tamanho máximo 5mb',
-                'observacoes.string' => 'O dado enviado não é válido',
-                'tipo_pessoa.required' => 'O dado enviado não é válido',
-                'tipo_pessoa.in' => 'O dado enviado não é válido',
-            ]
-        );
 
         if ($request->hasFile('curriculo')) {
             $originName = $request->file('curriculo')->getClientOriginalName();
@@ -168,7 +144,7 @@ class InstrutorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function delete(Instrutor $instrutor)
+    public function delete(Instrutor $instrutor): RedirectResponse
     {
         if (FileFacade::exists(public_path('curriculos/'.$instrutor->curriculo))) {
             FileFacade::delete(public_path('curriculos/'.$instrutor->curriculo));
@@ -180,32 +156,8 @@ class InstrutorController extends Controller
         return redirect()->route('instrutor-index')->with('warning', 'Insrtutor removido');
     }
 
-    public function createCursoHabilitado(Instrutor $instrutor, Request $request): RedirectResponse
+    public function createCursoHabilitado(Instrutor $instrutor, InstrutorCursoRequest $request): RedirectResponse
     {
-        $request->validate(
-            [
-                'curso' => ['required', 'numeric', 'exists:cursos,id'],
-                'habilitado' => ['required', 'numeric', 'in:0,1'],
-                'conhecimento' => ['required', 'numeric', 'in:0,1'],
-                'experiencia' => ['required', 'numeric', 'in:0,1'],
-                'analise_observacoes' => ['nullable', 'string'],
-            ],
-            [
-                'curso.required' => 'O dado é inválido',
-                'curso.numeric' => 'O dado é inválido',
-                'curso.exists' => 'O dado é inválido',
-                'habilitado.required' => 'O dado é inválido',
-                'habilitado.numeric' => 'O dado é inválido',
-                'habilitado.in' => 'O dado é inválido',
-                'conhecimento.required' => 'O dado é inválido',
-                'conhecimento.numeric' => 'O dado é inválido',
-                'conhecimento.in' => 'O dado é inválido',
-                'experiencia.required' => 'O dado é inválido',
-                'experiencia.numeric' => 'O dado é inválido',
-                'experiencia.in' => 'O dado é inválido',
-                'analise_observacoes.string' => 'O dado é inválido',
-            ]
-        );
 
         $curso_habilitado = InstrutorCursoHabilitado::create([
             'instrutor_id' => $instrutor->id,
@@ -224,7 +176,7 @@ class InstrutorController extends Controller
         return back()->with('success', 'Curso cadastrado com sucesso');
     }
 
-    public function updateCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado, Request $request)
+    public function updateCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado, Request $request): RedirectResponse
     {
         $request->validate(
             [
@@ -257,7 +209,7 @@ class InstrutorController extends Controller
         return back()->with('success', 'Curso atualizado com sucesso');
     }
 
-    public function deleteCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado)
+    public function deleteCursoHabilitado(InstrutorCursoHabilitado $cursohabilitado): RedirectResponse
     {
         $cursohabilitado->delete();
 

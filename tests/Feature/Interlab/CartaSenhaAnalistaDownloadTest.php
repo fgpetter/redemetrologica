@@ -1,6 +1,6 @@
 <?php
 
-use App\Actions\CriarCartaSenhaAnalistaAction;
+use App\Actions\Interlab\CriarCartaSenhaAnalistaAction;
 use App\Jobs\EnviaSenhaAnalistaJob;
 use App\Livewire\Interlab\ListParticipantes;
 use App\Models\AgendaInterlab;

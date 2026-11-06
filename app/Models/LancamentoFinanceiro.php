@@ -17,6 +17,13 @@ class LancamentoFinanceiro extends Model
 {
     use HasFactory, LogsModelActivity, SetDefaultUid;
 
+    public const CAMPOS_COBRANCA = [
+        'forma_pagamento',
+        'exige_pedido_compra',
+        'entidade_governamental',
+        'esfera_governamental',
+    ];
+
     protected $table = 'lancamentos_financeiros';
 
     /**

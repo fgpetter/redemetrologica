@@ -2,12 +2,13 @@
 
 namespace App\Livewire\Interlab;
 
-use App\Actions\CriarCartaSenhaAnalistaAction;
 use App\Actions\EnviarCertificadoInterlabAction;
 use App\Actions\Financeiro\GerarLancamentoInterlabAction;
+use App\Actions\Interlab\CriarCartaSenhaAnalistaAction;
 use App\Models\AgendaInterlab;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Models\Pessoa;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\On;
@@ -216,7 +217,7 @@ class ListParticipantes extends Component
      *
      * @param  Collection<int, Collection<int, InterlabInscrito>>  $inscritosPorEmpresa
      * @param  Collection<int, int>  $empresaIds
-     * @return Collection<int, \App\Models\Pessoa>
+     * @return Collection<int, Pessoa>
      */
     private function empresasInscritasOrdenadas(Collection $inscritosPorEmpresa, Collection $empresaIds): Collection
     {

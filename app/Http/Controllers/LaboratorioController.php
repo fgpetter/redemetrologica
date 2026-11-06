@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Telefone;
+use App\Http\Requests\AtualizarLaboratorioRequest;
+use App\Http\Requests\SalvarLaboratorioInternoRequest;
 use App\Models\AreaAtuacao;
 use App\Models\Laboratorio;
 use App\Models\LaboratorioInterno;
@@ -25,7 +26,7 @@ class LaboratorioController extends Controller
      **/
     public function index(Request $request): View
     {
-        $nome = $request->name;
+        $nome = in_array($request->input('name'), ['ASC', 'DESC', 'asc', 'desc'], true) ? $request->input('name') : null;
         $busca_nome = $request->buscanome;
 
         $laboratorios = Laboratorio::with('pessoa')
@@ -104,28 +105,10 @@ class LaboratorioController extends Controller
      * Edita dados de laboratorio
      *
      **/
-    public function update(Request $request, Laboratorio $laboratorio): RedirectResponse
+    public function update(AtualizarLaboratorioRequest $request, Laboratorio $laboratorio): RedirectResponse
     {
-        $request->merge(Telefone::prepararCampos($request->only('telefone')));
 
-        $validated = $request->validate(
-            [
-                'nome_laboratorio' => ['nullable', 'string'],
-                'telefone' => ['nullable', 'celular_com_ddd'],
-                'email' => ['nullable', 'email'],
-                'responsavel_tecnico' => ['nullable', 'string'],
-                'contato' => ['nullable', 'string'],
-                'cod_laboratorio' => ['nullable', 'string'],
-            ],
-            [
-                'nome_laboratorio.string' => 'O dado enviado não é válido',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'email.email' => 'O dado enviado não é válido',
-                'responsavel_tecnico.string' => 'O dado enviado não é válido',
-                'contato.string' => 'O dado enviado não é válido',
-                'cod_laboratorio.string' => 'Código inválido',
-            ]
-        );
+        $validated = $request->validated();
 
         $laboratorio->update($validated);
 
@@ -147,39 +130,10 @@ class LaboratorioController extends Controller
      * Adiciona um laboratorio interno
      *
      **/
-    public function saveInterno(LaboratorioInterno $laboratorio_interno, Request $request): RedirectResponse
+    public function saveInterno(LaboratorioInterno $laboratorio_interno, SalvarLaboratorioInternoRequest $request): RedirectResponse
     {
-        $request->merge(Telefone::prepararCampos($request->only('telefone')));
-        $validated = $request->validate(
-            [
-                'laboratorio_id' => ['required', 'numeric', 'exists:laboratorios,id'],
-                'area_atuacao_id' => ['required', 'numeric', 'exists:areas_atuacao,id'],
-                'nome' => ['nullable', 'string'],
-                'cod_labinterno' => ['nullable', 'string'],
-                'telefone' => ['nullable', 'celular_com_ddd'],
-                'email' => ['nullable', 'email'],
-                'responsavel_tecnico' => ['nullable', 'string'],
-                'reconhecido' => ['required', 'numeric', 'in:1,0'],
-                'sebrae' => ['required', 'numeric', 'in:1,0'],
-                'site' => ['required', 'numeric', 'in:1,0'],
-                'certificado' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:2048'],
-            ],
-            [
-                'laboratorio_id.exists' => 'Selecione um laboratório',
-                'area_atuacao_id.exists' => 'Selecione uma área válida',
-                'nome.string' => 'O dado enviado não é válido',
-                'cod_labinterno.string' => 'O dado enviado não é válido',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'email.email' => 'O dado enviado não é válido',
-                'responsavel_tecnico.string' => 'O dado enviado não é válido',
-                'reconhecido.in' => 'Selecione uma opção',
-                'sebrae.in' => 'Selecione uma opção',
-                'site.in' => 'Selecione uma opção',
-                'certificado.file' => 'Arquivo inválido',
-                'certificado.mimes' => 'O arquivo enviado não é do tipo PDF, DOC, DOCX',
-                'certificado.max' => 'O arquivo é muito grande, tamanho máximo 2MB',
-            ]
-        );
+
+        $validated = $request->validated();
 
         $data = [
             'laboratorio_id' => $request->laboratorio_id,

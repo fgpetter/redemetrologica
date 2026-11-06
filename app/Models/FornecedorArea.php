@@ -14,10 +14,7 @@ class FornecedorArea extends Model
 {
     use LogsModelActivity, SetDefaultUid;
 
-    protected $fillable = [
-        'fornecedor_id', 'area', 'atuacao',
-        'pessoa_contato', 'pessoa_contato_email', 'pessoa_contato_telefone',
-    ];
+    protected $guarded = [];
 
     protected $table = 'fornecedores_areas';
 

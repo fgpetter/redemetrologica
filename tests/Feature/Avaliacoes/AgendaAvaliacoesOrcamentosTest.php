@@ -149,6 +149,7 @@ test('ao alterar perc lucro no blur recalcula e persiste apenas perc lucro', fun
     // valor_proposta = 1000 + 200 + 200 + 63.60 = 1463.60
     // superavit = 1463.60 - 1000 - 100 - 63.60 = 300.00
     Livewire::test(AgendaAvaliacoesOrcamentos::class, ['avaliacao' => $avaliacao->fresh()])
+        ->assertSeeHtml('wire:model.live.blur="form.perc_lucro"')
         ->set('form.perc_lucro', 20)
         ->assertSet('nf', 63.6)
         ->assertSet('valorProposta', 1463.6)

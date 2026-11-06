@@ -2,60 +2,37 @@
 
 namespace App\Livewire\Enderecos;
 
+use App\Livewire\Forms\EnderecoForm;
 use App\Models\Endereco;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class ModalForm extends Component
 {
     public Pessoa $pessoa;
 
+    #[Locked]
     public ?string $enderecoUid;
 
-    public array $endereco = [];
+    public EnderecoForm $endereco;
 
     public bool $saved = false;
-
-    protected $rules = [
-        'endereco.pessoa_id' => 'required|integer',
-        'endereco.info' => 'nullable|string|max:255',
-        'endereco.cep' => 'required|string|size:9',
-        'endereco.endereco' => 'required|string|max:255',
-        'endereco.complemento' => 'nullable|string|max:255',
-        'endereco.bairro' => 'nullable|string|max:255',
-        'endereco.cidade' => 'required|string|max:255',
-        'endereco.uf' => 'required|string|size:2',
-    ];
-
-    protected $messages = [
-        'endereco.cep.required' => 'Preencha o campo CEP',
-        'endereco.cep.size' => 'O CEP precisa ter 9 dígitos',
-        'endereco.endereco.required' => 'Preencha o campo endereço',
-        'endereco.cidade.required' => 'Preencha o campo cidade',
-        'endereco.uf.required' => 'Preencha o campo UF',
-        'endereco.uf.size' => 'UF deve ter 2 caracteres',
-    ];
 
     public function mount()
     {
         if ($this->enderecoUid) {
-            $endereco = Endereco::where('uid', $this->enderecoUid)->first();
-            $this->endereco = $endereco->toArray();
-            $this->endereco['end_padrao'] = $this->pessoa->end_padrao === $endereco->id;
-        } else {
-            $this->endereco = [
-                'uid' => uniqid(),
-                'pessoa_id' => $this->pessoa->id,
-                'end_padrao' => false,
-            ];
+            $endereco = $this->pessoa->enderecos()->where('uid', $this->enderecoUid)->firstOrFail();
+            $this->endereco->fill($endereco->only(['info', 'cep', 'endereco', 'complemento', 'bairro', 'cidade', 'uf']));
+            $this->endereco->end_padrao = $this->pessoa->end_padrao === $endereco->id;
         }
     }
 
     public function buscaCep()
     {
-        $cep = $this->endereco['cep'];
+        $cep = $this->endereco->cep;
 
         if (strlen($cep) === 9) {
             $localEndereco = Endereco::where('cep', $cep)
@@ -63,19 +40,19 @@ class ModalForm extends Component
                 ->first();
 
             if ($localEndereco) {
-                $this->endereco['endereco'] = $localEndereco->endereco;
-                $this->endereco['bairro'] = $localEndereco->bairro;
-                $this->endereco['cidade'] = $localEndereco->cidade;
-                $this->endereco['uf'] = $localEndereco->uf;
+                $this->endereco->endereco = $localEndereco->endereco;
+                $this->endereco->bairro = $localEndereco->bairro;
+                $this->endereco->cidade = $localEndereco->cidade;
+                $this->endereco->uf = $localEndereco->uf;
             } else {
                 $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
 
                 if ($response->successful() && ! isset($response->json()['erro'])) {
                     $data = $response->json();
-                    $this->endereco['endereco'] = $data['logradouro'] ?? '';
-                    $this->endereco['bairro'] = $data['bairro'] ?? '';
-                    $this->endereco['cidade'] = $data['localidade'] ?? '';
-                    $this->endereco['uf'] = $data['uf'] ?? '';
+                    $this->endereco->endereco = $data['logradouro'] ?? '';
+                    $this->endereco->bairro = $data['bairro'] ?? '';
+                    $this->endereco->cidade = $data['localidade'] ?? '';
+                    $this->endereco->uf = $data['uf'] ?? '';
                 }
             }
         }
@@ -83,15 +60,23 @@ class ModalForm extends Component
 
     public function salvar()
     {
-        $dadosValidados = $this->validate();
+        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
+
+        $dadosValidados = $this->endereco->validate();
 
         DB::transaction(function () use ($dadosValidados) {
-            $endereco = Endereco::updateOrCreate(
-                ['uid' => $this->endereco['uid']],
-                $dadosValidados['endereco']
-            );
+            $padrao = $dadosValidados['end_padrao'];
+            unset($dadosValidados['end_padrao']);
 
-            if ($this->endereco['end_padrao']) {
+            if ($this->enderecoUid) {
+                $endereco = $this->pessoa->enderecos()->where('uid', $this->enderecoUid)->firstOrFail();
+                $endereco->update($dadosValidados);
+            } else {
+                $endereco = $this->pessoa->enderecos()->create($dadosValidados);
+                $this->enderecoUid = $endereco->uid;
+            }
+
+            if ($padrao) {
                 $this->pessoa->update(['end_padrao' => $endereco->id]);
             } elseif ($this->pessoa->end_padrao === $endereco->id) {
                 $this->pessoa->update(['end_padrao' => null]);
@@ -99,6 +84,7 @@ class ModalForm extends Component
         });
 
         $this->saved = true;
+        $this->dispatch('refresh-enderecos-'.$this->pessoa->id);
         $this->dispatch('refresh-enderecos-list');
     }
 

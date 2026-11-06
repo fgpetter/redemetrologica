@@ -18,6 +18,8 @@ class Pessoa extends Model
 {
     use LogsModelActivity, SetDefaultUid, SoftDeletes;
 
+    protected $table = 'pessoas';
+
     /**
      * The attributes that aren't mass assignable.
      *

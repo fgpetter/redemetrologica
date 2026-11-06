@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Telefone;
-use App\Models\Endereco;
+use App\Actions\SalvarFuncionarioAction;
+use App\Http\Requests\FuncionarioCreateRequest;
+use App\Http\Requests\FuncionarioUpdateRequest;
 use App\Models\Funcionario;
 use App\Models\Pessoa;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Validation\Rule;
 
 class FuncionarioController extends Controller
 {
@@ -29,103 +28,9 @@ class FuncionarioController extends Controller
      * Adiciona usuários na base
      *
      **/
-    public function create(Request $request): RedirectResponse
+    public function create(FuncionarioCreateRequest $request, SalvarFuncionarioAction $action): RedirectResponse
     {
-        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
-        $request->validate(
-            [
-                'nome_razao' => ['required', 'string', 'max:191'],
-                'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'], // TODO - adicionar validação de CPF/CNPJ
-                'cep' => ['required', 'string', 'max:9', 'min:9'],
-                'endereco' => ['required', 'string', 'max:191'],
-                'cidade' => ['required', 'string', 'max:191'],
-                'uf' => ['required', 'string', 'max:2', 'min:2'],
-                'telefone' => ['nullable', 'celular_com_ddd'],
-                'admissao' => ['required', Rule::date()->format('Y-m-d')],
-                'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
-            ],
-            [
-                'nome_razao.required' => 'Preencha o campo nome ou razão social',
-                'cpf_cnpj.required' => 'Preencha o campo CPF',
-                'cpf_cnpj.min' => 'CPF inválido',
-                'cpf_cnpj.max' => 'CPF inválido',
-                'cep.required' => 'Preencha o campo CEP',
-                'cep.min' => 'CEP inválido',
-                'cep.mmax' => 'CEP inválido',
-                'endereco.required' => 'Preencha o campo endereco',
-                'cidade.required' => 'Preencha o campo cidade',
-                'uf.required' => 'Inválido',
-                'uf.min' => 'Inválido',
-                'uf.max' => 'Inválido',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'admissao.required' => 'Preencha o campo admissão',
-                'admissao.date' => 'A data não é válida',
-                'admissao.date_format' => 'A data não é válida',
-                'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
-                'curriculo.max' => 'Tamanho máximo 5MB',
-            ]
-        );
-
-        // cria uma pessoa
-        $pessoa = Pessoa::create([
-            'tipo_pessoa' => 'PF',
-            'nome_razao' => ucfirst($request->get('nome_razao')),
-            'cpf_cnpj' => $request->get('cpf_cnpj'),
-            'rg_ie' => $request->get('rg_ie'),
-            'telefone' => $request->get('telefone'),
-            'email' => $request->get('email'),
-        ]);
-
-        if (! $pessoa) {
-            return redirect()->back()
-                ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-        }
-
-        // cria um endereço vinculado a pessoa
-        $endereco = Endereco::create([
-            'pessoa_id' => $pessoa->id,
-            'endereco' => $request->get('endereco'),
-            'complemento' => $request->get('complemento'),
-            'bairro' => $request->get('bairro'),
-            'cep' => $request->get('cep'),
-            'cidade' => $request->get('cidade'),
-            'uf' => $request->get('uf'),
-        ]);
-
-        // Adiciona endereço padrao
-        if ($request->end_padrao) {
-            $pessoa->update(['end_padrao' => $endereco->id]);
-        }
-
-        if (! $endereco) {
-            return redirect()->back()
-                ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-        }
-
-        // se foi enviado currículo
-        if ($request->hasFile('curriculo')) {
-            $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
-            $extension = $request->file('curriculo')->getClientOriginalExtension();
-            $fileName = $fileName.'_'.time().'.'.$extension;
-            $request->file('curriculo')->move(public_path('curriculos'), $fileName);
-            $curriculo = 'curriculos/'.$fileName;
-        }
-
-        // cria um funcionário vinculado a pessoa
-        $funcionario = Funcionario::create([
-            'pessoa_id' => $pessoa->id,
-            'cargo' => $request->get('cargo'),
-            'setor' => $request->get('setor'),
-            'admissao' => $request->get('admissao'),
-            'demissao' => $request->get('demissao'),
-            'observacoes' => $request->get('observacoes'),
-            'curriculo' => $curriculo ?? null,
-        ]);
-
-        if (! $funcionario) {
-            return redirect()->back()
-                ->with('funcionario-error', 'Ocorreu um erro! Revise os dados e tente novamente');
-        }
+        $action->create($request->validated());
 
         return redirect()->route('funcionario-index')
             ->with('funcionario-success', 'Funcionario cadastrada com sucesso');
@@ -145,82 +50,9 @@ class FuncionarioController extends Controller
      *
      * @param  Funcionario  $user
      **/
-    public function update(Request $request, Funcionario $funcionario): RedirectResponse
+    public function update(FuncionarioUpdateRequest $request, Funcionario $funcionario, SalvarFuncionarioAction $action): RedirectResponse
     {
-        $request->merge(['telefone' => Telefone::paraValidacao($request->input('telefone'))]);
-        $request->validate(
-            [
-                'nome_razao' => ['required', 'string', 'max:191'],
-                'cpf_cnpj' => ['required', 'string', 'max:191', 'unique:pessoas,cpf_cnpj,'.$funcionario->pessoa->id], // TODO - adicionar validação de CPF/CNPJ
-                'cep' => ['required', 'string', 'max:9', 'min:9'],
-                'endereco' => ['required', 'string', 'max:191'],
-                'cidade' => ['required', 'string', 'max:191'],
-                'uf' => ['required', 'string', 'max:2', 'min:2'],
-                'telefone' => ['nullable', 'celular_com_ddd'],
-                'admissao' => ['required', Rule::date()->format('Y-m-d')],
-                'curriculo' => ['file', 'mimes:doc,pdf,docx', 'max:5242880'], // 5mb
-            ],
-            [
-                'nome_razao.required' => 'Preencha o campo nome ou razão social',
-                'cpf_cnpj.required' => 'Preencha o campo CPF',
-                'cpf_cnpj.min' => 'CPF inválido',
-                'cpf_cnpj.max' => 'CPF inválido',
-                'cep.required' => 'Preencha o campo CEP',
-                'cep.min' => 'CEP inválido',
-                'cep.mmax' => 'CEP inválido',
-                'endereco.required' => 'Preencha o campo endereco',
-                'cidade.required' => 'Preencha o campo cidade',
-                'uf.required' => 'Inválido',
-                'uf.min' => 'Inválido',
-                'uf.max' => 'Inválido',
-                'telefone.celular_com_ddd' => 'Informe um telefone válido com DDD.',
-                'admissao.required' => 'Preencha o campo admissão',
-                'admissao.date' => 'A data não é válida',
-                'admissao.date_format' => 'A data não é válida',
-                'curriculo.mimes' => 'Somente arquivos DOC, DOCX e PDF',
-                'curriculo.max' => 'Tamanho máximo 5MB',
-            ]
-        );
-
-        // se foi enviado currículo
-        if ($request->hasFile('curriculo')) {
-            $fileName = sanitizeFileName(pathinfo($request->file('curriculo')->getClientOriginalName(), PATHINFO_FILENAME));
-            $extension = $request->file('curriculo')->getClientOriginalExtension();
-            $fileName = $fileName.'_'.time().'.'.$extension;
-            $request->file('curriculo')->move(public_path('curriculos'), $fileName);
-            $curriculo = 'curriculos/'.$fileName;
-        }
-
-        $funcionario->update([
-            'cargo' => $request->get('cargo'),
-            'setor' => $request->get('setor'),
-            'admissao' => $request->get('admissao'),
-            'demissao' => $request->get('demissao'),
-            'observacoes' => $request->get('observacoes'),
-            'curriculo' => $curriculo ?? null,
-        ]);
-
-        $funcionario->pessoa->update([
-            'nome_razao' => ucfirst($request->get('nome_razao')),
-            'cpf_cnpj' => $request->get('cpf_cnpj'),
-            'rg_ie' => $request->get('rg_ie'),
-            'telefone' => $request->get('telefone'),
-            'email' => $request->get('email'),
-        ]);
-
-        $funcionario->pessoa->enderecos->first()->update([
-            'endereco' => $request->get('endereco'),
-            'complemento' => $request->get('complemento'),
-            'bairro' => $request->get('bairro'),
-            'cep' => $request->get('cep'),
-            'cidade' => $request->get('cidade'),
-            'uf' => $request->get('uf'),
-        ]);
-
-        // Adiciona endereço padrao
-        if ($request->end_padrao) {
-            $funcionario->pessoa->update(['end_padrao' => $funcionario->pessoa->enderecos->first()->id]);
-        }
+        $action->update($funcionario, $request->validated());
 
         return redirect()->back()->with('funcionario-success', 'Funcionario atualizado com sucesso');
     }

@@ -7,6 +7,7 @@ use App\Enums\InterlabLotePostagemStatus;
 use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Database\Factories\InterlabLotePostagemFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -71,7 +72,8 @@ class InterlabLotePostagem extends Model
      * @param  Builder<InterlabLotePostagem>  $query
      * @return Builder<InterlabLotePostagem>
      */
-    public function scopeEmProcessamento(Builder $query): Builder
+    #[Scope]
+    protected function emProcessamento(Builder $query): Builder
     {
         return $query->whereNotIn('status', [
             InterlabLotePostagemStatus::Concluido->value,

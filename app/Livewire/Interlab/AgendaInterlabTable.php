@@ -37,6 +37,12 @@ class AgendaInterlabTable extends Component
 
     public function setSortBy($field)
     {
+        if (! in_array($field, ['data_limite_inscricao', 'status', 'nome', 'inscritos'], true)) {
+            return;
+        }
+
+        $this->resetPage();
+
         if ($this->sortBy === $field) {
             $this->sortDirection = $this->sortDirection === 'ASC' ? 'DESC' : 'ASC';
         } else {
@@ -47,6 +53,8 @@ class AgendaInterlabTable extends Component
 
     public function resetFilters()
     {
+        $this->resetPage();
+
         $this->reset(['search', 'status', 'empresaSelecionada']);
         $this->dispatch('reset-empresa-filter');
     }
@@ -133,6 +141,10 @@ class AgendaInterlabTable extends Component
 
     public function render()
     {
+        $this->sortBy = in_array($this->sortBy, ['data_limite_inscricao', 'status', 'nome', 'inscritos'], true) ? $this->sortBy : 'data_limite_inscricao';
+        $this->sortDirection = in_array($this->sortDirection, ['ASC', 'DESC'], true) ? $this->sortDirection : 'ASC';
+        $this->perPage = max(1, min(100, (int) $this->perPage));
+
         $agendainterlabs = $this->getQuery()->paginate($this->perPage);
 
         return view('livewire.interlab.agenda-interlab-table', [

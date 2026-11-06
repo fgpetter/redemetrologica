@@ -3,7 +3,6 @@
 namespace App\Livewire\Rodadas;
 
 use App\Models\AgendaInterlab;
-use App\Models\InterlabRodada;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -20,14 +19,15 @@ class Listview extends Component
 
     public function deletar($uid): void
     {
-        $rodada = InterlabRodada::where('uid', $uid)->first();
+        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
+        $rodada = $this->agendainterlab->rodadas()->where('uid', $uid)->firstOrFail();
         if ($rodada) {
             $rodada->delete();
-            $this->dispatch('refresh-rodadas-list');
+            $this->dispatch('refresh-rodadas-'.$this->agendainterlab->id);
         }
     }
 
-    #[On('refresh-rodadas-list')]
+    #[On('refresh-rodadas-{agendainterlab.id}')]
     public function render()
     {
         return view('livewire.rodadas.list-view', [

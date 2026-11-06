@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -26,12 +28,12 @@ class ForgotPasswordController extends Controller
 
     use SendsPasswordResetEmails;
 
-    public function forgotPassword()
+    public function forgotPassword(): View
     {
         return view('auth.forgot-password');
     }
 
-    public function sendResetLinkEmail(Request $request)
+    public function sendResetLinkEmail(Request $request): RedirectResponse
     {
         $request->validate(['email' => 'required|email']);
 
@@ -44,7 +46,7 @@ class ForgotPasswordController extends Controller
           : back()->withErrors(['email' => 'E-mail nao encontrado']);
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(Request $request): RedirectResponse
     {
         $request->validate([
             'token' => 'required',
