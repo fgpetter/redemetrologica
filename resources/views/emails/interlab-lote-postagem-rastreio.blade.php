@@ -13,6 +13,7 @@
 
     <div style="background-color: #fff; padding: 20px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
       <h3>Atualização de rastreio — {{ $codigoObjeto }}</h3>
+      <p>{{ $agendaInterlab->interlab->nome }} - {{ $agendaInterlab->ano_referencia }}</p>
 
       <p>Bom dia {{ $responsavelTecnico }}.</p>
 

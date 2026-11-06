@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -26,14 +27,14 @@ class InterlabLotePostagemRastreioMail extends Mailable implements ShouldQueue
         $codigo = $this->item->codigo_objeto ?? $this->item->uid;
 
         return new Envelope(
-            replyTo: [new Address('interlab@redemetrologica.com.br', 'Interlaboratoriais Rede Metrológica RS')],
+            replyTo: [new Address('pep@redemetrologica.com.br', 'Interlaboratoriais Rede Metrológica RS')],
             subject: 'Atualização de rastreio — '.$codigo,
         );
     }
 
     public function content(): Content
     {
-        $this->item->loadMissing('inscrito');
+        $this->item->loadMissing(['inscrito', 'lotePostagem.agendaInterlab.interlab']);
 
         $codigoObjeto = (string) ($this->item->codigo_objeto ?? '');
 
@@ -44,6 +45,7 @@ class InterlabLotePostagemRastreioMail extends Mailable implements ShouldQueue
                 'nomeLaboratorio' => (string) ($this->item->destinatario['nome'] ?? 'laboratório'),
                 'enderecoCompleto' => $this->enderecoCompleto(),
                 'codigoObjeto' => $codigoObjeto,
+                'agendaInterlab' => $this->item->lotePostagem->agendaInterlab,
                 'statusAtual' => $this->item->ultimo_evento ?: $this->item->status_correios,
                 'urlRastreamento' => 'https://rastreamento.correios.com.br/app/index.php',
             ],
@@ -51,7 +53,7 @@ class InterlabLotePostagemRastreioMail extends Mailable implements ShouldQueue
     }
 
     /**
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

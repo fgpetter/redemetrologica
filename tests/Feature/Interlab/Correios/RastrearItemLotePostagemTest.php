@@ -7,6 +7,7 @@ use App\Enums\InterlabLotePostagemStatus;
 use App\Jobs\Interlab\RastrearItemLotePostagemJob;
 use App\Mail\InterlabLotePostagemRastreioMail;
 use App\Models\InterlabLotePostagem;
+use App\Models\InterlabLotePostagemItem;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\InterlabLotePostagemFactory;
 use Database\Factories\InterlabLotePostagemItemFactory;
@@ -73,6 +74,9 @@ test('job notifica na primeira mudanca de status e nao reenvia se inalterado', f
         'email' => 'lab@example.com',
         'responsavel_tecnico' => 'Ana Técnica',
     ]);
+    $agenda = $item->lotePostagem->agendaInterlab;
+    $agenda->update(['ano_referencia' => 2026]);
+    $agenda->interlab->update(['nome' => 'PEP DE AMOSTRAGEM NO RIO GRANDE DO SUL']);
 
     Http::fake(function (Request $request) use ($item) {
         if (str_contains($request->url(), '/token/')) {
@@ -91,12 +95,14 @@ test('job notifica na primeira mudanca de status e nao reenvia se inalterado', f
         $mail->assertSeeInHtml('Objeto em trânsito');
         $mail->assertSeeInHtml((string) $item->codigo_objeto);
         $mail->assertSeeInHtml('Laboratório Teste');
+        $mail->assertSeeInHtml('PEP DE AMOSTRAGEM NO RIO GRANDE DO SUL - 2026');
         $mail->assertSeeInHtml('https://rastreamento.correios.com.br/app/index.php');
 
         return $mail->item->is($item)
             && $mail->hasTo('lab@example.com')
             && $mail->hasCc('tecnico@redemetrologica.com.br')
             && $mail->hasCc('interlab@redemetrologica.com.br')
+            && $mail->hasReplyTo('pep@redemetrologica.com.br')
             && $mail->tries === 3;
     });
 
@@ -250,7 +256,7 @@ test('comando pula item com job ja na fila', function () {
 /**
  * @param  array{email?: string|null, responsavel_tecnico?: string|null}  $inscrito
  */
-function itemRastreavel(array $inscrito = [], ?InterlabLotePostagem $lote = null): \App\Models\InterlabLotePostagemItem
+function itemRastreavel(array $inscrito = [], ?InterlabLotePostagem $lote = null): InterlabLotePostagemItem
 {
     $lote ??= InterlabLotePostagemFactory::new()->create([
         'status' => InterlabLotePostagemStatus::Concluido,
