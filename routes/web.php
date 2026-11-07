@@ -290,6 +290,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
     /* Agenda de interlab */
     Route::group(['prefix' => 'agenda-interlab', 'middleware' => 'permission:funcionario,admin'], function () {
         Route::get('index', [AgendaInterlabController::class, 'index'])->name('agenda-interlab-index');
+        Route::get('fr135/anual', [AgendaInterlabController::class, 'fr135Anual'])->name('agenda-interlab-fr135-anual');
+        Route::get('fr135/{agendainterlab:uid}', [AgendaInterlabController::class, 'fr135Agenda'])->name('agenda-interlab-fr135-agenda');
         Route::get('insert/{agendainterlab:uid?}', [AgendaInterlabController::class, 'insert'])->name('agenda-interlab-insert');
         Route::post('create', [AgendaInterlabController::class, 'create'])->name('agenda-interlab-create');
         Route::post('update/{agendainterlab:uid}', [AgendaInterlabController::class, 'update'])->name('agenda-interlab-update');

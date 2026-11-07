@@ -40,6 +40,11 @@ class FornecedorAvaliacao extends Model
         return $this->belongsTo(Fornecedor::class);
     }
 
+    public function avaliador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'avaliador_user_id');
+    }
+
     public static function calcularMedia(int $custo, int $tempo, int $qualidade): float
     {
         return round(($custo + $tempo + $qualidade) / 3, 2);

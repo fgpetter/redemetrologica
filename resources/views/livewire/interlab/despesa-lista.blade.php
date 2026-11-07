@@ -22,12 +22,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($lancamentos as $lancamento)
-                        <tr wire:key="despesa-lancamento-{{ $lancamento['id'] }}">
-                            <td>{{ $lancamento['fornecedor_nome'] }}</td>
-                            <td>{{ $lancamento['ultima_data_compra'] ? $lancamento['ultima_data_compra']->format('d/m/Y') : '—' }}</td>
-                            <td>{{ $lancamento['media_avaliacao'] !== null ? number_format($lancamento['media_avaliacao'], 1, '.', '') : '—' }}</td>
-                            <td>{{ 'R$ ' . number_format($lancamento['total'], 2, ',', '.') }}</td>
+                    @forelse ($lancamentos as $grupo)
+                        @php $fornecedor = $grupo->first()->fornecedor; @endphp
+                        <tr class="table-light"><td colspan="5">
+                            <div class="d-flex align-items-center gap-2">
+                                <strong>{{ $fornecedor?->pessoa?->nome_razao ?? '—' }}</strong>
+                                <span class="ms-auto">Total: R$ {{ number_format($grupo->sum(fn ($compra) => $totais[$compra->id]), 2, ',', '.') }}</span>
+                                @if ($fornecedor)
+                                    <button type="button" class="btn btn-sm btn-success ms-3" wire:click="$dispatch('abrir-despesa-modal', { fornecedorId: {{ $fornecedor->id }} })">+ compra</button>
+                                @endif
+                            </div>
+                        </td></tr>
+                        @foreach ($grupo as $compra)
+                        @php
+                            $datas = $compra->itens->pluck('data_compra')->filter()->map(fn ($data) => $data->format('Y-m-d'))->unique();
+                            $tipo = $compra->tipo === 'servico' ? 'Serviço' : ucfirst($compra->tipo ?? '');
+                            $especificacao = filled($compra->especificacao) ? $compra->especificacao : null;
+                        @endphp
+                        <tr wire:key="despesa-lancamento-{{ $compra->id }}">
+                            <td>
+                                @if ($tipo === '' && $especificacao === null)
+                                    Sem tipo - Sem Especificação
+                                @else
+                                    {{ $tipo ?: 'Tipo pendente' }} — {{ $especificacao ?? 'Especificação pendente' }}
+                                @endif
+                            </td>
+                            <td>{{ $compra->data_compra?->format('d/m/Y') ?? ($datas->count() > 1 ? 'Datas variadas' : '—') }}</td>
+                            <td>{{ $compra->avaliacao?->media !== null ? number_format($compra->avaliacao?->media, 1, '.', '') : '—' }}</td>
+                            <td>{{ 'R$ ' . number_format($totais[$compra->id], 2, ',', '.') }}</td>
                             <td>
                                 <div class="dropdown">
                                     <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -37,7 +59,7 @@
                                     <ul class="dropdown-menu">
                                         <li>
                                             <a class="dropdown-item" href="#"
-                                                wire:click="editarLancamento({{ $lancamento['id'] }})">
+                                                wire:click="editarLancamento({{ $compra->id }})">
                                                 Editar
                                             </a>
                                         </li>
@@ -53,7 +75,7 @@
                                                     confirmButtonText: 'Sim, excluir!'
                                                 }).then((result) => {
                                                     if (result.isConfirmed) {
-                                                        $wire.deletarLancamento({{ $lancamento['id'] }});
+                                                        $wire.deletarLancamento({{ $compra->id }});
                                                     }
                                                 })">
                                                 Deletar
@@ -63,6 +85,7 @@
                                 </div>
                             </td>
                         </tr>
+                        @endforeach
                     @empty
                         <tr>
                             <td colspan="5" class="text-center">Não há despesas cadastradas</td>

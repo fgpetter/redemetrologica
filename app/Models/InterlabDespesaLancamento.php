@@ -19,6 +19,11 @@ class InterlabDespesaLancamento extends Model
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return ['data_compra' => 'date'];
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

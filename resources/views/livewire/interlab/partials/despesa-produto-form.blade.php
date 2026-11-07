@@ -47,8 +47,8 @@
             <input type="date" class="form-control" wire:model="produtos.{{ $index }}.validade" />
         </div>
         <div class="col-4">
-            <label class="form-label mb-0">Data da compra</label>
-            <input type="date" class="form-control" wire:model="produtos.{{ $index }}.data_compra" />
+            <label class="form-label mb-0">Nota fiscal</label>
+            <input type="text" class="form-control" wire:model="produtos.{{ $index }}.nota_fiscal" />
         </div>
     </div>
 </div>

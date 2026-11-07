@@ -48,21 +48,14 @@ class DespesaLista extends Component
             ->with(['fornecedor.pessoa', 'itens', 'avaliacao'])
             ->orderBy('id')
             ->get()
-            ->map(function (InterlabDespesaLancamento $lancamento) {
-                return [
-                    'id' => $lancamento->id,
-                    'fornecedor_nome' => $lancamento->fornecedor?->pessoa?->nome_razao ?? '—',
-                    'ultima_data_compra' => $lancamento->itens->pluck('data_compra')->filter()->max(),
-                    'media_avaliacao' => $lancamento->avaliacao?->media,
-                    'total' => $lancamento->itens->sum('total'),
-                ];
-            });
+            ->groupBy(fn (InterlabDespesaLancamento $lancamento) => $lancamento->fornecedor_id ?? 'sem-fornecedor');
 
-        $totalGeral = $lancamentos->sum('total');
+        $totais = $lancamentos->flatten()->mapWithKeys(fn ($lancamento) => [$lancamento->id => $lancamento->itens->sum('total')]);
 
         return view('livewire.interlab.despesa-lista', [
             'lancamentos' => $lancamentos,
-            'totalGeral' => $totalGeral,
+            'totais' => $totais,
+            'totalGeral' => $totais->sum(),
         ]);
     }
 }

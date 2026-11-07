@@ -21,23 +21,38 @@ class SyncFornecedorAvaliacaoAction
             return;
         }
 
+        $avaliacao = FornecedorAvaliacao::firstOrNew([
+            'interlab_despesa_lancamento_id' => $lancamento->id,
+        ]);
+
+        if ($avaliacao->exists && (int) $avaliacao->fornecedor_id !== (int) $lancamento->fornecedor_id) {
+            throw ValidationException::withMessages([
+                'avaliacao' => 'Para trocar o fornecedor, limpe as notas atuais. Depois de salvar, avalie o novo fornecedor.',
+            ]);
+        }
+
+        $avaliacao->fill([
+            'fornecedor_id' => $lancamento->fornecedor_id,
+            'custo' => $custo,
+            'tempo' => $tempo,
+            'qualidade' => $qualidade,
+        ]);
+        $notasAlteradas = $avaliacao->isDirty(['custo', 'tempo', 'qualidade']);
+
         if ($totalPreenchidos < 3) {
+            if ($avaliacao->exists && ! $notasAlteradas) {
+                return;
+            }
+
             throw ValidationException::withMessages([
                 'avaliacao' => 'Preencha Custo, Tempo e Qualidade ou deixe todos em branco.',
             ]);
         }
 
-        FornecedorAvaliacao::updateOrCreate(
-            [
-                'interlab_despesa_lancamento_id' => $lancamento->id,
-            ],
-            [
-                'fornecedor_id' => $lancamento->fornecedor_id,
-                'custo' => $custo,
-                'tempo' => $tempo,
-                'qualidade' => $qualidade,
-                'media' => FornecedorAvaliacao::calcularMedia($custo, $tempo, $qualidade),
-            ]
-        );
+        $avaliacao->media = FornecedorAvaliacao::calcularMedia($custo, $tempo, $qualidade);
+        if (! $avaliacao->exists || $notasAlteradas) {
+            $avaliacao->avaliador_user_id = auth()->id();
+        }
+        $avaliacao->save();
     }
 }

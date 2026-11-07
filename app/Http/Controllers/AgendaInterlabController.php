@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\CriarEnviarSenhaAnalistaAction;
 use App\Actions\FileUploadAction;
 use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
+use App\Exports\Fr135Export;
 use App\Exports\LabExport;
 use App\Http\Requests\StoreAgendaInterlabRequest;
 use App\Jobs\EnviarConfirmacaoInterlabJob;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AgendaInterlabController extends Controller
 {
@@ -31,7 +33,25 @@ class AgendaInterlabController extends Controller
      */
     public function index(): View
     {
-        return view('painel.agenda-interlab.index');
+        return view('painel.agenda-interlab.index', [
+            'anosFr135' => AgendaInterlab::query()->whereNotNull('ano_referencia')->distinct()->orderByDesc('ano_referencia')->pluck('ano_referencia'),
+        ]);
+    }
+
+    public function fr135Agenda(AgendaInterlab $agendainterlab, Fr135Export $export): RedirectResponse|StreamedResponse
+    {
+        if (! $agendainterlab->ano_referencia) {
+            return back()->with('warning', 'Preencha o ano de referência da agenda para gerar o FR-135.');
+        }
+
+        return $export->download((int) $agendainterlab->ano_referencia, $agendainterlab->id, $agendainterlab->interlab?->nome);
+    }
+
+    public function fr135Anual(Request $request, Fr135Export $export): StreamedResponse
+    {
+        $dados = $request->validate(['ano' => ['required', 'integer', 'min:1900', 'max:9999']]);
+
+        return $export->download((int) $dados['ano']);
     }
 
     /**

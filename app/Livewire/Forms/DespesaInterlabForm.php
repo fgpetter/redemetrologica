@@ -6,12 +6,16 @@ use Livewire\Form;
 
 class DespesaInterlabForm extends Form
 {
-    public function rules(): array
+    public function rules(bool $nova = true): array
     {
         return [
             'fornecedorId' => ['required', 'integer', 'exists:fornecedores,id'],
+            'dataCompra' => [$nova ? 'required' : 'nullable', 'date_format:Y-m-d'],
+            'tipo' => [$nova ? 'required' : 'nullable', 'in:produto,servico'],
+            'especificacao' => [$nova ? 'required' : 'nullable', 'string', 'max:255'],
             'produtos' => ['required', 'array', 'min:1'],
             'produtos.*' => ['array'],
+            'produtos.*.id' => ['nullable', 'integer'],
             'produtos.*.material_servico' => ['required', 'string', 'max:255'],
             'produtos.*.fabricante' => ['nullable', 'string', 'max:191'],
             'produtos.*.cod_fabricante' => ['nullable', 'string', 'max:191'],
@@ -19,10 +23,10 @@ class DespesaInterlabForm extends Form
             'produtos.*.valor' => ['nullable', 'string'],
             'produtos.*.lote' => ['nullable', 'string', 'max:191'],
             'produtos.*.validade' => ['nullable', 'date_format:Y-m-d'],
-            'produtos.*.data_compra' => ['nullable', 'date_format:Y-m-d'],
-            'avaliacaoCusto' => ['nullable', 'integer', 'between:0,5'],
-            'avaliacaoTempo' => ['nullable', 'integer', 'between:0,5'],
-            'avaliacaoQualidade' => ['nullable', 'integer', 'between:0,5'],
+            'produtos.*.nota_fiscal' => ['nullable', 'string', 'max:255'],
+            'avaliacaoCusto' => ['nullable', 'integer', 'between:0,10'],
+            'avaliacaoTempo' => ['nullable', 'integer', 'between:0,10'],
+            'avaliacaoQualidade' => ['nullable', 'integer', 'between:0,10'],
         ];
     }
 
