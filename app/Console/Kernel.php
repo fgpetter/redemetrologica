@@ -17,6 +17,11 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('suporte:limpar-uploads')->daily()->withoutOverlapping();
 
+        $schedule->command('interlab:limpar-pdfs-cartas-senha')
+            ->dailyAt('03:00')
+            ->timezone('America/Sao_Paulo')
+            ->withoutOverlapping();
+
         // $schedule->command('certificados:clean')->dailyAt('01:00');
         $schedule->command('certificados:enviar-pendente')
             ->everyMinute()
