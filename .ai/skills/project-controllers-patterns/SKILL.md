@@ -28,6 +28,7 @@ O projeto usa uma nomenclatura de métodos própria em vez do REST padrão:
 - **Validação:**
   - Até 4 regras → `$request->validate([...])` inline.
   - 5 ou mais regras → Criar `FormRequest` em `App\Http\Requests\`.
+- Definir explicitamente, no controller ou na Action, os campos autorizados para cada operação de persistência. Validar os dados antes de salvá-los e passar somente os campos apropriados a `create()`, `update()` e métodos semelhantes. Os models usam `$guarded = []` e não selecionam nem validam os dados de entrada.
 - **Flash messages:** usar apenas as chaves `success`, `error` e `warning`.
 - **Queries:** usar `->when()` para filtros dinâmicos no `index()`.
 - **Transações:** operações multi-tabelas devem usar `DB::transaction()`.
@@ -70,6 +71,7 @@ O projeto utiliza Actions para encapsular lógica de negócio reutilizável e co
 ### Regras de Actions
 
 - Uma responsabilidade por Action.
+- Receber dados validados ou validá-los na Action, conforme o ponto de entrada, e selecionar explicitamente os campos da operação antes de persistir.
 - PHPDoc `@param` e `@return` obrigatórios.
 - Se a Action disparar Jobs, usar `::dispatch()->delay()`.
 - Se envolver persistência múltipla, usar `DB::transaction()` dentro da Action.
@@ -88,6 +90,7 @@ O projeto utiliza Actions para encapsular lógica de negócio reutilizável e co
 - [ ] Métodos seguem `index`, `insert`, `create`, `update`, `delete`
 - [ ] Retorno de tipo declarado (`: View`, etc)
 - [ ] Validação 5+ regras movida para `FormRequest`
+- [ ] Dados validados e campos autorizados para persistência definidos pelo controller ou pela Action
 - [ ] Erros de validação logados no canal `validation`
 - [ ] Flash messages usam `success`, `error` ou `warning`
 - [ ] Lógica complexa movida para `Action::execute()` ou `Action::handle()`

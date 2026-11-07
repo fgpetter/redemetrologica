@@ -1,316 +1,69 @@
 ---
 name: laravel-pdf
-description: Generate PDFs from Blade views or HTML using spatie/laravel-pdf. Covers creating, formatting, saving, downloading, and testing PDFs with the Browsershot, Cloudflare, or DOMPDF driver.
+description: Gerar, formatar, salvar e testar PDFs em Laravel com spatie/laravel-pdf usando Cloudflare ou DOMPDF no sistema-rede.
 ---
 
 # Laravel PDF
 
-## When to use this skill
+Use esta skill para gerar PDFs a partir de views Blade ou HTML no sistema-rede. Consulte a [documentação do Spatie Laravel PDF v2](https://spatie.be/docs/laravel-pdf/v2/introduction) para detalhes da API e confirme a versão instalada antes de usar recursos específicos.
 
-Use this skill when the user needs to generate PDFs in a Laravel application using `spatie/laravel-pdf`. This includes creating PDFs from Blade views or HTML, formatting options (margins, orientation, paper size), returning PDFs as downloads or inline responses, saving to disks, testing PDF generation, and configuring drivers.
+## Drivers do projeto
 
-## Creating PDFs
+- **Cloudflare** é o padrão em `config/laravel-pdf.php`, sujeito à configuração carregada no ambiente. Usa a API Browser Rendering e requer `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`. Suporta opções de papel, margens, orientação e views ou HTML de cabeçalho e rodapé. A saída é PDF.
+- **DOMPDF** está instalado no projeto e pode ser selecionado por PDF com `->driver('dompdf')`. Trabalha com CSS 2.1 e parte do CSS 3, sem flexbox, grid ou execução de JavaScript. O driver insere cabeçalho e rodapé no início e no fim do conteúdo, sem repeti-los automaticamente em cada página. As diretivas `@pageNumber` e `@totalPages` não são suportadas por esse driver.
+- O acesso remoto do DOMPDF está desabilitado por padrão na configuração do projeto. Verifique imagens, fontes e CSS externos e o `chroot` configurado para arquivos locais.
 
-Create a PDF from a Blade view:
+Confira o driver usado no fluxo existente antes de alterá-lo. As Actions de relatórios de avaliação selecionam DOMPDF explicitamente, enquanto os certificados em `DocController` usam o driver configurado.
+
+## Criar e salvar
 
 ```php
 use Spatie\LaravelPdf\Facades\Pdf;
 
-Pdf::view('pdf.invoice', ['invoice' => $invoice])
-    ->save('/some/directory/invoice.pdf');
+Pdf::view('pdf.relatorio', ['dados' => $dados])
+    ->driver('dompdf')
+    ->format('a4')
+    ->save($caminhoAbsoluto);
 ```
 
-Create a PDF from raw HTML:
+Use `Pdf::html($html)` para HTML direto. Para salvar em um disco Laravel, use `->disk('nome-do-disco')->save('caminho/arquivo.pdf')`. O método `base64()` retorna o conteúdo codificado.
 
-```php
-Pdf::html('<h1>Hello world</h1>')->save('hello.pdf');
-```
+As Actions de relatórios existentes salvam em um arquivo temporário e retornam `response()->download(...)->deleteFileAfterSend()`. Certificados salvos para reutilização seguem o fluxo de `DocController`. Preserve o ciclo de vida e o disco do fluxo que estiver sendo alterado.
 
-## Returning PDFs from controllers
-
-Use the `pdf()` helper to return a PDF as a response. By default, it is inlined in the browser:
+Para devolver o PDF diretamente pela API do pacote:
 
 ```php
 use function Spatie\LaravelPdf\Support\pdf;
 
-class DownloadInvoiceController
-{
-    public function __invoke(Invoice $invoice)
-    {
-        return pdf()
-            ->view('pdf.invoice', compact('invoice'))
-            ->name('invoice.pdf');
-    }
-}
-```
-
-Force a download:
-
-```php
 return pdf()
-    ->view('pdf.invoice', compact('invoice'))
-    ->name('invoice.pdf')
+    ->view('pdf.relatorio', ['dados' => $dados])
+    ->name('relatorio.pdf')
     ->download();
 ```
 
-## Formatting
+Sem `download()`, a resposta é exibida inline.
 
-### Paper format
+## Formatação
 
-```php
-use Spatie\LaravelPdf\Enums\Format;
+Use `format('a4')`, `landscape()`, `margins(top: 15, right: 10, bottom: 15, left: 10, unit: 'mm')` e `paperSize(57, 500, 'mm')` conforme necessário. Cabeçalhos e rodapés podem usar `headerView()` e `footerView()` ou `headerHtml()` e `footerHtml()`. A paginação e a repetição dependem do driver.
 
-Pdf::view('pdf.invoice', $data)
-    ->format(Format::A4)
-    ->save('invoice.pdf');
-```
+## Testes
 
-### Orientation
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->landscape()
-    ->save('invoice.pdf');
-```
-
-### Margins
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->margins(top: 15, right: 10, bottom: 15, left: 10, unit: 'mm')
-    ->save('invoice.pdf');
-```
-
-### Custom paper size
-
-```php
-Pdf::view('pdf.receipt', $data)
-    ->paperSize(57, 500, 'mm')
-    ->save('receipt.pdf');
-```
-
-### Headers and footers
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->headerView('pdf.header', ['company' => $company])
-    ->footerView('pdf.footer')
-    ->save('invoice.pdf');
-```
-
-Or with raw HTML:
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->headerHtml('<div>Header</div>')
-    ->footerHtml('<div>Footer</div>')
-    ->save('invoice.pdf');
-```
-
-Inside footer/header views, use `@pageNumber` and `@totalPages` Blade directives. Use `@inlinedImage($path)` to embed images.
-
-### Conditional formatting
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->format('a4')
-    ->when($invoice->isLandscape(), fn ($pdf) => $pdf->landscape())
-    ->save('invoice.pdf');
-```
-
-## Saving to disks
-
-```php
-Pdf::view('invoice')
-    ->disk('s3')
-    ->save('invoices/invoice.pdf');
-```
-
-## Base64
-
-```php
-$base64 = Pdf::view('pdf.invoice', $data)->base64();
-```
-
-## Setting defaults
-
-In a service provider:
+Use `Pdf::fake()` e as asserções do pacote para verificar a view, dados e caminho. Para verificar conteúdo renderizado em um callback, use `$pdf->contains('texto')`.
 
 ```php
 use Spatie\LaravelPdf\Facades\Pdf;
-use Spatie\LaravelPdf\Enums\Format;
+use Spatie\LaravelPdf\PdfBuilder;
 
-Pdf::default()
-    ->format(Format::A4)
-    ->headerView('pdf.header');
+Pdf::fake();
+
+// Executar a ação que gera o PDF.
+
+Pdf::assertViewIs('pdf.relatorio');
+Pdf::assertSaved(fn (PdfBuilder $pdf, string $path) => $path === $caminhoAbsoluto
+    && $pdf->contains('Relatório'));
 ```
 
-## Drivers
+Para respostas devolvidas diretamente pelo builder, use `Pdf::assertRespondedWithPdf()`. Nos fluxos que salvam um arquivo e depois o retornam com `response()->download()`, siga os testes existentes que usam `Pdf::swap()` com um `FakePdfBuilder` adaptado para criar um arquivo de teste.
 
-The package supports three drivers: `browsershot` (default), `cloudflare`, and `dompdf`.
-
-Set the driver via `LARAVEL_PDF_DRIVER` env variable or in `config/laravel-pdf.php`.
-
-### Browsershot driver
-
-Requires `spatie/browsershot` to be installed separately:
-
-```bash
-composer require spatie/browsershot
-```
-
-Customize the Browsershot instance per PDF:
-
-```php
-use Spatie\Browsershot\Browsershot;
-
-Pdf::view('pdf.invoice', $data)
-    ->withBrowsershot(function (Browsershot $browsershot) {
-        $browsershot->scale(0.5);
-    })
-    ->save('invoice.pdf');
-```
-
-### Cloudflare driver
-
-Uses Cloudflare's Browser Rendering API. No Node.js or Chrome binary needed.
-
-```env
-LARAVEL_PDF_DRIVER=cloudflare
-CLOUDFLARE_API_TOKEN=your-api-token
-CLOUDFLARE_ACCOUNT_ID=your-account-id
-```
-
-The Cloudflare driver does not support `withBrowsershot()`, `onLambda()`, or PNG output.
-
-### DOMPDF driver
-
-Pure PHP PDF generation. No external binaries required.
-
-```bash
-composer require dompdf/dompdf
-```
-
-```env
-LARAVEL_PDF_DRIVER=dompdf
-```
-
-DOMPDF supports CSS 2.1 and some CSS 3, but not flexbox or grid. Headers/footers are prepended/appended to the body (not repeated on every page). The `withBrowsershot()` and `onLambda()` methods have no effect.
-
-Switch driver per PDF:
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->driver('dompdf')
-    ->save('invoice.pdf');
-```
-
-### Chrome driver
-
-Requires `chrome-php/chrome` and a local Chrome/Chromium binary.
-
-```bash
-composer require chrome-php/chrome
-```
-
-```env
-LARAVEL_PDF_DRIVER=chrome
-```
-
-The Chrome driver does not support `tagged`, `withBrowsershot()`, `onLambda()`, or PNG output.
-
-## Queued PDF generation
-
-Dispatch PDF generation to a background queue:
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->saveQueued('invoice.pdf')
-    ->then(fn (string $path, ?string $diskName) => Mail::to($user)->send(new InvoiceMail($path)))
-    ->catch(fn (Throwable $e) => Log::error($e->getMessage()));
-```
-
-The `then` callback receives the path and the disk name (`null` for local saves).
-
-Configure queue and connection:
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->saveQueued('invoice.pdf', connection: 'redis', queue: 'pdfs');
-
-// Or chain methods:
-Pdf::view('pdf.invoice', $data)
-    ->saveQueued('invoice.pdf')
-    ->onQueue('pdfs')
-    ->onConnection('redis')
-    ->delay(now()->addMinutes(5));
-```
-
-With disk:
-
-```php
-Pdf::view('pdf.invoice', $data)
-    ->disk('s3')
-    ->saveQueued('invoices/invoice.pdf');
-```
-
-Note: `saveQueued()` cannot be used with `withBrowsershot()`.
-
-## Testing
-
-Fake PDF generation in tests:
-
-```php
-use Spatie\LaravelPdf\Facades\Pdf;
-
-beforeEach(function () {
-    Pdf::fake();
-});
-```
-
-Assert a PDF was saved:
-
-```php
-Pdf::assertSaved(function (PdfBuilder $pdf, string $path) {
-    return $path === storage_path('invoices/invoice.pdf')
-        && str_contains($pdf->html, '$10.00');
-});
-```
-
-Assert a PDF response was returned:
-
-```php
-Pdf::assertRespondedWithPdf(function (PdfBuilder $pdf) {
-    return $pdf->isDownload()
-        && $pdf->downloadName === 'invoice.pdf';
-});
-```
-
-Assert queued PDFs:
-
-```php
-Pdf::assertQueued('invoice.pdf');
-Pdf::assertQueued(fn (PdfBuilder $pdf, string $path) => $path === 'invoice.pdf');
-Pdf::assertNotQueued();
-```
-
-Simple assertions:
-
-```php
-Pdf::assertViewIs('pdf.invoice');
-Pdf::assertSee('Your total is $10.00');
-Pdf::assertViewHas('invoice', $invoice);
-Pdf::assertSaved(storage_path('invoices/invoice.pdf'));
-```
-
-## Background color
-
-To render background colors in the PDF, add this CSS:
-
-```html
-<style>
-    html {
-        -webkit-print-color-adjust: exact;
-    }
-</style>
-```
+Os fakes verificam a integração e o conteúdo preparado. Quando a apresentação for requisito, gere um PDF com o driver escolhido e confira o resultado visual.
