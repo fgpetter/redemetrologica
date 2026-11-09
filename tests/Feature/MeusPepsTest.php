@@ -1,8 +1,11 @@
 <?php
 
+use App\Livewire\PainelCliente\MeusPeps;
 use App\Models\AgendaInterlab;
 use App\Models\AgendainterlabMaterial;
+use App\Models\DadosGeraDoc;
 use App\Models\Endereco;
+use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use App\Models\Permission;
@@ -11,6 +14,7 @@ use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\PessoaFactory;
+use Livewire\Livewire;
 
 function usuarioClienteComPessoa(): User
 {
@@ -111,7 +115,7 @@ test('meus peps lista PEPs encerrados com dados do laboratório e materiais de a
         ->assertSee('PEP Encerrado')
         ->assertSee('CONCLUIDO')
         ->assertSee('Laboratório Visível')
-        ->assertSee('Materiais de apoio para o interlab')
+        ->assertSee('Materiais do Interlab')
         ->assertSee('Material de apoio do PEP')
         ->assertSee('id="agenda-'.$agenda->id.'"', false);
 });
@@ -135,4 +139,81 @@ test('meus peps retorna 404 para usuário sem permissão de cliente', function (
     $this->actingAs($user)
         ->get(route('painel-meus-peps'))
         ->assertNotFound();
+});
+
+test('documentos existentes são associados à inscrição e ao analista corretos sem criar registros', function () {
+    $user = usuarioClienteComPessoa();
+    $outroUsuario = usuarioClienteComPessoa();
+    $agenda = agendaComNome('PEP Documentos');
+    $inscrito = inscreverPessoaNoPep($user, $agenda, 'Laboratório');
+    $outro = inscreverPessoaNoPep($outroUsuario, $agenda, 'Outro');
+    $analista = InterlabAnalista::create(['interlab_inscrito_id' => $inscrito->id, 'nome' => 'Analista próprio', 'email' => 'proprio@example.com', 'telefone' => '51999999999']);
+    $analistaOutro = InterlabAnalista::create(['interlab_inscrito_id' => $outro->id, 'nome' => 'Analista externo', 'email' => 'externo@example.com', 'telefone' => '51999999999']);
+    $doc = fn (string $tipo, array $content) => DadosGeraDoc::create(compact('tipo', 'content'));
+    $cartaAntiga = $doc('tag_senha', ['participante_id' => $inscrito->id]);
+    $carta = $doc('tag_senha', ['participante_id' => $inscrito->id]);
+    $certificado = $doc('certificado_interlab', ['participante_id' => $inscrito->id]);
+    $cartaAnalista = $doc('tag_senha_analista', ['participante_id' => $inscrito->id, 'analista_id' => $analista->id]);
+    $cartaOutro = $doc('tag_senha_analista', ['participante_id' => $outro->id, 'analista_id' => $analistaOutro->id]);
+    $doc('tag_senha_analista', ['participante_id' => $inscrito->id, 'analista_id' => $analistaOutro->id]);
+    $quantidade = DadosGeraDoc::count();
+
+    $this->actingAs($user);
+    Livewire::test(MeusPeps::class)
+        ->assertViewHas('documentosPorInscricao', fn ($docs) => $docs === [
+            $inscrito->id => [
+                'carta' => route('dados-doc.download', $carta->link),
+                'certificado' => null,
+                'analistas' => [['nome' => 'Analista próprio', 'carta' => route('dados-doc.download', $cartaAnalista->link), 'certificado' => null]],
+            ],
+        ])
+        ->assertDontSee($cartaOutro->link)
+        ->assertDontSee($cartaAntiga->link);
+
+    $inscrito->update(['certificado_emitido' => now()]);
+    Livewire::test(MeusPeps::class)
+        ->assertViewHas('documentosPorInscricao', fn ($docs) => $docs[$inscrito->id]['certificado'] === route('dados-doc.download', $certificado->link));
+    expect(DadosGeraDoc::count())->toBe($quantidade);
+});
+
+test('inscrição sem documentos mantém URLs nulas', function () {
+    $user = usuarioClienteComPessoa();
+    $inscrito = inscreverPessoaNoPep($user, agendaComNome('Sem documentos'), 'Laboratório');
+    $inscrito->update(['certificado_emitido' => now()]);
+
+    $this->actingAs($user);
+    Livewire::test(MeusPeps::class)->assertViewHas('documentosPorInscricao', fn ($docs) => $docs[$inscrito->id] === [
+        'carta' => null, 'certificado' => null, 'analistas' => [],
+    ]);
+});
+
+test('refresh isola analistas de inscrições em laboratório compartilhado e revalida o proprietário', function () {
+    $user = usuarioClienteComPessoa();
+    $outroUsuario = usuarioClienteComPessoa();
+    $agenda = agendaComNome('PEP compartilhado');
+    $inscrito = inscreverPessoaNoPep($user, $agenda, 'Laboratório compartilhado');
+    $outro = inscreverPessoaNoPep($outroUsuario, $agenda, 'Laboratório externo');
+    $outro->update(['laboratorio_id' => $inscrito->laboratorio_id]);
+    InterlabAnalista::create(['interlab_inscrito_id' => $inscrito->id, 'nome' => 'Analista autorizado', 'email' => 'autorizado@example.com', 'telefone' => '51999999999']);
+    InterlabAnalista::create(['interlab_inscrito_id' => $outro->id, 'nome' => 'Analista privado', 'email' => 'privado@example.com', 'telefone' => '51988888888']);
+    $doc = DadosGeraDoc::create(['tipo' => 'tag_senha', 'content' => ['participante_id' => $inscrito->id]]);
+
+    $this->actingAs($user);
+    $component = Livewire::test(MeusPeps::class)
+        ->assertSee('Analista autorizado')
+        ->assertDontSee('Analista privado')
+        ->call('$refresh')
+        ->assertSee('Analista autorizado')
+        ->assertDontSee('Analista privado')
+        ->assertDontSee('privado@example.com')
+        ->assertSee($doc->link);
+
+    $inscrito->update(['pessoa_id' => $outroUsuario->pessoa->id]);
+    $component->call('$refresh')
+        ->assertDontSee('Analista autorizado')
+        ->assertDontSee('PEP compartilhado')
+        ->assertDontSee('Laboratório compartilhado')
+        ->assertDontSee($doc->link)
+        ->assertViewHas('interlabs', fn ($interlabs) => $interlabs->isEmpty())
+        ->assertViewHas('documentosPorInscricao', []);
 });
