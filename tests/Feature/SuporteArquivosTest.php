@@ -2,6 +2,8 @@
 
 use App\Actions\Suporte\ArquivosSuporteAction;
 use App\Actions\Suporte\SalvarDemandaSuporteAction;
+use App\Enums\SuporteClassificacao;
+use App\Enums\SuporteStatus;
 use App\Livewire\Suporte\AtividadeForm;
 use App\Livewire\Suporte\DemandaDetalhe;
 use App\Mail\SuporteDemandaAtualizadaMail;
@@ -25,6 +27,83 @@ function usuarioArquivosSuporte(string $perfil = 'funcionario'): User
 
     return $user;
 }
+
+test('alterações administrativas não notificam e são persistidas', function (SuporteStatus $inicial, array $administrativo, ?SuporteStatus $status) {
+    Mail::fake();
+    $user = usuarioArquivosSuporte('admin');
+    $this->actingAs($user);
+    $demanda = SuporteDemanda::factory()->create(['autor_id' => $user->id, 'status' => $inicial]);
+    $dados = ['titulo' => $demanda->titulo, 'descricao' => $demanda->descricao, 'participantes' => [$user->id], ...$administrativo];
+
+    app(SalvarDemandaSuporteAction::class)->execute($user, $demanda, $dados, SuporteArquivo::novoRascunho($demanda), [], $status);
+
+    $demanda->refresh();
+    expect($demanda->status)->toBe($status ?? $inicial);
+    if (isset($administrativo['horas_gastas'])) {
+        expect($demanda->horas_gastas)->toBe($administrativo['horas_gastas']);
+    }
+    if (isset($administrativo['classificacao'])) {
+        expect($demanda->classificacao)->toBe(SuporteClassificacao::from($administrativo['classificacao']));
+    }
+    Mail::assertNothingQueued();
+})->with([
+    'sem alterações' => [SuporteStatus::Aberta, [], null],
+    'horas aberta' => [SuporteStatus::Aberta, ['horas_gastas' => 5], null],
+    'classificação aberta' => [SuporteStatus::Aberta, ['classificacao' => 'corretiva'], null],
+    'status aberta' => [SuporteStatus::Aberta, [], SuporteStatus::EmAnalise],
+    'combinadas aberta' => [SuporteStatus::Aberta, ['horas_gastas' => 5, 'classificacao' => 'corretiva'], SuporteStatus::Concluida],
+    'horas concluída' => [SuporteStatus::Concluida, ['horas_gastas' => 5], null],
+    'classificação cancelada' => [SuporteStatus::Cancelada, ['classificacao' => 'corretiva'], null],
+    'reabertura' => [SuporteStatus::Concluida, [], SuporteStatus::Aberta],
+    'combinadas encerrada' => [SuporteStatus::Cancelada, ['horas_gastas' => 5, 'classificacao' => 'corretiva'], SuporteStatus::Aberta],
+]);
+
+test('conteúdo notificável envia email inclusive com alterações administrativas', function (string $campo, bool $combinada) {
+    Mail::fake();
+    Storage::fake('local');
+    $user = usuarioArquivosSuporte('admin');
+    $this->actingAs($user);
+    $demanda = SuporteDemanda::factory()->create(['autor_id' => $user->id]);
+    $token = SuporteArquivo::novoRascunho($demanda);
+    $dados = ['titulo' => $demanda->titulo, 'descricao' => $demanda->descricao, 'participantes' => [$user->id]];
+    $anexos = [];
+    if ($campo === 'titulo') {
+        $dados['titulo'] = 'Título alterado';
+    } elseif ($campo === 'descricao') {
+        $dados['descricao'] = '<p>Descrição alterada</p>';
+    } elseif ($campo === 'participantes') {
+        $dados['participantes'][] = usuarioArquivosSuporte()->id;
+    } else {
+        $arquivo = app(ArquivosSuporteAction::class)->enviar($user, UploadedFile::fake()->create('novo.pdf', 1, 'application/pdf'), $token);
+        $anexos[] = $arquivo->uid;
+    }
+    if ($combinada) {
+        $dados['horas_gastas'] = 5;
+        $dados['classificacao'] = 'evolutiva';
+    }
+
+    app(SalvarDemandaSuporteAction::class)->execute($user, $demanda, $dados, $token, $anexos, $combinada ? SuporteStatus::EmAnalise : null);
+
+    Mail::assertQueued(SuporteDemandaAtualizadaMail::class, fn ($mail) => $mail->hasTo($user->email));
+    if ($combinada) {
+        expect($demanda->fresh()->status)->toBe(SuporteStatus::EmAnalise)
+            ->and($demanda->fresh()->horas_gastas)->toBe(5)
+            ->and($demanda->fresh()->classificacao)->toBe(SuporteClassificacao::Evolutiva);
+    }
+})->with(['titulo', 'descricao', 'participantes', 'anexo'])->with([false, true]);
+
+test('demanda encerrada sem alteração permitida continua bloqueada', function () {
+    Mail::fake();
+    $user = usuarioArquivosSuporte('admin');
+    $this->actingAs($user);
+    $demanda = SuporteDemanda::factory()->concluida()->create(['autor_id' => $user->id]);
+    $dados = ['titulo' => 'Não permitido', 'descricao' => $demanda->descricao, 'participantes' => [$user->id]];
+
+    expect(fn () => app(SalvarDemandaSuporteAction::class)->execute($user, $demanda, $dados, SuporteArquivo::novoRascunho($demanda)))
+        ->toThrow(ValidationException::class);
+    expect($demanda->fresh()->titulo)->toBe($demanda->titulo);
+    Mail::assertNothingQueued();
+});
 
 test('upload do editor exige contexto e devolve imagem privada', function () {
     Storage::fake('local');
