@@ -6,6 +6,7 @@ use App\Casts\TelefoneCast;
 use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -27,6 +28,13 @@ class CursoInscrito extends Model
     protected $casts = [
         'telefone' => TelefoneCast::class,
     ];
+
+    protected function nome(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value === null ? null : mb_strtoupper($value, 'UTF-8'),
+        );
+    }
 
     public static function certificadosPendentes(): Builder
     {

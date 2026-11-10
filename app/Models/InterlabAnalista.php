@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Casts\TelefoneCast;
 use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Support\LogOptions;
@@ -31,6 +32,13 @@ class InterlabAnalista extends Model
         'senha_enviada' => 'datetime',
         'telefone' => TelefoneCast::class,
     ];
+
+    protected function nome(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value === null ? null : mb_strtoupper($value, 'UTF-8'),
+        );
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
