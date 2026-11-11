@@ -3,7 +3,6 @@
 namespace App\Livewire\Cursos;
 
 use App\Actions\EnviarCertificadoAction;
-use App\Actions\EnviarMaterialCursoAction;
 use App\Actions\SalvaInscritoInCompanyAction;
 use App\Helpers\Telefone;
 use App\Livewire\Forms\ParticipanteCursoForm;
@@ -94,18 +93,6 @@ class ListParticipantes extends Component
 
         $this->reset(['nome', 'email', 'telefone']);
         session()->flash('success', 'Inscrito adicionado com sucesso!');
-    }
-
-    public function enviarDocs(CursoInscrito $inscrito)
-    {
-        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
-        $inscrito = $this->agendacurso->inscritos()->findOrFail($inscrito->id);
-        try {
-            app(EnviarMaterialCursoAction::class)->execute($inscrito);
-            session()->flash('success', 'E-mail com materiais enviado com sucesso!');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Houve um erro ao tentar enviar os materiais: '.$e->getMessage());
-        }
     }
 
     public function enviarCertificado(CursoInscrito $inscrito)

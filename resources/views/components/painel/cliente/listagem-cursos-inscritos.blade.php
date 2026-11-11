@@ -43,13 +43,13 @@
                             <strong>Local:</strong>
                             {{ $inscricao->agendaCurso->endereco_local }} <br>
 
-                            @if ($inscricao->agendaCurso->cursoMateriais->count() > 0 && $inscricao->agendaCurso->status === 'CONFIRMADO')
-                                <strong>Materiais do curso:</strong>
+                            @if ($inscricao->agendaCurso->materiaisTreinamento->count() > 0 && $inscricao->agendaCurso->status === 'CONFIRMADO')
+                                <strong>Materiais do treinamento:</strong>
                                 <ul class="list-unstyled ms-3 mt-2">
-                                    @foreach ($inscricao->agendaCurso->cursoMateriais as $material)
+                                    @foreach ($inscricao->agendaCurso->materiaisTreinamento as $material)
                                         <li class="mb-1">
                                             <i class="bx bx-file me-1"></i>
-                                            <a href="{{ asset('curso-material/'.$material->arquivo) }}"
+                                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($material->arquivo) }}"
                                                 target="_blank" class="text-primary">
                                                 {{ $material->descricao ?: 'Material '.$loop->iteration }}
                                             </a>
@@ -100,13 +100,13 @@
                             <strong>Empresa vinculada:</strong>
                             {{ $primeiraInscricao->empresa->nome_razao }} <br>
 
-                            @if ($primeiraInscricao->agendaCurso->cursoMateriais->count() > 0 && $primeiraInscricao->agendaCurso->status === 'CONFIRMADO')
-                                <strong>Materiais do curso:</strong>
+                            @if ($primeiraInscricao->agendaCurso->materiaisTreinamento->count() > 0 && $primeiraInscricao->agendaCurso->status === 'CONFIRMADO')
+                                <strong>Materiais do treinamento:</strong>
                                 <ul class="list-unstyled ms-3 mt-2">
-                                    @foreach ($primeiraInscricao->agendaCurso->cursoMateriais as $material)
+                                    @foreach ($primeiraInscricao->agendaCurso->materiaisTreinamento as $material)
                                         <li class="mb-1">
                                             <i class="bx bx-file me-1"></i>
-                                            <a href="{{ asset('curso-material/'.$material->arquivo) }}"
+                                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($material->arquivo) }}"
                                                 target="_blank" class="text-primary">
                                                 {{ $material->descricao ?: 'Material '.$loop->iteration }}
                                             </a>

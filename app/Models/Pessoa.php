@@ -119,7 +119,7 @@ class Pessoa extends Model
      */
     public function cursos(): HasMany
     {
-        return $this->hasMany(CursoInscrito::class);
+        return $this->hasMany(CursoInscrito::class)->with(['agendaCurso.curso', 'agendaCurso.materiaisTreinamento', 'empresa']);
     }
 
     /**

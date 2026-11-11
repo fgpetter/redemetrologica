@@ -117,11 +117,6 @@
                                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
                                     </li>
                                     <li>
-                                        <button class="dropdown-item" wire:click="enviarDocs({{ $inscrito->id }})" wire:loading.attr="disabled">
-                                            Enviar Docs
-                                        </button>
-                                    </li>
-                                    <li>
                                         <button class="dropdown-item" wire:click="enviarCertificado({{ $inscrito->id }})" wire:loading.attr="disabled">
                                             Enviar Certificado
                                         </button>

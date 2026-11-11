@@ -139,32 +139,6 @@
       </x-forms.input-select>
     </div>
 
-    @if($agendacurso->uid)
-    <div class="col-12">
-      <div class="card border shadow-none">
-        <div class="card-header pt-2">
-          <h6 class="h6 mt-0">Selecionar materiais disponíveis</h6>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            @forelse ($agendacurso->curso->materiais as $material)
-              <div class="form-check mb-2">
-                <input class="form-check-input" name="material[]" value="{{ $material->id }}" type="checkbox" id="{{ $material->uid }}"
-                  @checked( $agendacurso->cursoMateriais->contains( $material ) ) >
-                <label class="form-check-label d-inline-flex align-items-center" for="{{ $material->uid }}">
-                  {!! ($material->descricao) ? $material->descricao . '&nbsp; <i class="ph-arrow-right fs-5"></i> &nbsp;' : '' !!}
-                  {{ $material->arquivo }}
-                </label>&nbsp;
-              </div>
-            @empty
-              <p> O curso {{$agendacurso->curso->descricao}} não tem materiais.</p>
-            @endforelse
-          </div>
-        </div>
-      </div>
-    </div>
-    @endif
-
     <div class="col-sm-12">
       <x-forms.input-textarea name="observacoes"
         label="Observações">{{ old('observacoes') ?? ($agendacurso->observacoes ?? null) }}

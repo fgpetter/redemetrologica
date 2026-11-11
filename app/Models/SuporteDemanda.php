@@ -99,7 +99,7 @@ class SuporteDemanda extends Model
             if ($status === SuporteStatus::EmAndamento) {
                 $outra = self::query()->whereKeyNot($demanda->id)->where('status', $status)->first();
                 if ($outra) {
-                    throw ValidationException::withMessages(['status' => "A demanda #{$outra->id} — {$outra->titulo} já está em andamento."]);
+                    throw ValidationException::withMessages(['status' => 'Há outra demanda em andamento.']);
                 }
             }
             $demanda->update(['status' => $status]);

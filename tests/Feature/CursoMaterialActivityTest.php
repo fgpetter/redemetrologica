@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\AgendaCursoArquivo;
+use App\Models\AgendaCursos;
 use App\Models\Curso;
-use App\Models\CursoMaterial;
+use App\Models\Instrutor;
+use Database\Factories\PessoaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,7 +16,7 @@ class CursoMaterialActivityTest extends TestCase
 
     public function test_model_curso_material_possui_metodo_get_activitylog_options(): void
     {
-        $material = new CursoMaterial;
+        $material = new AgendaCursoArquivo;
 
         $this->assertTrue(method_exists($material, 'getActivitylogOptions'));
     }
@@ -25,9 +28,12 @@ class CursoMaterialActivityTest extends TestCase
             'tipo_curso' => 'OFICIAL',
         ]);
 
-        $material = CursoMaterial::query()->create([
+        $instrutor = Instrutor::create(['pessoa_id' => PessoaFactory::new()->create()->id, 'situacao' => true]);
+        $agenda = AgendaCursos::create(['curso_id' => $curso->id, 'instrutor_id' => $instrutor->id, 'status' => 'AGENDADO', 'tipo_agendamento' => 'ONLINE']);
+
+        $material = AgendaCursoArquivo::query()->create([
             'uid' => uniqid('MAT-'),
-            'curso_id' => $curso->id,
+            'agenda_curso_id' => $agenda->id,
             'arquivo' => 'material-teste.pdf',
             'descricao' => 'Material de teste',
         ]);
@@ -43,14 +49,17 @@ class CursoMaterialActivityTest extends TestCase
             'tipo_curso' => 'OFICIAL',
         ]);
 
-        $material = CursoMaterial::query()->create([
+        $instrutor = Instrutor::create(['pessoa_id' => PessoaFactory::new()->create()->id, 'situacao' => true]);
+        $agenda = AgendaCursos::create(['curso_id' => $curso->id, 'instrutor_id' => $instrutor->id, 'status' => 'AGENDADO', 'tipo_agendamento' => 'ONLINE']);
+
+        $material = AgendaCursoArquivo::query()->create([
             'uid' => uniqid('MAT-'),
-            'curso_id' => $curso->id,
+            'agenda_curso_id' => $agenda->id,
             'arquivo' => 'material-teste.pdf',
             'descricao' => 'Material de teste',
         ]);
 
-        $this->assertNotNull($material->curso);
-        $this->assertEquals('Curso Teste', $material->curso->descricao);
+        $this->assertNotNull($material->agendaCurso);
+        $this->assertEquals('Curso Teste', $material->agendaCurso->curso->descricao);
     }
 }

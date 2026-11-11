@@ -56,8 +56,6 @@ class AgendaCursoRequest extends FormRequest
             'validade_proposta' => ['nullable', 'date'],
             'valor_orcamento' => ['nullable', 'string'],
             'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
-            'material' => ['nullable', 'array'],
-            'material.*' => ['integer', 'exists:curso_materiais,id'],
         ];
     }
 

@@ -7,7 +7,6 @@ use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -65,8 +64,8 @@ class AgendaCursos extends Model
         return $this->hasMany(CursoInscrito::class, 'agenda_curso_id', 'id');
     }
 
-    public function cursoMateriais(): BelongsToMany
+    public function materiaisTreinamento(): HasMany
     {
-        return $this->belongsToMany(CursoMaterial::class, 'agenda_curso_materiais', 'agenda_curso_id', 'curso_material_id');
+        return $this->hasMany(AgendaCursoArquivo::class, 'agenda_curso_id');
     }
 }

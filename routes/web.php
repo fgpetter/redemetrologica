@@ -165,8 +165,6 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('delete/{curso:uid}', [CursoController::class, 'delete'])->name('curso-delete');
         Route::post('delete-folder/{curso:uid}', [CursoController::class, 'folderDelete'])->name('curso-folder-delete');
         Route::post('delete-thumb/{curso:uid}', [CursoController::class, 'thumbDelete'])->name('curso-thumb-delete');
-        Route::post('upload-material/{curso:uid}', [CursoController::class, 'uploadMaterial'])->name('curso-upload-material');
-        Route::post('delete-material/{material:uid}', [CursoController::class, 'deleteMaterial'])->name('curso-delete-material');
         Route::get('download-documento/{curso:uid}', [CursoController::class, 'downloadDocumento'])->name('curso-download-documento');
     });
 
@@ -177,6 +175,8 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::post('create', [AgendaCursoController::class, 'create'])->name('agendamento-curso-create');
         Route::post('update/{agendacurso:uid}', [AgendaCursoController::class, 'update'])->name('agendamento-curso-update');
         Route::post('delete/{agendacurso:uid}', [AgendaCursoController::class, 'delete'])->name('agendamento-curso-delete');
+        Route::post('{agendaCurso:uid}/materiais', [AgendaCursoController::class, 'uploadMaterial'])->name('agendamento-curso-upload-material');
+        Route::delete('{agendaCurso:uid}/materiais/{material:uid}', [AgendaCursoController::class, 'deleteMaterial'])->withoutScopedBindings()->name('agendamento-curso-delete-material');
         Route::post('salvar-despesa', [AgendaCursoController::class, 'salvaDespesa'])->name('curso-salvar-despesa');
         Route::post('delete-despesa/{despesa:uid}', [AgendaCursoController::class, 'deleteDespesa'])->name('curso-delete-despesa');
         Route::get('export-lista-presenca/{agendacurso}/export-lista-presenca', [AgendaCursoController::class, 'exportListaPresenca'])

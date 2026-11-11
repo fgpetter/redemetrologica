@@ -23,7 +23,7 @@ class AgendaCursoInCompanyController extends Controller
      */
     public function insert(AgendaCursos $agendacurso): View
     {
-        $agendacurso->load('instrutor.pessoa', 'curso.materiais');
+        $agendacurso->load('instrutor.pessoa');
         $pessoas = Pessoa::select('id', 'uid', 'cpf_cnpj', 'tipo_pessoa', 'nome_razao')->get();
 
         $data = [
@@ -53,11 +53,6 @@ class AgendaCursoInCompanyController extends Controller
         $validated['destaque'] = 0;
 
         $agendacurso = AgendaCursos::create($validated);
-
-        if ($request->material) {
-            $agendacurso->cursoMateriais()->sync($request->material);
-            unset($validated['material']);
-        }
 
         if (! $agendacurso) {
             return back()->with('agendamento-error', 'Houve um erro, tente novamente');
@@ -92,11 +87,6 @@ class AgendaCursoInCompanyController extends Controller
         $validated['site'] = 0;
         $validated['inscricoes'] = 0;
         $validated['destaque'] = 0;
-
-        if ($request->material) {
-            $agendacurso->cursoMateriais()->sync($request->material);
-            unset($validated['material']);
-        }
 
         $agendacurso->update($validated);
 
