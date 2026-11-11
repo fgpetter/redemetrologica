@@ -30,6 +30,17 @@ class AgendaCursos extends Model
         'contato_telefone' => TelefoneCast::class,
     ];
 
+    protected static function booted(): void
+    {
+        static::updating(function (AgendaCursos $agenda) {
+            if ($agenda->isDirty('data_inicio')) {
+                $agenda->conferencia_enviada_em = null;
+                $agenda->pendencias_enviadas_em = null;
+                $agenda->inscritos()->update(['informacoes_enviadas_em' => null]);
+            }
+        });
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

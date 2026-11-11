@@ -15,6 +15,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('cursos:emails-automaticos')
+            ->dailyAt('06:00')
+            ->timezone('America/Sao_Paulo')
+            ->withoutOverlapping();
+
         $schedule->command('suporte:limpar-uploads')->daily()->withoutOverlapping();
 
         $schedule->command('interlab:limpar-pdfs-cartas-senha')

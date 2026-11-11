@@ -48,6 +48,13 @@
       @enderror
     </div>
 
+    <div class="col-sm-12">
+      <x-forms.input-field :value="old('link_aula', $agendacurso->link_aula ?? null)" type="url" name="link_aula" label="Link da aula" />
+      @error('link_aula')
+        <div class="text-warning">{{ $message }}</div>
+      @enderror
+    </div>
+
     <div class="col-sm-3">
       <x-forms.input-field :value="old('data_inicio', $agendacurso->data_inicio?->format('Y-m-d'))" type="date" name="data_inicio"
         label="Data Inicio  <span class='text-danger'>*</span>" />
