@@ -117,6 +117,11 @@
                                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="{{ '#inscritoModal' . $inscrito->uid }}">Editar</a>
                                     </li>
                                     <li>
+                                        <button type="button" class="dropdown-item" wire:click="enviarMateriais('{{ $inscrito->uid }}')" wire:loading.attr="disabled">
+                                            Enviar materiais
+                                        </button>
+                                    </li>
+                                    <li>
                                         <button class="dropdown-item" wire:click="enviarCertificado({{ $inscrito->id }})" wire:loading.attr="disabled">
                                             Enviar Certificado
                                         </button>
@@ -152,3 +157,26 @@
         </table>
     </div>
 </div>
+
+@script
+<script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-right',
+        iconColor: 'white',
+        customClass: { popup: 'colored-toast' },
+        showConfirmButton: false,
+        timer: 6000,
+        timerProgressBar: true,
+        showCloseButton: true,
+    });
+
+    $wire.on('show-success-alert', (event) => {
+        Toast.fire({ icon: 'success', title: event.message });
+    });
+
+    $wire.on('show-error-alert', (event) => {
+        Toast.fire({ icon: 'error', title: event.message });
+    });
+</script>
+@endscript

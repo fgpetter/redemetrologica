@@ -3,12 +3,12 @@
 namespace App\Actions;
 
 use App\Jobs\EnviarInformacoesCursoJob;
+use App\Mail\InformacoesTreinamentoMail;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -58,18 +58,7 @@ class EnfileirarEmailInscritoCursoAction
             }
 
             $tentativa = (string) Str::uuid();
-            $snapshot = [
-                'destinatario' => $email,
-                'nome' => $inscrito->nome,
-                'treinamento' => $agenda->curso->descricao,
-                'data_curso' => $dataEsperada,
-                'horario' => $agenda->horario,
-                'link' => $agenda->link_aula,
-                'materiais' => $agenda->materiaisTreinamento->map(fn ($material) => [
-                    'descricao' => $material->descricao ?: basename($material->arquivo),
-                    'url' => Storage::disk('public')->url($material->arquivo),
-                ])->all(),
-            ];
+            $snapshot = InformacoesTreinamentoMail::paraInscrito($agenda, $inscrito)->dados;
 
             $inscrito->update(['informacoes_envio_id' => $tentativa]);
 
