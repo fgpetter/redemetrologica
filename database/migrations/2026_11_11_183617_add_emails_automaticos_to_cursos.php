@@ -9,15 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('curso_inscritos', function (Blueprint $table) {
-            $table->dateTime('informacoes_enviadas_em')->nullable();
-            $table->uuid('informacoes_envio_id')->nullable();
+            $table->dateTime('informacoes_enviadas_em')->nullable()->after('certificado_path');
+            $table->uuid('informacoes_envio_id')->nullable()->after('informacoes_enviadas_em');
         });
         Schema::table('agenda_cursos', function (Blueprint $table) {
-            $table->dateTime('conferencia_enviada_em')->nullable();
-            $table->dateTime('pendencias_enviadas_em')->nullable();
-            $table->dateTime('informacoes_enviadas_em')->nullable();
-            $table->uuid('conferencia_envio_id')->nullable();
-            $table->uuid('pendencias_envio_id')->nullable();
+            $table->dateTime('conferencia_enviada_em')->nullable()->after('status_proposta');
+            $table->dateTime('pendencias_enviadas_em')->nullable()->after('conferencia_enviada_em');
+            $table->dateTime('informacoes_enviadas_em')->nullable()->after('pendencias_enviadas_em');
+            $table->uuid('conferencia_envio_id')->nullable()->after('informacoes_enviadas_em');
+            $table->uuid('pendencias_envio_id')->nullable()->after('conferencia_envio_id');
         });
     }
 

@@ -16,6 +16,8 @@ class SalvaInscritoInCompanyAction
     public function criar(AgendaCursos $agenda, string $nome, string $email, ?string $telefone): CursoInscrito
     {
         return DB::transaction(function () use ($agenda, $nome, $email, $telefone) {
+            $agenda = AgendaCursos::query()->lockForUpdate()->findOrFail($agenda->getKey());
+
             $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($nome));
             $email = strtolower(trim($email));
             $telefone = Telefone::somenteNumeros($telefone) ?? '';
@@ -43,6 +45,8 @@ class SalvaInscritoInCompanyAction
                     ]);
                 }
             }
+
+            app(EnfileirarConfirmacaoCursoAction::class)->execute($cursoInscrito);
 
             return $cursoInscrito;
         });

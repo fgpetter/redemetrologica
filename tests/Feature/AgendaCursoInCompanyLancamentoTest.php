@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\EnviarConfirmacaoCursoJob;
 use App\Models\AgendaCursos;
 use App\Models\CentroCusto;
 use App\Models\Curso;
@@ -10,6 +11,7 @@ use App\Models\Pessoa;
 use App\Models\PlanoConta;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -129,6 +131,7 @@ class AgendaCursoInCompanyLancamentoTest extends TestCase
 
     public function test_update_gera_lancamento_com_tipo_credito_quando_proposta_aprovada(): void
     {
+        Bus::fake();
         ['curso' => $curso, 'instrutor' => $instrutor, 'empresa' => $empresa] = $this->createDependencias();
         $user = $this->createFuncionarioUser();
 
@@ -145,12 +148,22 @@ class AgendaCursoInCompanyLancamentoTest extends TestCase
             'destaque' => 0,
         ]);
 
+        $inscrito = $agenda->inscritos()->create([
+            'pessoa_id' => $empresa->id,
+            'nome' => 'Participante',
+            'email' => 'participante@example.com',
+            'data_inscricao' => now(),
+        ]);
+
         $response = $this->actingAs($user)->post(
             route('agendamento-curso-in-company-update', ['agendacurso' => $agenda->uid]),
             $this->payloadBase($curso, $instrutor, $empresa)
         );
 
         $response->assertRedirect(route('agendamento-curso-index'));
+
+        $response->assertSessionHas('success');
+        Bus::assertDispatched(EnviarConfirmacaoCursoJob::class, fn ($job) => $job->inscritoId === $inscrito->id);
 
         $this->assertDatabaseHas('lancamentos_financeiros', [
             'pessoa_id' => $empresa->id,

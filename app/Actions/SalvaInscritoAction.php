@@ -22,6 +22,8 @@ class SalvaInscritoAction
     public function criar(AgendaCursos $agenda, array $dados, bool $enviarEmail = true): CursoInscrito
     {
         return DB::transaction(function () use ($agenda, $dados, $enviarEmail) {
+            $agenda = AgendaCursos::query()->lockForUpdate()->findOrFail($agenda->getKey());
+
             $nome = preg_replace('/[\x00-\x1F\x7F\xA0]/u', ' ', trim($dados['nome']));
             $email = strtolower(trim($dados['email']));
             $telefone = Telefone::somenteNumeros($dados['telefone'] ?? null) ?? '';
@@ -151,6 +153,8 @@ class SalvaInscritoAction
             if ($enviarEmail) {
                 app(NotifyInscricaoCursoAction::class)->executeParaInscrito($cursoInscrito, $agenda, $empresa);
             }
+
+            app(EnfileirarConfirmacaoCursoAction::class)->execute($cursoInscrito);
 
             return $cursoInscrito;
         });

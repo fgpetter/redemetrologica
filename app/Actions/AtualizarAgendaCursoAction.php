@@ -18,11 +18,18 @@ class AtualizarAgendaCursoAction
         return DB::transaction(function () use ($agenda, $dados): AgendaCursos {
             $registro = AgendaCursos::query()->lockForUpdate()->findOrFail($agenda->getKey());
             $dataAnterior = $registro->data_inicio?->toDateString();
+            $statusAnterior = $registro->status;
 
             $registro->update($dados);
 
             if ($dataAnterior !== $registro->data_inicio?->toDateString()) {
                 $this->invalidarReservasPendentes($registro);
+            }
+
+            if ($statusAnterior !== 'CONFIRMADO' && $registro->status === 'CONFIRMADO') {
+                foreach ($registro->inscritos()->orderBy('id')->get() as $index => $inscrito) {
+                    app(EnfileirarConfirmacaoCursoAction::class)->execute($inscrito, ($index + 1) * 10);
+                }
             }
 
             return $registro;

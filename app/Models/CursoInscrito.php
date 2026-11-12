@@ -28,6 +28,8 @@ class CursoInscrito extends Model
     protected $casts = [
         'telefone' => TelefoneCast::class,
         'informacoes_enviadas_em' => 'datetime',
+        'confirmacao_agendada_em' => 'datetime',
+        'confirmacao_enviada_em' => 'datetime',
     ];
 
     protected function nome(): Attribute
