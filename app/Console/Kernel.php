@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\EnviarCertificadoInterlabPendenteCommand;
 use App\Console\Commands\EnviarCertificadoPendenteCommand;
+use App\Console\Commands\EnviarEmailsAutomaticosCursos;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Cache;
@@ -16,9 +17,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('cursos:emails-automaticos')
-            ->dailyAt('06:00')
+            ->everyMinute()
             ->timezone('America/Sao_Paulo')
-            ->withoutOverlapping();
+            ->withoutOverlapping()
+            ->skip(fn () => Cache::has(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY));
 
         $schedule->command('suporte:limpar-uploads')->daily()->withoutOverlapping();
 

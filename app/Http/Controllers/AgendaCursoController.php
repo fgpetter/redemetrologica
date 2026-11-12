@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AtualizarAgendaCursoAction;
 use App\Actions\DeleteAgendaCursoAction;
 use App\Actions\DeleteMaterialTreinamentoAction;
 use App\Actions\EnviarCertificadoAction;
@@ -87,7 +88,7 @@ class AgendaCursoController extends Controller
         $oldStatus = $agendacurso->status;
         $validated = $request->validated();
 
-        $agendacurso->update($validated);
+        $agendacurso = app(AtualizarAgendaCursoAction::class)->execute($agendacurso, $validated);
 
         if ($oldStatus !== 'REALIZADO' && $agendacurso->status === 'REALIZADO') {
             $inscritos = $agendacurso->inscritos()

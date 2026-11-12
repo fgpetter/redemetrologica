@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AtualizarAgendaCursoAction;
 use App\Http\Requests\AgendaCursoRequest;
 use App\Models\AgendaCursos;
 use App\Models\CentroCusto;
@@ -88,7 +89,7 @@ class AgendaCursoInCompanyController extends Controller
         $validated['inscricoes'] = 0;
         $validated['destaque'] = 0;
 
-        $agendacurso->update($validated);
+        $agendacurso = app(AtualizarAgendaCursoAction::class)->execute($agendacurso, $validated);
 
         if ($request->status_proposta == 'APROVADA' && $request->valor_orcamento > 0) {
             LancamentoFinanceiro::updateOrCreate([

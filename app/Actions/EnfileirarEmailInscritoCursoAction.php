@@ -2,54 +2,93 @@
 
 namespace App\Actions;
 
-use App\Mail\InformacoesTreinamentoMail;
+use App\Jobs\EnviarInformacoesCursoJob;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class EnfileirarEmailInscritoCursoAction
 {
-    /**
-     * @param  int  $inscritoId  Identificador do inscrito.
-     */
-    public function execute(AgendaCursos $agenda, string $data, int $inscritoId): void
+    public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada): bool
     {
-        DB::transaction(function () use ($agenda, $data, $inscritoId) {
-            $agenda = AgendaCursos::query()->with('materiaisTreinamento')->whereKey($agenda->id)->lockForUpdate()->first();
+        return DB::transaction(function () use ($agendaCursoId, $inscritoId, $dataEsperada): bool {
+            $agenda = AgendaCursos::query()
+                ->with(['curso', 'materiaisTreinamento'])
+                ->lockForUpdate()
+                ->find($agendaCursoId);
+
             if (! $agenda
-                || $agenda->data_inicio?->toDateString() !== $data
                 || $agenda->status !== 'CONFIRMADO'
-                || $agenda->tipo_agendamento !== 'ONLINE') {
-                return;
+                || $agenda->tipo_agendamento !== 'ONLINE'
+                || $agenda->data_inicio?->toDateString() !== $dataEsperada
+                || $agenda->informacoes_enviadas_em !== null
+                || $agenda->pendencias_enviadas_em !== null
+                || blank($agenda->link_aula)
+                || $agenda->materiaisTreinamento->isEmpty()) {
+                return false;
             }
 
-            $registro = CursoInscrito::query()->whereKey($inscritoId)
-                ->where('agenda_curso_id', $agenda->id)->lockForUpdate()->first();
-            if (! $registro || blank($agenda->link_aula) || $agenda->materiaisTreinamento->isEmpty()) {
-                if ($registro && (blank($agenda->link_aula) || $agenda->materiaisTreinamento->isEmpty())) {
-                    app(EnfileirarPendenciasCursoAction::class)->execute($agenda, $data);
-                }
+            $inscrito = CursoInscrito::query()
+                ->whereKey($inscritoId)
+                ->where('agenda_curso_id', $agenda->getKey())
+                ->lockForUpdate()
+                ->first();
 
-                return;
+            if (! $inscrito
+                || $inscrito->informacoes_enviadas_em !== null
+                || $inscrito->informacoes_envio_id !== null) {
+                return false;
             }
-            $email = trim((string) $registro->email);
-            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                Log::warning('E-mail inválido ou ausente para envio de material de curso.', [
-                    'inscrito_id' => $registro->id,
-                    'agenda_curso_id' => $agenda->id,
+
+            $email = trim((string) $inscrito->email);
+
+            if (! Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->passes()) {
+                Log::channel('validation')->warning('E-mail inválido ou ausente para envio de informações de curso.', [
+                    'tipo' => 'participante',
+                    'agenda_curso_id' => $agenda->getKey(),
+                    'inscrito_id' => $inscrito->getKey(),
                 ]);
 
-                return;
+                return false;
             }
-            if ($registro->informacoes_enviadas_em) {
-                return;
-            }
-            Mail::to($email)->queue(
-                (new InformacoesTreinamentoMail($agenda, $registro, $data))
-                    ->onConnection('database')->beforeCommit(),
-            );
+
+            $tentativa = (string) Str::uuid();
+            $snapshot = [
+                'destinatario' => $email,
+                'nome' => $inscrito->nome,
+                'treinamento' => $agenda->curso->descricao,
+                'data_curso' => $dataEsperada,
+                'horario' => $agenda->horario,
+                'link' => $agenda->link_aula,
+                'materiais' => $agenda->materiaisTreinamento->map(fn ($material) => [
+                    'descricao' => $material->descricao ?: basename($material->arquivo),
+                    'url' => Storage::disk('public')->url($material->arquivo),
+                ])->all(),
+            ];
+
+            $inscrito->update(['informacoes_envio_id' => $tentativa]);
+
+            Bus::dispatch((new EnviarInformacoesCursoJob(
+                $agenda->getKey(),
+                $inscrito->getKey(),
+                $tentativa,
+                $dataEsperada,
+                $snapshot,
+            ))->onConnection('database')->beforeCommit());
+
+            Log::channel('mailsent')->info('E-mail automático de informações de curso enfileirado.', [
+                'tipo' => 'participante',
+                'agenda_curso_id' => $agenda->getKey(),
+                'inscrito_id' => $inscrito->getKey(),
+                'tentativa_id' => $tentativa,
+            ]);
+
+            return true;
         });
     }
 }
