@@ -186,12 +186,12 @@ it('libera a reserva quando a agenda deixa de ser elegível antes do envio', fun
         ->and($agenda->fresh()->conferencia_enviada_em)->toBeNull();
 });
 
-it('processa os três tipos de email mesmo após o encerramento da janela de enfileiramento', function () {
+it('processa os três tipos de email mesmo após o encerramento da janela de enfileiramento', function (string $tipo) {
     Mail::fake();
     $this->travelTo(Carbon::parse('2026-11-14 06:00:00', 'America/Sao_Paulo'));
-    $conferencia = agendaEmail('2026-11-16');
-    $pendencias = agendaEmail('2026-11-15', ['link_aula' => null]);
-    $participantes = agendaEmail('2026-11-15');
+    $conferencia = agendaEmail('2026-11-16', ['tipo_agendamento' => $tipo]);
+    $pendencias = agendaEmail('2026-11-15', ['link_aula' => null, 'tipo_agendamento' => $tipo]);
+    $participantes = agendaEmail('2026-11-15', ['tipo_agendamento' => $tipo]);
     materialEmail($participantes);
     $inscrito = criarInscritoEmail($participantes);
 
@@ -214,7 +214,7 @@ it('processa os três tipos de email mesmo após o encerramento da janela de enf
     expect($conferencia->fresh()->conferencia_enviada_em)->not->toBeNull()
         ->and($pendencias->fresh()->pendencias_enviadas_em)->not->toBeNull()
         ->and($inscrito->fresh()->informacoes_enviadas_em)->not->toBeNull();
-});
+})->with(['ONLINE', 'IN-COMPANY']);
 
 it('aguarda a abertura da janela para selecionar a conferência no command', function () {
     $this->travelTo(Carbon::parse('2026-11-14 05:59:59', 'America/Sao_Paulo'));

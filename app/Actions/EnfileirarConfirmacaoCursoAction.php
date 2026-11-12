@@ -22,14 +22,27 @@ class EnfileirarConfirmacaoCursoAction
                 return false;
             }
 
-            $email = trim((string) $registro->email);
+            $destinatarios = [];
 
-            if (Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->fails()) {
-                Log::channel('validation')->warning('E-mail inválido ou ausente para confirmação de treinamento.', [
-                    'agenda_curso_id' => $agenda->getKey(),
-                    'inscrito_id' => $registro->getKey(),
-                ]);
+            foreach (['inscrito' => $registro->email, 'responsavel' => $registro->pessoa?->email] as $tipo => $email) {
+                $email = strtolower(trim((string) $email));
 
+                if (Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->fails()) {
+                    Log::channel('validation')->warning('E-mail inválido ou ausente para confirmação de treinamento.', [
+                        'agenda_curso_id' => $agenda->getKey(),
+                        'inscrito_id' => $registro->getKey(),
+                        'tipo' => $tipo,
+                    ]);
+
+                    continue;
+                }
+
+                $destinatarios[] = $email;
+            }
+
+            $destinatarios = array_values(array_unique($destinatarios));
+
+            if ($destinatarios === []) {
                 return false;
             }
 
@@ -38,7 +51,7 @@ class EnfileirarConfirmacaoCursoAction
             // A fila database e a reserva são persistidas na mesma transação.
             Bus::dispatch((new EnviarConfirmacaoCursoJob(
                 $registro->getKey(),
-                $email,
+                $destinatarios,
                 $agenda->curso->descricao,
                 $agenda->data_inicio->format('d/m/Y'),
             ))->onConnection('database')->beforeCommit()->delay(now()->addSeconds($delay)));

@@ -31,7 +31,7 @@ function agendaConfirmacaoCurso(string $tipo = 'ONLINE'): AgendaCursos
 function inscritoConfirmacaoCurso(AgendaCursos $agenda, string $email = 'inscrito@example.com')
 {
     return $agenda->inscritos()->create([
-        'pessoa_id' => PessoaFactory::new()->create()->id,
+        'pessoa_id' => PessoaFactory::new()->create(['email' => $email])->id,
         'nome' => 'Participante', 'email' => $email, 'data_inscricao' => now(),
     ]);
 }
@@ -49,14 +49,14 @@ it('confirma todos os inscritos uma vez em todas as modalidades sem exigir pagam
 
     Bus::assertDispatchedTimes(EnviarConfirmacaoCursoJob::class, 2);
     Bus::assertDispatched(EnviarConfirmacaoCursoJob::class, fn ($job) => $job->inscritoId === $primeiro->id
-        && $job->email === $primeiro->email && $job->delay->isFuture());
+        && $job->email === [$primeiro->email] && $job->delay->isFuture());
     expect($primeiro->fresh()->confirmacao_agendada_em)->not->toBeNull();
 })->with(['ONLINE', 'EVENTO', 'IN-COMPANY']);
 
 it('pula email inválido e continua com os demais', function () {
     Bus::fake();
-    Log::shouldReceive('channel')->with('validation')->once()->andReturnSelf();
-    Log::shouldReceive('warning')->once();
+    Log::shouldReceive('channel')->with('validation')->twice()->andReturnSelf();
+    Log::shouldReceive('warning')->twice();
     $agenda = agendaConfirmacaoCurso();
     $invalido = inscritoConfirmacaoCurso($agenda, 'invalido');
     inscritoConfirmacaoCurso($agenda);
@@ -135,3 +135,25 @@ it('processa o job persistido pela fila database', function () {
     expect(DB::table('jobs')->count())->toBe(0)
         ->and($inscrito->fresh()->confirmacao_enviada_em)->not->toBeNull();
 });
+
+it('inclui o responsável e elimina endereços repetidos', function ($emailResponsavel, $esperados) {
+    Bus::fake();
+    Mail::fake();
+    $agenda = agendaConfirmacaoCurso();
+    $inscrito = inscritoConfirmacaoCurso($agenda);
+    $inscrito->pessoa->update(['email' => $emailResponsavel]);
+    app(AtualizarAgendaCursoAction::class)->execute($agenda, ['status' => 'CONFIRMADO']);
+    $job = Bus::dispatched(EnviarConfirmacaoCursoJob::class)->first();
+    expect($job->email)->toBe($esperados);
+    $job->handle();
+    $job->handle();
+    Mail::assertSent(ConfirmacaoCursoMail::class, 1);
+    Mail::assertSent(ConfirmacaoCursoMail::class, function ($mail) use ($esperados) {
+        return count($mail->to) === count($esperados)
+            && collect($esperados)->every(fn ($email) => $mail->hasTo($email));
+    });
+})->with([
+    ['responsavel@example.com', ['inscrito@example.com', 'responsavel@example.com']],
+    ['inscrito@example.com', ['inscrito@example.com']],
+    ['INSCRITO@example.com', ['inscrito@example.com']],
+]);

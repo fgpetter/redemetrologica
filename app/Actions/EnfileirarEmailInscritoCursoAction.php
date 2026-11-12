@@ -24,7 +24,7 @@ class EnfileirarEmailInscritoCursoAction
 
             if (! $agenda
                 || $agenda->status !== 'CONFIRMADO'
-                || $agenda->tipo_agendamento !== 'ONLINE'
+                || ! in_array($agenda->tipo_agendamento, ['ONLINE', 'IN-COMPANY'], true)
                 || $agenda->data_inicio?->toDateString() !== $dataEsperada
                 || $agenda->informacoes_enviadas_em !== null
                 || $agenda->pendencias_enviadas_em !== null

@@ -25,7 +25,7 @@ class EnfileirarConferenciaCursoAction
 
             if (! $agenda
                 || $agenda->status !== 'CONFIRMADO'
-                || $agenda->tipo_agendamento !== 'ONLINE'
+                || ! in_array($agenda->tipo_agendamento, ['ONLINE', 'IN-COMPANY'], true)
                 || $agenda->data_inicio?->toDateString() !== $dataEsperada
                 || $agenda->conferencia_enviada_em !== null
                 || $agenda->conferencia_envio_id !== null) {

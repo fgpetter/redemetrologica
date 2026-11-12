@@ -21,7 +21,7 @@ class EnviarConfirmacaoCursoJob implements ShouldQueue
 
     public function __construct(
         public int $inscritoId,
-        public string $email,
+        public string|array $email,
         public string $curso,
         public string $dataInicio,
     ) {}

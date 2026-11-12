@@ -102,7 +102,7 @@ class EnviarConferenciaCursoJob implements ShouldQueue
     private function elegivel(AgendaCursos $agenda): bool
     {
         return $agenda->status === 'CONFIRMADO'
-            && $agenda->tipo_agendamento === 'ONLINE'
+            && in_array($agenda->tipo_agendamento, ['ONLINE', 'IN-COMPANY'], true)
             && $agenda->data_inicio?->toDateString() === $this->dataEsperada;
     }
 

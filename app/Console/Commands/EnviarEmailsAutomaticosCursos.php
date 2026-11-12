@@ -20,7 +20,7 @@ class EnviarEmailsAutomaticosCursos extends Command
 
     protected $signature = 'cursos:emails-automaticos';
 
-    protected $description = 'Enfileira um aviso ou material de curso online por execução';
+    protected $description = 'Enfileira um aviso ou material de curso online ou IN-COMPANY por execução';
 
     public function handle(
         EnfileirarConferenciaCursoAction $enfileirarConferencia,
@@ -91,7 +91,7 @@ class EnviarEmailsAutomaticosCursos extends Command
         $agendas = AgendaCursos::query()
             ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
-            ->where('tipo_agendamento', 'ONLINE')
+            ->whereIn('tipo_agendamento', ['ONLINE', 'IN-COMPANY'])
             ->whereDate('data_inicio', $data)
             ->whereNull('conferencia_enviada_em')
             ->orderBy('id')
@@ -120,7 +120,7 @@ class EnviarEmailsAutomaticosCursos extends Command
         $agendas = AgendaCursos::query()
             ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
-            ->where('tipo_agendamento', 'ONLINE')
+            ->whereIn('tipo_agendamento', ['ONLINE', 'IN-COMPANY'])
             ->whereDate('data_inicio', $data)
             ->whereNull('pendencias_enviadas_em')
             ->whereNull('informacoes_enviadas_em')
@@ -159,7 +159,7 @@ class EnviarEmailsAutomaticosCursos extends Command
         $agendas = AgendaCursos::query()
             ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
-            ->where('tipo_agendamento', 'ONLINE')
+            ->whereIn('tipo_agendamento', ['ONLINE', 'IN-COMPANY'])
             ->whereDate('data_inicio', $data)
             ->whereNull('informacoes_enviadas_em')
             ->whereNull('pendencias_enviadas_em')
