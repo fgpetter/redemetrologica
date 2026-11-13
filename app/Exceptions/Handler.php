@@ -2,12 +2,7 @@
 
 namespace App\Exceptions;
 
-use Throwable;
-use App\Mail\ExceptionOccured;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Support\Arr;
 
 class Handler extends ExceptionHandler
 {
@@ -21,46 +16,4 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-
-    /**
-     * Register the exception handling callbacks for the application.
-     */
-    public function register(): void
-    {
-        $this->reportable(function (Throwable $e) {
-            $this->sendEmail($e);
-        });
-    }
-
-    /**
-     * Envia email com erro ocorrido
-     *
-     * @param mixed Throwable $exception
-     * @return void
-     */
-
-     public function sendEmail(Throwable $exception): void
-     {
-        try {
-
-            $content['message'] = $exception->getMessage();
-            $content['file'] = $exception->getFile();
-            $content['line'] = $exception->getLine();
-            // Remove args from trace to avoid closure serialization errors
-            $content['trace'] = collect($exception->getTrace())->map(function ($trace) {
-                return Arr::except($trace, ['args']);
-            })->all();
-
-            $content['url'] = request()->url();
-            $content['body'] = json_encode(request()->except('_token'));
-            $content['ip'] = request()->ip();
-            $content['user'] = auth()->user()?->email ?? null;
-
-            Mail::to('sistema@redemetrologica.com.br')->send(new ExceptionOccured($content));
- 
-         } catch (Throwable $e) {
-            Log::error("Failed to send exception email: " . $e->getMessage());
-         }
- 
-     }
 }

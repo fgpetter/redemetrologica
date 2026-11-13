@@ -1,0 +1,14 @@
+[program:sistema-rede-nightwatch]
+process_name=%(program_name)s
+command=/usr/bin/php /CAMINHO/ABSOLUTO/sistema-rede/artisan nightwatch:agent
+directory=/CAMINHO/ABSOLUTO/sistema-rede
+user=www-data
+numprocs=1
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/sistema-rede-nightwatch.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=3
+stopasgroup=true
+killasgroup=true

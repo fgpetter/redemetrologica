@@ -1,5 +1,6 @@
 <?php
 
+use App\Logging\NightwatchLogger;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -52,6 +53,12 @@ return [
     */
 
     'channels' => [
+        'nightwatch' => [
+            'driver' => 'custom',
+            'via' => NightwatchLogger::class,
+            'level' => env('NIGHTWATCH_LOG_LEVEL', 'info'),
+        ],
+
         'certificados_falha' => [
             'driver' => 'single',
             'path' => storage_path('logs/certificados_falha.log'),
@@ -60,7 +67,7 @@ return [
         ],
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => explode(',', env('LOG_STACK', 'single,nightwatch')),
             'ignore_exceptions' => false,
         ],
 
