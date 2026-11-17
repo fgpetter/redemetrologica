@@ -174,6 +174,7 @@ Route::prefix('painel')->middleware('auth')->group(function () {
         Route::get('insert/{agendacurso:uid?}', [AgendaCursoController::class, 'insert'])->name('agendamento-curso-insert');
         Route::post('create', [AgendaCursoController::class, 'create'])->name('agendamento-curso-create');
         Route::post('update/{agendacurso:uid}', [AgendaCursoController::class, 'update'])->name('agendamento-curso-update');
+        Route::post('{agendacurso:uid}/fr98', [AgendaCursoController::class, 'enviarFr98'])->name('agendamento-curso-enviar-fr98');
         Route::post('delete/{agendacurso:uid}', [AgendaCursoController::class, 'delete'])->name('agendamento-curso-delete');
         Route::post('{agendaCurso:uid}/materiais', [AgendaCursoController::class, 'uploadMaterial'])->name('agendamento-curso-upload-material');
         Route::delete('{agendaCurso:uid}/materiais/{material:uid}', [AgendaCursoController::class, 'deleteMaterial'])->withoutScopedBindings()->name('agendamento-curso-delete-material');

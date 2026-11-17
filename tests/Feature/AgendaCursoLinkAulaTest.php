@@ -27,23 +27,23 @@ beforeEach(function () {
 
 it('persiste, atualiza e limpa o link da aula', function () {
     $this->post(route('agendamento-curso-create'), $this->payload + ['link_aula' => 'https://example.com/aula'])
-        ->assertRedirect(route('agendamento-curso-index'))->assertSessionHasNoErrors();
+        ->assertRedirect(route('agendamento-curso-insert', AgendaCursos::query()->firstOrFail()->uid))->assertSessionHasNoErrors();
 
     $agenda = AgendaCursos::query()->firstOrFail();
     expect($agenda->link_aula)->toBe('https://example.com/aula');
 
     $this->post(route('agendamento-curso-update', $agenda->uid), $this->payload + ['link_aula' => 'https://example.com/nova'])
-        ->assertRedirect(route('agendamento-curso-index'))->assertSessionHasNoErrors();
+        ->assertRedirect(route('agendamento-curso-insert', AgendaCursos::query()->firstOrFail()->uid))->assertSessionHasNoErrors();
     expect($agenda->fresh()->link_aula)->toBe('https://example.com/nova');
 
     $this->post(route('agendamento-curso-update', $agenda->uid), $this->payload + ['link_aula' => ''])
-        ->assertRedirect(route('agendamento-curso-index'))->assertSessionHasNoErrors();
+        ->assertRedirect(route('agendamento-curso-insert', AgendaCursos::query()->firstOrFail()->uid))->assertSessionHasNoErrors();
     expect($agenda->fresh()->link_aula)->toBeNull();
 });
 
 it('aceita agendamento sem link da aula', function () {
     $this->post(route('agendamento-curso-create'), $this->payload)
-        ->assertRedirect(route('agendamento-curso-index'))->assertSessionHasNoErrors();
+        ->assertRedirect(route('agendamento-curso-insert', AgendaCursos::query()->firstOrFail()->uid))->assertSessionHasNoErrors();
     expect(AgendaCursos::query()->firstOrFail()->link_aula)->toBeNull();
 });
 

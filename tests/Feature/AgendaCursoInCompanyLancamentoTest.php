@@ -113,7 +113,7 @@ class AgendaCursoInCompanyLancamentoTest extends TestCase
             $this->payloadBase($curso, $instrutor, $empresa)
         );
 
-        $response->assertRedirect(route('agendamento-curso-index'));
+        $response->assertRedirect(route('agendamento-curso-in-company-insert', AgendaCursos::query()->where('empresa_id', $empresa->id)->firstOrFail()->uid));
 
         $agenda = AgendaCursos::query()->where('empresa_id', $empresa->id)->first();
         $this->assertNotNull($agenda);
@@ -160,7 +160,7 @@ class AgendaCursoInCompanyLancamentoTest extends TestCase
             $this->payloadBase($curso, $instrutor, $empresa)
         );
 
-        $response->assertRedirect(route('agendamento-curso-index'));
+        $response->assertRedirect(route('agendamento-curso-in-company-insert', AgendaCursos::query()->where('empresa_id', $empresa->id)->firstOrFail()->uid));
 
         $response->assertSessionHas('success');
         Bus::assertDispatched(EnviarConfirmacaoCursoJob::class, fn ($job) => $job->inscritoId === $inscrito->id);

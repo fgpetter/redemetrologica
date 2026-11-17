@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Helpers\Telefone;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -95,19 +96,18 @@ class AgendaCursoRequest extends FormRequest
         ];
     }
 
-    public function failedValidation(Validator $validator)
+    public function failedValidation(Validator $validator): void
     {
         Log::channel('validation')->info('Erro de validação', [
-            'user' => auth()->user() ?? null,
-            'request' => $this->all() ?? null,
+            'user_id' => auth()->id(),
             'uri' => request()->fullUrl() ?? null,
             'method' => get_class($this).'::'.__FUNCTION__,
-            'errors' => $validator->errors() ?? null,
+            'campos' => $validator->errors()->keys(),
         ]);
 
-        return back()->with('error', 'Houve um erro a processar os dados, tente novamente')
+        throw new HttpResponseException(back()->with('error', implode(' ', $validator->errors()->all()))
             ->withErrors($validator)
-            ->withInput();
+            ->withInput($this->except(['password', 'password_confirmation', '_token'])));
     }
 
     private function defineStatus(): string

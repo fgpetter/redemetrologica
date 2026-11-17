@@ -30,6 +30,7 @@ class AgendaCursos extends Model
         'conferencia_enviada_em' => 'datetime',
         'pendencias_enviadas_em' => 'datetime',
         'informacoes_enviadas_em' => 'datetime',
+        'fr98_enviado_em' => 'datetime',
         'contato_telefone' => TelefoneCast::class,
     ];
 
