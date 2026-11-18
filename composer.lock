@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e224fcaac9e1b3663fc8f7ae505fe0e",
+    "content-hash": "ea63b2ba039d5aa04750ff54d447afac",
     "packages": [
         {
             "name": "brick/math",
@@ -1679,83 +1679,6 @@
             "published-time": "2026-07-22T15:02:22+00:00"
         },
         {
-            "name": "itsgoingd/clockwork",
-            "version": "v5.3.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "d928483e231f042dbff9258795cb17aadaebc7d0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/d928483e231f042dbff9258795cb17aadaebc7d0",
-                "reference": "d928483e231f042dbff9258795cb17aadaebc7d0",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=7.1"
-            },
-            "suggest": {
-                "ext-pdo": "Needed in order to use a SQL database for metadata storage",
-                "ext-pdo_mysql": "Needed in order to use MySQL for metadata storage",
-                "ext-pdo_postgres": "Needed in order to use Postgres for metadata storage",
-                "ext-pdo_sqlite": "Needed in order to use a SQLite for metadata storage",
-                "ext-redis": "Needed in order to use Redis for metadata storage",
-                "php-http/discovery": "Vanilla integration - required for the middleware zero-configuration setup"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Clockwork": "Clockwork\\Support\\Laravel\\Facade"
-                    },
-                    "providers": [
-                        "Clockwork\\Support\\Laravel\\ClockworkServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Clockwork\\": "Clockwork/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "itsgoingd",
-                    "email": "itsgoingd@luzer.sk",
-                    "homepage": "https://twitter.com/itsgoingd"
-                }
-            ],
-            "description": "php dev tools in your browser",
-            "homepage": "https://underground.works/clockwork",
-            "keywords": [
-                "Devtools",
-                "debugging",
-                "laravel",
-                "logging",
-                "lumen",
-                "profiling",
-                "slim"
-            ],
-            "support": {
-                "issues": "https://github.com/itsgoingd/clockwork/issues",
-                "source": "https://github.com/itsgoingd/clockwork/tree/v5.3.5"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/itsgoingd",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-09-14T15:34:49+00:00",
-            "published-time": "2025-09-14T15:35:06+00:00"
-        },
-        {
             "name": "laravel/framework",
             "version": "v13.39.0",
             "source": {
@@ -1986,6 +1909,101 @@
             },
             "time": "2026-10-27T14:04:39+00:00",
             "published-time": "2026-10-27T14:05:37+00:00"
+        },
+        {
+            "name": "laravel/nightwatch",
+            "version": "v1.30.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/nightwatch.git",
+                "reference": "33000668ae9407d204d5033f39cdfe14de4ac161"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/nightwatch/zipball/33000668ae9407d204d5033f39cdfe14de4ac161",
+                "reference": "33000668ae9407d204d5033f39cdfe14de4ac161",
+                "shasum": ""
+            },
+            "require": {
+                "ext-zlib": "*",
+                "guzzlehttp/promises": "^2.0|^3.0",
+                "laravel/framework": "^10.0|^11.0|^12.0|^13.0",
+                "monolog/monolog": "^3.6",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.2",
+                "psr/http-message": "^1.0|^2.0",
+                "psr/log": "^1.0|^2.0|^3.0",
+                "ramsey/uuid": "^4.0",
+                "symfony/console": "^6.0|^7.0|^8.0",
+                "symfony/http-foundation": "^6.0|^7.0|^8.0",
+                "symfony/polyfill-php84": "^1.29"
+            },
+            "require-dev": {
+                "aws/aws-sdk-php": "^3.349",
+                "ext-pcntl": "*",
+                "ext-pdo": "*",
+                "guzzlehttp/guzzle": "^7.0|^8.0",
+                "guzzlehttp/psr7": "^2.0|^3.0",
+                "laravel/horizon": "^5.4",
+                "laravel/pint": "1.21.0",
+                "laravel/vapor-core": "^2.38.2",
+                "livewire/livewire": "^2.0|^3.0",
+                "mockery/mockery": "^1.0",
+                "mongodb/laravel-mongodb": "^4.0|^5.0",
+                "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+                "orchestra/testbench-core": "^8.0|^9.0|^10.0|^11.0",
+                "orchestra/workbench": "^8.0|^9.0|^10.0|^11.0",
+                "phpstan/phpstan": "^1.0",
+                "phpunit/phpunit": "^10.0|^11.0|^12.0",
+                "singlestoredb/singlestoredb-laravel": "^1.0|^2.0",
+                "spatie/laravel-ignition": "^2.0",
+                "symfony/mailer": "^6.0|^7.0|^8.0",
+                "symfony/mime": "^6.0|^7.0|^8.0",
+                "symfony/var-dumper": "^6.0|^7.0|^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Nightwatch": "Laravel\\Nightwatch\\Facades\\Nightwatch"
+                    },
+                    "providers": [
+                        "Laravel\\Nightwatch\\NightwatchServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "agent/helpers.php"
+                ],
+                "psr-4": {
+                    "Laravel\\Nightwatch\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "The official Laravel Nightwatch package.",
+            "homepage": "https://nightwatch.laravel.com",
+            "keywords": [
+                "Insights",
+                "laravel",
+                "monitoring"
+            ],
+            "support": {
+                "docs": "https://nightwatch.laravel.com/docs",
+                "issues": "https://github.com/laravel/nightwatch/issues",
+                "source": "https://github.com/laravel/nightwatch"
+            },
+            "time": "2026-10-27T00:46:16+00:00",
+            "published-time": "2026-10-27T00:46:21+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -8847,16 +8865,16 @@
         },
         {
             "name": "laravel/boost",
-            "version": "v2.10.3",
+            "version": "v2.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/boost.git",
-                "reference": "75c269a8a53e931c7252e7cd562e1a209356a7c6"
+                "reference": "9cd5e7d81300b5dee4c8b1619ec4b36f4a6367fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/boost/zipball/75c269a8a53e931c7252e7cd562e1a209356a7c6",
-                "reference": "75c269a8a53e931c7252e7cd562e1a209356a7c6",
+                "url": "https://api.github.com/repos/laravel/boost/zipball/9cd5e7d81300b5dee4c8b1619ec4b36f4a6367fd",
+                "reference": "9cd5e7d81300b5dee4c8b1619ec4b36f4a6367fd",
                 "shasum": ""
             },
             "require": {
@@ -8875,7 +8893,7 @@
                 "laravel/pint": "^1.27.0",
                 "mockery/mockery": "^1.6.12",
                 "orchestra/testbench": "^9.15.0|^10.6|^11.0",
-                "pestphp/pest": "^2.36.0|^3.8.4|^4.1.5",
+                "pestphp/pest": "^2.36.0|^3.8.4|^4.1.5|^5.3.3",
                 "phpstan/phpstan": "^2.1.27",
                 "rector/rector": "^2.1"
             },
@@ -8910,8 +8928,8 @@
                 "issues": "https://github.com/laravel/boost/issues",
                 "source": "https://github.com/laravel/boost"
             },
-            "time": "2026-10-07T19:07:19+00:00",
-            "published-time": "2026-10-07T19:08:03+00:00"
+            "time": "2026-10-29T18:31:16+00:00",
+            "published-time": "2026-10-29T18:32:20+00:00"
         },
         {
             "name": "laravel/mcp",
