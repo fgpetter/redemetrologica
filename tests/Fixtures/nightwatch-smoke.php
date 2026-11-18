@@ -1,11 +1,13 @@
 <?php
 
+use App\Logging\ContextualIngest;
 use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -53,7 +55,7 @@ $ingest = new class implements Ingest
 };
 $core = $app->make(Core::class);
 if (($argv[1] ?? '') !== 'agent-unavailable') {
-    $core->ingest = $ingest;
+    $core->ingest = new ContextualIngest($ingest);
 }
 class NightwatchSmokeJob implements ShouldQueue
 {
@@ -98,10 +100,15 @@ if (in_array($argv[1] ?? '', ['http', 'agent-unavailable'], true)) {
             if ($mode === 'observability') {
                 $summary = new ResumoExecucao('smoke.consumida', ['tentativa_id' => 'tentativa-smoke'], 'mailsent');
                 $summary->executar(function ($summary) {
+                    $item = $summary->item('smoke.item', ['inscrito_id' => 42, 'tentativa_id' => 'tentativa-smoke']);
+
                     try {
-                        $summary->etapa('enviar', fn () => throw new RuntimeException('falha sintetica consumida'));
+                        Context::scope(
+                            fn () => $item->executar(fn ($item) => $item->etapa('enviar', fn () => throw new RuntimeException('falha sintetica consumida'))),
+                            $item->correlacao(),
+                        );
                     } catch (RuntimeException $exception) {
-                        report($exception);
+                        $item->reportar($exception);
                         $summary->resultado('falha_definitiva', 'erro_tecnico');
                     }
                 });
@@ -125,6 +132,17 @@ if (($argv[1] ?? '') === 'observability') {
     $exceptions = array_values(array_filter($ingest->records, fn ($record) => $record['t'] === 'exception'));
     if (count($exceptions) !== 1 || empty($exceptions[0]['trace'])) {
         throw new RuntimeException('Expected one consumed exception with stack trace');
+    }
+
+    $correlacao = json_decode($exceptions[0]['context'] ?? '{}', true);
+    foreach (['fluxo', 'execucao_id', 'execucao_pai_id'] as $campo) {
+        if (! isset($correlacao[$campo])) {
+            throw new RuntimeException("Exception correlation missing [{$campo}]");
+        }
+    }
+
+    if (($correlacao['inscrito_id'] ?? null) !== 42 || ($correlacao['tentativa_id'] ?? null) !== 'tentativa-smoke') {
+        throw new RuntimeException('Exception correlation does not reference the item');
     }
 }
 echo json_encode(['enabled' => $core->enabled(), 'events' => $types, 'http_status' => isset($response) ? $response->getStatusCode() : null], JSON_PRETTY_PRINT).PHP_EOL;

@@ -3,6 +3,7 @@
 namespace App\Support\Observabilidade;
 
 use App\Exceptions\OperacaoImpedidaException;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -24,10 +25,61 @@ final class ResumoExecucao
 
     private bool $encerrado = false;
 
-    public function __construct(private string $fluxo, private array $referencias = [], private string $canal = 'stack')
+    public function __construct(private string $fluxo, private array $referencias = [], private string $canal = 'stack', ?string $execucaoPaiId = null)
     {
         $this->inicio = hrtime(true);
         $this->referencias['execucao_id'] = (string) Str::uuid();
+
+        if ($execucaoPaiId !== null) {
+            $this->referencias['execucao_pai_id'] = $execucaoPaiId;
+        }
+    }
+
+    /**
+     * Resolve o resumo da operação atual sem abrir principal fictício em chamadas isoladas.
+     *
+     * @param  array<string, mixed>  $referencias
+     */
+    public static function operacao(?self $resumo, string $fluxo, array $referencias = [], string $canal = 'stack'): self
+    {
+        if ($resumo === null) {
+            return new self($fluxo, $referencias, $canal);
+        }
+
+        if ($resumo->isItem()) {
+            $resumo->contexto($referencias);
+
+            return $resumo;
+        }
+
+        return $resumo->item($fluxo, $referencias);
+    }
+
+    /** Cria uma operação de item vinculada ao resumo atual. */
+    public function item(string $fluxo, array $referencias = []): self
+    {
+        return new self($fluxo, $referencias, $this->canal, $this->referencias['execucao_id']);
+    }
+
+    public function isItem(): bool
+    {
+        return isset($this->referencias['execucao_pai_id']);
+    }
+
+    /**
+     * Cópia segura das referências da execução, sem histórico, resultado ou métricas.
+     *
+     * @return array<string, mixed>
+     */
+    public function correlacao(): array
+    {
+        return ContextoOperacional::selecionar([...$this->referencias, 'fluxo' => $this->fluxo]);
+    }
+
+    /** Reporta a falha consumida com a correlação desta execução e restaura o contexto anterior. */
+    public function reportar(Throwable $exception): void
+    {
+        Context::scope(static fn () => report($exception), $this->correlacao());
     }
 
     public function contexto(array $referencias): void

@@ -16,8 +16,10 @@ use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class EnviarCertificadoPendenteCommandTest extends TestCase
@@ -90,6 +92,43 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         $action->shouldReceive('executePendente')->once()->with($inscrito->id, \Mockery::type(ResumoExecucao::class))->andReturnTrue();
 
         Artisan::call('certificados:enviar-pendente');
+    }
+
+    public function test_resumo_principal_indica_enfileiramento_sem_apagar_impedimentos(): void
+    {
+        [$agenda, $pessoa] = $this->criarAgendaEPessoa();
+        $lancamento = $this->criarLancamento($pessoa, $agenda, ['status' => 'EFETIVADO']);
+        $primeiro = $this->criarCursoInscrito([
+            'pessoa_id' => $pessoa->id,
+            'agenda_curso_id' => $agenda->id,
+            'lancamento_financeiro_id' => $lancamento->id,
+            'data_inscricao' => now()->subDays(2),
+        ]);
+        $segundo = $this->criarCursoInscrito([
+            'pessoa_id' => $pessoa->id,
+            'agenda_curso_id' => $agenda->id,
+            'lancamento_financeiro_id' => $lancamento->id,
+            'data_inscricao' => now()->subDay(),
+        ]);
+        $registros = [];
+        Log::listen(function ($evento) use (&$registros): void {
+            if (($evento->context['fluxo'] ?? null) === 'EnviarCertificadoPendenteCommand') {
+                $registros[] = $evento->context;
+            }
+        });
+        $action = $this->mock(EnviarCertificadoAction::class);
+        $action->shouldReceive('executePendente')->once()->with($primeiro->id, \Mockery::type(ResumoExecucao::class))->andReturnTrue();
+        Artisan::call('certificados:enviar-pendente');
+        $this->assertSame('enfileirado', $registros[0]['resultado']);
+        $this->assertSame(1, $registros[0]['metricas']['enfileirados']);
+
+        $action->shouldReceive('executePendente')->once()->with($primeiro->id, \Mockery::type(ResumoExecucao::class))
+            ->andThrow(ValidationException::withMessages(['email' => 'Contato inválido.']));
+        $action->shouldReceive('executePendente')->once()->with($segundo->id, \Mockery::type(ResumoExecucao::class))->andReturnTrue();
+        Artisan::call('certificados:enviar-pendente');
+        $this->assertSame('impedido', $registros[1]['resultado']);
+        $this->assertSame(1, $registros[1]['metricas']['enfileirados']);
+        $this->assertSame(1, $registros[1]['metricas']['contatos_invalidos']);
     }
 
     public function test_processa_inscrito_com_data_inscricao_mais_antiga(): void

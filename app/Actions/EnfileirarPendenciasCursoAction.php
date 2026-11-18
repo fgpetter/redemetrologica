@@ -17,14 +17,13 @@ class EnfileirarPendenciasCursoAction
 
     public function execute(int $agendaCursoId, string $dataEsperada, ?ResumoExecucao $resumo = null): bool
     {
-        if ($resumo !== null) {
-            return $this->executarObservado($agendaCursoId, $dataEsperada, $resumo);
-        } else {
-            $resumo = new ResumoExecucao('EnfileirarPendenciasCursoAction', [], 'mailsent');
-            $resumo->resultado('ignorado', 'inelegivel');
+        $resumo = ResumoExecucao::operacao($resumo, 'EnfileirarPendenciasCursoAction', [
+            'tipo' => 'pendencias',
+            'agenda_curso_id' => $agendaCursoId,
+        ], 'mailsent');
+        $resumo->resultado('ignorado', 'inelegivel');
 
-            return $resumo->executar(fn () => $this->executarObservado($agendaCursoId, $dataEsperada, $resumo));
-        }
+        return $resumo->executar(fn () => $this->executarObservado($agendaCursoId, $dataEsperada, $resumo));
     }
 
     private function executarObservado(int $agendaCursoId, string $dataEsperada, ResumoExecucao $resumo): bool
@@ -45,6 +44,11 @@ class EnfileirarPendenciasCursoAction
                 || (filled($agenda->link_aula) && $agenda->materiaisTreinamento->isNotEmpty())) {
                 return false;
             }
+
+            $resumo->contexto([
+                'agenda_curso_id' => $agenda->getKey(),
+                'agenda_uid' => $agenda->uid,
+            ]);
 
             if (! Validator::make(
                 ['email' => self::DESTINATARIO_ADMINISTRATIVO],
@@ -79,7 +83,6 @@ class EnfileirarPendenciasCursoAction
                 'tipo' => 'pendencias',
                 'agenda_curso_id' => $agenda->getKey(),
                 'agenda_uid' => $agenda->uid,
-                'inscrito_id' => null,
                 'tentativa_id' => $tentativa,
             ]);
             $resumo->resultado('enfileirado');

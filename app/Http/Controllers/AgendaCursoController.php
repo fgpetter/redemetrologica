@@ -23,6 +23,7 @@ use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
@@ -94,6 +95,7 @@ class AgendaCursoController extends Controller
         if ($oldStatus !== 'REALIZADO' && $agendacurso->status === 'REALIZADO') {
             $resumo = new ResumoExecucao('curso.certificados_automaticos', ['agenda_uid' => $agendacurso->uid], 'mailsent');
             $resumo->executar(function ($resumo) use ($agendacurso): void {
+                $enfileirados = 0;
                 $falhas = 0;
                 $impedidos = 0;
 
@@ -103,16 +105,32 @@ class AgendaCursoController extends Controller
 
                 foreach ($inscritos as $index => $inscrito) {
                     if ($inscrito->is_pago && ! $inscrito->is_certificado_emitido) {
+                        $item = $resumo->item('EnviarCertificadoAction', [
+                            'tipo' => 'certificado_curso',
+                            'agenda_id' => $inscrito->agenda_curso_id,
+                            'agenda_uid' => $agendacurso->uid,
+                            'inscrito_id' => $inscrito->id,
+                            'inscrito_uid' => $inscrito->uid,
+                        ]);
+
                         try {
-                            app(EnviarCertificadoAction::class)->execute($inscrito, $index * 5, $resumo);
+                            Context::scope(fn () => app(EnviarCertificadoAction::class)->execute($inscrito, $index * 5, $item), $item->correlacao());
+                            $enfileirados++;
                         } catch (ValidationException $e) {
                             $resumo->incrementar('contatos_invalidos');
                             $impedidos++;
                         } catch (\Throwable $e) {
-                            report($e);
+                            $item->reportar($e);
                             $falhas++;
+                        } finally {
+                            $item->encerrar();
                         }
                     }
+                }
+
+                $resumo->incrementar('enfileirados', $enfileirados);
+                if ($enfileirados > 0) {
+                    $resumo->resultado('enfileirado');
                 }
 
                 if ($falhas > 0 || $impedidos > 0) {

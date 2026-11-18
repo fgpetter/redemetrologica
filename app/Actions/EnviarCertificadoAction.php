@@ -21,14 +21,15 @@ class EnviarCertificadoAction
      */
     public function execute(CursoInscrito $inscrito, int $delay = 0, ?ResumoExecucao $resumo = null): DadosGeraDoc
     {
-        if ($resumo !== null) {
-            return $this->executarObservado($inscrito, $delay, $resumo);
-        } else {
-            $resumo = new ResumoExecucao('EnviarCertificadoAction', [], 'mailsent');
-            $resumo->resultado('ignorado', 'inelegivel');
+        $resumo = ResumoExecucao::operacao($resumo, 'EnviarCertificadoAction', [
+            'tipo' => 'certificado_curso',
+            'agenda_id' => $inscrito->agenda_curso_id,
+            'inscrito_id' => $inscrito->id,
+            'inscrito_uid' => $inscrito->uid,
+        ], 'mailsent');
+        $resumo->resultado('ignorado', 'inelegivel');
 
-            return $resumo->executar(fn () => $this->executarObservado($inscrito, $delay, $resumo));
-        }
+        return $resumo->executar(fn () => $this->executarObservado($inscrito, $delay, $resumo));
     }
 
     private function executarObservado(CursoInscrito $inscrito, int $delay, ResumoExecucao $resumo): DadosGeraDoc
@@ -90,17 +91,28 @@ class EnviarCertificadoAction
 
     public function executePendente(int $inscritoId, ?ResumoExecucao $resumo = null): bool
     {
-        return DB::transaction(function () use ($inscritoId, $resumo): bool {
+        $resumo = ResumoExecucao::operacao($resumo, 'EnviarCertificadoAction', [
+            'tipo' => 'certificado_curso',
+            'inscrito_id' => $inscritoId,
+        ], 'mailsent');
+        $resumo->resultado('ignorado', 'inelegivel');
+
+        return $resumo->executar(fn () => DB::transaction(function () use ($inscritoId, $resumo): bool {
             $inscrito = CursoInscrito::certificadosPendentes()->lockForUpdate()->find($inscritoId);
 
             if (! $inscrito) {
                 return false;
             }
 
-            $this->execute($inscrito, resumo: $resumo);
+            $resumo->contexto([
+                'agenda_id' => $inscrito->agenda_curso_id,
+                'inscrito_uid' => $inscrito->uid,
+            ]);
+
+            $this->executarObservado($inscrito, 0, $resumo);
 
             return true;
-        });
+        }));
     }
 
     /**

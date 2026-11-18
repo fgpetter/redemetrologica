@@ -22,7 +22,9 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -378,6 +380,42 @@ it('isola a falha de uma agenda e continua até enfileirar outra', function () {
 
     expect(jobCurso(EnviarConferenciaCursoJob::class)->agendaCursoId)->toBe($segunda->id);
     $this->assertDatabaseCount('jobs', 1);
+});
+
+it('correlaciona a falha consumida de uma agenda sem contaminar a próxima', function () {
+    Mail::fake();
+    $this->travelTo(Carbon::parse('2026-11-14 06:00:00', 'America/Sao_Paulo'));
+    $primeira = agendaEmail('2026-11-16');
+    $segunda = agendaEmail('2026-11-16');
+
+    $this->app->instance(EnfileirarConferenciaCursoAction::class, new class($primeira->id) extends EnfileirarConferenciaCursoAction
+    {
+        public function __construct(private int $falhaId) {}
+
+        public function execute(int $agendaCursoId, string $dataEsperada, ?ResumoExecucao $resumo = null): bool
+        {
+            if ($agendaCursoId === $this->falhaId) {
+                throw new RuntimeException('Falha simulada');
+            }
+
+            return parent::execute($agendaCursoId, $dataEsperada, $resumo);
+        }
+    });
+
+    $correlacoes = [];
+    Exceptions::reportable(function (Throwable $exception) use (&$correlacoes): void {
+        $correlacoes[] = Context::all();
+    });
+
+    $this->artisan('cursos:emails-automaticos')->assertFailed();
+
+    expect(jobCurso(EnviarConferenciaCursoJob::class)->agendaCursoId)->toBe($segunda->id)
+        ->and($correlacoes)->toHaveCount(1)
+        ->and($correlacoes[0]['agenda_curso_id'])->toBe($primeira->id)
+        ->and($correlacoes[0]['execucao_pai_id'])->not->toBeNull()
+        ->and($correlacoes[0]['execucao_id'])->not->toBe($correlacoes[0]['execucao_pai_id'])
+        ->and($correlacoes[0])->not->toHaveKey('inscrito_id')
+        ->and(Context::all())->toBe([]);
 });
 
 it('exige envio manual aos participantes após o aviso de pendências', function () {

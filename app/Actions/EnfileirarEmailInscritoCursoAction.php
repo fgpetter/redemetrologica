@@ -17,14 +17,14 @@ class EnfileirarEmailInscritoCursoAction
 {
     public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada, ?ResumoExecucao $resumo = null): bool
     {
-        if ($resumo !== null) {
-            return $this->executarObservado($agendaCursoId, $inscritoId, $dataEsperada, $resumo);
-        } else {
-            $resumo = new ResumoExecucao('EnfileirarEmailInscritoCursoAction', [], 'mailsent');
-            $resumo->resultado('ignorado', 'inelegivel');
+        $resumo = ResumoExecucao::operacao($resumo, 'EnfileirarEmailInscritoCursoAction', [
+            'tipo' => 'participante',
+            'agenda_curso_id' => $agendaCursoId,
+            'inscrito_id' => $inscritoId,
+        ], 'mailsent');
+        $resumo->resultado('ignorado', 'inelegivel');
 
-            return $resumo->executar(fn () => $this->executarObservado($agendaCursoId, $inscritoId, $dataEsperada, $resumo));
-        }
+        return $resumo->executar(fn () => $this->executarObservado($agendaCursoId, $inscritoId, $dataEsperada, $resumo));
     }
 
     private function executarObservado(int $agendaCursoId, int $inscritoId, string $dataEsperada, ResumoExecucao $resumo): bool
@@ -57,6 +57,13 @@ class EnfileirarEmailInscritoCursoAction
                 || $inscrito->informacoes_envio_id !== null) {
                 return false;
             }
+
+            $resumo->contexto([
+                'agenda_curso_id' => $agenda->getKey(),
+                'agenda_uid' => $agenda->uid,
+                'inscrito_id' => $inscrito->getKey(),
+                'inscrito_uid' => $inscrito->uid,
+            ]);
 
             $email = trim((string) $inscrito->email);
 

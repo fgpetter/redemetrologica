@@ -19,14 +19,15 @@ class EnviarCertificadoInterlabAction
      */
     public function execute(InterlabInscrito $inscrito, ?string $email = null, int $delay = 0, ?ResumoExecucao $resumo = null): DadosGeraDoc
     {
-        if ($resumo !== null) {
-            return $this->executarObservado($inscrito, $email, $delay, $resumo);
-        } else {
-            $resumo = new ResumoExecucao('EnviarCertificadoInterlabAction', [], 'mailsent');
-            $resumo->resultado('ignorado', 'inelegivel');
+        $resumo = ResumoExecucao::operacao($resumo, 'EnviarCertificadoInterlabAction', [
+            'tipo' => 'certificado_interlab',
+            'agenda_id' => $inscrito->agenda_interlab_id,
+            'inscrito_id' => $inscrito->id,
+            'inscrito_uid' => $inscrito->uid,
+        ], 'mailsent');
+        $resumo->resultado('ignorado', 'inelegivel');
 
-            return $resumo->executar(fn () => $this->executarObservado($inscrito, $email, $delay, $resumo));
-        }
+        return $resumo->executar(fn () => $this->executarObservado($inscrito, $email, $delay, $resumo));
     }
 
     private function executarObservado(InterlabInscrito $inscrito, ?string $email, int $delay, ResumoExecucao $resumo): DadosGeraDoc

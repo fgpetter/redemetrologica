@@ -11,6 +11,7 @@ use App\Support\Observabilidade\ResumoExecucao;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -109,13 +110,17 @@ class EnviarEmailsAutomaticosCursos extends Command
             ->lazyById(100);
 
         foreach ($agendas as $agenda) {
+            $item = $resumo->item('cursos.emails_automaticos.conferencia', [
+                'tipo' => 'conferencia',
+                'agenda_curso_id' => $agenda->getKey(),
+                'agenda_uid' => $agenda->uid,
+            ]);
+
             if ($this->tentar(
-                fn (): bool => $action->execute($agenda->getKey(), $data, resumo: $resumo),
-                'conferencia',
-                $agenda->getKey(),
-                null,
-                $data,
+                fn (): bool => $action->execute($agenda->getKey(), $data, resumo: $item),
+                $item,
                 $falhou, resumo: $resumo)) {
+                $resumo->incrementar('enfileirados');
                 $this->info("Aviso de conferência da agenda {$agenda->getKey()} enfileirado.");
 
                 return true;
@@ -143,17 +148,21 @@ class EnviarEmailsAutomaticosCursos extends Command
             ->lazyById(100);
 
         foreach ($agendas as $agenda) {
-            if ($this->conciliarConfirmacao($agenda->getKey(), $falhou, resumo: $resumo)) {
+            if ($this->conciliarConfirmacao($agenda, $falhou, resumo: $resumo)) {
                 continue;
             }
 
+            $item = $resumo->item('cursos.emails_automaticos.pendencias', [
+                'tipo' => 'pendencias',
+                'agenda_curso_id' => $agenda->getKey(),
+                'agenda_uid' => $agenda->uid,
+            ]);
+
             if ($this->tentar(
-                fn (): bool => $action->execute($agenda->getKey(), $data, resumo: $resumo),
-                'pendencias',
-                $agenda->getKey(),
-                null,
-                $data,
+                fn (): bool => $action->execute($agenda->getKey(), $data, resumo: $item),
+                $item,
                 $falhou, resumo: $resumo)) {
+                $resumo->incrementar('enfileirados');
                 $this->info("Aviso de pendências da agenda {$agenda->getKey()} enfileirado.");
 
                 return true;
@@ -179,7 +188,7 @@ class EnviarEmailsAutomaticosCursos extends Command
             ->lazyById(100);
 
         foreach ($agendas as $agenda) {
-            if (! $this->conciliarConfirmacao($agenda->getKey(), $falhou, resumo: $resumo)) {
+            if (! $this->conciliarConfirmacao($agenda, $falhou, resumo: $resumo)) {
                 $cursor = null;
                 do {
                     $inscritos = $agenda->inscritos()
@@ -189,13 +198,19 @@ class EnviarEmailsAutomaticosCursos extends Command
                         ->cursorPaginate(100, ['*'], 'cursor', $cursor);
 
                     foreach ($inscritos as $inscrito) {
+                        $item = $resumo->item('cursos.emails_automaticos.participante', [
+                            'tipo' => 'participante',
+                            'agenda_curso_id' => $agenda->getKey(),
+                            'agenda_uid' => $agenda->uid,
+                            'inscrito_id' => $inscrito->getKey(),
+                            'inscrito_uid' => $inscrito->uid,
+                        ]);
+
                         if ($this->tentar(
-                            fn (): bool => $action->execute($agenda->getKey(), $inscrito->getKey(), $data, resumo: $resumo),
-                            'participante',
-                            $agenda->getKey(),
-                            $inscrito->getKey(),
-                            $data,
+                            fn (): bool => $action->execute($agenda->getKey(), $inscrito->getKey(), $data, resumo: $item),
+                            $item,
                             $falhou, resumo: $resumo)) {
+                            $resumo->incrementar('enfileirados');
                             $this->info("Informações da inscrição {$inscrito->getKey()} enfileiradas.");
 
                             return true;
@@ -209,56 +224,61 @@ class EnviarEmailsAutomaticosCursos extends Command
         return false;
     }
 
-    private function conciliarConfirmacao(int $agendaCursoId, bool &$falhou, ResumoExecucao $resumo): bool
+    private function conciliarConfirmacao(AgendaCursos $agenda, bool &$falhou, ResumoExecucao $resumo): bool
     {
+        $item = $resumo->item('cursos.emails_automaticos.confirmacao', [
+            'tipo' => 'confirmacao',
+            'agenda_curso_id' => $agenda->getKey(),
+            'agenda_uid' => $agenda->uid,
+        ]);
+
         try {
-            return DB::transaction(function () use ($agendaCursoId): bool {
-                $agenda = AgendaCursos::query()->lockForUpdate()->find($agendaCursoId);
+            $confirmada = Context::scope(fn (): bool => DB::transaction(function () use ($agenda, $item): bool {
+                $agenda = AgendaCursos::query()->lockForUpdate()->find($agenda->getKey());
 
                 if (! $agenda) {
                     return false;
                 }
 
+                $item->contexto(['agenda_uid' => $agenda->uid]);
                 $agenda->sincronizarConfirmacaoInformacoes();
 
                 return $agenda->informacoes_enviadas_em !== null;
-            });
+            }), $item->correlacao());
+
+            if (! $confirmada) {
+                $item->resultado('ignorado', 'sem_confirmacao');
+            }
+
+            return $confirmada;
         } catch (Throwable $exception) {
             $falhou = true;
-            $this->registrarFalha('confirmacao', $agendaCursoId, null, null, null, $exception, resumo: $resumo);
+            $this->registrarFalha($item, $resumo, $exception);
 
             return false;
+        } finally {
+            $item->encerrar();
         }
     }
 
-    private function tentar(
-        callable $acao,
-        string $tipo,
-        int $agendaCursoId,
-        ?int $inscritoId,
-        ?string $data,
-        bool &$falhou, ResumoExecucao $resumo): bool
+    private function tentar(callable $acao, ResumoExecucao $item, bool &$falhou, ResumoExecucao $resumo): bool
     {
         try {
-            return $acao();
+            return Context::scope($acao, $item->correlacao());
         } catch (Throwable $exception) {
             $falhou = true;
-            $this->registrarFalha($tipo, $agendaCursoId, $inscritoId, $data, null, $exception, resumo: $resumo);
+            $this->registrarFalha($item, $resumo, $exception);
 
             return false;
+        } finally {
+            $item->encerrar();
         }
     }
 
-    private function registrarFalha(
-        string $tipo,
-        int $agendaCursoId,
-        ?int $inscritoId,
-        ?string $data,
-        ?string $tentativaId,
-        Throwable $exception, ResumoExecucao $resumo): void
+    private function registrarFalha(ResumoExecucao $item, ResumoExecucao $resumo, Throwable $exception): void
     {
-        $resumo->contexto(['tipo' => $tipo, 'agenda_curso_id' => $agendaCursoId, 'inscrito_id' => $inscritoId, 'tentativa_id' => $tentativaId]);
-        report($exception);
+        $item->resultado('falha_definitiva', 'erro_tecnico');
+        $item->reportar($exception);
         $resumo->incrementar('falhas');
         $resumo->resultado('falha_definitiva', 'erro_tecnico');
     }

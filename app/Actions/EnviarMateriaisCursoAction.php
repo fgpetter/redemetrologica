@@ -13,15 +13,14 @@ class EnviarMateriaisCursoAction
 {
     public function execute(CursoInscrito $inscrito, ?ResumoExecucao $resumo = null): void
     {
-        if ($resumo !== null) {
-            $this->executarObservado($inscrito, $resumo);
+        $resumo = ResumoExecucao::operacao($resumo, 'EnviarMateriaisCursoAction', [
+            'agenda_curso_id' => $inscrito->agenda_curso_id,
+            'inscrito_id' => $inscrito->getKey(),
+            'inscrito_uid' => $inscrito->uid,
+        ], 'mailsent');
+        $resumo->resultado('ignorado', 'inelegivel');
 
-            return;
-        } else {
-            $resumo = new ResumoExecucao('EnviarMateriaisCursoAction', [], 'mailsent');
-            $resumo->resultado('ignorado', 'inelegivel');
-            $resumo->executar(fn () => $this->executarObservado($inscrito, $resumo));
-        }
+        $resumo->executar(fn () => $this->executarObservado($inscrito, $resumo));
     }
 
     private function executarObservado(CursoInscrito $inscrito, ResumoExecucao $resumo): void

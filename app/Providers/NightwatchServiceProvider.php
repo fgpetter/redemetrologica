@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Logging\ContextualIngest;
 use App\Support\NightwatchRedaction;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Log;
@@ -27,6 +28,12 @@ class NightwatchServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $core = app(Core::class);
+
+        if (! $core->ingest instanceof ContextualIngest) {
+            $core->ingest = new ContextualIngest($core->ingest);
+        }
+
         Nightwatch::user(fn (Authenticatable $user): array => ['id' => $user->uid ?? '', 'name' => '', 'username' => '']);
 
         Nightwatch::redactRequests(function (Request $request): void {

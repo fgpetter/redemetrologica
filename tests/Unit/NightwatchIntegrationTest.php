@@ -2,8 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Logging\ContextualIngest;
 use App\Logging\NightwatchLogger;
 use App\Support\NightwatchRedaction;
+use App\Support\Observabilidade\ResumoExecucao;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
@@ -167,5 +170,51 @@ class NightwatchIntegrationTest extends TestCase
         $this->assertStringNotContainsString('privada', json_encode($records));
         $this->assertStringNotContainsString('PDFSECRETO', json_encode($records));
         $this->assertArrayNotHasKey('email', $context);
+    }
+
+    public function test_exception_record_receives_only_the_scoped_item_correlation(): void
+    {
+        $records = [];
+        $sink = Mockery::mock(Ingest::class);
+        $sink->shouldReceive('write')->andReturnUsing(function (array $record) use (&$records): void {
+            $records[] = $record;
+        });
+        $ingest = new ContextualIngest($sink);
+        $principal = new ResumoExecucao('teste.lote', ['agenda_uid' => 'agenda-1']);
+        $item = $principal->item('teste.item', ['agenda_uid' => 'agenda-1', 'inscrito_id' => 7, 'tentativa_id' => 'tentativa-1']);
+
+        Context::flush();
+        $ingest->write(['t' => 'exception', 'message' => 'fora do escopo']);
+        Context::scope(fn () => $ingest->write(['t' => 'exception', 'message' => 'no escopo']), $item->correlacao());
+        Context::scope(fn () => $ingest->write(['t' => 'log', 'message' => 'log comum']), $item->correlacao());
+
+        $this->assertArrayNotHasKey('context', $records[0]);
+        $contexto = json_decode($records[1]['context'], true);
+        $this->assertSame('teste.item', $contexto['fluxo']);
+        $this->assertSame($item->correlacao()['execucao_id'], $contexto['execucao_id']);
+        $this->assertSame($principal->correlacao()['execucao_id'], $contexto['execucao_pai_id']);
+        $this->assertSame(7, $contexto['inscrito_id']);
+        $this->assertSame('tentativa-1', $contexto['tentativa_id']);
+        $this->assertSame('agenda-1', $contexto['agenda_uid']);
+        $this->assertArrayNotHasKey('context', $records[2]);
+        $this->assertSame([], Context::all());
+    }
+
+    public function test_scoped_context_is_restored_after_success_and_exception(): void
+    {
+        Context::flush();
+        Context::add('existente', 'mantido');
+        $item = (new ResumoExecucao('teste.lote'))->item('teste.item', ['inscrito_id' => 9]);
+
+        Context::scope(fn () => null, $item->correlacao());
+
+        try {
+            Context::scope(fn () => throw new RuntimeException('falha sintetica'), $item->correlacao());
+        } catch (RuntimeException) {
+            //
+        }
+
+        $this->assertSame(['existente' => 'mantido'], Context::all());
+        Context::flush();
     }
 }

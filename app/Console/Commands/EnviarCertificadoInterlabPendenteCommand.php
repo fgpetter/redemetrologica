@@ -7,6 +7,7 @@ use App\Models\InterlabInscrito;
 use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Mail;
 
 class EnviarCertificadoInterlabPendenteCommand extends Command
@@ -33,10 +34,23 @@ class EnviarCertificadoInterlabPendenteCommand extends Command
                 ->orderBy('data_inscricao')->orderBy('id')->lazy(100);
 
             foreach ($inscritos as $inscrito) {
-                if ($action->execute($inscrito->id, resumo: $resumo)) {
-                    $this->info("Certificado da inscrição {$inscrito->id} enfileirado.");
+                $item = $resumo->item('EnfileirarCertificadoInterlabPendenteAction', [
+                    'tipo' => 'certificado_interlab',
+                    'agenda_id' => $inscrito->agenda_interlab_id,
+                    'inscrito_id' => $inscrito->id,
+                    'inscrito_uid' => $inscrito->uid,
+                ]);
 
-                    return self::SUCCESS;
+                try {
+                    if (Context::scope(fn (): bool => $action->execute($inscrito->id, resumo: $item), $item->correlacao())) {
+                        $resumo->incrementar('enfileirados');
+                        $resumo->resultado('enfileirado');
+                        $this->info("Certificado da inscrição {$inscrito->id} enfileirado.");
+
+                        return self::SUCCESS;
+                    }
+                } finally {
+                    $item->encerrar();
                 }
             }
 

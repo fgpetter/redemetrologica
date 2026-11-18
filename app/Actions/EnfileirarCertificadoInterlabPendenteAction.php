@@ -17,14 +17,13 @@ class EnfileirarCertificadoInterlabPendenteAction
 {
     public function execute(int $inscritoId, ?ResumoExecucao $resumo = null): bool
     {
-        if ($resumo !== null) {
-            return $this->executarObservado($inscritoId, $resumo);
-        } else {
-            $resumo = new ResumoExecucao('EnfileirarCertificadoInterlabPendenteAction', [], 'mailsent');
-            $resumo->resultado('ignorado', 'inelegivel');
+        $resumo = ResumoExecucao::operacao($resumo, 'EnfileirarCertificadoInterlabPendenteAction', [
+            'tipo' => 'certificado_interlab',
+            'inscrito_id' => $inscritoId,
+        ], 'mailsent');
+        $resumo->resultado('ignorado', 'inelegivel');
 
-            return $resumo->executar(fn () => $this->executarObservado($inscritoId, $resumo));
-        }
+        return $resumo->executar(fn () => $this->executarObservado($inscritoId, $resumo));
     }
 
     private function executarObservado(int $inscritoId, ResumoExecucao $resumo): bool
@@ -38,6 +37,11 @@ class EnfileirarCertificadoInterlabPendenteAction
             if (! $inscrito) {
                 return false;
             }
+
+            $resumo->contexto([
+                'agenda_id' => $inscrito->agenda_interlab_id,
+                'inscrito_uid' => $inscrito->uid,
+            ]);
 
             $tecnico = trim($inscrito->email ?? '');
             $pessoa = trim($inscrito->pessoa?->email ?? '');
