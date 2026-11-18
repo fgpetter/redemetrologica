@@ -133,17 +133,22 @@
         :value="old('carga_horaria') ?? ($agendacurso->carga_horaria ?? null) ?? ($agendacurso->curso->carga_horaria ?? null)"/>
     </div>
 
-    <div class="col-sm-12">
-      <x-forms.input-select name="instrutor_id" label="Instrutor <span class='text-danger'>*</span>">
-        <option value="">Selecione um instrutor</option>
-        @if ($instrutoratual)
-          <option selected value="{{ $instrutoratual->id }}">{{ $instrutoratual->pessoa->nome_razao }}
-          </option>
-        @endif
-        @foreach ($instrutores as $instrutor)
-          <option value="{{ $instrutor->id }}">{{ $instrutor->pessoa->nome_razao }}</option>
-        @endforeach
-      </x-forms.input-select>
+    <div class="col-12">
+      <div class="row g-3">
+        <div class="col-12 {{ $agendacurso->exists ? 'col-sm' : '' }}">
+          <x-forms.input-select name="instrutor_id" label="Instrutor <span class='text-danger'>*</span>">
+            <option value="">Selecione um instrutor</option>
+            @if ($instrutoratual)
+              <option selected value="{{ $instrutoratual->id }}">{{ $instrutoratual->pessoa->nome_razao }}
+              </option>
+            @endif
+            @foreach ($instrutores as $instrutor)
+              <option value="{{ $instrutor->id }}">{{ $instrutor->pessoa->nome_razao }}</option>
+            @endforeach
+          </x-forms.input-select>
+        </div>
+        <x-painel.agendamento-cursos.fr98 :agendacurso="$agendacurso" />
+      </div>
     </div>
 
     <div class="col-sm-12">

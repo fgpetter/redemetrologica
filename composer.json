@@ -6,11 +6,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.4.1",
+        "ext-intl": "*",
         "dompdf/dompdf": "^3.1.6",
         "ezyang/htmlpurifier": "^4.19.1",
         "guzzlehttp/guzzle": "^8.3.1",
         "intervention/image-laravel": "^4.1.1",
-        "itsgoingd/clockwork": "^5.3.5",
         "laravel/framework": "^13.39.0",
         "laravel/nightwatch": "^1.30",
         "laravel/sanctum": "^4.3.3",
@@ -27,6 +27,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
+        "laravel/boost": "^2.10",
         "laravel/pint": "^1.32.1",
         "laravel/sail": "^1.69.0",
         "mockery/mockery": "^1.6.15",

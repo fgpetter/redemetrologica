@@ -288,7 +288,7 @@ it('processa certificados do mesmo lote com correlação por inscrito após falh
         'data_inicio' => '2026-11-15',
         'data_fim' => '2026-11-15',
         'horario' => '08:00',
-    ])->assertRedirect(route('agendamento-curso-index'));
+    ])->assertRedirect(route('agendamento-curso-insert', $agenda->uid));
 
     expect($correlacoes)->toHaveCount(1)
         ->and($correlacoes[0]['inscrito_id'])->toBe($falha->id)

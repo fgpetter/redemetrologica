@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\AtualizarAgendaCursoAction;
 use App\Actions\DeleteAgendaCursoAction;
 use App\Actions\DeleteMaterialTreinamentoAction;
+use App\Actions\EnfileirarFr98Action;
 use App\Actions\EnviarCertificadoAction;
 use App\Actions\UploadMaterialTreinamentoAction;
 use App\Exports\CursoInscritosExport;
@@ -78,7 +79,7 @@ class AgendaCursoController extends Controller
             return back()->with('agendamento-error', 'Houve um erro, tente novamente');
         }
 
-        return redirect()->route('agendamento-curso-index')
+        return redirect()->route('agendamento-curso-insert', $agendacurso->uid)
             ->with('success', 'Agendamento cadastrado com sucesso');
     }
 
@@ -140,7 +141,11 @@ class AgendaCursoController extends Controller
             });
         }
 
-        return redirect()->route('agendamento-curso-index')
+        if ($request->boolean('enviar_fr98')) {
+            return $this->enviarFr98($agendacurso, app(EnfileirarFr98Action::class));
+        }
+
+        return redirect()->route('agendamento-curso-insert', $agendacurso->uid)
             ->with('success', 'Agendamento atualizado com sucesso');
     }
 
@@ -159,6 +164,26 @@ class AgendaCursoController extends Controller
 
         return redirect()->route('agendamento-curso-index')
             ->with('warning', 'Agendamento removido com sucesso');
+    }
+
+    public function enviarFr98(AgendaCursos $agendacurso, EnfileirarFr98Action $action): RedirectResponse
+    {
+        $route = $agendacurso->tipo_agendamento === 'IN-COMPANY'
+            ? 'agendamento-curso-in-company-insert'
+            : 'agendamento-curso-insert';
+        $response = redirect()->route($route, $agendacurso->uid);
+
+        try {
+            $action->execute($agendacurso->getKey());
+        } catch (ValidationException $e) {
+            return $response->with('error', implode(' ', $e->validator->errors()->all()));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return $response->with('error', 'Não foi possível enviar, erro interno no sistema');
+        }
+
+        return $response->with('success', 'FR98 enfileirado com sucesso. Aguarde o processamento do envio.');
     }
 
     public function uploadMaterial(UploadMaterialTreinamentoRequest $request, AgendaCursos $agendaCurso): RedirectResponse
