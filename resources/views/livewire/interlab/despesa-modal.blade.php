@@ -22,6 +22,22 @@
                                 @enderror
                             </div>
 
+                            <div class="col-md-4">
+                                <label class="form-label">Data da compra</label>
+                                <input type="date" class="form-control" wire:model="dataCompra">
+                                @error('dataCompra') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" wire:model="tipo"><option value="">Selecione</option><option value="produto">Produto</option><option value="servico">Serviço</option></select>
+                                @error('tipo') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Especificação</label>
+                                <input type="text" class="form-control" wire:model="especificacao">
+                                @error('especificacao') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+
                             @foreach ($produtos as $index => $produto)
                                 <div class="col-12 border rounded p-3 mb-2" wire:key="produto-{{ $index }}">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -53,7 +69,7 @@
                                             &nbsp;&middot;&nbsp;<strong>Valor:</strong> {{ $produto['valor'] ? 'R$ ' . $produto['valor'] : '—' }}
                                             &nbsp;&middot;&nbsp;<strong>Total:</strong> {{ $totalCalc > 0 ? 'R$ ' . number_format($totalCalc, 2, ',', '.') : '—' }}<br>
                                             <strong>Validade:</strong> {{ $produto['validade'] ? \Carbon\Carbon::parse($produto['validade'])->format('d/m/Y') : '—' }}
-                                            &nbsp;&middot;&nbsp;<strong>Data Compra:</strong> {{ $produto['data_compra'] ? \Carbon\Carbon::parse($produto['data_compra'])->format('d/m/Y') : '—' }}
+                                            &nbsp;&middot;&nbsp;<strong>Nota fiscal:</strong> {{ ($produto['nota_fiscal'] ?? '') ?: '—' }}
                                         </div>
                                     @endif
                                 </div>
@@ -70,7 +86,7 @@
                                             <label for="avaliacao_custo" class="form-label">Custo</label>
                                             <select id="avaliacao_custo" class="form-select" wire:model="avaliacaoCusto">
                                                 <option value="">Não avaliar</option>
-                                                @for ($i = 0; $i <= 5; $i++)
+                                                @for ($i = 0; $i <= 10; $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
                                             </select>
@@ -79,7 +95,7 @@
                                             <label for="avaliacao_tempo" class="form-label">Tempo</label>
                                             <select id="avaliacao_tempo" class="form-select" wire:model="avaliacaoTempo">
                                                 <option value="">Não avaliar</option>
-                                                @for ($i = 0; $i <= 5; $i++)
+                                                @for ($i = 0; $i <= 10; $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
                                             </select>
@@ -88,7 +104,7 @@
                                             <label for="avaliacao_qualidade" class="form-label">Qualidade</label>
                                             <select id="avaliacao_qualidade" class="form-select" wire:model="avaliacaoQualidade">
                                                 <option value="">Não avaliar</option>
-                                                @for ($i = 0; $i <= 5; $i++)
+                                                @for ($i = 0; $i <= 10; $i++)
                                                     <option value="{{ $i }}">{{ $i }}</option>
                                                 @endfor
                                             </select>

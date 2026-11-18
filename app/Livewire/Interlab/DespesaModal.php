@@ -28,6 +28,12 @@ class DespesaModal extends Component
 
     public string $fornecedorId = '';
 
+    public string $dataCompra = '';
+
+    public string $tipo = '';
+
+    public string $especificacao = '';
+
     public ?int $editingIndex = 0;
 
     public string $avaliacaoCusto = '';
@@ -45,7 +51,7 @@ class DespesaModal extends Component
             'valor' => '',
             'lote' => '',
             'validade' => '',
-            'data_compra' => '',
+            'nota_fiscal' => '',
         ],
     ];
 
@@ -55,19 +61,22 @@ class DespesaModal extends Component
     }
 
     #[On('abrir-despesa-modal')]
-    public function abrirDespesaModal(?int $lancamentoId = null): void
+    public function abrirDespesaModal(?int $lancamentoId = null, ?int $fornecedorId = null): void
     {
         if ($lancamentoId !== null) {
             $this->abrirParaEditar($lancamentoId);
         } else {
-            $this->abrirParaCriar();
+            $this->abrirParaCriar($fornecedorId);
         }
     }
 
-    public function abrirParaCriar(): void
+    public function abrirParaCriar(?int $fornecedorId = null): void
     {
         $this->resetValidation();
-        $this->fornecedorId = '';
+        $this->fornecedorId = $fornecedorId === null ? '' : (string) $fornecedorId;
+        $this->dataCompra = '';
+        $this->tipo = '';
+        $this->especificacao = '';
         $this->lancamentoId = null;
         $this->editingIndex = 0;
         $this->avaliacaoCusto = '';
@@ -82,7 +91,7 @@ class DespesaModal extends Component
                 'valor' => '',
                 'lote' => '',
                 'validade' => '',
-                'data_compra' => '',
+                'nota_fiscal' => '',
             ],
         ];
         $this->showModal = true;
@@ -103,7 +112,11 @@ class DespesaModal extends Component
 
         $this->lancamentoId = $lancamento->id;
         $this->fornecedorId = (string) $lancamento->fornecedor_id;
+        $this->dataCompra = $lancamento->data_compra?->format('Y-m-d') ?? '';
+        $this->tipo = $lancamento->tipo ?? '';
+        $this->especificacao = $lancamento->especificacao ?? '';
         $this->produtos = $lancamento->itens->map(fn (InterlabDespesa $d) => [
+            'id' => $d->id,
             'material_servico' => $d->material_servico ?? '',
             'fabricante' => $d->fabricante ?? '',
             'cod_fabricante' => $d->cod_fabricante ?? '',
@@ -111,7 +124,7 @@ class DespesaModal extends Component
             'valor' => $d->valor !== null ? number_format($d->valor, 2, ',', '.') : '',
             'lote' => $d->lote ?? '',
             'validade' => $d->validade?->format('Y-m-d') ?? '',
-            'data_compra' => $d->data_compra?->format('Y-m-d') ?? '',
+            'nota_fiscal' => $d->nota_fiscal ?? '',
         ])->values()->toArray();
 
         if ($this->produtos === []) {
@@ -123,7 +136,7 @@ class DespesaModal extends Component
                 'valor' => '',
                 'lote' => '',
                 'validade' => '',
-                'data_compra' => '',
+                'nota_fiscal' => '',
             ]];
         }
 
@@ -151,7 +164,7 @@ class DespesaModal extends Component
             'valor' => '',
             'lote' => '',
             'validade' => '',
-            'data_compra' => '',
+            'nota_fiscal' => '',
         ];
         $this->editingIndex = count($this->produtos) - 1;
     }
@@ -172,7 +185,7 @@ class DespesaModal extends Component
 
     public function salvar(SalvarDespesaInterlabAction $salvarDespesa): void
     {
-        $dados = $this->validate($this->form->rules(), $this->form->messages());
+        $dados = $this->validate($this->form->rules($this->lancamentoId === null), $this->form->messages());
 
         $lancamento = $salvarDespesa->execute($this->agendaInterlabId, $this->lancamentoId, $dados);
 
