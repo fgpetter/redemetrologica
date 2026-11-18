@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\SuporteArquivo;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -17,32 +18,38 @@ class LimparUploadsSuporteCommand extends Command
 
     public function handle(): int
     {
-        $removidos = 0;
-        SuporteArquivo::withTrashed()->whereNull('demanda_id')->where('created_at', '<', now()->subDay())
-            ->chunkById(100, function ($arquivos) use (&$removidos): void {
-                foreach ($arquivos as $arquivo) {
-                    DB::transaction(function () use ($arquivo, &$removidos): void {
-                        $atual = SuporteArquivo::withTrashed()->whereNull('demanda_id')
-                            ->whereKey($arquivo->id)->lockForUpdate()->first();
-                        if (! $atual) {
-                            return;
-                        }
-                        $disk = Storage::disk('local');
-                        if ($disk->exists($atual->caminho) && ! $disk->delete($atual->caminho)) {
-                            throw new RuntimeException('Não foi possível remover um upload temporário do suporte.');
-                        }
-                        $atual->forceDelete();
-                        $removidos++;
-                    });
-                }
-            });
-        $this->info("Uploads temporários removidos: {$removidos}.");
-        $this->limparPastasTemporariasCkeditor();
+        $resumo = new ResumoExecucao('LimparUploadsSuporteCommand', [], 'stack');
 
-        return self::SUCCESS;
+        return $resumo->executar(function (ResumoExecucao $resumo): int {
+
+            $removidos = 0;
+            SuporteArquivo::withTrashed()->whereNull('demanda_id')->where('created_at', '<', now()->subDay())
+                ->chunkById(100, function ($arquivos) use (&$removidos): void {
+                    foreach ($arquivos as $arquivo) {
+                        DB::transaction(function () use ($arquivo, &$removidos): void {
+                            $atual = SuporteArquivo::withTrashed()->whereNull('demanda_id')
+                                ->whereKey($arquivo->id)->lockForUpdate()->first();
+                            if (! $atual) {
+                                return;
+                            }
+                            $disk = Storage::disk('local');
+                            if ($disk->exists($atual->caminho) && ! $disk->delete($atual->caminho)) {
+                                throw new RuntimeException('Não foi possível remover um upload temporário do suporte.');
+                            }
+                            $atual->forceDelete();
+                            $removidos++;
+                        });
+                    }
+                });
+            $resumo->incrementar('removidos', (int) $removidos);
+            $this->info("Uploads temporários removidos: {$removidos}.");
+            $this->limparPastasTemporariasCkeditor($resumo);
+
+            return self::SUCCESS;
+        });
     }
 
-    private function limparPastasTemporariasCkeditor(): void
+    private function limparPastasTemporariasCkeditor(ResumoExecucao $resumo): void
     {
         $limite = now()->subDay()->getTimestamp();
         $removidas = 0;
@@ -65,6 +72,7 @@ class LimparUploadsSuporteCommand extends Command
             $removidas++;
         }
 
+        $resumo->incrementar('removidas', (int) $removidas);
         $this->info("Pastas temporárias do CKEditor removidas: {$removidas}.");
     }
 }

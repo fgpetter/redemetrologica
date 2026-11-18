@@ -9,6 +9,7 @@ use App\Integrations\Correios\CorreiosLog;
 use App\Integrations\Correios\CorreiosPrazoClient;
 use App\Models\InterlabLotePostagem;
 use App\Models\InterlabLotePostagemItem;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
@@ -23,7 +24,7 @@ class ClassificarServicoItensLotePostagemCorreiosAction
         private EncerrarInterlabLotePostagemComErroAction $encerrar,
     ) {}
 
-    public function execute(InterlabLotePostagem $lote, int $tentativa = 1): ClassificacaoServicoResultado
+    public function execute(InterlabLotePostagem $lote, int $tentativa = 1, ?ResumoExecucao $resumo = null): ClassificacaoServicoResultado
     {
         $lote->refresh();
 
@@ -89,7 +90,7 @@ class ClassificarServicoItensLotePostagemCorreiosAction
         ]);
 
         foreach ($pendentes->chunk(CorreiosPrazoClient::TAMANHO_LOTE) as $grupo) {
-            $resultado = $this->consultarGrupo($lote, $grupo->values(), max(1, $tentativa));
+            $resultado = $resumo ? $resumo->etapa('consultar_classificar', fn () => $this->consultarGrupo($lote, $grupo->values(), max(1, $tentativa))) : $this->consultarGrupo($lote, $grupo->values(), max(1, $tentativa));
 
             if ($resultado->estaFalhou() || $resultado->deveRetentar()) {
                 return $resultado;

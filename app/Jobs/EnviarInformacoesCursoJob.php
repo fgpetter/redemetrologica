@@ -6,6 +6,7 @@ use App\Actions\CoordenarCacheEmailsCursos;
 use App\Mail\InformacoesTreinamentoMail;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -37,51 +38,57 @@ class EnviarInformacoesCursoJob implements ShouldQueue
 
     public function handle(): void
     {
-        $enviado = DB::transaction(function (): bool {
-            $agenda = AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId);
+        $resumo = new ResumoExecucao('EnviarInformacoesCursoJob', ['agenda_curso_id' => $this->agendaCursoId, 'inscrito_id' => $this->inscritoId, 'tentativa_id' => $this->tentativaId, 'tentativa' => $this->attempts()], 'mailsent');
+        $resumo->executar(function (ResumoExecucao $resumo): void {
+            $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $inscrito = CursoInscrito::query()
-                ->whereKey($this->inscritoId)
-                ->lockForUpdate()
-                ->first();
+            $enviado = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): bool {
+                $agenda = AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId);
 
-            if (! $inscrito || $inscrito->informacoes_envio_id !== $this->tentativaId) {
-                return false;
+                $inscrito = CursoInscrito::query()
+                    ->whereKey($this->inscritoId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $inscrito || $inscrito->informacoes_envio_id !== $this->tentativaId) {
+                    return false;
+                }
+
+                if (! $agenda
+                    || $inscrito->agenda_curso_id !== $agenda->getKey()
+                    || $agenda->informacoes_enviadas_em !== null
+                    || $inscrito->informacoes_enviadas_em !== null
+                    || ! $this->elegivel($agenda)) {
+                    $resumo->etapa('confirmar_estado', fn () => $inscrito->update(['informacoes_envio_id' => null]));
+
+                    return false;
+                }
+
+                $this->validarDestinatario();
+
+                $resumo->etapa('enviar', fn () => Mail::to($this->snapshot['destinatario'])
+                    ->sendNow(new InformacoesTreinamentoMail($this->snapshot)));
+
+                $resumo->etapa('confirmar_estado', fn () => $inscrito->update([
+                    'informacoes_enviadas_em' => now('America/Sao_Paulo'),
+                    'informacoes_envio_id' => null,
+                ]));
+
+                $agenda->sincronizarConfirmacaoInformacoes();
+
+                return true;
+            }));
+
+            if ($enviado) {
+                $resumo->contexto([
+                    'tipo' => 'participante',
+                    'agenda_curso_id' => $this->agendaCursoId,
+                    'inscrito_id' => $this->inscritoId,
+                    'tentativa_id' => $this->tentativaId,
+                ]);
+                $resumo->resultado('aceito_transporte');
             }
-
-            if (! $agenda
-                || $inscrito->agenda_curso_id !== $agenda->getKey()
-                || $agenda->informacoes_enviadas_em !== null
-                || $inscrito->informacoes_enviadas_em !== null
-                || ! $this->elegivel($agenda)) {
-                $inscrito->update(['informacoes_envio_id' => null]);
-
-                return false;
-            }
-
-            $this->validarDestinatario();
-
-            Mail::to($this->snapshot['destinatario'])
-                ->sendNow(new InformacoesTreinamentoMail($this->snapshot));
-
-            $inscrito->update([
-                'informacoes_enviadas_em' => now('America/Sao_Paulo'),
-                'informacoes_envio_id' => null,
-            ]);
-
-            $agenda->sincronizarConfirmacaoInformacoes();
-
-            return true;
-        });
-
-        if ($enviado) {
-            Log::channel('mailsent')->info('E-mail automático de informações de curso aceito pelo serviço de e-mail.', [
-                'tipo' => 'participante',
-                'agenda_curso_id' => $this->agendaCursoId,
-                'inscrito_id' => $this->inscritoId,
-                'tentativa_id' => $this->tentativaId,
-            ]);
-        }
+        }, job: true);
     }
 
     public function failed(?Throwable $exception): void
@@ -113,7 +120,8 @@ class EnviarInformacoesCursoJob implements ShouldQueue
             'inscrito_id' => $this->inscritoId,
             'tentativa_id' => $this->tentativaId,
             'pendencia_liberada' => $vigente,
-            'exception' => $exception,
+            'evento' => 'comunicacao.falha_definitiva',
+            'resultado' => 'falha_definitiva',
         ]);
     }
 

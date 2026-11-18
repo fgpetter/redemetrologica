@@ -268,6 +268,7 @@ class ListParticipantesTest extends TestCase
         $this->actingAs($this->createFuncionarioUser());
         Log::spy();
         Log::shouldReceive('channel')->with('validation')->andReturnSelf();
+        Log::shouldReceive('channel')->with('mailsent')->andReturnSelf();
 
         Livewire::test(ListParticipantes::class, ['agendacurso' => $agenda])
             ->call('enviarMateriais', $inscrito->uid)

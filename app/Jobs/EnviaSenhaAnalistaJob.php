@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Mail\LinkSenhaAnalistaNotification;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabAnalista;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,31 +33,35 @@ class EnviaSenhaAnalistaJob implements ShouldQueue
 
     public function handle(): void
     {
-        $dadosDoc = DadosGeraDoc::query()->find($this->dadosGeraDocId);
+        $resumo = new ResumoExecucao('EnviaSenhaAnalistaJob', ['analista_id' => $this->analistaId, 'documento_id' => $this->dadosGeraDocId, 'tentativa' => $this->attempts()], 'mailsent');
+        $resumo->executar(function (ResumoExecucao $resumo): void {
+            $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-        if (! $dadosDoc) {
-            Log::warning('EnviaSenhaAnalistaJob: DadosGeraDoc não encontrado.', [
-                'dados_gera_doc_id' => $this->dadosGeraDocId,
-                'analista_id' => $this->analistaId,
-            ]);
+            $dadosDoc = DadosGeraDoc::query()->find($this->dadosGeraDocId);
 
-            return;
-        }
+            if (! $dadosDoc) {
+                $resumo->resultado('impedido', 'documento_ausente');
 
-        Mail::to($this->destinatarios)
-            ->cc('sistema@redemetrologica.com.br')
-            ->sendNow(new LinkSenhaAnalistaNotification($dadosDoc));
+                return;
+            }
 
-        InterlabAnalista::query()
-            ->whereKey($this->analistaId)
-            ->update(['senha_enviada' => now()]);
+            $resumo->etapa('enviar', fn () => Mail::to($this->destinatarios)
+                ->cc('sistema@redemetrologica.com.br')
+                ->sendNow(new LinkSenhaAnalistaNotification($dadosDoc)));
+
+            InterlabAnalista::query()
+                ->whereKey($this->analistaId)
+                ->update(['senha_enviada' => now()]);
+            $resumo->resultado('aceito_transporte');
+        }, job: true);
     }
 
     public function failed(\Throwable $exception): void
     {
         Log::error('Falha ao enviar senha de analista ID: '.$this->analistaId, [
             'dados_gera_doc_id' => $this->dadosGeraDocId,
-            'error' => $exception->getMessage(),
+            'evento' => 'cartas_senha.falha_definitiva',
+            'resultado' => 'falha_definitiva',
         ]);
     }
 }

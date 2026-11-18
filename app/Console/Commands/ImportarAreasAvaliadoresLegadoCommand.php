@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\OperacaoImpedidaException;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use RuntimeException;
 
 class ImportarAreasAvaliadoresLegadoCommand extends Command
 {
@@ -16,88 +17,110 @@ class ImportarAreasAvaliadoresLegadoCommand extends Command
 
     public function handle(): int
     {
-        try {
-            $plano = $this->planejar();
-        } catch (\Throwable $exception) {
-            $this->error($exception->getMessage());
+        $resumo = new ResumoExecucao('ImportarAreasAvaliadoresLegadoCommand', [], 'stack');
 
-            return self::FAILURE;
-        }
+        $resumo->contexto(['simulacao' => ! $this->option('apply')]);
 
-        $snapshot = $this->hash($plano);
-        $this->table(
-            ['Origem pessoa', 'Avaliador', 'Área', 'Data', 'Situação', 'Ação', 'Detalhes'],
-            array_map(fn (array $item): array => [
-                $item['origem_id'],
-                $item['avaliador_id'] ?? '-',
-                $item['area_id'] ?? '-',
-                $item['data_cadastro'] ?? '-',
-                $item['situacao'] ?? '-',
-                $item['acao'],
-                $item['detalhes'],
-            ], $plano['itens']),
-        );
-        $this->line("Snapshot: {$snapshot}");
-        $this->line('A importar: '.count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'IMPORTAR')).'; preservados: '.count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')).'; revisar: '.count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')).'; extras no destino: '.count($plano['extras']).'.');
-        $idsRevisao = array_column(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR'), 'origem_id');
-        if ($idsRevisao !== []) {
-            $this->line('IDs de origem para revisão: '.implode(', ', $idsRevisao));
-        }
-        if ($plano['extras'] !== []) {
-            $this->line('IDs extras no destino: '.implode(', ', $plano['extras']));
-        }
+        return $resumo->executar(function (ResumoExecucao $resumo): int {
 
-        if (! $this->option('apply')) {
-            $this->info('Simulação concluída; nenhuma alteração foi persistida.');
+            try {
+                $plano = $this->planejar();
+            } catch (\Throwable $exception) {
+                if (! $exception instanceof OperacaoImpedidaException) {
+                    report($exception);
+                }
+                $this->error($exception->getMessage());
+
+                $resumo->resultado($exception instanceof OperacaoImpedidaException ? 'impedido' : 'falha_definitiva', $exception instanceof OperacaoImpedidaException ? $exception->motivo : 'erro_tecnico');
+
+                return self::FAILURE;
+            }
+
+            $resumo->incrementar('candidatos', count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'IMPORTAR')));
+            $resumo->incrementar('preservados', count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')));
+            $resumo->incrementar('revisar', count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')));
+            $snapshot = $this->hash($plano);
+            $this->table(
+                ['Origem pessoa', 'Avaliador', 'Área', 'Data', 'Situação', 'Ação', 'Detalhes'],
+                array_map(fn (array $item): array => [
+                    $item['origem_id'],
+                    $item['avaliador_id'] ?? '-',
+                    $item['area_id'] ?? '-',
+                    $item['data_cadastro'] ?? '-',
+                    $item['situacao'] ?? '-',
+                    $item['acao'],
+                    $item['detalhes'],
+                ], $plano['itens']),
+            );
+            $this->line("Snapshot: {$snapshot}");
+            $this->line('A importar: '.count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'IMPORTAR')).'; preservados: '.count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')).'; revisar: '.count(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')).'; extras no destino: '.count($plano['extras']).'.');
+            $idsRevisao = array_column(array_filter($plano['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR'), 'origem_id');
+            if ($idsRevisao !== []) {
+                $this->line('IDs de origem para revisão: '.implode(', ', $idsRevisao));
+            }
+            if ($plano['extras'] !== []) {
+                $this->line('IDs extras no destino: '.implode(', ', $plano['extras']));
+            }
+
+            if (! $this->option('apply')) {
+                $this->info('Simulação concluída; nenhuma alteração foi persistida.');
+
+                return self::SUCCESS;
+            }
+
+            $snapshotInformado = $this->option('snapshot');
+            if (! is_string($snapshotInformado) || preg_match('/^[a-f0-9]{64}$/', $snapshotInformado) !== 1) {
+                $this->error('Snapshot ausente ou inválido. Rode novamente a simulação e informe o hash apresentado.');
+
+                $resumo->resultado('impedido', 'snapshot_invalido');
+
+                return self::FAILURE;
+            }
+
+            try {
+                $idsInseridos = DB::transaction(function () use ($snapshotInformado): array {
+                    $planoAtual = $this->planejar();
+                    if (! hash_equals($snapshotInformado, $this->hash($planoAtual))) {
+                        throw new OperacaoImpedidaException('snapshot_divergente', 'Os dados mudaram desde a simulação; nenhuma alteração foi aplicada.');
+                    }
+                    if ($planoAtual['extras'] !== []) {
+                        throw new OperacaoImpedidaException('destino_divergente', 'Há vínculos no destino sem correspondência na origem; aplicação cancelada.');
+                    }
+
+                    $ids = [];
+                    foreach ($planoAtual['itens'] as $item) {
+                        if ($item['acao'] !== 'IMPORTAR') {
+                            continue;
+                        }
+                        $ids[] = DB::table('avaliador_areas')->insertGetId([
+                            'uid' => uniqid(),
+                            'avaliador_id' => $item['avaliador_id'],
+                            'area_id' => $item['area_id'],
+                            'data_cadastro' => $item['data_cadastro'],
+                            'situacao' => $item['situacao'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    return $ids;
+                });
+            } catch (\Throwable $exception) {
+                if (! $exception instanceof OperacaoImpedidaException) {
+                    report($exception);
+                }
+                $this->error($exception->getMessage());
+
+                $resumo->resultado($exception instanceof OperacaoImpedidaException ? 'impedido' : 'falha_definitiva', $exception instanceof OperacaoImpedidaException ? $exception->motivo : 'erro_tecnico');
+
+                return self::FAILURE;
+            }
+
+            $this->line('IDs inseridos: '.($idsInseridos === [] ? 'nenhum' : implode(', ', $idsInseridos)));
+            $this->info('Importação concluída.');
 
             return self::SUCCESS;
-        }
-
-        $snapshotInformado = $this->option('snapshot');
-        if (! is_string($snapshotInformado) || preg_match('/^[a-f0-9]{64}$/', $snapshotInformado) !== 1) {
-            $this->error('Snapshot ausente ou inválido. Rode novamente a simulação e informe o hash apresentado.');
-
-            return self::FAILURE;
-        }
-
-        try {
-            $idsInseridos = DB::transaction(function () use ($snapshotInformado): array {
-                $planoAtual = $this->planejar();
-                if (! hash_equals($snapshotInformado, $this->hash($planoAtual))) {
-                    throw new RuntimeException('Os dados mudaram desde a simulação; nenhuma alteração foi aplicada.');
-                }
-                if ($planoAtual['extras'] !== []) {
-                    throw new RuntimeException('Há vínculos no destino sem correspondência na origem; aplicação cancelada.');
-                }
-
-                $ids = [];
-                foreach ($planoAtual['itens'] as $item) {
-                    if ($item['acao'] !== 'IMPORTAR') {
-                        continue;
-                    }
-                    $ids[] = DB::table('avaliador_areas')->insertGetId([
-                        'uid' => uniqid(),
-                        'avaliador_id' => $item['avaliador_id'],
-                        'area_id' => $item['area_id'],
-                        'data_cadastro' => $item['data_cadastro'],
-                        'situacao' => $item['situacao'],
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-
-                return $ids;
-            });
-        } catch (\Throwable $exception) {
-            $this->error($exception->getMessage());
-
-            return self::FAILURE;
-        }
-
-        $this->line('IDs inseridos: '.($idsInseridos === [] ? 'nenhum' : implode(', ', $idsInseridos)));
-        $this->info('Importação concluída.');
-
-        return self::SUCCESS;
+        });
     }
 
     /** @return array{itens: list<array{origem_id: int, cpf: string, avaliador_id: int|null, area_id: int|null, data_cadastro: string|null, situacao: string|null, acao: string, detalhes: string}>, extras: list<int>} */
@@ -107,7 +130,7 @@ class ImportarAreasAvaliadoresLegadoCommand extends Command
         $schemaLegado = Schema::connection($legado->getName());
         foreach (['cad_pessoas', 'pessoas_tipo_pessoas', 'pessoas_areas_atuacao', 'areas_atuacao'] as $tabela) {
             if (! $schemaLegado->hasTable($tabela)) {
-                throw new RuntimeException("Tabela legada ausente: {$tabela}.");
+                throw new OperacaoImpedidaException('tabela_ausente', "Tabela legada ausente: {$tabela}.");
             }
         }
 
@@ -238,7 +261,7 @@ class ImportarAreasAvaliadoresLegadoCommand extends Command
     {
         foreach ($necessarias as $coluna) {
             if (! in_array($coluna, $colunas, true)) {
-                throw new RuntimeException("Coluna legada ausente: {$tabela}.{$coluna}.");
+                throw new OperacaoImpedidaException('coluna_ausente', "Coluna legada ausente: {$tabela}.{$coluna}.");
             }
         }
     }

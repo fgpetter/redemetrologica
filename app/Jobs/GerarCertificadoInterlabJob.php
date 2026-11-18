@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Mail\CertificadoInterlabMail;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -26,20 +27,26 @@ class GerarCertificadoInterlabJob implements ShouldQueue
 
     public function handle(): void
     {
-        $dadosDoc = DadosGeraDoc::findOrFail($this->dadosDocId);
-        $email = trim((string) ($dadosDoc->content['laboratorio_email'] ?? ''));
-        Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->validate();
+        $resumo = new ResumoExecucao('GerarCertificadoInterlabJob', ['documento_id' => $this->dadosDocId, 'tentativa' => $this->attempts()], 'mailsent');
+        $resumo->executar(function (ResumoExecucao $resumo): void {
+            $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-        Mail::to($email)->sendNow(new CertificadoInterlabMail($dadosDoc));
+            $dadosDoc = DadosGeraDoc::findOrFail($this->dadosDocId);
+            $email = trim((string) ($dadosDoc->content['laboratorio_email'] ?? ''));
+            Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->validate();
 
-        $inscrito = InterlabInscrito::query()->find($dadosDoc->content['participante_id'] ?? null);
+            $resumo->etapa('enviar', fn () => Mail::to($email)->sendNow(new CertificadoInterlabMail($dadosDoc)));
 
-        Log::channel('mailsent')->info('Certificado Interlab aceito pelo serviço de e-mail.', [
-            'tipo' => 'certificado_interlab',
-            'agenda_id' => $inscrito?->agenda_interlab_id,
-            'inscrito_id' => $inscrito?->id,
-            'documento_id' => $dadosDoc->id,
-        ]);
+            $inscrito = InterlabInscrito::query()->find($dadosDoc->content['participante_id'] ?? null);
+
+            $resumo->contexto([
+                'tipo' => 'certificado_interlab',
+                'agenda_id' => $inscrito?->agenda_interlab_id,
+                'inscrito_id' => $inscrito?->id,
+                'documento_id' => $dadosDoc->id,
+            ]);
+            $resumo->resultado('aceito_transporte');
+        }, job: true);
     }
 
     public function failed(?Throwable $exception): void
@@ -52,7 +59,8 @@ class GerarCertificadoInterlabJob implements ShouldQueue
             'agenda_id' => $inscrito?->agenda_interlab_id,
             'inscrito_id' => $inscrito?->id ?? $dadosDoc?->content['participante_id'] ?? null,
             'documento_id' => $this->dadosDocId,
-            'exception' => $exception,
+            'evento' => 'comunicacao.falha_definitiva',
+            'resultado' => 'falha_definitiva',
         ]);
     }
 }

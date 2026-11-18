@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\SimulacaoConcluidaException;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
+use App\Support\Observabilidade\ContextoOperacional;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -27,36 +30,46 @@ class BackfillCursoInscritoLancamentosCommand extends Command
 
     public function handle(): int
     {
-        $dryRun = (bool) $this->option('dry-run');
-        $this->logPath = storage_path('logs/inconsistencias-cursos-lancamentos.log');
+        $resumo = new ResumoExecucao('curso.backfill_lancamentos', ['simulacao' => (bool) $this->option('dry-run')]);
 
-        // Auditoria de lançamentos duplicados — apenas leitura, independente de dry-run
-        $this->auditarLancamentosDuplicados();
+        return $resumo->executar(function ($resumo): int {
+            $this->inconsistencias = [];
+            $this->efetivadosRegistrados = [];
+            $dryRun = (bool) $this->option('dry-run');
+            $this->logPath = storage_path('logs/inconsistencias-cursos-lancamentos.log');
 
-        if ($dryRun) {
-            $this->warn('Modo --dry-run: vínculos serão revertidos ao final (transação de simulação).');
-            try {
+            // Auditoria de lançamentos duplicados — apenas leitura, independente de dry-run
+            $this->auditarLancamentosDuplicados();
+
+            if ($dryRun) {
+                $this->warn('Modo --dry-run: vínculos serão revertidos ao final (transação de simulação).');
+                try {
+                    DB::transaction(function (): void {
+                        $this->vincularInscritosOrfaos();
+                        throw new SimulacaoConcluidaException;
+                    });
+                } catch (SimulacaoConcluidaException) {
+                    // Rollback deliberado, sem report de exceção.
+                }
+                $this->info('Dry-run concluído (nada persistido).');
+            } else {
                 DB::transaction(function (): void {
                     $this->vincularInscritosOrfaos();
-                    throw new \RuntimeException('__rollback_dry_run__');
                 });
-            } catch (\RuntimeException $e) {
-                if ($e->getMessage() !== '__rollback_dry_run__') {
-                    throw $e;
-                }
+                $this->info('Vínculos aplicados com sucesso.');
             }
-            $this->info('Dry-run concluído (nada persistido).');
-        } else {
-            DB::transaction(function (): void {
-                $this->vincularInscritosOrfaos();
-            });
-            $this->info('Vínculos aplicados com sucesso.');
-        }
 
-        $this->salvarLog();
-        $this->info("Inconsistências registradas em: {$this->logPath}");
+            foreach ($this->inconsistencias as $inconsistencia) {
+                $resumo->incrementar($inconsistencia['tipo']);
+            }
+            if ($this->inconsistencias !== []) {
+                $resumo->resultado('impedido', 'revisao_manual');
+            }
+            $this->salvarLog();
+            $this->info("Inconsistências registradas em: {$this->logPath}");
 
-        return self::SUCCESS;
+            return self::SUCCESS;
+        });
     }
 
     /**
@@ -296,7 +309,7 @@ class BackfillCursoInscritoLancamentosCommand extends Command
     /** @param array<string, mixed> $dados */
     private function adicionarInconsistencia(string $tipo, array $dados): void
     {
-        $this->inconsistencias[] = ['tipo' => $tipo, 'dados' => $dados];
+        $this->inconsistencias[] = ['tipo' => $tipo, 'dados' => ContextoOperacional::selecionar($dados)];
     }
 
     private function salvarLog(): void

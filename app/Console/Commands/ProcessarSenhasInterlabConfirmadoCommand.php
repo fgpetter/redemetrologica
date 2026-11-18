@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use App\Actions\CriarEnviarSenhaAnalistaAction;
 use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class ProcessarSenhasInterlabConfirmadoCommand extends Command
 {
@@ -29,65 +29,73 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
      */
     public function handle(): int
     {
-        $inscritos = InterlabInscrito::query()
-            ->whereHas('agendaInterlab', fn ($query) => $query->where('status', 'CONFIRMADO'))
-            ->with(['agendaInterlab.interlab', 'analistas', 'laboratorio', 'empresa', 'pessoa'])
-            ->orderBy('id')
-            ->get();
+        $resumo = new ResumoExecucao('ProcessarSenhasInterlabConfirmadoCommand', [], 'stack');
 
-        if ($inscritos->isEmpty()) {
-            $this->info('Nenhum inscrito elegível encontrado.');
+        return $resumo->executar(function (ResumoExecucao $resumo): int {
 
-            return self::SUCCESS;
-        }
+            $inscritos = InterlabInscrito::query()
+                ->whereHas('agendaInterlab', fn ($query) => $query->where('status', 'CONFIRMADO'))
+                ->with(['agendaInterlab.interlab', 'analistas', 'laboratorio', 'empresa', 'pessoa'])
+                ->orderBy('id')
+                ->get();
 
-        $enfileirados = 0;
-        $pulados = 0;
-        $index = 0;
+            if ($inscritos->isEmpty()) {
+                $this->info('Nenhum inscrito elegível encontrado.');
 
-        foreach ($inscritos as $inscrito) {
-            $interlab = $inscrito->agendaInterlab?->interlab;
-
-            if (empty($interlab?->tag)) {
-                Log::warning('ProcessarSenhasInterlabConfirmado: interlab sem tag, envio ignorado.', [
-                    'inscrito_id' => $inscrito->id,
-                    'agenda_interlab_id' => $inscrito->agenda_interlab_id,
-                ]);
-                $this->warn("Inscrito {$inscrito->id} ignorado: interlab sem tag.");
-                $pulados++;
-
-                continue;
+                return self::SUCCESS;
             }
 
-            if (($interlab->avaliacao ?? null) === 'ANALISTA') {
-                foreach ($inscrito->analistas as $analista) {
-                    if ($analista->senha_enviada !== null) {
-                        continue;
-                    }
+            $enfileirados = 0;
+            $pulados = 0;
+            $index = 0;
 
-                    $index++;
-                    app(CriarEnviarSenhaAnalistaAction::class)->execute(
-                        $inscrito,
-                        $analista,
-                        $index * 15,
-                    );
-                    $enfileirados++;
+            foreach ($inscritos as $inscrito) {
+                $interlab = $inscrito->agendaInterlab?->interlab;
+
+                if (empty($interlab?->tag)) {
+                    $resumo->incrementar('interlabs_sem_tag');
+                    $resumo->resultado('impedido', 'interlab_sem_tag');
+                    $this->warn("Inscrito {$inscrito->id} ignorado: interlab sem tag.");
+                    $pulados++;
+
+                    continue;
                 }
 
-                continue;
+                if (($interlab->avaliacao ?? null) === 'ANALISTA') {
+                    foreach ($inscrito->analistas as $analista) {
+                        if ($analista->senha_enviada !== null) {
+                            continue;
+                        }
+
+                        $index++;
+                        app(CriarEnviarSenhaAnalistaAction::class)->execute(
+                            $inscrito,
+                            $analista,
+                            $index * 15,
+                        );
+                        $enfileirados++;
+                    }
+
+                    continue;
+                }
+
+                if ($inscrito->senha_enviada !== null) {
+                    continue;
+                }
+
+                $index++;
+                app(CriarEnviarSenhaLaboratorioAction::class)->execute($inscrito, $index * 15);
+                $enfileirados++;
             }
 
-            if ($inscrito->senha_enviada !== null) {
-                continue;
+            if ($pulados === 0) {
+                $resumo->resultado($enfileirados > 0 ? 'enfileirado' : 'ignorado');
             }
+            $resumo->incrementar('enfileirados', (int) $enfileirados);
+            $resumo->incrementar('pulados', (int) $pulados);
+            $this->info("Enfileirados {$enfileirados} envio(s). Ignorados {$pulados}.");
 
-            $index++;
-            app(CriarEnviarSenhaLaboratorioAction::class)->execute($inscrito, $index * 15);
-            $enfileirados++;
-        }
-
-        $this->info("Enfileirados {$enfileirados} envio(s). Ignorados {$pulados}.");
-
-        return self::SUCCESS;
+            return self::SUCCESS;
+        });
     }
 }

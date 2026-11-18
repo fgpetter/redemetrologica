@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\Interlab\EnfileirarRastreioItensLotePostagemAction;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 
 class RastrearItensLotePostagemCommand extends Command
@@ -13,10 +14,18 @@ class RastrearItensLotePostagemCommand extends Command
 
     public function handle(EnfileirarRastreioItensLotePostagemAction $action): int
     {
-        $resultado = $action->execute();
+        $resumo = new ResumoExecucao('RastrearItensLotePostagemCommand', [], 'stack');
 
-        $this->info("Enfileirados: {$resultado['enfileirados']}; pulados: {$resultado['pulados']}.");
+        return $resumo->executar(function (ResumoExecucao $resumo) use ($action): int {
 
-        return self::SUCCESS;
+            $resultado = $action->execute();
+            $resumo->incrementar('enfileirados', $resultado['enfileirados']);
+            $resumo->incrementar('pulados', $resultado['pulados']);
+            $resumo->resultado($resultado['enfileirados'] > 0 ? 'enfileirado' : 'ignorado', $resultado['enfileirados'] > 0 ? null : 'sem_candidatos');
+
+            $this->info("Enfileirados: {$resultado['enfileirados']}; pulados: {$resultado['pulados']}.");
+
+            return self::SUCCESS;
+        });
     }
 }

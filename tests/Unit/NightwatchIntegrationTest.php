@@ -24,6 +24,7 @@ class NightwatchIntegrationTest extends TestCase
     {
         return [
             'command' => ['command', ['command', 'exception']],
+            'observability' => ['observability', ['command', 'exception', 'log']],
             'schedule' => ['schedule', ['scheduled-task']],
             'job' => ['job', ['queued-job', 'job-attempt']],
             'http' => ['http', ['request', 'exception']],
@@ -133,5 +134,38 @@ class NightwatchIntegrationTest extends TestCase
             Log::forgetChannel('single');
             unlink($path);
         }
+    }
+
+    public function test_operational_destination_only_forwards_marked_safe_metadata(): void
+    {
+        $core = app(Core::class);
+        $core->config['enabled'] = true;
+        $records = [];
+        $ingest = Mockery::mock(Ingest::class);
+        $ingest->shouldReceive('write')->once()->withArgs(function (array $record) use (&$records): bool {
+            $records[] = $record;
+
+            return true;
+        });
+        $core->ingest = $ingest;
+        $remote = (new NightwatchLogger(new Logger($core)))(['level' => 'info', 'operacional' => true]);
+        $local = new TestHandler;
+        $stack = new Monolog('operacional', [$local, ...$remote->getHandlers()]);
+        $stack->info('legado privado@example.com', ['email' => 'privado@example.com']);
+        $stack->debug('detalhe');
+        $stack->info('mensagem livre privada', [
+            'evento' => 'fluxo.execucao', 'fluxo' => 'certificado', 'resultado' => 'enfileirado',
+            'tentativa_id' => 'tentativa-1', 'body' => 'PDFSECRETO', 'email' => 'privado@example.com',
+            'etapas' => [['etapa' => 'enfileirar', 'resultado' => 'concluido', 'duracao_ms' => 2]],
+            'metricas' => ['enfileirados' => 1],
+        ]);
+        $this->assertCount(3, $local->getRecords());
+        $this->assertSame('fluxo.execucao', $records[0]['message']);
+        $context = json_decode($records[0]['context'], true);
+        $this->assertSame('tentativa-1', $context['tentativa_id']);
+        $this->assertSame(1, $context['metricas']['enfileirados']);
+        $this->assertStringNotContainsString('privada', json_encode($records));
+        $this->assertStringNotContainsString('PDFSECRETO', json_encode($records));
+        $this->assertArrayNotHasKey('email', $context);
     }
 }

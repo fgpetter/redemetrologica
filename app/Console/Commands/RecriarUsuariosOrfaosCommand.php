@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Actions\CreateUserForPessoaAction;
 use App\Mail\UserPasswordReseted;
 use App\Models\Pessoa;
+use App\Support\Observabilidade\ContextoOperacional;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
@@ -34,97 +36,114 @@ class RecriarUsuariosOrfaosCommand extends Command
      */
     public function handle(): int
     {
-        $this->logPath = storage_path('logs/RecriarUsuariosOrfaosLog.log');
-        $dryRun = (bool) $this->option('dry-run');
-        $step = $this->option('step');
+        $resumo = new ResumoExecucao('RecriarUsuariosOrfaosCommand', [], 'stack');
+        $resumo->contexto(['simulacao' => (bool) $this->option('dry-run')]);
 
-        if ($step !== null) {
-            $step = (int) $step;
+        return $resumo->executar(function (ResumoExecucao $resumo): int {
 
-            if ($step < 1) {
-                $this->error('O parâmetro --step deve ser um inteiro maior ou igual a 1.');
+            $this->logPath = storage_path('logs/RecriarUsuariosOrfaosLog.log');
+            $dryRun = (bool) $this->option('dry-run');
+            $step = $this->option('step');
 
-                return self::FAILURE;
+            if ($step !== null) {
+                $step = (int) $step;
+
+                if ($step < 1) {
+                    $this->error('O parâmetro --step deve ser um inteiro maior ou igual a 1.');
+
+                    $resumo->resultado('impedido', 'parametro_invalido');
+
+                    return self::FAILURE;
+                }
             }
-        }
 
-        $query = Pessoa::query()
-            ->whereNotNull('user_id')
-            ->whereDoesntHave('user')
-            ->orderBy('id');
+            $query = Pessoa::query()
+                ->whereNotNull('user_id')
+                ->whereDoesntHave('user')
+                ->orderBy('id');
 
-        if ($step !== null) {
-            $query->limit($step);
-        }
+            if ($step !== null) {
+                $query->limit($step);
+            }
 
-        $pessoas = $query->get();
+            $pessoas = $query->get();
 
-        if ($pessoas->isEmpty()) {
-            $this->info('Nenhuma pessoa com user_id órfão encontrada.');
+            if ($pessoas->isEmpty()) {
+                $resumo->resultado('ignorado', 'sem_candidatos');
+                $this->info('Nenhuma pessoa com user_id órfão encontrada.');
 
-            return self::SUCCESS;
-        }
+                return self::SUCCESS;
+            }
 
-        $created = 0;
-        $skipped = 0;
-        $failed = 0;
-        $delayIndex = 0;
+            $created = 0;
+            $skipped = 0;
+            $failed = 0;
+            $delayIndex = 0;
 
-        foreach ($pessoas as $pessoa) {
-            if (! $this->hasValidEmail($pessoa->email)) {
-                $message = "Pessoa {$pessoa->id} ({$pessoa->nome_razao}) ignorada: e-mail inválido ou ausente.";
-                $this->warn($message);
-                $this->writeLog('SKIP', $message, [
-                    'pessoa_id' => $pessoa->id,
-                    'email' => $pessoa->email,
-                    'user_id' => $pessoa->user_id,
-                ]);
-                $skipped++;
+            foreach ($pessoas as $pessoa) {
+                if (! $this->hasValidEmail($pessoa->email)) {
+                    $message = "Pessoa {$pessoa->id} ({$pessoa->nome_razao}) ignorada: e-mail inválido ou ausente.";
+                    $this->warn($message);
+                    $this->writeLog('SKIP', $message, [
+                        'pessoa_id' => $pessoa->id,
+                        'email' => $pessoa->email,
+                        'user_id' => $pessoa->user_id,
+                    ]);
+                    $skipped++;
 
-                continue;
+                    continue;
+                }
+
+                if ($dryRun) {
+                    $this->line("Dry-run: pessoa {$pessoa->id} ({$pessoa->nome_razao}) — user_id órfão {$pessoa->user_id}");
+
+                    continue;
+                }
+
+                try {
+                    $delayIndex++;
+                    CreateUserForPessoaAction::handle(
+                        $pessoa,
+                        UserPasswordReseted::class,
+                        $delayIndex * 60,
+                    );
+                    $this->info("Pessoa {$pessoa->id} ({$pessoa->nome_razao}): usuário recriado (e-mail em {$delayIndex} min).");
+                    $created++;
+                } catch (Throwable $exception) {
+                    report($exception);
+                    $message = "Pessoa {$pessoa->id} ({$pessoa->nome_razao}): falha — {$exception->getMessage()}";
+                    $this->error($message);
+                    $this->writeLog('EXCEPTION', $message, [
+                        'pessoa_id' => $pessoa->id,
+                        'email' => $pessoa->email,
+                        'user_id' => $pessoa->user_id,
+                        'exception' => $exception::class,
+                    ]);
+                    $failed++;
+                }
             }
 
             if ($dryRun) {
-                $this->line("Dry-run: pessoa {$pessoa->id} ({$pessoa->nome_razao}) — user_id órfão {$pessoa->user_id}");
+                $resumo->incrementar('candidatos', $pessoas->count());
+                $resumo->incrementar('ignorados', $skipped);
+                $this->info("Dry-run: {$pessoas->count()} pessoa(s) com user_id órfão encontrada(s).");
 
-                continue;
+                return self::SUCCESS;
             }
 
-            try {
-                $delayIndex++;
-                CreateUserForPessoaAction::handle(
-                    $pessoa,
-                    UserPasswordReseted::class,
-                    $delayIndex * 60,
-                );
-                $this->info("Pessoa {$pessoa->id} ({$pessoa->nome_razao}): usuário recriado (e-mail em {$delayIndex} min).");
-                $created++;
-            } catch (Throwable $exception) {
-                $message = "Pessoa {$pessoa->id} ({$pessoa->nome_razao}): falha — {$exception->getMessage()}";
-                $this->error($message);
-                $this->writeLog('EXCEPTION', $message, [
-                    'pessoa_id' => $pessoa->id,
-                    'email' => $pessoa->email,
-                    'user_id' => $pessoa->user_id,
-                    'exception' => $exception::class,
-                ]);
-                $failed++;
+            $resumo->incrementar('created', (int) $created);
+            $resumo->incrementar('skipped', (int) $skipped);
+            $resumo->incrementar('failed', (int) $failed);
+            $this->info("Concluído. Criados {$created}. Ignorados {$skipped}. Falhas {$failed}.");
+
+            if ($skipped > 0 || $failed > 0) {
+                $this->info("Detalhes de skip/falha em: {$this->logPath}");
             }
-        }
 
-        if ($dryRun) {
-            $this->info("Dry-run: {$pessoas->count()} pessoa(s) com user_id órfão encontrada(s).");
+            $resumo->resultado($failed > 0 ? 'falha_definitiva' : ($skipped > 0 ? 'impedido' : 'enfileirado'));
 
-            return self::SUCCESS;
-        }
-
-        $this->info("Concluído. Criados {$created}. Ignorados {$skipped}. Falhas {$failed}.");
-
-        if ($skipped > 0 || $failed > 0) {
-            $this->info("Detalhes de skip/falha em: {$this->logPath}");
-        }
-
-        return $failed > 0 ? self::FAILURE : self::SUCCESS;
+            return $failed > 0 ? self::FAILURE : self::SUCCESS;
+        });
     }
 
     private function hasValidEmail(?string $email): bool
@@ -144,6 +163,8 @@ class RecriarUsuariosOrfaosCommand extends Command
      */
     private function writeLog(string $type, string $message, array $context = []): void
     {
+        $message = 'usuarios_orfaos.'.strtolower($type);
+        $context = ContextoOperacional::selecionar($context);
         $line = sprintf(
             "[%s] %s: %s %s\n",
             now()->toDateTimeString(),

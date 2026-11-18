@@ -2,9 +2,9 @@
 
 namespace App\Actions\Financeiro;
 
+use App\Exceptions\OperacaoImpedidaException;
 use App\Models\LancamentoFinanceiro;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
 
 class EditarLancamentosEmLoteAction
 {
@@ -40,13 +40,13 @@ class EditarLancamentosEmLoteAction
                 ->get();
 
             if ($lancamentos->count() !== count($uniqueUids)) {
-                throw new RuntimeException('Um ou mais lançamentos não foram encontrados.');
+                throw new OperacaoImpedidaException('referencias_ausentes', 'Um ou mais lançamentos não foram encontrados.');
             }
 
             $tiposDistintos = $lancamentos->pluck('tipo_lancamento')->unique()->values();
 
             if ($tiposDistintos->count() > 1) {
-                throw new RuntimeException('Não é permitido atualizar receitas e despesas no mesmo lote.');
+                throw new OperacaoImpedidaException('tipos_distintos', 'Não é permitido atualizar receitas e despesas no mesmo lote.');
             }
 
             foreach ($lancamentos as $lancamento) {

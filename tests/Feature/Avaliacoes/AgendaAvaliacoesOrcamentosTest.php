@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Avaliacoes\CalcularOrcamentoAvaliacaoAction;
+use App\Actions\Avaliacoes\GerarDocumentoOrcamentoAvaliacaoAction;
 use App\Enums\ImpostoAvaliacao;
 use App\Livewire\Avaliacoes\AgendaAvaliacoesOrcamentos;
 use App\Models\AgendaAvaliacao;
@@ -10,6 +11,7 @@ use App\Models\Avaliador;
 use App\Models\Laboratorio;
 use App\Models\TipoAvaliacao;
 use Database\Factories\PessoaFactory;
+use Illuminate\Support\Facades\Exceptions;
 use Livewire\Livewire;
 
 function criarAgendaAvaliacaoOrcamento(array $atributos = []): AgendaAvaliacao
@@ -240,4 +242,18 @@ test('action calcula orçamento em tempo de execução sem persistir totais', fu
         ->and($totais['soma_avaliadores'])->toBe(1000.0)
         ->and($totais['soma_despesas_estimadas'])->toBe(200.0)
         ->and($totais['soma_despesas_reais'])->toBe(100.0);
+});
+
+test('falha técnica de documento é reportada uma vez e usa feedback SWAL seguro', function () {
+    $avaliacao = criarAgendaAvaliacaoOrcamento();
+    $exception = new RuntimeException('token=segredo privado@example.com');
+    Exceptions::fake();
+    $this->mock(GerarDocumentoOrcamentoAvaliacaoAction::class)
+        ->shouldReceive('execute')->once()->andThrow($exception);
+
+    Livewire::test(AgendaAvaliacoesOrcamentos::class, ['avaliacao' => $avaliacao])
+        ->call('imprimirOrcamento')
+        ->assertDispatched('show-error-alert', message: 'Não foi possível gerar o documento. Tente novamente.');
+    Exceptions::assertReported(fn (RuntimeException $reported) => $reported === $exception);
+    Exceptions::assertReportedCount(1);
 });

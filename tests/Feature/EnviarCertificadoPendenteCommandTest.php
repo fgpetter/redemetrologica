@@ -12,6 +12,7 @@ use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use App\Models\PlanoConta;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -86,7 +87,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         ]);
 
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldReceive('executePendente')->once()->with($inscrito->id)->andReturnTrue();
+        $action->shouldReceive('executePendente')->once()->with($inscrito->id, \Mockery::type(ResumoExecucao::class))->andReturnTrue();
 
         Artisan::call('certificados:enviar-pendente');
     }
@@ -113,7 +114,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         ]);
 
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldReceive('executePendente')->once()->with($inscritoAntigo->id)->andReturnTrue();
+        $action->shouldReceive('executePendente')->once()->with($inscritoAntigo->id, \Mockery::type(ResumoExecucao::class))->andReturnTrue();
 
         Artisan::call('certificados:enviar-pendente');
     }

@@ -21,14 +21,10 @@
                                 O certificado será enviado para o email abaixo. Você pode confirmar ou alterar o endereço antes de enviar.
                             </p>
                             <div class="mb-3 text-start">
-                                <label for="email" class="form-label fw-semibold">Email de Destino</label>
-                                <input type="email" 
-                                       class="form-control @error('email') is-invalid @enderror" 
-                                       id="email" 
-                                       wire:model="email"
-                                       placeholder="exemplo@email.com">
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <x-forms.input-field label="Email de Destino" type="email" id="email"
+                                    wire:model="email" placeholder="exemplo@email.com" />
+                                @error('form.email')
+                                    <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>

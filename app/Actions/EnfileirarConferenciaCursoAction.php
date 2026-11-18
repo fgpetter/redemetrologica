@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Jobs\EnviarConferenciaCursoJob;
 use App\Models\AgendaCursos;
+use App\Support\Observabilidade\ResumoExecucao;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
@@ -15,9 +16,21 @@ class EnfileirarConferenciaCursoAction
 {
     public const DESTINATARIO_ADMINISTRATIVO = 'administrativo@redemetrologica.com.br';
 
-    public function execute(int $agendaCursoId, string $dataEsperada): bool
+    public function execute(int $agendaCursoId, string $dataEsperada, ?ResumoExecucao $resumo = null): bool
     {
-        return DB::transaction(function () use ($agendaCursoId, $dataEsperada): bool {
+        if ($resumo !== null) {
+            return $this->executarObservado($agendaCursoId, $dataEsperada, $resumo);
+        } else {
+            $resumo = new ResumoExecucao('EnfileirarConferenciaCursoAction', [], 'mailsent');
+            $resumo->resultado('ignorado', 'inelegivel');
+
+            return $resumo->executar(fn () => $this->executarObservado($agendaCursoId, $dataEsperada, $resumo));
+        }
+    }
+
+    private function executarObservado(int $agendaCursoId, string $dataEsperada, ResumoExecucao $resumo): bool
+    {
+        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $agendaCursoId, $dataEsperada): bool {
             $agenda = AgendaCursos::query()
                 ->with(['curso', 'materiaisTreinamento'])
                 ->lockForUpdate()
@@ -39,6 +52,7 @@ class EnfileirarConferenciaCursoAction
                 Log::channel('validation')->warning('Destinatário administrativo inválido para aviso de conferência de curso.', [
                     'tipo' => 'conferencia',
                     'agenda_curso_id' => $agenda->getKey(),
+                    'agenda_uid' => $agenda->uid,
                 ]);
 
                 return false;
@@ -63,14 +77,17 @@ class EnfileirarConferenciaCursoAction
                 $snapshot,
             ))->onConnection('database')->beforeCommit());
 
-            Log::channel('mailsent')->info('E-mail automático de conferência de curso enfileirado.', [
+            $resumo->contexto([
                 'tipo' => 'conferencia',
                 'agenda_curso_id' => $agenda->getKey(),
+                'agenda_uid' => $agenda->uid,
                 'inscrito_id' => null,
                 'tentativa_id' => $tentativa,
             ]);
+            $resumo->resultado('enfileirado');
+            $resumo->incrementar('enfileirados');
 
             return true;
-        });
+        }));
     }
 }

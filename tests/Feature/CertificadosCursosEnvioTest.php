@@ -22,13 +22,14 @@ beforeEach(function () {
     expect(DB::connection()->getDatabaseName())->toBe(':memory:');
     $this->certificadosCursoLog = tempnam(sys_get_temp_dir(), 'certificados-curso-');
     config([
-        'logging.channels.certificados_falha.path' => $this->certificadosCursoLog,
+        'logging.channels.certificados_falha_local.path' => $this->certificadosCursoLog,
         'logging.channels.mailsent' => config('logging.channels.null'),
     ]);
 });
 
 afterEach(function () {
     Log::forgetChannel('certificados_falha');
+    Log::forgetChannel('certificados_falha_local');
     unlink($this->certificadosCursoLog);
     $this->travelBack();
 });
@@ -151,7 +152,7 @@ it('libera somente a tentativa que falhou e rejeita jobs substituídos', functio
     expect($inscrito->fresh()->certificado_emitido)->toBeNull();
     expect($inscrito->fresh()->certificado_envio_id)->toBeNull();
     expect(Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY))->toBeFalse();
-    expect(file_get_contents($this->certificadosCursoLog))->toContain('certificado_curso', 'SMTP indisponível', $antigo->tentativaId);
+    expect(file_get_contents($this->certificadosCursoLog))->toContain('certificado_curso', 'falha_definitiva', $antigo->tentativaId);
     $action->execute($inscrito);
     $atual = $inscrito->fresh()->getAttributes();
 

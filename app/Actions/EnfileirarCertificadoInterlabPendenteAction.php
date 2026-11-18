@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Jobs\EnviarCertificadoInterlabPendenteJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +15,21 @@ use LogicException;
 
 class EnfileirarCertificadoInterlabPendenteAction
 {
-    public function execute(int $inscritoId): bool
+    public function execute(int $inscritoId, ?ResumoExecucao $resumo = null): bool
     {
-        return DB::transaction(function () use ($inscritoId): bool {
+        if ($resumo !== null) {
+            return $this->executarObservado($inscritoId, $resumo);
+        } else {
+            $resumo = new ResumoExecucao('EnfileirarCertificadoInterlabPendenteAction', [], 'mailsent');
+            $resumo->resultado('ignorado', 'inelegivel');
+
+            return $resumo->executar(fn () => $this->executarObservado($inscritoId, $resumo));
+        }
+    }
+
+    private function executarObservado(int $inscritoId, ResumoExecucao $resumo): bool
+    {
+        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $inscritoId): bool {
             $inscrito = InterlabInscrito::certificadosPendentes()
                 ->with(['pessoa', 'laboratorio', 'agendaInterlab.interlab'])
                 ->lockForUpdate()
@@ -32,10 +45,15 @@ class EnfileirarCertificadoInterlabPendenteAction
             $pessoaValida = $this->emailValido($pessoa);
 
             if (! $tecnicoValido || ! $pessoaValida) {
+                Log::channel('validation')->warning('certificado.validacao', ['responsavel_tecnico_valido' => $tecnicoValido, 'pessoa_valida' => $pessoaValida]);
                 Log::channel('certificados_falha')->warning('Contato de certificado ausente ou inválido.', [
+                    'evento' => 'certificado.contato_invalido',
+                    'resultado' => 'impedido',
+                    'motivo' => 'contato_invalido',
                     'tipo' => 'certificado_interlab',
                     'agenda_id' => $inscrito->agenda_interlab_id,
                     'inscrito_id' => $inscrito->id,
+                    'inscrito_uid' => $inscrito->uid,
                     'responsavel_tecnico_valido' => $tecnicoValido,
                     'pessoa_valida' => $pessoaValida,
                 ]);
@@ -75,16 +93,19 @@ class EnfileirarCertificadoInterlabPendenteAction
                 $inscrito->id, $dadosDoc->id, $tentativa, $to, $cc,
             ))->onConnection('database')->beforeCommit());
 
-            Log::channel('mailsent')->info('Certificado Interlab enfileirado automaticamente.', [
+            $resumo->contexto([
                 'tipo' => 'certificado_interlab',
                 'agenda_id' => $inscrito->agenda_interlab_id,
                 'inscrito_id' => $inscrito->id,
+                'inscrito_uid' => $inscrito->uid,
                 'documento_id' => $dadosDoc->id,
                 'tentativa_id' => $tentativa,
             ]);
+            $resumo->resultado('enfileirado');
+            $resumo->incrementar('enfileirados');
 
             return true;
-        });
+        }));
     }
 
     private function emailValido(string $email): bool

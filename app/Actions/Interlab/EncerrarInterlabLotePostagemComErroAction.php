@@ -23,14 +23,6 @@ class EncerrarInterlabLotePostagemComErroAction
 
         $mensagem = mb_substr($mensagem, 0, 2000);
 
-        CorreiosLog::error('lote.encerrado', [
-            'lote_id' => $lote->id,
-            'lote_uid' => $lote->uid,
-            'nome' => $lote->nome,
-            'etapa' => $etapa,
-            'mensagem' => $mensagem,
-        ]);
-
         DB::transaction(function () use ($lote, $etapa, $mensagem): void {
             $lote->update([
                 'status' => InterlabLotePostagemStatus::Erro,
@@ -76,6 +68,11 @@ class EncerrarInterlabLotePostagemComErroAction
                     ]);
             }
         });
+
+        DB::afterCommit(fn () => CorreiosLog::error('lote.encerrado', [
+            'lote_uid' => $lote->uid, 'etapa' => $etapa,
+            'resultado' => 'falha_definitiva',
+        ]));
 
         Mail::to((string) config('services.correios.admin_email'))
             ->queue(new InterlabLotePostagemErroMail($lote->fresh()));

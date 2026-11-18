@@ -7,6 +7,7 @@ class ClassificacaoServicoResultado
     private function __construct(
         private string $estado,
         public int $atrasoSegundos = 0,
+        public string $motivo = 'nenhum',
     ) {}
 
     public static function concluida(): self
@@ -14,9 +15,9 @@ class ClassificacaoServicoResultado
         return new self('concluida');
     }
 
-    public static function retentar(int $atrasoSegundos): self
+    public static function retentar(int $atrasoSegundos, string $motivo = 'falha_transitoria'): self
     {
-        return new self('retentar', max(1, $atrasoSegundos));
+        return new self('retentar', max(1, $atrasoSegundos), $motivo);
     }
 
     public static function falhou(): self

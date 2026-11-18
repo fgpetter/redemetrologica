@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Mail\ConfirmacaoCursoMail;
 use App\Models\CursoInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -28,23 +29,30 @@ class EnviarConfirmacaoCursoJob implements ShouldQueue
 
     public function handle(): void
     {
-        DB::transaction(function () {
-            $inscrito = CursoInscrito::query()->lockForUpdate()->find($this->inscritoId);
+        $resumo = new ResumoExecucao('curso.confirmacao', ['inscrito_id' => $this->inscritoId, 'tentativa' => $this->attempts()], 'mailsent');
+        $resumo->resultado('ignorado', 'ja_confirmado_ou_ausente');
+        $resumo->executar(function ($resumo): void {
+            DB::transaction(function () use ($resumo) {
+                $inscrito = CursoInscrito::query()->lockForUpdate()->find($this->inscritoId);
 
-            if (! $inscrito || $inscrito->confirmacao_enviada_em !== null) {
-                return;
-            }
+                if (! $inscrito || $inscrito->confirmacao_enviada_em !== null) {
+                    return;
+                }
 
-            Mail::to($this->email)->sendNow(new ConfirmacaoCursoMail($this->curso, $this->dataInicio));
-            $inscrito->update(['confirmacao_enviada_em' => now()]);
-        });
+                $resumo->etapa('enviar', fn () => Mail::to($this->email)->sendNow(new ConfirmacaoCursoMail($this->curso, $this->dataInicio)));
+                $resumo->etapa('confirmar_estado', fn () => $inscrito->update(['confirmacao_enviada_em' => now()]));
+                $resumo->contexto(['inscrito_uid' => $inscrito->uid]);
+                $resumo->resultado('aceito_transporte');
+            });
+        }, job: true);
     }
 
     public function failed(?Throwable $exception): void
     {
         Log::error('Falha ao enviar confirmação de treinamento.', [
             'inscrito_id' => $this->inscritoId,
-            'exception' => $exception,
+            'evento' => 'curso.confirmacao_falha_definitiva',
+            'resultado' => 'falha_definitiva',
         ]);
     }
 }

@@ -168,7 +168,7 @@ class BackfillCursoInscritoLancamentosCommandTest extends TestCase
     {
         [$agenda, $pessoa] = $this->criarAgendaEPessoa();
 
-        $this->criarCursoInscrito([
+        $inscrito = $this->criarCursoInscrito([
             'pessoa_id' => $pessoa->id,
             'agenda_curso_id' => $agenda->id,
             'empresa_id' => null,
@@ -187,7 +187,9 @@ class BackfillCursoInscritoLancamentosCommandTest extends TestCase
         $this->assertFileExists($logPath);
         $conteudo = (string) file_get_contents($logPath);
         $this->assertStringContainsString('INSCRITO_ORFAO_SEM_LANCAMENTO', $conteudo);
-        $this->assertStringContainsString('Orphan Sem Lancamento', $conteudo);
+        $this->assertStringContainsString('inscrito_id: '.$inscrito->id, $conteudo);
+        $this->assertStringNotContainsString('Orphan Sem Lancamento', $conteudo);
+        $this->assertStringNotContainsString($inscrito->email, $conteudo);
     }
 
     public function test_ignora_inscrito_orfao_de_curso_in_company(): void

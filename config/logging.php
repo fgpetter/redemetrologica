@@ -53,6 +53,18 @@ return [
     */
 
     'channels' => [
+        'nightwatch_operacional' => [
+            'driver' => 'custom',
+            'via' => NightwatchLogger::class,
+            'level' => 'info',
+            'operacional' => true,
+        ],
+        'nightwatch_operacional_falha' => [
+            'driver' => 'custom',
+            'via' => NightwatchLogger::class,
+            'level' => 'warning',
+            'operacional' => true,
+        ],
         'nightwatch' => [
             'driver' => 'custom',
             'via' => NightwatchLogger::class,
@@ -60,6 +72,12 @@ return [
         ],
 
         'certificados_falha' => [
+            'driver' => 'stack',
+            'channels' => ['certificados_falha_local', 'nightwatch_operacional_falha'],
+            'ignore_exceptions' => false,
+        ],
+
+        'certificados_falha_local' => [
             'driver' => 'single',
             'path' => storage_path('logs/certificados_falha.log'),
             'level' => 'warning',
@@ -147,6 +165,12 @@ return [
         ],
 
         'mailsent' => [
+            'driver' => 'stack',
+            'channels' => ['mailsent_local', 'nightwatch_operacional'],
+            'ignore_exceptions' => false,
+        ],
+
+        'mailsent_local' => [
             'driver' => 'single',
             'path' => storage_path('logs/emails_enviados.log'),
             'ignore_exceptions' => true,
@@ -165,6 +189,12 @@ return [
         ],
 
         'correios' => [
+            'driver' => 'stack',
+            'channels' => ['correios_local', 'nightwatch_operacional'],
+            'ignore_exceptions' => false,
+        ],
+
+        'correios_local' => [
             'driver' => 'daily',
             'path' => storage_path('logs/correios.log'),
             'level' => env('LOG_LEVEL', 'debug'),

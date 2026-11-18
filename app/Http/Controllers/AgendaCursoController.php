@@ -19,11 +19,12 @@ use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Models\MaterialPadrao;
 use App\Models\Pessoa;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -91,19 +92,34 @@ class AgendaCursoController extends Controller
         $agendacurso = app(AtualizarAgendaCursoAction::class)->execute($agendacurso, $validated);
 
         if ($oldStatus !== 'REALIZADO' && $agendacurso->status === 'REALIZADO') {
-            $inscritos = $agendacurso->inscritos()
-                ->with('lancamentoFinanceiro')
-                ->get();
+            $resumo = new ResumoExecucao('curso.certificados_automaticos', ['agenda_uid' => $agendacurso->uid], 'mailsent');
+            $resumo->executar(function ($resumo) use ($agendacurso): void {
+                $falhas = 0;
+                $impedidos = 0;
 
-            foreach ($inscritos as $index => $inscrito) {
-                if ($inscrito->is_pago && ! $inscrito->is_certificado_emitido) {
-                    try {
-                        app(EnviarCertificadoAction::class)->execute($inscrito, $index * 5);
-                    } catch (\Exception $e) {
-                        Log::error("Erro ao enviar certificado automático no curso {$agendacurso->id} para inscrito {$inscrito->id}: ".$e->getMessage());
+                $inscritos = $agendacurso->inscritos()
+                    ->with('lancamentoFinanceiro')
+                    ->get();
+
+                foreach ($inscritos as $index => $inscrito) {
+                    if ($inscrito->is_pago && ! $inscrito->is_certificado_emitido) {
+                        try {
+                            app(EnviarCertificadoAction::class)->execute($inscrito, $index * 5, $resumo);
+                        } catch (ValidationException $e) {
+                            $resumo->incrementar('contatos_invalidos');
+                            $impedidos++;
+                        } catch (\Throwable $e) {
+                            report($e);
+                            $falhas++;
+                        }
                     }
                 }
-            }
+
+                if ($falhas > 0 || $impedidos > 0) {
+                    $resumo->resultado($falhas > 0 ? 'falha_definitiva' : 'impedido', $falhas > 0 ? 'erro_tecnico' : 'contato_invalido');
+                }
+                $resumo->incrementar('falhas', $falhas);
+            });
         }
 
         return redirect()->route('agendamento-curso-index')

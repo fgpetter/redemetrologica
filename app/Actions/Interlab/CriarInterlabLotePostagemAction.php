@@ -9,6 +9,7 @@ use App\Jobs\Interlab\ClassificarServicoLotePostagemJob;
 use App\Models\AgendaInterlab;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLotePostagem;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -35,68 +36,76 @@ class CriarInterlabLotePostagemAction
      */
     public function execute(AgendaInterlab $agenda, array $inscritoIds, array $parametros): InterlabLotePostagem
     {
-        $ids = array_values(array_unique(array_map(intval(...), $inscritoIds)));
+        $resumo = new ResumoExecucao('correios.criar_lote', ['agenda_uid' => $agenda->uid], 'correios');
 
-        if ($ids === []) {
-            throw ValidationException::withMessages([
-                'inscritosSelecionados' => 'Selecione ao menos um laboratório.',
-            ]);
-        }
+        return $resumo->executar(function ($resumo) use ($agenda, $inscritoIds, $parametros): InterlabLotePostagem {
+            $ids = array_values(array_unique(array_map(intval(...), $inscritoIds)));
 
-        $this->garantirInscritosDaAgenda($agenda, $ids);
-
-        $lote = DB::transaction(function () use ($agenda, $ids, $parametros): InterlabLotePostagem {
-            AgendaInterlab::query()->whereKey($agenda->id)->lockForUpdate()->first();
-
-            if ($agenda->lotesPostagem()->emProcessamento()->exists()) {
+            if ($ids === []) {
                 throw ValidationException::withMessages([
-                    'inscritosSelecionados' => 'Já existe um lote de postagem em processamento nesta agenda.',
+                    'inscritosSelecionados' => 'Selecione ao menos um laboratório.',
                 ]);
             }
 
-            $inscritos = $this->inscritosDaSelecao($agenda, $ids);
-            $this->garantirLaboratoriosUnicos($inscritos);
-            $this->garantirDestinatarios($inscritos);
+            $resumo->etapa('validar_selecao', fn () => $this->garantirInscritosDaAgenda($agenda, $ids));
 
-            $lote = InterlabLotePostagem::query()->create([
-                'agenda_interlab_id' => $agenda->id,
-                'nome' => $parametros['nome'],
-                'codigo_formato' => $parametros['codigo_formato'],
-                'altura' => $parametros['altura'],
-                'largura' => $parametros['largura'],
-                'comprimento' => $parametros['comprimento'],
-                'diametro' => $parametros['diametro'],
-                'peso_gramas' => $parametros['peso_gramas'],
-                'declaracao_conteudo' => $parametros['declaracao_conteudo'],
-                'status' => InterlabLotePostagemStatus::ClassificandoServico,
-                'ultima_progressao_em' => now(),
+            $lote = DB::transaction(function () use ($agenda, $ids, $parametros): InterlabLotePostagem {
+                AgendaInterlab::query()->whereKey($agenda->id)->lockForUpdate()->first();
+
+                if ($agenda->lotesPostagem()->emProcessamento()->exists()) {
+                    throw ValidationException::withMessages([
+                        'inscritosSelecionados' => 'Já existe um lote de postagem em processamento nesta agenda.',
+                    ]);
+                }
+
+                $inscritos = $this->inscritosDaSelecao($agenda, $ids);
+                $this->garantirLaboratoriosUnicos($inscritos);
+                $this->garantirDestinatarios($inscritos);
+
+                $lote = InterlabLotePostagem::query()->create([
+                    'agenda_interlab_id' => $agenda->id,
+                    'nome' => $parametros['nome'],
+                    'codigo_formato' => $parametros['codigo_formato'],
+                    'altura' => $parametros['altura'],
+                    'largura' => $parametros['largura'],
+                    'comprimento' => $parametros['comprimento'],
+                    'diametro' => $parametros['diametro'],
+                    'peso_gramas' => $parametros['peso_gramas'],
+                    'declaracao_conteudo' => $parametros['declaracao_conteudo'],
+                    'status' => InterlabLotePostagemStatus::ClassificandoServico,
+                    'ultima_progressao_em' => now(),
+                ]);
+
+                foreach ($inscritos as $inscrito) {
+                    $lote->itens()->create([
+                        'interlab_inscrito_id' => $inscrito->id,
+                        'interlab_laboratorio_id' => $inscrito->laboratorio_id,
+                        'nu_requisicao' => (string) Str::uuid(),
+                        'destinatario' => $this->destinatario->montar($inscrito),
+                        'status' => InterlabLotePostagemItemStatus::AguardandoClassificacao,
+                    ]);
+                }
+
+                return $lote->load('itens');
+            });
+
+            ClassificarServicoLotePostagemJob::dispatch($lote)->afterCommit();
+
+            CorreiosLog::info('lote.criado', [
+                'lote_id' => $lote->id,
+                'lote_uid' => $lote->uid,
+                'nome' => $lote->nome,
+                'agenda_id' => $lote->agenda_interlab_id,
+                'itens' => $lote->itens->count(),
+                'item_ids' => $lote->itens->pluck('id')->all(),
             ]);
 
-            foreach ($inscritos as $inscrito) {
-                $lote->itens()->create([
-                    'interlab_inscrito_id' => $inscrito->id,
-                    'interlab_laboratorio_id' => $inscrito->laboratorio_id,
-                    'nu_requisicao' => (string) Str::uuid(),
-                    'destinatario' => $this->destinatario->montar($inscrito),
-                    'status' => InterlabLotePostagemItemStatus::AguardandoClassificacao,
-                ]);
-            }
+            $resumo->contexto(['lote_uid' => $lote->uid]);
+            $resumo->incrementar('itens', $lote->itens->count());
+            $resumo->resultado('enfileirado');
 
-            return $lote->load('itens');
+            return $lote;
         });
-
-        ClassificarServicoLotePostagemJob::dispatch($lote)->afterCommit();
-
-        CorreiosLog::info('lote.criado', [
-            'lote_id' => $lote->id,
-            'lote_uid' => $lote->uid,
-            'nome' => $lote->nome,
-            'agenda_id' => $lote->agenda_interlab_id,
-            'itens' => $lote->itens->count(),
-            'item_ids' => $lote->itens->pluck('id')->all(),
-        ]);
-
-        return $lote;
     }
 
     /**

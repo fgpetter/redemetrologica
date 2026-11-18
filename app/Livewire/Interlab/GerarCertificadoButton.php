@@ -2,12 +2,17 @@
 
 namespace App\Livewire\Interlab;
 
-use Livewire\Component;
-use App\Models\InterlabInscrito;
 use App\Actions\EnviarCertificadoInterlabAction;
+use App\Livewire\Forms\CertificadoInterlabForm;
+use App\Models\InterlabInscrito;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 
 class GerarCertificadoButton extends Component
 {
+    public CertificadoInterlabForm $form;
+
     public $participanteId;
 
     public $email = '';
@@ -32,29 +37,28 @@ class GerarCertificadoButton extends Component
         if ($inscrito) {
             $this->email = $inscrito->email ?? '';
         }
-        
+
         $this->showModal = true;
     }
 
     public function enviarCertificado()
     {
-        $this->validate([
-            'email' => 'required|email|max:191',
-        ], [
-            'email.required' => 'O email é obrigatório.',
-            'email.email' => 'O email deve ser um endereço válido.',
-            'email.max' => 'O email deve ter no máximo 191 caracteres.',
-        ]);
 
         try {
+            $this->form->email = (string) $this->email;
+            $this->form->validate();
             $inscrito = InterlabInscrito::findOrFail($this->participanteId);
-            
+
             app(EnviarCertificadoInterlabAction::class)->execute($inscrito, $this->email);
-            
+
             $this->showModal = false;
             $this->dispatch('show-success-alert', message: 'Certificado está sendo gerado e será enviado por email em breve.');
-        } catch (\Exception $e) {
-            $this->dispatch('show-error-alert', message: 'Erro ao gerar certificado: ' . $e->getMessage());
+        } catch (ValidationException $e) {
+            Log::channel('validation')->warning('certificado.validacao', ['campos' => array_keys($e->errors())]);
+            $this->dispatch('show-error-alert', message: 'Verifique o e-mail informado para o certificado.');
+        } catch (\Throwable $e) {
+            report($e);
+            $this->dispatch('show-error-alert', message: 'Não foi possível solicitar o certificado. Tente novamente.');
         }
     }
 

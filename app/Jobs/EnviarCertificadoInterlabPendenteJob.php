@@ -6,6 +6,7 @@ use App\Console\Commands\EnviarCertificadoInterlabPendenteCommand;
 use App\Mail\CertificadoInterlabMail;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
@@ -36,44 +37,50 @@ class EnviarCertificadoInterlabPendenteJob implements ShouldQueue
 
     public function handle(): void
     {
-        $agendaId = DB::transaction(function (): ?int {
-            $inscrito = InterlabInscrito::query()->lockForUpdate()->find($this->inscritoId);
+        $resumo = new ResumoExecucao('EnviarCertificadoInterlabPendenteJob', ['inscrito_id' => $this->inscritoId, 'documento_id' => $this->dadosDocId, 'tentativa_id' => $this->tentativaId, 'tentativa' => $this->attempts()], 'mailsent');
+        $resumo->executar(function (ResumoExecucao $resumo): void {
+            $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            if (! $inscrito || $inscrito->certificado_envio_id !== $this->tentativaId) {
-                return null;
+            $agendaId = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): ?int {
+                $inscrito = InterlabInscrito::query()->lockForUpdate()->find($this->inscritoId);
+
+                if (! $inscrito || $inscrito->certificado_envio_id !== $this->tentativaId) {
+                    return null;
+                }
+
+                if (! $inscrito->agendaInterlab()->where('status', 'CONCLUIDO')->exists()
+                    || ! $inscrito->lancamentoFinanceiro()->where('status', 'EFETIVADO')->exists()) {
+                    throw new RuntimeException('A inscrição não possui mais agenda concluída e pagamento efetivado.');
+                }
+
+                Validator::make(['to' => $this->to, 'cc' => $this->cc], [
+                    'to' => ['required', 'email:rfc'],
+                    'cc' => ['nullable', 'email:rfc'],
+                ])->validate();
+
+                $mail = Mail::to($this->to);
+
+                if ($this->cc !== null && strcasecmp($this->to, $this->cc) !== 0) {
+                    $mail->cc($this->cc);
+                }
+
+                $resumo->etapa('enviar', fn () => $mail->sendNow(new CertificadoInterlabMail(DadosGeraDoc::findOrFail($this->dadosDocId))));
+                $resumo->etapa('confirmar_estado', fn () => $inscrito->update(['certificado_envio_id' => null]));
+
+                return $inscrito->agenda_interlab_id;
+            }));
+
+            if ($agendaId !== null) {
+                $resumo->contexto([
+                    'tipo' => 'certificado_interlab',
+                    'agenda_id' => $agendaId,
+                    'inscrito_id' => $this->inscritoId,
+                    'documento_id' => $this->dadosDocId,
+                    'tentativa_id' => $this->tentativaId,
+                ]);
+                $resumo->resultado('aceito_transporte');
             }
-
-            if (! $inscrito->agendaInterlab()->where('status', 'CONCLUIDO')->exists()
-                || ! $inscrito->lancamentoFinanceiro()->where('status', 'EFETIVADO')->exists()) {
-                throw new RuntimeException('A inscrição não possui mais agenda concluída e pagamento efetivado.');
-            }
-
-            Validator::make(['to' => $this->to, 'cc' => $this->cc], [
-                'to' => ['required', 'email:rfc'],
-                'cc' => ['nullable', 'email:rfc'],
-            ])->validate();
-
-            $mail = Mail::to($this->to);
-
-            if ($this->cc !== null && strcasecmp($this->to, $this->cc) !== 0) {
-                $mail->cc($this->cc);
-            }
-
-            $mail->sendNow(new CertificadoInterlabMail(DadosGeraDoc::findOrFail($this->dadosDocId)));
-            $inscrito->update(['certificado_envio_id' => null]);
-
-            return $inscrito->agenda_interlab_id;
-        });
-
-        if ($agendaId !== null) {
-            Log::channel('mailsent')->info('Certificado Interlab aceito pelo serviço de e-mail.', [
-                'tipo' => 'certificado_interlab',
-                'agenda_id' => $agendaId,
-                'inscrito_id' => $this->inscritoId,
-                'documento_id' => $this->dadosDocId,
-                'tentativa_id' => $this->tentativaId,
-            ]);
-        }
+        }, job: true);
     }
 
     public function failed(?Throwable $exception): void
@@ -103,7 +110,8 @@ class EnviarCertificadoInterlabPendenteJob implements ShouldQueue
             'documento_id' => $this->dadosDocId,
             'tentativa_id' => $this->tentativaId,
             'pendencia_liberada' => $agendaId !== null,
-            'exception' => $exception,
+            'evento' => 'comunicacao.falha_definitiva',
+            'resultado' => 'falha_definitiva',
         ]);
     }
 }

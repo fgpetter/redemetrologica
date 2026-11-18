@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Actions\EnfileirarCertificadoInterlabPendenteAction;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
@@ -18,31 +19,38 @@ class EnviarCertificadoInterlabPendenteCommand extends Command
 
     public function handle(EnfileirarCertificadoInterlabPendenteAction $action): int
     {
-        if (Cache::has(self::SEM_CERTIFICADO_PENDENTE_CACHE_KEY)) {
-            return self::SUCCESS;
-        }
+        $resumo = new ResumoExecucao('EnviarCertificadoInterlabPendenteCommand', [], 'stack');
 
-        $inscritos = InterlabInscrito::certificadosPendentes()
-            ->orderBy('data_inscricao')->orderBy('id')->lazy(100);
+        return $resumo->executar(function (ResumoExecucao $resumo) use ($action): int {
 
-        foreach ($inscritos as $inscrito) {
-            if ($action->execute($inscrito->id)) {
-                $this->info("Certificado da inscrição {$inscrito->id} enfileirado.");
+            if (Cache::has(self::SEM_CERTIFICADO_PENDENTE_CACHE_KEY)) {
+                $resumo->resultado('ignorado', 'cache_sem_pendencias');
 
                 return self::SUCCESS;
             }
-        }
 
-        $expiraEm = now('America/Sao_Paulo')->addDay()->startOfDay();
+            $inscritos = InterlabInscrito::certificadosPendentes()
+                ->orderBy('data_inscricao')->orderBy('id')->lazy(100);
 
-        if (Cache::add(self::SEM_CERTIFICADO_PENDENTE_CACHE_KEY, true, $expiraEm)) {
-            Mail::raw('Não há certificados Interlab aptos para envio no momento.', function ($message): void {
-                $message->to('sistema@redemetrologica.com.br')->subject('Notificação: Sem certificados Interlab pendentes');
-            });
-        }
+            foreach ($inscritos as $inscrito) {
+                if ($action->execute($inscrito->id, resumo: $resumo)) {
+                    $this->info("Certificado da inscrição {$inscrito->id} enfileirado.");
 
-        $this->info('Nenhuma inscrição apta para envio. Consultas suspensas até a próxima meia-noite.');
+                    return self::SUCCESS;
+                }
+            }
 
-        return self::SUCCESS;
+            $expiraEm = now('America/Sao_Paulo')->addDay()->startOfDay();
+
+            if (Cache::add(self::SEM_CERTIFICADO_PENDENTE_CACHE_KEY, true, $expiraEm)) {
+                Mail::raw('Não há certificados Interlab aptos para envio no momento.', function ($message): void {
+                    $message->to('sistema@redemetrologica.com.br')->subject('Notificação: Sem certificados Interlab pendentes');
+                });
+            }
+
+            $this->info('Nenhuma inscrição apta para envio. Consultas suspensas até a próxima meia-noite.');
+
+            return self::SUCCESS;
+        });
     }
 }

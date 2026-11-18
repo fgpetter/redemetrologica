@@ -11,6 +11,8 @@ use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\LancamentoFinanceiroFactory;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Mime\Email;
 
 beforeEach(function () {
     expect(DB::connection()->getDriverName())->toBe('sqlite');
@@ -25,13 +28,14 @@ beforeEach(function () {
     $this->travelTo(new DateTimeImmutable('2026-10-23 00:00:00-03:00'));
     $this->certificadosLog = tempnam(sys_get_temp_dir(), 'certificados-falha-');
     config([
-        'logging.channels.certificados_falha.path' => $this->certificadosLog,
+        'logging.channels.certificados_falha_local.path' => $this->certificadosLog,
         'logging.channels.mailsent' => config('logging.channels.null'),
     ]);
 });
 
 afterEach(function () {
     Log::forgetChannel('certificados_falha');
+    Log::forgetChannel('certificados_falha_local');
     unlink($this->certificadosLog);
     $this->travelBack();
 });
@@ -201,7 +205,7 @@ it('libera pendência e cache após falha definitiva e permite uma nova tentativ
     expect($inscrito->fresh()->certificado_emitido)->toBeNull();
     expect($inscrito->fresh()->certificado_envio_id)->toBeNull();
     expect(Cache::has(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY))->toBeFalse();
-    expect(file_get_contents($this->certificadosLog))->toContain('Falha definitiva', 'SMTP indisponível', $job->tentativaId);
+    expect(file_get_contents($this->certificadosLog))->toContain('Falha definitiva', 'falha_definitiva', $job->tentativaId);
 
     app(EnfileirarCertificadoInterlabPendenteAction::class)->execute($inscrito->id);
     $tentativaAtual = $inscrito->fresh()->certificado_envio_id;
@@ -269,7 +273,7 @@ it('suspende consultas e envia somente um aviso até a próxima meia-noite em S�
     Mail::shouldReceive('raw')->once()->with(
         'Não há certificados Interlab aptos para envio no momento.',
         Mockery::on(function (Closure $callback): bool {
-            $message = new Illuminate\Mail\Message(new Symfony\Component\Mime\Email);
+            $message = new Message(new Email);
             $callback($message);
 
             return $message->getSymfonyMessage()->getTo()[0]->getAddress() === 'sistema@redemetrologica.com.br';
@@ -393,13 +397,13 @@ it('agenda somente na janela de São Paulo e respeita o bloqueio de pendências'
     expect($event->withoutOverlapping)->toBeTrue();
     foreach (['00:00:00' => true, '06:00:00' => true, '06:01:00' => false, '23:59:00' => false] as $horario => $permitido) {
         $this->travelTo(new DateTimeImmutable("2026-10-23 {$horario}-03:00"));
-        $schedule = app(Illuminate\Contracts\Console\Kernel::class)->resolveConsoleSchedule();
+        $schedule = app(Kernel::class)->resolveConsoleSchedule();
         $event = collect($schedule->events())->first(fn ($event) => str_contains($event->command ?? '', 'interlab:enviar-certificado-pendente'));
         expect($event->filtersPass(app()))->toBe($permitido);
     }
 
     $this->travelTo(new DateTimeImmutable('2026-10-23 02:00:00-03:00'));
-    $schedule = app(Illuminate\Contracts\Console\Kernel::class)->resolveConsoleSchedule();
+    $schedule = app(Kernel::class)->resolveConsoleSchedule();
     $event = collect($schedule->events())->first(fn ($event) => str_contains($event->command ?? '', 'interlab:enviar-certificado-pendente'));
     Cache::put(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY, true, 600);
     expect($event->filtersPass(app()))->toBeFalse();

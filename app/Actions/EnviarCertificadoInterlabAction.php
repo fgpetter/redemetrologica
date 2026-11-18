@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Jobs\GerarCertificadoInterlabJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,19 +17,36 @@ class EnviarCertificadoInterlabAction
     /**
      * Cria registro de log e dispara e-mail com link do certificado
      */
-    public function execute(InterlabInscrito $inscrito, ?string $email = null, int $delay = 0): DadosGeraDoc
+    public function execute(InterlabInscrito $inscrito, ?string $email = null, int $delay = 0, ?ResumoExecucao $resumo = null): DadosGeraDoc
     {
-        return DB::transaction(function () use ($inscrito, $email, $delay): DadosGeraDoc {
+        if ($resumo !== null) {
+            return $this->executarObservado($inscrito, $email, $delay, $resumo);
+        } else {
+            $resumo = new ResumoExecucao('EnviarCertificadoInterlabAction', [], 'mailsent');
+            $resumo->resultado('ignorado', 'inelegivel');
+
+            return $resumo->executar(fn () => $this->executarObservado($inscrito, $email, $delay, $resumo));
+        }
+    }
+
+    private function executarObservado(InterlabInscrito $inscrito, ?string $email, int $delay, ResumoExecucao $resumo): DadosGeraDoc
+    {
+        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $inscrito, $email, $delay): DadosGeraDoc {
             $inscrito = InterlabInscrito::query()->lockForUpdate()->findOrFail($inscrito->id);
             $inscrito->load(['laboratorio', 'agendaInterlab.interlab']);
             $emailCertificado = trim((string) ($email ?? $inscrito->email ?? ''));
             $validator = Validator::make(['email' => $emailCertificado], ['email' => ['required', 'email:rfc']]);
 
             if ($validator->fails()) {
+                Log::channel('validation')->warning('certificado.validacao', ['campos' => array_keys($validator->errors()->toArray())]);
                 Log::channel('certificados_falha')->warning('Contato inválido ao solicitar certificado Interlab manualmente.', [
+                    'evento' => 'certificado.contato_invalido',
+                    'resultado' => 'impedido',
+                    'motivo' => 'contato_invalido',
                     'tipo' => 'certificado_interlab',
                     'agenda_id' => $inscrito->agenda_interlab_id,
                     'inscrito_id' => $inscrito->id,
+                    'inscrito_uid' => $inscrito->uid,
                 ]);
 
                 $validator->validate();
@@ -58,14 +76,17 @@ class EnviarCertificadoInterlabAction
             Bus::dispatch((new GerarCertificadoInterlabJob($dadosDoc->id))
                 ->onConnection('database')->delay(now()->addSeconds($delay))->beforeCommit());
 
-            Log::channel('mailsent')->info('Certificado Interlab enfileirado manualmente.', [
+            $resumo->contexto([
                 'tipo' => 'certificado_interlab',
                 'agenda_id' => $inscrito->agenda_interlab_id,
                 'inscrito_id' => $inscrito->id,
+                'inscrito_uid' => $inscrito->uid,
                 'documento_id' => $dadosDoc->id,
             ]);
+            $resumo->resultado('enfileirado');
+            $resumo->incrementar('enfileirados');
 
             return $dadosDoc;
-        });
+        }));
     }
 }

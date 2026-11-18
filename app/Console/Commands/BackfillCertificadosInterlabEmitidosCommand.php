@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 
 class BackfillCertificadosInterlabEmitidosCommand extends Command
@@ -13,21 +14,30 @@ class BackfillCertificadosInterlabEmitidosCommand extends Command
 
     public function handle(): int
     {
-        $instante = now();
-        $query = InterlabInscrito::certificadosPendentes();
+        $resumo = new ResumoExecucao('BackfillCertificadosInterlabEmitidosCommand', [], 'stack');
+        $resumo->contexto(['simulacao' => (bool) $this->option('dry-run')]);
 
-        if ($this->option('dry-run')) {
-            $this->info("Inscrições elegíveis: {$query->count()}. Nenhum registro alterado.");
+        return $resumo->executar(function (ResumoExecucao $resumo): int {
+
+            $instante = now();
+            $query = InterlabInscrito::certificadosPendentes();
+
+            if ($this->option('dry-run')) {
+                $elegiveis = $query->count();
+                $resumo->incrementar('elegiveis', $elegiveis);
+                $this->info("Inscrições elegíveis: {$elegiveis}. Nenhum registro alterado.");
+
+                return self::SUCCESS;
+            }
+
+            $alterados = $query->toBase()->update([
+                'certificado_emitido' => $instante,
+                'updated_at' => $instante,
+            ]);
+            $resumo->incrementar('alterados', $alterados);
+            $this->info("Certificados marcados: {$alterados}.");
 
             return self::SUCCESS;
-        }
-
-        $alterados = $query->toBase()->update([
-            'certificado_emitido' => $instante,
-            'updated_at' => $instante,
-        ]);
-        $this->info("Certificados marcados: {$alterados}.");
-
-        return self::SUCCESS;
+        });
     }
 }

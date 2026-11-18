@@ -5,6 +5,8 @@ namespace App\Actions;
 use App\Jobs\EnviarLinkCertificadoJob;
 use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
+use App\Support\Observabilidade\ResumoExecucao;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,18 +19,35 @@ class EnviarCertificadoAction
     /**
      * Cria registro de log e dispara e-mail com link do certificado
      */
-    public function execute(CursoInscrito $inscrito, int $delay = 0): DadosGeraDoc
+    public function execute(CursoInscrito $inscrito, int $delay = 0, ?ResumoExecucao $resumo = null): DadosGeraDoc
     {
-        return DB::transaction(function () use ($inscrito, $delay): DadosGeraDoc {
+        if ($resumo !== null) {
+            return $this->executarObservado($inscrito, $delay, $resumo);
+        } else {
+            $resumo = new ResumoExecucao('EnviarCertificadoAction', [], 'mailsent');
+            $resumo->resultado('ignorado', 'inelegivel');
+
+            return $resumo->executar(fn () => $this->executarObservado($inscrito, $delay, $resumo));
+        }
+    }
+
+    private function executarObservado(CursoInscrito $inscrito, int $delay, ResumoExecucao $resumo): DadosGeraDoc
+    {
+        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $inscrito, $delay): DadosGeraDoc {
             $inscrito = CursoInscrito::query()->lockForUpdate()->findOrFail($inscrito->id);
             $email = trim((string) ($inscrito->email ?? ''));
             $validator = Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']]);
 
             if ($validator->fails()) {
+                Log::channel('validation')->warning('certificado.validacao', ['campos' => array_keys($validator->errors()->toArray())]);
                 Log::channel('certificados_falha')->warning('Contato de certificado de curso ausente ou inválido.', [
+                    'evento' => 'certificado.contato_invalido',
+                    'resultado' => 'impedido',
+                    'motivo' => 'contato_invalido',
                     'tipo' => 'certificado_curso',
                     'agenda_id' => $inscrito->agenda_curso_id,
                     'inscrito_id' => $inscrito->id,
+                    'inscrito_uid' => $inscrito->uid,
                 ]);
 
                 $validator->validate();
@@ -54,28 +73,31 @@ class EnviarCertificadoAction
                 ->delay(now()->addSeconds($delay))
                 ->beforeCommit());
 
-            Log::channel('mailsent')->info('Certificado de curso enfileirado.', [
+            $resumo->contexto([
                 'tipo' => 'certificado_curso',
                 'agenda_id' => $inscrito->agenda_curso_id,
                 'inscrito_id' => $inscrito->id,
+                'inscrito_uid' => $inscrito->uid,
                 'documento_id' => $dadosDoc->id,
                 'tentativa_id' => $tentativa,
             ]);
+            $resumo->resultado('enfileirado');
+            $resumo->incrementar('enfileirados');
 
             return $dadosDoc;
-        });
+        }));
     }
 
-    public function executePendente(int $inscritoId): bool
+    public function executePendente(int $inscritoId, ?ResumoExecucao $resumo = null): bool
     {
-        return DB::transaction(function () use ($inscritoId): bool {
+        return DB::transaction(function () use ($inscritoId, $resumo): bool {
             $inscrito = CursoInscrito::certificadosPendentes()->lockForUpdate()->find($inscritoId);
 
             if (! $inscrito) {
                 return false;
             }
 
-            $this->execute($inscrito);
+            $this->execute($inscrito, resumo: $resumo);
 
             return true;
         });
@@ -104,7 +126,7 @@ class EnviarCertificadoAction
         ]);
     }
 
-    private function gerarDataFormatada(\Carbon\Carbon $dataInicio, \Carbon\Carbon $dataFim): string
+    private function gerarDataFormatada(Carbon $dataInicio, Carbon $dataFim): string
     {
         if ($dataInicio->format('d/m/Y') !== $dataFim->format('d/m/Y')) {
 

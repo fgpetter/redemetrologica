@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\OperacaoImpedidaException;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
@@ -28,70 +30,92 @@ class ImportarAvaliadoresLegadoCommand extends Command
 
     public function handle(): int
     {
-        try {
-            $dados = $this->planejar();
-        } catch (\Throwable $exception) {
-            $this->error($exception->getMessage());
+        $resumo = new ResumoExecucao('ImportarAvaliadoresLegadoCommand', [], 'stack');
 
-            return self::FAILURE;
-        }
+        $resumo->contexto(['simulacao' => ! $this->option('apply')]);
 
-        $snapshot = hash('sha256', json_encode($dados, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
-        $this->table(['Origem', 'Pessoa', 'Ação', 'Detalhes'], array_map(
-            fn (array $item): array => [$item['origem_id'], $item['pessoa_id'] ?? '-', $item['acao'], $item['detalhes']],
-            $dados['itens'],
-        ));
-        $this->line("Snapshot: {$snapshot}");
-        $this->line('A importar: '.count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'IMPORTAR')).'; revisão: '.count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')).'; preservados: '.count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')).'.');
+        return $resumo->executar(function (ResumoExecucao $resumo): int {
 
-        if (! $this->option('apply')) {
-            $this->info('Simulação concluída; nenhuma alteração foi persistida.');
-
-            return self::SUCCESS;
-        }
-
-        if (! is_string($this->option('snapshot')) || ! hash_equals($snapshot, $this->option('snapshot'))) {
-            $this->error('Snapshot ausente ou diferente. Rode novamente a simulação e confirme o hash apresentado.');
-
-            return self::FAILURE;
-        }
-
-        try {
-            DB::transaction(function () use ($snapshot): void {
-                $atuais = $this->planejar();
-                $hashAtual = hash('sha256', json_encode($atuais, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
-
-                if (! hash_equals($snapshot, $hashAtual)) {
-                    throw new RuntimeException('Os dados mudaram desde a simulação; nenhuma alteração foi aplicada.');
+            try {
+                $dados = $this->planejar();
+            } catch (\Throwable $exception) {
+                if (! $exception instanceof OperacaoImpedidaException) {
+                    report($exception);
                 }
+                $this->error($exception->getMessage());
 
-                $idsInseridos = [];
-                foreach ($atuais['itens'] as $item) {
-                    if ($item['acao'] !== 'IMPORTAR') {
-                        continue;
+                $resumo->resultado($exception instanceof OperacaoImpedidaException ? 'impedido' : 'falha_definitiva', $exception instanceof OperacaoImpedidaException ? $exception->motivo : 'erro_tecnico');
+
+                return self::FAILURE;
+            }
+
+            $resumo->incrementar('candidatos', count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'IMPORTAR')));
+            $resumo->incrementar('preservados', count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')));
+            $resumo->incrementar('revisar', count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')));
+            $snapshot = hash('sha256', json_encode($dados, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+            $this->table(['Origem', 'Pessoa', 'Ação', 'Detalhes'], array_map(
+                fn (array $item): array => [$item['origem_id'], $item['pessoa_id'] ?? '-', $item['acao'], $item['detalhes']],
+                $dados['itens'],
+            ));
+            $this->line("Snapshot: {$snapshot}");
+            $this->line('A importar: '.count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'IMPORTAR')).'; revisão: '.count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')).'; preservados: '.count(array_filter($dados['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')).'.');
+
+            if (! $this->option('apply')) {
+                $this->info('Simulação concluída; nenhuma alteração foi persistida.');
+
+                return self::SUCCESS;
+            }
+
+            if (! is_string($this->option('snapshot')) || ! hash_equals($snapshot, $this->option('snapshot'))) {
+                $this->error('Snapshot ausente ou diferente. Rode novamente a simulação e confirme o hash apresentado.');
+
+                $resumo->resultado('impedido', 'snapshot_invalido');
+
+                return self::FAILURE;
+            }
+
+            try {
+                DB::transaction(function () use ($snapshot): void {
+                    $atuais = $this->planejar();
+                    $hashAtual = hash('sha256', json_encode($atuais, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+
+                    if (! hash_equals($snapshot, $hashAtual)) {
+                        throw new OperacaoImpedidaException('snapshot_divergente', 'Os dados mudaram desde a simulação; nenhuma alteração foi aplicada.');
                     }
 
-                    $id = DB::table('avaliadores')->insertGetId([
-                        'uid' => uniqid(),
-                        'pessoa_id' => $item['pessoa_id'],
-                        ...$item['campos'],
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                    $idsInseridos[] = $id;
+                    $idsInseridos = [];
+                    foreach ($atuais['itens'] as $item) {
+                        if ($item['acao'] !== 'IMPORTAR') {
+                            continue;
+                        }
+
+                        $id = DB::table('avaliadores')->insertGetId([
+                            'uid' => uniqid(),
+                            'pessoa_id' => $item['pessoa_id'],
+                            ...$item['campos'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        $idsInseridos[] = $id;
+                    }
+                    $this->line('IDs inseridos: '.($idsInseridos === [] ? 'nenhum' : implode(', ', $idsInseridos)));
+                    $this->info('Importados: '.count($idsInseridos).'; revisão: '.count(array_filter($atuais['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')).'; preservados: '.count(array_filter($atuais['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')).'.');
+                });
+            } catch (RuntimeException $exception) {
+                if (! $exception instanceof OperacaoImpedidaException) {
+                    report($exception);
                 }
-                $this->line('IDs inseridos: '.($idsInseridos === [] ? 'nenhum' : implode(', ', $idsInseridos)));
-                $this->info('Importados: '.count($idsInseridos).'; revisão: '.count(array_filter($atuais['itens'], fn (array $item): bool => $item['acao'] === 'REVISAR')).'; preservados: '.count(array_filter($atuais['itens'], fn (array $item): bool => $item['acao'] === 'PRESERVAR')).'.');
-            });
-        } catch (RuntimeException $exception) {
-            $this->error($exception->getMessage());
+                $this->error($exception->getMessage());
 
-            return self::FAILURE;
-        }
+                $resumo->resultado($exception instanceof OperacaoImpedidaException ? 'impedido' : 'falha_definitiva', $exception instanceof OperacaoImpedidaException ? $exception->motivo : 'erro_tecnico');
 
-        $this->info('Importação concluída.');
+                return self::FAILURE;
+            }
 
-        return self::SUCCESS;
+            $this->info('Importação concluída.');
+
+            return self::SUCCESS;
+        });
     }
 
     /** @return array{itens: list<array{origem_id: int, cpf: string, pessoa_id: int|null, avaliador_id: int|null, acao: string, detalhes: string, campos?: array<string, mixed>}>} */
@@ -101,14 +125,14 @@ class ImportarAvaliadoresLegadoCommand extends Command
 
         foreach (['cad_pessoas', 'pessoas_tipo_pessoas'] as $table) {
             if (! Schema::connection($legado->getName())->hasTable($table)) {
-                throw new RuntimeException("Tabela legada ausente: {$table}.");
+                throw new OperacaoImpedidaException('tabela_ausente', "Tabela legada ausente: {$table}.");
             }
         }
 
         $colunas = Schema::connection($legado->getName())->getColumnListing('cad_pessoas');
         foreach (['id_pessoa', 'cpf_cnpj', ...self::CAMPOS] as $column) {
             if (! in_array($column, $colunas, true)) {
-                throw new RuntimeException("Coluna legada ausente: cad_pessoas.{$column}.");
+                throw new OperacaoImpedidaException('coluna_ausente', "Coluna legada ausente: cad_pessoas.{$column}.");
             }
         }
 

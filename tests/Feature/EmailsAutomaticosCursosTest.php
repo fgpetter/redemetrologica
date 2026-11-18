@@ -14,6 +14,7 @@ use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoInscrito;
 use App\Models\Instrutor;
+use App\Support\Observabilidade\ResumoExecucao;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Factories\PessoaFactory;
@@ -363,13 +364,13 @@ it('isola a falha de uma agenda e continua até enfileirar outra', function () {
     {
         public function __construct(private int $falhaId) {}
 
-        public function execute(int $agendaCursoId, string $dataEsperada): bool
+        public function execute(int $agendaCursoId, string $dataEsperada, ?ResumoExecucao $resumo = null): bool
         {
             if ($agendaCursoId === $this->falhaId) {
                 throw new RuntimeException('Falha simulada');
             }
 
-            return parent::execute($agendaCursoId, $dataEsperada);
+            return parent::execute($agendaCursoId, $dataEsperada, $resumo);
         }
     });
 
@@ -465,14 +466,14 @@ it('percorre inscritos em ordem mesmo quando confirmações mudam durante a cons
 
         public function __construct(private int $primeiroId) {}
 
-        public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada): bool
+        public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada, ?ResumoExecucao $resumo = null): bool
         {
             if (! $this->alterado) {
                 CursoInscrito::query()->whereKey($this->primeiroId)->update(['informacoes_enviadas_em' => now()]);
                 $this->alterado = true;
             }
 
-            return parent::execute($agendaCursoId, $inscritoId, $dataEsperada);
+            return parent::execute($agendaCursoId, $inscritoId, $dataEsperada, $resumo);
         }
     });
 

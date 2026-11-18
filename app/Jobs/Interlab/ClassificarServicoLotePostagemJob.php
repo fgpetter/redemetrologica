@@ -8,6 +8,7 @@ use App\Enums\InterlabLotePostagemItemStatus;
 use App\Enums\InterlabLotePostagemStatus;
 use App\Integrations\Correios\CorreiosLog;
 use App\Models\InterlabLotePostagem;
+use App\Support\Observabilidade\ResumoExecucao;
 use DateTime;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,57 +39,65 @@ class ClassificarServicoLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
     public function handle(ClassificarServicoItensLotePostagemCorreiosAction $action): void
     {
-        $lote = $this->lote->fresh();
+        $resumo = new ResumoExecucao('correios.ClassificarServicoLotePostagemJob', ['tentativa' => $this->attempts(), 'lote_uid' => $this->lote->uid], 'correios');
+        $resumo->executar(function ($resumo) use ($action): void {
+            $lote = $this->lote->fresh();
 
-        if ($lote === null) {
-            CorreiosLog::warning('job.classificacao.lote_ausente', [
-                'lote_id' => $this->lote->id,
-            ]);
+            if ($lote === null) {
+                $resumo->resultado('ignorado', 'lote_ausente');
+                CorreiosLog::warning('job.classificacao.lote_ausente', [
+                    'lote_id' => $this->lote->id,
+                ]);
 
-            return;
-        }
+                return;
+            }
 
-        CorreiosLog::info('job.classificacao.inicio', [
-            'lote_id' => $lote->id,
-            'lote_uid' => $lote->uid,
-            'tentativa' => $this->attempts(),
-        ]);
-
-        $resultado = $action->execute($lote, $this->attempts());
-
-        CorreiosLog::info('job.classificacao.resultado', [
-            'lote_id' => $lote->id,
-            'concluida' => $resultado->estaConcluida(),
-            'retentar' => $resultado->deveRetentar(),
-            'falhou' => $resultado->estaFalhou(),
-            'atraso_segundos' => $resultado->atrasoSegundos,
-        ]);
-
-        if ($resultado->estaConcluida()) {
-            $this->enfileirarProcessamento($lote->fresh() ?? $lote);
-
-            return;
-        }
-
-        if (! $resultado->deveRetentar()) {
-            return;
-        }
-
-        if (! $this->job instanceof FakeJob && config('queue.default') === 'sync') {
-            CorreiosLog::info('job.classificacao.sem_release_sync', [
+            CorreiosLog::info('job.classificacao.inicio', [
                 'lote_id' => $lote->id,
+                'lote_uid' => $lote->uid,
+                'tentativa' => $this->attempts(),
             ]);
 
-            return;
-        }
+            $resultado = $resumo->etapa('executar_etapas', fn () => $action->execute($lote, $this->attempts(), $resumo));
+            $resumo->resultadoEtapa('executar_etapas', $resultado->estaFalhou() ? 'falha_definitiva' : ($resultado->deveRetentar() ? ($resultado->motivo === 'falha_transitoria' ? 'retentativa' : 'encaminhado') : 'concluido'));
+            $resumo->contexto(['status' => $lote->fresh()?->status->value]);
+            $resumo->resultado($resultado->estaFalhou() ? 'falha_definitiva' : ($resultado->deveRetentar() ? ($resultado->motivo === 'falha_transitoria' ? 'retentativa' : 'encaminhado') : 'concluido'), $resultado->motivo);
 
-        $this->release($resultado->atrasoSegundos);
+            CorreiosLog::info('job.classificacao.resultado', [
+                'lote_id' => $lote->id,
+                'concluida' => $resultado->estaConcluida(),
+                'retentar' => $resultado->deveRetentar(),
+                'falhou' => $resultado->estaFalhou(),
+                'atraso_segundos' => $resultado->atrasoSegundos,
+            ]);
+
+            if ($resultado->estaConcluida()) {
+                $encaminhou = $this->enfileirarProcessamento($lote->fresh() ?? $lote);
+                $resumo->resultado($encaminhou ? 'encaminhado' : 'ignorado', $encaminhou ? 'classificacao_encerrada' : 'sem_handoff');
+
+                return;
+            }
+
+            if (! $resultado->deveRetentar()) {
+                return;
+            }
+
+            if (! $this->job instanceof FakeJob && config('queue.default') === 'sync') {
+                CorreiosLog::info('job.classificacao.sem_release_sync', [
+                    'lote_id' => $lote->id,
+                ]);
+
+                return;
+            }
+
+            $this->release($resultado->atrasoSegundos);
+        }, job: true);
     }
 
-    private function enfileirarProcessamento(InterlabLotePostagem $lote): void
+    private function enfileirarProcessamento(InterlabLotePostagem $lote): bool
     {
         if ($lote->status !== InterlabLotePostagemStatus::ClassificandoServico) {
-            return;
+            return false;
         }
 
         $pendentes = $lote->itens()
@@ -96,7 +105,7 @@ class ClassificarServicoLotePostagemJob implements ShouldBeUnique, ShouldQueue
             ->exists();
 
         if ($pendentes || ! $lote->itens()->exists()) {
-            return;
+            return false;
         }
 
         CorreiosLog::info('processar.handoff', [
@@ -107,6 +116,8 @@ class ClassificarServicoLotePostagemJob implements ShouldBeUnique, ShouldQueue
         ]);
 
         ProcessarInterlabLotePostagemJob::dispatch($lote);
+
+        return true;
     }
 
     public function failed(?Throwable $exception): void

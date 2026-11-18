@@ -7,6 +7,7 @@ use App\Exceptions\CorreiosApiException;
 use App\Integrations\Correios\CorreiosLog;
 use App\Mail\InterlabLotePostagemRastreioMail;
 use App\Models\InterlabLotePostagemItem;
+use App\Support\Observabilidade\ResumoExecucao;
 use DateTime;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,49 +39,56 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
     public function handle(RastrearItemLotePostagemAction $action): void
     {
-        $item = $this->item->fresh(['inscrito']);
+        $resumo = new ResumoExecucao('correios.RastrearItemLotePostagemJob', ['tentativa' => $this->attempts(), 'item_uid' => $this->item->uid], 'correios');
+        $resumo->executar(function ($resumo) use ($action): void {
+            $item = $this->item->fresh(['inscrito']);
 
-        if ($item === null) {
-            CorreiosLog::warning('job.rastro.item_ausente', [
-                'item_id' => $this->item->id,
-            ]);
-
-            return;
-        }
-
-        $statusAnterior = $item->status_correios;
-
-        CorreiosLog::info('job.rastro.inicio', [
-            'item_id' => $item->id,
-            'codigo_objeto' => $item->codigo_objeto,
-            'status_correios_anterior' => $statusAnterior,
-            'tentativa' => $this->attempts(),
-        ]);
-
-        try {
-            $item = $action->execute($item);
-        } catch (ConnectionException $exception) {
-            $this->tratarFalhaTransitoria($item, $exception);
-
-            return;
-        } catch (CorreiosApiException $exception) {
-            if ($this->eFalhaTransitoria($exception->status)) {
-                $this->tratarFalhaTransitoria($item, $exception);
+            if ($item === null) {
+                $resumo->resultado('ignorado', 'item_ausente');
+                CorreiosLog::warning('job.rastro.item_ausente', [
+                    'item_id' => $this->item->id,
+                ]);
 
                 return;
             }
 
-            CorreiosLog::error('job.rastro.falha_definitiva', [
+            $statusAnterior = $item->status_correios;
+
+            CorreiosLog::info('job.rastro.inicio', [
                 'item_id' => $item->id,
                 'codigo_objeto' => $item->codigo_objeto,
-                'status_http' => $exception->status,
-                'mensagem' => $exception->getMessage(),
+                'status_correios_anterior' => $statusAnterior,
+                'tentativa' => $this->attempts(),
             ]);
 
-            return;
-        }
+            try {
+                $item = $resumo->etapa('rastrear', fn () => $action->execute($item));
+            } catch (ConnectionException $exception) {
+                $resumo->resultado('retentativa', 'api_transitoria');
+                $this->tratarFalhaTransitoria($item, $exception);
 
-        $this->notificarSeMudou($item->fresh(['inscrito']) ?? $item, $statusAnterior);
+                return;
+            } catch (CorreiosApiException $exception) {
+                if ($this->eFalhaTransitoria($exception->status)) {
+                    $resumo->resultado('retentativa', 'api_transitoria');
+                    $this->tratarFalhaTransitoria($item, $exception);
+
+                    return;
+                }
+
+                $resumo->resultado('falha_definitiva', 'api_recusou_rastreio');
+                CorreiosLog::error('job.rastro.falha_definitiva', [
+                    'item_id' => $item->id,
+                    'codigo_objeto' => $item->codigo_objeto,
+                    'status_http' => $exception->status,
+                    'mensagem' => $exception->getMessage(),
+                ]);
+
+                return;
+            }
+
+            $resumo->etapa('notificar', fn () => $this->notificarSeMudou($item->fresh(['inscrito']) ?? $item, $statusAnterior, $resumo));
+        }, job: true);
     }
 
     public function failed(?Throwable $exception): void
@@ -91,7 +99,7 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
         ]);
     }
 
-    private function notificarSeMudou(InterlabLotePostagemItem $item, ?string $statusAnterior): void
+    private function notificarSeMudou(InterlabLotePostagemItem $item, ?string $statusAnterior, ResumoExecucao $resumo): void
     {
         $statusAtual = $item->status_correios;
 
@@ -108,6 +116,7 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
         $email = trim((string) ($item->inscrito?->email ?? ''));
 
         if ($email === '') {
+            $resumo->resultado('impedido', 'contato_ausente');
             CorreiosLog::warning('job.rastro.email_ausente', [
                 'item_id' => $item->id,
                 'inscrito_id' => $item->interlab_inscrito_id,
@@ -123,6 +132,7 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
             ->cc($copias)
             ->queue(new InterlabLotePostagemRastreioMail($item));
 
+        $resumo->resultado('enfileirado');
         CorreiosLog::info('job.rastro.email_enfileirado', [
             'item_id' => $item->id,
             'email' => $email,

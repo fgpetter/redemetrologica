@@ -7,6 +7,7 @@ use App\Actions\Avaliacoes\GerarDocumentoOrcamentoAvaliacaoAction;
 use App\Actions\Avaliacoes\SalvarOrcamentoAvaliacaoAction;
 use App\Livewire\Forms\AgendaAvaliacoesOrcamentoForm;
 use App\Models\AgendaAvaliacao;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
@@ -67,20 +68,26 @@ class AgendaAvaliacoesOrcamentos extends Component
 
     public function imprimirOrcamento()
     {
-        try {
-            $path = app(GerarDocumentoOrcamentoAvaliacaoAction::class)->execute(
-                $this->avaliacao,
-                (float) $this->form->perc_lucro,
-            );
+        $resumo = new ResumoExecucao('avaliacao.imprimirOrcamento', ['avaliacao_uid' => $this->avaliacao->uid]);
 
-            $fullPath = Storage::path("public/{$path}");
+        return $resumo->executar(function ($resumo) {
+            try {
+                $path = $resumo->etapa('gerar_documento', fn () => app(GerarDocumentoOrcamentoAvaliacaoAction::class)->execute(
+                    $this->avaliacao,
+                    (float) $this->form->perc_lucro,
+                ));
 
-            return response()
-                ->download($fullPath, basename($fullPath))
-                ->deleteFileAfterSend(true);
-        } catch (\Exception $e) {
-            $this->addError('template', 'Erro ao gerar documento: '.$e->getMessage());
-        }
+                $fullPath = Storage::path("public/{$path}");
+
+                return response()
+                    ->download($fullPath, basename($fullPath))
+                    ->deleteFileAfterSend(true);
+            } catch (\Exception $e) {
+                report($e);
+                $resumo->resultado('falha_definitiva', 'geracao_documento');
+                $this->dispatch('show-error-alert', message: 'Não foi possível gerar o documento. Tente novamente.');
+            }
+        });
     }
 
     public function gerarOrcamento()

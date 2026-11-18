@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Actions\CoordenarCacheEmailsCursos;
 use App\Mail\AvisoPendenciasTreinamentoMail;
 use App\Models\AgendaCursos;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -35,40 +36,46 @@ class EnviarPendenciasCursoJob implements ShouldQueue
 
     public function handle(): void
     {
-        $enviado = DB::transaction(function (): bool {
-            $agenda = AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId);
+        $resumo = new ResumoExecucao('EnviarPendenciasCursoJob', ['agenda_curso_id' => $this->agendaCursoId, 'tentativa_id' => $this->tentativaId, 'tentativa' => $this->attempts()], 'mailsent');
+        $resumo->executar(function (ResumoExecucao $resumo): void {
+            $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            if (! $agenda || $agenda->pendencias_envio_id !== $this->tentativaId) {
-                return false;
+            $enviado = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): bool {
+                $agenda = AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId);
+
+                if (! $agenda || $agenda->pendencias_envio_id !== $this->tentativaId) {
+                    return false;
+                }
+
+                if ($agenda->pendencias_enviadas_em !== null || ! $this->elegivel($agenda)) {
+                    $resumo->etapa('confirmar_estado', fn () => $agenda->update(['pendencias_envio_id' => null]));
+
+                    return false;
+                }
+
+                $this->validarDestinatario();
+
+                $resumo->etapa('enviar', fn () => Mail::to($this->snapshot['destinatario'])
+                    ->sendNow(new AvisoPendenciasTreinamentoMail($this->snapshot)));
+
+                $resumo->etapa('confirmar_estado', fn () => $agenda->update([
+                    'pendencias_enviadas_em' => now('America/Sao_Paulo'),
+                    'pendencias_envio_id' => null,
+                ]));
+
+                return true;
+            }));
+
+            if ($enviado) {
+                $resumo->contexto([
+                    'tipo' => 'pendencias',
+                    'agenda_curso_id' => $this->agendaCursoId,
+                    'inscrito_id' => null,
+                    'tentativa_id' => $this->tentativaId,
+                ]);
+                $resumo->resultado('aceito_transporte');
             }
-
-            if ($agenda->pendencias_enviadas_em !== null || ! $this->elegivel($agenda)) {
-                $agenda->update(['pendencias_envio_id' => null]);
-
-                return false;
-            }
-
-            $this->validarDestinatario();
-
-            Mail::to($this->snapshot['destinatario'])
-                ->sendNow(new AvisoPendenciasTreinamentoMail($this->snapshot));
-
-            $agenda->update([
-                'pendencias_enviadas_em' => now('America/Sao_Paulo'),
-                'pendencias_envio_id' => null,
-            ]);
-
-            return true;
-        });
-
-        if ($enviado) {
-            Log::channel('mailsent')->info('E-mail automático de pendências de curso aceito pelo serviço de e-mail.', [
-                'tipo' => 'pendencias',
-                'agenda_curso_id' => $this->agendaCursoId,
-                'inscrito_id' => null,
-                'tentativa_id' => $this->tentativaId,
-            ]);
-        }
+        }, job: true);
     }
 
     public function failed(?Throwable $exception): void
@@ -95,7 +102,8 @@ class EnviarPendenciasCursoJob implements ShouldQueue
             'inscrito_id' => null,
             'tentativa_id' => $this->tentativaId,
             'pendencia_liberada' => $vigente,
-            'exception' => $exception,
+            'evento' => 'comunicacao.falha_definitiva',
+            'resultado' => 'falha_definitiva',
         ]);
     }
 

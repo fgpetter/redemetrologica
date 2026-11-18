@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Financeiro\EditarLancamentosEmLoteAction;
+use App\Exceptions\OperacaoImpedidaException;
 use App\Exports\LancamentosMesExport;
 use App\Http\Requests\AtualizarLancamentoFinanceiroRequest;
 use App\Http\Requests\AtualizarLancamentosEmLoteRequest;
@@ -15,6 +16,7 @@ use App\Models\LancamentoFinanceiro;
 use App\Models\ModalidadePagamento;
 use App\Models\Pessoa;
 use App\Models\PlanoConta;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -168,32 +170,44 @@ class LancamentoFinanceiroController extends Controller
      */
     public function batchUpdate(AtualizarLancamentosEmLoteRequest $request, EditarLancamentosEmLoteAction $editarLancamentosEmLoteAction): RedirectResponse
     {
-        $validated = $request->validated();
+        $resumo = new ResumoExecucao('financeiro.editar_lote');
 
-        try {
-            $atualizados = $editarLancamentosEmLoteAction->execute(
-                $validated['uids'],
-                [
-                    'consiliacao' => $validated['consiliacao'] ?? null,
-                    'nota_fiscal' => $validated['nota_fiscal'] ?? null,
-                    'data_pagamento' => $validated['data_pagamento'] ?? null,
-                    'data_vencimento' => $validated['data_vencimento'] ?? null,
-                ]
+        return $resumo->executar(function ($resumo) use ($request, $editarLancamentosEmLoteAction): RedirectResponse {
+            $validated = $request->validated();
+
+            try {
+                $atualizados = $resumo->etapa('validar_atualizar_confirmar', fn () => $editarLancamentosEmLoteAction->execute(
+                    $validated['uids'],
+                    [
+                        'consiliacao' => $validated['consiliacao'] ?? null,
+                        'nota_fiscal' => $validated['nota_fiscal'] ?? null,
+                        'data_pagamento' => $validated['data_pagamento'] ?? null,
+                        'data_vencimento' => $validated['data_vencimento'] ?? null,
+                    ]
+                ));
+                $resumo->incrementar('atualizados', $atualizados);
+            } catch (OperacaoImpedidaException $e) {
+                $resumo->resultado('impedido', $e->motivo);
+
+                return redirect()->back()->with('error', 'Não foi possível atualizar os lançamentos.');
+            } catch (RuntimeException $e) {
+                report($e);
+                $resumo->resultado('falha_definitiva', 'erro_tecnico');
+
+                return redirect()->back()->with('error', 'Não foi possível atualizar os lançamentos.');
+            }
+
+            if ($atualizados === 0) {
+                return redirect()->back()->with('success', 'Nenhum dado para atualizar.');
+            }
+
+            return redirect()->back()->with(
+                'success',
+                $atualizados === 1
+                  ? '1 lançamento atualizado com sucesso.'
+                  : "{$atualizados} lançamentos atualizados com sucesso."
             );
-        } catch (RuntimeException $e) {
-            return redirect()->back()->with('error', 'Não foi possível atualizar os lançamentos.');
-        }
-
-        if ($atualizados === 0) {
-            return redirect()->back()->with('success', 'Nenhum dado para atualizar.');
-        }
-
-        return redirect()->back()->with(
-            'success',
-            $atualizados === 1
-              ? '1 lançamento atualizado com sucesso.'
-              : "{$atualizados} lançamentos atualizados com sucesso."
-        );
+        });
     }
 
     /**

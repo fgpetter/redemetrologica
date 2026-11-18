@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Mail\LinkSenhaLaboratorioNotification;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,31 +33,35 @@ class EnviaSenhaLaboratorioJob implements ShouldQueue
 
     public function handle(): void
     {
-        $dadosDoc = DadosGeraDoc::query()->find($this->dadosGeraDocId);
+        $resumo = new ResumoExecucao('EnviaSenhaLaboratorioJob', ['inscrito_id' => $this->inscritoId, 'documento_id' => $this->dadosGeraDocId, 'tentativa' => $this->attempts()], 'mailsent');
+        $resumo->executar(function (ResumoExecucao $resumo): void {
+            $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-        if (! $dadosDoc) {
-            Log::warning('EnviaSenhaLaboratorioJob: DadosGeraDoc não encontrado.', [
-                'dados_gera_doc_id' => $this->dadosGeraDocId,
-                'inscrito_id' => $this->inscritoId,
-            ]);
+            $dadosDoc = DadosGeraDoc::query()->find($this->dadosGeraDocId);
 
-            return;
-        }
+            if (! $dadosDoc) {
+                $resumo->resultado('impedido', 'documento_ausente');
 
-        Mail::to($this->destinatarios)
-            ->cc('sistema@redemetrologica.com.br')
-            ->sendNow(new LinkSenhaLaboratorioNotification($dadosDoc));
+                return;
+            }
 
-        InterlabInscrito::query()
-            ->whereKey($this->inscritoId)
-            ->update(['senha_enviada' => now()]);
+            $resumo->etapa('enviar', fn () => Mail::to($this->destinatarios)
+                ->cc('sistema@redemetrologica.com.br')
+                ->sendNow(new LinkSenhaLaboratorioNotification($dadosDoc)));
+
+            InterlabInscrito::query()
+                ->whereKey($this->inscritoId)
+                ->update(['senha_enviada' => now()]);
+            $resumo->resultado('aceito_transporte');
+        }, job: true);
     }
 
     public function failed(\Throwable $exception): void
     {
         Log::error('Falha ao enviar senha de laboratório para inscrito ID: '.$this->inscritoId, [
             'dados_gera_doc_id' => $this->dadosGeraDocId,
-            'error' => $exception->getMessage(),
+            'evento' => 'cartas_senha.falha_definitiva',
+            'resultado' => 'falha_definitiva',
         ]);
     }
 }

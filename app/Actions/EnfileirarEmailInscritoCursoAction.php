@@ -6,6 +6,7 @@ use App\Jobs\EnviarInformacoesCursoJob;
 use App\Mail\InformacoesTreinamentoMail;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +15,21 @@ use Illuminate\Support\Str;
 
 class EnfileirarEmailInscritoCursoAction
 {
-    public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada): bool
+    public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada, ?ResumoExecucao $resumo = null): bool
     {
-        return DB::transaction(function () use ($agendaCursoId, $inscritoId, $dataEsperada): bool {
+        if ($resumo !== null) {
+            return $this->executarObservado($agendaCursoId, $inscritoId, $dataEsperada, $resumo);
+        } else {
+            $resumo = new ResumoExecucao('EnfileirarEmailInscritoCursoAction', [], 'mailsent');
+            $resumo->resultado('ignorado', 'inelegivel');
+
+            return $resumo->executar(fn () => $this->executarObservado($agendaCursoId, $inscritoId, $dataEsperada, $resumo));
+        }
+    }
+
+    private function executarObservado(int $agendaCursoId, int $inscritoId, string $dataEsperada, ResumoExecucao $resumo): bool
+    {
+        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $agendaCursoId, $inscritoId, $dataEsperada): bool {
             $agenda = AgendaCursos::query()
                 ->with(['curso', 'materiaisTreinamento'])
                 ->lockForUpdate()
@@ -51,7 +64,9 @@ class EnfileirarEmailInscritoCursoAction
                 Log::channel('validation')->warning('E-mail inválido ou ausente para envio de informações de curso.', [
                     'tipo' => 'participante',
                     'agenda_curso_id' => $agenda->getKey(),
+                    'agenda_uid' => $agenda->uid,
                     'inscrito_id' => $inscrito->getKey(),
+                    'inscrito_uid' => $inscrito->uid,
                 ]);
 
                 return false;
@@ -70,14 +85,18 @@ class EnfileirarEmailInscritoCursoAction
                 $snapshot,
             ))->onConnection('database')->beforeCommit());
 
-            Log::channel('mailsent')->info('E-mail automático de informações de curso enfileirado.', [
+            $resumo->contexto([
                 'tipo' => 'participante',
                 'agenda_curso_id' => $agenda->getKey(),
+                'agenda_uid' => $agenda->uid,
                 'inscrito_id' => $inscrito->getKey(),
+                'inscrito_uid' => $inscrito->uid,
                 'tentativa_id' => $tentativa,
             ]);
+            $resumo->resultado('enfileirado');
+            $resumo->incrementar('enfileirados');
 
             return true;
-        });
+        }));
     }
 }

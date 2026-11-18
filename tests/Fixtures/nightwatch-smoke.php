@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -93,8 +94,20 @@ if (in_array($argv[1] ?? '', ['http', 'agent-unavailable'], true)) {
         dispatch(new NightwatchSmokeJob);
         $input = new ArrayInput(['command' => 'queue:work', '--once' => true]);
     } else {
-        Artisan::command('nightwatch:smoke', function () {
-            report(new RuntimeException('nightwatch smoke exception'));
+        Artisan::command('nightwatch:smoke', function () use ($mode) {
+            if ($mode === 'observability') {
+                $summary = new ResumoExecucao('smoke.consumida', ['tentativa_id' => 'tentativa-smoke'], 'mailsent');
+                $summary->executar(function ($summary) {
+                    try {
+                        $summary->etapa('enviar', fn () => throw new RuntimeException('falha sintetica consumida'));
+                    } catch (RuntimeException $exception) {
+                        report($exception);
+                        $summary->resultado('falha_definitiva', 'erro_tecnico');
+                    }
+                });
+            } else {
+                report(new RuntimeException('nightwatch smoke exception'));
+            }
         });
         $input = new ArrayInput(['command' => 'nightwatch:smoke']);
     }
@@ -107,5 +120,11 @@ $types = array_count_values(array_column($ingest->records, 't'));
 $payload = json_encode($ingest->records);
 if (str_contains($payload, 'secret-path') || str_contains($payload, 'secret-query') || str_contains($payload, 'secret-header')) {
     throw new RuntimeException('Sensitive HTTP data leaked');
+}
+if (($argv[1] ?? '') === 'observability') {
+    $exceptions = array_values(array_filter($ingest->records, fn ($record) => $record['t'] === 'exception'));
+    if (count($exceptions) !== 1 || empty($exceptions[0]['trace'])) {
+        throw new RuntimeException('Expected one consumed exception with stack trace');
+    }
 }
 echo json_encode(['enabled' => $core->enabled(), 'events' => $types, 'http_status' => isset($response) ? $response->getStatusCode() : null], JSON_PRETTY_PRINT).PHP_EOL;

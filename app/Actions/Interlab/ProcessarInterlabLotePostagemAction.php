@@ -7,6 +7,7 @@ use App\Enums\InterlabLotePostagemStatus;
 use App\Integrations\Correios\CorreiosLog;
 use App\Models\InterlabLotePostagem;
 use App\Models\InterlabLotePostagemItem;
+use App\Support\Observabilidade\ResumoExecucao;
 
 class ProcessarInterlabLotePostagemAction
 {
@@ -21,7 +22,7 @@ class ProcessarInterlabLotePostagemAction
         private EncerrarInterlabLotePostagemComErroAction $encerrar,
     ) {}
 
-    public function execute(InterlabLotePostagem $lote, int $tentativa = 1): ResultadoEtapaLotePostagem
+    public function execute(InterlabLotePostagem $lote, int $tentativa = 1, ?ResumoExecucao $resumo = null): ResultadoEtapaLotePostagem
     {
         $lote->refresh();
 
@@ -73,7 +74,7 @@ class ProcessarInterlabLotePostagemAction
         $lote->refresh();
 
         if ($lote->status === InterlabLotePostagemStatus::GerandoPrePostagens) {
-            $resultado = $this->processarPrePostagens($lote, $tentativa);
+            $resultado = ($resumo ? $resumo->etapa('pre_postagens', fn () => $this->processarPrePostagens($lote, $tentativa)) : $this->processarPrePostagens($lote, $tentativa));
 
             if (! $resultado->estaConcluida()) {
                 return $resultado;
@@ -83,7 +84,7 @@ class ProcessarInterlabLotePostagemAction
         }
 
         if ($lote->status === InterlabLotePostagemStatus::GerandoEtiquetas) {
-            $resultado = $this->emitirEtiquetas->execute($lote, $tentativa);
+            $resultado = ($resumo ? $resumo->etapa('emitir_etiquetas', fn () => $this->emitirEtiquetas->execute($lote, $tentativa)) : $this->emitirEtiquetas->execute($lote, $tentativa));
 
             if (! $resultado->estaConcluida()) {
                 return $resultado;
@@ -93,7 +94,7 @@ class ProcessarInterlabLotePostagemAction
         }
 
         if ($lote->status === InterlabLotePostagemStatus::GerandoDeclaracao) {
-            return $this->baixarDace->execute($lote);
+            return $resumo ? $resumo->etapa('baixar_declaracao', fn () => $this->baixarDace->execute($lote)) : $this->baixarDace->execute($lote);
         }
 
         return ResultadoEtapaLotePostagem::concluida();
@@ -125,7 +126,7 @@ class ProcessarInterlabLotePostagemAction
             ->exists();
 
         if ($aindaPendentes) {
-            return ResultadoEtapaLotePostagem::retentar(1);
+            return ResultadoEtapaLotePostagem::retentar(1, 'aguardando_itens');
         }
 
         return ResultadoEtapaLotePostagem::concluida();
@@ -143,7 +144,7 @@ class ProcessarInterlabLotePostagemAction
             'atraso_segundos' => self::HANDOFF_ATRASO_SEGUNDOS,
         ]);
 
-        return ResultadoEtapaLotePostagem::retentar(self::HANDOFF_ATRASO_SEGUNDOS);
+        return ResultadoEtapaLotePostagem::retentar(self::HANDOFF_ATRASO_SEGUNDOS, 'continuidade');
     }
 
     private function avancarEtapa(InterlabLotePostagem $lote, InterlabLotePostagemStatus $status): void

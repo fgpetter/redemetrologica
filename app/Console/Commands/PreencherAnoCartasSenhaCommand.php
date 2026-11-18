@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\OperacaoImpedidaException;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -19,52 +21,69 @@ class PreencherAnoCartasSenhaCommand extends Command
 
     public function handle(): int
     {
-        $disco = Storage::disk('public');
-        $dryRun = (bool) $this->option('dry-run');
-        $atualizadas = 0;
-        $removidas = 0;
-        $pendencias = 0;
-        $pdfs = [];
+        $resumo = new ResumoExecucao('PreencherAnoCartasSenhaCommand', [], 'stack');
+        $resumo->contexto(['simulacao' => (bool) $this->option('dry-run')]);
 
-        $cartas = DadosGeraDoc::query()->whereIn('tipo', DadosGeraDoc::TIPOS_CARTA_SENHA);
+        return $resumo->executar(function (ResumoExecucao $resumo): int {
 
-        foreach ($cartas->lazyById(100) as $carta) {
-            try {
-                if ($dryRun) {
-                    $resultado = $this->processar($carta, $disco, true);
-                } else {
-                    $resultado = DB::transaction(function () use ($cartas, $carta, $disco): ?array {
-                        $atual = (clone $cartas)->lockForUpdate()->find($carta->id);
+            $disco = Storage::disk('public');
+            $dryRun = (bool) $this->option('dry-run');
+            $atualizadas = 0;
+            $removidas = 0;
+            $pendencias = 0;
+            $falhasTecnicas = 0;
+            $pdfs = [];
 
-                        return $atual === null ? null : $this->processar($atual, $disco, false);
-                    });
-                }
-            } catch (QueryException $exception) {
-                throw $exception;
-            } catch (RuntimeException $exception) {
-                $this->warn("Carta {$carta->id}: {$exception->getMessage()}");
-                $pendencias++;
+            $cartas = DadosGeraDoc::query()->whereIn('tipo', DadosGeraDoc::TIPOS_CARTA_SENHA);
 
-                continue;
-            }
+            foreach ($cartas->lazyById(100) as $carta) {
+                try {
+                    if ($dryRun) {
+                        $resultado = $this->processar($carta, $disco, true);
+                    } else {
+                        $resultado = DB::transaction(function () use ($cartas, $carta, $disco): ?array {
+                            $atual = (clone $cartas)->lockForUpdate()->find($carta->id);
 
-            if ($resultado !== null) {
-                $atualizadas += (int) $resultado['alterou'];
-                $removidas += (int) ($resultado['removida'] ?? false);
-                if ($resultado['pdf'] !== null) {
-                    $pdfs[$resultado['pdf']] = true;
-                }
-                if ($resultado['pendencia'] !== null) {
-                    $this->warn("Carta {$carta->id}: {$resultado['pendencia']}");
+                            return $atual === null ? null : $this->processar($atual, $disco, false);
+                        });
+                    }
+                } catch (QueryException $exception) {
+                    throw $exception;
+                } catch (RuntimeException $exception) {
+                    if (! $exception instanceof OperacaoImpedidaException) {
+                        report($exception);
+                        $resumo->incrementar('falhas_tecnicas');
+                        $falhasTecnicas++;
+                    }
+                    $this->warn("Carta {$carta->id}: {$exception->getMessage()}");
                     $pendencias++;
+
+                    continue;
+                }
+
+                if ($resultado !== null) {
+                    $atualizadas += (int) $resultado['alterou'];
+                    $removidas += (int) ($resultado['removida'] ?? false);
+                    if ($resultado['pdf'] !== null) {
+                        $pdfs[$resultado['pdf']] = true;
+                    }
+                    if ($resultado['pendencia'] !== null) {
+                        $this->warn("Carta {$carta->id}: {$resultado['pendencia']}");
+                        $pendencias++;
+                    }
                 }
             }
-        }
 
-        $modo = $dryRun ? 'Simulação' : 'Concluído';
-        $this->info("{$modo}. Cartas atualizadas: {$atualizadas}. Cartas removidas: {$removidas}. PDFs removidos: ".count($pdfs).". Pendências: {$pendencias}.");
+            $modo = $dryRun ? 'Simulação' : 'Concluído';
+            $resumo->incrementar('removidas', (int) $removidas);
+            $resumo->incrementar('atualizadas', (int) $atualizadas);
+            $resumo->incrementar('pendencias', (int) $pendencias);
+            $this->info("{$modo}. Cartas atualizadas: {$atualizadas}. Cartas removidas: {$removidas}. PDFs removidos: ".count($pdfs).". Pendências: {$pendencias}.");
 
-        return $pendencias > 0 ? self::FAILURE : self::SUCCESS;
+            $resumo->resultado($falhasTecnicas > 0 ? 'falha_definitiva' : ($pendencias > 0 ? 'impedido' : 'concluido'));
+
+            return $pendencias > 0 ? self::FAILURE : self::SUCCESS;
+        });
     }
 
     private function precisaAtualizar(DadosGeraDoc $carta): bool
@@ -119,7 +138,7 @@ class PreencherAnoCartasSenhaCommand extends Command
         $caminho = DadosGeraDoc::normalizarCaminhoCartaSenha($salvo);
         $raiz = DadosGeraDoc::DIRETORIO_CARTAS_SENHA;
         if (filled($salvo) && ($caminho === null || ! in_array(dirname($caminho), [$raiz, $raiz.'/'.$carta->id], true))) {
-            throw new RuntimeException('Caminho de PDF inválido ou pertencente a outra carta.');
+            throw new OperacaoImpedidaException('referencia_arquivo_invalida', 'Caminho de PDF inválido ou pertencente a outra carta.');
         }
 
         $legado = $caminho !== null && $salvo !== $carta->storage_path;
