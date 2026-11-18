@@ -8,14 +8,11 @@ use App\Http\Requests\AtualizarCursoRequest;
 use App\Http\Requests\CriarCursoRequest;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
-use App\Models\CursoMaterial;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File as FileFacade;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -76,8 +73,6 @@ class CursoController extends Controller
      **/
     public function insert(Curso $curso): View
     {
-        $curso->load('materiais');
-
         return view('painel.cursos.edit', ['curso' => $curso]);
     }
 
@@ -133,72 +128,6 @@ class CursoController extends Controller
         return response()
             ->download($fullPath, basename($fullPath))
             ->deleteFileAfterSend(true);
-    }
-
-    /**
-     * Adiciona materiais ao curso
-     */
-    public function uploadMaterial(Request $request, Curso $curso): RedirectResponse
-    {
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'descricao' => ['nullable', 'string', 'max:190'],
-                'arquivo' => ['required', 'mimes:jpeg,png,jpg,pdf,doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:2048'],
-            ],
-            [
-                'descricao.string' => 'O campo aceita somente texto.',
-                'arquivo.mimes' => 'Apenas arquivos JPG,PNG e PDF são permitidos.',
-                'arquivo.max' => 'O arquivo é muito grande, dimiua o arquivo usando www.ilovepdf.com/pt/comprimir_pdf ou www.tinyjpg.com.',
-            ]
-        );
-
-        if ($validator->fails()) {
-
-            Log::channel('validation')->info(
-                'Erro de validação',
-                [
-                    'user' => auth()->user() ?? null,
-                    'request' => $request->all() ?? null,
-                    'uri' => request()->fullUrl() ?? null,
-                    'method' => get_class($this).'::'.__FUNCTION__,
-                    'errors' => $validator->errors() ?? null,
-                ]
-            );
-
-            return back()
-                ->with('error', 'Houve um erro a processar os dados, tente novamente')
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        if ($request->hasFile('arquivo')) {
-            $file_name = FileUploadAction::handle($request, 'arquivo', 'curso-material');
-        }
-
-        CursoMaterial::create([
-            'curso_id' => $curso->id,
-            'arquivo' => $file_name,
-            'descricao' => $request->descricao,
-        ]);
-
-        return back()->with('success', 'Material adicionado com sucesso');
-    }
-
-    /**
-     * Remove materiais ao curso
-     *
-     **/
-    public function deleteMaterial(CursoMaterial $material): RedirectResponse
-    {
-
-        if (FileFacade::exists(public_path('curso-material/'.$material->arquivo))) {
-            FileFacade::delete(public_path('curso-material/'.$material->arquivo));
-        }
-
-        $material->delete();
-
-        return redirect()->back()->with('success', 'Material removido');
     }
 
     /**

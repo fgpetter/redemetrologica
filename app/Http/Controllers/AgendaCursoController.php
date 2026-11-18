@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AtualizarAgendaCursoAction;
+use App\Actions\DeleteAgendaCursoAction;
+use App\Actions\DeleteMaterialTreinamentoAction;
+use App\Actions\EnfileirarFr98Action;
 use App\Actions\EnviarCertificadoAction;
+use App\Actions\UploadMaterialTreinamentoAction;
 use App\Exports\CursoInscritosExport;
 use App\Http\Requests\AgendaCursoRequest;
 use App\Http\Requests\SalvarDespesaAgendaCursoRequest;
+use App\Http\Requests\UploadMaterialTreinamentoRequest;
+use App\Models\AgendaCursoArquivo;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoDespesa;
@@ -18,6 +25,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -38,7 +46,7 @@ class AgendaCursoController extends Controller
      */
     public function insert(AgendaCursos $agendacurso): View
     {
-        $agendacurso->load('instrutor.pessoa', 'curso.materiais');
+        $agendacurso->load('instrutor.pessoa', 'materiaisTreinamento');
         $pessoas = Pessoa::select('id', 'uid', 'cpf_cnpj', 'tipo_pessoa', 'nome_razao')->get();
 
         $data = [
@@ -66,18 +74,11 @@ class AgendaCursoController extends Controller
 
         $agendacurso = AgendaCursos::create($validated);
 
-        if ($request->material) {
-            $agendacurso->cursoMateriais()->sync($request->material);
-            unset($validated['material']);
-        } else {
-            $agendacurso->cursoMateriais()->sync([]);
-        }
-
         if (! $agendacurso) {
             return back()->with('agendamento-error', 'Houve um erro, tente novamente');
         }
 
-        return redirect()->route('agendamento-curso-index')
+        return redirect()->route('agendamento-curso-insert', $agendacurso->uid)
             ->with('success', 'Agendamento cadastrado com sucesso');
     }
 
@@ -89,14 +90,7 @@ class AgendaCursoController extends Controller
         $oldStatus = $agendacurso->status;
         $validated = $request->validated();
 
-        if ($request->material) {
-            $agendacurso->cursoMateriais()->sync($request->material);
-            unset($validated['material']);
-        } else {
-            $agendacurso->cursoMateriais()->sync([]);
-        }
-
-        $agendacurso->update($validated);
+        $agendacurso = app(AtualizarAgendaCursoAction::class)->execute($agendacurso, $validated);
 
         if ($oldStatus !== 'REALIZADO' && $agendacurso->status === 'REALIZADO') {
             $inscritos = $agendacurso->inscritos()
@@ -114,7 +108,11 @@ class AgendaCursoController extends Controller
             }
         }
 
-        return redirect()->route('agendamento-curso-index')
+        if ($request->boolean('enviar_fr98')) {
+            return $this->enviarFr98($agendacurso, app(EnfileirarFr98Action::class));
+        }
+
+        return redirect()->route('agendamento-curso-insert', $agendacurso->uid)
             ->with('success', 'Agendamento atualizado com sucesso');
     }
 
@@ -123,10 +121,64 @@ class AgendaCursoController extends Controller
      */
     public function delete(AgendaCursos $agendacurso): RedirectResponse
     {
-        $agendacurso->delete();
+        try {
+            app(DeleteAgendaCursoAction::class)->execute($agendacurso);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Não foi possível remover o agendamento e seus materiais.');
+        }
 
         return redirect()->route('agendamento-curso-index')
             ->with('warning', 'Agendamento removido com sucesso');
+    }
+
+    public function enviarFr98(AgendaCursos $agendacurso, EnfileirarFr98Action $action): RedirectResponse
+    {
+        $route = $agendacurso->tipo_agendamento === 'IN-COMPANY'
+            ? 'agendamento-curso-in-company-insert'
+            : 'agendamento-curso-insert';
+        $response = redirect()->route($route, $agendacurso->uid);
+
+        try {
+            $action->execute($agendacurso->getKey());
+        } catch (ValidationException $e) {
+            return $response->with('error', implode(' ', $e->validator->errors()->all()));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return $response->with('error', 'Não foi possível enviar, erro interno no sistema');
+        }
+
+        return $response->with('success', 'FR98 enfileirado com sucesso. Aguarde o processamento do envio.');
+    }
+
+    public function uploadMaterial(UploadMaterialTreinamentoRequest $request, AgendaCursos $agendaCurso): RedirectResponse
+    {
+        try {
+            app(UploadMaterialTreinamentoAction::class)->execute($agendaCurso, $request->file('arquivo'), $request->validated('descricao'));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Não foi possível adicionar o material.');
+        }
+
+        return back()->with('success', 'Material adicionado com sucesso');
+    }
+
+    public function deleteMaterial(AgendaCursos $agendaCurso, AgendaCursoArquivo $material): RedirectResponse
+    {
+        abort_unless($material->agenda_curso_id === $agendaCurso->id, 404);
+
+        try {
+            app(DeleteMaterialTreinamentoAction::class)->execute($material);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Não foi possível remover o material.');
+        }
+
+        return back()->with('success', 'Material removido com sucesso');
     }
 
     /**

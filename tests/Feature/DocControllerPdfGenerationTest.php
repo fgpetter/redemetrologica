@@ -60,6 +60,8 @@ class DocControllerPdfGenerationTest extends TestCase
 
     public function test_download_gera_pdf_tag_senha_com_view_correta(): void
     {
+        Storage::fake('public');
+
         $dadosDoc = DadosGeraDoc::query()->create([
             'tipo' => 'tag_senha',
             'content' => [
@@ -72,7 +74,7 @@ class DocControllerPdfGenerationTest extends TestCase
             ],
         ]);
 
-        $path = Storage::path($dadosDoc->storage_path);
+        $path = Storage::disk('public')->path($dadosDoc->storage_path);
 
         $response = $this->get(route('dados-doc.download', ['link' => $dadosDoc->link]));
 
@@ -83,6 +85,8 @@ class DocControllerPdfGenerationTest extends TestCase
 
     public function test_download_gera_pdf_tag_senha_analista_com_view_correta(): void
     {
+        Storage::fake('public');
+
         $dadosDoc = DadosGeraDoc::query()->create([
             'tipo' => 'tag_senha_analista',
             'content' => [
@@ -96,7 +100,7 @@ class DocControllerPdfGenerationTest extends TestCase
             ],
         ]);
 
-        $path = Storage::path($dadosDoc->storage_path);
+        $path = Storage::disk('public')->path($dadosDoc->storage_path);
 
         $response = $this->get(route('dados-doc.download', ['link' => $dadosDoc->link]));
 
@@ -105,10 +109,12 @@ class DocControllerPdfGenerationTest extends TestCase
         Pdf::assertSaved($path);
     }
 
-    public function test_download_persiste_caminho_com_timestamp_para_nomes_longos(): void
+    public function test_download_persiste_caminho_com_id_para_nomes_longos(): void
     {
         $analistaNome = 'Elisabete Aparecida Lopes Guastalli';
         $laboratorioNome = 'Instituto Biologico Servico Laboratorial Regional de Pesquisa em Sanidade Avicola';
+
+        Storage::fake('public');
 
         $dadosDoc = DadosGeraDoc::query()->create([
             'tipo' => 'tag_senha_analista',
@@ -124,7 +130,6 @@ class DocControllerPdfGenerationTest extends TestCase
         ]);
 
         $linkUuid = $dadosDoc->link;
-        $timestamp = (string) now()->timestamp;
         $expectedRelativePath = $dadosDoc->storage_path;
 
         $response = $this->get(route('dados-doc.download', ['link' => $linkUuid]));
@@ -137,7 +142,7 @@ class DocControllerPdfGenerationTest extends TestCase
 
         $this->assertSame($expectedRelativePath, $persistedPath);
         $this->assertLessThanOrEqual(255, strlen($persistedPath));
-        $this->assertStringEndsWith("_{$timestamp}.pdf", $persistedPath);
+        $this->assertStringEndsWith("_{$dadosDoc->id}.pdf", $persistedPath);
         $this->assertStringNotContainsString($linkUuid, $persistedPath);
         $this->assertSame($linkUuid, $dadosDoc->link);
     }

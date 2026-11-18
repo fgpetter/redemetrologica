@@ -11,6 +11,24 @@ class DadosGeraDoc extends Model
     // O conteúdo e os links de cartas de senha não são replicados no log de atividades.
     use SetDefaultUid;
 
+    public const TIPOS_CARTA_SENHA = ['tag_senha', 'tag_senha_analista'];
+
+    public const DIRETORIO_CARTAS_SENHA = 'docs/senhas';
+
+    public static function normalizarCaminhoCartaSenha(?string $caminho): ?string
+    {
+        if ($caminho === null || preg_match('~[\\\\\\x00-\\x1f]~', $caminho)) {
+            return null;
+        }
+
+        $caminho = Str::chopStart($caminho, 'public/');
+        $diretorio = preg_quote(self::DIRETORIO_CARTAS_SENHA, '~');
+
+        return preg_match("~\\A{$diretorio}/(?:[0-9]+/)?[^/]+\\.pdf\\z~i", $caminho)
+            ? $caminho
+            : null;
+    }
+
     /**
      * The table associated with the model.
      *
@@ -58,7 +76,7 @@ class DadosGeraDoc extends Model
         if ($this->tipo === 'tag_senha') {
             $nameSlug = Str::slug($this->content['laboratorio_nome'] ?? 'tag');
 
-            return "tag_senha_{$nameSlug}_{$timestamp}.pdf";
+            return 'tag_senha_'.Str::limit($nameSlug, 160, '').'_'.$this->getKey().'.pdf';
         }
 
         if ($this->tipo === 'tag_senha_analista') {
@@ -66,7 +84,7 @@ class DadosGeraDoc extends Model
                 ($this->content['analista_nome'] ?? 'analista').'_'.($this->content['laboratorio_nome'] ?? 'tag')
             );
 
-            return "tag_senha_analista_{$nameSlug}_{$timestamp}.pdf";
+            return 'tag_senha_analista_'.Str::limit($nameSlug, 160, '').'_'.$this->getKey().'.pdf';
         }
 
         if ($this->tipo === 'certificado') {
@@ -89,10 +107,10 @@ class DadosGeraDoc extends Model
      */
     public function getStoragePathAttribute(): string
     {
-        $folder = in_array($this->tipo, ['tag_senha', 'tag_senha_analista'], true)
-            ? 'senhas'
-            : 'certificados';
+        if (in_array($this->tipo, self::TIPOS_CARTA_SENHA, true)) {
+            return self::DIRETORIO_CARTAS_SENHA.'/'.$this->file_name;
+        }
 
-        return "public/docs/{$folder}/{$this->file_name}";
+        return "public/docs/certificados/{$this->file_name}";
     }
 }

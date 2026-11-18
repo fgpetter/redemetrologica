@@ -38,8 +38,17 @@
                 @endif
 
                 @if ($tipoagenda == 'ABERTO')
-                    <x-painel.agendamento-cursos.form-principal :instrutores="$instrutores" :cursos="$cursos" :empresas="$empresas"
-                        :agendacurso="$agendacurso" :cursoatual="$cursoatual" :instrutoratual="$instrutoratual" />
+                    <div class="row g-3">
+                        <div class="col-12 {{ $agendacurso->exists ? 'col-xl-7' : '' }}">
+                            <x-painel.agendamento-cursos.form-principal :instrutores="$instrutores" :cursos="$cursos" :empresas="$empresas"
+                                :agendacurso="$agendacurso" :cursoatual="$cursoatual" :instrutoratual="$instrutoratual" />
+                        </div>
+                        @if ($agendacurso->exists)
+                            <div class="col-12 col-xl-5">
+                                <x-painel.agendamento-cursos.arquivos-treinamento :agendacurso="$agendacurso" />
+                            </div>
+                        @endif
+                    </div>
                 @endif
             </div>
 

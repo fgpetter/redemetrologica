@@ -1,8 +1,11 @@
 <?php
 
+use App\Models\AgendaCursoArquivo;
+use App\Models\AgendaCursos;
 use App\Models\Curso;
-use App\Models\CursoMaterial;
+use App\Models\Instrutor;
 use App\Models\User;
+use Database\Factories\PessoaFactory;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -186,9 +189,11 @@ it('stores model changes in attribute_changes after the upgrade', function () {
         'tipo_curso' => 'OFICIAL',
     ]);
 
-    $material = CursoMaterial::query()->create([
+    $instrutor = Instrutor::create(['pessoa_id' => PessoaFactory::new()->create()->id, 'situacao' => true]);
+    $agenda = AgendaCursos::create(['curso_id' => $course->id, 'instrutor_id' => $instrutor->id, 'status' => 'AGENDADO', 'tipo_agendamento' => 'ONLINE']);
+    $material = AgendaCursoArquivo::query()->create([
         'uid' => uniqid('MAT-'),
-        'curso_id' => $course->id,
+        'agenda_curso_id' => $agenda->id,
         'arquivo' => 'material-teste.pdf',
         'descricao' => 'Descrição original',
     ]);
@@ -196,7 +201,7 @@ it('stores model changes in attribute_changes after the upgrade', function () {
     $material->update(['descricao' => 'Descrição atualizada']);
 
     $activity = SpatieActivity::query()
-        ->where('subject_type', CursoMaterial::class)
+        ->where('subject_type', AgendaCursoArquivo::class)
         ->where('subject_id', $material->id)
         ->where('event', 'updated')
         ->firstOrFail();
@@ -209,9 +214,11 @@ it('records only changed attributes and preserves both users during impersonatio
     $impersonator = User::factory()->create();
     $impersonated = User::factory()->create();
     $course = Curso::query()->create(['descricao' => 'Curso original', 'tipo_curso' => 'OFICIAL']);
-    $material = CursoMaterial::query()->create([
+    $instrutor = Instrutor::create(['pessoa_id' => PessoaFactory::new()->create()->id, 'situacao' => true]);
+    $agenda = AgendaCursos::create(['curso_id' => $course->id, 'instrutor_id' => $instrutor->id, 'status' => 'AGENDADO', 'tipo_agendamento' => 'ONLINE']);
+    $material = AgendaCursoArquivo::query()->create([
         'uid' => uniqid('MAT-'),
-        'curso_id' => $course->id,
+        'agenda_curso_id' => $agenda->id,
         'arquivo' => 'inalterado.pdf',
         'descricao' => 'Descrição original',
     ]);

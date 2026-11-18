@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -18,19 +19,15 @@ class DocController extends Controller
     {
         $dadosDoc = DadosGeraDoc::where('link', $link)->firstOrFail();
 
+        if (in_array($dadosDoc->tipo, DadosGeraDoc::TIPOS_CARTA_SENHA, true)) {
+            return $this->downloadCartaSenha($dadosDoc);
+        }
+
         if ($dadosDoc->file_name && Storage::exists($dadosDoc->file_name)) {
             return response()->download(
                 Storage::path($dadosDoc->file_name),
                 basename($dadosDoc->file_name)
             );
-        }
-
-        if ($dadosDoc->tipo === 'tag_senha') {
-            return $this->generateTagSenhaPdf($dadosDoc);
-        }
-
-        if ($dadosDoc->tipo === 'tag_senha_analista') {
-            return $this->generateTagSenhaAnalistaPdf($dadosDoc);
         }
 
         if ($dadosDoc->tipo === 'certificado') {
@@ -44,38 +41,34 @@ class DocController extends Controller
         abort(500, 'Tipo de documento não suportado.');
     }
 
-    /**
-     * Geração do PDF para tag senha do laboratório
-     */
-    private function generateTagSenhaPdf(DadosGeraDoc $dadosDoc): BinaryFileResponse
+    private function downloadCartaSenha(DadosGeraDoc $dadosDoc): BinaryFileResponse
     {
-        return $this->gerarESalvarTagSenhaPdf($dadosDoc, 'certificados.tag-senha');
-    }
+        return DB::transaction(function () use ($dadosDoc): BinaryFileResponse {
+            $dadosDoc = DadosGeraDoc::query()->lockForUpdate()->findOrFail($dadosDoc->getKey());
+            $disco = Storage::disk('public');
+            $caminhoSalvo = $dadosDoc->getRawOriginal('file_name');
+            $diretorio = DadosGeraDoc::DIRETORIO_CARTAS_SENHA;
 
-    /**
-     * Geração do PDF para tag senha do analista
-     */
-    private function generateTagSenhaAnalistaPdf(DadosGeraDoc $dadosDoc): BinaryFileResponse
-    {
-        return $this->gerarESalvarTagSenhaPdf($dadosDoc, 'certificados.tag-senha-analista');
-    }
+            if ($caminhoSalvo !== null
+                && DadosGeraDoc::normalizarCaminhoCartaSenha($caminhoSalvo) === $caminhoSalvo
+                && $caminhoSalvo === $dadosDoc->storage_path
+                && $disco->fileExists($caminhoSalvo)) {
+                return response()->download($disco->path($caminhoSalvo), basename($caminhoSalvo));
+            }
 
-    private function gerarESalvarTagSenhaPdf(DadosGeraDoc $dadosDoc, string $view): BinaryFileResponse
-    {
-        $fileName = $dadosDoc->file_name;
-        $path = $dadosDoc->storage_path;
+            $caminho = $dadosDoc->storage_path;
+            $disco->makeDirectory($diretorio);
 
-        if (! Storage::exists(dirname($path))) {
-            Storage::makeDirectory(dirname($path));
-        }
+            $view = $dadosDoc->tipo === 'tag_senha'
+                ? 'certificados.tag-senha'
+                : 'certificados.tag-senha-analista';
 
-        Pdf::view($view, [
-            'dadosDoc' => $dadosDoc,
-        ])->driver('dompdf')->save(Storage::path($path));
+            Pdf::view($view, ['dadosDoc' => $dadosDoc])->driver('dompdf')->save($disco->path($caminho));
 
-        $dadosDoc->update(['file_name' => $path]);
+            $dadosDoc->update(['file_name' => $caminho]);
 
-        return response()->download(Storage::path($path), $fileName);
+            return response()->download($disco->path($caminho), basename($caminho));
+        });
     }
 
     /**

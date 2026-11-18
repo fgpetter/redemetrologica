@@ -1,0 +1,13 @@
+[mcp_servers.laravel-boost]
+command = "php"
+args = ["artisan", "boost:mcp"]
+cwd = "/home/filipe/projects/sistema-rede"
+
+[mcp_servers.newdebugbar]
+command = "php"
+args = ["artisan", "mcp:start", "newdebugbar"]
+cwd = "/home/filipe/projects/sistema-rede"
+env = { NEWDEBUGBAR_ENABLED = "true" }
+
+[mcp_servers.nightwatch]
+url = "https://nightwatch.laravel.com/mcp"

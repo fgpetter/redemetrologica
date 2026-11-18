@@ -119,7 +119,7 @@ class Pessoa extends Model
      */
     public function cursos(): HasMany
     {
-        return $this->hasMany(CursoInscrito::class);
+        return $this->hasMany(CursoInscrito::class)->with(['agendaCurso.curso', 'agendaCurso.materiaisTreinamento', 'empresa']);
     }
 
     /**
@@ -139,6 +139,20 @@ class Pessoa extends Model
     }
 
     // Acessors and mutators
+    protected function nomeRazao(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value === null ? null : mb_strtoupper($value, 'UTF-8'),
+        );
+    }
+
+    protected function nomeFantasia(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value === null ? null : mb_strtoupper($value, 'UTF-8'),
+        );
+    }
+
     protected function cpfCnpj(): Attribute
     {
         return Attribute::make(

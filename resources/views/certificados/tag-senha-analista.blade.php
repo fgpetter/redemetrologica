@@ -209,7 +209,7 @@
     <div class="tag-container">
         <div class="tag-box">
             <span class="tag-label">TAG:</span>
-            <span class="tag-value">{{ $dadosDoc->content['tag_senha'] }}</span>
+            <span class="tag-value">{{ mb_strtoupper($dadosDoc->content['tag_senha'] ?? '') }}</span>
         </div>
     </div>
 

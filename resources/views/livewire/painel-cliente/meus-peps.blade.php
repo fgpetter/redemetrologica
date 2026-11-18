@@ -23,10 +23,12 @@
                                     <strong>Data da Inscrição:</strong> {{ \Carbon\Carbon::parse($labGroup->first()->created_at)->format('d/m/Y') }} <br>
                                     <strong>Informações de inscrição:</strong> <br>
                                     <span class="ps-1">{!! nl2br($labGroup->first()->informacoes_inscricao) !!}</span>
-                                    @if ($labGroup->first()->laboratorio->analistas->count() > 0)
+                                    @if ($labGroup->contains(fn ($inscrito) => $inscrito->analistas->isNotEmpty()))
                                         <br><strong>Analistas Inscritos:</strong> <br>
-                                        @foreach ($labGroup->first()->laboratorio->analistas as $analista)
-                                            <span class="ps-1"><strong>{{ $analista->nome }}</strong>, {{ $analista->email }}, {{ $analista->telefone }}</span> <br>
+                                        @foreach ($labGroup as $inscrito)
+                                            @foreach ($inscrito->analistas as $analista)
+                                                <span class="ps-1"><strong>{{ $analista->nome }}</strong>, {{ $analista->email }}, {{ $analista->telefone }}</span> <br>
+                                            @endforeach
                                         @endforeach
                                     @endif
                                 </p>
@@ -51,29 +53,59 @@
                             </div>
                             <hr>
                         </div>
+                        @foreach ($labGroup as $inscrito)
+                            @php($documentos = $documentosPorInscricao[$inscrito->id] ?? [])
+                            <div class="mb-3" wire:key="documentos-inscricao-{{ $inscrito->id }}">
+                                <span class="small fw-semibold text-muted">Documentos da inscrição:</span>
+                                <ul class="list-unstyled ms-3 mt-2 mb-0">
+                                @if (!empty($inscrito->agendaInterlab->protocolo))
+                                    <li class="mb-1"><strong>Protocolo:</strong> <a href="{{ asset('PROTOCOLO_INTERLAB/' . $inscrito->agendaInterlab->protocolo) }}" target="_blank" rel="noopener" class="link-primary">Acessar protocolo</a></li>
+                                @endif
+                                @if (!empty($documentos['carta']) || collect($documentos['analistas'] ?? [])->contains(fn ($analista) => !empty($analista['carta'])))
+                                    <li class="mb-1"><strong>Senha:</strong>
+                                        <ul class="list-unstyled ms-3">
+                                            @if (!empty($documentos['carta']))
+                                                <li><a href="{{ $documentos['carta'] }}" target="_blank" rel="noopener" class="link-primary">Carta-senha do laboratório</a></li>
+                                            @endif
+                                            @foreach (($documentos['analistas'] ?? []) as $analista)
+                                                @if (!empty($analista['carta']))
+                                                    <li><a href="{{ $analista['carta'] }}" target="_blank" rel="noopener" class="link-primary">Carta-senha — {{ $analista['nome'] }}</a></li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
+                                    </li>
+                                @endif
+                                @if (!empty($documentos['certificado']) || collect($documentos['analistas'] ?? [])->contains(fn ($analista) => !empty($analista['certificado'])))
+                                    <li class="mb-1"><strong>Certificado:</strong>
+                                        <ul class="list-unstyled ms-3">
+                                            @if (!empty($documentos['certificado']))
+                                                <li><a href="{{ $documentos['certificado'] }}" target="_blank" rel="noopener" class="link-primary">Certificado do laboratório</a></li>
+                                            @endif
+                                            @foreach (($documentos['analistas'] ?? []) as $analista)
+                                                @if (!empty($analista['certificado']))
+                                                    <li><a href="{{ $analista['certificado'] }}" target="_blank" rel="noopener" class="link-primary">Certificado — {{ $analista['nome'] }}</a></li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
+                                    </li>
+                                @endif
+                                @if ($agendaGroup->first()->agendaInterlab->materiais->count() > 0)
+                                    <li class="mb-1"><strong>Materiais do Interlab:</strong>
+                                        <ul class="list-unstyled ms-3">
+                                            @foreach ($agendaGroup->first()->agendaInterlab->materiais as $material)
+                                                <li><a href="{{ asset('interlab-material/' . $material->arquivo) }}" target="_blank" rel="noopener" class="link-primary">{{ $material->descricao ?: 'Material ' . $loop->iteration }}</a></li>
+                                            @endforeach
+                                        </ul>
+                                    </li>
+                                @endif
+                                </ul>
+                            </div>
+                        @endforeach
                     @endforeach
                 @endforeach
             </div>
 
             <div class="card-footer bg-light">
-                @if ($agendaGroup->first()->agendaInterlab->materiais->count() > 0)
-                    <div class="alert alert-primary alert-border-left" role="alert">
-                        <div class="text-dark">
-                            <i class="ri-attachment-line me-3 align-middle "></i>
-                            <strong class="fs-5">Materiais de apoio para o interlab:</strong>
-                            <ul class="list-unstyled ms-3 mt-2">
-                                @foreach ($agendaGroup->first()->agendaInterlab->materiais as $material)
-                                    <li class="mb-1">
-                                        <i class="bx bx-file me-1"></i>
-                                        <a href="{{ asset('interlab-material/' . $material->arquivo) }}" target="_blank" class="text-primary">
-                                            {{ $material->descricao ?: 'Material ' . $loop->iteration }}
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                @endif
                 Para acessar mais informações sobre o interlab,
                 <a href="{{ route('site-single-interlaboratorial', $agendaGroup->first()->agendaInterlab->uid) }}" class="link-primary"> clique aqui</a>
                 <br>

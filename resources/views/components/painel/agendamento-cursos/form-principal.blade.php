@@ -48,6 +48,13 @@
       @enderror
     </div>
 
+    <div class="col-sm-12">
+      <x-forms.input-field :value="old('link_aula', $agendacurso->link_aula ?? null)" type="url" name="link_aula" label="Link da aula" />
+      @error('link_aula')
+        <div class="text-warning">{{ $message }}</div>
+      @enderror
+    </div>
+
     <div class="col-sm-3">
       <x-forms.input-field :value="old('data_inicio', $agendacurso->data_inicio?->format('Y-m-d'))" type="date" name="data_inicio"
         label="Data Inicio  <span class='text-danger'>*</span>" />
@@ -88,45 +95,23 @@
       @enderror
     </div>
 
-    <div class="col-sm-12">
-      <x-forms.input-select name="instrutor_id" label="Instrutor <span class='text-danger'>*</span>">
-        <option value="">Selecione um instrutor</option>
-        @if ($instrutoratual)
-          <option selected value="{{ $instrutoratual->id }}">{{ $instrutoratual->pessoa->nome_razao }}
-          </option>
-        @endif
-        @foreach ($instrutores as $instrutor)
-          <option value="{{ $instrutor->id }}">{{ $instrutor->pessoa->nome_razao }}</option>
-        @endforeach
-      </x-forms.input-select>
-    </div>
-
-    @if($agendacurso->uid)
     <div class="col-12">
-      <div class="card border shadow-none">
-        <div class="card-header pt-2">
-          <h6 class="h6 mt-0">Selecionar materiais disponíveis</h6>
+      <div class="row g-3">
+        <div class="col-12 {{ $agendacurso->exists ? 'col-sm' : '' }}">
+          <x-forms.input-select name="instrutor_id" label="Instrutor <span class='text-danger'>*</span>">
+            <option value="">Selecione um instrutor</option>
+            @if ($instrutoratual)
+              <option selected value="{{ $instrutoratual->id }}">{{ $instrutoratual->pessoa->nome_razao }}
+              </option>
+            @endif
+            @foreach ($instrutores as $instrutor)
+              <option value="{{ $instrutor->id }}">{{ $instrutor->pessoa->nome_razao }}</option>
+            @endforeach
+          </x-forms.input-select>
         </div>
-        <div class="card-body">
-          <div class="row">
-            @forelse ($agendacurso->curso->materiais as $material)
-              <div class="form-check mb-2">
-                <input class="form-check-input" name="material[]" value="{{ $material->id }}" type="checkbox" id="{{ $material->uid }}"
-                  @checked( $agendacurso->cursoMateriais->contains( $material ) ) >
-                <label class="form-check-label d-inline-flex align-items-center" for="{{ $material->uid }}">
-                  {!! ($material->descricao) ? $material->descricao . '&nbsp; <i class="ph-arrow-right fs-5"></i> &nbsp;' : '' !!}
-                  {{ $material->arquivo }}
-                </label>&nbsp;
-              </div>
-            @empty
-              <p> O curso {{$agendacurso->curso->descricao}} não tem materiais.</p>
-            @endforelse
-          </div>
-        </div>
+        <x-painel.agendamento-cursos.fr98 :agendacurso="$agendacurso" />
       </div>
     </div>
-    @endif
-
 
     <div class="col-sm-4" id="input-investimento">
       <x-forms.input-field :value="old('investimento') ?? ($agendacurso->investimento ?? null)" 
@@ -170,11 +155,12 @@
 @endif
 
 <script>
+  let realizadoConfirmado = false;
   document.getElementById('form-agendamento-curso').addEventListener('submit', function(e) {
     const statusSelect = document.getElementById('status-agendamento');
     const oldStatus = "{{ $agendacurso->status }}";
     
-    if (statusSelect.value === 'REALIZADO' && oldStatus !== 'REALIZADO') {
+    if (statusSelect.value === 'REALIZADO' && oldStatus !== 'REALIZADO' && !realizadoConfirmado) {
       e.preventDefault();
       Swal.fire({
         title: 'Confirmação',
@@ -187,7 +173,8 @@
         cancelButtonText: 'Cancelar'
       }).then((result) => {
         if (result.isConfirmed) {
-          this.submit();
+          realizadoConfirmado = true;
+          this.requestSubmit(e.submitter);
         }
       });
     }

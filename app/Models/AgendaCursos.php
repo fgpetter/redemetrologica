@@ -7,7 +7,6 @@ use App\Traits\LogsModelActivity;
 use App\Traits\SetDefaultUid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -28,8 +27,32 @@ class AgendaCursos extends Model
         'data_inicio' => 'date',
         'data_fim' => 'date',
         'validade_proposta' => 'date',
+        'conferencia_enviada_em' => 'datetime',
+        'pendencias_enviadas_em' => 'datetime',
+        'informacoes_enviadas_em' => 'datetime',
+        'fr98_enviado_em' => 'datetime',
         'contato_telefone' => TelefoneCast::class,
     ];
+
+    /**
+     * Confirma que todos os inscritos receberam as informações.
+     *
+     * O chamador deve manter a agenda bloqueada durante a conciliação.
+     */
+    public function sincronizarConfirmacaoInformacoes(): bool
+    {
+        if ($this->informacoes_enviadas_em !== null || ! $this->inscritos()->exists()) {
+            return false;
+        }
+
+        if ($this->inscritos()->whereNull('informacoes_enviadas_em')->exists()) {
+            return false;
+        }
+
+        $this->update(['informacoes_enviadas_em' => now('America/Sao_Paulo')]);
+
+        return true;
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -65,8 +88,8 @@ class AgendaCursos extends Model
         return $this->hasMany(CursoInscrito::class, 'agenda_curso_id', 'id');
     }
 
-    public function cursoMateriais(): BelongsToMany
+    public function materiaisTreinamento(): HasMany
     {
-        return $this->belongsToMany(CursoMaterial::class, 'agenda_curso_materiais', 'agenda_curso_id', 'curso_material_id');
+        return $this->hasMany(AgendaCursoArquivo::class, 'agenda_curso_id');
     }
 }

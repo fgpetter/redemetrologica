@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AtualizarAgendaCursoAction;
+use App\Actions\EnfileirarFr98Action;
 use App\Http\Requests\AgendaCursoRequest;
 use App\Models\AgendaCursos;
 use App\Models\CentroCusto;
@@ -13,6 +15,7 @@ use App\Models\Pessoa;
 use App\Models\PlanoConta;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 
 class AgendaCursoInCompanyController extends Controller
 {
@@ -23,7 +26,7 @@ class AgendaCursoInCompanyController extends Controller
      */
     public function insert(AgendaCursos $agendacurso): View
     {
-        $agendacurso->load('instrutor.pessoa', 'curso.materiais');
+        $agendacurso->load('instrutor.pessoa');
         $pessoas = Pessoa::select('id', 'uid', 'cpf_cnpj', 'tipo_pessoa', 'nome_razao')->get();
 
         $data = [
@@ -54,11 +57,6 @@ class AgendaCursoInCompanyController extends Controller
 
         $agendacurso = AgendaCursos::create($validated);
 
-        if ($request->material) {
-            $agendacurso->cursoMateriais()->sync($request->material);
-            unset($validated['material']);
-        }
-
         if (! $agendacurso) {
             return back()->with('agendamento-error', 'Houve um erro, tente novamente');
         }
@@ -78,7 +76,7 @@ class AgendaCursoInCompanyController extends Controller
             ]);
         }
 
-        return redirect()->route('agendamento-curso-index')
+        return redirect()->route('agendamento-curso-in-company-insert', $agendacurso->uid)
             ->with('success', 'Agendamento cadastrado com sucesso');
     }
 
@@ -93,12 +91,7 @@ class AgendaCursoInCompanyController extends Controller
         $validated['inscricoes'] = 0;
         $validated['destaque'] = 0;
 
-        if ($request->material) {
-            $agendacurso->cursoMateriais()->sync($request->material);
-            unset($validated['material']);
-        }
-
-        $agendacurso->update($validated);
+        $agendacurso = app(AtualizarAgendaCursoAction::class)->execute($agendacurso, $validated);
 
         if ($request->status_proposta == 'APROVADA' && $request->valor_orcamento > 0) {
             LancamentoFinanceiro::updateOrCreate([
@@ -115,7 +108,23 @@ class AgendaCursoInCompanyController extends Controller
             ]);
         }
 
-        return redirect()->route('agendamento-curso-index')
+        if ($request->boolean('enviar_fr98')) {
+            $response = redirect()->route('agendamento-curso-in-company-insert', $agendacurso->uid);
+
+            try {
+                app(EnfileirarFr98Action::class)->execute($agendacurso->getKey());
+            } catch (ValidationException $e) {
+                return $response->with('error', implode(' ', $e->validator->errors()->all()));
+            } catch (\Throwable $e) {
+                report($e);
+
+                return $response->with('error', 'Não foi possível enviar, erro interno no sistema');
+            }
+
+            return $response->with('success', 'FR98 enfileirado com sucesso. Aguarde o processamento do envio.');
+        }
+
+        return redirect()->route('agendamento-curso-in-company-insert', $agendacurso->uid)
             ->with('success', 'Agendamento atualizado com sucesso');
     }
 }

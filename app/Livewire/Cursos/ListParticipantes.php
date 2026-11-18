@@ -3,12 +3,14 @@
 namespace App\Livewire\Cursos;
 
 use App\Actions\EnviarCertificadoAction;
-use App\Actions\EnviarMaterialCursoAction;
+use App\Actions\EnviarMateriaisCursoAction;
 use App\Actions\SalvaInscritoInCompanyAction;
 use App\Helpers\Telefone;
 use App\Livewire\Forms\ParticipanteCursoForm;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class ListParticipantes extends Component
@@ -96,18 +98,6 @@ class ListParticipantes extends Component
         session()->flash('success', 'Inscrito adicionado com sucesso!');
     }
 
-    public function enviarDocs(CursoInscrito $inscrito)
-    {
-        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
-        $inscrito = $this->agendacurso->inscritos()->findOrFail($inscrito->id);
-        try {
-            app(EnviarMaterialCursoAction::class)->execute($inscrito);
-            session()->flash('success', 'E-mail com materiais enviado com sucesso!');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Houve um erro ao tentar enviar os materiais: '.$e->getMessage());
-        }
-    }
-
     public function enviarCertificado(CursoInscrito $inscrito)
     {
         abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
@@ -117,6 +107,26 @@ class ListParticipantes extends Component
             session()->flash('success', 'E-mail com certificado enviado com sucesso!');
         } catch (\Exception $e) {
             session()->flash('error', 'Houve um erro ao tentar enviar o certificado: '.$e->getMessage());
+        }
+    }
+
+    public function enviarMateriais(string $uid): void
+    {
+        abort_unless(auth()->user()?->hasPermissionTo(['funcionario', 'admin']), 404);
+        $inscrito = $this->agendacurso->inscritos()->where('uid', $uid)->firstOrFail();
+
+        try {
+            app(EnviarMateriaisCursoAction::class)->execute($inscrito);
+            $this->dispatch('show-success-alert', message: 'Envio de materiais solicitado com sucesso!');
+        } catch (ValidationException $e) {
+            $this->dispatch('show-error-alert', message: 'Não foi possível enviar os materiais: o e-mail do inscrito é inválido ou não foi informado.');
+        } catch (\Exception $e) {
+            Log::error('Falha ao solicitar envio manual de materiais de curso.', [
+                'agenda_curso_id' => $this->agendacurso->getKey(),
+                'inscrito_id' => $inscrito->getKey(),
+                'exception' => $e,
+            ]);
+            $this->dispatch('show-error-alert', message: 'Houve um erro ao solicitar o envio dos materiais. Tente novamente.');
         }
     }
 }

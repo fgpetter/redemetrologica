@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Helpers\Telefone;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -40,6 +41,7 @@ class AgendaCursoRequest extends FormRequest
             'empresa_id' => ['nullable', 'exists:pessoas,id'],
             'pessoa_id' => ['nullable', 'exists:pessoas,id'],
             'endereco_local' => ['nullable', 'string'],
+            'link_aula' => ['nullable', 'url', 'max:255'],
             'data_inicio' => ['required', 'date'],
             'data_fim' => ['nullable', 'date'],
             'horario' => ['nullable', 'string'],
@@ -56,8 +58,6 @@ class AgendaCursoRequest extends FormRequest
             'validade_proposta' => ['nullable', 'date'],
             'valor_orcamento' => ['nullable', 'string'],
             'status_proposta' => ['nullable', Rule::in(['PENDENTE', 'AGUARDANDO APROVACAO', 'APROVADA', 'REPROVADA'])],
-            'material' => ['nullable', 'array'],
-            'material.*' => ['integer', 'exists:curso_materiais,id'],
         ];
     }
 
@@ -76,6 +76,8 @@ class AgendaCursoRequest extends FormRequest
             'instrutor_id.required' => 'É necessário escolher um instrutor',
             'instrutor_id.in' => 'Selecione uma opção válida',
             'endereco_local.string' => 'O dado enviado não é valido',
+            'link_aula.url' => 'Informe uma URL válida',
+            'link_aula.max' => 'A URL deve ter no máximo 255 caracteres',
             'data_inicio.date' => 'O dado enviado não é uma data valida',
             'data_fim.date' => 'O dado enviado não é uma data valida',
             'validade_proposta.date' => 'O dado enviado não é uma data valida',
@@ -94,19 +96,18 @@ class AgendaCursoRequest extends FormRequest
         ];
     }
 
-    public function failedValidation(Validator $validator)
+    public function failedValidation(Validator $validator): void
     {
         Log::channel('validation')->info('Erro de validação', [
-            'user' => auth()->user() ?? null,
-            'request' => $this->all() ?? null,
+            'user_id' => auth()->id(),
             'uri' => request()->fullUrl() ?? null,
             'method' => get_class($this).'::'.__FUNCTION__,
-            'errors' => $validator->errors() ?? null,
+            'campos' => $validator->errors()->keys(),
         ]);
 
-        return back()->with('error', 'Houve um erro a processar os dados, tente novamente')
+        throw new HttpResponseException(back()->with('error', implode(' ', $validator->errors()->all()))
             ->withErrors($validator)
-            ->withInput();
+            ->withInput($this->except(['password', 'password_confirmation', '_token'])));
     }
 
     private function defineStatus(): string
