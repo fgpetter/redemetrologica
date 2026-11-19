@@ -31,13 +31,17 @@ class GerarCertificadoInterlabJob implements ShouldQueue
         $resumo->executar(function (ResumoExecucao $resumo): void {
             $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $dadosDoc = DadosGeraDoc::findOrFail($this->dadosDocId);
-            $email = trim((string) ($dadosDoc->content['laboratorio_email'] ?? ''));
-            Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->validate();
+            $dadosDoc = $resumo->etapa('carregar_documento', fn () => DadosGeraDoc::findOrFail($this->dadosDocId));
+            $email = $resumo->etapa('validar_destinatario', function () use ($dadosDoc): string {
+                $email = trim((string) ($dadosDoc->content['laboratorio_email'] ?? ''));
+                Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->validate();
+
+                return $email;
+            });
 
             $resumo->etapa('enviar', fn () => Mail::to($email)->sendNow(new CertificadoInterlabMail($dadosDoc)));
 
-            $inscrito = InterlabInscrito::query()->find($dadosDoc->content['participante_id'] ?? null);
+            $inscrito = $resumo->etapa('carregar_referencias', fn () => InterlabInscrito::query()->find($dadosDoc->content['participante_id'] ?? null));
 
             $resumo->contexto([
                 'tipo' => 'certificado_interlab',

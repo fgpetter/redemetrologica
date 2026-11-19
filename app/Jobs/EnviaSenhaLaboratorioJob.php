@@ -37,9 +37,10 @@ class EnviaSenhaLaboratorioJob implements ShouldQueue
         $resumo->executar(function (ResumoExecucao $resumo): void {
             $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $dadosDoc = DadosGeraDoc::query()->find($this->dadosGeraDocId);
+            $dadosDoc = $resumo->etapa('carregar_documento', fn () => DadosGeraDoc::query()->find($this->dadosGeraDocId));
 
             if (! $dadosDoc) {
+                $resumo->resultadoEtapa('carregar_documento', 'impedido');
                 $resumo->resultado('impedido', 'documento_ausente');
 
                 return;
@@ -49,9 +50,9 @@ class EnviaSenhaLaboratorioJob implements ShouldQueue
                 ->cc('sistema@redemetrologica.com.br')
                 ->sendNow(new LinkSenhaLaboratorioNotification($dadosDoc)));
 
-            InterlabInscrito::query()
+            $resumo->etapa('confirmar_estado', fn () => InterlabInscrito::query()
                 ->whereKey($this->inscritoId)
-                ->update(['senha_enviada' => now()]);
+                ->update(['senha_enviada' => now()]));
             $resumo->resultado('aceito_transporte');
         }, job: true);
     }

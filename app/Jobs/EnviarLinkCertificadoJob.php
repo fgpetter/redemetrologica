@@ -39,23 +39,26 @@ class EnviarLinkCertificadoJob implements ShouldQueue
         $resumo->executar(function (ResumoExecucao $resumo): void {
             $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $resultado = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): ?array {
-                $inscrito = CursoInscrito::query()->lockForUpdate()->find($this->inscritoId);
+            $resultado = DB::transaction(function () use ($resumo): ?array {
+                $inscrito = $resumo->etapa('carregar_registros', fn () => CursoInscrito::query()->lockForUpdate()->find($this->inscritoId));
 
-                if (! $inscrito || $inscrito->certificado_envio_id !== $this->tentativaId) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => ! $inscrito || $inscrito->certificado_envio_id !== $this->tentativaId)) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     return null;
                 }
 
-                Validator::make(['to' => $this->to], ['to' => ['required', 'email:rfc']])->validate();
+                $resumo->etapa('validar_destinatario', fn () => Validator::make(['to' => $this->to], ['to' => ['required', 'email:rfc']])->validate());
 
-                $resumo->etapa('enviar', fn () => Mail::to($this->to)->sendNow(new CertificadoNotification(DadosGeraDoc::findOrFail($this->dadosDocId))));
+                $dadosDoc = $resumo->etapa('carregar_documento', fn () => DadosGeraDoc::findOrFail($this->dadosDocId));
+                $resumo->etapa('enviar', fn () => Mail::to($this->to)->sendNow(new CertificadoNotification($dadosDoc)));
                 $resumo->etapa('confirmar_estado', fn () => $inscrito->update(['certificado_envio_id' => null]));
 
                 return [
                     'agenda_id' => $inscrito->agenda_curso_id,
                     'inscrito_id' => $inscrito->id,
                 ];
-            }));
+            });
 
             if ($resultado !== null) {
                 $resumo->contexto([

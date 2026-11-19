@@ -148,6 +148,13 @@ class ListParticipantesTest extends TestCase
         $this->createInscrito($agenda, ['email' => 'outro@example.com']);
         $this->actingAs($this->createFuncionarioUser());
 
+        $resumos = [];
+        Log::listen(function ($evento) use (&$resumos): void {
+            if ($evento->message === 'fluxo.execucao') {
+                $resumos[] = $evento->context;
+            }
+        });
+
         Livewire::test(ListParticipantes::class, ['agendacurso' => $agenda])
             ->assertSee('Enviar materiais')
             ->assertSee('Enviar Certificado')
@@ -159,6 +166,14 @@ class ListParticipantesTest extends TestCase
             ->assertSet('sortDirection', 'DESC')
             ->assertDispatched('show-success-alert', message: 'Envio de materiais solicitado com sucesso!');
 
+        $itens = array_values(array_filter($resumos, fn (array $resumo) => $resumo['fluxo'] === 'EnviarMateriaisCursoAction'));
+        $this->assertCount(1, $itens);
+        $this->assertSame([
+            'processar' => 'enfileirado',
+            'validar_destinatario' => 'concluido',
+            'preparar_mensagem' => 'concluido',
+            'enfileirar' => 'concluido',
+        ], array_column($itens[0]['etapas'], 'resultado', 'etapa'));
         Mail::assertQueuedCount(1);
         Mail::assertQueued(InformacoesTreinamentoMail::class, function (InformacoesTreinamentoMail $mail) use ($agenda, $inscrito): bool {
             return $mail->hasTo($inscrito->email)

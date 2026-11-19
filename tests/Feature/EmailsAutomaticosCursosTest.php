@@ -182,8 +182,21 @@ it('libera a reserva quando a agenda deixa de ser elegível antes do envio', fun
     $job = jobCurso(EnviarConferenciaCursoJob::class);
 
     $agenda->update(['status' => 'CANCELADO']);
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao') {
+            $resumos[] = $evento->context;
+        }
+    });
     $job->handle();
 
+    expect($resumos)->toHaveCount(1)
+        ->and(array_column($resumos[0]['etapas'], 'resultado', 'etapa'))->toBe([
+            'processar' => 'ignorado',
+            'carregar_registros' => 'concluido',
+            'validar_elegibilidade' => 'ignorado',
+            'confirmar_estado' => 'concluido',
+        ]);
     Mail::assertNothingSent();
     expect($agenda->fresh()->conferencia_envio_id)->toBeNull()
         ->and($agenda->fresh()->conferencia_enviada_em)->toBeNull();
@@ -239,11 +252,27 @@ it('ignora e registra no canal validation o e-mail inválido sem impedir o próx
     $invalido = criarInscritoEmail($agenda, ['email' => $email, 'data_inscricao' => now()->subDays(2)]);
     $valido = criarInscritoEmail($agenda, ['email' => 'valido@example.com', 'data_inscricao' => now()->subDay()]);
 
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao') {
+            $resumos[] = $evento->context;
+        }
+    });
+
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
 
     expect(jobCurso(EnviarInformacoesCursoJob::class)->inscritoId)->toBe($valido->id)
         ->and($invalido->fresh()->informacoes_envio_id)->toBeNull()
         ->and($invalido->fresh()->informacoes_enviadas_em)->toBeNull();
+    $itens = array_column(array_filter($resumos, fn (array $resumo) => $resumo['fluxo'] === 'cursos.emails_automaticos.participante'), null, 'inscrito_id');
+    expect($itens)->toHaveCount(2)
+        ->and($itens[$invalido->id]['resultado'])->toBe('ignorado')
+        ->and($itens[$valido->id]['resultado'])->toBe('enfileirado');
+    $etapas = array_column($itens[$invalido->id]['etapas'], null, 'etapa');
+    expect($etapas['validar_destinatario']['resultado'])->toBe('impedido')
+        ->and($etapas['carregar_registros']['execucoes'])->toBe(2)
+        ->and($etapas)->not->toHaveKey('enfileirar');
+
     expect(file_get_contents($this->validationLog))->toContain('E-mail inválido ou ausente');
 })->with(['invalido', '']);
 

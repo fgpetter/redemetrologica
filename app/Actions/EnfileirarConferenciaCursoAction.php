@@ -29,18 +29,20 @@ class EnfileirarConferenciaCursoAction
 
     private function executarObservado(int $agendaCursoId, string $dataEsperada, ResumoExecucao $resumo): bool
     {
-        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $agendaCursoId, $dataEsperada): bool {
-            $agenda = AgendaCursos::query()
+        return DB::transaction(function () use ($resumo, $agendaCursoId, $dataEsperada): bool {
+            $agenda = $resumo->etapa('carregar_registros', fn () => AgendaCursos::query()
                 ->with(['curso', 'materiaisTreinamento'])
                 ->lockForUpdate()
-                ->find($agendaCursoId);
+                ->find($agendaCursoId));
 
-            if (! $agenda
+            if ($resumo->etapa('validar_elegibilidade', fn () => ! $agenda
                 || $agenda->status !== 'CONFIRMADO'
                 || ! in_array($agenda->tipo_agendamento, ['ONLINE', 'IN-COMPANY'], true)
                 || $agenda->data_inicio?->toDateString() !== $dataEsperada
                 || $agenda->conferencia_enviada_em !== null
-                || $agenda->conferencia_envio_id !== null) {
+                || $agenda->conferencia_envio_id !== null)) {
+                $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                 return false;
             }
 
@@ -49,10 +51,14 @@ class EnfileirarConferenciaCursoAction
                 'agenda_uid' => $agenda->uid,
             ]);
 
-            if (! Validator::make(
-                ['email' => self::DESTINATARIO_ADMINISTRATIVO],
-                ['email' => ['required', 'email:rfc']],
-            )->passes()) {
+            $destinatarioValido = $resumo->etapa('validar_destinatario', function () use ($agenda): bool {
+                if (Validator::make(
+                    ['email' => self::DESTINATARIO_ADMINISTRATIVO],
+                    ['email' => ['required', 'email:rfc']],
+                )->passes()) {
+                    return true;
+                }
+
                 Log::channel('validation')->warning('Destinatário administrativo inválido para aviso de conferência de curso.', [
                     'tipo' => 'conferencia',
                     'agenda_curso_id' => $agenda->getKey(),
@@ -60,26 +66,36 @@ class EnfileirarConferenciaCursoAction
                 ]);
 
                 return false;
+            });
+
+            if (! $destinatarioValido) {
+                $resumo->resultadoEtapa('validar_destinatario', 'impedido');
+
+                return false;
             }
 
-            $tentativa = (string) Str::uuid();
-            $snapshot = [
-                'destinatario' => self::DESTINATARIO_ADMINISTRATIVO,
-                'treinamento' => $agenda->curso->descricao,
-                'data_curso' => $dataEsperada,
-                'data_anterior' => CarbonImmutable::parse($dataEsperada, 'America/Sao_Paulo')
-                    ->subDay()
-                    ->format('d/m/Y'),
-            ];
+            [$tentativa, $snapshot] = $resumo->etapa('preparar_mensagem', function () use ($agenda, $dataEsperada): array {
+                $tentativa = (string) Str::uuid();
+                $snapshot = [
+                    'destinatario' => self::DESTINATARIO_ADMINISTRATIVO,
+                    'treinamento' => $agenda->curso->descricao,
+                    'data_curso' => $dataEsperada,
+                    'data_anterior' => CarbonImmutable::parse($dataEsperada, 'America/Sao_Paulo')
+                        ->subDay()
+                        ->format('d/m/Y'),
+                ];
 
-            $agenda->update(['conferencia_envio_id' => $tentativa]);
+                return [$tentativa, $snapshot];
+            });
 
-            Bus::dispatch((new EnviarConferenciaCursoJob(
+            $resumo->etapa('confirmar_estado', fn () => $agenda->update(['conferencia_envio_id' => $tentativa]));
+
+            $resumo->etapa('enfileirar', fn () => Bus::dispatch((new EnviarConferenciaCursoJob(
                 $agenda->getKey(),
                 $tentativa,
                 $dataEsperada,
                 $snapshot,
-            ))->onConnection('database')->beforeCommit());
+            ))->onConnection('database')->beforeCommit()));
 
             $resumo->contexto([
                 'tipo' => 'conferencia',
@@ -91,6 +107,6 @@ class EnfileirarConferenciaCursoAction
             $resumo->incrementar('enfileirados');
 
             return true;
-        }));
+        });
     }
 }

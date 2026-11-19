@@ -33,7 +33,10 @@ class EnviarCertificadoInterlabPendenteCommand extends Command
             $inscritos = InterlabInscrito::certificadosPendentes()
                 ->orderBy('data_inscricao')->orderBy('id')->lazy(100);
 
+            $temCandidatos = false;
+
             foreach ($inscritos as $inscrito) {
+                $temCandidatos = true;
                 $item = $resumo->item('EnfileirarCertificadoInterlabPendenteAction', [
                     'tipo' => 'certificado_interlab',
                     'agenda_id' => $inscrito->agenda_interlab_id,
@@ -60,6 +63,10 @@ class EnviarCertificadoInterlabPendenteCommand extends Command
                 Mail::raw('Não há certificados Interlab aptos para envio no momento.', function ($message): void {
                     $message->to('sistema@redemetrologica.com.br')->subject('Notificação: Sem certificados Interlab pendentes');
                 });
+            }
+
+            if (! $temCandidatos) {
+                $resumo->resultado('ignorado', 'sem_pendencias');
             }
 
             $this->info('Nenhuma inscrição apta para envio. Consultas suspensas até a próxima meia-noite.');

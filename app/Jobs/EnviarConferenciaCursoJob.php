@@ -40,20 +40,24 @@ class EnviarConferenciaCursoJob implements ShouldQueue
         $resumo->executar(function (ResumoExecucao $resumo): void {
             $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $enviado = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): bool {
-                $agenda = AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId);
+            $enviado = DB::transaction(function () use ($resumo): bool {
+                $agenda = $resumo->etapa('carregar_registros', fn () => AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId));
 
-                if (! $agenda || $agenda->conferencia_envio_id !== $this->tentativaId) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => ! $agenda || $agenda->conferencia_envio_id !== $this->tentativaId)) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     return false;
                 }
 
-                if ($agenda->conferencia_enviada_em !== null || ! $this->elegivel($agenda)) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => $agenda->conferencia_enviada_em !== null || ! $this->elegivel($agenda))) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     $resumo->etapa('confirmar_estado', fn () => $agenda->update(['conferencia_envio_id' => null]));
 
                     return false;
                 }
 
-                $this->validarDestinatario();
+                $resumo->etapa('validar_destinatario', fn () => $this->validarDestinatario());
 
                 $resumo->etapa('enviar', fn () => Mail::to($this->snapshot['destinatario'])
                     ->sendNow(new AvisoConferenciaTreinamentoMail($this->snapshot)));
@@ -64,7 +68,7 @@ class EnviarConferenciaCursoJob implements ShouldQueue
                 ]));
 
                 return true;
-            }));
+            });
 
             if ($enviado) {
                 $resumo->contexto([

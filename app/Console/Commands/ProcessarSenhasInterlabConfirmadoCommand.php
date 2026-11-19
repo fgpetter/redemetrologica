@@ -40,6 +40,7 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
                 ->get();
 
             if ($inscritos->isEmpty()) {
+                $resumo->resultado('ignorado', 'sem_pendencias');
                 $this->info('Nenhum inscrito elegível encontrado.');
 
                 return self::SUCCESS;

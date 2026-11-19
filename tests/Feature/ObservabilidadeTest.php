@@ -45,24 +45,70 @@ use Monolog\Logger;
 function capturarObservabilidade(string $canal = 'mailsent'): TestHandler
 {
     $handler = new TestHandler;
-    Log::swap(new class($handler) extends LogManager
+    Log::swap(new class($handler, $canal) extends LogManager
     {
-        public function __construct(private TestHandler $handler)
+        public function __construct(private TestHandler $handler, private string $canal)
         {
             parent::__construct(app());
         }
 
         public function channel($channel = null)
         {
-            return new Illuminate\Log\Logger(new Logger('teste', [$this->handler]));
+            return $channel === $this->canal
+                ? new Illuminate\Log\Logger(new Logger('teste', [$this->handler]))
+                : parent::channel($channel);
         }
     });
 
     return $handler;
 }
 
-it('registra um resumo ordenado após commit e nenhum sucesso após rollback', function () {
+it('registra ausência normal de trabalho como informação', function (string $comando, string $fluxo) {
+    Mail::fake();
+    $resumos = [];
+    Log::listen(function ($evento) use ($fluxo, &$resumos): void {
+        if ($evento->message === 'fluxo.execucao' && ($evento->context['fluxo'] ?? null) === $fluxo) {
+            $resumos[] = $evento;
+        }
+    });
+
+    $this->artisan($comando)->assertSuccessful();
+
+    expect($resumos)->toHaveCount(1);
+    expect($resumos[0]->level)->toBe('info')
+        ->and($resumos[0]->context)->toMatchArray(['resultado' => 'ignorado', 'motivo' => 'sem_pendencias']);
+})->with([
+    ['certificados:enviar-pendente', 'EnviarCertificadoPendenteCommand'],
+    ['interlab:enviar-certificado-pendente', 'EnviarCertificadoInterlabPendenteCommand'],
+    ['app:processar-senhas-interlab-confirmado', 'ProcessarSenhasInterlabConfirmadoCommand'],
+]);
+
+it('acumula etapas sem emitir eventos intermediários', function () {
     $handler = capturarObservabilidade();
+    $resumo = new ResumoExecucao('teste.etapas', canal: 'mailsent');
+    $resumo->etapa('carregar_registros', fn () => true);
+    $resumo->etapa('carregar_registros', fn () => true);
+    $resumo->etapa('validar_elegibilidade', fn () => false);
+    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+    $resumo->resultado('impedido');
+
+    expect($handler->getRecords())->toBeEmpty();
+    $resumo->encerrar();
+    $resumo->encerrar();
+
+    $registros = $handler->getRecords();
+    expect($registros)->toHaveCount(1)
+        ->and($registros[0]->message)->toBe('fluxo.execucao');
+    $etapas = array_column($registros[0]->context['etapas'], null, 'etapa');
+    expect($etapas['carregar_registros'])->toMatchArray(['resultado' => 'concluido', 'execucoes' => 2])
+        ->and($etapas['validar_elegibilidade'])->toMatchArray(['resultado' => 'ignorado', 'execucoes' => 1]);
+    foreach ($etapas as $etapa) {
+        expect($etapa['duracao_ms'])->toBeGreaterThanOrEqual(0);
+    }
+});
+
+it('registra um resumo ordenado após commit e nenhum sucesso após rollback', function () {
+    $handler = capturarObservabilidade('stack');
     DB::connection()->setTransactionManager(new DatabaseTransactionsManager);
     DB::beginTransaction();
     (new ResumoExecucao('teste.commit'))->executar(function ($resumo) {
@@ -86,7 +132,7 @@ it('registra um resumo ordenado após commit e nenhum sucesso após rollback', f
 });
 
 it('preserva o fluxo da Action em chamada isolada e com principal', function (bool $comPrincipal) {
-    $handler = capturarObservabilidade();
+    $handler = capturarObservabilidade($comPrincipal ? 'stack' : 'mailsent');
     $principal = $comPrincipal ? new ResumoExecucao('teste.principal') : null;
     $inscrito = new CursoInscrito;
     $inscrito->id = -1;
@@ -149,7 +195,7 @@ it('correlaciona a falha consumida de um item sem contaminar o sucesso seguinte'
 });
 
 it('emite resumo principal e um resumo independente por operação de item', function () {
-    $handler = capturarObservabilidade();
+    $handler = capturarObservabilidade('stack');
     DB::connection()->setTransactionManager(new DatabaseTransactionsManager);
     DB::beginTransaction();
 
@@ -188,7 +234,7 @@ it('emite resumo principal e um resumo independente por operação de item', fun
 });
 
 it('não anuncia item enfileirado quando o commit externo é revertido', function () {
-    $handler = capturarObservabilidade();
+    $handler = capturarObservabilidade('stack');
     DB::connection()->setTransactionManager(new DatabaseTransactionsManager);
     DB::beginTransaction();
 
@@ -208,6 +254,7 @@ it('não anuncia item enfileirado quando o commit externo é revertido', functio
 });
 
 it('processa certificados do mesmo lote com correlação por inscrito após falha consumida', function () {
+    $handler = capturarObservabilidade();
     Queue::fake();
     Context::flush();
 
@@ -265,13 +312,13 @@ it('processa certificados do mesmo lote com correlação por inscrito após falh
     {
         public function __construct(private int $falhaId) {}
 
-        public function execute(CursoInscrito $inscrito, int $delay = 0, ?ResumoExecucao $resumo = null): DadosGeraDoc
+        public function criarDadosDoc(CursoInscrito $inscrito, ?string $email = null): DadosGeraDoc
         {
             if ($inscrito->id === $this->falhaId) {
                 throw new RuntimeException('Falha simulada do primeiro inscrito');
             }
 
-            return parent::execute($inscrito, $delay, $resumo);
+            return parent::criarDadosDoc($inscrito, $email);
         }
     });
 
@@ -298,12 +345,32 @@ it('processa certificados do mesmo lote com correlação por inscrito após falh
         ->and($falha->fresh()->certificado_emitido)->toBeNull()
         ->and($sucesso->fresh()->certificado_emitido)->not->toBeNull();
 
+    $registros = array_values(array_filter($handler->getRecords(), fn ($registro) => $registro->message === 'fluxo.execucao'));
+    expect($registros)->toHaveCount(3);
+    $resumos = array_map(fn ($registro) => $registro->context, $registros);
+    $itens = array_column($resumos, null, 'inscrito_id');
+    $principal = array_column($resumos, null, 'fluxo')['curso.certificados_automaticos'];
+    $etapasFalha = array_column($itens[$falha->id]['etapas'], 'resultado', 'etapa');
+
+    expect($etapasFalha)->toBe([
+        'processar' => 'falha_definitiva',
+        'carregar_registros' => 'concluido',
+        'validar_destinatario' => 'concluido',
+        'validar_conexao_fila' => 'concluido',
+        'preparar_documento' => 'falha',
+    ])->and($itens[$falha->id])->not->toHaveKeys(['documento_id', 'tentativa_id'])
+        ->and($itens[$sucesso->id])->toHaveKeys(['documento_id', 'tentativa_id'])
+        ->and($itens[$sucesso->id]['resultado'])->toBe('enfileirado')
+        ->and($itens[$falha->id]['execucao_pai_id'])->toBe($principal['execucao_id'])
+        ->and($itens[$sucesso->id]['execucao_pai_id'])->toBe($principal['execucao_id'])
+        ->and($principal['resultado'])->toBe('falha_definitiva');
+
     Queue::assertPushed(EnviarLinkCertificadoJob::class, 1);
     Context::flush();
 });
 
 it('registra falha propagada sem reportar novamente nem expor mensagem', function () {
-    $handler = capturarObservabilidade();
+    $handler = capturarObservabilidade('stack');
     $exception = new RuntimeException('privado@example.com token=segredo');
     try {
         (new ResumoExecucao('teste.falha'))->executar(fn ($resumo) => $resumo->etapa('enviar', fn () => throw $exception), job: true);
@@ -329,6 +396,13 @@ it('mantém jobs consecutivos isolados e documento ausente como impedimento sem 
         ->and($registros[0]->context['execucao_id'])->not->toBe($registros[1]->context['execucao_id'])
         ->and($registros[1]->context)->not->toHaveKey('analista_id')
         ->and(json_encode($registros[0]->context))->not->toContain('privado@example.com');
+    foreach ($registros as $registro) {
+        expect(array_column($registro->context['etapas'], 'resultado', 'etapa'))->toBe([
+            'processar' => 'impedido',
+            'carregar_documento' => 'impedido',
+        ]);
+    }
+
     Mail::assertNothingOutgoing();
 });
 
@@ -372,7 +446,7 @@ it('preserva releases e distingue continuação de retentativa e falha definitiv
     $lote = InterlabLotePostagemFactory::new()->create([
         'status' => InterlabLotePostagemStatus::GerandoPrePostagens,
     ]);
-    $handler = capturarObservabilidade();
+    $handler = capturarObservabilidade('correios');
     $resultado = match ($estado) {
         'continuidade' => ResultadoEtapaLotePostagem::retentar(5, 'continuidade'),
         'falha' => ResultadoEtapaLotePostagem::falhou(),
@@ -399,7 +473,7 @@ it('preserva releases e distingue continuação de retentativa e falha definitiv
 
 it('rastreio com erro definitivo retorna normalmente mas registra falha funcional', function () {
     $item = InterlabLotePostagemItemFactory::new()->create();
-    $handler = capturarObservabilidade();
+    $handler = capturarObservabilidade('correios');
     $action = Mockery::mock(RastrearItemLotePostagemAction::class);
     $action->shouldReceive('execute')->once()->andThrow(new CorreiosApiException('Recusa', 400, ['body' => 'conteudo privado'], '/rota'));
     $job = (new RastrearItemLotePostagemJob($item))->withFakeQueueInteractions();

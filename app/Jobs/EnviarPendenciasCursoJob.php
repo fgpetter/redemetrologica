@@ -40,20 +40,24 @@ class EnviarPendenciasCursoJob implements ShouldQueue
         $resumo->executar(function (ResumoExecucao $resumo): void {
             $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $enviado = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): bool {
-                $agenda = AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId);
+            $enviado = DB::transaction(function () use ($resumo): bool {
+                $agenda = $resumo->etapa('carregar_registros', fn () => AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId));
 
-                if (! $agenda || $agenda->pendencias_envio_id !== $this->tentativaId) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => ! $agenda || $agenda->pendencias_envio_id !== $this->tentativaId)) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     return false;
                 }
 
-                if ($agenda->pendencias_enviadas_em !== null || ! $this->elegivel($agenda)) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => $agenda->pendencias_enviadas_em !== null || ! $this->elegivel($agenda))) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     $resumo->etapa('confirmar_estado', fn () => $agenda->update(['pendencias_envio_id' => null]));
 
                     return false;
                 }
 
-                $this->validarDestinatario();
+                $resumo->etapa('validar_destinatario', fn () => $this->validarDestinatario());
 
                 $resumo->etapa('enviar', fn () => Mail::to($this->snapshot['destinatario'])
                     ->sendNow(new AvisoPendenciasTreinamentoMail($this->snapshot)));
@@ -64,7 +68,7 @@ class EnviarPendenciasCursoJob implements ShouldQueue
                 ]));
 
                 return true;
-            }));
+            });
 
             if ($enviado) {
                 $resumo->contexto([

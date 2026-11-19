@@ -166,6 +166,7 @@ class NightwatchIntegrationTest extends TestCase
         $this->assertSame('fluxo.execucao', $records[0]['message']);
         $context = json_decode($records[0]['context'], true);
         $this->assertSame('tentativa-1', $context['tentativa_id']);
+        $this->assertSame($local->getRecords()[2]->context['etapas'], $context['etapas']);
         $this->assertSame(1, $context['metricas']['enfileirados']);
         $this->assertStringNotContainsString('privada', json_encode($records));
         $this->assertStringNotContainsString('PDFSECRETO', json_encode($records));

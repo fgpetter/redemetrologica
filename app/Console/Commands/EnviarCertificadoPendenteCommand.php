@@ -73,6 +73,10 @@ class EnviarCertificadoPendenteCommand extends Command
                 );
             }
 
+            if ($contatosInvalidos === 0) {
+                $resumo->resultado('ignorado', 'sem_pendencias');
+            }
+
             $this->info('Nenhum inscrito apto para envio. Consultas suspensas até a próxima meia-noite.');
         });
     }

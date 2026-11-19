@@ -25,22 +25,26 @@ class EnviarMateriaisCursoAction
 
     private function executarObservado(CursoInscrito $inscrito, ResumoExecucao $resumo): void
     {
-        $email = trim((string) $inscrito->email);
-        $validator = Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']]);
+        $email = $resumo->etapa('validar_destinatario', function () use ($inscrito): string {
+            $email = trim((string) $inscrito->email);
+            $validator = Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']]);
 
-        if ($validator->fails()) {
-            Log::channel('validation')->warning('E-mail inválido ou ausente para envio manual de materiais de curso.', [
-                'agenda_curso_id' => $inscrito->agenda_curso_id,
-                'inscrito_id' => $inscrito->getKey(),
-                'inscrito_uid' => $inscrito->uid,
-            ]);
-            $validator->validate();
-        }
+            if ($validator->fails()) {
+                Log::channel('validation')->warning('E-mail inválido ou ausente para envio manual de materiais de curso.', [
+                    'agenda_curso_id' => $inscrito->agenda_curso_id,
+                    'inscrito_id' => $inscrito->getKey(),
+                    'inscrito_uid' => $inscrito->uid,
+                ]);
+                $validator->validate();
+            }
 
-        Mail::to($email)->queue(
-            InformacoesTreinamentoMail::paraInscrito($inscrito->agendaCurso, $inscrito)
-                ->onConnection('database'),
-        );
+            return $email;
+        });
+
+        $mensagem = $resumo->etapa('preparar_mensagem', fn () => InformacoesTreinamentoMail::paraInscrito($inscrito->agendaCurso, $inscrito)
+            ->onConnection('database'));
+
+        $resumo->etapa('enfileirar', fn () => Mail::to($email)->queue($mensagem));
 
         $resumo->contexto([
             'agenda_curso_id' => $inscrito->agenda_curso_id,

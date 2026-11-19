@@ -112,7 +112,20 @@ it('normaliza, deduplica e usa o endereço válido em Para', function (?string $
     $inscrito = inscritoCertificadoInterlab(['email' => $tecnico]);
     $inscrito->pessoa->update(['email' => $pessoa]);
 
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao') {
+            $resumos[] = $evento->context;
+        }
+    });
+
     $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful();
+
+    $itens = array_values(array_filter($resumos, fn (array $resumo) => $resumo['fluxo'] === 'EnfileirarCertificadoInterlabPendenteAction'));
+    expect($itens)->toHaveCount(1);
+    $etapas = array_column($itens[0]['etapas'], 'resultado', 'etapa');
+    expect($etapas['validar_destinatario'])->toBe('concluido')
+        ->and($etapas['enfileirar'])->toBe('concluido');
 
     $job = jobCertificadoInterlab();
     expect($job->to)->toBe($to);
@@ -416,7 +429,22 @@ it('não envia se agenda ou pagamento mudarem após o enfileiramento', function 
     $job = jobCertificadoInterlab();
     $inscrito->{$relacao}->update(['status' => $status]);
 
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao' && ($evento->context['fluxo'] ?? null) === 'EnviarCertificadoInterlabPendenteJob') {
+            $resumos[] = $evento->context;
+        }
+    });
+
     expect(fn () => $job->handle())->toThrow(RuntimeException::class, 'A inscrição não possui mais agenda concluída e pagamento efetivado.');
+
+    expect($resumos)->toHaveCount(1);
+    expect($resumos[0]['resultado'])->toBe('falha_execucao')
+        ->and(array_column($resumos[0]['etapas'], 'resultado', 'etapa'))->toBe([
+            'processar' => 'falha_execucao',
+            'carregar_registros' => 'concluido',
+            'validar_elegibilidade' => 'falha',
+        ]);
 
     Mail::assertNothingSent();
     $job->failed(new RuntimeException('Inscrição deixou de ser elegível'));

@@ -33,9 +33,11 @@ class EnviarConfirmacaoCursoJob implements ShouldQueue
         $resumo->resultado('ignorado', 'ja_confirmado_ou_ausente');
         $resumo->executar(function ($resumo): void {
             DB::transaction(function () use ($resumo) {
-                $inscrito = CursoInscrito::query()->lockForUpdate()->find($this->inscritoId);
+                $inscrito = $resumo->etapa('carregar_registros', fn () => CursoInscrito::query()->lockForUpdate()->find($this->inscritoId));
 
-                if (! $inscrito || $inscrito->confirmacao_enviada_em !== null) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => ! $inscrito || $inscrito->confirmacao_enviada_em !== null)) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     return;
                 }
 

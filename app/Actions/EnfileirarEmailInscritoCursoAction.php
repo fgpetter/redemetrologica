@@ -29,32 +29,36 @@ class EnfileirarEmailInscritoCursoAction
 
     private function executarObservado(int $agendaCursoId, int $inscritoId, string $dataEsperada, ResumoExecucao $resumo): bool
     {
-        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $agendaCursoId, $inscritoId, $dataEsperada): bool {
-            $agenda = AgendaCursos::query()
+        return DB::transaction(function () use ($resumo, $agendaCursoId, $inscritoId, $dataEsperada): bool {
+            $agenda = $resumo->etapa('carregar_registros', fn () => AgendaCursos::query()
                 ->with(['curso', 'materiaisTreinamento'])
                 ->lockForUpdate()
-                ->find($agendaCursoId);
+                ->find($agendaCursoId));
 
-            if (! $agenda
+            if ($resumo->etapa('validar_elegibilidade', fn () => ! $agenda
                 || $agenda->status !== 'CONFIRMADO'
                 || ! in_array($agenda->tipo_agendamento, ['ONLINE', 'IN-COMPANY'], true)
                 || $agenda->data_inicio?->toDateString() !== $dataEsperada
                 || $agenda->informacoes_enviadas_em !== null
                 || $agenda->pendencias_enviadas_em !== null
                 || blank($agenda->link_aula)
-                || $agenda->materiaisTreinamento->isEmpty()) {
+                || $agenda->materiaisTreinamento->isEmpty())) {
+                $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                 return false;
             }
 
-            $inscrito = CursoInscrito::query()
+            $inscrito = $resumo->etapa('carregar_registros', fn () => CursoInscrito::query()
                 ->whereKey($inscritoId)
                 ->where('agenda_curso_id', $agenda->getKey())
                 ->lockForUpdate()
-                ->first();
+                ->first());
 
-            if (! $inscrito
+            if ($resumo->etapa('validar_elegibilidade', fn () => ! $inscrito
                 || $inscrito->informacoes_enviadas_em !== null
-                || $inscrito->informacoes_envio_id !== null) {
+                || $inscrito->informacoes_envio_id !== null)) {
+                $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                 return false;
             }
 
@@ -65,9 +69,13 @@ class EnfileirarEmailInscritoCursoAction
                 'inscrito_uid' => $inscrito->uid,
             ]);
 
-            $email = trim((string) $inscrito->email);
+            $destinatarioValido = $resumo->etapa('validar_destinatario', function () use ($agenda, $inscrito): bool {
+                $email = trim((string) $inscrito->email);
 
-            if (! Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->passes()) {
+                if (Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']])->passes()) {
+                    return true;
+                }
+
                 Log::channel('validation')->warning('E-mail inválido ou ausente para envio de informações de curso.', [
                     'tipo' => 'participante',
                     'agenda_curso_id' => $agenda->getKey(),
@@ -77,20 +85,30 @@ class EnfileirarEmailInscritoCursoAction
                 ]);
 
                 return false;
+            });
+
+            if (! $destinatarioValido) {
+                $resumo->resultadoEtapa('validar_destinatario', 'impedido');
+
+                return false;
             }
 
-            $tentativa = (string) Str::uuid();
-            $snapshot = InformacoesTreinamentoMail::paraInscrito($agenda, $inscrito)->dados;
+            [$tentativa, $snapshot] = $resumo->etapa('preparar_mensagem', function () use ($agenda, $inscrito): array {
+                $tentativa = (string) Str::uuid();
+                $snapshot = InformacoesTreinamentoMail::paraInscrito($agenda, $inscrito)->dados;
 
-            $inscrito->update(['informacoes_envio_id' => $tentativa]);
+                return [$tentativa, $snapshot];
+            });
 
-            Bus::dispatch((new EnviarInformacoesCursoJob(
+            $resumo->etapa('confirmar_estado', fn () => $inscrito->update(['informacoes_envio_id' => $tentativa]));
+
+            $resumo->etapa('enfileirar', fn () => Bus::dispatch((new EnviarInformacoesCursoJob(
                 $agenda->getKey(),
                 $inscrito->getKey(),
                 $tentativa,
                 $dataEsperada,
                 $snapshot,
-            ))->onConnection('database')->beforeCommit());
+            ))->onConnection('database')->beforeCommit()));
 
             $resumo->contexto([
                 'tipo' => 'participante',
@@ -104,6 +122,6 @@ class EnfileirarEmailInscritoCursoAction
             $resumo->incrementar('enfileirados');
 
             return true;
-        }));
+        });
     }
 }

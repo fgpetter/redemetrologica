@@ -128,6 +128,12 @@ it('defende o serviço de email contra destinatário inválido no job', function
 })->with(['', 'inválido']);
 
 it('desfaz documento e marcação de curso se o enfileiramento falhar', function () {
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao') {
+            $resumos[] = $evento->context;
+        }
+    });
     $inscrito = inscritoCertificadoCurso(['certificado_path' => 'anterior.pdf']);
     $original = $inscrito->fresh()->getAttributes();
     Bus::shouldReceive('dispatch')->once()->andThrow(new RuntimeException('Fila indisponível'));
@@ -137,6 +143,66 @@ it('desfaz documento e marcação de curso se o enfileiramento falhar', function
     expect($inscrito->fresh()->getAttributes())->toBe($original);
     $this->assertDatabaseCount('dados_gera_doc', 0);
     $this->assertDatabaseCount('jobs', 0);
+    expect($resumos)->toHaveCount(1)
+        ->and($resumos[0])->toHaveKeys(['documento_id', 'tentativa_id'])
+        ->and(array_column($resumos[0]['etapas'], 'resultado', 'etapa'))->toBe([
+            'processar' => 'falha_definitiva',
+            'carregar_registros' => 'concluido',
+            'validar_destinatario' => 'concluido',
+            'validar_conexao_fila' => 'concluido',
+            'preparar_documento' => 'concluido',
+            'confirmar_estado' => 'concluido',
+            'enfileirar' => 'falha',
+        ]);
+});
+
+it('reverte documento e despacho sem anunciar sucesso no rollback externo', function () {
+    $inscrito = inscritoCertificadoCurso();
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao') {
+            $resumos[] = $evento->context;
+        }
+    });
+
+    DB::beginTransaction();
+    try {
+        app(EnviarCertificadoAction::class)->execute($inscrito);
+        $this->assertDatabaseCount('jobs', 1);
+        expect($resumos)->toBeEmpty();
+    } finally {
+        DB::rollBack();
+    }
+
+    expect($resumos)->toBeEmpty()
+        ->and($inscrito->fresh()->certificado_emitido)->toBeNull();
+    $this->assertDatabaseCount('dados_gera_doc', 0);
+    $this->assertDatabaseCount('jobs', 0);
+});
+
+it('distingue aceite pelo transporte de falha na confirmação do certificado', function () {
+    Mail::fake();
+    $inscrito = inscritoCertificadoCurso();
+    app(EnviarCertificadoAction::class)->execute($inscrito);
+    $job = jobCertificadoCurso();
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao') {
+            $resumos[] = $evento->context;
+        }
+    });
+    $falha = new RuntimeException('Falha de atualização');
+    CursoInscrito::updating(fn () => throw $falha);
+
+    expect(fn () => $job->handle())->toThrow($falha);
+
+    Mail::assertSentCount(1);
+    expect($inscrito->fresh()->certificado_envio_id)->toBe($job->tentativaId)
+        ->and($resumos)->toHaveCount(1)
+        ->and($resumos[0]['resultado'])->toBe('falha_execucao');
+    $etapas = array_column($resumos[0]['etapas'], 'resultado', 'etapa');
+    expect($etapas['enviar'])->toBe('concluido')
+        ->and($etapas['confirmar_estado'])->toBe('falha');
 });
 
 it('libera somente a tentativa que falhou e rejeita jobs substituídos', function () {
@@ -170,6 +236,13 @@ it('revalida a pendência e preserva certificados históricos sem identificador'
     $pendente = inscritoCertificadoCurso();
     $action = app(EnviarCertificadoAction::class);
 
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao') {
+            $resumos[] = $evento->context;
+        }
+    });
+
     expect($action->executePendente($historico->id))->toBeFalse();
     expect($action->executePendente($naoPago->id))->toBeFalse();
     expect($action->executePendente($pendente->id))->toBeTrue();
@@ -178,6 +251,12 @@ it('revalida a pendência e preserva certificados históricos sem identificador'
     expect($historico->fresh()->certificado_emitido)->toBe('2025-01-01 12:00:00');
     expect($historico->fresh()->certificado_envio_id)->toBeNull();
     $this->assertDatabaseCount('jobs', 1);
+    expect($resumos)->toHaveCount(4);
+    $etapas = array_column($resumos[0]['etapas'], 'resultado', 'etapa');
+    expect($etapas)->toBe(['processar' => 'ignorado', 'carregar_registros' => 'ignorado']);
+    $etapas = array_column($resumos[2]['etapas'], null, 'etapa');
+    expect($etapas['carregar_registros']['execucoes'])->toBe(2)
+        ->and($etapas['enfileirar']['resultado'])->toBe('concluido');
 });
 
 it('suspende consultas quando restam somente contatos inválidos sem criar jobs', function () {

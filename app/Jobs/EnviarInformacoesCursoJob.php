@@ -42,29 +42,33 @@ class EnviarInformacoesCursoJob implements ShouldQueue
         $resumo->executar(function (ResumoExecucao $resumo): void {
             $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $enviado = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): bool {
-                $agenda = AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId);
+            $enviado = DB::transaction(function () use ($resumo): bool {
+                $agenda = $resumo->etapa('carregar_registros', fn () => AgendaCursos::query()->lockForUpdate()->find($this->agendaCursoId));
 
-                $inscrito = CursoInscrito::query()
+                $inscrito = $resumo->etapa('carregar_registros', fn () => CursoInscrito::query()
                     ->whereKey($this->inscritoId)
                     ->lockForUpdate()
-                    ->first();
+                    ->first());
 
-                if (! $inscrito || $inscrito->informacoes_envio_id !== $this->tentativaId) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => ! $inscrito || $inscrito->informacoes_envio_id !== $this->tentativaId)) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     return false;
                 }
 
-                if (! $agenda
+                if ($resumo->etapa('validar_elegibilidade', fn () => ! $agenda
                     || $inscrito->agenda_curso_id !== $agenda->getKey()
                     || $agenda->informacoes_enviadas_em !== null
                     || $inscrito->informacoes_enviadas_em !== null
-                    || ! $this->elegivel($agenda)) {
+                    || ! $this->elegivel($agenda))) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     $resumo->etapa('confirmar_estado', fn () => $inscrito->update(['informacoes_envio_id' => null]));
 
                     return false;
                 }
 
-                $this->validarDestinatario();
+                $resumo->etapa('validar_destinatario', fn () => $this->validarDestinatario());
 
                 $resumo->etapa('enviar', fn () => Mail::to($this->snapshot['destinatario'])
                     ->sendNow(new InformacoesTreinamentoMail($this->snapshot)));
@@ -74,10 +78,10 @@ class EnviarInformacoesCursoJob implements ShouldQueue
                     'informacoes_envio_id' => null,
                 ]));
 
-                $agenda->sincronizarConfirmacaoInformacoes();
+                $resumo->etapa('sincronizar_agenda', fn () => $agenda->sincronizarConfirmacaoInformacoes());
 
                 return true;
-            }));
+            });
 
             if ($enviado) {
                 $resumo->contexto([

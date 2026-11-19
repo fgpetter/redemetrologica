@@ -41,34 +41,41 @@ class EnviarCertificadoInterlabPendenteJob implements ShouldQueue
         $resumo->executar(function (ResumoExecucao $resumo): void {
             $resumo->resultado('ignorado', 'tentativa_obsoleta_ou_inelegivel');
 
-            $agendaId = $resumo->etapa('validar_enviar_confirmar', fn () => DB::transaction(function () use ($resumo): ?int {
-                $inscrito = InterlabInscrito::query()->lockForUpdate()->find($this->inscritoId);
+            $agendaId = DB::transaction(function () use ($resumo): ?int {
+                $inscrito = $resumo->etapa('carregar_registros', fn () => InterlabInscrito::query()->lockForUpdate()->find($this->inscritoId));
 
-                if (! $inscrito || $inscrito->certificado_envio_id !== $this->tentativaId) {
+                if ($resumo->etapa('validar_elegibilidade', fn () => ! $inscrito || $inscrito->certificado_envio_id !== $this->tentativaId)) {
+                    $resumo->resultadoEtapa('validar_elegibilidade', 'ignorado');
+
                     return null;
                 }
 
-                if (! $inscrito->agendaInterlab()->where('status', 'CONCLUIDO')->exists()
-                    || ! $inscrito->lancamentoFinanceiro()->where('status', 'EFETIVADO')->exists()) {
-                    throw new RuntimeException('A inscrição não possui mais agenda concluída e pagamento efetivado.');
-                }
+                $resumo->etapa('validar_elegibilidade', function () use ($inscrito): void {
+                    if (! $inscrito->agendaInterlab()->where('status', 'CONCLUIDO')->exists()
+                        || ! $inscrito->lancamentoFinanceiro()->where('status', 'EFETIVADO')->exists()) {
+                        throw new RuntimeException('A inscrição não possui mais agenda concluída e pagamento efetivado.');
+                    }
+                });
 
-                Validator::make(['to' => $this->to, 'cc' => $this->cc], [
+                $resumo->etapa('validar_destinatario', fn () => Validator::make(['to' => $this->to, 'cc' => $this->cc], [
                     'to' => ['required', 'email:rfc'],
                     'cc' => ['nullable', 'email:rfc'],
-                ])->validate();
+                ])->validate());
 
-                $mail = Mail::to($this->to);
+                $dadosDoc = $resumo->etapa('carregar_documento', fn () => DadosGeraDoc::findOrFail($this->dadosDocId));
+                $resumo->etapa('enviar', function () use ($dadosDoc): void {
+                    $mail = Mail::to($this->to);
 
-                if ($this->cc !== null && strcasecmp($this->to, $this->cc) !== 0) {
-                    $mail->cc($this->cc);
-                }
+                    if ($this->cc !== null && strcasecmp($this->to, $this->cc) !== 0) {
+                        $mail->cc($this->cc);
+                    }
 
-                $resumo->etapa('enviar', fn () => $mail->sendNow(new CertificadoInterlabMail(DadosGeraDoc::findOrFail($this->dadosDocId))));
+                    $mail->sendNow(new CertificadoInterlabMail($dadosDoc));
+                });
                 $resumo->etapa('confirmar_estado', fn () => $inscrito->update(['certificado_envio_id' => null]));
 
                 return $inscrito->agenda_interlab_id;
-            }));
+            });
 
             if ($agendaId !== null) {
                 $resumo->contexto([

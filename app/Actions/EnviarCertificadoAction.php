@@ -34,59 +34,66 @@ class EnviarCertificadoAction
 
     private function executarObservado(CursoInscrito $inscrito, int $delay, ResumoExecucao $resumo): DadosGeraDoc
     {
-        return $resumo->etapa('validar_gerar_enfileirar', fn () => DB::transaction(function () use ($resumo, $inscrito, $delay): DadosGeraDoc {
-            $inscrito = CursoInscrito::query()->lockForUpdate()->findOrFail($inscrito->id);
-            $email = trim((string) ($inscrito->email ?? ''));
-            $validator = Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']]);
+        return DB::transaction(function () use ($resumo, $inscrito, $delay): DadosGeraDoc {
+            $inscrito = $resumo->etapa('carregar_registros', fn () => CursoInscrito::query()->lockForUpdate()->findOrFail($inscrito->id));
+            $email = $resumo->etapa('validar_destinatario', function () use ($inscrito): string {
+                $email = trim((string) ($inscrito->email ?? ''));
+                $validator = Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']]);
 
-            if ($validator->fails()) {
-                Log::channel('validation')->warning('certificado.validacao', ['campos' => array_keys($validator->errors()->toArray())]);
-                Log::channel('certificados_falha')->warning('Contato de certificado de curso ausente ou inválido.', [
-                    'evento' => 'certificado.contato_invalido',
-                    'resultado' => 'impedido',
-                    'motivo' => 'contato_invalido',
-                    'tipo' => 'certificado_curso',
-                    'agenda_id' => $inscrito->agenda_curso_id,
-                    'inscrito_id' => $inscrito->id,
-                    'inscrito_uid' => $inscrito->uid,
-                ]);
+                if ($validator->fails()) {
+                    Log::channel('validation')->warning('certificado.validacao', ['campos' => array_keys($validator->errors()->toArray())]);
+                    Log::channel('certificados_falha')->warning('Contato de certificado de curso ausente ou inválido.', [
+                        'evento' => 'certificado.contato_invalido',
+                        'resultado' => 'impedido',
+                        'motivo' => 'contato_invalido',
+                        'tipo' => 'certificado_curso',
+                        'agenda_id' => $inscrito->agenda_curso_id,
+                        'inscrito_id' => $inscrito->id,
+                        'inscrito_uid' => $inscrito->uid,
+                    ]);
 
-                $validator->validate();
-            }
+                    $validator->validate();
+                }
 
-            $conexao = DB::connection()->getName();
+                return $email;
+            });
 
-            if ((config('queue.connections.database.connection') ?? config('database.default')) !== $conexao) {
-                throw new LogicException('O envio de certificados exige fila e inscrição na mesma conexão de banco.');
-            }
+            $resumo->etapa('validar_conexao_fila', function (): void {
+                $conexao = DB::connection()->getName();
 
-            $dadosDoc = $this->criarDadosDoc($inscrito, $email);
+                if ((config('queue.connections.database.connection') ?? config('database.default')) !== $conexao) {
+                    throw new LogicException('O envio de certificados exige fila e inscrição na mesma conexão de banco.');
+                }
+            });
+
+            $dadosDoc = $resumo->etapa('preparar_documento', fn () => $this->criarDadosDoc($inscrito, $email));
+            $resumo->contexto(['documento_id' => $dadosDoc->id]);
+
             $tentativa = (string) Str::uuid();
-
-            $inscrito->update([
-                'certificado_emitido' => now(),
-                'certificado_envio_id' => $tentativa,
-                'certificado_path' => $dadosDoc->storage_path,
-            ]);
-
-            Bus::dispatch((new EnviarLinkCertificadoJob($dadosDoc->id, $inscrito->id, $tentativa, $email))
-                ->onConnection('database')
-                ->delay(now()->addSeconds($delay))
-                ->beforeCommit());
-
             $resumo->contexto([
                 'tipo' => 'certificado_curso',
                 'agenda_id' => $inscrito->agenda_curso_id,
                 'inscrito_id' => $inscrito->id,
                 'inscrito_uid' => $inscrito->uid,
-                'documento_id' => $dadosDoc->id,
                 'tentativa_id' => $tentativa,
             ]);
+
+            $resumo->etapa('confirmar_estado', fn () => $inscrito->update([
+                'certificado_emitido' => now(),
+                'certificado_envio_id' => $tentativa,
+                'certificado_path' => $dadosDoc->storage_path,
+            ]));
+
+            $resumo->etapa('enfileirar', fn () => Bus::dispatch((new EnviarLinkCertificadoJob($dadosDoc->id, $inscrito->id, $tentativa, $email))
+                ->onConnection('database')
+                ->delay(now()->addSeconds($delay))
+                ->beforeCommit()));
+
             $resumo->resultado('enfileirado');
             $resumo->incrementar('enfileirados');
 
             return $dadosDoc;
-        }));
+        });
     }
 
     public function executePendente(int $inscritoId, ?ResumoExecucao $resumo = null): bool
@@ -98,9 +105,11 @@ class EnviarCertificadoAction
         $resumo->resultado('ignorado', 'inelegivel');
 
         return $resumo->executar(fn () => DB::transaction(function () use ($inscritoId, $resumo): bool {
-            $inscrito = CursoInscrito::certificadosPendentes()->lockForUpdate()->find($inscritoId);
+            $inscrito = $resumo->etapa('carregar_registros', fn () => CursoInscrito::certificadosPendentes()->lockForUpdate()->find($inscritoId));
 
             if (! $inscrito) {
+                $resumo->resultadoEtapa('carregar_registros', 'ignorado');
+
                 return false;
             }
 
