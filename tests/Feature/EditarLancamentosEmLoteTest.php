@@ -2,10 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Financeiro\EditarLancamentosEmLoteAction;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\Exceptions;
+use Illuminate\Support\Facades\Log;
+use RuntimeException;
 use Tests\TestCase;
 
 class EditarLancamentosEmLoteTest extends TestCase
@@ -45,6 +50,13 @@ class EditarLancamentosEmLoteTest extends TestCase
             'consiliacao' => 'OUTRA-CONC',
         ]);
 
+        $resumos = [];
+        Log::listen(function ($evento) use (&$resumos): void {
+            if ($evento->message === 'fluxo.execucao' && ($evento->context['fluxo'] ?? null) === 'financeiro.editar_lote') {
+                $resumos[] = $evento->context;
+            }
+        });
+
         $response = $this->actingAs($user)->post(route('lancamento-financeiro-batch-update'), [
             'uids' => [$l1->uid, $l2->uid],
             'nota_fiscal' => 'NF-NOVA',
@@ -55,6 +67,15 @@ class EditarLancamentosEmLoteTest extends TestCase
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
+
+        $this->assertCount(1, $resumos);
+        $this->assertSame([
+            'processar' => 'concluido',
+            'transacao_lote' => 'concluido',
+            'selecionar_lancamentos' => 'concluido',
+            'validar_lote' => 'concluido',
+            'atualizar_lancamentos' => 'concluido',
+        ], array_column($resumos[0]['etapas'], 'resultado', 'etapa'));
 
         $this->assertDatabaseHas('lancamentos_financeiros', [
             'id' => $l1->id,
@@ -67,6 +88,41 @@ class EditarLancamentosEmLoteTest extends TestCase
             'nota_fiscal' => 'NF-NOVA',
             'consiliacao' => 'OUTRA-CONC',
         ]);
+    }
+
+    public function test_correlaciona_excecao_tratada_ao_resumo_do_lote(): void
+    {
+        $user = $this->userComPermissaoFinanceiro();
+        $lancamento = LancamentoFinanceiro::factory()->create(['tipo_lancamento' => 'CREDITO']);
+        $exception = new RuntimeException('Falha sintética ao atualizar o lote');
+        $this->mock(EditarLancamentosEmLoteAction::class)
+            ->shouldReceive('execute')->once()->andThrow($exception);
+
+        $correlacoes = [];
+        Exceptions::reportable(function (RuntimeException $reported) use ($exception, &$correlacoes): void {
+            if ($reported === $exception) {
+                $correlacoes[] = Context::all();
+            }
+        });
+
+        $resumos = [];
+        Log::listen(function ($evento) use (&$resumos): void {
+            if ($evento->message === 'fluxo.execucao' && ($evento->context['fluxo'] ?? null) === 'financeiro.editar_lote') {
+                $resumos[] = $evento->context;
+            }
+        });
+
+        $this->actingAs($user)->post(route('lancamento-financeiro-batch-update'), [
+            'uids' => [$lancamento->uid],
+            'nota_fiscal' => 'NF-NOVA',
+        ])->assertRedirect()->assertSessionHas('error', 'Não foi possível atualizar os lançamentos.');
+
+        $this->assertCount(1, $resumos);
+        $this->assertCount(1, $correlacoes);
+        $this->assertSame('falha_definitiva', $resumos[0]['resultado']);
+        $this->assertSame('financeiro.editar_lote', $correlacoes[0]['fluxo']);
+        $this->assertSame($resumos[0]['execucao_id'], $correlacoes[0]['execucao_id']);
+        $this->assertNull(Context::get('execucao_id'));
     }
 
     public function test_atualiza_tres_campos(): void

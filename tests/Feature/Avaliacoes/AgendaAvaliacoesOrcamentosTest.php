@@ -1,8 +1,9 @@
 <?php
 
 use App\Actions\Avaliacoes\CalcularOrcamentoAvaliacaoAction;
-use App\Actions\Avaliacoes\GerarDocumentoOrcamentoAvaliacaoAction;
+use App\Actions\GenerateDocxFromTemplateAction;
 use App\Enums\ImpostoAvaliacao;
+use App\Livewire\Avaliacoes\AgendaAvaliacoesCartas;
 use App\Livewire\Avaliacoes\AgendaAvaliacoesOrcamentos;
 use App\Models\AgendaAvaliacao;
 use App\Models\AreaAtuacao;
@@ -11,7 +12,10 @@ use App\Models\Avaliador;
 use App\Models\Laboratorio;
 use App\Models\TipoAvaliacao;
 use Database\Factories\PessoaFactory;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Exceptions;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 function criarAgendaAvaliacaoOrcamento(array $atributos = []): AgendaAvaliacao
@@ -248,7 +252,13 @@ test('falha técnica de documento é reportada uma vez e usa feedback SWAL segur
     $avaliacao = criarAgendaAvaliacaoOrcamento();
     $exception = new RuntimeException('token=segredo privado@example.com');
     Exceptions::fake();
-    $this->mock(GerarDocumentoOrcamentoAvaliacaoAction::class)
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao' && ($evento->context['fluxo'] ?? null) === 'avaliacao.imprimirOrcamento') {
+            $resumos[] = $evento->context;
+        }
+    });
+    $this->mock(GenerateDocxFromTemplateAction::class)
         ->shouldReceive('execute')->once()->andThrow($exception);
 
     Livewire::test(AgendaAvaliacoesOrcamentos::class, ['avaliacao' => $avaliacao])
@@ -256,4 +266,71 @@ test('falha técnica de documento é reportada uma vez e usa feedback SWAL segur
         ->assertDispatched('show-error-alert', message: 'Não foi possível gerar o documento. Tente novamente.');
     Exceptions::assertReported(fn (RuntimeException $reported) => $reported === $exception);
     Exceptions::assertReportedCount(1);
+    expect($resumos)->toHaveCount(1);
+    expect(array_column($resumos[0]['etapas'], 'resultado', 'etapa'))->toBe([
+        'processar' => 'falha_definitiva',
+        'preparar_documento' => 'concluido',
+        'gerar_documento' => 'falha',
+    ]);
 });
+
+test('correlaciona a exceção técnica ao resumo do orçamento', function () {
+    $avaliacao = criarAgendaAvaliacaoOrcamento();
+    $exception = new RuntimeException('Falha sintética ao gerar o orçamento');
+    $correlacoes = [];
+    Exceptions::reportable(function (RuntimeException $reported) use ($exception, &$correlacoes): void {
+        if ($reported === $exception) {
+            $correlacoes[] = Context::all();
+        }
+    });
+    $resumos = [];
+    Log::listen(function ($evento) use (&$resumos): void {
+        if ($evento->message === 'fluxo.execucao' && ($evento->context['fluxo'] ?? null) === 'avaliacao.imprimirOrcamento') {
+            $resumos[] = $evento->context;
+        }
+    });
+    $this->mock(GenerateDocxFromTemplateAction::class)
+        ->shouldReceive('execute')->once()->andThrow($exception);
+
+    // A chamada direta mantém o handler real durante o reporte.
+    Livewire::test(AgendaAvaliacoesOrcamentos::class, ['avaliacao' => $avaliacao])
+        ->instance()
+        ->imprimirOrcamento();
+
+    expect($resumos)->toHaveCount(1)
+        ->and($correlacoes)->toHaveCount(1)
+        ->and($correlacoes[0])->toMatchArray([
+            'execucao_id' => $resumos[0]['execucao_id'],
+            'fluxo' => 'avaliacao.imprimirOrcamento',
+            'avaliacao_uid' => $avaliacao->uid,
+        ])
+        ->and(Context::get('execucao_id'))->toBeNull();
+});
+
+test('documentos de avaliação registram preparação, geração e download em um resumo', function (string $componente, string $acao) {
+    $avaliacao = criarAgendaAvaliacaoOrcamento();
+    Storage::fake();
+    Storage::makeDirectory('public/docs');
+    $resumos = [];
+    Log::listen(function ($evento) use ($acao, &$resumos): void {
+        if ($evento->message === 'fluxo.execucao' && ($evento->context['fluxo'] ?? null) === "avaliacao.{$acao}") {
+            $resumos[] = $evento->context;
+        }
+    });
+
+    Livewire::test($componente, ['avaliacao' => $avaliacao])
+        ->call($acao)
+        ->assertFileDownloaded();
+
+    expect($resumos)->toHaveCount(1);
+    expect(array_column($resumos[0]['etapas'], 'resultado', 'etapa'))->toBe([
+        'processar' => 'concluido',
+        'preparar_documento' => 'concluido',
+        'gerar_documento' => 'concluido',
+        'disponibilizar_documento' => 'concluido',
+    ]);
+})->with([
+    [AgendaAvaliacoesCartas::class, 'gerarCartaReconhecimento'],
+    [AgendaAvaliacoesCartas::class, 'gerarCartaMarcacao'],
+    [AgendaAvaliacoesOrcamentos::class, 'imprimirOrcamento'],
+]);

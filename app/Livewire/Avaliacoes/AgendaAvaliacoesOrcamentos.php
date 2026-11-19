@@ -70,41 +70,63 @@ class AgendaAvaliacoesOrcamentos extends Component
     {
         $resumo = new ResumoExecucao('avaliacao.imprimirOrcamento', ['avaliacao_uid' => $this->avaliacao->uid]);
 
-        return $resumo->executar(function ($resumo) {
-            try {
-                $path = $resumo->etapa('gerar_documento', fn () => app(GerarDocumentoOrcamentoAvaliacaoAction::class)->execute(
-                    $this->avaliacao,
-                    (float) $this->form->perc_lucro,
-                ));
+        return $resumo->executar(fn () => $this->disponibilizarOrcamento($resumo));
+    }
 
+    public function gerarOrcamento()
+    {
+        $resumo = new ResumoExecucao('avaliacao.imprimirOrcamento', ['avaliacao_uid' => $this->avaliacao->uid]);
+
+        return $resumo->executar(function () use ($resumo) {
+            $valido = $resumo->etapa('validar_orcamento', function (): bool {
+                if (! $this->dadosPrincipaisPreenchidos()) {
+                    return false;
+                }
+
+                $this->form->validate();
+
+                return true;
+            });
+
+            if (! $valido) {
+                $resumo->resultadoEtapa('validar_orcamento', 'impedido');
+                $resumo->resultado('impedido', 'validacao');
+                $this->dispatch('show-orcamento-validation-alert', message: self::MENSAGEM_CAMPOS_OBRIGATORIOS);
+
+                return;
+            }
+
+            $resumo->etapa('salvar_orcamento', function (): void {
+                app(SalvarOrcamentoAvaliacaoAction::class)->execute($this->avaliacao, $this->form->toArray());
+                $this->avaliacao->refresh();
+                $this->carregarRelatorio((float) $this->form->perc_lucro);
+            });
+
+            return $this->disponibilizarOrcamento($resumo);
+        });
+    }
+
+    private function disponibilizarOrcamento(ResumoExecucao $resumo)
+    {
+        try {
+            $path = app(GerarDocumentoOrcamentoAvaliacaoAction::class)->execute(
+                $this->avaliacao,
+                (float) $this->form->perc_lucro,
+                $resumo,
+            );
+
+            return $resumo->etapa('disponibilizar_documento', function () use ($path) {
                 $fullPath = Storage::path("public/{$path}");
 
                 return response()
                     ->download($fullPath, basename($fullPath))
                     ->deleteFileAfterSend(true);
-            } catch (\Exception $e) {
-                report($e);
-                $resumo->resultado('falha_definitiva', 'geracao_documento');
-                $this->dispatch('show-error-alert', message: 'Não foi possível gerar o documento. Tente novamente.');
-            }
-        });
-    }
-
-    public function gerarOrcamento()
-    {
-        if (! $this->dadosPrincipaisPreenchidos()) {
-            $this->dispatch('show-orcamento-validation-alert', message: self::MENSAGEM_CAMPOS_OBRIGATORIOS);
-
-            return;
+            });
+        } catch (\Exception $e) {
+            $resumo->reportar($e);
+            $resumo->resultado('falha_definitiva', 'geracao_documento');
+            $this->dispatch('show-error-alert', message: 'Não foi possível gerar o documento. Tente novamente.');
         }
-
-        $this->form->validate();
-
-        app(SalvarOrcamentoAvaliacaoAction::class)->execute($this->avaliacao, $this->form->toArray());
-        $this->avaliacao->refresh();
-        $this->carregarRelatorio((float) $this->form->perc_lucro);
-
-        return $this->imprimirOrcamento();
     }
 
     public function render()

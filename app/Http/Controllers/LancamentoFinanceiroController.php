@@ -176,22 +176,23 @@ class LancamentoFinanceiroController extends Controller
             $validated = $request->validated();
 
             try {
-                $atualizados = $resumo->etapa('validar_atualizar_confirmar', fn () => $editarLancamentosEmLoteAction->execute(
+                $atualizados = $editarLancamentosEmLoteAction->execute(
                     $validated['uids'],
                     [
                         'consiliacao' => $validated['consiliacao'] ?? null,
                         'nota_fiscal' => $validated['nota_fiscal'] ?? null,
                         'data_pagamento' => $validated['data_pagamento'] ?? null,
                         'data_vencimento' => $validated['data_vencimento'] ?? null,
-                    ]
-                ));
+                    ],
+                    $resumo,
+                );
                 $resumo->incrementar('atualizados', $atualizados);
             } catch (OperacaoImpedidaException $e) {
                 $resumo->resultado('impedido', $e->motivo);
 
                 return redirect()->back()->with('error', 'Não foi possível atualizar os lançamentos.');
             } catch (RuntimeException $e) {
-                report($e);
+                $resumo->reportar($e);
                 $resumo->resultado('falha_definitiva', 'erro_tecnico');
 
                 return redirect()->back()->with('error', 'Não foi possível atualizar os lançamentos.');

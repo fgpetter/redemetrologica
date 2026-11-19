@@ -4,6 +4,7 @@ namespace App\Actions\Financeiro;
 
 use App\Exceptions\OperacaoImpedidaException;
 use App\Models\LancamentoFinanceiro;
+use App\Support\Observabilidade\ResumoExecucao;
 use Illuminate\Support\Facades\DB;
 
 class EditarLancamentosEmLoteAction
@@ -15,7 +16,7 @@ class EditarLancamentosEmLoteAction
      * @param  array{consiliacao?: string|null, nota_fiscal?: string|null, data_pagamento?: string|null, data_vencimento?: string|null}  $input
      * @return int Número de lançamentos atualizados (0 se não houver campos para persistir)
      */
-    public function execute(array $uids, array $input): int
+    public function execute(array $uids, array $input, ?ResumoExecucao $resumo = null): int
     {
         $uniqueUids = array_values(array_unique(array_filter($uids, fn ($uid) => is_string($uid) && $uid !== '')));
 
@@ -33,28 +34,32 @@ class EditarLancamentosEmLoteAction
             $campos['status'] = $campos['data_pagamento'] ? 'EFETIVADO' : 'PROVISIONADO';
         }
 
-        return (int) DB::transaction(function () use ($uniqueUids, $campos): int {
-            $lancamentos = LancamentoFinanceiro::query()
+        $resumo ??= new ResumoExecucao('financeiro.editar_lote');
+
+        return $resumo->etapa('transacao_lote', fn () => DB::transaction(function () use ($uniqueUids, $campos, $resumo): int {
+            $lancamentos = $resumo->etapa('selecionar_lancamentos', fn () => LancamentoFinanceiro::query()
                 ->whereIn('uid', $uniqueUids)
                 ->lockForUpdate()
-                ->get();
+                ->get());
 
-            if ($lancamentos->count() !== count($uniqueUids)) {
-                throw new OperacaoImpedidaException('referencias_ausentes', 'Um ou mais lançamentos não foram encontrados.');
-            }
+            $resumo->etapa('validar_lote', function () use ($lancamentos, $uniqueUids): void {
+                if ($lancamentos->count() !== count($uniqueUids)) {
+                    throw new OperacaoImpedidaException('referencias_ausentes', 'Um ou mais lançamentos não foram encontrados.');
+                }
 
-            $tiposDistintos = $lancamentos->pluck('tipo_lancamento')->unique()->values();
+                if ($lancamentos->pluck('tipo_lancamento')->unique()->count() > 1) {
+                    throw new OperacaoImpedidaException('tipos_distintos', 'Não é permitido atualizar receitas e despesas no mesmo lote.');
+                }
+            });
 
-            if ($tiposDistintos->count() > 1) {
-                throw new OperacaoImpedidaException('tipos_distintos', 'Não é permitido atualizar receitas e despesas no mesmo lote.');
-            }
+            return $resumo->etapa('atualizar_lancamentos', function () use ($lancamentos, $campos): int {
+                foreach ($lancamentos as $lancamento) {
+                    $lancamento->update($campos);
+                }
 
-            foreach ($lancamentos as $lancamento) {
-                $lancamento->update($campos);
-            }
-
-            return $lancamentos->count();
-        });
+                return $lancamentos->count();
+            });
+        }));
     }
 
     /**
