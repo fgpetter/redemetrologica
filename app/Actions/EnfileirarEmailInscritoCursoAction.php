@@ -6,6 +6,7 @@ use App\Jobs\EnviarInformacoesCursoJob;
 use App\Mail\InformacoesTreinamentoMail;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
+use App\Support\ProcessosAgendados;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +15,9 @@ use Illuminate\Support\Str;
 
 class EnfileirarEmailInscritoCursoAction
 {
-    public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada): bool
+    public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada, bool $agendado = false): bool
     {
-        return DB::transaction(function () use ($agendaCursoId, $inscritoId, $dataEsperada): bool {
+        return DB::transaction(function () use ($agendaCursoId, $inscritoId, $dataEsperada, $agendado): bool {
             $agenda = AgendaCursos::query()
                 ->with(['curso', 'materiaisTreinamento'])
                 ->lockForUpdate()
@@ -68,7 +69,9 @@ class EnfileirarEmailInscritoCursoAction
                 $tentativa,
                 $dataEsperada,
                 $snapshot,
-            ))->onConnection('database')->beforeCommit());
+            ))->onConnection('database')
+                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
+                ->beforeCommit());
 
             Log::channel('mailsent')->info('E-mail automático de informações de curso enfileirado.', [
                 'tipo' => 'participante',

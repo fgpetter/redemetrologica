@@ -1,17 +1,16 @@
 <?php
 
 use App\Actions\EnviarCertificadoAction;
-use App\Console\Commands\EnviarCertificadoPendenteCommand;
 use App\Jobs\EnviarLinkCertificadoJob;
 use App\Mail\CertificadoNotification;
 use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoInscrito;
 use App\Models\Instrutor;
+use App\Support\ProcessosAgendados;
 use Database\Factories\LancamentoFinanceiroFactory;
 use Database\Factories\PessoaFactory;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -78,18 +77,22 @@ it('recusa contato inválido no manual sem documento, marcação ou job', functi
     expect(file_get_contents($this->certificadosCursoLog))->toContain('certificado_curso', 'Contato de certificado');
 })->with(['', '   ', 'inválido', 'a@example.com, b@example.com']);
 
-it('pula inválidos e enfileira somente o primeiro válido na ordem de inscrição e id', function () {
+it('pula inválidos e enfileira todos os válidos na ordem de inscrição e id', function () {
     $invalido = inscritoCertificadoCurso(['email' => 'inválido', 'data_inscricao' => now()->subDays(2)]);
     $valido = inscritoCertificadoCurso(['data_inscricao' => now()->subDay()]);
     $proximo = inscritoCertificadoCurso(['data_inscricao' => now()->subDay()]);
 
-    $this->artisan('certificados:enviar-pendente')->assertSuccessful();
+    ProcessosAgendados::executar(['rodada_id' => 'teste'], function (): void {
+        $this->artisan('certificados:enviar-pendente')->assertSuccessful()->run();
+    });
 
-    expect(jobCertificadoCurso()->inscritoId)->toBe($valido->id);
+    $jobs = DB::table('jobs')->orderBy('id')->get(['queue', 'payload']);
+    expect($jobs->pluck('queue')->unique()->values()->all())->toBe([ProcessosAgendados::FILA_EMAIL]);
+    expect($jobs->map(fn (object $row) => unserialize(json_decode($row->payload, true)['data']['command'])->inscritoId)->all())
+        ->toBe([$valido->id, $proximo->id]);
     expect($invalido->fresh()->certificado_emitido)->toBeNull();
-    expect($proximo->fresh()->certificado_emitido)->toBeNull();
-    $this->assertDatabaseCount('dados_gera_doc', 1);
-    $this->assertDatabaseCount('jobs', 1);
+    expect($proximo->fresh()->certificado_emitido)->not->toBeNull();
+    $this->assertDatabaseCount('dados_gera_doc', 2);
 });
 
 it('persiste destinatário normalizado e envia uma vez mesmo com passagem do tempo', function () {
@@ -144,13 +147,10 @@ it('libera somente a tentativa que falhou e rejeita jobs substituídos', functio
     $action = app(EnviarCertificadoAction::class);
     $action->execute($inscrito);
     $antigo = jobCertificadoCurso();
-    Cache::put(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY, true, 600);
-
     $antigo->failed(new RuntimeException('SMTP indisponível'));
 
     expect($inscrito->fresh()->certificado_emitido)->toBeNull();
     expect($inscrito->fresh()->certificado_envio_id)->toBeNull();
-    expect(Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY))->toBeFalse();
     expect(file_get_contents($this->certificadosCursoLog))->toContain('certificado_curso', 'SMTP indisponível', $antigo->tentativaId);
     $action->execute($inscrito);
     $atual = $inscrito->fresh()->getAttributes();
@@ -179,14 +179,12 @@ it('revalida a pendência e preserva certificados históricos sem identificador'
     $this->assertDatabaseCount('jobs', 1);
 });
 
-it('suspende consultas quando restam somente contatos inválidos sem criar jobs', function () {
+it('não cria documentos ou jobs de certificados quando restam somente contatos inválidos', function () {
     Mail::fake();
     $invalido = inscritoCertificadoCurso(['email' => 'inválido']);
 
     $this->artisan('certificados:enviar-pendente')->assertSuccessful();
-    $this->artisan('certificados:enviar-pendente')->assertSuccessful();
 
-    expect(Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY))->toBeTrue();
     expect($invalido->fresh()->certificado_emitido)->toBeNull();
     expect($invalido->fresh()->certificado_envio_id)->toBeNull();
     $this->assertDatabaseCount('jobs', 0);

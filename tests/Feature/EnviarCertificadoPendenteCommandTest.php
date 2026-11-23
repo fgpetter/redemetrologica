@@ -3,7 +3,8 @@
 namespace Tests\Feature;
 
 use App\Actions\EnviarCertificadoAction;
-use App\Console\Commands\EnviarCertificadoPendenteCommand;
+use App\Jobs\EnviarEmailAgendadoJob;
+use App\Mail\AvisoSemCertificadosPendentesMail;
 use App\Models\AgendaCursos;
 use App\Models\CentroCusto;
 use App\Models\Curso;
@@ -12,9 +13,11 @@ use App\Models\Instrutor;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use App\Models\PlanoConta;
+use App\Support\ProcessosAgendados;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -27,17 +30,24 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
     {
         parent::setUp();
 
-        Cache::forget(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY);
+        Mail::fake();
     }
 
-    public function test_nao_faz_nada_quando_nao_ha_inscritos_pendentes(): void
+    public function test_enfileira_um_aviso_quando_nao_ha_inscritos_pendentes_na_rodada(): void
     {
+        Queue::fake();
         $action = $this->mock(EnviarCertificadoAction::class);
         $action->shouldNotReceive('executePendente');
 
-        Artisan::call('certificados:enviar-pendente');
+        ProcessosAgendados::executar(['rodada_id' => 'teste'], fn () => Artisan::call('certificados:enviar-pendente'));
 
-        $this->assertTrue(Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
+        Queue::assertPushedOn(ProcessosAgendados::FILA_EMAIL, EnviarEmailAgendadoJob::class, function (EnviarEmailAgendadoJob $job): bool {
+            return $job->destinatario === 'sistema@redemetrologica.com.br'
+                && $job->email instanceof AvisoSemCertificadosPendentesMail
+                && $job->email->envelope()->subject === 'Notificação: Sem certificados pendentes';
+        });
+        Queue::assertPushed(EnviarEmailAgendadoJob::class, 1);
+        Mail::assertNothingSent();
     }
 
     public function test_ignora_inscrito_com_certificado_ja_emitido(): void
@@ -86,12 +96,12 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         ]);
 
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldReceive('executePendente')->once()->with($inscrito->id)->andReturnTrue();
+        $action->shouldReceive('executePendente')->once()->with($inscrito->id, false)->andReturnTrue();
 
         Artisan::call('certificados:enviar-pendente');
     }
 
-    public function test_processa_inscrito_com_data_inscricao_mais_antiga(): void
+    public function test_processa_todos_inscritos_em_ordem_de_inscricao(): void
     {
         [$agenda, $pessoa] = $this->criarAgendaEPessoa();
         $lancamento = $this->criarLancamento($pessoa, $agenda, ['status' => 'EFETIVADO']);
@@ -104,7 +114,7 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
             'data_inscricao' => now()->subDays(10),
         ]);
 
-        $this->criarCursoInscrito([
+        $inscritoRecente = $this->criarCursoInscrito([
             'pessoa_id' => $pessoa->id,
             'agenda_curso_id' => $agenda->id,
             'lancamento_financeiro_id' => $lancamento->id,
@@ -113,7 +123,8 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
         ]);
 
         $action = $this->mock(EnviarCertificadoAction::class);
-        $action->shouldReceive('executePendente')->once()->with($inscritoAntigo->id)->andReturnTrue();
+        $action->shouldReceive('executePendente')->once()->with($inscritoAntigo->id, false)->ordered()->andReturnTrue();
+        $action->shouldReceive('executePendente')->once()->with($inscritoRecente->id, false)->ordered()->andReturnTrue();
 
         Artisan::call('certificados:enviar-pendente');
     }

@@ -2,46 +2,82 @@
 
 namespace App\Console\Commands\Concerns;
 
+use App\Jobs\EnviarEmailAgendadoJob;
 use App\Mail\AvisoLembretePrazoSemEmailMail;
 use App\Mail\LembretePrazoAvaliacaoMail;
 use App\Models\AgendaAvaliacao;
+use App\Support\ProcessosAgendados;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 trait EnviaLembretesPrazoAvaliacao
 {
     protected function enviarLembretes(string $coluna, string $rotulo): int
     {
-        if (now()->isWeekend()) {
+        return ProcessosAgendados::execucao($this->getName(), fn (): int => $this->processarLembretes($coluna, $rotulo));
+    }
+
+    private function processarLembretes(string $coluna, string $rotulo): int
+    {
+        $contexto = ProcessosAgendados::contexto();
+        $dia = CarbonImmutable::parse($contexto['data_rodada'] ?? 'today', 'America/Sao_Paulo');
+
+        if ($dia->isWeekend()) {
             $this->info('Fim de semana: lembretes não enviados.');
+            ProcessosAgendados::resumo(['enfileirados' => 0, 'fim_de_semana' => true]);
 
             return self::SUCCESS;
         }
 
-        $dataPrazo = now()->isFriday()
-            ? now()->addDays(3)->toDateString()
-            : now()->addDay()->toDateString();
+        $dataPrazo = $dia->addDays($dia->isFriday() ? 3 : 1)->toDateString();
 
-        $enviados = 0;
+        $enfileirados = 0;
+        $semEmail = 0;
+        $falhas = 0;
 
-        AgendaAvaliacao::query()
+        $avaliacoes = AgendaAvaliacao::query()
             ->whereDate($coluna, $dataPrazo)
             ->with('laboratorio')
             ->orderBy('id')
-            ->get()
-            ->each(function (AgendaAvaliacao $avaliacao) use ($dataPrazo, $rotulo, &$enviados): void {
-                $email = trim((string) $avaliacao->laboratorio?->email);
+            ->lazyById(100);
 
+        foreach ($avaliacoes as $avaliacao) {
+            $email = trim((string) $avaliacao->laboratorio?->email);
+
+            try {
                 if (filled($email)) {
-                    Mail::to($email)->queue(new LembretePrazoAvaliacaoMail($avaliacao, $rotulo, $dataPrazo));
+                    $aviso = new LembretePrazoAvaliacaoMail($avaliacao, $rotulo, $dataPrazo);
                 } else {
-                    Mail::to('sistema@redemetrologica.com.br')->queue(new AvisoLembretePrazoSemEmailMail($avaliacao, $rotulo, $dataPrazo));
+                    $email = 'sistema@redemetrologica.com.br';
+                    $aviso = new AvisoLembretePrazoSemEmailMail($avaliacao, $rotulo, $dataPrazo);
+                    $semEmail++;
                 }
 
-                $enviados++;
-            });
+                if (isset($contexto['rodada_id'])) {
+                    EnviarEmailAgendadoJob::dispatch($aviso, $email, $contexto);
+                } else {
+                    Mail::to($email)->queue($aviso);
+                }
 
-        $this->info("Enfileirados {$enviados} lembrete(s) para {$rotulo}.");
+                $enfileirados++;
+            } catch (Throwable $exception) {
+                $falhas++;
+                ProcessosAgendados::log('lembrete_avaliacao_falha_enfileiramento', [
+                    'agenda_avaliacao_id' => $avaliacao->id,
+                    'exception_class' => $exception::class,
+                ], 'error');
+            }
+        }
 
-        return self::SUCCESS;
+        ProcessosAgendados::resumo([
+            'data_prazo' => $dataPrazo,
+            'enfileirados' => $enfileirados,
+            'avisos_sem_email' => $semEmail,
+            'falhas' => $falhas,
+        ]);
+        $this->info("Enfileirados {$enfileirados} lembrete(s) para {$rotulo}.");
+
+        return $falhas > 0 ? self::FAILURE : self::SUCCESS;
     }
 }

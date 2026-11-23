@@ -2,12 +2,8 @@
 
 namespace App\Console;
 
-use App\Console\Commands\EnviarCertificadoInterlabPendenteCommand;
-use App\Console\Commands\EnviarCertificadoPendenteCommand;
-use App\Console\Commands\EnviarEmailsAutomaticosCursos;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Facades\Cache;
 
 class Kernel extends ConsoleKernel
 {
@@ -16,11 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('cursos:emails-automaticos')
-            ->everyMinute()
+        $schedule->command('agendamentos:executar-rodada')
+            ->dailyAt('00:00')
             ->timezone('America/Sao_Paulo')
-            ->withoutOverlapping()
-            ->skip(fn () => Cache::has(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY));
+            ->runInBackground();
 
         $schedule->command('suporte:limpar-uploads')->daily()->withoutOverlapping();
 
@@ -29,44 +24,18 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->withoutOverlapping();
 
-        // $schedule->command('certificados:clean')->dailyAt('01:00');
-        $schedule->command('certificados:enviar-pendente')
-            ->everyMinute()
-            ->between('00:00', '06:00')
-            ->withoutOverlapping()
-            ->skip(fn () => Cache::has(EnviarCertificadoPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
-
-        $schedule->command('interlab:enviar-certificado-pendente')
-            ->everyMinute()
-            ->timezone('America/Sao_Paulo')
-            ->between('00:00', '06:00')
-            ->withoutOverlapping()
-            ->skip(fn () => Cache::has(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY));
-
         $schedule->command('interlab:retomar-lotes-postagem-orfaos')
             ->everyMinute()
             ->withoutOverlapping();
 
-        $schedule->command('interlab:rastrear-itens-postagem')
+        $schedule->command('agendamentos:executar-rodada', ['--verificar'])
+            ->dailyAt('06:00')
+            ->timezone('America/Sao_Paulo');
+
+        $schedule->command('interlab:rastrear-itens-postagem', ['--agendado'])
             ->weekdays()
             ->at('06:00')
             ->timezone('America/Sao_Paulo')
-            ->withoutOverlapping();
-
-        $schedule->command('app:processar-senhas-interlab-confirmado')
-            ->dailyAt('07:00')
-            ->withoutOverlapping();
-
-        $schedule->command('avaliacoes:enviar-lembrete-proc-laboratorio')
-            ->dailyAt('00:00')
-            ->withoutOverlapping();
-
-        $schedule->command('avaliacoes:enviar-lembrete-proposta-acoes')
-            ->dailyAt('00:10')
-            ->withoutOverlapping();
-
-        $schedule->command('avaliacoes:enviar-lembrete-acoes-corretivas')
-            ->dailyAt('00:20')
             ->withoutOverlapping();
     }
 

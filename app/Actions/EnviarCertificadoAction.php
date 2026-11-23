@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Jobs\EnviarLinkCertificadoJob;
 use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
+use App\Support\ProcessosAgendados;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,9 +18,9 @@ class EnviarCertificadoAction
     /**
      * Cria registro de log e dispara e-mail com link do certificado
      */
-    public function execute(CursoInscrito $inscrito, int $delay = 0): DadosGeraDoc
+    public function execute(CursoInscrito $inscrito, int $delay = 0, bool $agendado = false): DadosGeraDoc
     {
-        return DB::transaction(function () use ($inscrito, $delay): DadosGeraDoc {
+        return DB::transaction(function () use ($inscrito, $delay, $agendado): DadosGeraDoc {
             $inscrito = CursoInscrito::query()->lockForUpdate()->findOrFail($inscrito->id);
             $email = trim((string) ($inscrito->email ?? ''));
             $validator = Validator::make(['email' => $email], ['email' => ['required', 'email:rfc']]);
@@ -51,6 +52,7 @@ class EnviarCertificadoAction
 
             Bus::dispatch((new EnviarLinkCertificadoJob($dadosDoc->id, $inscrito->id, $tentativa, $email))
                 ->onConnection('database')
+                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
                 ->delay(now()->addSeconds($delay))
                 ->beforeCommit());
 
@@ -66,16 +68,16 @@ class EnviarCertificadoAction
         });
     }
 
-    public function executePendente(int $inscritoId): bool
+    public function executePendente(int $inscritoId, bool $agendado = false): bool
     {
-        return DB::transaction(function () use ($inscritoId): bool {
+        return DB::transaction(function () use ($inscritoId, $agendado): bool {
             $inscrito = CursoInscrito::certificadosPendentes()->lockForUpdate()->find($inscritoId);
 
             if (! $inscrito) {
                 return false;
             }
 
-            $this->execute($inscrito);
+            $this->execute($inscrito, agendado: $agendado);
 
             return true;
         });

@@ -157,6 +157,14 @@ return [
             'ignore_exceptions' => true,
         ],
 
+        'processos_agendados' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/processos-agendados.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
         'correios' => [
             'driver' => 'daily',
             'path' => storage_path('logs/correios.log'),

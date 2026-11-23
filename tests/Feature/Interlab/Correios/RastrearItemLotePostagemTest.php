@@ -4,10 +4,12 @@ use App\Actions\Interlab\EnfileirarRastreioItensLotePostagemAction;
 use App\Actions\Interlab\RastrearItemLotePostagemAction;
 use App\Enums\InterlabLotePostagemItemStatus;
 use App\Enums\InterlabLotePostagemStatus;
+use App\Jobs\EnviarEmailAgendadoJob;
 use App\Jobs\Interlab\RastrearItemLotePostagemJob;
 use App\Mail\InterlabLotePostagemRastreioMail;
 use App\Models\InterlabLotePostagem;
 use App\Models\InterlabLotePostagemItem;
+use App\Support\ProcessosAgendados;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\InterlabLotePostagemFactory;
 use Database\Factories\InterlabLotePostagemItemFactory;
@@ -136,6 +138,28 @@ test('sem eventos nao altera status_correios nem envia email', function () {
         ->and($item->rastreado_em)->not->toBeNull()
         ->and($item->rastreio_payload['mensagem'] ?? null)->toBe('Objeto ainda não encontrado no fluxo postal');
 
+    Mail::assertNothingQueued();
+});
+
+test('rastreio do scheduler produz aviso com cópias na fila de e-mails agendados', function () {
+    Queue::fake([RastrearItemLotePostagemJob::class, EnviarEmailAgendadoJob::class]);
+    $item = itemRastreavel();
+
+    Http::fake(fn (Request $request) => str_contains($request->url(), '/token/')
+        ? respostaTokenCorreios()
+        : Http::response(respostaRastroCorreios($item->codigo_objeto, eventosRastroEmTransito()), 200));
+
+    $this->artisan('interlab:rastrear-itens-postagem', ['--agendado' => true])->assertSuccessful();
+
+    $job = Queue::pushed(RastrearItemLotePostagemJob::class)->sole();
+    expect($job->queue)->toBe('default');
+    $job->handle(app(RastrearItemLotePostagemAction::class));
+
+    $email = Queue::pushed(EnviarEmailAgendadoJob::class)->sole();
+    expect($email->queue)->toBe(ProcessosAgendados::FILA_EMAIL)
+        ->and($email->destinatario)->toBe('lab@example.com')
+        ->and($email->cc)->toContain('tecnico@redemetrologica.com.br')
+        ->and($email->contexto['execucao_id'])->toBeString();
     Mail::assertNothingQueued();
 });
 

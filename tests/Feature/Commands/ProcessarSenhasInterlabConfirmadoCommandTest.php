@@ -9,6 +9,7 @@ use App\Models\Endereco;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
+use App\Support\ProcessosAgendados;
 use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\PessoaFactory;
@@ -64,6 +65,22 @@ class ProcessarSenhasInterlabConfirmadoCommandTest extends TestCase
             return $job->analistaId === $analista->id
                 && $job->destinatarios === ['analista@example.com'];
         });
+    }
+
+    public function test_rodada_enfileira_carta_na_fila_agendada_sem_delay_individual(): void
+    {
+        Queue::fake();
+        $agenda = AgendaInterlabFactory::new()->create(['status' => 'CONFIRMADO']);
+        $agenda->interlab->update(['tag' => 'ABCDE']);
+        $inscrito = $this->criarInscrito($agenda, 'resp@example.com', 'lab@example.com');
+
+        ProcessosAgendados::executar(['rodada_id' => 'rodada-teste'], fn () => $this
+            ->artisan('app:processar-senhas-interlab-confirmado')->assertSuccessful()->run());
+
+        Queue::assertPushed(EnviaSenhaLaboratorioJob::class, fn (EnviaSenhaLaboratorioJob $job) => $job->inscritoId === $inscrito->id
+            && $job->connection === 'database'
+            && $job->queue === ProcessosAgendados::FILA_EMAIL
+            && $job->delay === null);
     }
 
     public function test_nao_enfileira_quando_agenda_nao_confirmada(): void

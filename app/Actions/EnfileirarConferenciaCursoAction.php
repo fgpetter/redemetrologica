@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Jobs\EnviarConferenciaCursoJob;
 use App\Models\AgendaCursos;
+use App\Support\ProcessosAgendados;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
@@ -15,9 +16,9 @@ class EnfileirarConferenciaCursoAction
 {
     public const DESTINATARIO_ADMINISTRATIVO = 'administrativo@redemetrologica.com.br';
 
-    public function execute(int $agendaCursoId, string $dataEsperada): bool
+    public function execute(int $agendaCursoId, string $dataEsperada, bool $agendado = false): bool
     {
-        return DB::transaction(function () use ($agendaCursoId, $dataEsperada): bool {
+        return DB::transaction(function () use ($agendaCursoId, $dataEsperada, $agendado): bool {
             $agenda = AgendaCursos::query()
                 ->with(['curso', 'materiaisTreinamento'])
                 ->lockForUpdate()
@@ -61,7 +62,9 @@ class EnfileirarConferenciaCursoAction
                 $tentativa,
                 $dataEsperada,
                 $snapshot,
-            ))->onConnection('database')->beforeCommit());
+            ))->onConnection('database')
+                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
+                ->beforeCommit());
 
             Log::channel('mailsent')->info('E-mail automático de conferência de curso enfileirado.', [
                 'tipo' => 'conferencia',

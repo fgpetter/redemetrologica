@@ -8,6 +8,7 @@ use App\Jobs\EnviaSenhaAnalistaJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
+use App\Support\ProcessosAgendados;
 
 class CriarEnviarSenhaAnalistaAction
 {
@@ -20,6 +21,7 @@ class CriarEnviarSenhaAnalistaAction
         InterlabInscrito $inscrito,
         InterlabAnalista $analista,
         int $delaySecs = 0,
+        bool $agendado = false,
     ): DadosGeraDoc {
         $dadosDoc = app(CriarCartaSenhaAnalistaAction::class)->execute($inscrito, $analista);
 
@@ -46,8 +48,13 @@ class CriarEnviarSenhaAnalistaAction
             return $dadosDoc;
         }
 
-        EnviaSenhaAnalistaJob::dispatch($dadosDoc->id, $destinatarios, $analista->id)
-            ->delay(now()->addSeconds($delaySecs));
+        $envio = EnviaSenhaAnalistaJob::dispatch($dadosDoc->id, $destinatarios, $analista->id);
+
+        if ($agendado) {
+            $envio->onConnection('database')->onQueue(ProcessosAgendados::FILA_EMAIL);
+        } else {
+            $envio->delay(now()->addSeconds($delaySecs));
+        }
 
         return $dadosDoc;
     }

@@ -2,92 +2,62 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\CoordenarCacheEmailsCursos;
 use App\Actions\EnfileirarConferenciaCursoAction;
 use App\Actions\EnfileirarEmailInscritoCursoAction;
 use App\Actions\EnfileirarPendenciasCursoAction;
 use App\Models\AgendaCursos;
+use App\Support\ProcessosAgendados;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class EnviarEmailsAutomaticosCursos extends Command
 {
-    public const SEM_EMAIL_PENDENTE_CACHE_KEY = 'cursos:emails-automaticos:sem-email-pendente';
-
     protected $signature = 'cursos:emails-automaticos';
 
-    protected $description = 'Enfileira um aviso ou material de curso online ou IN-COMPANY por execução';
+    protected $description = 'Enfileira avisos e materiais pendentes de cursos online ou IN-COMPANY';
 
     public function handle(
         EnfileirarConferenciaCursoAction $enfileirarConferencia,
         EnfileirarPendenciasCursoAction $enfileirarPendencias,
         EnfileirarEmailInscritoCursoAction $enfileirarInscrito,
     ): int {
-        if (Cache::has(self::SEM_EMAIL_PENDENTE_CACHE_KEY)) {
-            return self::SUCCESS;
-        }
+        return ProcessosAgendados::execucao($this->getName(), function () use ($enfileirarConferencia, $enfileirarPendencias, $enfileirarInscrito): int {
+            $dia = CarbonImmutable::parse(ProcessosAgendados::contexto()['data_rodada'] ?? 'today', 'America/Sao_Paulo');
+            $dataConferencia = $dia->addDays(2)->toDateString();
+            $dataParticipantes = $dia->addDay()->toDateString();
+            $falhou = false;
 
-        $coordenador = app(CoordenarCacheEmailsCursos::class);
-        $versao = $coordenador->versao();
-        [$inicioCiclo, $dataConferencia, $dataParticipantes] = $this->periodoAtual();
-        $falhou = false;
+            $conferencias = $this->processarConferencias($enfileirarConferencia, $dataConferencia, $falhou);
+            $pendencias = $this->processarPendencias($enfileirarPendencias, $dataParticipantes, $falhou);
+            $participantes = $this->processarParticipantes($enfileirarInscrito, $dataParticipantes, $falhou);
 
-        if ($this->processarConferencias($enfileirarConferencia, $dataConferencia, $falhou)) {
-            return $falhou ? self::FAILURE : self::SUCCESS;
-        }
-
-        if ($this->processarPendencias($enfileirarPendencias, $dataParticipantes, $falhou)) {
-            return $falhou ? self::FAILURE : self::SUCCESS;
-        }
-
-        if ($this->processarParticipantes($enfileirarInscrito, $dataParticipantes, $falhou)) {
-            return $falhou ? self::FAILURE : self::SUCCESS;
-        }
-
-        if ($falhou) {
-            return self::FAILURE;
-        }
-
-        $expiraEm = $inicioCiclo->addDay();
-
-        if ($coordenador->registrarEsgotamento($versao, $expiraEm)) {
-            Log::info('Nenhum e-mail automático de curso apto para enfileiramento.', [
-                'ciclo' => $inicioCiclo->toDateTimeString(),
+            ProcessosAgendados::resumo([
                 'data_conferencia' => $dataConferencia,
                 'data_participantes' => $dataParticipantes,
+                'conferencias_enfileiradas' => $conferencias,
+                'pendencias_enfileiradas' => $pendencias,
+                'participantes_enfileirados' => $participantes,
             ]);
-        }
 
-        if (Cache::has(self::SEM_EMAIL_PENDENTE_CACHE_KEY)) {
-            $this->info('Nenhum e-mail automático de curso apto para enfileiramento. Consultas suspensas até as 06h seguintes.');
-        }
+            if (! $falhou && $conferencias + $pendencias + $participantes === 0) {
+                ProcessosAgendados::log('emails_cursos_sem_pendencias', [
+                    'data_conferencia' => $dataConferencia,
+                    'data_participantes' => $dataParticipantes,
+                ]);
+                $this->info('Nenhum e-mail automático de curso apto para enfileiramento.');
+            } else {
+                $this->info("Enfileirados: {$conferencias} conferência(s), {$pendencias} aviso(s) de pendências e {$participantes} envio(s) a inscritos.");
+            }
 
-        return self::SUCCESS;
+            return $falhou ? self::FAILURE : self::SUCCESS;
+        });
     }
 
-    /**
-     * @return array{0: CarbonImmutable, 1: string, 2: string}
-     */
-    private function periodoAtual(): array
+    private function processarConferencias(EnfileirarConferenciaCursoAction $action, string $data, bool &$falhou): int
     {
-        $agora = CarbonImmutable::now('America/Sao_Paulo');
-        $inicioCiclo = $agora->hour < 6
-            ? $agora->subDay()->startOfDay()->setTime(6, 0)
-            : $agora->startOfDay()->setTime(6, 0);
-
-        return [
-            $inicioCiclo,
-            $inicioCiclo->addDays(2)->toDateString(),
-            $inicioCiclo->addDay()->toDateString(),
-        ];
-    }
-
-    private function processarConferencias(EnfileirarConferenciaCursoAction $action, string $data, bool &$falhou): bool
-    {
+        $enfileirados = 0;
         $agendas = AgendaCursos::query()
             ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
@@ -99,24 +69,23 @@ class EnviarEmailsAutomaticosCursos extends Command
 
         foreach ($agendas as $agenda) {
             if ($this->tentar(
-                fn (): bool => $action->execute($agenda->getKey(), $data),
+                fn (): bool => $action->execute($agenda->getKey(), $data, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
                 'conferencia',
                 $agenda->getKey(),
                 null,
                 $data,
                 $falhou,
             )) {
-                $this->info("Aviso de conferência da agenda {$agenda->getKey()} enfileirado.");
-
-                return true;
+                $enfileirados++;
             }
         }
 
-        return false;
+        return $enfileirados;
     }
 
-    private function processarPendencias(EnfileirarPendenciasCursoAction $action, string $data, bool &$falhou): bool
+    private function processarPendencias(EnfileirarPendenciasCursoAction $action, string $data, bool &$falhou): int
     {
+        $enfileirados = 0;
         $agendas = AgendaCursos::query()
             ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
@@ -138,24 +107,23 @@ class EnviarEmailsAutomaticosCursos extends Command
             }
 
             if ($this->tentar(
-                fn (): bool => $action->execute($agenda->getKey(), $data),
+                fn (): bool => $action->execute($agenda->getKey(), $data, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
                 'pendencias',
                 $agenda->getKey(),
                 null,
                 $data,
                 $falhou,
             )) {
-                $this->info("Aviso de pendências da agenda {$agenda->getKey()} enfileirado.");
-
-                return true;
+                $enfileirados++;
             }
         }
 
-        return false;
+        return $enfileirados;
     }
 
-    private function processarParticipantes(EnfileirarEmailInscritoCursoAction $action, string $data, bool &$falhou): bool
+    private function processarParticipantes(EnfileirarEmailInscritoCursoAction $action, string $data, bool &$falhou): int
     {
+        $enfileirados = 0;
         $agendas = AgendaCursos::query()
             ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
@@ -181,16 +149,14 @@ class EnviarEmailsAutomaticosCursos extends Command
 
                     foreach ($inscritos as $inscrito) {
                         if ($this->tentar(
-                            fn (): bool => $action->execute($agenda->getKey(), $inscrito->getKey(), $data),
+                            fn (): bool => $action->execute($agenda->getKey(), $inscrito->getKey(), $data, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
                             'participante',
                             $agenda->getKey(),
                             $inscrito->getKey(),
                             $data,
                             $falhou,
                         )) {
-                            $this->info("Informações da inscrição {$inscrito->getKey()} enfileiradas.");
-
-                            return true;
+                            $enfileirados++;
                         }
                     }
                     $cursor = $inscritos->nextCursor();
@@ -198,7 +164,7 @@ class EnviarEmailsAutomaticosCursos extends Command
             }
         }
 
-        return false;
+        return $enfileirados;
     }
 
     private function conciliarConfirmacao(int $agendaCursoId, bool &$falhou): bool
@@ -217,7 +183,7 @@ class EnviarEmailsAutomaticosCursos extends Command
             });
         } catch (Throwable $exception) {
             $falhou = true;
-            $this->registrarFalha('confirmacao', $agendaCursoId, null, null, null, $exception);
+            $this->registrarFalha('confirmacao', $agendaCursoId, null, null, $exception);
 
             return false;
         }
@@ -235,7 +201,7 @@ class EnviarEmailsAutomaticosCursos extends Command
             return $acao();
         } catch (Throwable $exception) {
             $falhou = true;
-            $this->registrarFalha($tipo, $agendaCursoId, $inscritoId, $data, null, $exception);
+            $this->registrarFalha($tipo, $agendaCursoId, $inscritoId, $data, $exception);
 
             return false;
         }
@@ -246,16 +212,14 @@ class EnviarEmailsAutomaticosCursos extends Command
         int $agendaCursoId,
         ?int $inscritoId,
         ?string $data,
-        ?string $tentativaId,
         Throwable $exception,
     ): void {
-        Log::error('Falha ao enfileirar e-mail automático de curso.', [
+        ProcessosAgendados::log('emails_cursos_falha_enfileiramento', [
             'tipo' => $tipo,
             'agenda_curso_id' => $agendaCursoId,
             'inscrito_id' => $inscritoId,
             'data_curso' => $data,
-            'tentativa_id' => $tentativaId,
-            'exception' => $exception,
-        ]);
+            'exception_class' => $exception::class,
+        ], 'error');
     }
 }

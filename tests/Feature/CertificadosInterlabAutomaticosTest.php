@@ -2,22 +2,24 @@
 
 use App\Actions\EnfileirarCertificadoInterlabPendenteAction;
 use App\Actions\EnviarCertificadoInterlabAction;
-use App\Console\Commands\EnviarCertificadoInterlabPendenteCommand;
 use App\Jobs\EnviarCertificadoInterlabPendenteJob;
+use App\Jobs\EnviarEmailAgendadoJob;
 use App\Jobs\GerarCertificadoInterlabJob;
+use App\Mail\AvisoSemCertificadosPendentesMail;
 use App\Mail\CertificadoInterlabMail;
 use App\Models\InterlabInscrito;
+use App\Support\ProcessosAgendados;
 use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\LancamentoFinanceiroFactory;
-use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Mime\Email;
 
 beforeEach(function () {
     expect(DB::connection()->getDriverName())->toBe('sqlite');
@@ -65,26 +67,27 @@ function jobCertificadoInterlab(): EnviarCertificadoInterlabPendenteJob
     return unserialize($payload['data']['command']);
 }
 
-it('enfileira apenas o mais antigo e desempata por id, sem reenviar inscrições marcadas', function () {
+it('enfileira todos os certificados e desempata por id, sem reenviar inscrições marcadas', function () {
+    Mail::fake();
     $primeiro = inscritoCertificadoInterlab(['data_inscricao' => now()->subDays(2)]);
     $segundo = inscritoCertificadoInterlab(['data_inscricao' => now()->subDays(2)]);
-    inscritoCertificadoInterlab(['data_inscricao' => now()->subDay()]);
+    $terceiro = inscritoCertificadoInterlab(['data_inscricao' => now()->subDay()]);
 
     $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful();
 
-    $job = jobCertificadoInterlab();
-    expect($job->inscritoId)->toBe($primeiro->id);
+    $jobs = DB::table('jobs')->orderBy('id')->pluck('payload')
+        ->map(fn (string $payload) => unserialize(json_decode($payload, true)['data']['command']));
+    expect($jobs->pluck('inscritoId')->all())->toBe([$primeiro->id, $segundo->id, $terceiro->id]);
+    $job = $jobs[0];
     expect($job->to)->toBe('tecnico@example.com');
     expect($job->cc)->toBe('inscricao@example.com');
     expect($primeiro->fresh()->certificado_emitido)->not->toBeNull();
     expect($primeiro->fresh()->certificado_envio_id)->toBe($job->tentativaId);
-    $this->assertDatabaseCount('jobs', 1);
-    $this->assertDatabaseCount('dados_gera_doc', 1);
+    $this->assertDatabaseCount('dados_gera_doc', 3);
 
     $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful();
 
-    expect(jobCertificadoInterlab()->inscritoId)->toBe($segundo->id);
-    $this->assertDatabaseCount('jobs', 2);
+    $this->assertDatabaseCount('jobs', 3);
 });
 
 it('ignora inscrições inelegíveis', function (string $agenda, ?string $pagamento, ?string $emitido) {
@@ -190,17 +193,14 @@ it('recusa payload inválido antes de chamar o serviço de email', function (str
     expect($inscrito->fresh()->certificado_envio_id)->toBe($job->tentativaId);
 })->with([['', null], ['inválido', null], ['valido@example.com', 'inválido']]);
 
-it('libera pendência e cache após falha definitiva e permite uma nova tentativa', function () {
+it('libera pendência após falha definitiva e permite uma nova tentativa', function () {
     $inscrito = inscritoCertificadoInterlab();
     app(EnfileirarCertificadoInterlabPendenteAction::class)->execute($inscrito->id);
     $job = jobCertificadoInterlab();
-    Cache::put(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY, true, 600);
-
     $job->failed(new RuntimeException('SMTP indisponível'));
 
     expect($inscrito->fresh()->certificado_emitido)->toBeNull();
     expect($inscrito->fresh()->certificado_envio_id)->toBeNull();
-    expect(Cache::has(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY))->toBeFalse();
     expect(file_get_contents($this->certificadosLog))->toContain('Falha definitiva', 'SMTP indisponível', $job->tentativaId);
 
     app(EnfileirarCertificadoInterlabPendenteAction::class)->execute($inscrito->id);
@@ -265,11 +265,11 @@ it('enfileira o manual Interlab na mesma transação com o destinatário validad
     Mail::assertSentCount(1);
 });
 
-it('suspende consultas e envia somente um aviso até a próxima meia-noite em São Paulo', function () {
+it('envia o aviso em uma execução manual vazia e processa novos candidatos no mesmo dia', function () {
     Mail::shouldReceive('raw')->once()->with(
         'Não há certificados Interlab aptos para envio no momento.',
         Mockery::on(function (Closure $callback): bool {
-            $message = new Illuminate\Mail\Message(new Symfony\Component\Mime\Email);
+            $message = new Message(new Email);
             $callback($message);
 
             return $message->getSymfonyMessage()->getTo()[0]->getAddress() === 'sistema@redemetrologica.com.br';
@@ -278,11 +278,6 @@ it('suspende consultas e envia somente um aviso até a próxima meia-noite em S�
     $this->travelTo(new DateTimeImmutable('2026-10-23 05:59:00-03:00'));
     $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful();
     $inscrito = inscritoCertificadoInterlab();
-
-    $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful();
-
-    expect($inscrito->fresh()->certificado_emitido)->toBeNull();
-    $this->travelTo(new DateTimeImmutable('2026-10-24 00:00:01-03:00'));
 
     $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful();
 
@@ -384,25 +379,21 @@ it('worker retenta três vezes e registra falha definitiva liberando a inscriç�
     expect(file_get_contents($this->certificadosLog))->toContain('Falha definitiva', $tentativa);
 });
 
-it('agenda somente na janela de São Paulo e respeita o bloqueio de pendências', function () {
-    $event = collect(app(Schedule::class)->events())->first(fn ($event) => str_contains($event->command ?? '', 'interlab:enviar-certificado-pendente'));
+it('enfileira um aviso pela fila agendada se a rodada não tiver certificados Interlab', function () {
+    Mail::fake();
+    Queue::fake();
 
-    expect($event)->not->toBeNull();
-    expect($event->expression)->toBe('* * * * *');
-    expect($event->timezone)->toBe('America/Sao_Paulo');
-    expect($event->withoutOverlapping)->toBeTrue();
-    foreach (['00:00:00' => true, '06:00:00' => true, '06:01:00' => false, '23:59:00' => false] as $horario => $permitido) {
-        $this->travelTo(new DateTimeImmutable("2026-10-23 {$horario}-03:00"));
-        $schedule = app(Illuminate\Contracts\Console\Kernel::class)->resolveConsoleSchedule();
-        $event = collect($schedule->events())->first(fn ($event) => str_contains($event->command ?? '', 'interlab:enviar-certificado-pendente'));
-        expect($event->filtersPass(app()))->toBe($permitido);
-    }
+    ProcessosAgendados::executar(['rodada_id' => 'teste'], function (): void {
+        $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful()->run();
+    });
 
-    $this->travelTo(new DateTimeImmutable('2026-10-23 02:00:00-03:00'));
-    $schedule = app(Illuminate\Contracts\Console\Kernel::class)->resolveConsoleSchedule();
-    $event = collect($schedule->events())->first(fn ($event) => str_contains($event->command ?? '', 'interlab:enviar-certificado-pendente'));
-    Cache::put(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY, true, 600);
-    expect($event->filtersPass(app()))->toBeFalse();
+    Queue::assertPushedOn(ProcessosAgendados::FILA_EMAIL, EnviarEmailAgendadoJob::class, function (EnviarEmailAgendadoJob $job): bool {
+        return $job->destinatario === 'sistema@redemetrologica.com.br'
+            && $job->email instanceof AvisoSemCertificadosPendentesMail
+            && $job->email->envelope()->subject === 'Notificação: Sem certificados Interlab pendentes';
+    });
+    Queue::assertPushed(EnviarEmailAgendadoJob::class, 1);
+    Mail::assertNothingSent();
 });
 
 it('não envia se agenda ou pagamento mudarem após o enfileiramento', function (string $relacao, string $status) {

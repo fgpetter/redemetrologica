@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Jobs\EnviarCertificadoInterlabPendenteJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\ProcessosAgendados;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +15,9 @@ use LogicException;
 
 class EnfileirarCertificadoInterlabPendenteAction
 {
-    public function execute(int $inscritoId): bool
+    public function execute(int $inscritoId, bool $agendado = false): bool
     {
-        return DB::transaction(function () use ($inscritoId): bool {
+        return DB::transaction(function () use ($inscritoId, $agendado): bool {
             $inscrito = InterlabInscrito::certificadosPendentes()
                 ->with(['pessoa', 'laboratorio', 'agendaInterlab.interlab'])
                 ->lockForUpdate()
@@ -73,7 +74,9 @@ class EnfileirarCertificadoInterlabPendenteAction
 
             Bus::dispatch((new EnviarCertificadoInterlabPendenteJob(
                 $inscrito->id, $dadosDoc->id, $tentativa, $to, $cc,
-            ))->onConnection('database')->beforeCommit());
+            ))->onConnection('database')
+                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
+                ->beforeCommit());
 
             Log::channel('mailsent')->info('Certificado Interlab enfileirado automaticamente.', [
                 'tipo' => 'certificado_interlab',

@@ -7,6 +7,7 @@ use App\Exceptions\InvalidEmailException;
 use App\Jobs\EnviaSenhaLaboratorioJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\ProcessosAgendados;
 use Illuminate\Support\Facades\DB;
 
 class CriarEnviarSenhaLaboratorioAction
@@ -18,7 +19,7 @@ class CriarEnviarSenhaLaboratorioAction
      * @param  int  $delaySecs  Intervalo antes do envio da carta
      * @return DadosGeraDoc Documento gerado para a carta-senha
      */
-    public function execute(InterlabInscrito $inscrito, int $delaySecs = 0): DadosGeraDoc
+    public function execute(InterlabInscrito $inscrito, int $delaySecs = 0, bool $agendado = false): DadosGeraDoc
     {
         $inscrito->loadMissing(['laboratorio', 'empresa', 'agendaInterlab.interlab', 'pessoa']);
 
@@ -84,8 +85,13 @@ class CriarEnviarSenhaLaboratorioAction
             return $dadosDoc;
         }
 
-        EnviaSenhaLaboratorioJob::dispatch($dadosDoc->id, $destinatarios, $inscrito->id)
-            ->delay(now()->addSeconds($delaySecs));
+        $envio = EnviaSenhaLaboratorioJob::dispatch($dadosDoc->id, $destinatarios, $inscrito->id);
+
+        if ($agendado) {
+            $envio->onConnection('database')->onQueue(ProcessosAgendados::FILA_EMAIL);
+        } else {
+            $envio->delay(now()->addSeconds($delaySecs));
+        }
 
         return $dadosDoc;
     }

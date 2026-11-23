@@ -2,9 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Actions\CoordenarCacheEmailsCursos;
 use App\Mail\AvisoConferenciaTreinamentoMail;
 use App\Models\AgendaCursos;
+use App\Support\EnviarEmailAgendado;
+use App\Support\ProcessosAgendados;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -50,8 +51,14 @@ class EnviarConferenciaCursoJob implements ShouldQueue
 
             $this->validarDestinatario();
 
-            Mail::to($this->snapshot['destinatario'])
-                ->sendNow(new AvisoConferenciaTreinamentoMail($this->snapshot));
+            $email = new AvisoConferenciaTreinamentoMail($this->snapshot);
+            $destinatario = $this->snapshot['destinatario'];
+
+            if ($this->queue === ProcessosAgendados::FILA_EMAIL) {
+                app(EnviarEmailAgendado::class)->execute($email, $destinatario);
+            } else {
+                Mail::to($destinatario)->sendNow($email);
+            }
 
             $agenda->update([
                 'conferencia_enviada_em' => now('America/Sao_Paulo'),
@@ -84,10 +91,6 @@ class EnviarConferenciaCursoJob implements ShouldQueue
 
             return true;
         });
-
-        if ($vigente) {
-            app(CoordenarCacheEmailsCursos::class)->invalidar();
-        }
 
         Log::error('Falha definitiva no envio de e-mail automático de curso.', [
             'tipo' => 'conferencia',

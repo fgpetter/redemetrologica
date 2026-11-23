@@ -5,8 +5,9 @@ namespace App\Console\Commands;
 use App\Actions\CriarEnviarSenhaAnalistaAction;
 use App\Actions\Interlab\CriarEnviarSenhaLaboratorioAction;
 use App\Models\InterlabInscrito;
+use App\Support\ProcessosAgendados;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessarSenhasInterlabConfirmadoCommand extends Command
 {
@@ -27,33 +28,34 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(CriarEnviarSenhaAnalistaAction $analistaAction, CriarEnviarSenhaLaboratorioAction $laboratorioAction): int
+    {
+        return ProcessosAgendados::execucao($this->getName(), fn (): int => $this->processarSenhas($analistaAction, $laboratorioAction));
+    }
+
+    private function processarSenhas(CriarEnviarSenhaAnalistaAction $analistaAction, CriarEnviarSenhaLaboratorioAction $laboratorioAction): int
     {
         $inscritos = InterlabInscrito::query()
             ->whereHas('agendaInterlab', fn ($query) => $query->where('status', 'CONFIRMADO'))
             ->with(['agendaInterlab.interlab', 'analistas', 'laboratorio', 'empresa', 'pessoa'])
             ->orderBy('id')
-            ->get();
+            ->lazyById(100);
 
-        if ($inscritos->isEmpty()) {
-            $this->info('Nenhum inscrito elegível encontrado.');
-
-            return self::SUCCESS;
-        }
-
-        $enfileirados = 0;
+        $processados = 0;
         $pulados = 0;
-        $index = 0;
+        $falhas = 0;
+        $atraso = 0;
+        $agendado = isset(ProcessosAgendados::contexto()['rodada_id']);
+        $intervalo = $agendado ? 0 : 15;
 
         foreach ($inscritos as $inscrito) {
             $interlab = $inscrito->agendaInterlab?->interlab;
 
             if (empty($interlab?->tag)) {
-                Log::warning('ProcessarSenhasInterlabConfirmado: interlab sem tag, envio ignorado.', [
+                ProcessosAgendados::log('senha_interlab_sem_tag', [
                     'inscrito_id' => $inscrito->id,
                     'agenda_interlab_id' => $inscrito->agenda_interlab_id,
-                ]);
-                $this->warn("Inscrito {$inscrito->id} ignorado: interlab sem tag.");
+                ], 'warning');
                 $pulados++;
 
                 continue;
@@ -65,13 +67,19 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
                         continue;
                     }
 
-                    $index++;
-                    app(CriarEnviarSenhaAnalistaAction::class)->execute(
-                        $inscrito,
-                        $analista,
-                        $index * 15,
-                    );
-                    $enfileirados++;
+                    $atraso += $intervalo;
+
+                    try {
+                        $analistaAction->execute($inscrito, $analista, $atraso, agendado: $agendado);
+                        $processados++;
+                    } catch (Throwable $exception) {
+                        $falhas++;
+                        ProcessosAgendados::log('senha_analista_falha_enfileiramento', [
+                            'inscrito_id' => $inscrito->id,
+                            'analista_id' => $analista->id,
+                            'exception_class' => $exception::class,
+                        ], 'error');
+                    }
                 }
 
                 continue;
@@ -81,13 +89,27 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
                 continue;
             }
 
-            $index++;
-            app(CriarEnviarSenhaLaboratorioAction::class)->execute($inscrito, $index * 15);
-            $enfileirados++;
+            $atraso += $intervalo;
+
+            try {
+                $laboratorioAction->execute($inscrito, $atraso, agendado: $agendado);
+                $processados++;
+            } catch (Throwable $exception) {
+                $falhas++;
+                ProcessosAgendados::log('senha_laboratorio_falha_enfileiramento', [
+                    'inscrito_id' => $inscrito->id,
+                    'exception_class' => $exception::class,
+                ], 'error');
+            }
         }
 
-        $this->info("Enfileirados {$enfileirados} envio(s). Ignorados {$pulados}.");
+        ProcessosAgendados::resumo([
+            'processados' => $processados,
+            'ignorados_sem_tag' => $pulados,
+            'falhas' => $falhas,
+        ]);
+        $this->info("Processados {$processados} envio(s). Ignorados {$pulados}. Falhas {$falhas}.");
 
-        return self::SUCCESS;
+        return $falhas > 0 ? self::FAILURE : self::SUCCESS;
     }
 }

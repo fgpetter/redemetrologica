@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Console\Commands\EnviarCertificadoInterlabPendenteCommand;
 use App\Mail\CertificadoInterlabMail;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
+use App\Support\EnviarEmailAgendado;
+use App\Support\ProcessosAgendados;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -53,13 +53,21 @@ class EnviarCertificadoInterlabPendenteJob implements ShouldQueue
                 'cc' => ['nullable', 'email:rfc'],
             ])->validate();
 
-            $mail = Mail::to($this->to);
+            $email = new CertificadoInterlabMail(DadosGeraDoc::findOrFail($this->dadosDocId));
+            $cc = $this->cc !== null && strcasecmp($this->to, $this->cc) !== 0 ? $this->cc : null;
 
-            if ($this->cc !== null && strcasecmp($this->to, $this->cc) !== 0) {
-                $mail->cc($this->cc);
+            if ($this->queue === ProcessosAgendados::FILA_EMAIL) {
+                app(EnviarEmailAgendado::class)->execute($email, $this->to, $cc);
+            } else {
+                $mail = Mail::to($this->to);
+
+                if ($cc !== null) {
+                    $mail->cc($cc);
+                }
+
+                $mail->sendNow($email);
             }
 
-            $mail->sendNow(new CertificadoInterlabMail(DadosGeraDoc::findOrFail($this->dadosDocId)));
             $inscrito->update(['certificado_envio_id' => null]);
 
             return $inscrito->agenda_interlab_id;
@@ -91,10 +99,6 @@ class EnviarCertificadoInterlabPendenteJob implements ShouldQueue
 
             return $inscrito->agenda_interlab_id;
         });
-
-        if ($agendaId !== null) {
-            Cache::forget(EnviarCertificadoInterlabPendenteCommand::SEM_CERTIFICADO_PENDENTE_CACHE_KEY);
-        }
 
         Log::channel('certificados_falha')->error('Falha definitiva no envio de certificado Interlab.', [
             'tipo' => 'certificado_interlab',

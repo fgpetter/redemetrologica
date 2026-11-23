@@ -1,9 +1,7 @@
 <?php
 
-use App\Actions\CoordenarCacheEmailsCursos;
 use App\Actions\EnfileirarConferenciaCursoAction;
 use App\Actions\EnfileirarEmailInscritoCursoAction;
-use App\Console\Commands\EnviarEmailsAutomaticosCursos;
 use App\Jobs\EnviarConferenciaCursoJob;
 use App\Jobs\EnviarInformacoesCursoJob;
 use App\Jobs\EnviarPendenciasCursoJob;
@@ -14,13 +12,10 @@ use App\Models\AgendaCursos;
 use App\Models\Curso;
 use App\Models\CursoInscrito;
 use App\Models\Instrutor;
+use App\Support\ProcessosAgendados;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Database\Factories\PessoaFactory;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -80,15 +75,16 @@ function criarInscritoEmail(AgendaCursos $agenda, array $extra = []): CursoInscr
  */
 function jobCurso(string $classe): object
 {
-    $payload = json_decode(DB::table('jobs')->orderByDesc('id')->value('payload'), true);
-    $job = unserialize($payload['data']['command']);
+    $job = DB::table('jobs')->orderByDesc('id')->pluck('payload')
+        ->map(fn (string $payload) => unserialize(json_decode($payload, true)['data']['command']))
+        ->first(fn (object $job) => $job instanceof $classe);
 
     expect($job)->toBeInstanceOf($classe);
 
     return $job;
 }
 
-it('enfileira um envio por execução na ordem conferência, pendências e participantes', function () {
+it('enfileira todos os envios na ordem conferência, pendências e participantes', function () {
     Mail::fake();
     $this->travelTo(Carbon::parse('2026-11-14 06:00:00', 'America/Sao_Paulo'));
 
@@ -100,63 +96,52 @@ it('enfileira um envio por execução na ordem conferência, pendências e parti
     $recente = criarInscritoEmail($participantes, ['nome' => 'Recente', 'email' => 'recente@example.com', 'data_inscricao' => now()->subDay()]);
 
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(jobCurso(EnviarConferenciaCursoJob::class)->agendaCursoId)->toBe($conferencia->id);
-    $this->assertDatabaseCount('jobs', 1);
+    $jobs = DB::table('jobs')->orderBy('id')->pluck('payload')
+        ->map(fn (string $payload) => unserialize(json_decode($payload, true)['data']['command']));
+
+    expect($jobs->map(fn (object $job) => $job::class)->all())->toBe([
+        EnviarConferenciaCursoJob::class,
+        EnviarPendenciasCursoJob::class,
+        EnviarInformacoesCursoJob::class,
+        EnviarInformacoesCursoJob::class,
+    ]);
+    expect($jobs[0]->agendaCursoId)->toBe($conferencia->id)
+        ->and($jobs[1]->agendaCursoId)->toBe($pendente->id)
+        ->and($jobs[2]->inscritoId)->toBe($antigo->id)
+        ->and($jobs[3]->inscritoId)->toBe($recente->id);
 
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(jobCurso(EnviarPendenciasCursoJob::class)->agendaCursoId)->toBe($pendente->id);
-    $this->assertDatabaseCount('jobs', 2);
-
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(jobCurso(EnviarInformacoesCursoJob::class)->inscritoId)->toBe($antigo->id);
-    $this->assertDatabaseCount('jobs', 3);
-
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(jobCurso(EnviarInformacoesCursoJob::class)->inscritoId)->toBe($recente->id);
     $this->assertDatabaseCount('jobs', 4);
-
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    $this->assertDatabaseCount('jobs', 4);
-    expect(Cache::has(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY))->toBeTrue();
 });
 
-it('não consulta o banco enquanto a trava estiver ativa e retoma às 06h', function () {
+it('volta a consultar quando um candidato é criado depois de uma execução vazia', function () {
     Mail::fake();
     $this->travelTo(Carbon::parse('2026-11-14 06:00:00', 'America/Sao_Paulo'));
 
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(Cache::has(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY))->toBeTrue();
-
-    DB::enableQueryLog();
-    DB::flushQueryLog();
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(DB::getQueryLog())->toBeEmpty();
-    DB::disableQueryLog();
-
-    $novo = agendaEmail('2026-11-17');
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     $this->assertDatabaseCount('jobs', 0);
 
-    $this->travelTo(Carbon::parse('2026-11-15 06:00:00', 'America/Sao_Paulo'));
+    $novo = agendaEmail('2026-11-16');
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
 
     expect(jobCurso(EnviarConferenciaCursoJob::class)->agendaCursoId)->toBe($novo->id);
 });
 
-it('mantém a data-base do ciclo anterior depois da meia-noite', function () {
+it('usa a data da rodada e a fila agendada mesmo após a virada do dia', function () {
     Mail::fake();
-    $this->travelTo(Carbon::parse('2026-11-14 23:59:00', 'America/Sao_Paulo'));
-    agendaEmail('2026-11-16');
-    $pendente = agendaEmail('2026-11-15', ['link_aula' => null]);
-
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(jobCurso(EnviarConferenciaCursoJob::class))->toBeInstanceOf(EnviarConferenciaCursoJob::class);
-
     $this->travelTo(Carbon::parse('2026-11-15 00:01:00', 'America/Sao_Paulo'));
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
+    $conferencia = agendaEmail('2026-11-16');
+    $pendente = agendaEmail('2026-11-15', ['link_aula' => null]);
+    agendaEmail('2026-11-17');
 
+    ProcessosAgendados::executar(['rodada_id' => 'teste', 'data_rodada' => '2026-11-14'], function (): void {
+        $this->artisan('cursos:emails-automaticos')->assertSuccessful()->run();
+    });
+
+    expect(jobCurso(EnviarConferenciaCursoJob::class)->agendaCursoId)->toBe($conferencia->id);
     expect(jobCurso(EnviarPendenciasCursoJob::class)->agendaCursoId)->toBe($pendente->id);
     $this->assertDatabaseCount('jobs', 2);
+    expect(DB::table('jobs')->distinct()->pluck('queue')->all())->toBe([ProcessosAgendados::FILA_EMAIL]);
 });
 
 it('não enfileira novamente candidatos com reserva vigente', function () {
@@ -197,9 +182,7 @@ it('processa os três tipos de email mesmo após o encerramento da janela de enf
 
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     $jobConferencia = jobCurso(EnviarConferenciaCursoJob::class);
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     $jobPendencias = jobCurso(EnviarPendenciasCursoJob::class);
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     $jobParticipante = jobCurso(EnviarInformacoesCursoJob::class);
 
     $this->travelTo(Carbon::parse('2026-11-17 06:00:00', 'America/Sao_Paulo'));
@@ -216,16 +199,14 @@ it('processa os três tipos de email mesmo após o encerramento da janela de enf
         ->and($inscrito->fresh()->informacoes_enviadas_em)->not->toBeNull();
 })->with(['ONLINE', 'IN-COMPANY']);
 
-it('aguarda a abertura da janela para selecionar a conferência no command', function () {
-    $this->travelTo(Carbon::parse('2026-11-14 05:59:59', 'America/Sao_Paulo'));
+it('seleciona a conferência de dois dias depois já à meia-noite', function () {
+    $this->travelTo(Carbon::parse('2026-11-14 00:00:00', 'America/Sao_Paulo'));
     $agenda = agendaEmail('2026-11-16');
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    $this->assertDatabaseCount('jobs', 0);
 
-    $this->travelTo(Carbon::parse('2026-11-14 06:00:00', 'America/Sao_Paulo'));
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     expect(jobCurso(EnviarConferenciaCursoJob::class)->agendaCursoId)->toBe($agenda->id);
     $this->assertDatabaseCount('jobs', 1);
+    expect(DB::table('jobs')->value('queue'))->toBe('default');
 });
 
 it('ignora e registra no canal validation o e-mail inválido sem impedir o próximo inscrito', function (string $email) {
@@ -307,18 +288,15 @@ it('não preenche a confirmação geral de agenda sem inscritos', function () {
     expect($agenda->fresh()->informacoes_enviadas_em)->toBeNull();
 });
 
-it('libera a reserva e a trava após falha definitiva vigente e permite novo enfileiramento', function () {
+it('libera a reserva após falha definitiva vigente e permite novo enfileiramento', function () {
     Mail::fake();
     $this->travelTo(Carbon::parse('2026-11-14 06:00:00', 'America/Sao_Paulo'));
     $agenda = agendaEmail('2026-11-16');
     app(EnfileirarConferenciaCursoAction::class)->execute($agenda->id, '2026-11-16');
     $job = jobCurso(EnviarConferenciaCursoJob::class);
-    Cache::put(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY, true, now()->addHour());
-
     $job->failed(new RuntimeException('SMTP indisponível'));
 
-    expect($agenda->fresh()->conferencia_envio_id)->toBeNull()
-        ->and(Cache::has(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY))->toBeFalse();
+    expect($agenda->fresh()->conferencia_envio_id)->toBeNull();
 
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     expect(jobCurso(EnviarConferenciaCursoJob::class)->tentativaId)->not->toBe($job->tentativaId);
@@ -363,13 +341,13 @@ it('isola a falha de uma agenda e continua até enfileirar outra', function () {
     {
         public function __construct(private int $falhaId) {}
 
-        public function execute(int $agendaCursoId, string $dataEsperada): bool
+        public function execute(int $agendaCursoId, string $dataEsperada, bool $agendado = false): bool
         {
             if ($agendaCursoId === $this->falhaId) {
                 throw new RuntimeException('Falha simulada');
             }
 
-            return parent::execute($agendaCursoId, $dataEsperada);
+            return parent::execute($agendaCursoId, $dataEsperada, $agendado);
         }
     });
 
@@ -465,46 +443,20 @@ it('percorre inscritos em ordem mesmo quando confirmações mudam durante a cons
 
         public function __construct(private int $primeiroId) {}
 
-        public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada): bool
+        public function execute(int $agendaCursoId, int $inscritoId, string $dataEsperada, bool $agendado = false): bool
         {
             if (! $this->alterado) {
                 CursoInscrito::query()->whereKey($this->primeiroId)->update(['informacoes_enviadas_em' => now()]);
                 $this->alterado = true;
             }
 
-            return parent::execute($agendaCursoId, $inscritoId, $dataEsperada);
+            return parent::execute($agendaCursoId, $inscritoId, $dataEsperada, $agendado);
         }
     });
 
     $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     expect(jobCurso(EnviarInformacoesCursoJob::class)->inscritoId)->toBe($pendente->id);
     $this->assertDatabaseCount('jobs', 1);
-});
-
-it('não bloqueia nova consulta quando uma reserva falha durante a seleção', function () {
-    $this->travelTo(Carbon::parse('2026-11-14 06:00:00', 'America/Sao_Paulo'));
-    $agenda = agendaEmail('2026-11-16');
-    app(EnfileirarConferenciaCursoAction::class)->execute($agenda->id, '2026-11-16');
-    $job = jobCurso(EnviarConferenciaCursoJob::class);
-
-    $this->app->instance(CoordenarCacheEmailsCursos::class, new class($job) extends CoordenarCacheEmailsCursos
-    {
-        public function __construct(private EnviarConferenciaCursoJob $job) {}
-
-        public function registrarEsgotamento(?string $versao, CarbonImmutable $expiraEm): bool
-        {
-            $this->job->failed(new RuntimeException('Falha durante seleção'));
-
-            return parent::registrarEsgotamento($versao, $expiraEm);
-        }
-    });
-
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect($agenda->fresh()->conferencia_envio_id)->toBeNull()
-        ->and(Cache::has(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY))->toBeFalse();
-
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
-    expect(jobCurso(EnviarConferenciaCursoJob::class)->tentativaId)->not->toBe($job->tentativaId);
 });
 
 it('renderiza os conteúdos dos emails a partir do snapshot congelado', function () {
@@ -521,7 +473,6 @@ it('renderiza os conteúdos dos emails a partir do snapshot congelado', function
     $conferencia->assertHasSubject('Conferência de link e materiais')
         ->assertSeeInHtml('15/11/2026, serão enviados os materiais e link do zoom para o treinamento Curso exemplo.');
 
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     $aviso = new AvisoPendenciasTreinamentoMail(jobCurso(EnviarPendenciasCursoJob::class)->snapshot);
     $aviso->assertSeeInHtml('15/11/2026')
         ->assertSeeInHtml('O e-mail de materiais e link de acesso não foram enviados aos inscritos. As informações estão faltantes ou inválidas.')
@@ -529,7 +480,6 @@ it('renderiza os conteúdos dos emails a partir do snapshot congelado', function
         ->assertSeeInHtml('envie manualmente')
         ->assertSeeInHtml('para cada inscrito.');
 
-    $this->artisan('cursos:emails-automaticos')->assertSuccessful();
     $informacoes = new InformacoesTreinamentoMail(jobCurso(EnviarInformacoesCursoJob::class)->snapshot);
     $informacoes->assertHasSubject('Material e informações de acesso - Curso exemplo')
         ->assertSeeInHtml('ANA')
@@ -563,7 +513,6 @@ it('worker retenta três vezes e registra falha definitiva liberando a reserva',
     $agenda = agendaEmail('2026-11-16');
     app(EnfileirarConferenciaCursoAction::class)->execute($agenda->id, '2026-11-16');
     $job = jobCurso(EnviarConferenciaCursoJob::class);
-    Cache::put(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY, true, now()->addHour());
     Mail::shouldReceive('to')->with('administrativo@redemetrologica.com.br')
         ->times(3)
         ->andThrow(new RuntimeException('SMTP de teste indisponível'));
@@ -583,8 +532,7 @@ it('worker retenta três vezes e registra falha definitiva liberando a reserva',
     $this->assertDatabaseCount('failed_jobs', 1);
     $this->assertDatabaseCount('jobs', 0);
     expect($agenda->fresh()->conferencia_envio_id)->toBeNull()
-        ->and($agenda->fresh()->conferencia_enviada_em)->toBeNull()
-        ->and(Cache::has(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY))->toBeFalse();
+        ->and($agenda->fresh()->conferencia_enviada_em)->toBeNull();
 });
 
 it('processa o job pelo worker com transporte array após a abertura da janela', function () {
@@ -614,22 +562,4 @@ it('não reenvia quando o mesmo job é processado novamente', function () {
 
     Mail::assertSentCount(1);
     expect($agenda->fresh()->conferencia_enviada_em)->not->toBeNull();
-});
-
-it('agenda a execução a cada minuto e respeita a trava de cache', function () {
-    $event = collect(app(Schedule::class)->events())
-        ->first(fn ($event) => str_contains($event->command ?? '', 'cursos:emails-automaticos'));
-
-    expect($event)->not->toBeNull()
-        ->and($event->expression)->toBe('* * * * *')
-        ->and($event->timezone)->toBe('America/Sao_Paulo')
-        ->and($event->withoutOverlapping)->toBeTrue();
-
-    Cache::put(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY, true, now()->addHour());
-    $event = collect(app(Kernel::class)->resolveConsoleSchedule()->events())
-        ->first(fn ($event) => str_contains($event->command ?? '', 'cursos:emails-automaticos'));
-    expect($event->filtersPass(app()))->toBeFalse();
-
-    Cache::forget(EnviarEmailsAutomaticosCursos::SEM_EMAIL_PENDENTE_CACHE_KEY);
-    expect($event->filtersPass(app()))->toBeTrue();
 });
