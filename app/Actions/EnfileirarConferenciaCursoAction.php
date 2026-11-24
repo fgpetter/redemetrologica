@@ -6,7 +6,6 @@ use App\Jobs\EnviarConferenciaCursoJob;
 use App\Models\AgendaCursos;
 use App\Support\ProcessosAgendados;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -57,14 +56,13 @@ class EnfileirarConferenciaCursoAction
 
             $agenda->update(['conferencia_envio_id' => $tentativa]);
 
-            Bus::dispatch((new EnviarConferenciaCursoJob(
+            ProcessosAgendados::despachar((new EnviarConferenciaCursoJob(
                 $agenda->getKey(),
                 $tentativa,
                 $dataEsperada,
                 $snapshot,
             ))->onConnection('database')
-                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
-                ->beforeCommit());
+                ->beforeCommit(), $agendado);
 
             Log::channel('mailsent')->info('E-mail automático de conferência de curso enfileirado.', [
                 'tipo' => 'conferencia',

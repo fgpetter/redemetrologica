@@ -6,7 +6,6 @@ use App\Jobs\EnviarCertificadoInterlabPendenteJob;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
 use App\Support\ProcessosAgendados;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -72,11 +71,10 @@ class EnfileirarCertificadoInterlabPendenteAction
                 'certificado_path' => $dadosDoc->storage_path,
             ]);
 
-            Bus::dispatch((new EnviarCertificadoInterlabPendenteJob(
+            ProcessosAgendados::despachar((new EnviarCertificadoInterlabPendenteJob(
                 $inscrito->id, $dadosDoc->id, $tentativa, $to, $cc,
             ))->onConnection('database')
-                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
-                ->beforeCommit());
+                ->beforeCommit(), $agendado);
 
             Log::channel('mailsent')->info('Certificado Interlab enfileirado automaticamente.', [
                 'tipo' => 'certificado_interlab',

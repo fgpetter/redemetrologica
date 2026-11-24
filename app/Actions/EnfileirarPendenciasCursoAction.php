@@ -5,7 +5,6 @@ namespace App\Actions;
 use App\Jobs\EnviarPendenciasCursoJob;
 use App\Models\AgendaCursos;
 use App\Support\ProcessosAgendados;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -55,14 +54,13 @@ class EnfileirarPendenciasCursoAction
 
             $agenda->update(['pendencias_envio_id' => $tentativa]);
 
-            Bus::dispatch((new EnviarPendenciasCursoJob(
+            ProcessosAgendados::despachar((new EnviarPendenciasCursoJob(
                 $agenda->getKey(),
                 $tentativa,
                 $dataEsperada,
                 $snapshot,
             ))->onConnection('database')
-                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
-                ->beforeCommit());
+                ->beforeCommit(), $agendado);
 
             Log::channel('mailsent')->info('E-mail automático de pendências de curso enfileirado.', [
                 'tipo' => 'pendencias',

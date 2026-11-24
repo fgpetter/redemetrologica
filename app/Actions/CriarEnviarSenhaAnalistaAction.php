@@ -48,13 +48,10 @@ class CriarEnviarSenhaAnalistaAction
             return $dadosDoc;
         }
 
-        $envio = EnviaSenhaAnalistaJob::dispatch($dadosDoc->id, $destinatarios, $analista->id);
-
-        if ($agendado) {
-            $envio->onConnection('database')->onQueue(ProcessosAgendados::FILA_EMAIL);
-        } else {
-            $envio->delay(now()->addSeconds($delaySecs));
-        }
+        ProcessosAgendados::despachar(
+            (new EnviaSenhaAnalistaJob($dadosDoc->id, $destinatarios, $analista->id))->delay(now()->addSeconds($delaySecs)),
+            $agendado,
+        );
 
         return $dadosDoc;
     }

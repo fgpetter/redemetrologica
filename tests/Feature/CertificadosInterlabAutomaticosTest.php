@@ -3,12 +3,12 @@
 use App\Actions\EnfileirarCertificadoInterlabPendenteAction;
 use App\Actions\EnviarCertificadoInterlabAction;
 use App\Jobs\EnviarCertificadoInterlabPendenteJob;
-use App\Jobs\EnviarEmailAgendadoJob;
 use App\Jobs\GerarCertificadoInterlabJob;
 use App\Mail\AvisoSemCertificadosPendentesMail;
 use App\Mail\CertificadoInterlabMail;
 use App\Models\InterlabInscrito;
 use App\Support\ProcessosAgendados;
+use Carbon\CarbonImmutable;
 use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\LancamentoFinanceiroFactory;
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Mime\Email;
 
@@ -88,6 +89,29 @@ it('enfileira todos os certificados e desempata por id, sem reenviar inscriçõe
     $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful();
 
     $this->assertDatabaseCount('jobs', 3);
+});
+
+it('avança o cursor Interlab mantendo a hora da inscrição', function () {
+    $invalido = inscritoCertificadoInterlab(['email' => 'invalido']);
+    $invalido->pessoa->update(['email' => null]);
+    DB::table('interlab_inscritos')->where('id', $invalido->id)->update([
+        'data_inscricao' => '2026-11-23 14:30:00',
+    ]);
+
+    $atributos = $invalido->replicate()->getAttributes();
+    $inscritos = array_map(fn (int $ordem): array => array_replace($atributos, [
+        'uid' => (string) Str::uuid(),
+        'email' => 'tecnico@example.com',
+        'data_inscricao' => '2026-11-23 15:00:00',
+    ]), range(1, 100));
+    DB::table('interlab_inscritos')->insert($inscritos);
+
+    $this->artisan('interlab:enviar-certificado-pendente')
+        ->expectsOutput('Enfileirados 100 certificado(s). Ignorados 1. Falhas 0.')
+        ->assertSuccessful();
+
+    $this->assertDatabaseCount('jobs', 100);
+    expect($invalido->fresh()->certificado_emitido)->toBeNull();
 });
 
 it('ignora inscrições inelegíveis', function (string $agenda, ?string $pagamento, ?string $emitido) {
@@ -381,18 +405,17 @@ it('worker retenta três vezes e registra falha definitiva liberando a inscriç�
 
 it('enfileira um aviso pela fila agendada se a rodada não tiver certificados Interlab', function () {
     Mail::fake();
-    Queue::fake();
 
-    ProcessosAgendados::executar(['rodada_id' => 'teste'], function (): void {
-        $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful()->run();
+    ProcessosAgendados::rodada(CarbonImmutable::now('America/Sao_Paulo'), function (): int {
+        return $this->artisan('interlab:enviar-certificado-pendente')->assertSuccessful()->run();
     });
 
-    Queue::assertPushedOn(ProcessosAgendados::FILA_EMAIL, EnviarEmailAgendadoJob::class, function (EnviarEmailAgendadoJob $job): bool {
-        return $job->destinatario === 'sistema@redemetrologica.com.br'
-            && $job->email instanceof AvisoSemCertificadosPendentesMail
-            && $job->email->envelope()->subject === 'Notificação: Sem certificados Interlab pendentes';
+    Mail::assertQueued(AvisoSemCertificadosPendentesMail::class, function (AvisoSemCertificadosPendentesMail $email): bool {
+        return $email->hasTo('sistema@redemetrologica.com.br')
+            && $email->queue === null
+            && $email->envelope()->subject === 'Notificação: Sem certificados Interlab pendentes';
     });
-    Queue::assertPushed(EnviarEmailAgendadoJob::class, 1);
+    Mail::assertQueuedCount(1);
     Mail::assertNothingSent();
 });
 

@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('agendamentos:executar-rodada')
             ->dailyAt('00:00')
             ->timezone('America/Sao_Paulo')
+            ->withoutOverlapping()
             ->runInBackground();
 
         $schedule->command('suporte:limpar-uploads')->daily()->withoutOverlapping();
@@ -27,10 +28,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('interlab:retomar-lotes-postagem-orfaos')
             ->everyMinute()
             ->withoutOverlapping();
-
-        $schedule->command('agendamentos:executar-rodada', ['--verificar'])
-            ->dailyAt('06:00')
-            ->timezone('America/Sao_Paulo');
 
         $schedule->command('interlab:rastrear-itens-postagem', ['--agendado'])
             ->weekdays()

@@ -85,13 +85,10 @@ class CriarEnviarSenhaLaboratorioAction
             return $dadosDoc;
         }
 
-        $envio = EnviaSenhaLaboratorioJob::dispatch($dadosDoc->id, $destinatarios, $inscrito->id);
-
-        if ($agendado) {
-            $envio->onConnection('database')->onQueue(ProcessosAgendados::FILA_EMAIL);
-        } else {
-            $envio->delay(now()->addSeconds($delaySecs));
-        }
+        ProcessosAgendados::despachar(
+            (new EnviaSenhaLaboratorioJob($dadosDoc->id, $destinatarios, $inscrito->id))->delay(now()->addSeconds($delaySecs)),
+            $agendado,
+        );
 
         return $dadosDoc;
     }

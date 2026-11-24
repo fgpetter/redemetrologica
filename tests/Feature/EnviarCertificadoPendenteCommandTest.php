@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Actions\EnviarCertificadoAction;
-use App\Jobs\EnviarEmailAgendadoJob;
 use App\Mail\AvisoSemCertificadosPendentesMail;
 use App\Models\AgendaCursos;
 use App\Models\CentroCusto;
@@ -14,10 +13,10 @@ use App\Models\LancamentoFinanceiro;
 use App\Models\Pessoa;
 use App\Models\PlanoConta;
 use App\Support\ProcessosAgendados;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -35,18 +34,17 @@ class EnviarCertificadoPendenteCommandTest extends TestCase
 
     public function test_enfileira_um_aviso_quando_nao_ha_inscritos_pendentes_na_rodada(): void
     {
-        Queue::fake();
         $action = $this->mock(EnviarCertificadoAction::class);
         $action->shouldNotReceive('executePendente');
 
-        ProcessosAgendados::executar(['rodada_id' => 'teste'], fn () => Artisan::call('certificados:enviar-pendente'));
+        ProcessosAgendados::rodada(CarbonImmutable::now('America/Sao_Paulo'), fn () => Artisan::call('certificados:enviar-pendente'));
 
-        Queue::assertPushedOn(ProcessosAgendados::FILA_EMAIL, EnviarEmailAgendadoJob::class, function (EnviarEmailAgendadoJob $job): bool {
-            return $job->destinatario === 'sistema@redemetrologica.com.br'
-                && $job->email instanceof AvisoSemCertificadosPendentesMail
-                && $job->email->envelope()->subject === 'Notificação: Sem certificados pendentes';
+        Mail::assertQueued(AvisoSemCertificadosPendentesMail::class, function (AvisoSemCertificadosPendentesMail $email): bool {
+            return $email->hasTo('sistema@redemetrologica.com.br')
+                && $email->queue === null
+                && $email->envelope()->subject === 'Notificação: Sem certificados pendentes';
         });
-        Queue::assertPushed(EnviarEmailAgendadoJob::class, 1);
+        Mail::assertQueuedCount(1);
         Mail::assertNothingSent();
     }
 

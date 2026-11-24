@@ -6,7 +6,6 @@ use App\Enums\InterlabLotePostagemItemStatus;
 use App\Integrations\Correios\CorreiosLog;
 use App\Jobs\Interlab\RastrearItemLotePostagemJob;
 use App\Models\InterlabLotePostagemItem;
-use App\Support\ProcessosAgendados;
 use Illuminate\Bus\UniqueLock;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +25,6 @@ class EnfileirarRastreioItensLotePostagemAction
         $enfileirados = 0;
         $pulados = 0;
         $delay = 0;
-        $contextoAgendado = $agendado ? ProcessosAgendados::contexto() : null;
 
         foreach ($this->itensCandidatos() as $item) {
             if ($this->jobNaFila($item)) {
@@ -42,7 +40,7 @@ class EnfileirarRastreioItensLotePostagemAction
 
             $job = new RastrearItemLotePostagemJob($item);
             (new UniqueLock($this->cache))->release($job);
-            RastrearItemLotePostagemJob::dispatch($item, $contextoAgendado)
+            RastrearItemLotePostagemJob::dispatch($item)
                 ->onQueue($agendado ? 'default' : null)
                 ->delay(now()->addSeconds($delay));
 

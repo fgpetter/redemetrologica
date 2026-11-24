@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Actions\Interlab\EnfileirarRastreioItensLotePostagemAction;
 use App\Support\ProcessosAgendados;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Context;
 
 class RastrearItensLotePostagemCommand extends Command
 {
@@ -15,7 +16,10 @@ class RastrearItensLotePostagemCommand extends Command
     public function handle(EnfileirarRastreioItensLotePostagemAction $action): int
     {
         if ($this->option('agendado')) {
-            return ProcessosAgendados::execucao($this->getName(), fn (): int => $this->enfileirar($action, true));
+            return Context::scope(
+                fn (): int => ProcessosAgendados::execucao($this->getName(), fn (): int => $this->enfileirar($action, true)),
+                ['rastreio_agendado' => true],
+            );
         }
 
         return $this->enfileirar($action, false);

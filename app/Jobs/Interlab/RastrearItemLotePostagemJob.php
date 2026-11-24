@@ -5,7 +5,6 @@ namespace App\Jobs\Interlab;
 use App\Actions\Interlab\RastrearItemLotePostagemAction;
 use App\Exceptions\CorreiosApiException;
 use App\Integrations\Correios\CorreiosLog;
-use App\Jobs\EnviarEmailAgendadoJob;
 use App\Mail\InterlabLotePostagemRastreioMail;
 use App\Models\InterlabLotePostagemItem;
 use App\Support\ProcessosAgendados;
@@ -15,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\Jobs\FakeJob;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -26,12 +26,7 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
     public int $uniqueFor = 86400;
 
-    private ?array $contextoAgendado = null;
-
-    public function __construct(public InterlabLotePostagemItem $item, ?array $contextoAgendado = null)
-    {
-        $this->contextoAgendado = $contextoAgendado;
-    }
+    public function __construct(public InterlabLotePostagemItem $item) {}
 
     public function uniqueId(): string
     {
@@ -45,28 +40,12 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
     public function handle(RastrearItemLotePostagemAction $action): void
     {
-        if ($this->contextoAgendado === null) {
-            $this->rastrear($action);
-
-            return;
-        }
-
-        ProcessosAgendados::executar([
-            ...$this->contextoAgendado,
-            'item_id' => $this->item->id,
-        ], fn () => $this->rastrear($action));
-    }
-
-    private function rastrear(RastrearItemLotePostagemAction $action): void
-    {
         $item = $this->item->fresh(['inscrito']);
 
         if ($item === null) {
             CorreiosLog::warning('job.rastro.item_ausente', [
-                ...ProcessosAgendados::contexto(),
                 'item_id' => $this->item->id,
             ]);
-            $this->logAgendado('rastreio.ignorado', ['motivo' => 'item_ausente'], 'warning');
 
             return;
         }
@@ -74,13 +53,11 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
         $statusAnterior = $item->status_correios;
 
         CorreiosLog::info('job.rastro.inicio', [
-            ...ProcessosAgendados::contexto(),
             'item_id' => $item->id,
             'codigo_objeto' => $item->codigo_objeto,
             'status_correios_anterior' => $statusAnterior,
             'tentativa' => $this->attempts(),
         ]);
-        $this->logAgendado('rastreio.inicio', ['tentativa' => $this->attempts()]);
 
         try {
             $item = $action->execute($item);
@@ -96,34 +73,24 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
             }
 
             CorreiosLog::error('job.rastro.falha_definitiva', [
-                ...ProcessosAgendados::contexto(),
                 'item_id' => $item->id,
                 'codigo_objeto' => $item->codigo_objeto,
                 'status_http' => $exception->status,
                 'mensagem' => $exception->getMessage(),
             ]);
-            $this->logAgendado('rastreio.falha', [
-                'status_http' => $exception->status,
-                'exception' => $exception::class,
-            ], 'error');
 
             return;
         }
 
         $this->notificarSeMudou($item->fresh(['inscrito']) ?? $item, $statusAnterior);
-        $this->logAgendado('rastreio.concluido');
     }
 
     public function failed(?Throwable $exception): void
     {
         CorreiosLog::exception('job.rastro.failed', $exception ?? new \RuntimeException('Falha no rastreio.'), [
-            ...($this->contextoAgendado ?? []),
             'item_id' => $this->item->id,
             'codigo_objeto' => $this->item->codigo_objeto,
         ]);
-        $this->logAgendado('rastreio.falha', [
-            'exception' => $exception ? $exception::class : null,
-        ], 'error');
     }
 
     private function notificarSeMudou(InterlabLotePostagemItem $item, ?string $statusAnterior): void
@@ -132,7 +99,6 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
         if ($statusAtual === null || $statusAtual === $statusAnterior) {
             CorreiosLog::info('job.rastro.sem_notificacao', [
-                ...ProcessosAgendados::contexto(),
                 'item_id' => $item->id,
                 'status_correios' => $statusAtual,
                 'motivo' => $statusAtual === null ? 'sem_status' : 'inalterado',
@@ -145,7 +111,6 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
         if ($email === '') {
             CorreiosLog::warning('job.rastro.email_ausente', [
-                ...ProcessosAgendados::contexto(),
                 'item_id' => $item->id,
                 'inscrito_id' => $item->interlab_inscrito_id,
             ]);
@@ -158,15 +123,16 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
         $notificacao = new InterlabLotePostagemRastreioMail($item);
 
-        if ($this->contextoAgendado !== null) {
-            EnviarEmailAgendadoJob::dispatch($notificacao, $email, ProcessosAgendados::contexto(), $copias);
-            ProcessosAgendados::log('rastreio.email.enfileirado');
+        $mail = Mail::to($email)->cc($copias);
+
+        if (Context::get('rastreio_agendado')) {
+            $notificacao->onConnection('database');
+            ProcessosAgendados::comContextoDeEmail(fn () => $mail->queue($notificacao));
         } else {
-            Mail::to($email)->cc($copias)->queue($notificacao);
+            $mail->queue($notificacao);
         }
 
         CorreiosLog::info('job.rastro.email_enfileirado', [
-            ...ProcessosAgendados::contexto(),
             'item_id' => $item->id,
             'status_correios' => $statusAtual,
             'status_anterior' => $statusAnterior,
@@ -183,7 +149,6 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
         $atraso = min(2 ** max(0, $this->attempts() - 1), 300);
 
         CorreiosLog::warning('job.rastro.retentar', [
-            ...ProcessosAgendados::contexto(),
             'item_id' => $item->id,
             'codigo_objeto' => $item->codigo_objeto,
             'atraso_segundos' => $atraso,
@@ -192,7 +157,6 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
 
         if (! $this->job instanceof FakeJob && config('queue.default') === 'sync') {
             CorreiosLog::info('job.rastro.sem_release_sync', [
-                ...ProcessosAgendados::contexto(),
                 'item_id' => $item->id,
             ]);
 
@@ -200,20 +164,5 @@ class RastrearItemLotePostagemJob implements ShouldBeUnique, ShouldQueue
         }
 
         $this->release($atraso);
-        $this->logAgendado('rastreio.retentativa', [
-            'atraso_segundos' => $atraso,
-            'exception' => $exception::class,
-        ], 'warning');
-    }
-
-    private function logAgendado(string $evento, array $contexto = [], string $nivel = 'info'): void
-    {
-        if ($this->contextoAgendado !== null) {
-            ProcessosAgendados::log($evento, [
-                ...$this->contextoAgendado,
-                'item_id' => $this->item->id,
-                ...$contexto,
-            ], $nivel);
-        }
     }
 }

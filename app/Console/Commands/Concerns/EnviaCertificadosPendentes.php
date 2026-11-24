@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Concerns;
 
-use App\Jobs\EnviarEmailAgendadoJob;
 use App\Mail\AvisoSemCertificadosPendentesMail;
 use App\Support\ProcessosAgendados;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,14 +21,14 @@ trait EnviaCertificadosPendentes
         $ignorados = 0;
         $falhas = 0;
         $cursor = null;
-        $inscritos->orderBy('data_inscricao')->orderBy('id');
+        $candidatos = $inscritos->toBase()->orderBy('data_inscricao')->orderBy('id');
 
         do {
-            $pagina = (clone $inscritos)->cursorPaginate(100, ['*'], 'cursor', $cursor);
+            $pagina = (clone $candidatos)->cursorPaginate(100, ['id', 'data_inscricao'], 'cursor', $cursor);
 
             foreach ($pagina as $inscrito) {
                 try {
-                    if ($enfileirar($inscrito->getKey())) {
+                    if ($enfileirar($inscrito->id)) {
                         $enfileirados++;
                     } else {
                         $ignorados++;
@@ -39,7 +38,7 @@ trait EnviaCertificadosPendentes
                 } catch (Throwable $exception) {
                     $falhas++;
                     ProcessosAgendados::log('certificado_falha_enfileiramento', [
-                        'inscrito_id' => $inscrito->getKey(),
+                        'inscrito_id' => $inscrito->id,
                         'exception_class' => $exception::class,
                     ], 'error');
                 }
@@ -57,10 +56,10 @@ trait EnviaCertificadosPendentes
 
         if ($avisarAusencia) {
             $destinatario = 'sistema@redemetrologica.com.br';
-            $contexto = ProcessosAgendados::contexto();
 
-            if (isset($contexto['rodada_id'])) {
-                EnviarEmailAgendadoJob::dispatch($aviso, $destinatario, $contexto);
+            if (ProcessosAgendados::emRodada()) {
+                $aviso->onConnection('database');
+                ProcessosAgendados::enfileirar(fn ($horario) => Mail::to($destinatario)->later($horario, $aviso));
             } else {
                 Mail::raw($aviso->mensagem, fn ($message) => $message->to($destinatario)->subject($aviso->envelope()->subject));
             }

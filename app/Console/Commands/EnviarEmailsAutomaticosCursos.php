@@ -7,7 +7,6 @@ use App\Actions\EnfileirarEmailInscritoCursoAction;
 use App\Actions\EnfileirarPendenciasCursoAction;
 use App\Models\AgendaCursos;
 use App\Support\ProcessosAgendados;
-use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -24,7 +23,7 @@ class EnviarEmailsAutomaticosCursos extends Command
         EnfileirarEmailInscritoCursoAction $enfileirarInscrito,
     ): int {
         return ProcessosAgendados::execucao($this->getName(), function () use ($enfileirarConferencia, $enfileirarPendencias, $enfileirarInscrito): int {
-            $dia = CarbonImmutable::parse(ProcessosAgendados::contexto()['data_rodada'] ?? 'today', 'America/Sao_Paulo');
+            $dia = ProcessosAgendados::dataReferencia();
             $dataConferencia = $dia->addDays(2)->toDateString();
             $dataParticipantes = $dia->addDay()->toDateString();
             $falhou = false;
@@ -59,7 +58,6 @@ class EnviarEmailsAutomaticosCursos extends Command
     {
         $enfileirados = 0;
         $agendas = AgendaCursos::query()
-            ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
             ->whereIn('tipo_agendamento', ['ONLINE', 'IN-COMPANY'])
             ->whereDate('data_inicio', $data)
@@ -69,7 +67,7 @@ class EnviarEmailsAutomaticosCursos extends Command
 
         foreach ($agendas as $agenda) {
             if ($this->tentar(
-                fn (): bool => $action->execute($agenda->getKey(), $data, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
+                fn (): bool => $action->execute($agenda->getKey(), $data, agendado: ProcessosAgendados::emRodada()),
                 'conferencia',
                 $agenda->getKey(),
                 null,
@@ -87,7 +85,6 @@ class EnviarEmailsAutomaticosCursos extends Command
     {
         $enfileirados = 0;
         $agendas = AgendaCursos::query()
-            ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
             ->whereIn('tipo_agendamento', ['ONLINE', 'IN-COMPANY'])
             ->whereDate('data_inicio', $data)
@@ -107,7 +104,7 @@ class EnviarEmailsAutomaticosCursos extends Command
             }
 
             if ($this->tentar(
-                fn (): bool => $action->execute($agenda->getKey(), $data, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
+                fn (): bool => $action->execute($agenda->getKey(), $data, agendado: ProcessosAgendados::emRodada()),
                 'pendencias',
                 $agenda->getKey(),
                 null,
@@ -125,7 +122,6 @@ class EnviarEmailsAutomaticosCursos extends Command
     {
         $enfileirados = 0;
         $agendas = AgendaCursos::query()
-            ->with(['curso', 'materiaisTreinamento'])
             ->where('status', 'CONFIRMADO')
             ->whereIn('tipo_agendamento', ['ONLINE', 'IN-COMPANY'])
             ->whereDate('data_inicio', $data)
@@ -149,7 +145,7 @@ class EnviarEmailsAutomaticosCursos extends Command
 
                     foreach ($inscritos as $inscrito) {
                         if ($this->tentar(
-                            fn (): bool => $action->execute($agenda->getKey(), $inscrito->getKey(), $data, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
+                            fn (): bool => $action->execute($agenda->getKey(), $inscrito->getKey(), $data, agendado: ProcessosAgendados::emRodada()),
                             'participante',
                             $agenda->getKey(),
                             $inscrito->getKey(),

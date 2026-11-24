@@ -14,6 +14,7 @@ use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Support\ProcessosAgendados;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Database\Factories\PessoaFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -134,14 +135,14 @@ it('usa a data da rodada e a fila agendada mesmo após a virada do dia', functio
     $pendente = agendaEmail('2026-11-15', ['link_aula' => null]);
     agendaEmail('2026-11-17');
 
-    ProcessosAgendados::executar(['rodada_id' => 'teste', 'data_rodada' => '2026-11-14'], function (): void {
-        $this->artisan('cursos:emails-automaticos')->assertSuccessful()->run();
+    ProcessosAgendados::rodada(CarbonImmutable::parse('2026-11-14', 'America/Sao_Paulo'), function (): int {
+        return $this->artisan('cursos:emails-automaticos')->assertSuccessful()->run();
     });
 
     expect(jobCurso(EnviarConferenciaCursoJob::class)->agendaCursoId)->toBe($conferencia->id);
     expect(jobCurso(EnviarPendenciasCursoJob::class)->agendaCursoId)->toBe($pendente->id);
     $this->assertDatabaseCount('jobs', 2);
-    expect(DB::table('jobs')->distinct()->pluck('queue')->all())->toBe([ProcessosAgendados::FILA_EMAIL]);
+    expect(DB::table('jobs')->distinct()->pluck('queue')->all())->toBe(['default']);
 });
 
 it('não enfileira novamente candidatos com reserva vigente', function () {

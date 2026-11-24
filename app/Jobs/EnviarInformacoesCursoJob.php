@@ -5,8 +5,6 @@ namespace App\Jobs;
 use App\Mail\InformacoesTreinamentoMail;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
-use App\Support\EnviarEmailAgendado;
-use App\Support\ProcessosAgendados;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -62,14 +60,8 @@ class EnviarInformacoesCursoJob implements ShouldQueue
 
             $this->validarDestinatario();
 
-            $email = new InformacoesTreinamentoMail($this->snapshot);
-            $destinatario = $this->snapshot['destinatario'];
-
-            if ($this->queue === ProcessosAgendados::FILA_EMAIL) {
-                app(EnviarEmailAgendado::class)->execute($email, $destinatario);
-            } else {
-                Mail::to($destinatario)->sendNow($email);
-            }
+            Mail::to($this->snapshot['destinatario'])
+                ->sendNow(new InformacoesTreinamentoMail($this->snapshot));
 
             $inscrito->update([
                 'informacoes_enviadas_em' => now('America/Sao_Paulo'),

@@ -21,7 +21,7 @@ class EnviarCertificadoInterlabPendenteCommand extends Command
     {
         return ProcessosAgendados::execucao($this->getName(), fn (): int => $this->enviarCertificadosPendentes(
             InterlabInscrito::certificadosPendentes(),
-            fn (int $id): bool => $action->execute($id, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
+            fn (int $id): bool => $action->execute($id, agendado: ProcessosAgendados::emRodada()),
             new AvisoSemCertificadosPendentesMail(
                 'Notificação: Sem certificados Interlab pendentes',
                 'Não há certificados Interlab aptos para envio no momento.',

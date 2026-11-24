@@ -45,7 +45,7 @@ class ProcessarSenhasInterlabConfirmadoCommand extends Command
         $pulados = 0;
         $falhas = 0;
         $atraso = 0;
-        $agendado = isset(ProcessosAgendados::contexto()['rodada_id']);
+        $agendado = ProcessosAgendados::emRodada();
         $intervalo = $agendado ? 0 : 15;
 
         foreach ($inscritos as $inscrito) {

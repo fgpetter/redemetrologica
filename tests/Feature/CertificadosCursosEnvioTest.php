@@ -8,6 +8,7 @@ use App\Models\Curso;
 use App\Models\CursoInscrito;
 use App\Models\Instrutor;
 use App\Support\ProcessosAgendados;
+use Carbon\CarbonImmutable;
 use Database\Factories\LancamentoFinanceiroFactory;
 use Database\Factories\PessoaFactory;
 use Illuminate\Support\Facades\Bus;
@@ -82,12 +83,12 @@ it('pula inválidos e enfileira todos os válidos na ordem de inscrição e id',
     $valido = inscritoCertificadoCurso(['data_inscricao' => now()->subDay()]);
     $proximo = inscritoCertificadoCurso(['data_inscricao' => now()->subDay()]);
 
-    ProcessosAgendados::executar(['rodada_id' => 'teste'], function (): void {
-        $this->artisan('certificados:enviar-pendente')->assertSuccessful()->run();
+    ProcessosAgendados::rodada(CarbonImmutable::now('America/Sao_Paulo'), function (): int {
+        return $this->artisan('certificados:enviar-pendente')->assertSuccessful()->run();
     });
 
     $jobs = DB::table('jobs')->orderBy('id')->get(['queue', 'payload']);
-    expect($jobs->pluck('queue')->unique()->values()->all())->toBe([ProcessosAgendados::FILA_EMAIL]);
+    expect($jobs->pluck('queue')->unique()->values()->all())->toBe(['default']);
     expect($jobs->map(fn (object $row) => unserialize(json_decode($row->payload, true)['data']['command'])->inscritoId)->all())
         ->toBe([$valido->id, $proximo->id]);
     expect($invalido->fresh()->certificado_emitido)->toBeNull();

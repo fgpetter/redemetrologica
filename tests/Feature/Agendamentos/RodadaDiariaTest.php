@@ -1,40 +1,57 @@
 <?php
 
 use App\Actions\Agendamentos\ExecutarRodadaAgendada;
-use App\Jobs\EnviarEmailAgendadoJob;
+use App\Mail\AvisoSemCertificadosPendentesMail;
 use App\Support\ProcessosAgendados;
 use Carbon\CarbonImmutable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Monolog\Handler\TestHandler;
 
-it('executa as etapas uma vez em sequência enquanto os e-mails aguardam na fila', function () {
-    $dia = CarbonImmutable::parse('2026-11-23 00:00', 'America/Sao_Paulo');
-    $this->travelTo($dia);
-    $action = app(ExecutarRodadaAgendada::class);
-    $etapas = [];
+function enfileirarAvisoDaRodada(): void
+{
+    $email = (new AvisoSemCertificadosPendentesMail('Teste', 'Mensagem de teste.'))
+        ->onConnection('database');
 
-    $resultado = $action->execute($dia, function (string $comando) use (&$etapas, $action, $dia): int {
-        $etapas[] = $comando;
+    ProcessosAgendados::enfileirar(fn ($horario) => Mail::to('teste@example.test')->later($horario, $email));
+}
 
-        if ($comando === 'certificados:enviar-pendente') {
-            $action->execute($dia, static fn () => throw new LogicException('A rodada já foi iniciada.'));
-            foreach (range(1, 100) as $ordem) {
-                $email = (new Mailable)->subject("Certificado {$ordem}")->html('<p>Teste</p>');
-                EnviarEmailAgendadoJob::dispatch($email, 'teste@example.test');
+it('mantém os horários entre comandos, ignora rollback e segue após falha parcial', function () {
+    $inicio = CarbonImmutable::parse('2026-11-23 00:00', 'America/Sao_Paulo');
+    $this->travelTo($inicio);
+    $registros = new TestHandler;
+    Log::channel('processos_agendados')->getLogger()->setHandlers([$registros]);
+    $executados = [];
+
+    $resultado = app(ExecutarRodadaAgendada::class)->execute($inicio, function (string $comando) use (&$executados): int {
+        $executados[] = $comando;
+
+        return ProcessosAgendados::execucao($comando, function () use ($comando): int {
+            if ($comando === 'certificados:enviar-pendente') {
+                foreach (range(1, 5) as $ordem) {
+                    DB::transaction(fn () => enfileirarAvisoDaRodada());
+                }
+
+                DB::transaction(function (): void {
+                    enfileirarAvisoDaRodada();
+
+                    throw new RuntimeException('Reverte o sexto despacho.');
+                });
             }
-        }
 
-        if ($comando === 'interlab:enviar-certificado-pendente') {
-            expect(DB::table('jobs')->where('queue', ProcessosAgendados::FILA_EMAIL)->count())->toBe(100);
+            if ($comando === 'app:processar-senhas-interlab-confirmado') {
+                foreach (range(1, 5) as $ordem) {
+                    enfileirarAvisoDaRodada();
+                }
+            }
 
-            return 1;
-        }
-
-        return 0;
+            return 0;
+        });
     });
 
     expect($resultado)->toBe(1)
-        ->and($etapas)->toBe([
+        ->and($executados)->toBe([
             'certificados:enviar-pendente',
             'interlab:enviar-certificado-pendente',
             'app:processar-senhas-interlab-confirmado',
@@ -43,57 +60,51 @@ it('executa as etapas uma vez em sequência enquanto os e-mails aguardam na fila
             'avaliacoes:enviar-lembrete-acoes-corretivas',
             'cursos:emails-automaticos',
         ])
-        ->and(DB::table('rodadas_agendadas')->value('status'))->toBe('concluida_com_falhas');
+        ->and(DB::table('jobs')->orderBy('id')->pluck('available_at')->all())
+        ->toBe(array_map(fn (int $segundos): int => $inicio->getTimestamp() + $segundos, range(0, 45, 5)));
+
+    $finais = collect($registros->getRecords())->filter(fn ($registro) => in_array($registro->message, ['processo.falha', 'processo.concluido'], true));
+
+    expect($finais->pluck('context.emails_enfileirados')->values()->all())->toBe([5, 0, 5, 0, 0, 0, 0, 10])
+        ->and($finais->first()->context['exception'])->toBe(RuntimeException::class)
+        ->and($finais->last()->context['comandos_com_falha'])->toBe(1)
+        ->and($finais->last()->context['ultimo_disponivel_em'])->toBe($inicio->getTimestamp() + 45);
 });
 
-it('retoma somente as etapas que ainda não começaram', function () {
-    $dia = CarbonImmutable::parse('2026-11-23 00:00', 'America/Sao_Paulo');
-    $this->travelTo($dia);
-    $action = app(ExecutarRodadaAgendada::class);
-    $action->execute($dia, static fn () => 0);
+it('usa a hora atual quando o despacho ultrapassa o próximo horário previsto', function () {
+    $inicio = CarbonImmutable::parse('2026-11-23 00:00', 'America/Sao_Paulo');
+    $this->travelTo($inicio);
 
-    $rodada = DB::table('rodadas_agendadas')->first();
-    $etapas = json_decode($rodada->etapas, true, 512, JSON_THROW_ON_ERROR);
-    $etapas['interlab:enviar-certificado-pendente']['status'] = 'em_execucao';
-    $etapas['app:processar-senhas-interlab-confirmado']['status'] = 'pendente';
-    DB::table('rodadas_agendadas')->where('id', $rodada->id)->update([
-        'status' => 'em_execucao',
-        'etapas' => json_encode($etapas, JSON_THROW_ON_ERROR),
-    ]);
-
-    $executadas = [];
-    $resultado = $action->execute($dia, function (string $comando) use (&$executadas): int {
-        $executadas[] = $comando;
+    ProcessosAgendados::rodada($inicio, function (): int {
+        enfileirarAvisoDaRodada();
+        $this->travel(40)->seconds();
+        enfileirarAvisoDaRodada();
+        enfileirarAvisoDaRodada();
 
         return 0;
-    }, retomar: true);
+    });
 
-    $etapas = json_decode(DB::table('rodadas_agendadas')->value('etapas'), true, 512, JSON_THROW_ON_ERROR);
-    expect($resultado)->toBe(1)
-        ->and($executadas)->toBe(['app:processar-senhas-interlab-confirmado'])
-        ->and($etapas['interlab:enviar-certificado-pendente']['status'])->toBe('interrompida');
+    expect(DB::table('jobs')->orderBy('id')->pluck('available_at')->all())
+        ->toBe(array_map(fn (int $segundos): int => $inicio->getTimestamp() + $segundos, [0, 40, 45]));
 });
 
-it('monta a rodada e o rastreio independente com opções válidas para o CLI', function () {
+it('agenda a rodada à meia-noite e conserva o rastreio independente', function () {
     $this->artisan('schedule:list')
-        ->expectsOutputToContain('agendamentos:executar-rodada --verificar ')
+        ->expectsOutputToContain('agendamentos:executar-rodada')
         ->expectsOutputToContain('interlab:rastrear-itens-postagem --agendado ')
-        ->doesntExpectOutputToContain('--verificar=')
-        ->doesntExpectOutputToContain('--agendado=')
+        ->doesntExpectOutputToContain('--verificar')
         ->assertSuccessful();
 });
 
-it('enfileira uma vez os avisos de ausência de certificados ao executar a rodada real', function () {
+it('enfileira os avisos nativos de ausência de certificados com a mesma rodada', function () {
     $this->travelTo(CarbonImmutable::parse('2026-11-23 00:00', 'America/Sao_Paulo'));
 
     $this->artisan('agendamentos:executar-rodada')->assertSuccessful();
-    $this->artisan('agendamentos:executar-rodada')->assertSuccessful();
 
-    $rodada = DB::table('rodadas_agendadas')->sole();
-    $jobs = DB::table('jobs')->where('queue', ProcessosAgendados::FILA_EMAIL)->orderBy('id')->get();
-    $contextos = $jobs->map(fn ($job) => json_decode($job->payload, true, 512, JSON_THROW_ON_ERROR)['processo_agendado']);
+    $jobs = DB::table('jobs')->where('queue', 'default')->orderBy('id')->get();
+    $payloads = $jobs->map(fn ($job) => json_decode($job->payload, true, 512, JSON_THROW_ON_ERROR));
 
-    expect($rodada->status)->toBe('concluida')
-        ->and($contextos->pluck('etapa')->all())->toBe(['certificados:enviar-pendente', 'interlab:enviar-certificado-pendente'])
-        ->and($contextos->pluck('rodada_id')->unique()->all())->toBe([$rodada->id]);
+    expect($payloads->pluck('displayName')->all())->toBe(array_fill(0, 2, AvisoSemCertificadosPendentesMail::class))
+        ->and($jobs[1]->available_at - $jobs[0]->available_at)->toBe(5)
+        ->and($payloads->pluck('illuminate:log:context')->unique()->count())->toBe(2);
 });

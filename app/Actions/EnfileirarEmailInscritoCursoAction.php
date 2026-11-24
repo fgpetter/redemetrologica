@@ -7,7 +7,6 @@ use App\Mail\InformacoesTreinamentoMail;
 use App\Models\AgendaCursos;
 use App\Models\CursoInscrito;
 use App\Support\ProcessosAgendados;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -63,15 +62,14 @@ class EnfileirarEmailInscritoCursoAction
 
             $inscrito->update(['informacoes_envio_id' => $tentativa]);
 
-            Bus::dispatch((new EnviarInformacoesCursoJob(
+            ProcessosAgendados::despachar((new EnviarInformacoesCursoJob(
                 $agenda->getKey(),
                 $inscrito->getKey(),
                 $tentativa,
                 $dataEsperada,
                 $snapshot,
             ))->onConnection('database')
-                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
-                ->beforeCommit());
+                ->beforeCommit(), $agendado);
 
             Log::channel('mailsent')->info('E-mail automático de informações de curso enfileirado.', [
                 'tipo' => 'participante',

@@ -1,15 +1,14 @@
 <?php
 
-use App\Jobs\EnviarEmailAgendadoJob;
 use App\Mail\AvisoLembretePrazoSemEmailMail;
 use App\Mail\LembretePrazoAvaliacaoMail;
 use App\Models\AgendaAvaliacao;
 use App\Models\Laboratorio;
 use App\Support\ProcessosAgendados;
+use Carbon\CarbonImmutable;
 use Database\Factories\PessoaFactory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Queue;
 
 function criarAvaliacaoLembretePrazo(array $atributos = [], ?string $emailLaboratorio = 'lab-lembrete@example.com'): AgendaAvaliacao
 {
@@ -134,19 +133,18 @@ test('comando envia alerta interno quando laboratorio nao tem email', function (
 });
 
 test('lembrete da rodada usa a fila agendada e preserva a política do e-mail', function () {
-    Queue::fake([EnviarEmailAgendadoJob::class]);
+    Mail::fake();
     Carbon::setTestNow('2026-09-04 00:00:00');
     criarAvaliacaoLembretePrazo(['data_proc_laboratorio' => '2026-09-07']);
 
-    ProcessosAgendados::executar(['rodada_id' => 'rodada-teste'], fn () => $this
+    ProcessosAgendados::rodada(CarbonImmutable::now('America/Sao_Paulo'), fn () => $this
         ->artisan('avaliacoes:enviar-lembrete-proc-laboratorio')->assertSuccessful()->run());
 
-    $job = Queue::pushed(EnviarEmailAgendadoJob::class)->sole();
-    expect($job->queue)->toBe(ProcessosAgendados::FILA_EMAIL)
-        ->and($job->email)->toBeInstanceOf(LembretePrazoAvaliacaoMail::class)
-        ->and($job->contexto['rodada_id'])->toBe('rodada-teste')
-        ->and($job->tries)->toBe(3)
-        ->and($job->timeout)->toBe(120);
+    $email = Mail::queued(LembretePrazoAvaliacaoMail::class)->sole();
+    expect($email->queue)->toBeNull()
+        ->and($email->connection)->toBe('database')
+        ->and($email->tries)->toBe(3)
+        ->and($email->timeout)->toBe(120);
 });
 
 afterEach(function (): void {

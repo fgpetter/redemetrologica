@@ -2,12 +2,10 @@
 
 namespace App\Console\Commands\Concerns;
 
-use App\Jobs\EnviarEmailAgendadoJob;
 use App\Mail\AvisoLembretePrazoSemEmailMail;
 use App\Mail\LembretePrazoAvaliacaoMail;
 use App\Models\AgendaAvaliacao;
 use App\Support\ProcessosAgendados;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -20,8 +18,7 @@ trait EnviaLembretesPrazoAvaliacao
 
     private function processarLembretes(string $coluna, string $rotulo): int
     {
-        $contexto = ProcessosAgendados::contexto();
-        $dia = CarbonImmutable::parse($contexto['data_rodada'] ?? 'today', 'America/Sao_Paulo');
+        $dia = ProcessosAgendados::dataReferencia();
 
         if ($dia->isWeekend()) {
             $this->info('Fim de semana: lembretes não enviados.');
@@ -54,8 +51,9 @@ trait EnviaLembretesPrazoAvaliacao
                     $semEmail++;
                 }
 
-                if (isset($contexto['rodada_id'])) {
-                    EnviarEmailAgendadoJob::dispatch($aviso, $email, $contexto);
+                if (ProcessosAgendados::emRodada()) {
+                    $aviso->onConnection('database');
+                    ProcessosAgendados::enfileirar(fn ($horario) => Mail::to($email)->later($horario, $aviso));
                 } else {
                     Mail::to($email)->queue($aviso);
                 }

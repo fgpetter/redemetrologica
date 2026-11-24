@@ -5,8 +5,6 @@ namespace App\Jobs;
 use App\Mail\CertificadoInterlabMail;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabInscrito;
-use App\Support\EnviarEmailAgendado;
-use App\Support\ProcessosAgendados;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -53,21 +51,13 @@ class EnviarCertificadoInterlabPendenteJob implements ShouldQueue
                 'cc' => ['nullable', 'email:rfc'],
             ])->validate();
 
-            $email = new CertificadoInterlabMail(DadosGeraDoc::findOrFail($this->dadosDocId));
-            $cc = $this->cc !== null && strcasecmp($this->to, $this->cc) !== 0 ? $this->cc : null;
+            $mail = Mail::to($this->to);
 
-            if ($this->queue === ProcessosAgendados::FILA_EMAIL) {
-                app(EnviarEmailAgendado::class)->execute($email, $this->to, $cc);
-            } else {
-                $mail = Mail::to($this->to);
-
-                if ($cc !== null) {
-                    $mail->cc($cc);
-                }
-
-                $mail->sendNow($email);
+            if ($this->cc !== null && strcasecmp($this->to, $this->cc) !== 0) {
+                $mail->cc($this->cc);
             }
 
+            $mail->sendNow(new CertificadoInterlabMail(DadosGeraDoc::findOrFail($this->dadosDocId)));
             $inscrito->update(['certificado_envio_id' => null]);
 
             return $inscrito->agenda_interlab_id;

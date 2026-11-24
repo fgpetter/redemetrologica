@@ -6,7 +6,6 @@ use App\Jobs\EnviarLinkCertificadoJob;
 use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
 use App\Support\ProcessosAgendados;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -50,11 +49,10 @@ class EnviarCertificadoAction
                 'certificado_path' => $dadosDoc->storage_path,
             ]);
 
-            Bus::dispatch((new EnviarLinkCertificadoJob($dadosDoc->id, $inscrito->id, $tentativa, $email))
+            ProcessosAgendados::despachar((new EnviarLinkCertificadoJob($dadosDoc->id, $inscrito->id, $tentativa, $email))
                 ->onConnection('database')
-                ->onQueue($agendado ? ProcessosAgendados::FILA_EMAIL : null)
                 ->delay(now()->addSeconds($delay))
-                ->beforeCommit());
+                ->beforeCommit(), $agendado);
 
             Log::channel('mailsent')->info('Certificado de curso enfileirado.', [
                 'tipo' => 'certificado_curso',

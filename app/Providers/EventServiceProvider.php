@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Listeners\RegistrarExecucaoEmailAgendado;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Queue\Events\JobAttempted;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Queue\Events\JobTimedOut;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -18,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        JobProcessing::class => [RegistrarExecucaoEmailAgendado::class],
+        JobAttempted::class => [RegistrarExecucaoEmailAgendado::class],
+        JobTimedOut::class => [RegistrarExecucaoEmailAgendado::class],
     ];
 
     /**

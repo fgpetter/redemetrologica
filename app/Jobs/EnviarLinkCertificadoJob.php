@@ -5,8 +5,6 @@ namespace App\Jobs;
 use App\Mail\CertificadoNotification;
 use App\Models\CursoInscrito;
 use App\Models\DadosGeraDoc;
-use App\Support\EnviarEmailAgendado;
-use App\Support\ProcessosAgendados;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -43,14 +41,7 @@ class EnviarLinkCertificadoJob implements ShouldQueue
 
             Validator::make(['to' => $this->to], ['to' => ['required', 'email:rfc']])->validate();
 
-            $email = new CertificadoNotification(DadosGeraDoc::findOrFail($this->dadosDocId));
-
-            if ($this->queue === ProcessosAgendados::FILA_EMAIL) {
-                app(EnviarEmailAgendado::class)->execute($email, $this->to);
-            } else {
-                Mail::to($this->to)->sendNow($email);
-            }
-
+            Mail::to($this->to)->sendNow(new CertificadoNotification(DadosGeraDoc::findOrFail($this->dadosDocId)));
             $inscrito->update(['certificado_envio_id' => null]);
 
             return [

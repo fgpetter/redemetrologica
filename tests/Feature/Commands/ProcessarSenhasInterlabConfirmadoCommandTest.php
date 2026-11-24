@@ -10,6 +10,7 @@ use App\Models\InterlabAnalista;
 use App\Models\InterlabInscrito;
 use App\Models\InterlabLaboratorio;
 use App\Support\ProcessosAgendados;
+use Carbon\CarbonImmutable;
 use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\PessoaFactory;
@@ -67,20 +68,20 @@ class ProcessarSenhasInterlabConfirmadoCommandTest extends TestCase
         });
     }
 
-    public function test_rodada_enfileira_carta_na_fila_agendada_sem_delay_individual(): void
+    public function test_rodada_enfileira_carta_na_fila_agendada_com_atraso_da_rodada(): void
     {
         Queue::fake();
         $agenda = AgendaInterlabFactory::new()->create(['status' => 'CONFIRMADO']);
         $agenda->interlab->update(['tag' => 'ABCDE']);
         $inscrito = $this->criarInscrito($agenda, 'resp@example.com', 'lab@example.com');
 
-        ProcessosAgendados::executar(['rodada_id' => 'rodada-teste'], fn () => $this
+        ProcessosAgendados::rodada(CarbonImmutable::now('America/Sao_Paulo'), fn () => $this
             ->artisan('app:processar-senhas-interlab-confirmado')->assertSuccessful()->run());
 
         Queue::assertPushed(EnviaSenhaLaboratorioJob::class, fn (EnviaSenhaLaboratorioJob $job) => $job->inscritoId === $inscrito->id
             && $job->connection === 'database'
-            && $job->queue === ProcessosAgendados::FILA_EMAIL
-            && $job->delay === null);
+            && $job->queue === null
+            && $job->delay instanceof \DateTimeInterface);
     }
 
     public function test_nao_enfileira_quando_agenda_nao_confirmada(): void

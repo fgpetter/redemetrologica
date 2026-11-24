@@ -21,7 +21,7 @@ class EnviarCertificadoPendenteCommand extends Command
     {
         return ProcessosAgendados::execucao($this->getName(), fn (): int => $this->enviarCertificadosPendentes(
             CursoInscrito::certificadosPendentes(),
-            fn (int $id): bool => $action->executePendente($id, agendado: isset(ProcessosAgendados::contexto()['rodada_id'])),
+            fn (int $id): bool => $action->executePendente($id, agendado: ProcessosAgendados::emRodada()),
             new AvisoSemCertificadosPendentesMail(
                 'Notificação: Sem certificados pendentes',
                 'Não há certificados pendentes para envio no momento.',

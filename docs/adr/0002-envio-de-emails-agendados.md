@@ -1,27 +1,31 @@
 # Rodada diária e envio de e-mails agendados
 
-## Decisão
+## Agendamento
 
-O scheduler inicia uma rodada por data local às 00h, em `America/Sao_Paulo`. A sequência é certificados de cursos, certificados Interlab, cartas de senha Interlab, lembretes de procedimento de laboratório, proposta de ações e ações corretivas, e e-mails automáticos de cursos. Uma etapa libera a próxima quando termina de gravar seus envios, mesmo que o provedor ainda não tenha aceitado nenhuma mensagem. As etapas rodam uma vez por dia e percorrem todos os candidatos elegíveis. O estado da rodada fica no banco e substitui os indicadores de ausência de pendências em cache.
+O Laravel inicia `agendamentos:executar-rodada` às 00h em `America/Sao_Paulo` com a proteção `withoutOverlapping()`. A rodada chama, em ordem, os comandos de certificados de cursos, certificados Interlab, cartas de senha Interlab, lembretes de procedimento de laboratório, proposta de ações e ações corretivas, e e-mails automáticos de cursos.
 
-Nos cursos, a data da rodada é a referência. O aviso de conferência considera início em dois dias. Pendências, informações e materiais consideram início no dia seguinte. O rastreio de postagens Interlab roda de forma independente às 06h nos dias úteis e seus avisos compartilham a fila de envio. Limpeza de uploads, limpeza de PDFs e retomada de lotes órfãos conservam seus agendamentos e fluxos. Envios manuais seguem seu encaminhamento atual.
+Cada comando libera o seguinte ao terminar de enfileirar seus e-mails. Se falhar, a rodada registra o erro, segue com os comandos restantes e retorna um código de falha ao final. Os jobs já gravados seguem a política normal da fila. Os registros das entidades continuam controlando a elegibilidade e a deduplicação. Os comandos de cursos usam a data da rodada, com dois dias de antecedência para a conferência e um dia para pendências, informações e materiais.
 
-Uma falha é registrada e as demais etapas podem seguir. Jobs de envio já gravados permanecem disponíveis e retentam de acordo com sua política. Uma etapa iniciada só roda automaticamente novamente na rodada do dia seguinte. A rodada foi dimensionada para acabar antes das 06h. Uma rodada ainda aberta nesse horário gera aviso.
+O rastreio de postagens Interlab continua independente às 06h nos dias úteis. Seus avisos usam a mesma fila de e-mails, fora da sequência de horários da rodada. Limpeza de uploads, limpeza de PDFs, recuperação de lotes órfãos e envios manuais conservam seus fluxos.
 
-Se o processo da rodada for interrompido, confirmar que ele terminou e executar `php artisan agendamentos:executar-rodada --retomar` no mesmo dia, após a liberação ou expiração da trava de seis horas. A retomada marca a etapa que estava em andamento como interrompida e executa somente as etapas que ainda não começaram.
+## Fila e disponibilidade
 
-## Worker
+Os jobs usam a fila `default` da conexão nativa `database`. A rodada mantém em memória o próximo horário. Cada e-mail usa o maior valor entre esse horário e a hora atual. Uma gravação confirmada avança a referência em cinco segundos, inclusive entre comandos. Jobs e Mailables usam `delay()` e `Mail::later()`, respectivamente.
 
-Usar `QUEUE_CONNECTION=database` e manter uma única instância do worker para a aplicação. Incluir na lista outras filas já atendidas pelo mesmo processo.
+O intervalo vale para os horários de disponibilidade (`jobs.available_at`). Se o worker ficar atrasado ou indisponível, poderá processar em sequência vários jobs já disponíveis. O Laravel e o transporte configurado cuidam do envio, dos atrasos de retentativa e das falhas. Não há retomada seletiva da rodada. A proteção contra sobreposição vale para execuções iniciadas pelo scheduler.
+
+## Operação
+
+Em produção, configurar `QUEUE_CONNECTION=database`. A conexão mantém `retry_after=360` para atender também os jobs existentes com timeout de até 300 segundos. Manter um worker PHP atendendo `default` e as demais filas já configuradas.
 
 ```sh
-php artisan queue:work database --name=sistema-rede --queue=emails-agendados,default --sleep=1
+php artisan queue:work database --name=sistema-rede --queue=default --sleep=1
 ```
 
-O primeiro envio pode começar assim que o worker estiver livre. O horário mínimo do próximo é o aceite pelo provedor mais cinco segundos. Em caso de falha ou timeout, o intervalo conta do fim da tentativa. Durante a pausa, o worker pode atender outras filas. Uma retentativa segue seu atraso e, enquanto estiver indisponível, os próximos e-mails elegíveis podem avançar. Uma queda entre o aceite e a confirmação da resposta pode causar duplicidade em uma retentativa.
+Antes de retirar a fila `emails-agendados` da configuração do worker, drenar os jobs já gravados nela. Em instalações com o driver anterior, drenar também os jobs de rastreio pendentes e tratar as falhas de `App\Jobs\EnviarEmailAgendadoJob` que ainda precisem de retentativa. Após atualizar o código, atualizar os caches de configuração e eventos usados pelo deploy e reiniciar o worker existente. As tabelas auxiliares anteriormente aplicadas podem permanecer inativas, preservando seus dados.
 
-O aceite é a confirmação do transporte do provedor. Os transportes locais `log` e `array`, e o fallback configurado para `log`, não servem como confirmação. Para a fila agendada, configurar um transporte real de produção. Antes de ativar a rodada, drenar os envios agendados antigos, aplicar as migrações, atualizar o processo existente e reiniciá-lo.
+## Logs
 
-## Operação e logs
+Consultar `storage/logs/processos-agendados-AAAA-MM-DD.log`, com retenção de 14 dias. O início e o fim de cada comando e da rodada usam o identificador da rodada, com duração, contagem de e-mails gravados, primeiro e último horários de disponibilidade e resultado. Exceções registram a classe obtida no ponto da falha.
 
-Consultar `storage/logs/processos-agendados-AAAA-MM-DD.log` para ver início, marcos, fim, duração e resultado por processo. Usar o identificador da rodada e o da execução para ligar os eventos às tentativas de envio. Enfileiramento, aceite, retentativa e falha final são registrados separadamente. O rastreio tem seu próprio identificador de execução. Os logs dessa rotina são rotacionados diariamente, com retenção de 14 dias.
+Correlacionar `email.job.inicio` e `email.job.fim` por UUID e número da tentativa. A diferença entre `inicio_em` e `available_at`, em segundos, informa o atraso daquela tentativa. Comparar os inícios reais de jobs distintos da mesma rodada para identificar execuções próximas. O resultado do job descreve o processamento na fila.

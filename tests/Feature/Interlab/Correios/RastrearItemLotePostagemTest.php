@@ -4,12 +4,10 @@ use App\Actions\Interlab\EnfileirarRastreioItensLotePostagemAction;
 use App\Actions\Interlab\RastrearItemLotePostagemAction;
 use App\Enums\InterlabLotePostagemItemStatus;
 use App\Enums\InterlabLotePostagemStatus;
-use App\Jobs\EnviarEmailAgendadoJob;
 use App\Jobs\Interlab\RastrearItemLotePostagemJob;
 use App\Mail\InterlabLotePostagemRastreioMail;
 use App\Models\InterlabLotePostagem;
 use App\Models\InterlabLotePostagemItem;
-use App\Support\ProcessosAgendados;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\InterlabLotePostagemFactory;
 use Database\Factories\InterlabLotePostagemItemFactory;
@@ -142,7 +140,7 @@ test('sem eventos nao altera status_correios nem envia email', function () {
 });
 
 test('rastreio do scheduler produz aviso com cópias na fila de e-mails agendados', function () {
-    Queue::fake([RastrearItemLotePostagemJob::class, EnviarEmailAgendadoJob::class]);
+    config(['queue.default' => 'database']);
     $item = itemRastreavel();
 
     Http::fake(fn (Request $request) => str_contains($request->url(), '/token/')
@@ -151,16 +149,17 @@ test('rastreio do scheduler produz aviso com cópias na fila de e-mails agendado
 
     $this->artisan('interlab:rastrear-itens-postagem', ['--agendado' => true])->assertSuccessful();
 
-    $job = Queue::pushed(RastrearItemLotePostagemJob::class)->sole();
+    $job = DB::table('jobs')->sole();
     expect($job->queue)->toBe('default');
-    $job->handle(app(RastrearItemLotePostagemAction::class));
 
-    $email = Queue::pushed(EnviarEmailAgendadoJob::class)->sole();
-    expect($email->queue)->toBe(ProcessosAgendados::FILA_EMAIL)
-        ->and($email->destinatario)->toBe('lab@example.com')
-        ->and($email->cc)->toContain('tecnico@redemetrologica.com.br')
-        ->and($email->contexto['execucao_id'])->toBeString();
-    Mail::assertNothingQueued();
+    $this->artisan('queue:work', [
+        'connection' => 'database', '--queue' => 'default', '--once' => true, '--sleep' => 0,
+    ])->assertSuccessful();
+
+    Mail::assertQueued(InterlabLotePostagemRastreioMail::class, fn (InterlabLotePostagemRastreioMail $email): bool => $email->queue === null
+        && $email->connection === 'database'
+        && $email->hasTo('lab@example.com')
+        && $email->hasCc('tecnico@redemetrologica.com.br'));
 });
 
 test('http 401 nao encerra lote nem marca entregue', function () {

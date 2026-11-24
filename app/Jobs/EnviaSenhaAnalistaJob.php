@@ -5,8 +5,6 @@ namespace App\Jobs;
 use App\Mail\LinkSenhaAnalistaNotification;
 use App\Models\DadosGeraDoc;
 use App\Models\InterlabAnalista;
-use App\Support\EnviarEmailAgendado;
-use App\Support\ProcessosAgendados;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -45,14 +43,9 @@ class EnviaSenhaAnalistaJob implements ShouldQueue
             return;
         }
 
-        $email = new LinkSenhaAnalistaNotification($dadosDoc);
-        $cc = 'sistema@redemetrologica.com.br';
-
-        if ($this->queue === ProcessosAgendados::FILA_EMAIL) {
-            app(EnviarEmailAgendado::class)->execute($email, $this->destinatarios, $cc);
-        } else {
-            Mail::to($this->destinatarios)->cc($cc)->sendNow($email);
-        }
+        Mail::to($this->destinatarios)
+            ->cc('sistema@redemetrologica.com.br')
+            ->sendNow(new LinkSenhaAnalistaNotification($dadosDoc));
 
         InterlabAnalista::query()
             ->whereKey($this->analistaId)
