@@ -11,20 +11,12 @@ use Throwable;
 
 class RecriarUsuariosOrfaosCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:recriar-usuarios-orfaos
                             {--dry-run : Lista órfãos sem criar usuário nem enviar e-mail}
                             {--step= : Limita a quantidade de pessoas processadas (ex.: 1 para teste)}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+
     protected $description = 'Recria usuários de pessoas com user_id órfão e envia e-mail de senha resetada';
 
     private string $logPath;

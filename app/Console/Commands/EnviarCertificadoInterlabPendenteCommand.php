@@ -15,6 +15,12 @@ class EnviarCertificadoInterlabPendenteCommand extends Command
 
     protected $signature = 'interlab:enviar-certificado-pendente';
 
+    /**
+     * Enfileira o envio de certificados para inscrições Interlab pendentes com pagamento efetivado. 
+     * Se não houver inscrições aptas, envia um aviso ao e-mail do sistema.
+     * 
+     * Caso de uso: processar certificados Interlab manualmente ou na rotina agendada.
+     */
     protected $description = 'Enfileira os certificados Interlab pendentes com pagamento efetivado';
 
     public function handle(EnfileirarCertificadoInterlabPendenteAction $action): int

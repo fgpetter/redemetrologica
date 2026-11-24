@@ -11,18 +11,8 @@ use Throwable;
 
 class ProcessarSenhasInterlabConfirmadoCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:processar-senhas-interlab-confirmado';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Enfileira geração e envio de senha para inscritos/analistas em agendas CONFIRMADO com senha_enviada pendente';
 
     /**

@@ -11,19 +11,15 @@ use Illuminate\Console\Command;
 
 class ReenviarSenhasInterlab extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:reenviar-senhas-interlab
                             {agenda_interlab_id : ID da agenda_interlabs}
                             {--resend-email : Reenfileira e-mails usando senhas existentes, sem gerar novas senhas}';
 
     /**
-     * The console command description.
-     *
-     * @var string
+     * Força a geração e reenvia senhas aos inscritos no interlab.
+     * 
+     * Caso de uso: Em caso de falha no envio de senhas pelo fluxo normal.
      */
     protected $description = 'Gera e/ou reenvia senhas do interlab para inscritos (ou analistas) da agenda informada';
 

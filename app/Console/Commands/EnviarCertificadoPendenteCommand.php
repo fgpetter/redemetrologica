@@ -15,6 +15,13 @@ class EnviarCertificadoPendenteCommand extends Command
 
     protected $signature = 'certificados:enviar-pendente';
 
+    /**
+     * Enfileira o envio de certificados para inscrições em curso pendentes com pagamento efetivado. 
+     * Se não houver inscrições aptas, envia um aviso ao e-mail do sistema.
+     * 
+     * Caso de uso: processar certificados manualmente ou na rotina agendada.
+     */
+
     protected $description = 'Enfileira os certificados de cursos pendentes com pagamento efetivado';
 
     public function handle(EnviarCertificadoAction $action): int

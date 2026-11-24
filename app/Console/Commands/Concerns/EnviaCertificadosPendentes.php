@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
+/**
+ * EnviaCertificadosPendentes é uma lógica compartilhada que percorre inscrições com pagamento efetivado e enfileira os certificados pendentes. 
+ * Ela registra os resultados e, se não houver certificados aptos, envia um aviso para o e-mail do sistema.
+ * 
+ * Caso de uso: é usada pelos comandos certificados:enviar-pendente e interlab:enviar-certificado-pendente para processar certificados de cursos e do Interlab.
+ */
+
 trait EnviaCertificadosPendentes
 {
     /** @param callable(int): bool $enfileirar */

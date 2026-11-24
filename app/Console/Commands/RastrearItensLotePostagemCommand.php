@@ -11,6 +11,14 @@ class RastrearItensLotePostagemCommand extends Command
 {
     protected $signature = 'interlab:rastrear-itens-postagem {--agendado : Encaminha os avisos para a fila de e-mails agendados}';
 
+    /**
+     * O comando enfileira o rastreamento dos itens de lotes de postagem que têm código de objeto e ainda não foram entregues. 
+     * Ele pula itens cujo rastreio já está na fila e espaça os jobs em cinco segundos.
+     * 
+     * Caso de uso: consultar periodicamente o status dos objetos enviados pelos Correios e atualizar o acompanhamento das entregas.
+     * 
+     * Execute com php artisan interlab:rastrear-itens-postagem. A opção --agendado encaminha os avisos para a fila de e-mails agendados.
+     */
     protected $description = 'Enfileira jobs de rastreio SRO para itens de lote de postagem ainda não entregues';
 
     public function handle(EnfileirarRastreioItensLotePostagemAction $action): int

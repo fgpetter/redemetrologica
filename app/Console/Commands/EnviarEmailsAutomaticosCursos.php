@@ -15,6 +15,12 @@ class EnviarEmailsAutomaticosCursos extends Command
 {
     protected $signature = 'cursos:emails-automaticos';
 
+    /**
+     * Enfileira avisos e materiais de cursos confirmados dos tipos online e IN-COMPANY. 
+     * Considera conferências para cursos que começam em dois dias e avisos de pendências ou informações aos participantes de cursos que começam amanhã.
+     * 
+     * Caso de uso: executar diariamente para preparar os e-mails automáticos dos cursos.
+     */
     protected $description = 'Enfileira avisos e materiais pendentes de cursos online ou IN-COMPANY';
 
     public function handle(

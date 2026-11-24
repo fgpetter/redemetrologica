@@ -18,7 +18,10 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->runInBackground();
 
-        $schedule->command('suporte:limpar-uploads')->daily()->withoutOverlapping();
+        $schedule->command('suporte:limpar-uploads')
+            ->dailyAt('01:00')
+            ->timezone('America/Sao_Paulo')
+            ->withoutOverlapping();
 
         $schedule->command('interlab:limpar-pdfs-cartas-senha')
             ->dailyAt('03:00')
