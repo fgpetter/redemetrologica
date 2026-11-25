@@ -3,6 +3,7 @@
 namespace App\Integrations\Correios;
 
 use App\Exceptions\CorreiosApiException;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -10,93 +11,106 @@ class CorreiosTokenClient
 {
     private const CACHE_KEY = 'correios.token';
 
-    private const LOCK_KEY = 'correios.token.lock';
+    private const CACHE_KEY_CONTRATO = 'correios.token.contrato';
 
     private const PATH = '/token/v1/autentica/cartaopostagem';
+
+    private const PATH_CONTRATO = '/token/v1/autentica/contrato';
 
     public function __construct(private CorreiosHttpClient $http) {}
 
     public function bearer(): string
     {
-        $emCache = Cache::get(self::CACHE_KEY);
+        return $this->bearerPara(self::PATH, (string) config('services.correios.cartao_postagem'), self::CACHE_KEY);
+    }
+
+    public function bearerContrato(): string
+    {
+        return $this->bearerPara(self::PATH_CONTRATO, (string) config('services.correios.contrato'), self::CACHE_KEY_CONTRATO);
+    }
+
+    private function bearerPara(string $path, string $numero, string $cacheKey): string
+    {
+        $emCache = Cache::get($cacheKey);
 
         if (is_string($emCache) && $emCache !== '') {
-            CorreiosLog::info('token.cache_hit', ['path' => self::PATH]);
+            CorreiosLog::info('token.cache_hit', ['path' => $path]);
 
             return $emCache;
         }
 
-        return Cache::lock(self::LOCK_KEY, 10)->block(5, function (): string {
-            $emCache = Cache::get(self::CACHE_KEY);
+        return Cache::lock($cacheKey.'.lock', 10)->block(5, function () use ($path, $numero, $cacheKey): string {
+            $emCache = Cache::get($cacheKey);
 
             if (is_string($emCache) && $emCache !== '') {
-                CorreiosLog::info('token.cache_hit', ['path' => self::PATH, 'via' => 'lock']);
+                CorreiosLog::info('token.cache_hit', ['path' => $path, 'via' => 'lock']);
 
                 return $emCache;
             }
 
-            return $this->solicitar();
+            return $this->solicitar($path, $numero, $cacheKey);
         });
     }
 
-    private function solicitar(): string
+    private function solicitar(string $path, string $numero, string $cacheKey): string
     {
-        CorreiosLog::info('token.solicitando', [
-            'path' => self::PATH,
-            'usuario' => (string) config('services.correios.api_username'),
-            'cartao_postagem' => (string) config('services.correios.cartao_postagem'),
-        ]);
+        $porCartao = $path === self::PATH;
+        CorreiosLog::info('token.solicitando', ['path' => $path]);
 
         $response = $this->http
-            ->pending()
+            ->pending(registrarRequisicao: $porCartao)
             ->withBasicAuth(
                 (string) config('services.correios.api_username'),
                 (string) config('services.correios.api_key'),
             )
             ->asJson()
-            ->post(self::PATH, [
-                'numero' => (string) config('services.correios.cartao_postagem'),
+            ->post($path, [
+                'numero' => $numero,
             ]);
 
-        CorreiosLog::response('token', $response);
-
-        if (! $response->successful()) {
-            throw CorreiosApiException::fromResponse($response, self::PATH);
+        if ($porCartao) {
+            CorreiosLog::response('token', $response);
         }
 
-        $token = (string) $response->json('token');
+        if (! $response->successful()) {
+            throw CorreiosApiException::fromResponse($response, $path);
+        }
 
-        if ($token === '') {
+        $token = $response->json('token');
+
+        if (! is_string($token) || $token === '') {
             throw new CorreiosApiException(
                 'A API Token não retornou o Bearer.',
                 $response->status(),
-                is_array($response->json()) ? $response->json() : null,
-                self::PATH,
+                null,
+                $path,
             );
         }
 
         $expiraEm = $response->json('expiraEm');
-        Cache::put(self::CACHE_KEY, $token, $this->segundosDeCache($expiraEm));
+        Cache::put($cacheKey, $token, $this->segundosDeCache($expiraEm, $response->status(), $path));
 
         CorreiosLog::info('token.cacheado', [
+            'path' => $path,
             'expira_em' => $expiraEm,
         ]);
 
         return $token;
     }
 
-    private function segundosDeCache(mixed $expiraEm): int
+    private function segundosDeCache(mixed $expiraEm, int $status, string $path): int
     {
-        if (! is_string($expiraEm) || $expiraEm === '') {
-            throw new CorreiosApiException(
-                'A API Token não retornou expiraEm.',
-                201,
-                null,
-                self::PATH,
-            );
+        try {
+            $expiracao = is_string($expiraEm) && $expiraEm !== '' ? Carbon::parse($expiraEm) : null;
+        } catch (InvalidFormatException) {
+            $expiracao = null;
         }
 
-        $limite = Carbon::parse($expiraEm)->subMinutes(5)->getTimestamp() - now()->getTimestamp();
+        if ($expiracao === null) {
+            throw new CorreiosApiException('A API Token não retornou expiraEm válido.', $status, null, $path);
+        }
+
+        $limite = $expiracao->subMinutes(5)->getTimestamp() - now()->getTimestamp();
 
         return max(1, $limite);
     }

@@ -2,6 +2,7 @@
 
 use App\Actions\Interlab\CriarInterlabLotePostagemAction;
 use App\Actions\Interlab\DestinatarioInterlabSnapshot;
+use App\Actions\Interlab\ValidarCepsDestinatariosInterlabAction;
 use App\Enums\InterlabLotePostagemItemStatus;
 use App\Enums\InterlabLotePostagemStatus;
 use App\Jobs\Interlab\ClassificarServicoLotePostagemJob;
@@ -13,6 +14,7 @@ use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\InterlabLotePostagemFactory;
 use Database\Factories\PessoaFactory;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,6 +22,34 @@ use Livewire\Livewire;
 
 beforeEach(function () {
     Queue::fake([ClassificarServicoLotePostagemJob::class]);
+    $this->mock(ValidarCepsDestinatariosInterlabAction::class)->shouldReceive('execute')->andReturnNull();
+});
+
+test('valida o mesmo cep que sera persistido no item antes de criar o lote', function () {
+    $inscrito = inscritoParaLotePostagem(['cep' => '01001-000']);
+    configurarPrePostagemCorreios();
+    $this->app->forgetInstance(ValidarCepsDestinatariosInterlabAction::class);
+    Http::fake([
+        '*/token/v1/autentica/contrato' => respostaTokenCorreios(),
+        '*/cep/v2/enderecos/01001000' => function () {
+            $this->assertDatabaseCount('interlab_lote_postagens', 0);
+            Queue::assertNothingPushed();
+
+            return Http::response(['cep' => '01001000']);
+        },
+    ]);
+
+    $lote = app(CriarInterlabLotePostagemAction::class)->execute(
+        $inscrito->agendaInterlab,
+        [$inscrito->id],
+        parametrosDoLotePostagem(),
+    );
+
+    expect($lote->itens->sole()->destinatario['endereco']['cep'])->toBe('01001000');
+    Queue::assertPushed(
+        ClassificarServicoLotePostagemJob::class,
+        fn (ClassificarServicoLotePostagemJob $job): bool => $job->lote->is($lote) && $job->afterCommit,
+    );
 });
 
 test('enfileira a classificacao depois de persistir o lote', function () {

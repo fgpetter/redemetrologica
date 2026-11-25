@@ -16,7 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 class CriarInterlabLotePostagemAction
 {
-    public function __construct(private DestinatarioInterlabSnapshot $destinatario) {}
+    public function __construct(
+        private DestinatarioInterlabSnapshot $destinatario,
+        private ValidarCepsDestinatariosInterlabAction $validarCeps,
+    ) {}
 
     /**
      * Persiste o lote e um item por laboratório, com snapshot do destinatário e nu_requisicao imutável.
@@ -43,20 +46,28 @@ class CriarInterlabLotePostagemAction
             ]);
         }
 
-        $this->garantirInscritosDaAgenda($agenda, $ids);
+        $inscritos = $this->inscritosDaSelecao($agenda, $ids);
 
-        $lote = DB::transaction(function () use ($agenda, $ids, $parametros): InterlabLotePostagem {
+        if ($inscritos->count() !== count($ids)) {
+            throw ValidationException::withMessages([
+                'inscritosSelecionados' => 'A seleção contém inscrições que não pertencem a esta agenda.',
+            ]);
+        }
+
+        $this->garantirSemLoteAtivo($agenda);
+        $this->garantirLaboratoriosUnicos($inscritos);
+        $this->garantirDestinatarios($inscritos);
+
+        $destinatarios = $inscritos->mapWithKeys(fn (InterlabInscrito $inscrito): array => [
+            $inscrito->id => $this->destinatario->montar($inscrito),
+        ])->all();
+
+        $tentativaId = (string) Str::uuid();
+        $this->validarCeps->execute($destinatarios, $tentativaId);
+
+        $lote = DB::transaction(function () use ($agenda, $inscritos, $destinatarios, $parametros): InterlabLotePostagem {
             AgendaInterlab::query()->whereKey($agenda->id)->lockForUpdate()->first();
-
-            if ($agenda->lotesPostagem()->emProcessamento()->exists()) {
-                throw ValidationException::withMessages([
-                    'inscritosSelecionados' => 'Já existe um lote de postagem em processamento nesta agenda.',
-                ]);
-            }
-
-            $inscritos = $this->inscritosDaSelecao($agenda, $ids);
-            $this->garantirLaboratoriosUnicos($inscritos);
-            $this->garantirDestinatarios($inscritos);
+            $this->garantirSemLoteAtivo($agenda);
 
             $lote = InterlabLotePostagem::query()->create([
                 'agenda_interlab_id' => $agenda->id,
@@ -77,7 +88,7 @@ class CriarInterlabLotePostagemAction
                     'interlab_inscrito_id' => $inscrito->id,
                     'interlab_laboratorio_id' => $inscrito->laboratorio_id,
                     'nu_requisicao' => (string) Str::uuid(),
-                    'destinatario' => $this->destinatario->montar($inscrito),
+                    'destinatario' => $destinatarios[$inscrito->id],
                     'status' => InterlabLotePostagemItemStatus::AguardandoClassificacao,
                 ]);
             }
@@ -88,6 +99,7 @@ class CriarInterlabLotePostagemAction
         ClassificarServicoLotePostagemJob::dispatch($lote)->afterCommit();
 
         CorreiosLog::info('lote.criado', [
+            'tentativa_id' => $tentativaId,
             'lote_id' => $lote->id,
             'lote_uid' => $lote->uid,
             'nome' => $lote->nome,
@@ -99,20 +111,11 @@ class CriarInterlabLotePostagemAction
         return $lote;
     }
 
-    /**
-     * @param  list<int>  $ids
-     */
-    private function garantirInscritosDaAgenda(AgendaInterlab $agenda, array $ids): void
+    private function garantirSemLoteAtivo(AgendaInterlab $agenda): void
     {
-        $pertencentes = InterlabInscrito::query()
-            ->where('agenda_interlab_id', $agenda->id)
-            ->whereIn('id', $ids)
-            ->whereNotNull('laboratorio_id')
-            ->count();
-
-        if ($pertencentes !== count($ids)) {
+        if ($agenda->lotesPostagem()->emProcessamento()->exists()) {
             throw ValidationException::withMessages([
-                'inscritosSelecionados' => 'A seleção contém inscrições que não pertencem a esta agenda.',
+                'inscritosSelecionados' => 'Já existe um lote de postagem em processamento nesta agenda.',
             ]);
         }
     }

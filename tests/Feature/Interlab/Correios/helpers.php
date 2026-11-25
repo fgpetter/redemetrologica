@@ -1,9 +1,18 @@
 <?php
 
 use App\Enums\InterlabLotePostagemStatus;
+use App\Models\Endereco;
+use App\Models\InterlabInscrito;
+use App\Models\InterlabLaboratorio;
 use App\Models\InterlabLotePostagem;
+use Database\Factories\AgendaInterlabFactory;
+use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\InterlabLotePostagemFactory;
 use Database\Factories\InterlabLotePostagemItemFactory;
+use Database\Factories\PessoaFactory;
+use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
 function configurarPrePostagemCorreios(): void
@@ -66,7 +75,7 @@ function loteComItensClassificados(int $quantidade = 1): InterlabLotePostagem
     return $lote->load('itens');
 }
 
-function respostaTokenCorreios(): \GuzzleHttp\Promise\PromiseInterface
+function respostaTokenCorreios(): PromiseInterface
 {
     return Http::response([
         'token' => 'bearer-teste',
@@ -77,7 +86,7 @@ function respostaTokenCorreios(): \GuzzleHttp\Promise\PromiseInterface
 /**
  * @param  callable(array<string, string>): array<string, mixed>  $resultado
  */
-function respostaPrazoCorreios(\Illuminate\Http\Client\Request $request, callable $resultado): \GuzzleHttp\Promise\PromiseInterface
+function respostaPrazoCorreios(Request $request, callable $resultado): PromiseInterface
 {
     if (str_contains($request->url(), '/token/')) {
         return respostaTokenCorreios();
@@ -91,13 +100,13 @@ function respostaPrazoCorreios(\Illuminate\Http\Client\Request $request, callabl
 }
 
 /**
- * @return \Illuminate\Support\Collection<int, \Illuminate\Http\Client\Request>
+ * @return Collection<int, Request>
  */
-function consultasPrazoEnviadas(): \Illuminate\Support\Collection
+function consultasPrazoEnviadas(): Collection
 {
     return Http::recorded()
         ->filter(fn (array $par): bool => str_contains($par[0]->url(), '/prazo/v1/nacional'))
-        ->map(fn (array $par): \Illuminate\Http\Client\Request => $par[0])
+        ->map(fn (array $par): Request => $par[0])
         ->values();
 }
 
@@ -169,4 +178,39 @@ function eventosRastroEmTransito(): array
             'descricao' => 'Objeto em trânsito',
         ],
     ];
+}
+
+/**
+ * @param  array<string, mixed>  $overrides
+ */
+function criarInscritoParaPostagem(array $overrides = []): InterlabInscrito
+{
+    $agenda = $overrides['agenda'] ?? AgendaInterlabFactory::new()->create();
+    $empresa = PessoaFactory::new()->create(['tipo_pessoa' => 'PJ', 'nome_razao' => 'Empresa Teste']);
+    $pessoa = PessoaFactory::new()->create(['tipo_pessoa' => 'PF']);
+
+    $endereco = Endereco::query()->create([
+        'pessoa_id' => $empresa->id,
+        'info' => 'Laboratório Interlab',
+        'cep' => $overrides['cep'] ?? '01001000',
+        'endereco' => $overrides['endereco'] ?? 'Praça da Sé, 100',
+        'complemento' => $overrides['complemento'] ?? null,
+        'bairro' => $overrides['bairro'] ?? 'Sé',
+        'cidade' => $overrides['cidade'] ?? 'São Paulo',
+        'uf' => $overrides['uf'] ?? 'SP',
+    ]);
+
+    $laboratorio = InterlabLaboratorio::query()->create([
+        'empresa_id' => $empresa->id,
+        'endereco_id' => $endereco->id,
+        'nome' => $overrides['nome'] ?? 'Laboratório Teste',
+    ]);
+
+    return InterlabInscritoFactory::new()->create([
+        'agenda_interlab_id' => $agenda->id,
+        'pessoa_id' => $pessoa->id,
+        'empresa_id' => $empresa->id,
+        'laboratorio_id' => $laboratorio->id,
+        'informacoes_inscricao' => $overrides['informacoes_inscricao'] ?? 'Amostra padrão',
+    ])->load('agendaInterlab');
 }

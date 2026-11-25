@@ -8,19 +8,11 @@
     @endif
 
     @if ($loteComErro)
-        <div class="alert alert-danger mt-3 mb-0">
-            O lote <strong>{{ $loteComErro->nome }}</strong> foi encerrado com erro
-            @if ($loteComErro->etapa_erro)
-                na etapa {{ $loteComErro->etapa_erro }}
-            @endif
-            @if ($loteComErro->erro_mensagem)
-                : {{ $loteComErro->erro_mensagem }}
-            @endif
-            . É possível gerar outro lote.
+        <div class="alert alert-danger mt-3 mb-0" role="alert">
+            Não foi possível concluir a postagem do lote <strong>{{ $loteComErro->nome }}</strong>.
         </div>
-        @include('livewire.interlab.partials.lote-postagem-classificacao', ['lote' => $loteComErro])
         <div class="d-flex justify-content-end mt-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="dispensarErro">
+            <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="dispensarErro(@js($loteComErro->uid))">
                 <i class="ri-refresh-line align-bottom"></i> Limpar status
             </button>
         </div>
@@ -192,7 +184,7 @@
                 </template>
 
                 @if ($errors->any())
-                    <div class="alert alert-warning mt-3 mb-0" id="erros-gerar-postagem">
+                    <div class="alert alert-warning mt-3 mb-0" id="erros-gerar-postagem" role="alert">
                         <ul class="mb-0">
                             @foreach ($errors->all() as $erro)
                                 <li>{{ $erro }}</li>
@@ -206,7 +198,7 @@
                         <span wire:loading.remove wire:target="gerarPostagem">
                             <i class="ri-truck-line align-bottom"></i> Gerar postagem
                         </span>
-                        <span wire:loading wire:target="gerarPostagem">Gerando...</span>
+                        <span wire:loading wire:target="gerarPostagem">Validando CEPs...</span>
                     </button>
                 </div>
             </form>
@@ -237,7 +229,7 @@
             showCloseButton: true,
         });
 
-        Toast.fire({ icon, title });
+        Toast.fire({ icon, titleText: title });
     }
 </script>
 @endscript

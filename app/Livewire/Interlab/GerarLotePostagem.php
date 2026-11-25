@@ -10,7 +10,9 @@ use App\Models\InterlabInscrito;
 use App\Models\InterlabLotePostagem;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class GerarLotePostagem extends Component
@@ -22,7 +24,11 @@ class GerarLotePostagem extends Component
     /** @var list<int|string> */
     public array $inscritosSelecionados = [];
 
-    public bool $erroDispensado = false;
+    #[Locked]
+    public ?string $loteEmProcessamentoUid = null;
+
+    #[Locked]
+    public ?string $loteErroDispensadoUid = null;
 
     public function mount(AgendaInterlab $agenda): void
     {
@@ -30,9 +36,9 @@ class GerarLotePostagem extends Component
         $this->form->setNew();
     }
 
-    public function dispensarErro(): void
+    public function dispensarErro(string $loteUid): void
     {
-        $this->erroDispensado = true;
+        $this->loteErroDispensadoUid = $loteUid;
     }
 
     /**
@@ -40,6 +46,8 @@ class GerarLotePostagem extends Component
      */
     public function gerarPostagem(?array $itensDeclaracao = null): void
     {
+        $this->resetValidation();
+
         if ($itensDeclaracao !== null) {
             $this->form->itensDeclaracao = array_values($itensDeclaracao);
         }
@@ -47,17 +55,13 @@ class GerarLotePostagem extends Component
         try {
             $this->form->validate();
             $ids = $this->validarSelecao();
+
+            app(CriarInterlabLotePostagemAction::class)->execute($this->agenda, $ids, $this->form->toParametros());
         } catch (ValidationException $exception) {
             $this->interromperComValidacao($exception);
 
             return;
         }
-
-        app(CriarInterlabLotePostagemAction::class)->execute(
-            $this->agenda,
-            $ids,
-            $this->form->toParametros(),
-        );
 
         $this->inscritosSelecionados = [];
         $this->form->setNew();
@@ -69,10 +73,10 @@ class GerarLotePostagem extends Component
     public function render(): View
     {
         $loteAtivo = $this->loteComItens($this->agenda->lotePostagemAtivo());
-        $loteComErro = null;
+        $loteComErro = $loteAtivo === null ? $this->agenda->lotePostagemMaisRecenteComErro() : null;
 
-        if ($loteAtivo === null && ! $this->erroDispensado) {
-            $loteComErro = $this->loteComItens($this->agenda->lotePostagemMaisRecenteComErro());
+        if ($loteComErro?->uid === $this->loteErroDispensadoUid) {
+            $loteComErro = null;
         }
 
         return view('livewire.interlab.gerar-lote-postagem', [
@@ -82,20 +86,35 @@ class GerarLotePostagem extends Component
         ]);
     }
 
-    private function interromperComValidacao(ValidationException $exception): void
+    public function rendered(View $view): void
     {
-        foreach ($exception->errors() as $campo => $mensagens) {
-            foreach ($mensagens as $mensagem) {
-                $this->addError($campo, $mensagem);
-            }
+        ['loteAtivo' => $loteAtivo, 'loteComErro' => $loteComErro] = $view->getData();
+
+        if ($loteComErro !== null && $loteComErro->uid === $this->loteEmProcessamentoUid) {
+            $this->dispatch('show-error-alert', message: "Não foi possível concluir a postagem do lote {$loteComErro->nome}.");
         }
 
-        $mensagem = collect($exception->errors())->flatten()->first();
+        $this->loteEmProcessamentoUid = $loteAtivo?->uid;
+    }
 
-        $this->dispatch(
-            'show-error-alert',
-            message: is_string($mensagem) ? $mensagem : 'Não foi possível gerar a postagem.',
-        );
+    private function interromperComValidacao(ValidationException $exception): void
+    {
+        $erros = $exception->errors();
+        $this->setErrorBag($erros);
+
+        Log::channel('validation')->info('Erro de validação ao gerar lote de postagem', [
+            'caminho' => request()->path(),
+            'campos' => array_keys($erros),
+            'quantidade' => array_sum(array_map(count(...), $erros)),
+        ]);
+
+        $mensagem = match (true) {
+            isset($erros['cepDestinatarios']) => 'Nenhum lote foi gerado. Revise os CEPs indicados.',
+            isset($erros['consultaCep']) => 'Nenhum lote foi gerado. '.$erros['consultaCep'][0],
+            default => $exception->validator->errors()->first() ?: 'Não foi possível gerar a postagem.',
+        };
+
+        $this->dispatch('show-error-alert', message: $mensagem);
     }
 
     /**

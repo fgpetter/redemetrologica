@@ -387,7 +387,7 @@ test('exibe o status visual de cada item enquanto o lote classifica', function (
         ->assertDontSee('Gerar postagem');
 });
 
-test('lote com erro mostra intervencao e libera novo lote', function () {
+test('lote com erro mostra alerta amigavel e libera novo lote', function () {
     $lote = InterlabLotePostagemFactory::new()->create([
         'status' => InterlabLotePostagemStatus::Erro,
         'etapa_erro' => InterlabLotePostagemStatus::ClassificandoServico->value,
@@ -413,9 +413,11 @@ test('lote com erro mostra intervencao e libera novo lote', function () {
     ]);
 
     Livewire::test(GerarLotePostagem::class, ['agenda' => $lote->agendaInterlab])
-        ->assertSee('Requer intervenção')
-        ->assertSee('HTTP 400 na consulta de prazo')
-        ->assertSee('classificando_servico')
+        ->assertSee('Não foi possível concluir a postagem do lote')
+        ->assertDontSee('Lab Intervenção')
+        ->assertDontSee('Requer intervenção')
+        ->assertDontSee('HTTP 400 na consulta de prazo')
+        ->assertDontSee('classificando_servico')
         ->assertSee('Gerar postagem')
         ->assertSee('Limpar status')
         ->assertDontSeeHtml('wire:poll.5s');

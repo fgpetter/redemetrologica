@@ -7,20 +7,25 @@ use Illuminate\Support\Facades\Http;
 
 class CorreiosHttpClient
 {
-    public function pending(): PendingRequest
+    public function pending(bool $registrarRequisicao = true): PendingRequest
     {
-        return Http::baseUrl(rtrim((string) config('services.correios.base_url'), '/'))
+        $request = Http::baseUrl(rtrim((string) config('services.correios.base_url'), '/'))
             ->connectTimeout(3)
             ->timeout((int) config('services.correios.timeout', 15))
-            ->acceptJson()
-            ->beforeSending(function ($request): void {
+            ->acceptJson();
+
+        if ($registrarRequisicao) {
+            $request->beforeSending(function ($request): void {
                 CorreiosLog::request($request);
             });
+        }
+
+        return $request;
     }
 
-    public function comBearer(string $token): PendingRequest
+    public function comBearer(string $token, bool $registrarRequisicao = true): PendingRequest
     {
-        return $this->pending()
+        return $this->pending($registrarRequisicao)
             ->withToken($token)
             ->asJson();
     }

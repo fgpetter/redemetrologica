@@ -3,19 +3,19 @@
 use App\Actions\Interlab\CriarInterlabLotePostagemAction;
 use App\Enums\InterlabLotePostagemItemStatus;
 use App\Enums\InterlabLotePostagemStatus;
+use App\Jobs\Interlab\ClassificarServicoLotePostagemJob;
 use App\Livewire\Interlab\GerarLotePostagem;
 use App\Livewire\Interlab\ItensPostados;
 use App\Models\AgendaInterlab;
-use App\Models\Endereco;
-use App\Models\InterlabInscrito;
-use App\Models\InterlabLaboratorio;
 use App\Models\Permission;
 use App\Models\User;
 use Database\Factories\AgendaInterlabFactory;
 use Database\Factories\InterlabInscritoFactory;
 use Database\Factories\InterlabLotePostagemFactory;
 use Database\Factories\InterlabLotePostagemItemFactory;
-use Database\Factories\PessoaFactory;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
@@ -195,6 +195,59 @@ test('recusa laboratorio com endereco incompleto', function () {
         ->assertHasErrors(['inscritosSelecionados' => 'Informe o bairro do laboratório Laboratório Sem Bairro.']);
 });
 
+test('consulta todos os ceps e mostra recusas por laboratorio sem criar o lote', function (bool $consultaIndisponivel) {
+    configurarPrePostagemCorreios();
+    Queue::fake();
+
+    $primeiro = criarInscritoParaPostagem(['nome' => 'Laboratório Alfa', 'cep' => '98900000']);
+    $inscritos = collect([$primeiro]);
+    foreach (['01001000', '90010000', '92990000', '93010050', '32206240', '98900000'] as $indice => $cep) {
+        $inscritos->push(criarInscritoParaPostagem([
+            'agenda' => $primeiro->agendaInterlab,
+            'nome' => 'Laboratório '.($indice + 2),
+            'cep' => $cep,
+        ]));
+    }
+
+    Http::fake([
+        '*/token/v1/autentica/contrato' => respostaTokenCorreios(),
+        '*/cep/v2/enderecos/*' => function (Request $request) use ($consultaIndisponivel) {
+            $cep = basename($request->url());
+
+            if ($consultaIndisponivel && $cep === '92990000') {
+                return Http::response([], 503);
+            }
+
+            return in_array($cep, ['98900000', '32206240'], true)
+                ? Http::response(['cep' => $cep, 'txMsg' => "CEP-003: O CEP {$cep} não foi encontrado"], 404)
+                : Http::response(['cep' => $cep]);
+        },
+    ]);
+
+    $componente = preencherLotePostagem(Livewire::test(GerarLotePostagem::class, ['agenda' => $primeiro->agendaInterlab]))
+        ->set('inscritosSelecionados', $inscritos->pluck('id')->all())
+        ->call('gerarPostagem')
+        ->assertDispatched('show-error-alert')
+        ->assertNotDispatched('show-success-alert')
+        ->assertSee('98900-000 do laboratório Laboratório Alfa')
+        ->assertSee('32206-240 do laboratório Laboratório 6')
+        ->assertSee('98900-000 do laboratório Laboratório 7')
+        ->assertSet('inscritosSelecionados', $inscritos->pluck('id')->all());
+
+    if ($consultaIndisponivel) {
+        $componente->assertSee('A validação de CEPs ficou incompleta. Tente novamente.')
+            ->assertDontSee('92990-000 do laboratório');
+    }
+
+    expect(Http::recorded()->filter(fn (array $par): bool => str_contains($par[0]->url(), '/cep/v2/enderecos/')))->toHaveCount(6);
+    $this->assertDatabaseCount('interlab_lote_postagens', 0);
+    $this->assertDatabaseCount('interlab_lote_postagem_itens', 0);
+    Queue::assertNotPushed(ClassificarServicoLotePostagemJob::class);
+})->with([
+    'respostas completas' => false,
+    'consulta indisponível junto com recusas' => true,
+]);
+
 test('recusa selecionar o mesmo laboratorio mais de uma vez', function () {
     $inscrito = criarInscritoParaPostagem(['nome' => 'Laboratório Duplicado']);
     $repetido = InterlabInscritoFactory::new()->create([
@@ -302,14 +355,40 @@ test('lote com erro mostra limpar status e dispensa o alerta', function () {
 
     Livewire::test(GerarLotePostagem::class, ['agenda' => $inscrito->agendaInterlab->fresh()])
         ->assertSee('Lote com falha')
-        ->assertSee('Falha de teste')
+        ->assertSee('Não foi possível concluir a postagem do lote')
+        ->assertDontSee('Falha de teste')
+        ->assertDontSee('Lab Falha')
         ->assertSee('Limpar status')
         ->assertSee('Gerar postagem')
-        ->call('dispensarErro')
+        ->call('dispensarErro', $lote->uid)
         ->assertDontSee('Lote com falha')
         ->assertDontSee('Limpar status')
         ->assertSee('Gerar postagem')
         ->assertSee('Laboratórios inscritos');
+});
+
+test('avisa a falha uma vez quando o lote ativo encerra durante a consulta da tela', function () {
+    $inscrito = criarInscritoParaPostagem();
+    $lote = InterlabLotePostagemFactory::new()->create([
+        'agenda_interlab_id' => $inscrito->agenda_interlab_id,
+        'status' => InterlabLotePostagemStatus::GerandoPrePostagens,
+        'nome' => 'Lote em andamento',
+    ]);
+
+    $componente = Livewire::test(GerarLotePostagem::class, ['agenda' => $inscrito->agendaInterlab])
+        ->assertNotDispatched('show-error-alert');
+
+    $lote->update([
+        'status' => InterlabLotePostagemStatus::Erro,
+        'etapa_erro' => InterlabLotePostagemStatus::GerandoPrePostagens->value,
+        'erro_mensagem' => 'Detalhe interno da API',
+    ]);
+
+    $componente->call('$refresh')
+        ->assertDispatched('show-error-alert', message: 'Não foi possível concluir a postagem do lote Lote em andamento.')
+        ->assertDontSee('Detalhe interno da API')
+        ->call('$refresh')
+        ->assertNotDispatched('show-error-alert');
 });
 
 test('nao mostra erro antigo quando ha lote concluido mais recente', function () {
@@ -337,41 +416,6 @@ test('nao mostra erro antigo quando ha lote concluido mais recente', function ()
         ->assertDontSee('Lotes gerados')
         ->assertDontSee('Baixar documentos (.zip)');
 });
-
-/**
- * @param  array<string, mixed>  $overrides
- */
-function criarInscritoParaPostagem(array $overrides = []): InterlabInscrito
-{
-    $agenda = $overrides['agenda'] ?? AgendaInterlabFactory::new()->create();
-    $empresa = PessoaFactory::new()->create(['tipo_pessoa' => 'PJ', 'nome_razao' => 'Empresa Teste']);
-    $pessoa = PessoaFactory::new()->create(['tipo_pessoa' => 'PF']);
-
-    $endereco = Endereco::query()->create([
-        'pessoa_id' => $empresa->id,
-        'info' => 'Laboratório Interlab',
-        'cep' => $overrides['cep'] ?? '01001000',
-        'endereco' => $overrides['endereco'] ?? 'Praça da Sé, 100',
-        'complemento' => $overrides['complemento'] ?? null,
-        'bairro' => $overrides['bairro'] ?? 'Sé',
-        'cidade' => $overrides['cidade'] ?? 'São Paulo',
-        'uf' => $overrides['uf'] ?? 'SP',
-    ]);
-
-    $laboratorio = InterlabLaboratorio::query()->create([
-        'empresa_id' => $empresa->id,
-        'endereco_id' => $endereco->id,
-        'nome' => $overrides['nome'] ?? 'Laboratório Teste',
-    ]);
-
-    return InterlabInscritoFactory::new()->create([
-        'agenda_interlab_id' => $agenda->id,
-        'pessoa_id' => $pessoa->id,
-        'empresa_id' => $empresa->id,
-        'laboratorio_id' => $laboratorio->id,
-        'informacoes_inscricao' => $overrides['informacoes_inscricao'] ?? 'Amostra padrão',
-    ])->load('agendaInterlab');
-}
 
 function preencherLotePostagem(Testable $component, ?int $inscritoId = null): Testable
 {

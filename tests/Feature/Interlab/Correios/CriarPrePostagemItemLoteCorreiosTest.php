@@ -263,6 +263,7 @@ test('http 400 encerra sem renovar token', function () {
     expect($resultado->estaFalhou())->toBeTrue()
         ->and($lote->fresh()->status)->toBe(InterlabLotePostagemStatus::Erro);
 
+    Mail::assertQueued(InterlabLotePostagemErroMail::class, 1);
     expect(Http::recorded()->filter(fn (array $par): bool => str_contains($par[0]->url(), '/token/'))->count())->toBe(1);
 });
 
